@@ -1,4 +1,4 @@
-!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="utf-8">
@@ -35,13 +35,29 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 .badge{display:inline-block;background:var(--acc);color:var(--onacc);font-weight:700;border-radius:8px;padding:2px 8px;font-size:14px}
 .over{margin:12px 0 0;font-size:15px}
 .note{color:var(--mute);font-size:13px;margin-top:10px}
+.player{position:relative;aspect-ratio:16/9;margin-top:12px;border-radius:12px;overflow:hidden;background:#000}
+.player iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.note a{color:var(--ink)}
+a.btn{display:block;text-align:center;text-decoration:none;border-radius:12px;padding:13px 16px;background:var(--line);color:var(--ink);margin-top:12px}
+a.btn:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 button.chip{padding:8px 12px;border-radius:999px;font-size:14px;background:var(--bg);border:1px solid var(--line)}
 button.chip[aria-pressed="true"]{background:var(--acc);color:var(--onacc);border-color:var(--acc);font-weight:700}
 .err{color:#c0392b;font-size:14px;margin-top:8px}
 .spin{animation:s .5s linear infinite;display:inline-block}
 @keyframes s{to{transform:rotate(360deg)}}
-@media(prefers-reduced-motion:reduce){.spin{animation:none}}
+.reel{text-align:center;padding:22px 14px}
+.rflag{font-size:84px;line-height:1;display:block}
+.rname{font:700 22px/1.2 Georgia,serif;min-height:28px;margin-top:8px}
+.pop{animation:pop .35s ease-out}
+@keyframes pop{from{transform:scale(.94);opacity:.4}to{transform:none;opacity:1}}
+details summary{cursor:pointer;font-weight:700}
+.pgrid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:12px}
+button.pf{position:relative;font-size:26px;line-height:1.2;padding:6px 0;border-radius:10px;background:var(--bg);border:1px solid var(--line)}
+button.pf.off{filter:grayscale(1);opacity:.3}
+button.pf.now{outline:2px solid var(--acc)}
+button.pf b{position:absolute;right:2px;bottom:0;font-size:11px;background:var(--acc);color:var(--onacc);border-radius:6px;padding:0 4px}
+@media(prefers-reduced-motion:reduce){.spin,.pop{animation:none}}
 .link{background:none;padding:6px 0;color:var(--mute);text-decoration:underline;font-size:13px;flex:none;min-width:0}
 </style>
 </head>
@@ -69,6 +85,7 @@ button.chip[aria-pressed="true"]{background:var(--acc);color:var(--onacc);border
 
   <button class="main" id="go">🎲 Крутить глобус</button>
   <div id="err" class="err" role="alert"></div>
+  <div class="card reel" id="reel" hidden aria-live="polite" style="margin-top:14px"><span class="rflag" id="rflag">🌍</span><div class="rname" id="rname"></div></div>
 
   <div class="card" id="result" hidden style="margin-top:14px">
     <span class="flag" id="flag"></span>
@@ -83,13 +100,23 @@ button.chip[aria-pressed="true"]{background:var(--acc);color:var(--onacc);border
       </div>
     </div>
     <p class="over" id="over"></p>
+    <a id="trailer" class="btn" target="_blank" rel="noopener">▶ Найти трейлер</a>
+    <div class="player" id="player" hidden></div>
+    <p class="note" id="ytnote" hidden>Не воспроизводится? <a id="ytlink" target="_blank" rel="noopener">Открыть на YouTube</a></p>
     <div class="acts">
       <button id="again">Другой фильм отсюда</button>
       <button id="seen">✓ Посмотрел</button>
     </div>
   </div>
 
+  <details class="card" id="passport">
+    <summary id="psum"></summary>
+    <div class="pgrid" id="pgrid"></div>
+    <p class="note" id="pname">Страна открывается, когда ты отмечаешь фильм из неё как просмотренный. Нажми на флаг, чтобы узнать название.</p>
+  </details>
+
   <div class="acts" style="margin-top:0">
+    <button class="link" id="fx"></button>
     <button class="link" id="resetHist"></button>
     <button class="link" id="changeKey">Сменить ключ</button>
   </div>
@@ -110,6 +137,8 @@ const store={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.
  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 let apiKey=store.get("tmdbKey","");
 let seen=new Set(store.get("seen",[]));
+let visited=store.get("visited",{});
+let fx=store.get("fx",true);
 const cache={}; let cur=null; // {cc, pool, film}
 
 const NOGENRE=["adult","erotic"];
@@ -131,12 +160,12 @@ $("chips").onclick=e=>{const b=e.target.closest(".chip");if(!b)return;const k=b.
 paintChips();
 $("year").value=store.get("year","");
 function showKeyUi(){ $("keyCard").hidden=!!apiKey; }
-function updHist(){ $("resetHist").textContent=`Сбросить историю (${seen.size})`; }
+function updHist(){ $("resetHist").textContent=`Сбросить историю и паспорт (${seen.size})`; }
 showKeyUi();updHist();
 
 $("saveKey").onclick=()=>{const v=$("key").value.trim(); if(!v)return; apiKey=v; store.set("tmdbKey",v); showKeyUi();};
 $("changeKey").onclick=()=>{apiKey="";store.set("tmdbKey","");showKeyUi();};
-$("resetHist").onclick=()=>{seen=new Set();store.set("seen",[]);updHist();};
+$("resetHist").onclick=()=>{seen=new Set();store.set("seen",[]);visited={};store.set("visited",visited);updHist();renderPassport();};
 
 async function api(params){
   const q=new URLSearchParams({api_key:apiKey,language:"ru-RU",include_adult:"false",sort_by:"vote_average.desc",...params});
@@ -202,19 +231,106 @@ async function certCandidates(cc){
   return list.slice(0,2).map(c=>c.certification);
 }
 
+// ---- sound, vibration, reel animation
+let ac=null;
+function audio(){try{if(!ac)ac=new(window.AudioContext||window.webkitAudioContext)();if(ac.state==="suspended")ac.resume();}catch(e){}}
+function beep(freq,dur,vol){if(!fx||!ac)return;try{const o=ac.createOscillator(),g=ac.createGain(),t=ac.currentTime;
+  o.type="triangle";o.frequency.value=freq;g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+dur);}catch(e){}}
+function buzz(p){if(fx&&navigator.vibrate){try{navigator.vibrate(p)}catch(e){}}}
+function fxLabel(){$("fx").textContent="Звук и вибрация: "+(fx?"вкл":"выкл");}
+$("fx").onclick=()=>{fx=!fx;store.set("fx",fx);fxLabel();};fxLabel();
+
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const RM=matchMedia("(prefers-reduced-motion: reduce)").matches;
+let reelTimer=null;
+const reelShow=cc=>{$("rflag").textContent=flag(cc);};
+function reelStart(){
+  $("result").hidden=true;$("reel").hidden=false;$("rname").textContent="";
+  $("reel").scrollIntoView({behavior:RM?"auto":"smooth",block:"nearest"});
+  if(RM){$("rflag").textContent="🌍";return;}
+  reelTimer=setInterval(()=>reelShow(pick(COUNTRIES)),80);
+}
+function reelAbort(){clearInterval(reelTimer);reelTimer=null;$("reel").hidden=true;}
+async function reelLand(cc){
+  clearInterval(reelTimer);reelTimer=null;
+  if(!RM){let d=90;
+    for(let i=0;i<10;i++){reelShow(pick(COUNTRIES));beep(520+i*25,0.05,0.08);buzz(8);await sleep(d);d*=1.18;}}
+  reelShow(cc);$("rname").textContent=names.of(cc);
+  beep(660,0.18,0.12);setTimeout(()=>beep(990,0.25,0.12),120);buzz([25,50,60]);
+  await sleep(RM?0:700);
+  $("reel").hidden=true;
+}
+
+// ---- passport
+// ---- trailers (TMDB videos; Russian first, then English)
+const vcache={};
+async function trailerFor(id){
+  if(id in vcache) return vcache[id];
+  let key=null;
+  for(const lang of ["ru-RU","en-US"]){
+    try{
+      const r=await fetch(`https://api.themoviedb.org/3/movie/${id}/videos?`+new URLSearchParams({api_key:apiKey,language:lang}));
+      const v=((await r.json()).results||[]).filter(x=>x.site==="YouTube"&&x.type==="Trailer");
+      const best=v.find(x=>x.official)||v[0];
+      if(best){key=best.key;break;}
+    }catch(e){}
+  }
+  return vcache[id]=key;
+}
+let tKey=null;
+function closePlayer(){
+  $("player").innerHTML="";$("player").hidden=true;$("ytnote").hidden=true;
+  if(tKey)$("trailer").textContent="▶ Смотреть трейлер";
+}
+function setTrailer(film){
+  const t=$("trailer");
+  tKey=null;closePlayer();
+  t.textContent="▶ Найти трейлер";
+  t.href="https://www.youtube.com/results?search_query="+encodeURIComponent(`${film.title} ${(film.release_date||"").slice(0,4)} трейлер`);
+  trailerFor(film.id).then(k=>{
+    if(k&&cur&&cur.film.id===film.id){tKey=k;t.href="https://www.youtube.com/watch?v="+k;t.textContent="▶ Смотреть трейлер";}
+  });
+}
+// With a trailer found: play inside the app. Otherwise the link opens a YouTube search.
+$("trailer").onclick=e=>{
+  if(!tKey) return;
+  e.preventDefault();
+  if(!$("player").hidden){closePlayer();return;}
+  $("player").innerHTML=`<iframe src="https://www.youtube-nocookie.com/embed/${tKey}?autoplay=1&playsinline=1&rel=0" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" title="Трейлер"></iframe>`;
+  $("player").hidden=false;
+  $("ytlink").href="https://www.youtube.com/watch?v="+tKey;$("ytnote").hidden=false;
+  $("trailer").textContent="✕ Закрыть трейлер";
+};
+
+function renderPassport(){
+  const n=COUNTRIES.filter(c=>visited[c]).length;
+  $("psum").textContent=`🧭 Паспорт: ${n} из ${COUNTRIES.length} стран`;
+  $("pgrid").innerHTML=COUNTRIES.map(c=>`<button class="pf${visited[c]?"":" off"}${cur&&cur.cc===c?" now":""}" data-c="${c}" aria-label="${names.of(c)}">${flag(c)}${visited[c]?`<b>${visited[c]}</b>`:""}</button>`).join("");
+}
+$("pgrid").onclick=e=>{const b=e.target.closest(".pf");if(!b)return;const c=b.dataset.c;
+  $("pname").textContent=`${names.of(c)}: ${visited[c]?"просмотрено фильмов: "+visited[c]:"пока не открыта"}`;};
+renderPassport();
+
 function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
 
 function show(cc,pool,film){
   cur={cc,pool,film};
   $("flag").textContent=flag(cc);
   $("cname").textContent=names.of(cc);
-  $("cmeta").textContent=`Выбор из ${pool.films.length} ${pool.films.length===MAX_POOL?"лучших":"подходящих"} фильмов · от ${pool.votes} голосов`;
+  const n=pool.films.length;
+  $("cmeta").textContent=n===MAX_POOL
+    ?`Случайный фильм из 100 лучших фильмов страны (каждый оценили минимум ${pool.votes} зрителей)`
+    :`В этой стране нашлось ${n} подходящих фильмов, каждый оценили минимум ${pool.votes} зрителей. Фильм выбран из них`;
   $("poster").src=film.poster_path?"https://image.tmdb.org/t/p/w342"+film.poster_path:"";
   $("title").textContent=film.title+(film.original_title&&film.original_title!==film.title?` (${film.original_title})`:"");
   $("fmeta").textContent=(film.release_date||"").slice(0,4);
   $("rating").textContent="★ "+film.vote_average.toFixed(1);
   $("over").textContent=film.overview||"Описания на русском пока нет.";
+  setTrailer(film);
   $("result").hidden=false;
+  $("result").classList.remove("pop");void $("result").offsetWidth;$("result").classList.add("pop");
+  renderPassport();
   $("result").scrollIntoView({behavior:"smooth",block:"nearest"});
 }
 
@@ -224,7 +340,9 @@ async function spin(){
   $("err").textContent="";
   if(!apiKey){showKeyUi();$("err").textContent="Сначала введите ключ TMDB.";return;}
   store.set("year",$("year").value);
+  audio();
   $("go").disabled=true;$("go").innerHTML='<span class="spin">🌍</span> Крутим…';
+  reelStart();
   try{
     const order=[...COUNTRIES].sort(()=>Math.random()-.5);
     for(const cc of order.slice(0,12)){      // equal chance per country; skip thin ones
@@ -232,11 +350,13 @@ async function spin(){
       if(!pool) continue;
       const left=fresh(pool);
       if(!left.length) continue;             // everything here already watched
-      show(cc,pool,pick(left));return;
+      const film=pick(left);
+      await reelLand(cc);
+      show(cc,pool,film);return;
     }
     $("err").textContent="Подходящих фильмов не нашлось. Смягчите фильтры или сбросьте историю.";
   }catch(e){$("err").textContent=e.message}
-  finally{$("go").disabled=false;$("go").textContent="🎲 Крутить глобус"}
+  finally{reelAbort();$("go").disabled=false;$("go").textContent="🎲 Крутить глобус"}
 }
 
 $("go").onclick=spin;
@@ -248,7 +368,8 @@ $("again").onclick=()=>{
 };
 $("seen").onclick=()=>{
   if(!cur) return;
-  seen.add(cur.film.id);store.set("seen",[...seen]);updHist();
+  seen.add(cur.film.id);store.set("seen",[...seen]);
+  visited[cur.cc]=(visited[cur.cc]||0)+1;store.set("visited",visited);updHist();renderPassport();
   $("seen").textContent="✓ Отмечено";setTimeout(()=>$("seen").textContent="✓ Посмотрел",1200);
 };
 </script>

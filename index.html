@@ -21,8 +21,8 @@ h1{font:700 26px/1.1 Georgia,serif;margin:0 0 4px}
 label{display:block;font-size:13px;color:var(--mute);margin:0 0 4px}
 input,select{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
 .row{display:flex;gap:10px}.row>div{flex:1}
-button{font:inherit;border:0;border-radius:12px;padding:13px 16px;cursor:pointer;background:var(--line);color:var(--ink)}
-button.main{background:var(--acc);color:var(--onacc);font-weight:700;width:100%;font-size:18px;padding:16px}
+button{font:inherit;border:0;border-radius:12px;padding:13px 16px;cursor:pointer;background:var(--line);color:var(--ink);transition:transform .15s,background .25s,opacity .25s}
+button.main{background:linear-gradient(135deg,var(--acc),color-mix(in srgb,var(--acc) 70%,#fff));color:var(--onacc);font-weight:700;width:100%;font-size:18px;padding:16px}
 button:disabled{opacity:.5}
 button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
 .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.acts button{flex:1;min-width:140px}
@@ -30,7 +30,8 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 .flag{font-size:44px;line-height:1;display:block;margin-bottom:6px}
 .meta{color:var(--mute);font-size:14px;margin:4px 0 12px}
 .film{display:flex;gap:12px}
-.film img{width:112px;height:168px;object-fit:cover;border-radius:8px;background:var(--line);flex:none}
+.film img{width:112px;height:168px;object-fit:cover;border-radius:8px;background:var(--line);flex:none;opacity:0;transition:opacity .7s}
+.film img.ok{opacity:1}
 .film h2{font:700 20px/1.2 Georgia,serif;margin:0 0 4px}
 .badge{display:inline-block;background:var(--acc);color:var(--onacc);font-weight:700;border-radius:8px;padding:2px 8px;font-size:14px}
 .over{margin:12px 0 0;font-size:15px}
@@ -46,18 +47,25 @@ button.chip[aria-pressed="true"]{background:var(--acc);color:var(--onacc);border
 .err{color:#c0392b;font-size:14px;margin-top:8px}
 .spin{animation:s .5s linear infinite;display:inline-block}
 @keyframes s{to{transform:rotate(360deg)}}
-.reel{text-align:center;padding:22px 14px}
-.rflag{font-size:84px;line-height:1;display:block}
-.rname{font:700 22px/1.2 Georgia,serif;min-height:28px;margin-top:8px}
-.pop{animation:pop .35s ease-out}
-@keyframes pop{from{transform:scale(.94);opacity:.4}to{transform:none;opacity:1}}
-details summary{cursor:pointer;font-weight:700}
-.pgrid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:12px}
-button.pf{position:relative;font-size:26px;line-height:1.2;padding:6px 0;border-radius:10px;background:var(--bg);border:1px solid var(--line)}
-button.pf.off{filter:grayscale(1);opacity:.3}
-button.pf.now{outline:2px solid var(--acc)}
-button.pf b{position:absolute;right:2px;bottom:0;font-size:11px;background:var(--acc);color:var(--onacc);border-radius:6px;padding:0 4px}
-@media(prefers-reduced-motion:reduce){.spin,.pop{animation:none}}
+.reel{text-align:center;padding:14px 14px 18px;overflow:hidden;transition:opacity .45s;
+ background:radial-gradient(120% 90% at 50% 0%,color-mix(in srgb,var(--acc) 16%,var(--panel)),var(--panel))}
+.reel.out{opacity:0}
+.rwin{--rh:84px;position:relative;height:calc(var(--rh)*3);overflow:hidden;
+ -webkit-mask-image:linear-gradient(transparent,#000 32%,#000 68%,transparent);mask-image:linear-gradient(transparent,#000 32%,#000 68%,transparent)}
+.rcol{will-change:transform;transition:filter .5s}
+.rcol.fast{filter:blur(2px)}
+.ri{height:var(--rh);display:flex;align-items:center;justify-content:center;font-size:54px;line-height:1}
+.rlens{position:absolute;left:14%;right:14%;top:var(--rh);height:var(--rh);border-radius:10px;pointer-events:none;
+ border-top:1px solid color-mix(in srgb,var(--acc) 55%,transparent);border-bottom:1px solid color-mix(in srgb,var(--acc) 55%,transparent)}
+.rlens.hit{animation:ring .9s ease-out}
+@keyframes ring{from{box-shadow:0 0 0 0 color-mix(in srgb,var(--acc) 55%,transparent)}to{box-shadow:0 0 0 28px transparent}}
+.rname{font:700 22px/1.2 Georgia,serif;min-height:28px;margin-top:10px;opacity:0;transform:translateY(6px);transition:opacity .5s,transform .5s}
+.rname.on{opacity:1;transform:none}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.pop>*{animation:rise .7s cubic-bezier(.2,.7,.2,1) both}
+.card{box-shadow:0 14px 34px -20px rgba(0,0,0,.5)}
+button:active{transform:scale(.97)}
+@media(prefers-reduced-motion:reduce){.spin,.pop>*,.rlens.hit{animation:none}.rcol,.rname,.film img,.reel,button{transition:none}.rcol.fast{filter:none}}
 .link{background:none;padding:6px 0;color:var(--mute);text-decoration:underline;font-size:13px;flex:none;min-width:0}
 </style>
 </head>
@@ -76,6 +84,11 @@ button.pf b{position:absolute;right:2px;bottom:0;font-size:11px;background:var(-
   <div class="card">
     <label>Категории (можно несколько)</label>
     <div class="chips" id="chips"></div>
+    <div id="worstBox" hidden style="margin-top:12px">
+      <label for="worstMin">Оценка зрителей: от (и до 5 из 10)</label>
+      <select id="worstMin"><option value="3">3</option><option value="3.5">3.5</option><option value="4">4</option></select>
+      <p class="note">Чем ниже нижняя граница, тем хуже фильмы, но их меньше, и часть стран глобус пропустит.</p>
+    </div>
     <p class="note" id="adultNote" hidden>Берутся фильмы с самым строгим возрастным рейтингом своей страны (во Франции, Германии, Корее и других это 18+, в США R). У части стран такой разметки нет, их глобус пропустит.</p>
     <div style="margin-top:12px">
       <label for="year">Год не раньше</label>
@@ -85,7 +98,10 @@ button.pf b{position:absolute;right:2px;bottom:0;font-size:11px;background:var(-
 
   <button class="main" id="go">🎲 Крутить глобус</button>
   <div id="err" class="err" role="alert"></div>
-  <div class="card reel" id="reel" hidden aria-live="polite" style="margin-top:14px"><span class="rflag" id="rflag">🌍</span><div class="rname" id="rname"></div></div>
+  <div class="card reel" id="reel" hidden aria-live="polite" style="margin-top:14px">
+    <div class="rwin" aria-hidden="true"><div class="rcol" id="rcol"></div><div class="rlens"></div></div>
+    <div class="rname" id="rname"></div>
+  </div>
 
   <div class="card" id="result" hidden style="margin-top:14px">
     <span class="flag" id="flag"></span>
@@ -109,12 +125,6 @@ button.pf b{position:absolute;right:2px;bottom:0;font-size:11px;background:var(-
     </div>
   </div>
 
-  <details class="card" id="passport">
-    <summary id="psum"></summary>
-    <div class="pgrid" id="pgrid"></div>
-    <p class="note" id="pname">Страна открывается, когда ты отмечаешь фильм из неё как просмотренный. Нажми на флаг, чтобы узнать название.</p>
-  </details>
-
   <div class="acts" style="margin-top:0">
     <button class="link" id="fx"></button>
     <button class="link" id="resetHist"></button>
@@ -125,33 +135,36 @@ button.pf b{position:absolute;right:2px;bottom:0;font-size:11px;background:var(-
 
 <script>
 const GENRES={"":"Любой жанр",28:"Боевик",12:"Приключения",16:"Мультфильм",35:"Комедия",80:"Криминал",99:"Документальный",18:"Драма",10751:"Семейный",14:"Фэнтези",36:"История",27:"Ужасы",9648:"Детектив",10749:"Мелодрама",878:"Фантастика",53:"Триллер",10752:"Военный",37:"Вестерн"};
-const COUNTRIES=["US","GB","FR","DE","IT","ES","JP","KR","CN","HK","TW","IN","RU","CA","AU","MX","BR","AR","CL","CO","PE","CU","SE","DK","NO","FI","IS","PL","CZ","HU","RO","BG","RS","GR","TR","IR","IL","LB","EG","MA","NG","ZA","TH","VN","ID","PH","MY","SG","PK","KZ","UA","GE","AM","NL","BE","AT","CH","PT","IE","NZ"];
+const COUNTRIES=["US","GB","FR","DE","IT","ES","JP","KR","CN","HK","TW","IN","RU","CA","AU","MX","BR","AR","CL","CO","PE","CU","SE","DK","NO","FI","IS","PL","CZ","HU","RO","BG","RS","GR","TR","IR","IL","LB","EG","MA","NG","ZA","TH","VN","ID","PH","MY","SG","PK","KZ","UA","GE","AM","NL","BE","AT","CH","PT","IE","NZ","UY","VE","EC","BO","PY","CR","DO","LV","LT","EE","SK","SI","HR","BA","MK","AL","BY","MD","AZ","UZ","IQ","JO","SA","AE","TN","DZ","SN","KE","GH","ET","BF","ML","CI","BD","LK","NP","MN","KH","MM","LU","SU","YU","CS","DD"];
 const BIG=new Set(["US","GB","FR","DE","IT","ES","JP","KR","CN","HK","IN","RU","CA"]);
 const MIN_POOL=10, MAX_POOL=100;
 const names=new Intl.DisplayNames(["ru"],{type:"region"});
 const $=id=>document.getElementById(id);
-const flag=c=>[...c].map(x=>String.fromCodePoint(127397+x.charCodeAt(0))).join("");
+const HIST={SU:["☭","СССР"],YU:["⭐","Югославия"],CS:["🏛️","Чехословакия"],DD:["🧱","ГДР"]};
+const cname=c=>HIST[c]?HIST[c][1]:names.of(c);
+const flag=c=>HIST[c]?HIST[c][0]:[...c].map(x=>String.fromCodePoint(127397+x.charCodeAt(0))).join("");
 
 // storage (guarded)
 const store={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},
  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 let apiKey=store.get("tmdbKey","");
 let seen=new Set(store.get("seen",[]));
-let visited=store.get("visited",{});
 let fx=store.get("fx",true);
 const cache={}; let cur=null; // {cc, pool, film}
 
-const NOGENRE=["adult","erotic"];
+const NOGENRE=["adult","erotic","worst"];
 const sel=new Set(store.get("cats",[]));
 $("chips").innerHTML=`<button class="chip" data-k="any">🌐 Любой жанр</button>`
  +Object.entries(GENRES).filter(([k])=>k).map(([k,v])=>`<button class="chip" data-k="${k}">${v}</button>`).join("")
  +`<button class="chip" data-k="erotic">🌹 Эротика и откровенные драмы</button>`
+ +`<button class="chip" data-k="worst">📉 Худшие из худших</button>`
  +`<button class="chip" data-k="adult">🔞 Только 18+</button>`;
 function paintChips(){
   const anyGenre=[...sel].some(k=>!NOGENRE.includes(k));
   document.querySelectorAll(".chip").forEach(b=>{const k=b.dataset.k;
     b.setAttribute("aria-pressed",k==="any"?!anyGenre:sel.has(k));});
   $("adultNote").hidden=!sel.has("adult");
+  $("worstBox").hidden=!sel.has("worst");
 }
 $("chips").onclick=e=>{const b=e.target.closest(".chip");if(!b)return;const k=b.dataset.k;
  if(k==="any"){[...sel].forEach(x=>{if(!NOGENRE.includes(x))sel.delete(x)});}
@@ -159,13 +172,15 @@ $("chips").onclick=e=>{const b=e.target.closest(".chip");if(!b)return;const k=b.
  store.set("cats",[...sel]);paintChips();};
 paintChips();
 $("year").value=store.get("year","");
+$("worstMin").value=store.get("wmin","3.5");
+$("worstMin").onchange=()=>store.set("wmin",$("worstMin").value);
 function showKeyUi(){ $("keyCard").hidden=!!apiKey; }
-function updHist(){ $("resetHist").textContent=`Сбросить историю и паспорт (${seen.size})`; }
+function updHist(){ $("resetHist").textContent=`Сбросить историю (${seen.size})`; }
 showKeyUi();updHist();
 
 $("saveKey").onclick=()=>{const v=$("key").value.trim(); if(!v)return; apiKey=v; store.set("tmdbKey",v); showKeyUi();};
 $("changeKey").onclick=()=>{apiKey="";store.set("tmdbKey","");showKeyUi();};
-$("resetHist").onclick=()=>{seen=new Set();store.set("seen",[]);visited={};store.set("visited",visited);updHist();renderPassport();};
+$("resetHist").onclick=()=>{seen=new Set();store.set("seen",[]);updHist();};
 
 async function api(params){
   const q=new URLSearchParams({api_key:apiKey,language:"ru-RU",include_adult:"false",sort_by:"vote_average.desc",...params});
@@ -177,8 +192,8 @@ async function api(params){
 
 // Pool for a country: tiers of vote thresholds, up to 100 best films.
 async function getPool(cc){
-  const g=[...sel].filter(k=>!NOGENRE.includes(k)).join(","), adult=sel.has("adult"), ero=sel.has("erotic"), y=$("year").value;
-  const key=[cc,g,adult,ero,y].join("|");
+  const g=[...sel].filter(k=>!NOGENRE.includes(k)).join(","), adult=sel.has("adult"), ero=sel.has("erotic"), worst=sel.has("worst"), wmin=$("worstMin").value, y=$("year").value;
+  const key=[cc,g,adult,ero,worst,wmin,y].join("|");
   const kw=ero?await eroticKw():"";
   if(cache[key]) return cache[key];
   const tiers=BIG.has(cc)?[1000,300,100]:[200,50,20];
@@ -189,6 +204,7 @@ async function getPool(cc){
     const base={with_origin_country:cc,"vote_count.gte":t};
     if(g) base.with_genres=g;
     if(kw) base.with_keywords=kw;
+    if(worst){base.sort_by="vote_average.asc";base["vote_average.gte"]=wmin;base["vote_average.lte"]=5;}
     if(cert){base.certification_country=cc;base["certification.gte"]=cert;}
     if(y) base["primary_release_date.gte"]=y+"-01-01";
     const p1=await api({...base,page:1});
@@ -196,7 +212,7 @@ async function getPool(cc){
     const pages=Math.min(p1.total_pages,Math.ceil(MAX_POOL/20));
     const rest=await Promise.all(Array.from({length:pages-1},(_,i)=>api({...base,page:i+2})));
     const all=[p1,...rest].flatMap(p=>p.results).slice(0,MAX_POOL);
-    result={films:all,votes:t,total:p1.total_results};
+    result={films:all,votes:t,total:p1.total_results,worst};
     break outer;
   }
   cache[key]=result; // null = not enough films
@@ -243,26 +259,60 @@ $("fx").onclick=()=>{fx=!fx;store.set("fx",fx);fxLabel();};fxLabel();
 
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const RM=matchMedia("(prefers-reduced-motion: reduce)").matches;
-let reelTimer=null;
-const reelShow=cc=>{$("rflag").textContent=flag(cc);};
-function reelStart(){
-  $("result").hidden=true;$("reel").hidden=false;$("rname").textContent="";
-  $("reel").scrollIntoView({behavior:RM?"auto":"smooth",block:"nearest"});
-  if(RM){$("rflag").textContent="🌍";return;}
-  reelTimer=setInterval(()=>reelShow(pick(COUNTRIES)),80);
+// Vertical flag reel: spins at constant speed while data loads, then eases out onto the chosen country.
+const H=84, SPEED=22; // row height (px, = --rh) and rows per second
+let seq=[],tIdx=-1,tCC=null,raf=0,pos=0,phase="idle",lastB=null;
+const flagAt=i=>i===tIdx?tCC:seq[((i%seq.length)+seq.length)%seq.length];
+function drawReel(p){
+  const b=Math.floor(p),f=p-b;
+  if(b!==lastB){lastB=b;$("rcol").innerHTML=[0,1,2,3].map(k=>`<div class="ri">${flag(flagAt(b+k))}</div>`).join("");}
+  $("rcol").style.transform=`translateY(${-f*H}px)`;
 }
-function reelAbort(){clearInterval(reelTimer);reelTimer=null;$("reel").hidden=true;}
+function reelStart(){
+  const r=$("reel");
+  $("result").hidden=true;r.classList.remove("out");r.hidden=false;
+  $("rname").classList.remove("on");$("rname").textContent="";
+  r.scrollIntoView({behavior:RM?"auto":"smooth",block:"nearest"});
+  if(RM){$("rcol").innerHTML='<div class="ri"></div><div class="ri">🌍</div><div class="ri"></div>';return;}
+  seq=[...COUNTRIES].sort(()=>Math.random()-.5);tIdx=-1;tCC=null;lastB=null;
+  pos=Math.floor(Math.random()*seq.length);phase="spin";
+  $("rcol").classList.add("fast");
+  let t0=performance.now();
+  const step=now=>{if(phase!=="spin")return;const dt=Math.min(.05,(now-t0)/1000);t0=now;pos+=SPEED*dt;drawReel(pos);raf=requestAnimationFrame(step);};
+  raf=requestAnimationFrame(step);
+}
+function reelAbort(){phase="idle";cancelAnimationFrame(raf);$("reel").hidden=true;}
 async function reelLand(cc){
-  clearInterval(reelTimer);reelTimer=null;
-  if(!RM){let d=90;
-    for(let i=0;i<10;i++){reelShow(pick(COUNTRIES));beep(520+i*25,0.05,0.08);buzz(8);await sleep(d);d*=1.18;}}
-  reelShow(cc);$("rname").textContent=names.of(cc);
-  beep(660,0.18,0.12);setTimeout(()=>beep(990,0.25,0.12),120);buzz([25,50,60]);
-  await sleep(RM?0:700);
-  $("reel").hidden=true;
+  const r=$("reel");
+  if(RM){
+    $("rcol").innerHTML=`<div class="ri"></div><div class="ri">${flag(cc)}</div><div class="ri"></div>`;
+    $("rname").textContent=cname(cc);$("rname").classList.add("on");
+    await sleep(500);r.hidden=true;return;
+  }
+  phase="land";cancelAnimationFrame(raf);
+  const T=2600,p0=pos;
+  const pEnd=Math.ceil(p0+SPEED*(T/1000)/4);   // easeOutQuart starts at the same speed as the spin
+  tIdx=pEnd+1;tCC=cc;                          // target sits far below the visible rows, so the swap is invisible
+  $("rcol").classList.remove("fast");
+  await new Promise(res=>{
+    const t0=performance.now();let last=Math.floor(p0);
+    const step=now=>{
+      const t=Math.min(1,(now-t0)/T),e=1-Math.pow(1-t,4);
+      pos=p0+(pEnd-p0)*e;drawReel(pos);
+      const bi=Math.floor(pos);
+      if(bi!==last){last=bi;beep(480+260*e,0.04,0.07);if(t>0.55)buzz(7);}
+      if(t<1)raf=requestAnimationFrame(step);else res();
+    };
+    raf=requestAnimationFrame(step);
+  });
+  $("rname").textContent=cname(cc);$("rname").classList.add("on");
+  const lens=document.querySelector(".rlens");lens.classList.remove("hit");void lens.offsetWidth;lens.classList.add("hit");
+  beep(660,0.18,0.12);setTimeout(()=>beep(990,0.28,0.12),120);buzz([25,50,60]);
+  await sleep(900);
+  r.classList.add("out");await sleep(450);
+  r.hidden=true;r.classList.remove("out");phase="idle";
 }
 
-// ---- passport
 // ---- trailers (TMDB videos; Russian first, then English)
 const vcache={};
 async function trailerFor(id){
@@ -303,34 +353,26 @@ $("trailer").onclick=e=>{
   $("trailer").textContent="✕ Закрыть трейлер";
 };
 
-function renderPassport(){
-  const n=COUNTRIES.filter(c=>visited[c]).length;
-  $("psum").textContent=`🧭 Паспорт: ${n} из ${COUNTRIES.length} стран`;
-  $("pgrid").innerHTML=COUNTRIES.map(c=>`<button class="pf${visited[c]?"":" off"}${cur&&cur.cc===c?" now":""}" data-c="${c}" aria-label="${names.of(c)}">${flag(c)}${visited[c]?`<b>${visited[c]}</b>`:""}</button>`).join("");
-}
-$("pgrid").onclick=e=>{const b=e.target.closest(".pf");if(!b)return;const c=b.dataset.c;
-  $("pname").textContent=`${names.of(c)}: ${visited[c]?"просмотрено фильмов: "+visited[c]:"пока не открыта"}`;};
-renderPassport();
-
 function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
 
 function show(cc,pool,film){
   cur={cc,pool,film};
   $("flag").textContent=flag(cc);
-  $("cname").textContent=names.of(cc);
+  $("cname").textContent=cname(cc);
   const n=pool.films.length;
   $("cmeta").textContent=n===MAX_POOL
-    ?`Случайный фильм из 100 лучших фильмов страны (каждый оценили минимум ${pool.votes} зрителей)`
+    ?`Случайный фильм из 100 ${pool.worst?"худших":"лучших"} фильмов страны (каждый оценили минимум ${pool.votes} зрителей)`
     :`В этой стране нашлось ${n} подходящих фильмов, каждый оценили минимум ${pool.votes} зрителей. Фильм выбран из них`;
-  $("poster").src=film.poster_path?"https://image.tmdb.org/t/p/w342"+film.poster_path:"";
+  const po=$("poster");po.classList.remove("ok");po.onload=()=>po.classList.add("ok");
+  if(film.poster_path)po.src="https://image.tmdb.org/t/p/w342"+film.poster_path;else{po.removeAttribute("src");po.classList.add("ok");}
   $("title").textContent=film.title+(film.original_title&&film.original_title!==film.title?` (${film.original_title})`:"");
   $("fmeta").textContent=(film.release_date||"").slice(0,4);
   $("rating").textContent="★ "+film.vote_average.toFixed(1);
   $("over").textContent=film.overview||"Описания на русском пока нет.";
   setTrailer(film);
   $("result").hidden=false;
+  [...$("result").children].forEach((c,i)=>c.style.animationDelay=(i*70)+"ms");
   $("result").classList.remove("pop");void $("result").offsetWidth;$("result").classList.add("pop");
-  renderPassport();
   $("result").scrollIntoView({behavior:"smooth",block:"nearest"});
 }
 
@@ -345,14 +387,18 @@ async function spin(){
   reelStart();
   try{
     const order=[...COUNTRIES].sort(()=>Math.random()-.5);
-    for(const cc of order.slice(0,12)){      // equal chance per country; skip thin ones
-      const pool=await getPool(cc);
-      if(!pool) continue;
-      const left=fresh(pool);
-      if(!left.length) continue;             // everything here already watched
-      const film=pick(left);
-      await reelLand(cc);
-      show(cc,pool,film);return;
+    for(let i=0;i<Math.min(order.length,30);i+=3){   // 3 countries at once; the first valid one in random order wins
+      const batch=order.slice(i,i+3);
+      const pools=await Promise.all(batch.map(getPool));
+      for(let k=0;k<batch.length;k++){
+        const pool=pools[k];
+        if(!pool) continue;                   // too few films
+        const left=fresh(pool);
+        if(!left.length) continue;            // everything here already watched
+        const film=pick(left);
+        await reelLand(batch[k]);
+        show(batch[k],pool,film);return;
+      }
     }
     $("err").textContent="Подходящих фильмов не нашлось. Смягчите фильтры или сбросьте историю.";
   }catch(e){$("err").textContent=e.message}
@@ -369,7 +415,7 @@ $("again").onclick=()=>{
 $("seen").onclick=()=>{
   if(!cur) return;
   seen.add(cur.film.id);store.set("seen",[...seen]);
-  visited[cur.cc]=(visited[cur.cc]||0)+1;store.set("visited",visited);updHist();renderPassport();
+  updHist();
   $("seen").textContent="✓ Отмечено";setTimeout(()=>$("seen").textContent="✓ Посмотрел",1200);
 };
 </script>

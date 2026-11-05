@@ -84,15 +84,13 @@ button:active{transform:scale(.97)}
   <div class="card">
     <label>Категории (можно несколько)</label>
     <div class="chips" id="chips"></div>
-    <div id="worstBox" hidden style="margin-top:12px">
-      <label for="worstMin">Оценка зрителей: от (и до 5 из 10)</label>
-      <select id="worstMin"><option value="3">3</option><option value="3.5">3.5</option><option value="4">4</option></select>
-      <p class="note">Чем ниже нижняя граница, тем хуже фильмы, но их меньше, и часть стран глобус пропустит.</p>
-    </div>
+    <p class="note" id="worstBox" hidden>Берутся фильмы с оценкой зрителей от 1 до 4.9 из 10, начиная с самых низких. Выбор оценки выше отключён.</p>
     <p class="note" id="adultNote" hidden>Берутся фильмы с самым строгим возрастным рейтингом своей страны (во Франции, Германии, Корее и других это 18+, в США R). У части стран такой разметки нет, их глобус пропустит.</p>
-    <div style="margin-top:12px">
-      <label for="year">Год не раньше</label>
-      <input id="year" type="number" inputmode="numeric" min="1900" max="2026" placeholder="любой">
+    <div class="row" style="margin-top:12px">
+      <div><label for="year">Год не раньше</label>
+        <input id="year" type="number" inputmode="numeric" min="1900" max="2026" placeholder="любой"></div>
+      <div><label for="rmin">Оценка зрителей от</label>
+        <select id="rmin"><option value="">любая</option><option value="5">5</option><option value="6">6</option><option value="6.5">6.5</option><option value="7">7</option><option value="7.5">7.5</option><option value="8">8</option></select></div>
     </div>
   </div>
 
@@ -165,6 +163,7 @@ function paintChips(){
     b.setAttribute("aria-pressed",k==="any"?!anyGenre:sel.has(k));});
   $("adultNote").hidden=!sel.has("adult");
   $("worstBox").hidden=!sel.has("worst");
+  $("rmin").disabled=sel.has("worst");
 }
 $("chips").onclick=e=>{const b=e.target.closest(".chip");if(!b)return;const k=b.dataset.k;
  if(k==="any"){[...sel].forEach(x=>{if(!NOGENRE.includes(x))sel.delete(x)});}
@@ -172,8 +171,8 @@ $("chips").onclick=e=>{const b=e.target.closest(".chip");if(!b)return;const k=b.
  store.set("cats",[...sel]);paintChips();};
 paintChips();
 $("year").value=store.get("year","");
-$("worstMin").value=store.get("wmin","3.5");
-$("worstMin").onchange=()=>store.set("wmin",$("worstMin").value);
+$("rmin").value=store.get("rmin","");
+$("rmin").onchange=()=>store.set("rmin",$("rmin").value);
 function showKeyUi(){ $("keyCard").hidden=!!apiKey; }
 function updHist(){ $("resetHist").textContent=`Сбросить историю (${seen.size})`; }
 showKeyUi();updHist();
@@ -192,8 +191,8 @@ async function api(params){
 
 // Pool for a country: tiers of vote thresholds, up to 100 best films.
 async function getPool(cc){
-  const g=[...sel].filter(k=>!NOGENRE.includes(k)).join(","), adult=sel.has("adult"), ero=sel.has("erotic"), worst=sel.has("worst"), wmin=$("worstMin").value, y=$("year").value;
-  const key=[cc,g,adult,ero,worst,wmin,y].join("|");
+  const g=[...sel].filter(k=>!NOGENRE.includes(k)).join(","), adult=sel.has("adult"), ero=sel.has("erotic"), worst=sel.has("worst"), rmin=$("rmin").value, y=$("year").value;
+  const key=[cc,g,adult,ero,worst,rmin,y].join("|");
   const kw=ero?await eroticKw():"";
   if(cache[key]) return cache[key];
   const tiers=BIG.has(cc)?[1000,300,100]:[200,50,20];
@@ -204,7 +203,8 @@ async function getPool(cc){
     const base={with_origin_country:cc,"vote_count.gte":t};
     if(g) base.with_genres=g;
     if(kw) base.with_keywords=kw;
-    if(worst){base.sort_by="vote_average.asc";base["vote_average.gte"]=wmin;base["vote_average.lte"]=5;}
+    if(worst){base.sort_by="vote_average.asc";base["vote_average.gte"]=1;base["vote_average.lte"]=4.9;}
+    else if(rmin) base["vote_average.gte"]=rmin;
     if(cert){base.certification_country=cc;base["certification.gte"]=cert;}
     if(y) base["primary_release_date.gte"]=y+"-01-01";
     const p1=await api({...base,page:1});
@@ -421,3 +421,4 @@ $("seen").onclick=()=>{
 </script>
 </body>
 </html>
+

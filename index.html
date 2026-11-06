@@ -250,7 +250,13 @@ $("changeKey").onclick=()=>{apiKey="";store.set("tmdbKey","");showKeyUi();closeS
 $("resetHist").onclick=()=>{seen=new Set();store.set("seen",[]);updHist();};
 
 async function api(params){
-  const q=new URLSearchParams({api_key:apiKey,language:"ru-RU",include_adult:"false",sort_by:"vote_average.desc",...params});
+  const q=new URLSearchParams({
+  api_key: apiKey,
+  language: "ru-RU",
+  include_adult: (sel.has("adult") || sel.has("erotic")) ? "true" : "false",
+  sort_by: "vote_average.desc",
+  ...params
+});
   const r=await fetch("https://api.themoviedb.org/3/discover/movie?"+q);
   if(r.status===401) throw new Error("Ключ не подошёл. Проверьте его и введите заново.");
   if(!r.ok) throw new Error("TMDB недоступен, попробуйте ещё раз.");
@@ -389,7 +395,7 @@ function reelStart(){
   $("rname").classList.remove("on");$("rname").textContent="";
   r.scrollIntoView({behavior:RM?"auto":"smooth",block:"nearest"});
   if(RM){$("rcol").innerHTML='<div class="ri"></div><div class="ri">🌍</div><div class="ri"></div>';return;}
-  seq=[...COUNTRIES].sort(()=>Math.random()-.5);tIdx=-1;tCC=null;lastB=null;
+  seq=shuffle(COUNTRIES);tIdx=-1;tCC=null;lastB=null;
   pos=Math.floor(Math.random()*seq.length);phase="spin";spinAt=performance.now();
   $("rcol").classList.add("fast");
   let t0=performance.now(),lastRow=Math.floor(pos);
@@ -490,7 +496,7 @@ $("fskip").onclick=()=>{fSkip=true;};
 async function filmReel(pool,film,cc,warm){
   if(RM||!filmSpin) return;
   const box=$("freel");
-  seqF=[];while(seqF.length<24)seqF=seqF.concat([...pool.films].sort(()=>Math.random()-.5));
+  seqF=[];while(seqF.length<24)seqF=seqF.concat(shuffle(pool.films));
   await Promise.race([warm||Promise.resolve(),sleep(900)]);   // let posters load so the reel is not blank
   $("fhead").textContent=`${flag(cc)} ${cname(cc)}`;
   $("fname").textContent="";$("fname").classList.remove("on");
@@ -528,6 +534,12 @@ async function filmReel(pool,film,cc,warm){
   box.hidden=true;box.classList.remove("out");
 }
 
+// Fisher–Yates shuffle: every ordering is equally likely (unlike sort with a random comparator)
+function shuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
 function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
 
 function show(cc,pool,film){
@@ -561,7 +573,7 @@ async function spin(){
   $("go").disabled=true;$("go").innerHTML='<span class="spin">🌍</span> Крутим…';
   reelStart();
   try{
-    const order=[...COUNTRIES].sort(()=>Math.random()-.5);
+    const order=shuffle(COUNTRIES);
     for(let i=0;i<Math.min(order.length,30);i+=3){   // 3 countries at once; the first valid one in random order wins
       const batch=order.slice(i,i+3);
       const pools=await Promise.all(batch.map(getPool));

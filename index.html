@@ -76,8 +76,6 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 .over{margin:12px 0 0;font-size:15px}
 .note{color:var(--mute);font-size:13px;margin-top:10px}
 main>.note{color:#cbbba8}
-button.hintbtn{display:block;width:auto;margin:8px auto 0;padding:5px 12px;background:transparent;color:#cbbba8;font-size:13px;text-decoration:underline}
-button.hintbtn[aria-expanded="true"]{color:#f6f0e6}
 .player{position:relative;aspect-ratio:16/9;margin-top:12px;border-radius:12px;overflow:hidden;background:#000}
 .player iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
 .note a{color:var(--ink)}
@@ -110,6 +108,12 @@ dialog{max-height:85vh;overflow:auto}
 .mapctl{display:flex;align-items:center;gap:8px;margin:8px 0}
 .mapctl .tog{min-width:44px;padding:6px 10px}
 .mapctl .note{margin:0 0 0 4px}
+.jfilms{display:flex;gap:10px;overflow-x:auto;padding:2px 0 8px;-webkit-overflow-scrolling:touch}
+button.jfilm{flex:none;width:84px;margin:0;padding:0;background:transparent;border:0;border-radius:8px;color:inherit;text-align:left;font-size:12px;line-height:1.25}
+button.jfilm img,button.jfilm .ph{width:84px;height:126px;object-fit:cover;border-radius:8px;background:var(--line);display:block}
+button.jfilm .ph{display:flex;align-items:flex-end;padding:6px;font-size:11px}
+button.jfilm b{display:block;margin-top:4px;font-weight:700;max-height:2.5em;overflow:hidden}
+button.jfilm small{display:block;color:var(--mute);font-size:11px;font-weight:400}
 .pill{display:inline-block;margin:3px;padding:5px 10px;border-radius:999px;background:var(--bg);border:1px solid var(--line);font-size:14px}
 .pill.off{opacity:.55}
 details summary{cursor:pointer;margin:12px 0 6px;color:var(--mute)}
@@ -195,7 +199,6 @@ button:active{transform:scale(.97)}
       <button type="button" class="chip" data-s="wild">Полная случайность</button>
       <button type="button" class="chip" data-s="hard">Хардкор</button>
     </div>
-    <button type="button" class="hintbtn" aria-expanded="false" aria-controls="surpriseNote">Подсказка</button>
     <p class="note" id="surpriseNote" hidden></p>
   </div>
 
@@ -223,7 +226,6 @@ button:active{transform:scale(.97)}
         <div><label for="rmax">Оценка до</label>
           <select id="rmax"><option value="">любая</option><option value="5">5</option><option value="6">6</option><option value="6.5">6.5</option><option value="7">7</option><option value="7.5">7.5</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select></div>
       </div>
-      <button type="button" class="hintbtn" aria-expanded="false" aria-controls="yearNote">Подсказка</button>
       <p class="note" id="yearNote" hidden>Для «Крутить глобус» «от» и «до» задают диапазон. Пустое поле оставляет границу открытой. Для «Топ-1» один заполненный год, или два одинаковых, означает ровно этот год. Два разных года — лучший фильм внутри диапазона. Оценка «от» по умолчанию 6. «До» можно не ставить. Ниже шести ищут только «Худшие», «Полная случайность» и «Хардкор».</p>
     </div>
   </details>
@@ -232,17 +234,14 @@ button:active{transform:scale(.97)}
     <summary id="themeSum">Тематические подборки</summary>
     <div class="foldbody">
       <div class="chips" id="themes"></div>
-      <button type="button" class="hintbtn" aria-expanded="false" aria-controls="themeNote">Подсказка</button>
       <p class="note" id="themeNote" hidden>Подборка задаёт страны и жанр. Год, оценка, «худшие» и 18+ по-прежнему учитываются. Нажмите подборку ещё раз, чтобы снять её.</p>
     </div>
   </details>
 
   <button class="main" id="go">🎲 Крутить глобус</button>
   <button class="side" id="top1" type="button">🏆 Топ-1</button>
-  <button class="side" id="oscar" type="button">🎬 Оскар</button>
-  <button type="button" class="hintbtn" aria-expanded="false" aria-controls="topNote">Подсказка</button>
   <p class="note" id="topNote" hidden>Топ-1 берёт фильм с самой убедительной оценкой: высокая средняя и много отзывов. Картина, которую почти никто не оценил, не обходит ту, которую оценили тысячи. С годом страна каждый раз другая, и год на карточке совпадает с выбранным.</p>
-  <button type="button" class="hintbtn" aria-expanded="false" aria-controls="oscarNote">Подсказка</button>
+  <button class="side" id="oscar" type="button">🎬 Оскар</button>
   <p class="note" id="oscarNote" hidden>«Оскар» выбирает случайного лауреата премии за лучший фильм. Год может быть любым: страна, жанр, год и оценка с глобуса не учитываются.</p>
   <div id="err" class="err" role="alert"></div>
   <div class="card reel" id="reel" hidden aria-live="polite" style="margin-top:14px">
@@ -288,6 +287,8 @@ button:active{transform:scale(.97)}
     <div class="mapbox" id="mapbox"></div>
     <div class="mapctl"><button id="mzin" class="tog" aria-label="Приблизить">＋</button><button id="mzout" class="tog" aria-label="Отдалить">−</button>
       <span class="note" id="minfo">Нажми на страну на карте</span></div>
+    <p class="note" id="jfilmsT">Просмотренные фильмы</p>
+    <div id="jfilms" class="jfilms"></div>
     <p class="note">Исторические страны (СССР, Югославия, Чехословакия, ГДР) на карте не показаны, они есть только в списках ниже.</p>
     <div id="jstats" class="jstats"></div>
     <p class="note" id="jopenT">Открытые страны</p>
@@ -371,6 +372,8 @@ const store={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.
  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 let apiKey=store.get("tmdbKey","");
 let seen=new Set(store.get("seen",[]));
+let watched=store.get("watched",[]);
+if(!Array.isArray(watched)) watched=[];
 let visited=store.get("visited",{});
 let lastCC=store.get("lastCC","");
 let fx=store.get("fx",true);
@@ -415,15 +418,9 @@ function paintThemes(){
   const t=THEMES.find(x=>x.id===themeId);
   $("themeSum").textContent=t?"Тематические подборки · "+t.name:"Тематические подборки";
 }
-document.querySelectorAll(".hintbtn").forEach(b=>{
-  b.onclick=()=>{
-    const n=document.getElementById(b.getAttribute("aria-controls"));
-    n.hidden=!n.hidden;
-    const open=!n.hidden;
-    b.setAttribute("aria-expanded", open?"true":"false");
-    b.textContent=open?"Скрыть":"Подсказка";
-  };
-});
+const HINTS=["surpriseNote","yearNote","themeNote","topNote","oscarNote"];
+function showHint(id){HINTS.forEach(h=>{const n=$(h);if(n)n.hidden=h!==id;});}
+function hideHints(){HINTS.forEach(h=>{const n=$(h);if(n)n.hidden=true;});}
 function paintExtraSum(){
   const bits=[];
   let from=$("year").value, to=$("yearTo").value;
@@ -439,6 +436,7 @@ $("themes").onclick=e=>{
   const b=e.target.closest(".chip");if(!b)return;
   themeId=themeId===b.dataset.t?"":b.dataset.t;
   store.set("theme",themeId);paintThemes();paintGo();
+  if(themeId) showHint("themeNote"); else hideHints();
 };
 function paintSurprise(){
   document.querySelectorAll("#surpriseChips .chip").forEach(b=>{
@@ -448,6 +446,7 @@ function paintSurprise(){
 $("surpriseChips").onclick=e=>{
   const b=e.target.closest(".chip");if(!b)return;
   surprise=b.dataset.s;store.set("surprise",surprise);paintSurprise();
+  showHint("surpriseNote");
 };
 function goLabel(){
   if(playMode==="surprise") return "🎲 Удиви меня";
@@ -465,11 +464,12 @@ function applyMode(){
   $("themeCard").hidden=sur;
   paintSurprise();paintThemes();paintGo();
 }
-$("modeFilters").onclick=()=>{playMode="filters";store.set("playMode",playMode);applyMode();};
+$("modeFilters").onclick=()=>{playMode="filters";store.set("playMode",playMode);applyMode();hideHints();};
 $("modeSurprise").onclick=()=>{
   playMode="surprise";
   surprise="light";
   store.set("playMode",playMode);store.set("surprise",surprise);applyMode();
+  showHint("surpriseNote");
 };
 applyMode();
 
@@ -518,7 +518,47 @@ function renderJourney(){
   const closed=COUNTRIES.filter(c=>!visited[c]);
   $("jclosedsum").textContent=`Ещё не открыто: ${closed.length}`;
   $("jclosed").innerHTML=closed.map(c=>`<span class="pill off">${flag(c,false)} ${cname(c)}</span>`).join("");
+  renderWatched();
 }
+function filmRecord(cc,film){
+  return {
+    id:film.id,title:film.title||"",
+    original:film.original_title&&film.original_title!==film.title?film.original_title:"",
+    year:(film.release_date||"").slice(0,4),
+    poster:film.poster_path||"",cc:cc||"",
+    votes:film.vote_count||0,score:Number(film.vote_average)||0,
+    genres:film.genre_ids||[],
+    overview:(film.overview||"").slice(0,400)
+  };
+}
+function renderWatched(){
+  const box=$("jfilms");
+  if(!watched.length){
+    box.innerHTML='<p class="note" style="margin:0">Постер, год и страна остаются здесь после «Посмотрел».</p>';
+    return;
+  }
+  box.innerHTML=watched.map(w=>{
+    const title=esc(w.title||"Фильм");
+    const pic=w.poster?`<img src="https://image.tmdb.org/t/p/w154${w.poster}" alt="${title}" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'ph',textContent:this.alt}))">`:`<span class="ph">${title}</span>`;
+    const where=esc([w.year,w.cc?cname(w.cc):""].filter(Boolean).join(" · "));
+    return `<button type="button" class="jfilm" data-id="${w.id}">${pic}<b>${title}</b><small>${where}</small></button>`;
+  }).join("");
+}
+function showSaved(w){
+  show(w.cc||"US",{films:[],saved:true},{
+    id:w.id,title:w.title,original_title:w.original||"",
+    release_date:w.year?w.year+"-01-01":"",
+    poster_path:w.poster||null,
+    vote_count:w.votes||0,vote_average:w.score||0,
+    genre_ids:w.genres||[],overview:w.overview||""
+  });
+}
+$("jfilms").onclick=e=>{
+  const b=e.target.closest(".jfilm");if(!b)return;
+  const w=watched.find(x=>String(x.id)===b.dataset.id);if(!w)return;
+  closeJ();
+  showSaved(w);
+};
 const jd=$("journey");
 $("mapBtn").onclick=()=>{renderJourney();jd.showModal?jd.showModal():jd.setAttribute("open","");};
 const closeJ=()=>jd.close?jd.close():jd.removeAttribute("open");
@@ -566,10 +606,10 @@ $("year").value=store.get("year","");
 $("yearTo").value=store.get("yearTo","");
 $("rmin").value=RATE_OPTS.includes(store.get("rmin",""))?store.get("rmin",""):"6";
 $("rmax").value=RATE_OPTS.includes(store.get("rmax",""))?store.get("rmax",""):"";
-$("year").oninput=()=>{store.set("year",$("year").value);paintExtraSum();};
-$("yearTo").oninput=()=>{store.set("yearTo",$("yearTo").value);paintExtraSum();};
-$("rmin").onchange=()=>{store.set("rmin",$("rmin").value);paintExtraSum();};
-$("rmax").onchange=()=>{store.set("rmax",$("rmax").value);paintExtraSum();};
+$("year").oninput=()=>{store.set("year",$("year").value);paintExtraSum();showHint("yearNote");};
+$("yearTo").oninput=()=>{store.set("yearTo",$("yearTo").value);paintExtraSum();showHint("yearNote");};
+$("rmin").onchange=()=>{store.set("rmin",$("rmin").value);paintExtraSum();showHint("yearNote");};
+$("rmax").onchange=()=>{store.set("rmax",$("rmax").value);paintExtraSum();showHint("yearNote");};
 paintExtraSum();
 function restoreFold(el,key,forceOpen){
   const saved=store.get(key,null);
@@ -579,13 +619,17 @@ function restoreFold(el,key,forceOpen){
 restoreFold($("filterCard"),"foldCats",sel.size>0);
 restoreFold($("extraCard"),"foldExtra",!!($("year").value||$("yearTo").value||$("rmin").value!=="6"||$("rmax").value));
 restoreFold($("themeCard"),"foldTheme",!!themeId);
+$("extraCard").addEventListener("toggle",()=>{
+  if($("extraCard").open) showHint("yearNote");
+  else $("yearNote").hidden=true;
+});
 function showKeyUi(){ $("keyCard").hidden=!!apiKey; }
 function updHist(){ $("resetHist").textContent=`Сбросить историю (${seen.size})`; }
 showKeyUi();updHist();
 
 $("saveKey").onclick=()=>{const v=$("key").value.trim(); if(!v)return; apiKey=v; store.set("tmdbKey",v); showKeyUi();};
 $("changeKey").onclick=()=>{apiKey="";store.set("tmdbKey","");showKeyUi();closeSettings();};
-$("resetHist").onclick=()=>{seen=new Set();store.set("seen",[]);visited={};lastCC="";store.set("visited",visited);store.set("lastCC","");updHist();};
+$("resetHist").onclick=()=>{seen=new Set();store.set("seen",[]);watched=[];store.set("watched",watched);visited={};lastCC="";store.set("visited",visited);store.set("lastCC","");updHist();};
 
 async function api(params){
   const adult=playMode!=="surprise" && (sel.has("adult") || sel.has("erotic"));
@@ -1140,7 +1184,7 @@ function show(cc,pool,film){
   paintRating(film.vote_count,film.vote_average);
   $("crew").hidden=true;$("crew").innerHTML="";
   $("over").textContent=film.overview||"Описания на русском пока нет.";
-  $("again").hidden=!!pool.top1||!!pool.oscar;
+  $("again").hidden=!!pool.top1||!!pool.oscar||!!pool.saved;
   setTrailer(film);
   paintCrew(film);
   $("result").hidden=false;
@@ -1432,9 +1476,9 @@ async function spin(){
   finally{reelAbort();unlockSpin();}
 }
 
-$("go").onclick=spin;
-$("top1").onclick=spinTop;
-$("oscar").onclick=spinOscar;
+$("go").onclick=()=>{hideHints();spin();};
+$("top1").onclick=()=>{showHint("topNote");spinTop();};
+$("oscar").onclick=()=>{showHint("oscarNote");spinOscar();};
 $("again").onclick=async()=>{
   if(!cur||cur.pool.top1) return;
   $("err").textContent="";
@@ -1457,13 +1501,19 @@ $("again").onclick=async()=>{
 };
 $("seen").onclick=()=>{
   if(!cur) return;
-  let msg="✓ Уже отмечено";
-  if(!seen.has(cur.film.id)){
+  const known=seen.has(cur.film.id);
+  let msg=known?"✓ Уже отмечено":"✓ Отмечено";
+  if(!known){
     seen.add(cur.film.id);store.set("seen",[...seen]);
     const isNew=!visited[cur.cc];
     visited[cur.cc]=(visited[cur.cc]||0)+1;lastCC=cur.cc;
     store.set("visited",visited);store.set("lastCC",lastCC);
     msg=isNew?"🌍 Страна открыта!":"✓ Отмечено";
+  }
+  if(!watched.some(w=>w.id===cur.film.id)){
+    watched.unshift(filmRecord(cur.cc,cur.film));
+    store.set("watched",watched);
+    if(known) msg="✓ Фильм сохранён";
   }
   updHist();
   $("seen").textContent=msg;setTimeout(()=>$("seen").textContent="✓ Посмотрел",1500);

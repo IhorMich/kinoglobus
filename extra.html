@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0e1a1f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Киноглобус · extra</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiMwZTFhMWYiLz48ZyBmaWxsPSJub25lIiBzdHJva2U9IiNmZmI4MzAiPjxjaXJjbGUgY3g9IjMyIiBjeT0iMzIiIHI9IjIwIiBzdHJva2Utd2lkdGg9IjMiLz48ZWxsaXBzZSBjeD0iMzIiIGN5PSIzMiIgcng9IjkiIHJ5PSIyMCIgc3Ryb2tlLXdpZHRoPSIyIiBvcGFjaXR5PSIuNjciLz48cGF0aCBkPSJNMTIgMzJoNDBNMTUgMjJoMzRNMTUgNDJoMzQiIHN0cm9rZS13aWR0aD0iMiIgb3BhY2l0eT0iLjY3Ii8+PC9nPjxjaXJjbGUgY3g9IjMyIiBjeT0iMzIiIHI9IjkiIGZpbGw9IiNmZmI4MzAiLz48cGF0aCBkPSJNMjkuNSAyNy41djlsOC00LjV6IiBmaWxsPSIjMGUxYTFmIi8+PC9zdmc+">
+<link rel="icon" type="image/png" sizes="64x64" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAARW0lEQVR42uWbeZAd1XXGf+d29+u3zqIFSQNoYRECQowQFghQMGAcGcxmtgLbmJS3eKuy4wpWJWyJCbZlvKSwK06C48TYcbwgsGKgbGwIBgFGG5sBiQgkECMhBs3M29/r7nvyx+03M0JySoNGKoxvVc/yXm/nu+fe853vnivsvhnApn97XTNmn6GG80T1RFVmi9CTnvNmalaVIRE2qcgjYvlZeeumXwPJbmwaabKbG3npRVLqm/VBEfk0cJwgKAqqvKmbCCPvCmtV9eZK/+b/AHSMbb8XAB+Ii9NnHmU88y8icjKqqKqm6MmY483YdMxhREQQQVVX2sR+tLrtxac7Nu4OAB+ISwfOPFtUfiDGdKtNYhDzJnT3PR4WoFaM56u1wyr6vsrLL945FgQZ6/al6bPeLZ78HDCoJunnb4WWIOIBVhN9T2Xb5rs7Nktncij1zT5C0FWIFFG1byHjx4JgUK0q8vZK/6b1gDEjHqD2eyKm9BY1PrVRrbPRfq9jo+v96TMvM563UDWJ36LGj4CgmsTG8xaWps+8DLAGFgQiXIWqgghv+ebCgghXwYJAuvtmvlPF3OMA2H/h7fVQ72d6oYiIqD3Tt2ouNCIo+27sSzrbiDhDEwtJAjY12oj73htzjrUumO+r8CiIZ9Vc6INdpC7MT3jvdwyLYqjUFRuDeJAPhUIoZDPuvGYEtaZSaSiagPHdORnfAWEnHglxTNEu8hFmpf5nJtK9PYFaS2m1YFKXcMYxAScd4XPcbJ/ZUw2TCkI+IyDQaCs7asrmActjm2IeWh+zamPMwJCSCaEQivOKiQPCoArCLOnqm2Unsvd9DxptaDSVY2Z5vP/UkPcuzHBYnweZlIknu3lih6l7QAQvbE1YsbrN9+5vs3ZjTDYU8iHEycTOBdLVN0snqteNwGBVmT3V8PkLclzxjpB8UaClzkCb+pmBRl1pRu7aMIB8Tjp0xZ0jQEZoN5T/fLDFF29rsqE/obck2AnMySYEACPOPcs15crTQr50RZ5pUwxaUyR0hm0fSGhGsL1s+fKKJo9vSohiNxIzvnDkgYal5+U4cJIh48P0KR4Y0KYiBWFwyHL1Dxr80y+aFHOCZyZmSHhhqef6vTU+SiCOlZs/VOCGK/MU056UULjviYjPfKfOpu0J3Tnh63e2uG1li0YC9ZY7Kg3lqRcS+octR8zw+NnqiGV3NJhcFA4/2IdIyYpw9uIMh0z2uHNNRGwh8PfeE8zeGh8n7iY/+VyJvzw/S2tYIS/873bLxcsqnH5tmcc3xyyeF/DctoR7noro7jaEvjMg8CHjQ2+PcP8zMU++lHDyXJ/nX7G8+/oy595Y4XdbEqQgtAaVDywJWbG0RC6AVjSGzO9vACR1+yiB//pMkfcsztDcoYQ9wg/vbXHS3wyz/LdtMiFcdEKGUk5YsSai1tKRIdPJ3Duu3E6UFWsiMj5cvChDNm+4a22bU/62zHfubhJ2OxBOOz5g+V+XMOL4xN7wV7M3vV+uKTdfmeesxRlag0q2S7jh+3Uu/1qVetuFr0lFw8JDfV7YnvDoxpgwEOIkJUTpoeo8KesLazfFrN9qWTDHY1q3kMsIscKHv1lj6XdqhAWhNaT82fEBt3ysQKWh+x8Az8BQTfnQ6SEfOSdLa1AJC8JXftzgmh81OKBXKGYhSpT5szz6eoW1LyTUWlAInctnfMgG7uj8nwuhFSmrn4+ZUjIsOMQntkohhGmThS/f0eTaW+sOhB3KpWeGfPbsLENVxTf7KQqIQDuCvl5h3Ve6KYSCMbDlVcuK1W0KWYE06qlCPuNYXaWhtGLHE8C5bjKGCnc+jxMHRikrjiG2XA9L+uxKQzlrfoY5M8zIPY7//DAbtlpymfFHBv+N9H6jpSw9L0+p15BUlXpLeWRDzIxeg7wusTHGcf98SmTKDcVa6M4L+TRENtrKUM0Z2ltw1ibq+EHgyU5JRVdOWLUxZnIpoJgTMnnhmvfmuOQbVXc/3YceYMSxvLkzDKu+1E1gwGSED36jwl3rIrryQmzdea0IDp5suO7CLC+9Zrn2xw2MCEvmB1y4KMOCOR69OQMCww1l3eaY5Y+0uWtNRKOtXHNhjqMO8rhheYPntlmyae96BqoNWDzP56dXFdEI1INTri6z5vmYQijj8oJxeYAx0GopV54aEhYFjeCBJyJufcC5fn1IR86rNpTDZxgmFQx3rI7oygrf/kSRM44JUrqrIyp9NhSWTMmw5LgMK5+N+Ni3aqzaGHPSXJ9CVtg2ZCnmBGtHvXD5b9vc9WjE2YsyYODDp4U8sj7G5MAm+2gSjGKX2Fy4MIO2FPHgm79sAm7cjo3rngeHHuBRayvHHOzx8Be7OeP4ANtW4prLDDthUGOwDcU2lZOPCXj4xi5OmuszXFcOnWbwvJ3vH6T3/9Y9TQdiSzl3QYYZkwytaHyJjRnP2K+1lOMP9Zk1w431l/sT7n0qopAdDW2drM0ITC4KWR8+tSTLlC4hGXaJt58VjO8mwpE8wqTzRVkp5YRPnpWlmBUmFQy+SfWBMSGzkBUefDZmw+YYDEydajj5CJ96S8dFjsy4iE8MpxzhQyAQCPf+LmZgWMn4u6o7vhF6i8Kxc3x3bYe1BfBEmup6PTIikIwA7TkXVgvz53hMKgqBJ7tQXt9zGsMvn4whENTA4nkBasdHjPYYAFUnZsyf7Y+M3ZXro5GHvX7JSAQOn+5R6DLYZDQakBN++kib+Z8b4vu/bCEBeAXZSfgwAppAtmiY1+dhjBstuzzDwEMbIrAgCRw7y8NPRZQJByBRyGeEWVPTt2krz/S7RCCxo6zOpj1qUgB2WX9SKOWELQOWD95c5dRry/x6bYQpCCYUknQoIS59PnS6wffcPceyxzhxw3J9vyVpOOQOnmzoyskIv5gwAASHaiErTCo4a5otF7sLoRB4EPrpETj37M4LB3S7gP56j0wsmECYUhJWro9ZckOZy5ZVePrFGK/XID6IAlaZWjL0Flz6mwlGn5PxHdUuN5Vq01ncUxCKORlXfrBnYVDcuMymrM75qrD0vCzNVrp6+LrhEgYwuWhcWrybl7EKsXXERoGfPNzm7nURl56c4bqL88zoETSBYla48dI81eauk5sqBJ47SJRcxnmpHUeOPG4mOHZSLGWF0Nu9xJ0J3DDYo7kljQKtSCnXlcSOKvSSsj/P7Ho/BXyzd9ngngGgnRd0tLXXGFQt/3B7k80DljDYmf4m1rnn8df6TJ9i0GjXl5SU/w82lDiBs+YHXHtJnoXH+NBQtA0SQLWuLP1hnVcrSuAzSnUF4hgmdwmnHhWQM0KzrTQi3SPgxwWApjNzrakM1pQ+IMy4JGjr4M4sLZ272FFVXhlWpk8TNNp5HvCMm+VfHVbmz/G4+qI8FyxyGnky7AxQATHCQCVh82uWZju9TkcBrLeVySXPJWACQ3Wl2nDn7WlOMG4i9OKABXFy19EHeQjspO746SQFsPGVZBTBMfNJuaFMLgo3f7jAwzd2c8EpGWxTsQ0dWRxxqMPGVyzWdhKj0eeEgZso5/V5+FkH75YdlnLDOqD2BRHSBB7blIxctejwwLEzRlnayP/Ahq0JjYrFeC6KeAZoKucsCFj71W4+eUHWKeVVHVlEGcs5WjXl2f7EeVcaYnWMImwtLDrcB88lRE9sTojGKZONiwgZHx5cH7nailg5/Wif3pIQxbuGzThRdlTVASbuWlWgDQuPDJg5zZAMOlXYG/MW1rqoIh48vilmoKJEu1lHiBMo5IR3/WkAkSIWHng2Gllam3AAbJrTP7ox4eVXElCYdZDHO44KqDV1RNDoCBeJhdeqSq2l3PKrFpWmYoqOpEQNJWk72tvRD2y6XmgKQiuGf7unxVBdGaxaYus8pMMCPQP1lnLi4T5HzvbAwo7XLA+uj8llx5cO77kHpBnfwJDl9lURZJz48IkzwxE+b8ewQYDNr1qKWeGR52JOvabM6vUxXkEICoIXjPJa8cHkBa8kPPlCzGnXlbnnyYievLBpwI7Q5J00xMg9WzyBjHDnuogtA5ZssI88oOMFmRC+e3+TqKFoS3nncQHnL8zQajv5K/TdZFUIhe1ly2DVctwcj2f6E951fZkP/WOVu1e16d9hacfQjmHboHLPmjYf/2aVM64ts+r5mAWH+JQbyrYhJT+GbeYy0IrhzGMDzlvkJk+NlVvubbo8YF8qQqTEY0dFufVTRd7/5yG2rgxVldtXtUeESU1/iEBX3nlKtaUkFobrzp0nl1yqi8BgzfJa2X3flRf8FEAjoxJaZw7oqE3nHh9wQI9BQuG/V7Y5/6YK3QXZKbPcJwB0ZLFDphnWLevGN+D5sOUVy31PR3TlZETz1zFrhp3PPM/9jpLOQqfie66HRRw97hCvzqwvY9XourJ4ns+cPo84cpPrCUvd4kshK+PKBN8QFbYK+RCefTlh6a11vv6JAq0h5aA+j60r23z8ljrTetwrVxrK4nkBn3l3yM/XRXz3/hbFMZpdhx12xqwx7prLTspwyYkZvv2rFr94woEqAlsHlb86O8sH3unTqilhr3Ddd+useT6m5w30/hvOBRIL3QXhG3c3efthPpcvCWkNKlddlGN7xfLV5Q3yRYMCDz8Xc/nJGY480KMdw9bG76eqHY856kCPoZqyckNMtenod61s+dhZWa6/PEfUcMb//Ddtbri9QVf+jRm/VytDmub1H/3XGvevigh7hHZduekjBf75U0V847jAYM2y6vmYudMNJxzmFjqywc76XofZxYmyYI7H0Qd5rN2UsL3sEiNV+NpHCnz700VsCzIlYfVTMVd8q0o+I3tV3LBXAHS4+YU3Vfif1RGZHqE1rHz07Cy/uaGL0/8koFlTlv+2TaMN5xwXEAZuCOy2StsI5xwXYBVue7RNvWw5+YiA+/6ui89elKNVVoJu4dGnY879UoVG5BKkvVkm36vlccX1XjOCH61sM7PXMP9oH1tVZkwyvP/ULPMP9Xl2iyVKlBMO89k2ZHnihQQ/ENSOUudyRTn16ICLTsiwckNM/6Bl2V8U+MoH8hw4xSOpK0GPcMdv2lxyU4VKC3KZN+76E1sgYRyLqzaVTy/J8oX35egqGbSuSFYgVl7cbokTpX9IuWF5g9+9lDiKmwqcc2d4XPPeLLOnGIwRZh1gICNoQ5Gc0Ggof/+jBjetaBBmXAHV3ho/YQDsVCJTUY46yOPqi3NcclIGLxRo687lL+pKaept1/25jDCpJO67sSXagUCkLH804gs/qfPYCwk9RRlJviaqRGbCi6RqLaXVhhPn+lx5Wsg5CzL0TTWjReqWncVSHTMj+Q6EVwYsd61r8+/3tXjgmZjAd/LYhBdJlfpmDgrSM5F3NeI8otpUoghmTDYsmutzyjyf+bN8Dp7shM5s4M5vRo4hvrTD8vjmmAefdaVyWwYsvu+izQSXyaW465CUZsx8TIx5W1olbiYaiI6UVm+5WtSOQaVcWieYrg5X0kLJKHJvkQ+F0E+LyywT3SwiRq193AfzsCBv031QrWvVqcm+5yRrEWdMnMBAWUfUWyMupBZCweRGl9eSiTd81PURFPOwMWJvSzcY7bNtMZ10OU5G1w075CdMSVEnX4iT0UWQfdiMohixt5nh/qn3Y+2T4oh5wn5ou0houk8Lo3dh8uJc8cnh/qn3G1gTqbIMGa+Y9IfaVBERVZbBmqizZ0hKM2Y+ZIy3UNW+lTZL7ab3jWdt8mhl64snAdoZ9wlirlC1FUTM/hoK+9t4RIyz0VzRsbGzndSr9G9ar5ZLcbspvLcYCJ1tc6qWS9MdYx5uz9AISfUr2zbfrdhzUR0WYzxXvIL9AzbcgsZijIfqsGLPTfcM+p0O9nY+Gb9dGV4fFLpXiMixYszsVI3W1wHxZt86awERESPGGFVdaa2eX9364kP8P1tnR1Jk/og3T48VSv4ots//H0M5gf8kQGOpAAAAAElFTkSuQmCC">
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
+<style>
+:root{--bg:#eef2f3;--panel:#fff;--ink:#10252b;--mute:#5b7077;--line:#d3dde0;--acc:#b86e00;--onacc:#fff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1a1f;--panel:#16272e;--ink:#e8f0f2;--mute:#8fa5ac;--line:#25393f;--acc:#ffb830;--onacc:#1a1200;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0e1a1f;--panel:#16272e;--ink:#e8f0f2;--mute:#8fa5ac;--line:#25393f;--acc:#ffb830;--onacc:#1a1200;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.45 "Trebuchet MS",system-ui,sans-serif;min-height:100%}
+main{max-width:520px;margin:0 auto;padding:20px 16px 40px}
+h1{font:700 26px/1.1 Georgia,serif;margin:0 0 4px}
+.sub{color:var(--mute);margin:0 0 18px;font-size:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:14px}
+label{display:block;font-size:13px;color:var(--mute);margin:0 0 4px}
+input,select{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.row{display:flex;gap:10px}.row>div{flex:1}
+button{font:inherit;border:0;border-radius:12px;padding:13px 16px;cursor:pointer;background:var(--line);color:var(--ink);transition:transform .15s,background .25s,opacity .25s}
+button.main{background:linear-gradient(135deg,var(--acc),color-mix(in srgb,var(--acc) 70%,#fff));color:var(--onacc);font-weight:700;width:100%;font-size:18px;padding:16px}
+button:disabled{opacity:.5}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.acts button{flex:1;min-width:140px}
+.country{font:700 34px/1.1 Georgia,serif;margin:0}
+.flag{font-size:44px;line-height:1;display:block;margin-bottom:6px}
+.meta{color:var(--mute);font-size:14px;margin:4px 0 12px}
+.film{display:flex;gap:12px}
+.film img{width:112px;height:168px;object-fit:cover;border-radius:8px;background:var(--line);flex:none;opacity:0;transition:opacity .7s}
+.film img.ok{opacity:1}
+.film h2{font:700 20px/1.2 Georgia,serif;margin:0 0 4px}
+.badge{display:inline-block;background:var(--acc);color:var(--onacc);font-weight:700;border-radius:8px;padding:2px 8px;font-size:14px}
+.over{margin:12px 0 0;font-size:15px}
+.note{color:var(--mute);font-size:13px;margin-top:10px}
+.player{position:relative;aspect-ratio:16/9;margin-top:12px;border-radius:12px;overflow:hidden;background:#000}
+.player iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.note a{color:var(--ink)}
+a.btn{display:block;text-align:center;text-decoration:none;border-radius:12px;padding:13px 16px;background:var(--line);color:var(--ink);margin-top:12px}
+a.btn:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.top{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;margin-bottom:6px}
+button.gear{flex:none;width:44px;height:44px;padding:0;font-size:20px;background:var(--panel);border:1px solid var(--line)}
+dialog{width:min(92vw,420px);border:1px solid var(--line);border-radius:16px;background:var(--panel);color:var(--ink);padding:16px}
+dialog::backdrop{background:rgba(0,0,0,.55)}
+.srow{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:12px 0}
+.srow h2{font:700 20px/1.2 Georgia,serif;margin:0}
+.srow select{width:auto;min-width:150px}
+.srow small{color:var(--mute)}
+button.tog{min-width:96px;padding:9px 14px;background:var(--bg);border:1px solid var(--line)}
+button.sbtn{width:100%;margin-top:8px}
+button.chip[hidden]{display:none}
+.tools{display:flex;gap:8px;flex:none}
+dialog{max-height:85vh;overflow:auto}
+.jhead{font:700 20px/1.2 Georgia,serif;margin:4px 0 8px}
+.jbar{height:10px;border-radius:6px;background:var(--line);overflow:hidden}
+.jbar i{display:block;height:100%;width:0;background:var(--acc);transition:width .7s}
+.jstats div{margin:7px 0}
+.mapbox{margin-top:12px;border-radius:12px;background:var(--bg);border:1px solid var(--line);overflow:auto;max-height:300px;-webkit-overflow-scrolling:touch}
+.mapbox svg{display:block;height:auto}
+.mo{fill:var(--line)}
+.mc{fill:color-mix(in srgb,var(--mute) 40%,var(--line));stroke:var(--panel);stroke-width:.8;cursor:pointer;transition:fill .4s}
+.mc.v{fill:var(--acc)}
+.mc.last{stroke:var(--ink);stroke-width:2}
+.mapctl{display:flex;align-items:center;gap:8px;margin:8px 0}
+.mapctl .tog{min-width:44px;padding:6px 10px}
+.mapctl .note{margin:0 0 0 4px}
+.pill{display:inline-block;margin:3px;padding:5px 10px;border-radius:999px;background:var(--bg);border:1px solid var(--line);font-size:14px}
+.pill.off{opacity:.55}
+details summary{cursor:pointer;margin:12px 0 6px;color:var(--mute)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+button.chip{padding:8px 12px;border-radius:999px;font-size:14px;background:var(--bg);border:1px solid var(--line)}
+button.chip[aria-pressed="true"]{background:var(--acc);color:var(--onacc);border-color:var(--acc);font-weight:700}
+.err{color:#c0392b;font-size:14px;margin-top:8px}
+.spin{animation:s .5s linear infinite;display:inline-block}
+@keyframes s{to{transform:rotate(360deg)}}
+.reel{text-align:center;padding:14px 14px 18px;overflow:hidden;transition:opacity .45s;
+ background:radial-gradient(120% 90% at 50% 0%,color-mix(in srgb,var(--acc) 16%,var(--panel)),var(--panel))}
+.reel.out{opacity:0}
+.rwin{--rh:84px;position:relative;height:calc(var(--rh)*3);overflow:hidden;
+ -webkit-mask-image:linear-gradient(transparent,#000 32%,#000 68%,transparent);mask-image:linear-gradient(transparent,#000 32%,#000 68%,transparent)}
+.rcol{will-change:transform;transition:filter .5s}
+.rcol.fast{filter:blur(2px)}
+.ri{height:var(--rh);display:flex;align-items:center;justify-content:center;font-size:54px;line-height:1}
+.rlens{position:absolute;left:14%;right:14%;top:var(--rh);height:var(--rh);border-radius:10px;pointer-events:none;
+ border-top:1px solid color-mix(in srgb,var(--acc) 55%,transparent);border-bottom:1px solid color-mix(in srgb,var(--acc) 55%,transparent)}
+.rlens.hit{animation:ring .9s ease-out}
+@keyframes ring{from{box-shadow:0 0 0 0 color-mix(in srgb,var(--acc) 55%,transparent)}to{box-shadow:0 0 0 28px transparent}}
+.fhead{font:700 18px/1.2 Georgia,serif;margin-bottom:10px}
+.fwin{--fw:92px;position:relative;height:138px;width:calc(var(--fw)*3);margin:0 auto;overflow:hidden;
+ -webkit-mask-image:linear-gradient(90deg,transparent,#000 28%,#000 72%,transparent);mask-image:linear-gradient(90deg,transparent,#000 28%,#000 72%,transparent)}
+.fcol{display:flex;will-change:transform;transition:filter .5s}
+.fcol.fast{filter:blur(2px)}
+.pi{flex:none;width:var(--fw);height:138px;display:flex;align-items:center;justify-content:center}
+.pi img,.pi .nop{width:76px;height:114px;object-fit:cover;border-radius:6px;background:var(--line)}
+.pi .nop{display:flex;align-items:center;justify-content:center;padding:4px;font-size:11px;line-height:1.2;overflow:hidden;color:var(--mute)}
+.flens{position:absolute;left:var(--fw);top:6px;width:var(--fw);height:126px;border-radius:10px;pointer-events:none;border:1px solid color-mix(in srgb,var(--acc) 55%,transparent)}
+.flens.hit{animation:ring .9s ease-out}
+.rname{font:700 22px/1.2 Georgia,serif;min-height:28px;margin-top:10px;opacity:0;transform:translateY(6px);transition:opacity .5s,transform .5s}
+.rname.on{opacity:1;transform:none}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.pop>*{animation:rise .7s cubic-bezier(.2,.7,.2,1) both}
+.card{box-shadow:0 14px 34px -20px rgba(0,0,0,.5)}
+button:active{transform:scale(.97)}
+@media(prefers-reduced-motion:reduce){.spin,.pop>*,.rlens.hit{animation:none}.rcol,.fcol,.rname,.film img,.reel,button{transition:none}.rcol.fast{filter:none}}
+.link{background:none;padding:6px 0;color:var(--mute);text-decoration:underline;font-size:13px;flex:none;min-width:0}
+</style>
+</head>
+<body>
+<main>
+  <header class="top">
+    <div><h1>Киноглобус · extra</h1>
+    <p class="sub">Случайная страна → фильм с adult:true на TMDB.</p></div>
+    <div class="tools"><button id="mapBtn" class="gear" aria-label="Моё путешествие">🗺️</button>
+    <button id="gear" class="gear" aria-label="Настройки">⚙️</button></div>
+  </header>
+
+  <div class="card" id="keyCard" hidden>
+    <label for="key">Ключ TMDB API (v3)</label>
+    <input id="key" type="password" autocomplete="off" placeholder="Вставьте ключ">
+    <div class="acts"><button id="saveKey" class="main" style="font-size:16px;padding:12px">Сохранить ключ</button></div>
+    <p class="note">Бесплатный ключ: themoviedb.org → Настройки → API. Он хранится только на этом устройстве.</p>
+  </div>
+
+  <div class="card">
+    <p class="note" style="margin:0">Только фильмы с флагом <b>adult:true</b> на TMDB (hardcore). Эротика и обычные 18+ сюда не попадают. У многих стран таких записей мало — глобус их пропустит.</p>
+    <div class="row" style="margin-top:12px">
+      <div><label for="year">Год не раньше</label>
+        <input id="year" type="number" inputmode="numeric" min="1900" max="2026" placeholder="любой"></div>
+      <div><label for="rmin">Оценка зрителей от</label>
+        <select id="rmin"><option value="">любая</option><option value="5">5</option><option value="6">6</option><option value="6.5">6.5</option><option value="7">7</option><option value="7.5">7.5</option><option value="8">8</option></select></div>
+    </div>
+  </div>
+
+  <button class="main" id="go">🎲 Крутить глобус</button>
+  <div id="err" class="err" role="alert"></div>
+  <div class="card reel" id="reel" hidden aria-live="polite" style="margin-top:14px">
+    <div class="rwin" aria-hidden="true"><div class="rcol" id="rcol"></div><div class="rlens"></div></div>
+    <div class="rname" id="rname"></div>
+  </div>
+  <div class="card reel" id="freel" hidden aria-live="polite" style="margin-top:14px">
+    <div class="fhead" id="fhead"></div>
+    <div class="fwin" aria-hidden="true"><div class="fcol" id="fcol"></div><div class="flens"></div></div>
+    <div class="rname" id="fname"></div>
+    <button class="link" id="fskip">Пропустить</button>
+  </div>
+
+  <div class="card" id="result" hidden style="margin-top:14px">
+    <span class="flag" id="flag"></span>
+    <p class="country" id="cname"></p>
+    <p class="meta" id="cmeta"></p>
+    <div class="film">
+      <img id="poster" alt="Постер">
+      <div>
+        <h2 id="title"></h2>
+        <div class="meta" id="fmeta"></div>
+        <span class="badge" id="rating"></span>
+      </div>
+    </div>
+    <p class="over" id="over"></p>
+    <a id="trailer" class="btn" target="_blank" rel="noopener">▶ Найти трейлер</a>
+    <div class="player" id="player" hidden></div>
+    <p class="note" id="ytnote" hidden>Не воспроизводится? <a id="ytlink" target="_blank" rel="noopener">Открыть на YouTube</a></p>
+    <div class="acts">
+      <button id="again">Другой фильм отсюда</button>
+      <button id="seen">✓ Посмотрел</button>
+    </div>
+  </div>
+
+  <dialog id="journey" aria-labelledby="jtitle">
+    <div class="srow"><h2 id="jtitle">Моё путешествие</h2><button id="jclose" aria-label="Закрыть">✕</button></div>
+    <div id="jhead" class="jhead"></div>
+    <div class="jbar"><i id="jfill"></i></div>
+    <div class="mapbox" id="mapbox"></div>
+    <div class="mapctl"><button id="mzin" class="tog" aria-label="Приблизить">＋</button><button id="mzout" class="tog" aria-label="Отдалить">−</button>
+      <span class="note" id="minfo">Нажми на страну на карте</span></div>
+    <p class="note">Исторические страны (СССР, Югославия, Чехословакия, ГДР) на карте не показаны, они есть только в списках ниже.</p>
+    <div id="jstats" class="jstats"></div>
+    <p class="note" id="jopenT">Открытые страны</p>
+    <div id="jopen"></div>
+    <details><summary id="jclosedsum"></summary><div id="jclosed"></div></details>
+  </dialog>
+
+  <dialog id="settings" aria-labelledby="stitle">
+    <div class="srow"><h2 id="stitle">Настройки</h2><button id="sclose" aria-label="Закрыть">✕</button></div>
+    <div class="srow"><label for="snd">Звук</label>
+      <select id="snd"><option value="roulette">Рулетка</option><option value="bells">Колокольчики</option><option value="arcade">Ретро</option>
+        <option value="casino">Казино</option><option value="marimba">Маримба</option><option value="space">Космос</option><option value="off">Выкл</option></select></div>
+    <div class="srow"><span>Вибрация</span><button id="fx" class="tog"></button></div>
+    <div class="srow"><span>Крутить фильмы<br><small>второй барабан с постерами</small></span><button id="filmTog" class="tog"></button></div>
+    <button class="sbtn" id="resetSettings">Сбросить настройки</button>
+    <button class="sbtn" id="resetHist"></button>
+    <button class="sbtn" id="changeKey">Сменить ключ TMDB</button>
+  </dialog>
+  <p class="note" style="margin-top:18px">This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
+</main>
+
+<script>
+const COUNTRIES=["US","GB","FR","DE","IT","ES","JP","KR","CN","HK","TW","IN","RU","CA","AU","MX","BR","AR","CL","CO","PE","CU","SE","DK","NO","FI","IS","PL","CZ","HU","RO","BG","RS","GR","TR","IR","IL","LB","EG","MA","NG","ZA","TH","VN","ID","PH","MY","SG","PK","KZ","UA","GE","AM","NL","BE","AT","CH","PT","IE","NZ","UY","VE","EC","BO","PY","CR","DO","LV","LT","EE","SK","SI","HR","BA","MK","AL","BY","MD","AZ","UZ","IQ","JO","SA","AE","TN","DZ","SN","KE","GH","ET","BF","ML","CI","BD","LK","NP","MN","KH","MM","LU","SU","YU","CS","DD"];
+const BIG=new Set(["US","GB","FR","DE","IT","ES","JP","KR","CN","HK","IN","RU","CA"]);
+const MIN_POOL=5, MAX_POOL=100;
+// World map: simplified country shapes (Natural Earth data, 110m), pre-projected into a 1000-wide viewBox.
+const MAP={"w":1000,"h":432,"c":{"CA":"M199 95l-3 -3 -1 -1 -4 -2 1 -2 1 -2 -2 -2 1 -2 -1 -2 1 -2 2 -1 1 -2 -2 -2 0 -3 0 -3 -1 -1 -1 -1 0 -2 -3 1 -3 2 -1 -2 0 -1 -2 -1 -2 0 14 -16 10 -11 4 1 2 1 2 1 3 -2 3 0 3 0 4 -1 4 -1 0 1 3 -1 1 -1 1 1 2 2 4 -2 -1 2 3 0 1 -1 3 0 2 1 4 1 2 1 3 -1 1 2 -4 1 4 1 6 0 2 -1 1 2 3 -2 -1 -1 2 -1 3 0 2 0 1 0 1 2 2 0 3 1 4 0 3 0 1 -2 2 -1 3 1 -2 3 3 -2 1 0 3 -3 -1 -2 -2 -1 3 -3 3 -2 3 1 1 1 1 3 -3 1 4 1 -2 3 4 -2 2 1 -2 2 1 2 3 -2 3 -2 2 -3 3 0 3 0 2 2 -1 1 -2 2 0 1 -1 1 -5 2 -3 1 -2 -1 -1 1 -4 3 -1 1 -4 2 -3 0 -3 1 -1 2 -3 1 -4 2 -4 3 -2 2 -2 4 3 0 0 3 0 2 3 0 4 1 2 1 1 2 2 0 2 2 4 0 2 0 -1 3 -1 3 0 3 3 3 2 -1 3 -3 0 -5 -1 -1 5 -2 3 -2 2 -2 1 -2 0 -3 -2 -2 4 -3 0 -2 2 -5 1 -1 4 1 2 0 2 0 2 1 2 1 0 1 4 1 -1 2 -1 4 2 0 1 2 4 -2 3 -3 2 -1 1 2 2 4 1 4 -1 2 2 1 2 2 3 1 1 1 1 2 1 1 1 1 -1 3 -2 2 -2 1 -4 1 -4 2 -4 1 -5 -1 -4 0 -2 0 -3 3 -4 1 -4 4 -4 3 2 -1 5 -4 6 -2 4 -1 2 2 -3 2 0 3 0 3 3 1 4 0 3 -4 0 3 1 1 -4 2 -6 2 -2 1 -4 2 -2 0 1 -3 5 -2 -4 0 -3 0 -1 -2 1 -4 -1 -1 -1 1 -1 -1 -3 2 -1 3 -1 1 -2 1 -1 1 -5 0 -3 0 -2 0 -3 3 -2 1 -2 0 -2 0 -2 1 1 0 0 1 -1 1 -3 1 -3 1 -4 1 -1 0 0 -1 1 -1 2 -2 1 -2 0 -3 1 -2 -2 -2 0 -1 -1 0 0 -1 -1 0 0 -1 -2 -1 -1 -1 -2 -2 -2 -1 -3 1 -1 0 -2 -1 -2 1 -2 -1 -3 -1 -1 0 -1 0 0 -2 -1 1 -5 0 -8 0 -9 0 -7 0 -7 0 -8 0 -7 0 -3 0 -7 0 -7 0zM339 27l2 -1 4 2 2 1 0 1 4 -1 1 2 5 1 1 1 1 3 -5 1 5 2 3 0 2 3 3 0 -2 2 -5 3 -2 -1 -2 -3 -3 1 -1 1 2 2 2 1 0 1 1 3 -2 2 -2 -1 -5 -2 2 2 2 2 0 1 -6 -1 -4 -2 -2 -1 1 -1 -2 -1 -3 -2 0 1 -7 1 -1 -1 2 -3 4 0 5 0 0 -1 1 -1 4 -3 0 -1 0 -1 -3 -2 -3 0 1 -1 -1 -2 -2 0 -1 -1 -1 1 -4 0 -8 0 -4 -1 -3 -1 -1 -1 3 -1 -3 0 1 -2 4 -3 2 -1 6 -1 -3 2 1 2 3 -2 6 -1 2 2 -2 2 5 -1zM332 4l4 0 2 0 4 -1 3 0 2 0 2 0 2 -1 3 0 4 0 5 0 1 0 5 -1 4 1 4 0 5 0 3 0 3 1 -6 1 -4 1 -3 0 4 0 -5 1 -3 1 -5 2 -4 0 -2 1 -6 0 3 0 -2 1 1 1 -3 1 -3 0 -2 1 -3 1 3 0 0 1 -6 1 -5 0 -6 0 -3 0 -3 0 0 -2 4 0 1 -2 1 0 4 1 -1 -1 -3 -1 3 -1 4 0 1 -1 -2 -1 0 -1 5 0 2 0 3 -1 -4 0 -6 0 -3 -1 -1 -1 -1 0 0 -1zM284 25l1 1 -1 3 0 2 2 1 3 1 -1 2 -4 0 1 1 -2 1 -3 -1 -3 0 -3 0 -5 1 -5 0 -4 1 0 -2 -3 -1 -2 1 0 -2 1 -1 4 0 3 0 3 0 -4 -1 -4 0 -3 0 -1 -1 6 -1 -3 0 -3 -1 3 -2 3 -1 7 -1 1 0 -2 1 5 0 2 1 4 -1 1 1 -1 2 2 -1 1 -3 2 0 2 0zM366 88l-2 2 -2 3 1 -1 2 0 -1 1 2 1 1 -1 2 1 -1 3 2 -1 0 2 0 2 -2 2 -1 1 -1 -1 1 -3 -1 0 -3 3 -2 0 2 -2 -2 -1 -2 1 -5 -1 1 -2 2 -2 4 -5 2 -2 2 -1 1 0 0 1zM257 22l2 0 5 0 1 1 1 1 -3 1 -6 2 -5 2 -1 1 -6 1 0 -1 -4 -1 2 -2 3 -2 4 -1 -1 -2 8 0zM323 22l-3 0 -4 -1 0 -2 1 -1 -1 -1 -4 0 -2 -1 2 -1 4 0 1 1 4 0 1 1 -1 1 2 0 1 1 2 0 3 0 3 0 5 -1 3 1 1 1 0 1 -2 0 -3 1 -2 -1 -6 1 -5 0zM321 7l2 -1 2 0 4 0 1 1 3 0 3 1 0 1 1 1 -3 0 -5 2 -3 0 -4 0 -1 -1 1 -1 2 0 -4 0 -1 -1 0 -1 2 -1zM287 18l2 0 2 0 0 1 -3 1 -7 1 -6 1 -3 0 1 -1 5 -1 -9 0 -3 0 5 -3 3 0 5 1 2 1 3 0 -1 -2 3 -1 2 0 -1 1 0 1zM295 26l-1 -1 4 -2 2 1 4 0 -3 2 2 1 -2 2 -4 1 -2 0 -1 -1 -3 -2 0 -1 4 0zM317 47l2 1 2 1 -1 1 2 0 1 1 -2 1 -3 -1 -1 -1 -3 1 -4 2 0 -2 -3 0 3 -1 1 -2 2 -3 2 1 0 1 1 -1 1 1zM310 23l4 0 4 0 -5 3 -3 0 -3 2 -3 0 1 -2 1 -2 2 -1 2 0zM197 97l-2 0 -3 -1 0 -1 -2 -2 -2 -1 0 -2 1 0 2 0 1 1 2 0 1 1 0 2 2 1 0 2zM308 16l0 1 -1 2 -2 1 -4 1 -2 -1 2 -1 -4 0 2 -2 2 0 3 -1 3 0 1 0zM258 18l6 -2 5 -2 3 0 3 0 -2 2 -2 1 -2 0 -5 1 -4 0 -2 0zM300 10l3 0 5 1 0 1 0 1 -3 0 -2 -1 -5 0 3 -1 -2 0 1 -1zM298 35l0 1 -2 1 -2 -1 -2 0 -2 -1 3 -1 2 -1 2 1 1 1zM338 26l-2 -1 1 -1 1 0 4 0 3 1 0 1 -2 0 -2 0 -3 0zM185 80l3 -1 -4 4 1 2 -1 0 -1 -1 1 -2 -1 -1 0 -1 1 -1 1 1zM315 11l2 1 -1 1 -4 0 -1 0 0 -1 1 -1 2 0 1 0zM314 20l-2 1 -3 0 -2 0 2 -2 3 0 1 1 1 0zM339 41l-2 0 -2 0 0 -1 2 -1 2 -1 1 1 -1 1 0 1zM343 92l1 0 3 1 2 1 0 1 -1 0 -3 -1 -2 -2zM342 101l0 2 2 0 2 0 -2 1 -1 1 -2 -2 -1 -1 2 -1zM313 55l2 -2 3 0 0 1 -4 1 -1 0zM286 13l2 0 -1 1 -4 0 -2 0 2 -1 3 0zM285 24l2 0 2 0 -4 2 -1 -2 1 0zM318 14l-1 0 -3 0 0 -1 4 0 1 1 -1 0zM320 56l2 -1 1 0 -2 2 -1 0 0 -1zM288 11l2 1 -2 0 -4 0 1 0 2 -1 1 0z","US":"M199 95l7 0 7 0 3 0 7 0 8 0 7 0 7 0 9 0 8 0 5 0 1 -1 0 2 1 0 1 0 3 1 2 1 2 -1 2 1 1 0 3 -1 2 1 2 2 1 1 2 1 0 1 1 0 0 1 1 0 0 1 2 2 -1 2 0 3 -1 2 -2 2 -1 1 0 1 1 0 4 -1 3 -1 3 -1 1 -1 0 -1 -1 0 2 -1 2 0 2 0 2 -1 3 -3 2 0 3 0 5 0 1 -1 2 -1 1 -1 1 -3 3 -2 1 1 1 -1 1 1 -1 4 1 2 0 1 -3 2 -3 1 -3 1 -1 2 -1 1 -1 1 1 2 1 0 0 -1 0 1 -2 1 -1 0 -2 0 -1 1 -2 0 -2 1 4 -1 0 1 -3 1 -2 0 0 -1 -1 1 1 0 -1 3 -3 2 0 -1 -1 -1 0 2 1 1 -1 1 -1 1 -2 3 0 -1 1 -2 -1 -1 1 -3 -1 2 0 2 -2 -1 2 1 -1 3 1 1 0 1 -1 3 -2 2 -3 1 -2 2 -1 0 -2 2 0 1 -4 2 -2 1 -1 2 -1 3 0 2 0 3 1 2 0 1 0 4 0 2 -1 1 -1 2 0 1 -2 -1 0 -1 -1 -1 -1 -2 -1 -3 0 -1 1 -2 0 -2 -2 -3 -1 0 -3 1 -1 -2 -1 0 -4 0 -2 0 -2 0 -1 0 0 1 0 2 0 1 -1 -1 -1 1 -2 0 -2 -2 -2 0 -2 0 -2 0 -2 1 -3 2 -3 1 -2 2 -1 1 0 3 -1 1 1 1 -1 0 -2 0 -2 -1 0 -2 -1 -2 -1 -2 0 -2 -1 -2 -2 -1 -2 0 -2 2 -2 -1 -1 -1 0 -1 -1 -2 -1 -2 -1 -1 -1 -1 -4 0 -1 2 -2 0 -5 0 -5 -3 -4 -1 1 -1 -4 1 -3 0 0 -2 -1 -2 -1 0 0 -1 -1 0 -1 -1 -2 0 -1 -1 0 -2 -1 -3 0 -4 0 -1 -1 -1 0 -3 0 -3 0 -1 1 -3 2 -3 0 -2 2 -3 2 -3 2 -3 2 -4 0 -3 0 -1 1 -1 3 1 0 3 1 -1 1 -2 0 -3zM204 34l-10 11 -14 16 2 0 2 1 0 1 1 2 3 -2 3 -1 0 2 1 1 1 1 0 3 0 3 2 2 -1 2 -2 1 -1 -1 -1 -1 1 -2 -1 -3 1 -3 -2 0 -4 0 -2 -1 -2 -3 -2 0 -3 -2 -3 1 -4 -2 -1 -1 -3 1 -2 2 -1 0 -3 1 -3 1 -3 0 1 -2 3 -2 4 -1 0 -1 -5 2 -3 2 -5 2 0 1 -4 2 -3 1 -3 1 -2 2 -5 1 -2 2 -4 1 -1 0 -3 1 -3 1 -3 1 -5 0 4 -1 3 -1 4 -2 3 0 2 -2 5 -1 1 -1 3 -1 2 -2 3 -2 -4 1 0 -1 -2 1 0 -1 -2 1 1 -2 -4 2 -1 0 1 -2 2 -1 -1 -1 -3 0 -1 -1 -1 -1 2 -1 -1 -2 3 -1 3 -2 3 -1 2 -1 1 1 3 -2 1 1 3 -1 1 -1 -1 -1 3 -1 -1 0 -3 1 -2 0 -1 0 -3 0 -3 -1 1 -1 -1 -2 4 -1 6 -1 2 0 -2 1 5 0 0 -2 -1 -1 0 -1 -1 -1 -2 -1 3 -1 4 -1 4 -1 2 -1 3 -1 3 -1 5 -1 2 0 5 -1 2 0 0 2 2 -1 3 0 -1 1 3 0 2 0 4 1 4 0 1 1 3 -1 2 1 2 0zM76 188l1 0 0 1 1 1 -2 1 -1 0 0 1 -1 -1 0 -1 0 -1 1 0 0 -1 0 -1 1 0 0 1zM146 68l2 0 0 1 -4 1 -3 1 1 -2 3 -1 1 0zM121 51l1 0 1 0 1 1 2 0 0 1 -3 0 -1 -1 -2 0 1 -1zM122 61l2 0 -1 1 -2 0 -1 0 0 -1 2 0zM74 184l0 1 -2 0 0 -1 2 0zM68 181l-1 1 -1 0 0 -1 1 0 1 0zM75 186l-1 0 0 -1 1 0 0 1zM71 183l0 1 -1 0 0 -1 1 0z","KZ":"M714 94l-1 3 -2 0 1 3 -1 1 -5 -1 0 6 -1 1 -5 1 4 5 -1 1 0 2 -1 0 -2 -1 -4 -1 -4 0 -1 0 -4 -1 -1 1 0 2 -4 -1 -2 0 0 1 -1 1 -3 2 -1 3 -1 0 -1 -2 -3 0 -1 -3 -1 0 -1 -3 -4 -2 -4 0 -3 0 -3 -2 -2 -2 -5 -2 -6 2 3 11 -2 1 -2 -3 -2 -1 -3 1 -1 1 0 -1 1 -1 -1 -1 -3 -1 -2 -3 -2 -1 0 -1 3 0 -1 -2 2 -1 3 1 -1 -3 -1 -2 -2 0 -2 -1 -3 2 -2 0 -1 0 0 -2 -3 -2 -1 0 -3 -2 1 -2 -1 -1 1 -3 3 1 0 -2 4 -3 4 0 6 2 3 1 2 -1 4 0 4 1 0 -1 4 1 0 -2 -5 -2 2 -2 -1 0 2 -1 -2 -2 1 -1 8 -1 1 -1 6 -1 1 -2 5 1 2 3 2 0 3 1 1 1 2 0 5 -3 -1 1 4 3 9 7 0 -1 4 1 4 0 1 0 2 2 2 1 2 1 3 0 2 1z","UZ":"M643 119l-3 -11 6 -2 5 2 2 2 3 2 3 0 4 0 4 2 1 3 1 0 1 3 3 0 1 2 1 0 1 -3 3 -2 1 -1 1 1 -2 2 2 1 2 -1 3 2 -2 2 -2 0 -1 0 -1 -1 0 -1 -3 0 0 2 -1 2 -2 0 -1 1 3 1 1 3 -1 3 -2 -1 -2 0 0 -2 -4 -1 -3 -2 -2 -1 -3 -2 -2 -4 -1 0 -3 0 -1 -1 -1 -2 -4 -2 -1 2 -2 1 0 1 -2 0z","ID":"M827 239l-1 3 2 3 -1 2 4 3 -4 0 -1 2 0 3 -2 2 0 4 -2 5 0 -2 -3 2 -1 -2 -2 0 -2 -1 -3 1 -1 -2 -2 0 -2 0 0 -4 -2 -1 -1 -3 0 -3 0 -3 2 -2 0 2 2 2 2 0 2 0 1 -2 1 0 3 1 2 -1 2 -4 1 -2 1 -3 3 0 2 0zM790 256l0 2 1 2 2 0 2 3 -1 4 -1 4 -3 1 -2 -3 -3 -3 -1 -2 -2 -2 -2 -3 -2 -4 -2 -3 -1 -3 -1 -2 -3 -2 -1 -3 -2 -2 -3 -3 -1 -2 2 0 4 1 3 3 2 2 2 1 3 4 2 0 3 2 1 3 2 1 -1 3 2 1 1 0zM892 261l-1 11 -1 10 -2 -3 -3 0 0 1 -4 0 1 -3 2 -1 0 -3 -1 -3 -6 -3 -2 0 -4 -3 -1 2 -1 0 0 -1 0 -2 -2 -1 3 -1 2 0 -1 -1 -4 0 -1 -2 -2 -1 -1 -1 3 -1 2 -1 4 1 1 1 0 6 3 1 2 -3 4 -2 2 0 3 1 2 1 3 1zM841 250l4 0 2 -3 1 1 -2 3 -2 1 -3 -1 -5 0 -2 1 -1 2 3 3 1 -1 6 -1 -1 1 -1 0 -1 2 -3 1 3 4 -1 1 3 4 0 2 -2 1 -1 -1 2 -3 -3 1 -1 -1 1 -1 -2 -2 0 -3 -2 1 0 4 0 4 -2 1 -1 -1 1 -3 0 -3 -1 0 -1 -2 1 -2 0 -3 2 -5 0 -1 3 -3 2 1 3 1zM801 273l0 1 5 1 1 -2 5 2 1 2 4 1 3 2 -3 1 -3 -1 -2 0 -3 -1 -3 0 -3 -1 -2 -1 -1 1 -5 -2 0 -1 -3 0 2 -3 3 0 3 1 1 0zM855 246l1 1 1 1 0 1 0 3 -1 0 -1 1 2 2 -1 1 -1 -2 -1 -5 0 -2 1 -1zM859 262l3 1 1 2 -2 -1 -2 -1 -2 1 -2 0 1 -2 3 0zM827 280l2 -1 1 2 -4 0 -1 1 -2 0 1 -2 2 0 1 -1 0 1zM846 281l0 1 0 1 -2 2 -2 1 -1 0 1 -1 1 -2 3 -2zM836 280l2 0 2 -1 0 1 -4 1 -4 0 0 -1 2 -1 2 1zM872 275l0 -3 0 -1 1 -1 1 1 0 2 -2 2zM833 286l-4 -3 3 0 1 1 1 1 0 1 -1 0zM852 265l-2 -1 0 -1 3 0 0 1 -1 1z","AR":"M347 350l0 3 -1 3 1 3 -1 1 1 2 0 2 4 3 0 2 1 1 1 2 -2 4 -4 2 -5 0 -3 0 1 2 0 2 1 2 -1 1 -3 0 -2 -1 -1 1 1 3 2 1 1 -1 1 2 -2 1 -1 2 0 3 0 2 -2 0 -2 1 0 3 3 2 3 1 0 3 -3 1 0 4 -2 1 -1 2 2 3 3 2 -2 -1 -2 0 -6 0 -2 -2 0 -3 -2 1 -1 -1 -1 -4 1 -1 0 -2 -1 -2 1 -2 -1 -5 0 -1 1 -1 -1 -1 -1 -1 0 -1 -1 -1 -2 -4 1 -1 -2 -4 0 -3 0 -3 1 -1 -1 -3 -1 -3 2 -2 -1 -3 1 -3 -1 -3 0 -1 -3 -5 1 -4 -1 -3 1 -3 1 -3 2 -2 -1 -1 0 -1 -1 -5 3 -2 1 -3 -1 -1 2 -3 4 1 2 2 0 -3 3 1 1 0 6 6 2 0 3 2 3 2 1 1 -2 5 3 1 3 0 2 0 2 -3 0 -2 1 -1 2 2 0 2 -2 2 -2 2 -2 3 -3 4zM336 421l1 2 2 2 4 2 3 1 0 1 -2 0 -2 -1 -1 0 -3 0 -2 -7z","CL":"M309 309l2 2 1 3 1 1 0 3 2 4 1 4 2 0 1 1 -1 3 -3 2 1 5 0 1 1 1 -2 2 -1 3 -1 3 1 3 -1 4 3 5 0 1 1 3 -1 3 1 3 -2 2 1 3 1 3 -1 1 0 3 0 3 2 4 -1 1 2 4 1 1 0 1 1 1 1 1 -1 1 0 1 1 5 -1 2 1 2 0 2 -1 1 1 4 1 1 2 -1 0 3 2 2 6 0 2 0 -2 0 -1 1 -1 1 0 3 -1 0 -3 -1 -3 -2 -4 -2 -1 -2 0 -1 -2 -2 -2 -6 0 -3 1 -2 -4 -1 2 -3 -1 -5 3 1 0 -7 -2 -1 0 4 -2 0 0 -5 -1 -6 1 -2 -2 -3 -1 -3 1 -1 1 -5 0 -5 1 -5 -2 -5 0 -2 -1 -4 1 -4 0 -6 0 -7 -1 -7 0 -6 -1 -4 1 -1 0 -2zM336 421l2 7 3 0 1 0 0 2 -2 1 -1 -1 -2 0 -2 -1 -2 0 -4 -2 -3 -1 -5 -4 3 1 4 2 3 1 1 -2 0 -2 2 -1 2 0z","KE":"M609 268l-4 -4 0 -1 -10 -7 -1 0 0 -4 1 -1 1 -2 1 -2 -1 -4 0 -2 -2 -2 2 -2 2 -2 1 1 0 1 1 1 2 0 4 3 1 0 1 0 2 1 1 -2 2 -1 1 1 2 0 -2 4 0 11 2 3 -2 1 -1 2 -1 0 -1 2 -1 2 0 2 -1 1z","DO":"M304 195l0 -1 -1 -1 1 -1 0 -1 0 -2 1 0 2 0 1 1 1 -1 1 2 1 0 1 1 1 1 -1 1 -1 -1 -1 1 -1 -1 -1 1 -1 0 0 -1 -1 1 -1 2 -1 0 0 -1z","RU":"M832 117l-1 -1 -1 -2 2 0 -2 -3 -2 -3 1 -1 4 0 0 -3 -1 -3 0 -1 0 -3 -4 1 -1 1 -4 0 -3 -3 -4 -2 -5 -1 -3 -3 -2 -2 -1 -2 -4 -3 -3 -1 -4 -1 -3 0 -2 1 -1 1 1 1 1 2 0 1 -1 3 1 2 -2 2 -4 -2 -3 1 -1 -1 -2 -1 -2 2 -3 1 -2 1 -4 -1 -2 0 -2 -1 -3 -2 -3 0 -3 0 -2 1 -4 -2 -1 -2 -4 -1 -2 0 -3 -1 -1 3 1 2 -1 2 -4 -1 -2 0 -3 -1 -2 -1 -3 0 -3 1 -3 3 -3 0 -2 -1 -3 0 -2 -1 -2 -1 -2 -2 -1 0 -4 0 -4 -1 0 1 -9 -7 -4 -3 1 -1 -5 3 -2 0 -1 -1 -3 -1 -2 0 -2 -3 -5 -1 -1 2 -6 1 -1 1 -8 1 -1 1 2 2 -2 1 1 0 -2 2 5 2 0 2 -4 -1 0 1 -4 -1 -4 0 -2 1 -3 -1 -6 -2 -4 0 -4 3 0 2 -3 -1 -1 3 1 1 -1 2 3 2 1 0 3 2 0 2 1 0 -1 2 -2 1 -2 3 3 3 0 2 3 4 -1 1 0 1 -1 0 -2 -2 -1 0 -2 -1 -1 -1 -2 -1 -2 0 -4 -2 -4 0 -2 -1 0 1 -4 -3 -3 -1 -2 -2 1 -1 2 -2 -2 -1 4 -2 -2 0 -1 -1 2 -1 2 0 0 -1 -1 -2 1 -2 0 -1 -4 -1 -1 0 -2 -1 -2 0 -3 -1 -1 -2 -2 0 -1 -1 1 0 -2 -2 -2 0 -1 0 -1 1 -1 0 -1 -2 0 -1 0 -1 2 0 1 0 -1 -1 -2 -1 -1 -1 -1 -2 0 -1 0 -1 -3 -1 -1 1 -1 -1 -2 -1 -1 -2 -1 -1 -1 -1 1 -1 -1 -3 1 -1 0 -1 2 -1 -2 -2 4 -3 2 -2 0 -2 -4 -2 1 -1 -2 -3 1 -2 -4 -3 2 -2 -4 -2 0 -2 2 0 3 -1 2 -1 4 1 6 1 9 3 2 1 1 2 -2 2 -4 1 -10 -3 -1 1 4 2 0 1 1 3 3 1 2 1 0 -2 -2 -1 1 -1 6 2 2 -1 -2 -2 4 -3 2 0 2 1 1 -2 -2 -1 0 -2 -2 -2 6 1 2 2 -3 0 1 2 2 1 3 -1 0 -2 4 -1 7 -2 1 0 -1 1 2 1 2 -1 4 0 2 -1 3 1 2 -2 -3 -1 1 -1 6 1 4 1 9 3 1 -2 -3 -1 -1 -1 -2 0 0 -1 -2 -2 -1 -1 3 -3 0 -2 1 -1 6 1 1 2 -1 2 2 1 2 1 1 4 3 2 0 2 -2 4 3 0 0 -1 2 -1 0 -1 1 -1 -2 -2 0 -2 -2 0 -2 -1 1 -3 -4 -2 2 -2 -1 -2 1 0 2 1 0 3 3 0 -2 -1 3 -2 4 0 5 2 -4 -2 -1 -3 3 -1 5 0 4 0 -3 -1 1 -2 3 0 2 -1 5 -1 1 0 5 0 2 0 3 -1 4 0 -1 -1 1 -1 4 -1 4 0 -2 1 4 0 2 2 1 -1 6 0 6 1 2 1 1 2 -2 0 -4 2 2 1 4 0 1 0 3 2 0 -1 3 0 7 0 2 1 8 1 -1 -2 4 0 4 0 4 1 3 2 0 1 4 2 5 1 -1 -2 4 1 3 -1 5 1 1 -1 3 1 -4 -3 2 -1 20 2 4 1 7 2 8 0 5 0 3 1 2 2 3 1 2 -1 4 0 5 1 3 0 7 2 1 -1 -3 -2 -1 -1 8 1 4 0 8 1 4 1 8 2 9 3 2 2 2 1 -3 -2 7 0 7 3 -1 1 -3 0 4 3 -1 0 -2 0 -3 -1 -4 0 -2 -2 -2 0 -2 0 -3 -1 0 -1 -2 1 2 1 0 1 -1 2 -3 -1 4 2 4 2 2 1 1 1 0 1 -4 -1 -4 3 -2 0 -1 2 -2 2 1 1 -5 -2 -4 2 -2 -1 -1 2 -4 -1 1 2 0 3 2 1 3 1 3 4 -2 0 2 3 2 1 -3 2 2 3 -3 1 2 3 -2 3 -2 -2 -5 -5 -6 -7 -3 -4 1 -1 -2 -2 3 -1 1 -3 1 -3 2 -3 -2 -4 -3 1 1 2 -2 3 -6 -3 -4 1 -2 4 4 2 -4 1 -4 0 -1 -2 -4 0 -2 1 -7 0 -7 1 -3 5 -4 7 4 1 3 2 2 0 1 -1 3 0 6 3 1 3 1 3 2 4 2 5 -1 4 0 3 -1 3 -1 4 -1 2 -2 2 -2 0 -2 -2 -2 3 0 1zM-81 117l0 -1 1 -2 1 0 4 -3 2 -3 3 -1 3 0 4 -3 4 -3 2 -1 5 -3 -5 1 -4 1 -4 0 2 -3 0 -2 -3 -1 2 -3 1 -2 1 -2 2 -3 -1 -1 -2 -1 -3 0 -4 1 -4 1 1 1 -2 2 -3 1 -6 3 -1 2 -6 2 -2 -2 -3 1 0 -1 -1 -1 -6 2 -4 1 -3 1 -2 -1 -3 0 1 -1 -1 -2 -2 0 -4 0 -3 1 -1 -2 2 -2 -2 -1 -2 0 -1 -1 -6 3 -2 2 -5 2 -2 -1 -2 0 0 -1 -3 -1 -1 0 -5 1 -8 3 -3 0 -2 0 1 -1 -3 0 0 -1 -1 -1 2 -2 -1 0 -4 0 -1 -1 -4 1 6 -7 0 -3 2 -1 -10 3 -3 0 3 -1 -1 -1 -4 0 4 -3 -3 -1 -4 2 -8 1 -2 1 -11 1 -2 1 -2 2 -3 1 -1 0 -5 2 1 2 -2 2 -4 -1 -2 1 0 -1 -4 0 -5 1 -1 -1 -2 -2 -4 0 -10 3 -4 2 1 -1 -7 3 -1 1 -4 2 -1 2 2 0 -1 2 -3 2 1 0 -4 2 -3 1 -7 3 -1 3 -3 2 -1 4 -3 1 -2 1 -1 0 1 -2 -1 0 -1 -1 1 -1 -1 -1 -2 0 -2 -2 -3 0 -1 -1 -1 1 0 -3 -1 -1 0 -2 2 -1 6 -2 0 -1 6 -2 1 0 -3 0 2 -1 2 -1 3 0 2 -1 2 -2 3 -2 1 -1 -2 -1 -1 0 1 -1 -3 0 -1 -1 1 0 1 -2 -2 0 1 -1 2 0 1 -2 -3 0 -2 1 -1 0 3 -2 1 -1 1 -1 2 0 2 0 0 -1 0 -1 1 0 0 -1 2 -2 2 -1 2 -1 -1 -1 -2 1 1 -1 -1 -1 2 -2 3 -1 0 -1 3 -1 4 -3 5 -1 1 -1 5 -1 1 -2 12 -3 6 -2 3 -2 1 -2 5 -1 2 -3 7 -2 5 -3 6 -2 1 -2 5 -2 2 0 6 -1 5 -1 -1 1 5 1 1 3 -1 1 -4 2 -6 2 -5 1 -5 -3 -2 1 -1 2 -3 1 -6 3 1 1 0 1 3 -2 2 -1 3 -1 2 2 3 -1 3 -2 11 -3 2 0 -1 1 6 -2 2 -1 4 -2 2 -2 4 1 -2 2 -3 0 -3 2 -1 1 5 -1 4 -2 7 -1 13 -2 1 0 -6 1 2 1 4 -1 4 0 6 -1 -1 1 6 -2 1 -1 3 -1 4 1 2 1 1 3 4 -2 1 -1 1 -1 -2 0 3 -1 4 -2 2 -1 9 -3 6 -2 3 -1 4 1 -3 2 -7 2 0 1 -3 1 -9 4 -1 2 -4 2 -12 4 2 0 3 -1 3 -1 3 -1 5 -1 2 -2 4 -2 -2 0 3 -1 7 -3 2 -2 8 -2 3 -2 1 0 -2 1 -6 3 1 0 3 -1 6 -2 5 0 0 2 3 -2 6 -3 4 -1 5 0 5 0 1 -1 7 -2 2 0 7 -1 6 -1 2 0 6 0 7 -1 4 0 3 -1 4 -1 7 -1 1 0 -4 1 4 0 -2 2 3 -1 6 0 1 1 0 1 -3 2 -4 0 -8 2 -3 0 2 1 1 0 3 0 -2 2 2 -1 4 0 6 0 -2 1 8 1 3 -2 4 0 3 0 1 1 -2 2 -3 1 -1 2 1 1 7 -2 1 1 5 -1 3 1 2 -1 3 1 3 -3 4 -1 16 2 -1 1 2 2 10 0 3 0 0 1 -3 2 2 1 3 -1 4 0 3 1 5 0 0 2 4 -1 0 -2 3 -1 6 1 4 0 5 1 1 1 3 2 2 3 -2 2 0 1 2 -2 5 0 2 3 -4 1 -4 0 -3 3 -1 0 -2 0 -1 -1 -2 0 1 -2 -2 0 -3 0 0 -1 2 -1 -3 1 -1 1 -2 1 -1 0 -4 2 -2 -1 0 2 -2 2 1 1 -1 1 -2 1 -3 -1 -9 3 -2 0 -6 2 -6 2 -2 1 -1 -2 -8 2 0 -1 -4 2 -2 -1 -3 2 -6 3 -2 1 2 1 -5 4 -2 0 -4 3 0 1 -6 2 -4 3 -4 1 -4 3 -7 3 2 -2 3 -5 6 -7 6 -4 4 -1 1 -2 5 -1 8 -3 7 -3 7 -3 7 -4 -3 1 -4 2 -10 3 3 -3 -7 1 -12 4 0 2 -6 1 -4 0 3 -2 -3 0 -5 1 -6 0 -9 1 -15 5 -17 7 3 1 -1 2 2 0 3 -1 2 0 0 3 -3 3 -5 3 -4 4 -6 5 -8 4 -3 3 -7 3 -7 4 -3 2 -5 2 -1 0 -1 -2 -5 3 -1 1zM608 24l4 -3 -1 -1 3 -1 6 -2 6 0 3 -1 4 0 2 1 -1 0 -6 2 -6 1 -5 2 -2 3 -2 2 2 2 5 3 -2 0 -7 -1 -1 -1 -4 0 0 -2 1 0 0 -2 3 -2 -2 0zM840 81l3 3 2 3 3 3 6 5 -4 -1 1 5 5 3 1 2 -3 -2 0 3 -2 -3 -2 -3 -2 -3 -1 -3 -3 -4 -3 -3 -3 -4 1 -2 -2 -1 1 0 2 2zM674 6l3 0 5 1 7 2 1 2 -3 0 -6 -1 -4 0 -3 -2 -3 0 3 -2zM773 18l5 0 9 1 1 2 -8 0 -2 0 -6 -1 -1 -2 2 0zM583 105l1 -1 2 1 1 0 0 1 2 0 2 0 0 1 -3 1 -3 2 -1 -1 0 -1 -3 -1 0 -1 3 -1 -1 0zM695 10l6 1 1 1 -10 1 0 -3 1 0 2 0zM554 79l-5 0 -2 -1 0 -1 3 -1 3 1 1 0 0 1 0 1zM871 29l2 0 4 1 -1 1 -3 0 -2 0 -1 0 1 -2zM783 25l1 -1 2 -1 4 1 1 1 -3 0 -4 0 -1 0zM794 20l6 0 -1 1 -4 0 -5 -1 0 -1 4 1zM129 29l2 0 2 1 -1 0 -3 1 -2 0 -3 0 1 0 4 -2zM584 7l3 0 3 0 1 0 2 -1 3 1 -1 0 -2 0 -2 1 -2 0 -2 0 1 -1 -4 0z","NO":"M565 35l-3 1 -2 0 1 -2 -3 -1 -3 1 -1 2 -2 1 -2 0 -3 0 -2 -2 -1 1 -2 0 0 2 -4 -1 0 2 -2 0 -1 2 -2 3 -3 4 1 1 -1 1 -2 0 -2 3 1 3 1 2 0 3 -2 2 -1 2 -1 -2 -5 4 -3 0 -3 -1 -1 -3 -1 -7 2 -2 6 -2 4 -3 4 -4 4 -5 4 -3 5 -3 5 -1 3 0 3 -2 4 0 3 -1 7 2 -2 1 2 2zM529 9l0 -1 3 0 2 1 7 2 -5 1 0 1 -2 1 -1 2 -2 0 -4 -2 1 0 -3 -1 -4 -2 -1 -2 5 -1 1 1 3 0zM551 8l-2 1 -5 1 -6 -1 -1 0 -2 0 -3 -1 6 -1 3 0 2 0 5 0 3 1zM548 13l-4 1 -4 0 1 -1 -1 -1 4 0 1 1 3 0z","ZA":"M544 345l1 -2 1 1 0 1 2 1 1 0 2 0 2 -2 1 -12 0 1 2 3 0 2 0 1 2 0 1 -2 2 -1 0 -1 2 -1 1 0 1 1 2 1 2 -1 0 -1 1 -2 1 0 1 -1 1 -2 3 -3 4 -2 1 0 1 0 1 0 2 0 1 5 0 2 0 4 0 1 -2 -1 0 1 -1 1 -1 1 0 1 2 2 1 -1 1 -1 2 0 -1 2 0 3 -1 1 -2 2 -1 0 -1 2 -1 2 -1 2 -4 3 -2 2 -2 2 -3 1 -1 0 0 1 -2 0 -1 0 -3 0 -2 0 -1 0 -3 1 -2 1 -1 1 -2 0 -1 -1 -1 0 -1 -2 0 1 0 -1 0 -2 -1 -2 1 -1 0 -2 -1 -3 -2 -3 -1 -4z","MX":"M191 148l3 0 4 -1 -1 1 4 1 5 3 5 0 2 0 1 -2 4 0 1 1 1 1 1 2 1 2 0 1 1 1 2 1 2 -2 2 0 2 1 1 2 0 2 1 2 1 2 0 2 2 1 2 0 1 0 -2 3 -1 2 -1 5 0 1 0 2 0 2 0 2 2 3 0 1 1 2 3 1 1 1 2 -1 2 0 3 -1 1 0 2 -1 1 -2 1 -3 0 -1 2 -1 3 -1 3 1 1 -1 1 1 0 2 -2 1 -1 2 0 1 0 1 -1 3 -1 -1 -1 0 -1 2 -1 0 -2 0 -3 0 0 2 -2 0 1 1 1 1 1 1 0 1 -4 0 -1 3 0 1 -1 1 -2 -4 -2 -1 -2 0 -1 0 -3 1 -1 0 -2 -1 -2 0 -2 -2 -2 0 -3 -2 -2 -1 -1 -1 -1 0 -3 -1 -1 -2 -3 -1 -1 -3 0 -1 1 0 0 -1 1 -1 0 -1 -1 -2 0 -1 0 -2 -2 -3 -2 -2 -1 -2 -2 -2 0 -1 0 -2 -1 0 -1 -2 0 -2 -1 0 -2 -2 0 -2 0 -1 -1 -2 0 -3 0 -1 -1 -1 -1 0 -1 -1 -1 1 0 2 -1 2 1 2 1 2 0 1 1 0 0 1 0 2 1 1 0 1 1 2 1 3 0 1 0 2 0 1 1 1 1 1 1 1 0 1 -2 1 0 -2 -2 -2 -1 -1 -2 -1 1 -2 0 -2 -1 -1 -2 -2 0 1 0 -1 -2 -1 -1 -2 1 0 2 -1 0 -1 -1 -3 -2 -1 0 -2 0 -2 -1 -2 0 -3z","UY":"M347 350l2 0 3 2 1 0 3 2 2 2 2 2 -1 2 1 2 -1 2 -3 1 -2 0 -1 0 -3 -1 -1 0 -2 -2 -1 -2 1 -1 -1 -3 1 -3 0 -3z","BR":"M360 362l-1 -2 1 -2 -2 -2 -2 -2 -3 -2 -1 0 -3 -2 -2 0 3 -4 2 -3 2 -2 2 -2 0 -2 -2 -2 -1 1 0 -2 0 -2 0 -2 -1 -1 -1 1 -1 0 0 -1 -1 -3 0 -1 -2 -1 -1 0 -3 0 -1 -5 -1 -1 1 -1 0 -2 0 -1 1 -3 -1 -2 -2 -1 0 -1 0 -2 -5 0 -1 -4 0 -1 0 -1 -1 -2 -1 -1 -2 0 -1 -1 -2 -1 -1 -1 -3 0 -4 -3 1 -2 -1 -2 0 -2 -3 1 -2 1 -2 1 -1 1 -1 0 -2 0 -2 0 -1 0 0 -5 -2 2 -3 0 -1 -2 -2 0 1 -1 -2 -2 -1 -3 1 -1 0 -1 1 -1 0 -2 1 -1 0 -1 3 -3 2 0 1 -1 2 0 1 -8 0 -2 0 -2 -1 -1 0 -2 1 -1 1 1 0 -1 -2 -1 0 -2 5 0 1 -1 1 1 1 2 2 1 2 0 0 -1 3 -1 1 0 0 -1 2 -1 0 -1 -2 0 -1 -2 0 -3 -1 0 1 -1 2 1 2 1 1 -1 2 -1 3 -1 1 -1 0 -1 1 0 1 1 -1 1 1 0 1 2 -1 1 -1 3 1 1 0 2 2 1 1 1 1 -1 1 0 1 -1 1 -1 1 1 1 0 1 0 1 -1 -1 0 1 -1 1 0 1 0 2 0 1 1 1 -1 1 1 1 0 1 -1 1 -3 2 -3 1 0 0 2 2 6 1 0 0 2 -2 3 1 1 5 0 0 4 2 -2 4 1 4 2 2 2 -1 1 3 -1 6 2 4 0 4 3 4 3 2 1 2 0 1 1 1 4 1 2 -1 6 -2 2 -3 4 -2 4 -2 3 -1 0 0 2 0 6 0 5 0 2 -1 1 0 5 -3 4 0 3 -2 2 -1 2 -3 0 -4 1 -2 1 -3 1 -2 3 -2 3 -1 2 1 2 0 4 -1 1 -1 2 -2 6 -2 2 -2 2 -1 3 -1 2z","BO":"M308 288l2 0 1 0 1 -1 2 -1 2 -1 3 -1 0 2 1 2 -1 2 4 3 3 0 1 1 2 1 1 1 2 0 1 1 1 2 0 1 0 1 1 4 5 0 0 2 0 1 2 1 1 2 -1 3 0 1 0 2 -1 1 0 -1 -2 -2 -3 0 -5 1 -1 3 1 1 -1 4 -1 0 -3 -1 0 3 -2 -2 -4 -1 -2 3 -2 0 -1 -4 -2 -4 0 -3 -1 -1 -1 -3 -2 -2 2 -3 -2 -3 1 -1 -1 -1 1 -2 0 -3 0 -2 1 -1 -3 -5z","PE":"M306 266l-2 0 -1 1 -2 0 -3 3 0 1 -1 1 0 2 -1 1 0 1 -1 1 1 3 2 2 -1 1 2 0 1 2 3 0 2 -2 0 5 1 0 2 0 3 5 -1 1 0 2 0 3 -1 2 1 1 -1 1 2 3 -2 3 0 2 -1 1 -3 -2 -1 -1 -5 -4 -6 -3 -2 -2 -1 -3 0 -1 -3 -4 -3 -6 -3 -6 -1 -2 -1 -2 -2 -2 -2 -2 1 -1 -2 -3 1 -2 2 -2 0 1 0 1 0 1 1 0 1 0 1 2 2 -2 0 -2 2 -3 3 -1 3 -3 1 -2 0 -3 2 1 1 2 1 1 2 3 2 1 2 -1 1 0 1 0 2 1 -1 4 1 0 1 1z","CO":"M314 249l-1 -2 -1 -1 -1 1 -5 0 0 2 2 1 0 1 -1 -1 -1 1 0 2 1 1 0 2 0 2 -1 8 -1 -1 -1 0 1 -4 -2 -1 -1 0 -1 0 -2 1 -2 -1 -2 -3 -1 -1 -1 -2 -2 -1 -2 -1 -1 -1 -1 1 -2 -1 -1 -1 -3 -2 0 -1 1 0 0 -2 0 -1 2 0 1 -2 1 -2 -1 0 0 -2 0 -3 1 -1 -1 -3 -1 -2 1 -1 1 -1 0 -2 1 0 3 -2 1 -1 0 -1 0 -2 2 -2 2 0 0 -1 2 1 3 -2 1 -1 1 -1 1 0 1 1 -1 1 -2 0 0 2 -2 1 0 1 -1 2 -1 2 2 0 0 2 0 1 1 1 -1 1 0 1 1 0 1 1 3 0 2 0 2 3 1 0 2 0 1 0 1 0 0 2 -1 1 0 2 0 2 1 1 0 1 -1 2 1 0 0 1 1 4z","CR":"M272 222l-1 0 0 2 0 1 -1 1 -1 0 -1 -1 1 -1 -1 -1 -1 -1 -1 0 0 -1 -1 -1 0 1 0 1 -1 -1 -1 0 0 -1 0 -1 0 -1 0 -1 1 0 1 0 1 0 1 0 0 1 1 0 1 0 0 1 1 2 2 1z","VE":"M332 236l0 1 -1 1 -3 1 -2 1 -1 1 -2 -1 -2 -1 -1 1 1 0 0 3 1 2 2 0 0 1 -2 1 0 1 -1 0 -3 1 0 1 -2 0 -2 -1 -1 -4 0 -1 -1 0 1 -2 0 -1 -1 -1 0 -2 0 -2 1 -1 0 -2 -1 0 -1 0 -2 0 -1 0 -2 -3 -2 0 -3 0 -1 -1 -1 0 0 -1 1 -1 -1 -1 0 -1 0 -2 -2 0 1 -2 1 -2 0 -1 2 -1 0 -2 2 0 0 1 -2 0 1 1 0 2 -1 2 1 3 1 -1 1 -2 -1 -1 0 -3 3 -1 0 -1 1 -1 1 2 2 0 2 2 0 1 2 0 3 -1 2 2 2 0 1 -1 0 -1 4 0 3 0 -2 1 0 2 3 0 2 2 0 2 1 0 2 1 -3 2 0 1 1 1 -1 1 -2 0 0 2 0 1 2 2z","FR":"M515 94l1 0 4 1 -1 2 -1 2 0 1 -1 0 -2 2 0 2 1 -1 1 2 1 2 -1 1 1 2 1 0 0 2 -3 2 -5 -1 -3 1 0 2 -3 0 -3 -1 -1 0 -5 -1 -1 -1 2 -2 0 -6 -3 -4 -1 -1 -4 -2 0 -2 3 -1 4 1 -1 -3 3 1 5 -2 1 -3 2 -1 0 2 2 0 1 1 1 1 2 0 2 1 0 1 1 0zM357 239l-2 3 -1 3 -1 1 -1 0 -1 -1 -1 1 -1 -1 0 -1 1 -2 0 -1 -1 -2 0 -2 1 -3 1 1 2 0 3 3 1 1zM522 115l2 -1 0 3 0 2 -2 0 0 -3 0 -1z","EC":"M291 253l0 3 -1 2 -3 3 -3 1 -2 3 0 2 -2 2 -1 -2 -1 0 -1 0 0 -1 0 -1 0 -1 1 -3 0 -1 -1 1 -2 -1 1 -1 -1 -3 1 0 1 -2 1 -2 0 -2 1 0 2 -2 3 2 1 1 2 1 1 -1 1 1 2 1z","CU":"M277 178l3 0 2 0 2 1 1 2 3 -1 0 1 2 2 2 1 1 0 1 1 0 1 2 0 2 1 0 1 -2 1 -2 0 -2 -1 -4 1 2 -2 -1 -1 -2 0 0 -1 -1 -2 -1 0 -3 -1 -1 0 -3 -1 -1 0 1 -1 -2 0 -3 1 -1 0 0 1 -2 0 -1 0 2 -1 1 -1 1 -1 1 0 3 -1z","SN":"M454 209l-1 -3 -1 -1 1 0 1 -3 1 -1 1 -1 1 0 1 -1 2 0 1 1 2 1 2 2 2 3 0 2 0 2 1 0 0 2 0 1 -2 0 -2 -1 -2 0 -5 0 -1 0 -1 0 -1 1 0 -3 2 0 1 0 1 -1 1 1 2 0 1 -1 -1 -1 -1 1 -2 -1 -1 1 -3 0z","ML":"M468 213l0 -1 0 -2 -1 0 0 -2 0 -2 0 -1 1 -2 1 0 2 1 1 -1 1 1 1 -1 11 0 0 -2 0 -1 -1 -14 -1 -14 4 0 9 7 9 7 1 2 1 1 2 0 0 2 3 0 0 7 -2 3 0 2 -2 0 -4 0 -1 2 -2 0 -2 0 0 -1 -2 1 -3 1 0 1 -2 1 -1 1 -1 1 -1 -1 -1 1 0 2 -2 3 0 1 -1 1 0 2 -1 1 -1 0 0 -1 -1 0 -1 1 -2 0 -1 0 -1 -1 0 -1 -1 0 0 -1 1 -1 -1 -1 -1 -1 0 -1 -1 0 -1 1 -1 1 -1 -1 -1 0 0 -1 -1 1 -1 0 0 -1z","NG":"M507 233l1 -6 0 -2 0 -2 1 -1 1 -2 0 -1 0 -1 0 -2 0 -1 0 -3 1 -1 0 -2 1 -1 3 0 3 1 1 2 1 0 1 -1 4 1 1 0 2 -1 1 0 1 0 2 0 2 1 2 -2 1 0 2 4 1 1 0 1 -2 3 -1 2 -1 2 -1 3 -1 1 -1 2 0 1 0 1 -2 1 -2 -1 -1 0 -2 2 -2 3 0 2 -3 2 -1 -1 -1 1 -3 0 -1 -2 -1 -2 -2 -2 -2 0 -3 0z","GH":"M500 217l0 1 1 2 0 2 0 3 1 1 -1 3 1 1 0 2 1 2 -4 2 -2 1 -2 1 -3 -1 0 -2 -1 -2 1 -4 1 -3 -1 -4 0 -3 0 -2 5 0 1 1 1 -1 1 0z","CI":"M478 220l1 0 2 0 1 -1 1 0 0 1 1 0 1 -1 1 1 1 1 1 1 1 -1 1 0 2 1 1 4 -1 3 -1 4 1 2 0 2 -1 0 -2 -1 -2 0 -3 1 -2 1 -3 1 0 -3 0 -2 -1 -1 -1 0 -1 -1 1 -2 -1 -1 1 -1 0 -1 0 -1 1 -1 0 -2 -1 -2 0 -1 1 0z","BF":"M485 219l0 -2 1 -1 0 -1 2 -3 0 -2 1 -1 1 1 1 -1 1 -1 2 -1 0 -1 3 -1 2 -1 0 1 2 0 0 1 0 2 2 2 0 1 3 1 0 2 -1 1 -1 1 -1 1 -1 0 -2 0 -1 0 -1 1 -1 -1 -5 0 0 2 0 3 -2 -1 -1 0 -1 1 -1 -1 -1 -1 -1 -1z","IL":"M594 147l0 1 -1 0 -1 2 1 0 0 1 -1 1 2 -1 0 1 -1 6 0 -1 -2 -5 0 -1 1 -2 0 -2 0 -1 1 0 1 -1 0 2z","LB":"M594 145l-1 1 -1 0 1 -3 1 -2 1 0 1 1 -1 2 -1 1z","TN":"M525 155l-1 -6 -2 -1 0 -1 -2 -2 0 -2 1 -2 1 -3 -1 -3 1 -1 3 -2 1 1 0 1 3 -1 0 1 -1 1 0 2 1 1 -1 2 -1 2 0 2 2 0 0 1 1 1 0 2 -1 1 -1 1 -2 2 1 1 -1 1 -1 1z","DZ":"M477 164l0 -4 4 -3 3 0 2 -1 1 -2 3 -1 0 -2 2 -1 1 -1 4 0 0 -2 -1 0 -1 -4 0 -2 -1 -2 3 -2 3 0 1 -1 3 -1 4 -1 5 0 1 0 2 -1 3 0 1 1 2 0 -1 1 1 3 -1 3 -1 2 0 2 2 2 0 1 2 1 1 6 1 3 0 1 0 3 0 1 0 2 0 2 -1 2 2 2 0 1 1 2 1 0 2 1 1 2 -9 6 -8 7 -3 1 -3 0 0 -2 -2 0 -1 -1 -1 -2 -9 -7 -9 -7 -10 -8z","JO":"M594 148l0 -1 3 1 5 -3 2 4 -1 0 -5 2 3 3 -1 1 0 1 -2 0 -1 2 -1 1 -3 -1 1 -6 0 -1 0 -1 0 -2z","AE":"M639 175l1 -1 0 1 2 0 2 0 2 0 2 -2 1 -2 2 -2 0 1 1 2 -1 0 0 2 0 1 -1 1 0 1 0 1 0 2 -1 0 -8 -1 -2 -4z","IQ":"M604 149l-2 -4 5 -3 1 -4 -1 -3 2 0 1 -2 1 -1 3 1 1 0 1 0 2 4 2 1 1 1 -2 2 0 2 2 3 4 2 2 2 -1 3 1 0 0 1 2 2 -1 0 -2 0 -2 3 -5 0 -8 -7 -4 -2 -3 -1z","KH":"M783 213l-1 -3 1 -3 4 -1 3 1 2 1 1 -2 2 1 1 2 0 4 -4 2 1 2 -2 1 -3 1 -2 -1 -1 -1 -2 -4z","TH":"M790 207l-3 -1 -4 1 -1 3 1 3 -3 -1 -2 0 0 -2 -2 0 0 3 -1 5 -1 3 1 2 1 0 2 3 0 3 2 2 2 0 1 2 -1 1 -1 0 -1 -1 -2 -2 -1 1 -1 -1 0 -2 -2 -2 -1 -1 -1 2 0 -2 0 -2 1 -3 1 -4 1 -3 -2 -2 0 -2 0 -2 -2 -2 -1 -2 1 -1 0 -2 -1 -2 -2 -3 -2 -3 1 0 1 -4 2 0 1 -1 2 -1 1 1 0 2 2 0 0 3 1 3 2 -2 1 1 2 0 0 -1 2 0 3 3 0 3 3 3 0 2 0 2z","MM":"M773 187l-2 1 -1 1 -2 0 -1 4 -1 0 2 3 2 3 1 2 0 2 -1 1 1 2 2 2 0 2 0 2 2 2 -1 3 -1 4 -1 -3 1 -2 -1 -2 -1 -4 -1 -1 -1 -4 -1 -4 -2 -3 -1 2 -3 2 -2 0 -1 -1 0 -4 -1 -3 -3 -4 0 -1 -1 0 -3 -3 0 -2 1 0 0 -2 1 -1 -1 -1 1 -2 -1 -3 2 1 1 -3 0 -1 1 -3 -1 -2 3 -2 2 0 0 -2 1 0 -1 -1 2 -1 1 2 1 1 1 2 0 3 -2 3 1 4 3 -1 1 3 2 1 -1 2 3 2 1 0 2 -1 0 2 -2 2 0 1z","VN":"M788 219l3 -1 2 -1 -1 -2 4 -2 0 -4 -1 -2 1 -3 -1 -3 -3 -2 -2 -3 -3 -3 -3 -2 0 -1 2 -1 -2 -3 -3 0 -2 -3 -2 -3 1 0 3 0 2 -1 2 -2 2 2 2 0 0 2 2 1 3 1 -4 3 -1 3 0 2 2 4 3 4 3 2 2 3 2 6 0 5 -2 2 -3 2 -2 3 -3 3 -1 -2 1 -2 -3 -2z","KR":"M826 131l2 0 0 -2 2 0 1 0 0 -1 4 4 1 2 2 4 -1 2 -2 0 -1 1 -3 1 -1 -2 0 -2 -2 -4 1 0 -3 -3z","MN":"M714 94l3 0 3 -3 3 -1 3 0 2 1 3 1 2 0 4 1 1 -2 -1 -2 1 -3 3 1 2 0 4 1 1 2 4 2 2 -1 3 0 3 0 3 2 2 1 2 0 4 1 2 -1 3 -1 2 -2 2 1 1 1 3 -1 0 3 0 3 1 1 2 0 2 0 2 -1 2 1 3 2 1 1 -2 0 -4 0 -1 1 -1 2 -3 2 -2 1 -3 0 -1 -1 -1 2 2 2 1 1 -2 1 -1 1 -2 2 -4 0 -4 1 -2 2 -1 -1 -4 0 -4 -2 -3 -1 -3 1 -5 -1 -3 0 -2 -2 -3 -3 -1 0 -4 -2 -4 -1 -3 0 -1 -2 -1 -3 -2 -3 -4 -1 -3 -2 -2 -2z","IN":"M760 162l1 1 -1 0 0 2 -2 0 -3 2 1 2 -1 3 0 1 -1 3 -2 -1 1 3 -1 2 1 1 -1 1 -3 -5 -1 2 -1 -2 0 -2 1 0 1 -3 -2 0 -2 0 -3 -1 0 -2 -2 0 -2 -2 -1 3 3 1 -2 2 0 1 2 1 -1 2 2 2 1 3 -1 1 -1 0 -4 0 1 3 -1 2 -4 2 -2 4 -2 2 -3 2 0 1 -1 1 -2 1 -1 1 -1 2 1 4 0 3 -1 3 1 5 -2 1 -1 2 1 1 -2 1 -1 2 -1 1 -3 -3 -2 -4 -1 -4 -1 -1 -2 -3 -1 -4 0 -2 -3 -5 -2 -6 -1 -4 -1 -4 -1 -3 -3 2 -2 -1 -4 -3 1 -2 -1 -1 -4 -3 2 -2 6 0 -1 -3 -2 -1 -1 -3 -2 -1 3 -4 3 1 2 -4 1 -3 2 -3 0 -3 2 -1 -3 -2 -1 -2 -2 -3 1 -1 4 0 3 0 2 -3 4 4 0 3 2 1 0 2 -2 -1 1 4 3 2 5 2 -2 2 0 3 3 1 2 2 4 1 4 1 2 2 2 0 3 1 3 0 0 -2 -1 -2 0 -1 1 -1 1 3 3 2 1 -1 3 0 2 0 0 -2 -2 -1 2 0 2 -3 3 -2 2 1 2 -1 2 2 -1 1 3 1z","BD":"M752 182l0 2 -1 0 0 2 -1 -2 0 -1 -1 -2 -1 -2 -3 0 1 2 -1 1 -1 0 -1 0 -1 0 -1 -3 -2 -2 1 -2 -2 -1 0 -1 2 -2 -3 -1 1 -3 2 2 2 0 0 2 3 1 2 0 2 0 -1 3 -1 0 0 2 1 2 1 -2 3 5z","NP":"M736 163l0 1 1 2 0 2 -3 0 -3 -1 -2 0 -2 -2 -4 -1 -4 -1 -2 -2 -3 -1 0 -3 2 -2 3 1 3 2 2 0 1 2 2 0 2 2 4 1 3 0z","PK":"M703 138l-2 3 -3 0 -4 0 -1 1 2 3 1 2 3 2 -2 1 0 3 -2 3 -1 3 -2 4 -3 -1 -3 4 2 1 1 3 2 1 1 3 -6 0 -2 2 -2 0 -1 -3 -2 -2 -5 0 -4 0 -4 1 0 -4 4 -2 -1 -1 -1 -1 0 -2 -3 -2 -1 -2 -2 -1 5 1 2 0 2 0 0 -1 2 1 3 -2 0 -2 1 -2 2 0 0 -1 2 -1 1 1 1 -1 0 -2 0 -2 2 -1 -2 -2 3 0 0 -1 0 -1 1 -2 -1 -1 0 -2 1 -1 2 -1 3 0 1 -1 2 0 2 1 2 3 4 1z","IR":"M629 156l-2 -2 0 -1 -1 0 1 -3 -2 -2 -4 -2 -2 -3 0 -2 2 -2 -1 -1 -2 -1 -2 -4 -2 -3 1 -1 -2 -3 2 -1 1 1 1 1 2 1 1 0 2 -3 1 0 1 1 0 2 2 1 1 2 3 1 2 2 4 0 4 -1 2 -1 1 -2 2 0 1 0 2 0 3 2 2 0 4 3 2 0 1 3 -1 4 0 2 1 1 -1 1 2 3 0 2 2 0 1 3 -2 3 2 1 1 2 3 2 0 2 1 1 1 1 -4 2 0 4 -5 -1 -3 -1 -4 0 -1 -4 -2 -1 -2 1 -2 1 -3 -1 -3 -2 -3 -1 -2 -3 -3 -5 -1 1 -2 -1 -1 1z","AM":"M620 128l-1 0 -1 -2 -1 -1 -1 0 -1 0 -1 -1 -2 -1 0 -2 -1 -1 4 0 0 1 1 0 0 1 1 1 0 1 1 1 1 0 1 3z","SE":"M525 65l1 -2 2 -2 0 -3 -1 -2 -1 -3 2 -3 2 0 1 -1 -1 -1 3 -4 2 -3 1 -2 2 0 0 -2 4 1 0 -2 2 0 3 1 3 2 1 4 1 2 -4 0 -2 2 1 2 -3 2 -4 3 -1 4 1 2 3 2 -2 3 -2 1 -1 5 -1 2 -3 0 -1 2 -3 1 -1 -3 -2 -4 -2 -4z","BY":"M566 73l2 1 1 1 1 -1 3 1 0 1 0 1 1 2 1 1 2 1 1 1 -1 0 -2 0 0 1 0 1 1 2 -2 0 0 2 -1 0 -2 0 -1 -1 -1 1 -1 -1 -2 0 -3 -1 -2 0 -2 0 -1 1 -1 0 0 -1 -1 -2 1 0 0 -2 -1 -1 0 -1 2 0 3 -1 0 -2 2 -1 -1 -1 2 -1 2 -1z","UA":"M576 86l1 0 1 -1 1 0 2 0 2 2 -1 0 1 1 2 0 1 2 3 1 2 0 2 1 1 0 4 1 0 1 -1 2 1 2 0 1 -2 0 -2 1 1 1 -2 0 -2 1 -2 1 -2 1 0 1 -1 0 -2 -1 -1 1 0 -1 -4 0 0 -2 -3 1 0 1 -2 3 -1 -1 -1 1 -2 -1 1 0 0 -1 1 -1 0 -1 2 0 1 0 -1 0 0 -1 -1 0 0 -2 -1 0 0 -1 -1 -1 -1 0 -2 -1 -2 0 -1 1 -1 0 -2 1 -1 0 -1 -1 -1 0 -2 0 -1 1 0 -1 -2 -1 1 -1 0 -1 1 0 -1 -1 2 -3 1 0 0 -1 -1 -3 1 0 1 -1 2 0 2 0 3 1 2 0 1 1 1 -1 1 1 2 0 1 0 0 -2 2 0z","PL":"M556 80l0 1 1 1 0 2 -1 0 1 2 0 1 1 3 0 1 -1 0 -2 3 1 1 -1 0 -2 -1 -2 0 -1 0 -2 0 -1 -1 -1 1 -1 -2 -2 0 0 -1 -2 0 -2 0 0 -1 -1 0 -2 -1 -1 -2 0 -1 0 -2 -1 -1 0 -1 0 -2 1 0 4 -2 3 -1 2 1 3 0 2 1 5 0 1 0 1 1z","AT":"M542 98l0 1 -2 0 1 1 -1 2 -2 0 -2 1 -2 0 -3 -1 -1 -1 -2 1 -1 0 -1 0 -1 0 -2 -1 1 -1 2 0 2 0 2 -1 1 0 1 1 0 -1 0 -2 1 0 0 -1 2 1 1 -2 1 0 2 1 1 0 2 0 -1 1 1 1z","HU":"M554 97l2 1 0 1 -1 0 -1 2 -2 3 -2 0 -1 0 -2 1 -1 0 -2 0 -2 -2 -1 0 0 -1 -1 0 1 -2 -1 -1 2 0 0 -1 1 1 1 0 2 0 0 -1 1 0 1 -1 1 1 1 -1 0 -1 1 0 3 1z","MD":"M565 98l1 -1 2 0 2 1 1 0 1 1 0 1 1 0 0 2 1 0 0 1 1 0 -1 0 -2 0 0 1 -1 1 0 1 -1 0 0 -1 0 -2 0 -1 -2 -2 -1 -1 -1 -1 -1 0z","RO":"M570 106l2 1 1 -1 1 1 0 1 -1 0 -1 0 0 4 -2 -1 -2 -1 -2 1 -2 1 -3 0 -2 -1 -1 0 -1 -1 -1 0 1 -1 -1 0 -2 -1 0 -1 -2 -1 0 -1 -2 -1 2 0 2 -3 1 -2 1 0 1 -1 2 0 1 0 1 1 1 0 2 -1 1 0 1 0 1 1 1 1 2 2 0 1 0 2 0 1z","LT":"M562 75l1 1 -2 1 0 2 -3 1 -2 0 -1 -1 -1 0 0 -1 0 -1 -1 0 -3 -1 -1 -2 3 -1 4 0 2 0 2 0 2 2z","LV":"M563 69l1 1 1 1 1 2 -2 1 -2 1 -2 -2 -2 0 -2 0 -4 0 -3 1 0 -3 1 -2 2 -1 2 3 2 0 0 -3 2 0 1 0 2 1 2 0z","EE":"M564 63l0 1 -1 1 1 3 -1 1 -2 0 -2 -1 -1 0 -2 0 0 -1 -1 0 -1 -1 -1 -2 3 -1 3 0 3 0 2 0z","DE":"M534 80l0 2 0 1 1 1 0 2 0 1 1 2 -1 0 -1 0 -2 1 -1 0 -1 1 0 1 1 1 1 1 1 2 0 1 -1 0 0 2 0 1 -1 -1 -1 0 -2 1 -2 0 -2 0 -3 -1 -3 0 1 -2 1 -2 -4 -1 -1 0 0 -2 0 -2 -1 -4 2 0 0 -1 1 -3 -1 -1 1 0 2 -1 0 1 2 -1 -1 -2 0 -1 2 0 1 0 0 1 3 1 0 1 2 -1 2 -1 2 1 2 1z","BG":"M557 110l1 1 1 0 2 1 3 0 2 -1 2 -1 2 1 2 1 -1 1 -1 2 1 2 -2 0 -3 1 0 1 -2 1 -2 -1 -2 0 -2 0 0 -2 -1 -1 0 -1 0 -1 1 -1 -1 -1 -1 -1 1 -1z","GR":"M558 119l2 0 2 0 2 1 2 -1 0 -1 2 1 -1 2 -2 0 -1 0 -3 0 2 2 -2 1 -1 0 -2 -2 0 1 1 2 1 1 -1 1 2 1 1 1 0 2 -2 -1 1 2 -2 0 1 3 -2 0 -2 -1 -1 -3 0 -2 -2 -1 -1 -2 0 -1 1 -2 0 -1 1 0 0 -1 1 0 1 -1 2 0 0 -1zM569 139l-1 1 -3 0 -4 -1 1 -1 1 1 2 -1 2 1 2 0z","TR":"M616 133l-1 0 -1 0 -3 -1 -1 1 -3 0 -1 0 -3 1 -2 0 -2 0 -3 1 -1 -1 0 2 -1 1 -1 -1 1 -2 -2 1 -2 -1 -1 2 -4 0 -3 -2 -2 0 -1 2 -2 0 -2 -2 -3 0 -2 -3 -2 -2 1 -2 -2 -2 3 -3 4 0 1 -2 4 0 3 -2 3 -1 4 0 5 2 4 2 3 -1 2 0 3 -1 2 0 3 1 1 1 0 2 2 1 1 1 -2 1 2 3 -1 1 2 3zM566 118l3 -1 2 0 1 1 2 2 -1 0 -3 0 -1 1 -2 2 0 -1 0 -1 1 -2 -2 -1z","AL":"M554 121l0 1 -1 0 0 1 -1 2 -1 0 0 -1 -1 -1 -1 -2 0 -2 1 -1 -1 0 0 -1 1 -2 0 1 1 -1 0 1 1 1 0 1 0 1 1 1 1 1z","HR":"M541 103l1 0 2 2 2 0 1 0 1 1 0 1 0 1 -2 -1 -1 0 -3 0 -1 0 0 1 -1 -1 -1 1 2 2 0 1 2 1 1 1 1 1 2 1 0 1 -3 -1 -1 -2 -3 -1 -2 -2 1 0 -2 -1 0 -2 -1 0 -1 1 -1 -1 0 -1 2 0 1 0 1 0 0 -1 1 0 0 -1 2 -1z","CH":"M524 100l-1 1 2 1 1 0 0 1 -1 1 -2 -1 -1 1 -1 1 0 -1 -2 1 -1 0 -1 0 -1 -2 -1 1 0 -2 2 -2 1 0 0 -1 3 0 3 1z","LU":"M515 92l0 2 -1 0 0 -1 0 -1 1 0z","BE":"M515 90l0 2 -1 0 0 1 -2 -1 -2 0 -1 -1 -1 -1 -2 0 0 -2 2 0 2 0 2 -1 2 2 1 1z","NL":"M516 81l1 1 -1 3 0 1 -2 0 1 4 -1 -1 -2 -2 -2 1 -2 0 1 -1 2 -5 3 -1 2 0z","PT":"M477 118l1 -1 1 -1 1 2 1 0 1 0 1 0 1 1 -1 1 -1 3 0 2 -1 0 1 2 -1 2 1 1 -1 1 -1 1 1 1 -1 1 -2 -1 -1 1 0 -3 0 -2 -1 0 -1 -1 1 -2 1 -2 0 -1 1 -2 0 -1 -1 -1 0 -1z","ES":"M481 133l-1 -1 1 -1 1 -1 -1 -1 1 -2 -1 -2 1 0 0 -2 1 -3 1 -1 -1 -1 -1 0 -1 0 -1 0 -1 -2 -1 1 -1 1 0 -3 -1 -1 4 -2 3 0 3 0 3 1 2 0 4 0 1 1 5 1 1 0 3 1 3 0 0 2 -3 2 -3 0 0 2 -2 1 -1 3 1 2 -1 1 -1 2 -2 1 -2 2 -3 0 -2 0 -2 2 -1 1 -1 -1 -1 -1 -1 -1 -2 -1z","IE":"M485 80l1 2 -2 3 -5 2 -3 -1 2 -3 -1 -3 3 -2 2 -2 1 2 -1 2 2 -1 1 1z","NZ":"M928 393l3 -2 2 -1 3 -3 2 0 1 -2 3 -2 0 2 -1 1 3 -1 0 1 -1 1 -2 2 -3 2 -2 1 0 2 -2 0 -3 1 -2 2 -4 4 -3 1 -2 1 -2 0 -1 -1 -3 -1 1 -1 3 -2 5 -3 2 -1 3 -1zM953 382l-2 2 -3 2 -2 1 0 -1 -1 0 3 -3 0 -2 -2 -1 1 -1 3 -1 2 -3 1 -2 0 -2 0 -2 -1 -3 0 -2 1 0 1 2 1 0 0 3 0 4 1 -2 1 0 -1 3 1 1 2 0 2 -1 1 0 -2 3 -2 2 -2 0 -2 1 0 1 -1 1z","AU":"M833 357l-3 1 -3 1 -1 2 -1 1 -3 0 -1 0 -2 0 -3 0 -1 0 -3 2 -2 1 -1 1 -2 0 -2 0 -2 -2 -1 -1 0 -2 2 0 0 -1 1 -1 1 -2 0 -2 0 -4 0 -2 0 -1 0 -2 0 -1 -1 -2 1 -2 -1 -3 0 -1 1 1 -1 -3 1 1 1 1 0 -1 0 -3 0 -1 -1 -1 1 -2 1 0 0 -2 0 -2 2 -2 0 2 1 -2 3 -1 1 -1 3 -2 1 0 1 0 2 -1 2 0 0 -1 1 0 2 0 3 -1 1 -1 1 -2 2 -2 1 -1 0 -2 2 -3 1 3 1 0 0 -2 1 -1 1 0 1 -2 1 -2 1 -1 2 -1 0 -1 1 1 0 -1 1 0 2 -1 2 2 1 2 2 0 1 0 0 -2 2 -3 1 0 0 -1 1 -2 2 -1 1 0 3 0 0 -2 -2 -1 2 -1 1 1 2 2 2 0 1 0 1 1 2 -1 1 0 1 0 1 1 -1 2 -1 1 -1 1 0 1 -1 1 -2 2 0 1 2 2 2 1 1 1 2 2 1 0 1 1 0 1 3 1 2 -1 1 -2 1 -2 0 -1 1 -3 0 -1 1 -1 0 -2 0 -3 1 0 0 -1 1 -2 0 -2 1 -1 1 -1 0 2 0 2 1 0 0 1 1 2 0 2 -1 1 1 2 2 -1 1 2 1 1 -1 1 0 3 0 2 1 0 0 3 -1 2 1 2 2 1 2 2 1 1 0 1 1 2 0 4 1 -1 1 1 1 0 -1 3 2 2 1 1 1 3 0 3 -1 2 -1 2 1 2 -2 3 -1 2 -1 3 -1 1 -2 3 -2 3 -3 1 -2 3 -1 1 -2 3 -2 2 -2 2 -1 2 0 1 -2 2 -3 0 -3 1 -2 1 -3 2 -1 -2 -1 0 1 -2 -2 1 -3 2 -2 -1 -1 -1 -2 0 -2 -1 0 -2 0 -2 0 -2 0 -1 -3 0 2 -2 0 -2 -2 2 -3 0 3 -1 1 -2 1 -2 1 -2 -3 3 -2 1 -2 2 -2 -1 1 -2 -1 -2 -1 -1 1 -1 -3 -2 -1 0 -2 -2 -5 1 -4 1 -3 1 -3 0zM877 384l1 0 -1 4 -2 1 -2 3 0 -1 -3 2 -2 0 0 -3 1 -2 0 -3 1 -1 1 0 2 1 2 0 2 -1z","LK":"M727 229l-1 3 -1 1 -2 0 -2 -2 0 -5 1 -5 2 2 1 2 2 4z","CN":"M703 116l0 -2 1 -1 -4 -5 5 -1 1 -1 0 -6 5 1 1 -1 -1 -3 2 0 1 -3 2 2 3 2 4 1 2 3 1 3 1 2 3 0 4 1 4 2 1 0 3 3 2 2 3 0 5 1 3 -1 3 1 4 2 4 0 1 1 2 -2 4 -1 4 0 2 -2 1 -1 2 -1 -1 -1 -2 -2 1 -2 1 1 3 0 2 -1 3 -2 1 -2 1 -1 4 0 2 0 -1 -1 -3 -2 -2 -1 -2 1 -2 0 -2 0 -1 -1 0 -3 0 -3 4 2 2 -2 -1 -2 1 -3 0 -1 -1 -2 -1 -1 1 -1 2 -1 3 0 4 1 3 1 4 3 1 2 2 2 3 3 5 1 4 2 3 3 4 0 1 -1 4 -1 0 3 0 1 1 3 0 3 -4 0 -1 1 2 3 2 3 -2 0 1 2 -2 -2 -1 2 -3 1 1 2 -2 0 -2 -1 0 2 -2 2 -1 2 -4 1 -1 1 -2 1 0 -1 -1 -2 1 -2 -2 -1 -1 1 -2 2 -1 2 -2 0 -1 2 2 2 2 0 1 2 2 1 2 -2 3 1 2 0 1 2 -3 0 -1 2 -2 2 0 2 3 2 2 3 3 3 2 2 1 3 -1 1 1 1 2 1 0 3 0 3 -1 0 -1 3 -1 5 -2 4 -3 3 -3 2 -3 1 -1 1 -1 -1 -2 2 -3 1 -3 1 0 3 -2 0 -1 -2 1 -1 -4 -1 -1 0 -3 -1 -2 -1 0 -2 -2 0 -2 -2 -2 2 -2 1 -3 0 -1 0 -1 1 1 4 -2 -1 0 -2 -2 1 -1 0 -3 -2 1 -2 -2 -1 -1 -3 -3 1 -1 -4 2 -3 0 -3 -1 -2 -1 -1 -1 -2 -2 1 -3 -1 1 -1 -2 -2 -2 1 -2 -1 -3 2 -2 3 -2 0 -1 -1 -1 0 -2 -1 -2 1 -1 3 -1 -3 -1 1 -3 0 -4 -1 -2 -2 -2 0 -1 -2 -2 0 -3 -2 -3 -1 -5 -2 -3 -2 -1 -4 2 1 0 -2 -2 -1 0 -3 -4 -4 -4 -1 -2 -3 -2 -1 -1 -1 -1 -2 0 -1 -2 -1 -2 -2 1 -1 -1 -1 2 -1 2 -1 3 0 0 -2 3 0 1 -1 3 -2 0 -1zM799 194l-2 -1 -1 -3 2 -1 2 -1 2 0 1 1 -1 2 0 2 -3 1z","TW":"M829 174l-1 5 0 3 -2 -3 -1 -2 1 -3 1 -3 2 1 0 2z","IT":"M526 102l1 0 1 0 2 -1 1 1 3 1 0 1 1 2 -2 -1 -2 2 0 1 0 1 1 2 2 1 2 3 2 2 2 0 1 1 -1 1 3 1 2 1 2 2 0 1 -2 -1 -2 -1 -1 2 2 2 0 1 -1 0 -1 3 -1 0 0 -1 0 -1 0 -1 -1 -2 -1 -1 -1 -1 0 -1 -2 -1 -1 -1 -2 0 -2 -2 -3 -2 -1 -2 -1 -3 -2 0 -2 -1 -1 0 -1 2 -1 0 0 -2 -1 0 -1 -2 1 -1 -1 -2 1 0 1 0 2 -1 0 1 1 -1 1 -1 2 1 1 -1 0 -1zM538 130l2 -1 -1 3 1 1 -1 2 -2 -2 -1 0 -4 -2 0 -1 4 0 2 0zM522 121l1 -1 2 2 0 4 -1 0 -1 1 -1 -1 -1 -4 0 -1 1 0z","DK":"M523 77l-1 0 -2 0 -1 -2 0 -3 0 -1 1 -1 2 0 1 -1 1 -1 0 2 0 1 0 1 1 0 0 1 -1 0 -1 2 0 2zM529 73l1 2 -1 2 -3 -1 0 -2 3 -1z","GB":"M493 82l0 -2 -2 -2 -2 -1 -1 -1 1 -1 -1 -1 -1 2 0 -3 -1 -2 1 -3 1 -2 2 0 3 0 -2 3 2 0 2 0 0 2 -2 3 2 0 2 4 2 0 1 4 1 1 3 1 0 2 -1 0 0 2 -2 2 -3 0 -4 0 -1 0 -2 1 -2 0 -2 1 -1 0 4 -4 2 0 -4 -1 -1 -1 3 -1 -1 -2 0 -2 4 1zM485 80l-1 -1 -2 1 1 -2 -1 -2 2 0 3 2 -2 2z","IS":"M469 43l-1 2 2 2 -3 2 -6 2 -2 1 -3 -1 -6 -1 2 -1 -4 -1 4 -1 0 -1 -5 0 2 -2 3 -1 3 2 4 -1 2 1 4 -2 4 0z","AZ":"M618 118l1 0 2 2 1 0 0 -1 1 -1 2 2 2 2 1 0 1 1 -2 0 0 3 0 1 -1 0 0 2 -2 -1 0 -2 -1 -1 -1 0 -2 3 -1 -3 -1 0 -1 -1 0 -1 -1 -1 0 -1 -1 0 0 -1 0 -1 2 1 2 0 -2 -2 1 0zM619 128l-2 -1 -1 -1 -1 -1 1 0 1 0 1 1 1 2z","GE":"M601 113l0 -1 2 1 4 0 4 2 2 0 2 1 1 1 2 1 -1 0 2 2 -2 0 -2 -1 0 1 -4 0 -3 -1 -2 0 0 -2 -1 -2 -2 -1 -1 0 -1 -1z","PH":"M835 194l-1 1 2 3 -1 2 -1 1 0 3 1 3 1 0 2 0 3 1 0 2 1 1 0 1 -2 -1 -1 -2 -1 1 -2 -2 -2 1 -2 -1 0 -1 1 -1 -1 -1 0 1 -2 -1 -1 -2 0 -3 1 1 0 -5 0 -3 2 0 1 1 1 -1 1 1zM850 226l0 2 1 2 -1 3 -1 -4 -2 2 2 2 -1 2 -4 -2 0 -2 0 -2 -2 -2 0 2 -2 0 -2 2 0 -1 1 -3 1 -1 2 -1 1 1 2 -1 0 -1 2 0 0 -3 2 2 1 1 0 2zM839 221l1 -1 0 -2 1 0 0 2 2 -3 0 3 -1 1 -1 2 -1 1 -2 -3 1 0zM846 214l1 3 -2 -1 0 1 1 2 -1 1 0 -2 -1 0 -1 -2 2 0 0 -1 -2 -3 2 0 1 2zM828 223l-4 3 2 -2 1 -2 2 -3 1 -3 1 3 -2 2 -1 2zM837 216l-1 -2 2 1 2 0 0 2 -1 1 -2 1 0 -1 0 -2zM833 212l-2 -3 3 0 1 2 0 2 -2 -1z","MY":"M827 239l-2 0 -3 0 -1 3 -1 2 -2 4 -2 1 -3 -1 -1 0 -1 2 -2 0 -2 0 -2 -2 0 -2 2 1 2 0 0 -3 1 -1 4 0 2 -3 1 -2 1 2 1 -1 1 0 0 -2 0 -2 2 -2 2 -3 1 0 1 2 0 1 2 1 3 1 -1 2 -1 0 0 1 -2 1zM777 232l1 -1 2 2 1 1 1 0 1 -1 1 0 2 2 1 2 0 2 0 2 0 1 0 2 1 1 2 2 0 2 -2 0 -3 -3 -3 -2 -1 -2 -1 -2 -1 -3 -1 -1 0 -3 -1 -1z","SI":"M534 103l2 0 2 -1 2 0 1 0 0 1 -2 1 0 1 -1 0 0 1 -1 0 -1 0 -2 0 1 0 -1 -2 0 -1z","FI":"M560 36l0 2 4 2 -2 2 4 3 -1 2 2 3 -1 1 4 2 0 2 -2 2 -4 3 -4 1 -4 1 -4 0 -1 -1 -3 -1 0 -3 -1 -3 1 -2 2 -1 4 -3 1 -1 0 -1 -3 -1 -1 -2 -1 -4 -3 -2 -3 -1 1 -1 2 2 3 0 2 0 2 -1 1 -2 3 -1 3 1 -1 2z","SK":"M555 95l0 1 -1 1 -3 -1 -1 0 0 1 -1 1 -1 -1 -1 1 -1 0 0 1 -2 0 -1 0 -1 -1 -1 -1 1 -1 1 0 1 -1 0 -1 1 0 1 0 1 -1 1 1 2 0 1 0 2 0 2 1z","CZ":"M536 89l2 1 1 0 0 1 2 0 2 0 0 1 2 0 1 2 -1 0 -1 0 0 1 -1 1 -1 0 -2 0 -1 0 -2 -1 -1 0 -1 2 -2 -1 -1 -2 -1 -1 -1 -1 0 -1 1 -1 1 0 2 -1 1 0 1 0z","JP":"M865 126l-1 4 2 3 0 2 1 2 0 2 -3 2 -5 0 -2 4 -2 -1 -1 -3 -5 1 -2 1 -3 0 3 3 1 5 -2 2 -1 -2 -1 -3 -2 0 -2 -3 3 -1 0 -2 2 -1 1 -3 5 -1 3 1 0 -6 3 2 2 -3 1 -2 0 -4 -2 -3 0 -2 2 -1 4 5 1 2zM864 111l1 -1 2 3 -3 1 0 3 -6 -2 1 4 -3 0 -2 -4 0 -2 3 0 -2 -5 -1 -2 5 3 3 1 2 1zM848 145l1 -2 1 0 1 -1 2 1 1 1 -1 2 -1 -1 -1 0 0 2 -2 -1 -1 -1z","PY":"M341 318l1 1 1 5 3 0 1 0 2 1 0 1 1 3 0 1 1 0 1 -1 1 1 0 2 0 2 0 2 0 2 -2 3 -2 0 -3 0 -3 -1 2 -5 -1 -1 -3 -2 -3 -2 -2 0 -6 -6 1 -4 -1 -1 1 -3 5 -1 3 0 2 2 0 1z","SA":"M593 158l3 1 1 -1 1 -2 2 0 0 -1 1 -1 -3 -3 5 -2 1 0 3 1 4 2 8 7 5 0 3 0 0 2 2 0 2 2 1 1 1 1 2 2 0 1 0 1 0 1 1 1 1 1 0 1 1 1 1 -1 0 2 2 4 8 1 1 0 1 2 -1 6 -8 4 -8 1 -2 1 -2 4 -1 0 -1 -1 -1 0 -3 0 -3 0 -1 0 -1 -1 -1 2 0 1 -1 1 0 -1 -1 -1 0 -2 -2 -1 -1 -2 -1 -3 -2 -2 -2 -1 -2 -3 0 -2 0 -2 -2 -4 -1 -1 -2 -1 -1 -1 0 -1 -1 -2 0 -1 -2 -2 -2 -3 -1 -2 -1 0 0 -2 0 -1 0 -1z","MA":"M494 139l1 2 0 2 1 4 1 0 0 2 -4 0 -1 1 -2 1 0 2 -3 1 -1 2 -2 1 -3 0 -4 3 0 4 -1 0 0 1 -1 0 -1 1 -1 0 -1 0 -3 0 -1 3 -2 4 -4 3 -1 5 -1 1 0 1 -6 1 0 -2 1 -1 1 -1 0 -1 1 -3 1 -2 1 0 1 -2 0 -2 1 -2 2 -1 2 -3 1 -2 3 0 2 -2 1 -1 3 -3 -1 -4 1 -3 0 -1 2 -3 3 -1 2 -1 2 -4 1 -2 1 0 2 2 2 -1 3 1 1 0z","EG":"M600 182l-11 0 -10 0 -11 0 -1 -12 0 -12 -1 -2 0 -2 0 -2 1 -1 3 0 3 1 2 1 2 0 2 -1 1 -1 2 0 2 0 1 2 0 -1 2 1 3 0 1 -1 2 5 0 1 -1 1 0 2 -1 2 0 1 -1 -1 -1 -2 -3 -5 0 1 1 3 2 3 3 5 1 2 1 2 2 4 0 2 4 3 0 1z","ET":"M632 227l-7 10 -4 0 -2 2 -2 0 -1 1 -2 0 -1 -1 -2 1 -1 2 -2 -1 -1 0 -1 0 -4 -3 -2 0 -1 -1 0 -1 -1 -1 -2 -4 -1 0 -1 -2 -1 -1 -2 0 1 -2 2 0 0 -1 0 -3 1 -3 1 -1 0 -2 1 -2 2 -2 1 -3 0 -3 3 1 1 -2 2 1 2 -1 0 1 2 0 3 1 0 1 2 1 1 2 1 1 -1 2 -1 1 0 1 0 1 2 0 1 0 0 1 0 1 1 1 1 2 1 1 9 4 2 0z","BA":"M547 115l-2 -1 -1 -1 -1 -1 -2 -1 0 -1 -2 -2 1 -1 1 1 0 -1 1 0 3 0 1 0 2 1 0 2 1 1 0 1 -1 0 0 1 -1 0 0 2z","MK":"M557 116l1 1 0 2 0 1 -2 0 -1 1 -1 0 -1 -1 -1 -1 0 -1 1 0 0 -1 1 0 1 -1 1 0 1 0z","RS":"M547 105l2 -1 1 0 2 1 0 1 2 1 0 1 2 1 1 0 -1 1 1 0 -1 1 1 1 1 1 -1 1 0 1 0 1 -1 0 -1 0 0 -1 -1 0 0 -1 -1 0 0 -1 -1 0 0 1 -1 1 0 -1 -1 0 0 -1 -1 0 -1 -1 1 0 0 -1 -1 -1 0 -2 0 -1 0 -1 -1 -1z"},"o":"M988 309l1 -1 0 1 -1 2 -1 1 -2 -1 0 -1 2 -1 1 0zM994 304l1 0 -1 2 -2 1 -2 0 0 -1 1 0 1 -1 2 -1zM6 304l1 0 0 2 -1 0 -1 1 -2 0 0 -1 1 0 1 -1 1 -1zM594 256l1 0 10 7 0 1 4 4 -2 4 1 1 1 2 0 2 0 1 -1 2 1 2 1 3 1 1 -2 2 -3 1 -2 0 -1 1 -1 0 -1 0 -4 -1 -2 1 0 -5 -1 -1 -1 -1 -2 -1 -2 -1 -2 0 -1 -1 -1 -1 -1 -4 -2 -1 0 -2 0 -2 -1 -3 2 0 1 -1 1 -2 0 -1 0 -1 0 -2 1 -2 -2 -2 1 0 4 0 5 0zM477 164l0 5 -9 0 0 8 -3 1 -1 1 1 5 -11 0 0 1 0 -1 6 -1 0 -1 1 -1 1 -5 4 -3 2 -4 1 -3 3 0 1 0 1 0 1 -1 1 0 0 -1 1 0zM892 261l4 2 5 2 2 2 2 1 0 2 4 2 1 2 -3 0 1 2 2 3 2 3 1 0 0 1 2 1 -1 0 3 2 -1 1 -1 0 -1 -1 -2 0 -3 -1 -2 -2 -1 -2 -2 -2 -3 -2 -2 1 -2 1 0 3 -2 1 -2 -1 -3 0 1 -10 1 -11zM920 271l-2 1 -1 1 -2 0 -2 -1 -2 -1 1 -1 2 1 2 -1 0 -1 1 0 0 1 1 0 1 -1 2 -1 0 -2 1 0 1 1 0 1 -1 2 -2 1zM924 264l1 1 0 2 -1 1 0 -2 -1 -1 -1 -1 -2 -2 -2 -1 1 0 2 1 1 0 1 1 1 1zM929 270l1 1 1 2 2 1 -1 1 -1 0 -1 -1 -1 -2 0 -3 0 1zM581 267l1 3 0 2 0 2 2 1 1 4 -1 0 -4 1 -1 2 0 2 0 3 -1 4 1 0 2 1 1 0 0 3 -2 0 -1 -1 -1 -2 -2 0 -1 -2 -2 1 -2 0 -1 -2 -2 0 -1 0 0 -1 -1 0 -1 0 -2 0 -1 0 -1 0 0 -4 0 -1 -1 -2 1 -2 -1 -1 0 -2 -3 0 0 -1 -1 0 0 1 -2 0 -1 2 -2 0 -1 0 -2 1 -1 -2 0 -1 -1 -2 -1 -2 -8 0 -1 0 -1 0 -1 0 0 -1 1 -1 0 -1 1 -1 1 0 1 -1 1 0 0 1 1 1 2 -2 2 -2 0 -1 0 -3 2 -3 1 -1 2 -2 0 -1 0 -1 1 -1 -1 -2 1 -3 0 -2 1 -2 0 -2 0 -2 2 -1 1 -1 2 1 2 1 2 0 2 1 1 -2 2 0 3 -2 1 1 1 0 0 -1 1 0 2 0 2 0 1 0 2 3 1 0 1 -1 1 1 1 -1 1 1 3 2 -1 4 2 1 -1 1 -1 1 -1 1 -1 2 0 2 -1 2 0 2 -1 1 0 2 0 2 0 1 0 4zM616 258l-2 -3 0 -11 2 -4 1 -1 2 0 2 -2 4 0 7 -10 2 -3 1 -2 0 -1 0 -4 0 -1 1 0 1 -1 2 0 1 -1 1 0 0 1 0 2 0 1 0 2 -1 3 -1 4 -2 4 -2 5 -2 3 -4 5 -2 2 -5 3 -2 3 -3 4 -1 1 0 1zM568 226l-2 -1 -1 -1 0 -1 0 -1 0 -2 -2 -2 0 -1 0 -1 -1 -1 0 -2 -1 -1 -1 0 1 -1 0 -1 0 -2 1 -1 -1 0 1 -2 1 -3 3 0 -1 -12 0 -2 3 0 0 -6 11 0 10 0 11 0 1 3 0 1 0 3 1 4 2 1 1 1 -1 2 -2 0 -1 1 0 2 -1 5 0 1 0 3 -1 3 -2 2 -1 2 0 2 -1 1 -1 3 0 3 0 -3 0 -1 -1 -2 -1 -1 -1 -2 1 -2 -2 -1 0 1 -1 0 0 1 0 2 -1 2 -1 2 -2 0 -2 -1 -1 0 0 1 -2 1 -3 0 -2 0 -1 0 -1 0 -1 -2 -1 -1 -2 1 0 1 -1 3 -1 1 -1 0 2 1zM565 190l1 12 -3 0 -1 3 -1 2 1 0 -1 1 0 2 0 1 -1 1 1 0 1 1 0 2 1 1 0 1 -2 0 -1 2 -2 3 -2 2 -3 0 -1 0 0 1 -1 1 -1 1 -4 2 0 -1 -1 0 0 1 -3 0 1 -1 -1 -2 -1 -2 -1 0 -1 -2 0 -2 1 1 1 0 2 0 -2 -3 0 -2 0 -3 -1 -2 0 -1 -2 0 0 -2 -1 -2 1 -4 4 -3 0 -4 1 -7 0 -1 -1 -1 0 -1 -1 -1 -1 -5 3 -2 11 6 11 7zM304 189l0 2 0 1 -1 1 1 1 0 1 -2 -1 -1 0 -2 0 -1 1 -2 -1 1 -1 2 0 2 0 1 0 -1 -2 0 -1 -1 -1 2 0 2 0zM289 171l1 1 1 2 -1 2 -1 -2 -1 0 1 -3zM288 166l1 0 2 0 0 1 -3 1 0 -2zM353 419l2 -2 2 1 1 -1 3 1 -1 1 -3 1 -1 -1 -2 1 -1 -1zM415 3l7 -2 6 1 3 -1 7 0 14 0 10 1 -3 1 -7 0 -10 1 1 0 6 0 5 0 4 0 2 0 -3 2 5 -1 9 -1 6 1 -7 2 -2 0 -6 1 5 0 -3 2 -2 1 0 3 2 1 -3 1 -3 0 3 2 0 2 -2 0 2 2 -4 0 2 1 -1 1 -3 1 -3 0 2 2 0 1 -4 -1 -1 0 3 1 2 2 1 2 -4 0 -1 -1 -3 -1 1 1 -3 2 5 0 3 0 -6 3 -6 2 -6 1 -3 0 -2 1 -4 3 -5 2 -1 0 -3 0 -4 1 -2 2 -1 2 -1 2 -4 2 0 2 -2 3 -2 2 -3 1 -3 -3 -4 0 -2 -1 0 -3 -3 -4 -1 -2 1 -2 -2 -3 1 -2 -1 -1 4 -3 3 -1 1 -1 2 -2 -3 1 -1 0 -3 0 -2 0 1 -2 1 -2 2 0 4 1 -3 -2 -1 -1 -3 1 -1 -1 3 -2 0 -1 -1 -2 -1 -3 -3 -1 1 -1 -5 -1 -4 -1 -5 1 -5 0 -2 -1 -2 -2 6 0 3 -1 -7 0 -4 -1 1 -1 8 -1 8 -1 1 -1 -5 -1 3 -1 7 -1 3 -1 0 -1 5 0 6 0 5 0 2 0 6 -1 3 1 3 0 3 1 -3 -1 0 -1zM669 409l1 1 3 0 -1 1 -1 1 -3 1 0 -2 1 -1 0 -1zM846 281l3 -1 2 0 1 -1 1 1 -2 1 -3 1 -2 1 0 -1 0 -1zM577 346l1 1 -1 2 0 1 -2 0 0 1 -1 0 -2 -2 1 -2 2 -1 1 -1 1 1zM286 225l0 2 -1 1 -1 1 -1 0 0 -2 1 -1 -1 0 -1 -1 -1 -1 -1 0 -1 1 -1 1 -1 0 0 1 1 1 0 1 -1 0 -1 0 -1 -1 -1 0 0 -1 -1 -1 -1 0 -1 0 0 1 -1 -1 1 -1 0 -1 0 -2 1 0 1 1 -1 1 2 0 1 0 1 0 1 -1 2 0 1 -1 1 0 2 0 1 1 1 1 1 1zM269 218l-1 0 -1 0 0 -1 -1 0 -1 0 -1 0 -1 0 -1 -1 -1 -1 0 -1 -1 -1 -2 -2 1 0 1 0 1 -1 0 -2 1 0 1 0 1 0 1 -1 1 0 0 -1 1 -1 0 1 1 0 0 -1 1 0 1 0 1 -1 0 1 0 2 -1 1 0 1 0 1 0 1 0 2 -1 0 0 1 0 1 -1 1 1 1 0 1zM271 204l-1 1 -1 0 -1 0 0 1 -1 0 0 -1 -1 1 0 1 -1 0 -1 1 -1 0 -1 0 -1 0 0 2 -1 1 -1 0 0 -1 -1 0 0 -2 -2 0 0 -1 -1 0 -1 -1 1 -1 0 -1 1 -1 2 -1 1 0 1 0 1 0 2 0 1 0 0 -1 1 0 0 1 1 -1 1 0 1 1 1 0 1 1 1 1zM254 206l1 1 1 0 0 1 2 0 0 2 -2 0 -1 0 -1 -1 -1 0 -1 0 0 -1 1 -1 1 0 0 -1zM246 206l1 -1 0 -1 1 -3 4 0 0 -1 -1 -1 -1 -1 -1 -1 2 0 0 -2 3 0 2 0 0 3 -1 4 1 0 1 0 1 0 -2 1 -1 1 0 1 -1 1 0 1 -1 0 -1 1 0 1 -1 -1 -2 0 -1 -1 -2 -1zM256 195l1 0 1 -2 1 0 0 1 0 1 -1 1 0 2 0 1 -1 1 -1 2 -1 0 1 -4 0 -3zM343 247l-1 0 -1 -1 -1 1 -1 1 -1 0 -1 1 -1 -1 -2 -1 0 -2 -1 -1 1 -3 1 -1 -1 -2 -1 0 1 -1 -1 -1 -1 0 -2 -2 0 -1 0 -2 2 0 1 -1 -1 -1 0 -1 3 -2 1 1 2 2 0 2 1 0 1 1 2 1 -1 3 -2 1 0 1 0 2 1 2 1 0 0 2 2 3zM349 245l-2 0 -1 0 -1 0 -1 1 1 0 -1 1 -1 0 -2 -3 0 -2 -1 0 -1 -2 0 -2 0 -1 2 -1 1 -3 3 1 2 -1 3 1 -1 3 0 2 1 2 0 1 -1 2 0 1zM319 193l1 0 1 1 -1 1 -2 0 -2 0 0 -1 1 -1 2 0zM288 193l2 0 1 1 0 1 -1 0 -1 1 -2 -1 -1 -1 0 -1 1 0 1 0zM585 324l-2 0 -1 0 -1 0 -1 0 -2 -2 -2 0 -1 -2 1 -1 -2 -1 -3 -3 0 -2 -1 -1 -1 -2 3 0 1 0 1 0 2 -2 2 -2 1 -1 0 -1 2 -1 2 0 0 1 3 0 1 0 0 1 2 0 1 1 0 5 -1 2 0 2 0 1 0 2 -1 3 -3 3zM580 324l-4 2 -3 3 -1 2 -1 1 -1 0 -1 2 0 1 -2 1 -2 -1 -1 -1 -1 0 -2 1 0 1 -2 1 -1 2 -2 0 0 -1 0 -2 -2 -3 0 -1 0 -9 3 0 0 -12 2 0 4 -1 1 2 2 -2 1 0 2 0 1 2 1 1 0 2 3 3 2 1 -1 1 1 2 2 0 2 2zM554 332l-1 12 -2 2 -2 0 -1 0 -2 -1 0 -1 -1 -1 -1 2 -2 -3 -1 -2 -1 -3 0 -3 -1 -4 0 -4 0 -2 -1 -1 -2 -3 -1 -4 -1 -2 -2 -3 0 -3 1 0 2 -1 2 0 2 2 11 -1 2 2 6 0 6 -1 2 -1 2 1 1 0 0 1 -2 0 -1 0 -2 2 -1 -2 -4 1 -2 0 0 12 -3 0 0 9zM454 185l0 -1 11 0 -1 -5 1 -1 3 -1 0 -8 9 0 0 -5 10 8 -4 0 1 14 1 14 0 1 0 2 -11 0 -1 1 -1 -1 -1 1 -2 -1 -1 0 -1 2 0 1 -2 -3 -2 -2 -2 -1 -1 -1 -2 0 -1 1 -1 0 -1 1 0 -2 0 -2 1 -3 0 -3 -1 -1 1 -2 -1 -2 -1 -1zM507 233l-2 0 -1 -2 1 -8 -1 0 0 -2 -1 -1 -1 -1 0 -2 1 0 1 -1 1 -1 1 -1 1 -1 1 0 2 2 0 1 0 2 0 1 0 1 -1 2 -1 1 0 2 0 2 -1 6zM540 179l1 5 1 1 0 1 1 1 0 1 -1 7 0 4 -4 3 -1 4 1 2 0 2 2 0 0 1 -1 1 0 1 -2 -4 -1 0 -2 2 -2 -1 -2 0 -1 0 -1 0 -2 1 -1 0 -4 -1 -1 1 -1 0 -1 -2 -3 -1 -3 0 -1 1 0 2 -1 1 0 3 -2 -2 -1 0 -1 1 0 -2 -3 -1 0 -1 -2 -2 0 -2 0 -1 2 0 1 -2 4 0 2 0 0 -2 2 -3 0 -7 3 -1 8 -7 9 -6 5 1 1 2 2 -1zM540 211l1 2 0 3 0 2 2 3 -2 0 -1 0 -1 -1 0 2 1 2 1 0 1 2 1 2 -1 1 -1 3 -1 1 0 2 0 2 2 2 0 1 1 2 1 1 0 1 0 1 0 2 -2 -1 -2 0 -4 -1 -2 1 -1 -1 -2 0 -4 0 0 -2 -1 -2 -1 -1 -1 -1 0 -1 0 -1 0 -2 2 -3 2 -2 1 0 2 1 2 -1 0 -1 0 -1 1 -2 1 -1 1 -3 1 -2 1 -2 2 -3 0 -1 -1 -1 0 -1 1 -1zM502 217l0 2 1 1 1 1 0 2 1 0 -1 8 1 2 -2 1 -1 -2 0 -2 -1 -1 1 -3 -1 -1 0 -3 0 -2 -1 -2 0 -1 2 0zM462 212l2 0 2 1 2 0 0 1 1 0 1 -1 0 1 1 0 1 1 1 -1 1 -1 1 0 0 1 1 1 1 1 -1 1 0 1 1 0 0 1 1 1 -1 0 0 1 1 2 0 2 -1 1 0 1 0 1 -1 0 -1 1 -1 0 0 -1 0 -1 -1 -2 -1 1 -1 0 0 -1 0 -1 0 -1 -1 -1 -1 -2 -2 0 -1 1 -1 1 0 1 -2 1 -1 -2 -1 -1 -1 -1 -1 -2 -1 -1 1 -1 1 0 1 -1 1 0 0 -1 0 -1 0 -1zM454 213l1 -1 1 0 1 0 5 0 0 1 0 1 0 1 -1 0 -1 1 -1 0 -1 1 -1 -1 -1 0 -1 -1 0 -1 -1 0 0 -1zM477 228l-1 1 1 1 -1 2 1 1 1 0 1 1 0 2 0 3 -1 0 -3 -2 -2 -2 -3 -2 -2 -2 1 -1 0 -1 1 -2 2 -1 1 -1 1 2 0 1 0 1 1 0 1 -1 1 0zM463 224l2 -1 0 -1 1 -1 1 -1 2 0 1 2 1 1 0 1 0 1 0 1 1 0 -2 1 -1 2 0 1 -1 1 -2 -2 -2 -1 0 -2 -1 -2zM576 236l-1 0 -2 0 -2 0 -1 0 0 1 -1 0 -1 -1 -3 2 -2 0 -1 2 -2 -1 -2 0 -2 -1 -2 -1 -1 1 -2 1 0 2 -2 0 -1 0 -2 1 -2 3 0 -1 0 -1 -1 -1 -1 -2 0 -1 -2 -2 0 -2 0 -2 1 -1 1 -3 3 0 0 -1 1 0 0 1 4 -2 1 -1 1 -1 0 -1 1 0 3 0 2 -2 2 -3 1 -2 2 0 0 1 2 2 0 2 0 1 0 1 1 1 2 1 2 2 0 1 1 1 2 2 0 2 2 1 1 1zM551 241l0 2 -1 2 0 2 -1 3 1 2 -1 1 0 1 0 1 -2 2 -1 1 -2 3 0 3 0 1 -2 2 -2 2 -1 -1 0 -1 -1 0 -1 1 -1 0 -1 -1 -1 0 -1 2 -2 -4 2 -1 -1 -2 1 -1 2 -1 0 -1 1 1 3 1 1 -2 0 -2 0 -3 -2 -1 2 -4 -1 -1 -2 0 -1 -1 0 -2 4 1 2 0 2 1 0 -2 2 -3 2 -1 1 0 2 0zM531 245l2 0 1 1 2 -1 0 2 1 1 2 0 1 1 -2 4 2 1 0 3 0 2 -1 2 -3 -1 -1 -1 0 1 -2 1 -1 1 1 2 -2 1 -3 -3 -2 -2 -2 -4 1 -1 0 -1 1 -2 0 -3 1 0 4 0 0 -4zM527 245l4 0 0 4 -4 0 -1 0 1 -4zM585 279l1 1 1 1 2 0 2 1 1 2 1 3 -1 0 -1 3 1 3 -1 1 -1 3 1 1 -8 2 0 3 -2 0 -2 1 0 1 -1 1 -2 2 -2 2 -1 0 -1 0 -3 0 0 -1 -1 0 -2 -1 -2 1 -2 -2 -2 -3 0 -10 6 0 0 -1 0 -1 0 -2 0 -1 0 -1 1 0 0 1 1 0 2 0 1 2 2 0 2 -1 1 2 2 0 1 2 1 1 2 0 0 -3 -1 0 -2 -1 -1 0 1 -4 0 -3 0 -2 1 -2 4 -1 1 0zM591 282l2 1 1 1 1 1 0 5 0 2 0 4 1 0 1 1 1 3 0 4 -1 0 -1 3 -2 -2 0 -3 1 -1 0 -1 -1 -1 -1 0 -2 -1 -1 -1 1 -3 1 -1 -1 -3 1 -3 1 0 -1 -3 -1 -2zM595 290l2 -1 4 1 1 0 1 0 1 -1 2 0 3 -1 2 -2 1 1 0 3 0 3 0 5 0 2 -1 2 -1 2 -2 2 -2 2 -4 1 -3 4 -1 0 -2 3 -1 0 0 3 1 2 0 2 0 1 1 0 -1 3 0 1 0 1 0 1 -1 2 -3 1 -3 1 -1 2 0 1 0 2 -2 0 0 -2 0 -1 0 -1 0 -4 0 -2 -1 -5 3 -3 1 -3 0 -2 0 -1 0 -2 1 -2 0 -5 -1 -1 -2 0 0 -1 -1 0 -3 0 0 -1 0 -3 8 -2 2 1 1 0 1 1 0 1 -1 1 0 3 2 2 1 -3 1 0 0 -4 -1 -3 -1 -1 -1 0 0 -4 0 -2zM586 339l-1 1 -1 1 -2 -2 0 -1 1 -1 1 -1 0 -1 2 1 0 1 0 2zM534 272l1 0 1 0 1 0 8 0 1 2 1 2 0 1 1 2 2 -1 1 0 2 0 1 -2 2 0 0 -1 1 0 0 1 3 0 0 2 1 1 -1 2 1 2 0 1 0 4 1 0 1 0 2 0 1 0 0 1 0 1 0 2 0 1 0 1 -6 0 0 10 2 3 2 2 -6 1 -6 0 -2 -2 -11 1 -2 -2 -2 0 -2 1 -1 0 0 -2 0 -3 1 -2 0 -2 1 -3 1 -1 2 -2 1 -2 0 -2 0 -2 -1 -1 -1 -2 0 -2 0 -1 1 -1 -1 -3 -1 -2 -1 -2 0 -1zM536 268l-1 1 0 1 -1 1 -1 -2 1 -2 1 0 1 1zM585 260l0 2 0 1 0 1 -1 2 -1 1 -2 0 0 -4 0 -1 1 0 1 -2 2 0zM637 293l0 1 1 2 0 4 1 2 -1 1 0 1 -1 -2 -1 1 1 3 -1 1 0 1 -1 2 -1 4 -2 5 -2 6 -1 4 -2 4 -2 1 -3 1 -1 -1 -2 -1 -1 -2 0 -2 -1 -3 0 -2 1 -3 1 0 0 -1 2 -3 0 -2 0 -1 -1 -2 0 -3 1 -2 1 -2 1 0 2 -1 1 -1 1 0 2 -1 2 -2 1 -2 0 -1 1 0 2 -2 0 -2 1 -2 1 2zM594 151l-2 1 1 -1 0 -1 -1 0 1 -2 1 0 0 2 0 1zM454 209l3 0 1 -1 2 1 1 -1 1 1 -1 1 -2 0 -1 -1 -1 1 -1 0 -2 0 0 -1zM637 173l0 -2 0 -2 1 0 1 1 0 1 0 2 -1 1 -1 -1zM628 156l0 1 0 1 1 3 -2 0 0 -2 -3 0 2 -3 2 0zM650 180l0 -2 0 -1 0 -1 1 -1 0 -1 0 -2 1 0 2 3 1 1 2 0 2 1 1 2 1 1 1 0 0 1 -1 2 0 1 -1 1 -1 2 -1 0 0 1 -1 1 1 2 0 1 -2 0 -1 1 0 1 -1 1 -2 0 -1 1 0 1 -1 1 -1 0 -2 1 -1 0 -1 -2 -3 -5 8 -4 1 -6 -1 -2zM795 207l-2 -1 -1 2 -2 -1 0 -2 0 -2 -3 -3 0 -3 -3 -3 -2 0 0 1 -2 0 -1 -1 -2 2 -1 -3 0 -3 -2 0 0 -2 -1 -1 0 -1 2 -2 2 1 -1 -4 1 -1 2 3 2 3 3 0 2 3 -2 1 0 1 3 2 3 3 2 3 3 2 1 3 -1 3zM831 116l1 1 -1 -1 -1 1 0 2 1 2 -1 1 -1 1 -1 1 -1 0 1 2 1 1 2 1 0 1 -1 0 -2 0 0 2 -2 0 -1 -1 0 1 -1 0 -1 -1 -1 0 0 -2 1 0 -1 -1 0 -1 0 -1 -2 0 -1 -1 1 -2 2 -2 0 -2 2 1 2 0 -1 -2 3 -1 1 -2 2 2zM745 163l2 1 0 2 -2 0 -3 0 -1 1 -3 -2 1 -3 2 -1 2 1 1 0 1 1zM672 132l2 0 2 1 1 0 1 -1 1 1 1 -2 1 0 1 0 0 -1 1 -1 1 0 0 1 1 0 0 3 2 1 0 -1 1 0 2 -1 2 0 2 0 1 1 -2 0 -1 1 -3 0 -2 1 -1 1 0 2 1 1 -1 2 0 1 0 1 -3 0 2 2 -2 1 0 2 0 2 -1 1 -1 -1 -2 1 0 1 -2 0 -1 2 0 2 -3 2 -2 -1 0 1 -2 0 -2 0 -5 -1 2 -3 -1 -3 -2 0 0 -2 -2 -3 1 -1 -1 -1 0 -2 1 -4 3 1 1 -1 1 -1 2 0 1 -1 0 -3 2 -1 0 -1 2 1zM676 133l1 -3 -1 -3 -3 -1 1 -1 2 0 1 -2 0 -2 3 0 0 1 1 1 1 0 -1 1 -3 -1 0 2 3 0 4 1 4 0 2 2 2 1 0 1 1 2 -2 0 -2 0 -2 1 -1 0 0 1 -2 -1 0 -3 -1 0 0 -1 -1 0 -1 1 0 1 -1 0 -1 0 -1 2 -1 -1 -1 1 -1 0zM680 116l0 -1 2 0 4 1 0 -2 1 -1 4 1 1 0 4 0 4 1 2 1 1 0 0 1 -3 2 -1 1 -3 0 0 2 -3 0 -2 1 -2 1 1 1 -1 1 -4 0 -4 -1 -3 0 0 -2 3 1 1 -1 2 0 2 -2 -3 -2 -2 1 -2 -1 2 -2 -1 -1zM633 118l1 -1 3 -1 2 1 2 3 2 -1 2 0 0 -1 2 -1 1 -2 4 2 1 2 1 1 3 0 1 0 2 4 3 2 2 1 3 2 4 1 0 2 -2 -1 0 1 -2 1 0 3 -1 1 -2 0 -1 1 -1 1 -3 -1 -1 -3 -2 0 -4 -3 -2 0 -3 -2 -2 0 -1 0 -2 0 -1 2 -2 1 -1 -3 0 -3 -3 -1 1 -2 -2 0 0 -3 3 1 2 -1 -3 -2 -1 -2 -2 1 1 2 -2 -2zM594 147l0 -2 1 -1 1 -2 -1 -1 -1 0 0 -3 0 -1 1 -1 0 -2 1 1 3 -1 2 0 2 0 3 -1 1 0 3 0 -1 2 -2 0 1 3 -1 4 -5 3 -5 3 -3 -1zM951 321l2 2 1 1 -2 1 -1 -1 -1 -2 -2 -1 -1 -3 0 -1 1 0 1 2 1 1 1 1zM942 278l1 1 0 1 -2 -1 -2 -1 -1 -1 1 -1 1 1 2 1zM947 284l-2 -3 0 -2 1 0 0 3 1 2zM945 284l-1 0 -2 0 0 -2 2 1 0 1 1 0zM820 235l0 2 0 2 -1 0 -1 1 -1 -2 1 -1 2 -2zM600 206l0 -1 1 -5 0 -2 1 -1 2 0 1 -2 2 3 1 3 1 2 4 3 2 2 1 2 1 1 2 1 -1 1 -1 -1 -1 -1 -1 -2 -2 -1 0 -1 -3 -1 -2 0 0 -1 -2 1 -2 -1 -1 2 -3 -1zM642 192l3 5 1 2 -2 1 -1 1 0 2 -2 1 -5 1 -2 3 -1 0 -1 0 -2 1 -1 1 -3 0 -1 1 -1 0 0 1 -1 0 -1 0 -2 0 -1 -2 0 -2 0 -1 -1 -2 -1 -1 1 0 -1 -2 1 -1 -1 -1 1 -1 0 -1 1 -2 1 1 1 0 3 0 3 0 1 0 1 1 1 0 2 -4 2 -1 8 -1zM586 139l0 1 1 -1 1 1 1 -1 0 1 -3 1 -1 0 -1 -2 2 0zM568 182l0 6 -3 0 0 2 -11 -7 -11 -6 -3 2 -2 1 -1 -2 -5 -1 -1 -2 -2 -1 -1 0 -1 -2 0 -1 -2 -2 1 -2 0 -2 0 -2 0 -1 0 -3 0 -1 -1 -3 1 -1 1 -1 -1 -1 2 -2 1 -1 1 -1 0 -2 3 1 1 0 3 0 3 2 2 3 2 0 4 1 3 2 1 -1 1 -1 -1 -3 1 -1 2 -2 2 0 3 0 1 2 1 0 1 0 3 1 1 1 -1 1 0 2 0 2 1 2 0 12 1 12zM617 212l1 1 1 -1 0 1 0 1 -1 1 1 1 -1 2 0 -1 -1 0 -2 0 0 -1 0 -1 1 -1 1 -2zM635 216l0 1 0 4 0 1 -1 2 -2 3 -2 0 -9 -4 -1 -1 -1 -2 -1 -1 0 -1 1 -2 1 0 1 2 1 1 1 0 3 -1 3 0 2 -1 2 0 1 -1 1 0zM594 256l-5 0 -4 0 -1 0 -1 1 -1 0 0 -2 1 -2 0 -2 1 -2 1 -1 1 -1 1 -1 -2 -1 1 -4 1 0 2 0 2 -1 2 0 1 -1 2 2 0 2 1 4 -1 2 -1 2 -1 1 0 4zM584 256l2 2 -1 2 -2 0 -1 2 -1 0 0 -2 0 -2 1 -1 1 0 1 -1zM551 115l-1 1 0 -1 -1 2 0 1 0 -1 -1 -1 -1 0 0 -1 0 -2 1 0 0 -1 1 1 1 0 0 1 1 0 0 1zM552 118l0 -1 -1 -1 0 -1 1 -1 0 -1 1 0 0 1 1 0 0 1 1 0 0 1 -1 1 -1 0 0 1 -1 0zM330 218l1 0 1 0 0 2 -3 1 0 -1 1 -1 0 -1zM586 241l-3 -2 -1 -1 -1 1 -1 -1 -1 1 -1 0 -2 -3 -1 -1 -2 -1 0 -2 -2 -2 -1 -1 0 -1 -2 -2 -2 -1 1 0 1 -1 1 -3 0 -1 2 -1 1 1 1 2 1 0 1 0 2 0 3 0 2 -1 0 -1 1 0 2 1 2 0 1 -2 1 -2 0 -2 0 -1 1 0 0 -1 2 1 -1 2 1 2 1 1 1 2 0 1 0 3 0 1 -2 0 -1 2 2 0 1 1 1 2 1 0 2 4 -2 2 -2 2 -1 1 -2 0 -2 1 -2 0 -1 0z","m":{"HK":[810,181],"SG":[788,248]}};
+const names=new Intl.DisplayNames(["ru"],{type:"region"});
+const $=id=>document.getElementById(id);
+const HIST={SU:["☭","СССР"],YU:["⭐","Югославия"],CS:["🏛️","Чехословакия"],DD:["🧱","ГДР"]};
+const cname=c=>HIST[c]?HIST[c][1]:names.of(c);
+const flag=c=>HIST[c]?HIST[c][0]:[...c].map(x=>String.fromCodePoint(127397+x.charCodeAt(0))).join("");
+
+// storage — separate keys so history/settings don't mix with main Kinoglobus
+const store={get(k,d){try{const v=localStorage.getItem("kgp_"+k);return v==null?d:JSON.parse(v)}catch(e){return d}},
+ set(k,v){try{localStorage.setItem("kgp_"+k,JSON.stringify(v))}catch(e){}}};
+// API key can be shared with the main app if already saved there
+let apiKey=store.get("tmdbKey","")||(function(){try{return JSON.parse(localStorage.getItem("tmdbKey")||"\"\"")}catch(e){return ""}})();
+let seen=new Set(store.get("seen",[]));
+let visited=store.get("visited",{});
+let lastCC=store.get("lastCC","");
+let fx=store.get("fx",true);
+let filmSpin=store.get("filmSpin",true);
+const cache={}; let cur=null; // {cc, pool, film}
+
+// ---- settings sheet
+const dlg=$("settings");
+function closeSettings(){dlg.close?dlg.close():dlg.removeAttribute("open");}
+$("gear").onclick=()=>{dlg.showModal?dlg.showModal():dlg.setAttribute("open","");};
+$("sclose").onclick=closeSettings;
+dlg.addEventListener("click",e=>{if(e.target===dlg)closeSettings();});
+// ---- journey: stats of opened countries
+let zoomI=0;const ZOOMS=[100,200,320];
+function renderMap(){
+  const v=c=>visited[c]?" v":"", last=c=>c===lastCC?" last":"";
+  const op=c=>visited[c]?` style="opacity:${Math.min(1,0.65+0.07*visited[c]).toFixed(2)}"`:"";
+  $("mapbox").innerHTML=`<svg viewBox="0 0 ${MAP.w} ${MAP.h}" style="width:${ZOOMS[zoomI]}%" role="img" aria-label="Карта открытых стран">`
+    +`<path class="mo" d="${MAP.o}"/>`
+    +Object.entries(MAP.c).map(([c,d])=>`<path class="mc${v(c)}${last(c)}" data-c="${c}"${op(c)} d="${d}"/>`).join("")
+    +Object.entries(MAP.m).map(([c,[x,y]])=>`<circle class="mc${v(c)}${last(c)}" data-c="${c}"${op(c)} cx="${x}" cy="${y}" r="7"/>`).join("")
+    +`</svg>`;
+}
+$("mapbox").onclick=e=>{
+  const t=e.target.closest("[data-c]");if(!t)return;const c=t.dataset.c;
+  $("minfo").textContent=`${flag(c)} ${cname(c)}: `+(visited[c]?`просмотрено фильмов ${visited[c]}`:"пока не открыта");
+};
+$("mzin").onclick=()=>{zoomI=Math.min(ZOOMS.length-1,zoomI+1);const s=$("mapbox").querySelector("svg");if(s)s.style.width=ZOOMS[zoomI]+"%";};
+$("mzout").onclick=()=>{zoomI=Math.max(0,zoomI-1);const s=$("mapbox").querySelector("svg");if(s)s.style.width=ZOOMS[zoomI]+"%";};
+
+function renderJourney(){
+  renderMap();$("minfo").textContent="Нажми на страну на карте";
+  const open=COUNTRIES.filter(c=>visited[c]).sort((a,b)=>visited[b]-visited[a]);
+  const all=COUNTRIES.length,n=open.length,pct=Math.round(n/all*100);
+  const films=open.reduce((sum,c)=>sum+visited[c],0);
+  $("jhead").textContent=`Открыто ${n} из ${all} стран (${pct}%)`;
+  $("jfill").style.width=pct+"%";
+  if(!n){
+    $("jstats").innerHTML="<div>Пока пусто. Отмечай просмотренные фильмы кнопкой «✓ Посмотрел», и страны начнут открываться.</div>";
+    $("jopenT").hidden=true;$("jopen").innerHTML="";
+  }else{
+    const top=open[0];
+    $("jstats").innerHTML=`<div>🎬 Фильмов просмотрено: <b>${films}</b></div>`
+      +`<div>🏆 Самая исследованная: <b>${flag(top)} ${cname(top)}</b> (${visited[top]})</div>`
+      +(lastCC&&visited[lastCC]?`<div>📍 Последняя открытая: <b>${flag(lastCC)} ${cname(lastCC)}</b></div>`:"");
+    $("jopenT").hidden=false;
+    $("jopen").innerHTML=open.map(c=>`<span class="pill">${flag(c)} ${cname(c)} · ${visited[c]}</span>`).join("");
+  }
+  const closed=COUNTRIES.filter(c=>!visited[c]);
+  $("jclosedsum").textContent=`Ещё не открыто: ${closed.length}`;
+  $("jclosed").innerHTML=closed.map(c=>`<span class="pill off">${flag(c)} ${cname(c)}</span>`).join("");
+}
+const jd=$("journey");
+$("mapBtn").onclick=()=>{renderJourney();jd.showModal?jd.showModal():jd.setAttribute("open","");};
+const closeJ=()=>jd.close?jd.close():jd.removeAttribute("open");
+$("jclose").onclick=closeJ;
+jd.addEventListener("click",e=>{if(e.target===jd)closeJ();});
+
+function filmLabel(){$("filmTog").textContent=filmSpin?"Вкл":"Выкл";}
+$("filmTog").onclick=()=>{filmSpin=!filmSpin;store.set("filmSpin",filmSpin);filmLabel();};
+filmLabel();
+$("resetSettings").onclick=()=>{
+  $("year").value="";store.set("year","");$("rmin").value="";store.set("rmin","");
+  snd="roulette";$("snd").value=snd;store.set("snd",snd);
+  fx=true;store.set("fx",true);fxLabel();
+  filmSpin=true;store.set("filmSpin",true);filmLabel();
+};
+$("year").value=store.get("year","");
+$("rmin").value=store.get("rmin","");
+$("rmin").onchange=()=>store.set("rmin",$("rmin").value);
+function showKeyUi(){ $("keyCard").hidden=!!apiKey; }
+function updHist(){ $("resetHist").textContent=`Сбросить историю (${seen.size})`; }
+showKeyUi();updHist();
+
+$("saveKey").onclick=()=>{const v=$("key").value.trim(); if(!v)return; apiKey=v; store.set("tmdbKey",v); showKeyUi();};
+$("changeKey").onclick=()=>{apiKey="";store.set("tmdbKey","");showKeyUi();closeSettings();};
+$("resetHist").onclick=()=>{seen=new Set();store.set("seen",[]);visited={};lastCC="";store.set("visited",visited);store.set("lastCC","");updHist();};
+
+async function api(params){
+  const q=new URLSearchParams({
+  api_key: apiKey,
+  language: "ru-RU",
+  include_adult: "true",
+  sort_by: "vote_average.desc",
+  ...params
+});
+  const r=await fetch("https://api.themoviedb.org/3/discover/movie?"+q);
+  if(r.status===401) throw new Error("Ключ не подошёл. Проверьте его и введите заново.");
+  if(!r.ok) throw new Error("TMDB недоступен, попробуйте ещё раз.");
+  return r.json();
+}
+
+// Only adult:true titles. Soft vote tiers — porn rarely has high vote counts.
+async function buildPool(cc,o){
+  const tiers=BIG.has(cc)?[100,30,5,1]:[30,10,3,1];
+  for(const t of tiers){
+    const base={with_origin_country:cc,"vote_count.gte":t};
+    if(o.rmin) base["vote_average.gte"]=o.rmin;
+    if(o.y) base["primary_release_date.gte"]=o.y+"-01-01";
+    const p1=await api({...base,page:1});
+    const pages=Math.min(p1.total_pages||1,Math.ceil(MAX_POOL/20),6);
+    const rest=pages>1?await Promise.all(Array.from({length:pages-1},(_,i)=>api({...base,page:i+2}))):[];
+    let films=[p1,...rest].flatMap(p=>p.results).filter(f=>f.adult===true).slice(0,MAX_POOL);
+    if(films.length<MIN_POOL) continue;
+    return {films,votes:t,total:films.length,porn:true};
+  }
+  return null;
+}
+
+async function getPool(cc){
+  const rmin=$("rmin").value, y=$("year").value;
+  const key=[cc,rmin,y].join("|");
+  if(key in cache) return cache[key];
+  const result=await buildPool(cc,{rmin,y});
+  cache[key]=result;
+  return result;
+}
+
+// ---- sound, vibration, reel animation
+let ac=null;
+function audio(){try{if(!ac)ac=new(window.AudioContext||window.webkitAudioContext)();if(ac.state==="suspended")ac.resume();}catch(e){}}
+let snd=store.get("snd","roulette");
+const PENTA=[523.25,587.33,659.25,783.99,880,1046.5,1174.66,1318.5];
+function tone(f,d,v,type,delay){
+  if(!ac)return;
+  try{const o=ac.createOscillator(),g=ac.createGain(),t=ac.currentTime+(delay||0);
+    o.type=type||"sine";o.frequency.value=f;
+    g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(v,t+0.008);g.gain.exponentialRampToValueAtTime(0.0001,t+d);
+    o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+d+0.02);}catch(e){}
+}
+let noiseBuf=null;
+function click(v,freq){          // short filtered noise burst: a wooden/ratchet click
+  if(!ac)return;
+  try{
+    if(!noiseBuf){const n=Math.floor(ac.sampleRate*0.03);noiseBuf=ac.createBuffer(1,n,ac.sampleRate);
+      const d=noiseBuf.getChannelData(0);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*(1-i/n);}
+    const src=ac.createBufferSource(),f=ac.createBiquadFilter(),g=ac.createGain();
+    src.buffer=noiseBuf;f.type="bandpass";f.frequency.value=freq;f.Q.value=1.2;g.gain.value=v;
+    src.connect(f);f.connect(g);g.connect(ac.destination);src.start();
+  }catch(e){}
+}
+const MARIMBA=[261.63,293.66,329.63,392,440,523.25,587.33,659.25];
+const THROTTLE={roulette:0,bells:110,arcade:55,casino:70,marimba:90,space:60};let lastT=0;
+function sTick(e){               // e = progress 0..1 (controls pitch)
+  if(snd==="off"||!ac)return;
+  const now=performance.now();if(now-lastT<(THROTTLE[snd]||0))return;lastT=now;
+  const i=Math.min(7,Math.floor(e*8));
+  if(snd==="roulette"){click(0.8,1700+e*900);tone(150+e*40,0.05,0.10,"sine");}
+  else if(snd==="bells"){tone(PENTA[i],0.4,0.08,"sine");}
+  else if(snd==="casino"){tone(1568+e*600,0.09,0.05,"triangle");click(0.4,3200);}
+  else if(snd==="marimba"){tone(MARIMBA[i],0.2,0.14,"sine");tone(MARIMBA[i]*4,0.06,0.04,"sine");}
+  else if(snd==="space"){tone(220+e*660,0.07,0.035,"sawtooth");}
+  else tone(300+e*400,0.05,0.04,"square");
+}
+function sWin(){
+  if(snd==="off"||!ac)return;
+  if(snd==="arcade"){[523,659,784,1047].forEach((f,i)=>tone(f,0.14,0.05,"square",i*0.1));return;}
+  if(snd==="casino"){
+    [1760,2093,2637,2093,2637,3136,2637,3136].forEach((f,i)=>tone(f,0.3,0.05,"triangle",i*0.065));
+    [523.25,659.25,783.99].forEach(f=>tone(f,1.1,0.06,"sine",0.1));return;}
+  if(snd==="marimba"){
+    [261.63,329.63,392,493.88,523.25,659.25].forEach((f,i)=>{tone(f,0.55,0.13,"sine",i*0.08);tone(f*4,0.08,0.04,"sine",i*0.08);});return;}
+  if(snd==="space"){
+    [392,587.33,783.99,1174.66].forEach((f,i)=>{tone(f,1.8,0.05,"sine",i*0.06);tone(f*1.006,1.8,0.04,"sine",i*0.06);});return;}
+  const notes=snd==="bells"?[523.25,659.25,783.99,1046.5,1318.5]:[523.25,659.25,783.99,1046.5];
+  const gap=snd==="bells"?0.1:0.06,len=snd==="bells"?0.8:1.4;
+  notes.forEach((f,i)=>{tone(f,len,0.1,"sine",i*gap);tone(f*2,len*0.6,0.03,"sine",i*gap);});
+}
+function preview(){audio();let i=0;const id=setInterval(()=>{sTick(i/10);if(++i>5){clearInterval(id);setTimeout(sWin,150);}},120);}
+function buzz(p){if(fx&&navigator.vibrate){try{navigator.vibrate(p)}catch(e){}}}
+function fxLabel(){$("fx").textContent=fx?"Вкл":"Выкл";}
+$("fx").onclick=()=>{fx=!fx;store.set("fx",fx);fxLabel();};fxLabel();
+$("snd").value=snd;$("snd").onchange=()=>{snd=$("snd").value;store.set("snd",snd);preview();};
+
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const RM=matchMedia("(prefers-reduced-motion: reduce)").matches;
+// Vertical flag reel: spins at constant speed while data loads, then eases out onto the chosen country.
+const H=84, SPEED=22; // row height (px, = --rh) and rows per second
+let seq=[],tIdx=-1,tCC=null,raf=0,pos=0,phase="idle",lastB=null,spinAt=0;
+const SPIN_MIN=1500, LAND_MS=4600; // min. fast spin and deceleration length, ms
+const flagAt=i=>i===tIdx?tCC:seq[((i%seq.length)+seq.length)%seq.length];
+function drawReel(p){
+  const b=Math.floor(p),f=p-b;
+  if(b!==lastB){lastB=b;$("rcol").innerHTML=[0,1,2,3].map(k=>`<div class="ri">${flag(flagAt(b+k))}</div>`).join("");}
+  $("rcol").style.transform=`translateY(${-f*H}px)`;
+}
+function reelStart(){
+  closePlayer();
+  const r=$("reel");
+  $("result").hidden=true;r.classList.remove("out");r.hidden=false;
+  $("rname").classList.remove("on");$("rname").textContent="";
+  r.scrollIntoView({behavior:RM?"auto":"smooth",block:"nearest"});
+  if(RM){$("rcol").innerHTML='<div class="ri"></div><div class="ri">🌍</div><div class="ri"></div>';return;}
+  seq=shuffle(COUNTRIES);tIdx=-1;tCC=null;lastB=null;
+  pos=Math.floor(Math.random()*seq.length);phase="spin";spinAt=performance.now();
+  $("rcol").classList.add("fast");
+  let t0=performance.now(),lastRow=Math.floor(pos);
+  const step=now=>{if(phase!=="spin")return;const dt=Math.min(.05,(now-t0)/1000);t0=now;pos+=SPEED*dt;
+    const row=Math.floor(pos);if(row!==lastRow){lastRow=row;sTick((row%8)/16);}   // sound from the very first moment
+    drawReel(pos);raf=requestAnimationFrame(step);};
+  raf=requestAnimationFrame(step);
+}
+function reelAbort(){phase="idle";cancelAnimationFrame(raf);cancelAnimationFrame(raf2);$("reel").hidden=true;$("freel").hidden=true;}
+async function reelLand(cc){
+  const r=$("reel");
+  if(RM){
+    $("rcol").innerHTML=`<div class="ri"></div><div class="ri">${flag(cc)}</div><div class="ri"></div>`;
+    $("rname").textContent=cname(cc);$("rname").classList.add("on");
+    await sleep(500);r.hidden=true;return;
+  }
+  await sleep(Math.max(0,SPIN_MIN-(performance.now()-spinAt)));   // never stop too early, even if data is ready
+  phase="land";cancelAnimationFrame(raf);
+  const T=LAND_MS,p0=pos;
+  const pEnd=Math.ceil(p0+SPEED*(T/1000)/3);   // easeOutCubic starts at the same speed as the spin
+  tIdx=pEnd+1;tCC=cc;                          // target sits far below the visible rows, so the swap is invisible
+  $("rcol").classList.remove("fast");
+  await new Promise(res=>{
+    const t0=performance.now();let last=Math.floor(p0);
+    const step=now=>{
+      const t=Math.min(1,(now-t0)/T),e=1-Math.pow(1-t,3);
+      pos=p0+(pEnd-p0)*e;drawReel(pos);
+      const bi=Math.floor(pos);
+      if(bi!==last){last=bi;sTick(0.45+0.55*t);if(t>0.6)buzz(7);}
+      if(t<1)raf=requestAnimationFrame(step);else res();
+    };
+    raf=requestAnimationFrame(step);
+  });
+  $("rname").textContent=cname(cc);$("rname").classList.add("on");
+  const lens=document.querySelector(".rlens");lens.classList.remove("hit");void lens.offsetWidth;lens.classList.add("hit");
+  sWin();buzz([25,50,60]);
+  await sleep(1300);
+  r.classList.add("out");await sleep(450);
+  r.hidden=true;r.classList.remove("out");phase="idle";
+}
+
+// ---- trailers (TMDB videos; Russian first, then English)
+const vcache={};
+async function trailerFor(film){
+  const id=film.id;
+  if(id in vcache) return vcache[id];
+  const ol=film.original_language;
+  const langs=["ru-RU",ol&&!["ru","en","xx"].includes(ol)?ol:null,"en-US"].filter(Boolean);
+  let key=null,teaser=null;
+  for(const lang of langs){
+    try{
+      const r=await fetch(`https://api.themoviedb.org/3/movie/${id}/videos?`+new URLSearchParams({api_key:apiKey,language:lang}));
+      const v=((await r.json()).results||[]).filter(x=>x.site==="YouTube");
+      const tr=v.filter(x=>x.type==="Trailer");
+      const best=tr.find(x=>x.official)||tr[0];
+      if(best){key=best.key;break;}
+      if(!teaser){const t=v.find(x=>x.type==="Teaser");if(t)teaser=t.key;}
+    }catch(e){}
+  }
+  return vcache[id]=key||teaser;
+}
+let tKey=null;
+function closePlayer(){
+  $("player").innerHTML="";$("player").hidden=true;$("ytnote").hidden=true;
+  if(tKey)$("trailer").textContent="▶ Смотреть трейлер";
+}
+function setTrailer(film){
+  const t=$("trailer");
+  tKey=null;closePlayer();
+  t.textContent="▶ Найти трейлер";
+  t.href="https://www.youtube.com/results?search_query="+encodeURIComponent(`${film.title} ${(film.release_date||"").slice(0,4)} трейлер`);
+  trailerFor(film).then(k=>{
+    if(k&&cur&&cur.film.id===film.id){tKey=k;t.href="https://www.youtube.com/watch?v="+k;t.textContent="▶ Смотреть трейлер";}
+  });
+}
+// With a trailer found: play inside the app. Otherwise the link opens a YouTube search.
+$("trailer").onclick=e=>{
+  if(!tKey) return;
+  e.preventDefault();
+  if(!$("player").hidden){closePlayer();return;}
+  $("player").innerHTML=`<iframe src="https://www.youtube-nocookie.com/embed/${tKey}?autoplay=1&playsinline=1&rel=0" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" title="Трейлер"></iframe>`;
+  $("player").hidden=false;
+  $("ytlink").href="https://www.youtube.com/watch?v="+tKey;$("ytnote").hidden=false;
+  $("trailer").textContent="✕ Закрыть трейлер";
+};
+
+// ---- second reel: movie posters of the chosen country (same timing as the country reel)
+const FW=92, F_SPEED=14;
+let seqF=[],fTarget=null,fIdx=-1,fLast=null,raf2=0,fSkip=false;
+const esc=t=>String(t||"").replace(/[<>&"]/g,"");
+const fItemAt=i=>i===fIdx?fTarget:seqF[((i%seqF.length)+seqF.length)%seqF.length];
+const posterItem=m=>`<div class="pi">${m.poster_path?`<img src="https://image.tmdb.org/t/p/w154${m.poster_path}" alt="">`:`<div class="nop">${esc(m.title)}</div>`}</div>`;
+function drawF(p){
+  const b=Math.floor(p),f=p-b;
+  if(b!==fLast){fLast=b;$("fcol").innerHTML=[0,1,2,3].map(k=>posterItem(fItemAt(b+k))).join("");}
+  $("fcol").style.transform=`translateX(${-f*FW}px)`;
+}
+function preloadPosters(pool){
+  return Promise.all(pool.films.filter(f=>f.poster_path).map(f=>new Promise(r=>{
+    const i=new Image();i.onload=i.onerror=r;i.src="https://image.tmdb.org/t/p/w154"+f.poster_path;})));
+}
+$("fskip").onclick=()=>{fSkip=true;};
+async function filmReel(pool,film,cc,warm){
+  if(RM||!filmSpin) return;
+  const box=$("freel");
+  seqF=[];while(seqF.length<24)seqF=seqF.concat(shuffle(pool.films));
+  await Promise.race([warm||Promise.resolve(),sleep(900)]);   // let posters load so the reel is not blank
+  $("fhead").textContent=`${flag(cc)} ${cname(cc)}`;
+  $("fname").textContent="";$("fname").classList.remove("on");
+  fTarget=film;fIdx=-1;fLast=null;fSkip=false;
+  $("fcol").classList.add("fast");
+  box.classList.remove("out");box.hidden=false;
+  box.scrollIntoView({behavior:"smooth",block:"nearest"});
+  await new Promise(res=>{
+    const t0=performance.now(),p0=Math.floor(Math.random()*seqF.length);
+    let pos=p0,last=Math.floor(p0),landing=false,pStart=0,pEnd=0,tl=0;
+    const step=now=>{
+      let t=0;
+      if(!landing){
+        pos=p0+F_SPEED*(now-t0)/1000;
+        if(now-t0>=SPIN_MIN||fSkip){landing=true;pStart=pos;pEnd=Math.ceil(pStart+F_SPEED*(LAND_MS/1000)/3);
+          fIdx=pEnd+1;tl=now;$("fcol").classList.remove("fast");}
+      }
+      if(landing){
+        t=fSkip?1:Math.min(1,(now-tl)/LAND_MS);
+        pos=pStart+(pEnd-pStart)*(1-Math.pow(1-t,3));
+      }
+      const row=Math.floor(pos);
+      if(row!==last){last=row;if(landing){sTick(0.45+0.55*t);if(t>0.6)buzz(7);}else sTick((row%8)/16);}
+      drawF(pos);
+      if(landing&&t>=1){res();return;}
+      raf2=requestAnimationFrame(step);
+    };
+    raf2=requestAnimationFrame(step);
+  });
+  $("fname").textContent=film.title;$("fname").classList.add("on");
+  const lens=document.querySelector(".flens");lens.classList.remove("hit");void lens.offsetWidth;lens.classList.add("hit");
+  sWin();buzz([25,50,60]);
+  await sleep(1100);
+  box.classList.add("out");await sleep(450);
+  box.hidden=true;box.classList.remove("out");
+}
+
+// Fisher–Yates shuffle: every ordering is equally likely (unlike sort with a random comparator)
+function shuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
+
+function show(cc,pool,film){
+  cur={cc,pool,film};
+  $("flag").textContent=flag(cc);
+  $("cname").textContent=cname(cc);
+  const n=pool.films.length;
+  $("cmeta").textContent=n===MAX_POOL
+    ?`Случайный фильм из 100 порно-фильмов страны (каждый оценили минимум ${pool.votes} зрителей)`
+    :`В этой стране нашлось ${n} порно-фильмов (adult:true), каждый оценили минимум ${pool.votes} зрителей`;
+  const po=$("poster");po.classList.remove("ok");po.onload=()=>po.classList.add("ok");
+  if(film.poster_path)po.src="https://image.tmdb.org/t/p/w342"+film.poster_path;else{po.removeAttribute("src");po.classList.add("ok");}
+  $("title").textContent=film.title+(film.original_title&&film.original_title!==film.title?` (${film.original_title})`:"");
+  $("fmeta").textContent=(film.release_date||"").slice(0,4);
+  $("rating").textContent="★ "+film.vote_average.toFixed(1);
+  $("over").textContent=film.overview||"Описания на русском пока нет.";
+  setTrailer(film);
+  $("result").hidden=false;
+  [...$("result").children].forEach((c,i)=>c.style.animationDelay=(i*70)+"ms");
+  $("result").classList.remove("pop");void $("result").offsetWidth;$("result").classList.add("pop");
+  $("result").scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+
+function fresh(pool,exceptId){return pool.films.filter(f=>!seen.has(f.id)&&f.id!==exceptId)}
+
+async function spin(){
+  $("err").textContent="";
+  if(!apiKey){showKeyUi();$("err").textContent="Сначала введите ключ TMDB.";return;}
+  store.set("year",$("year").value);
+  audio();
+  $("go").disabled=true;$("go").innerHTML='<span class="spin">🌍</span> Крутим…';
+  reelStart();
+  try{
+    const order=shuffle(COUNTRIES);
+    for(let i=0;i<Math.min(order.length,30);i+=3){   // 3 countries at once; the first valid one in random order wins
+      const batch=order.slice(i,i+3);
+      const pools=await Promise.all(batch.map(getPool));
+      for(let k=0;k<batch.length;k++){
+        const pool=pools[k];
+        if(!pool) continue;                   // too few films
+        const left=fresh(pool);
+        if(!left.length) continue;            // everything here already watched
+        const film=pick(left);
+        const warm=preloadPosters(pool);
+        await reelLand(batch[k]);
+        await filmReel(pool,film,batch[k],warm);
+        show(batch[k],pool,film);return;
+      }
+    }
+    $("err").textContent="Подходящих фильмов не нашлось. Смягчите фильтры или сбросьте историю.";
+  }catch(e){$("err").textContent=e.message}
+  finally{reelAbort();$("go").disabled=false;$("go").textContent="🎲 Крутить глобус"}
+}
+
+$("go").onclick=spin;
+$("again").onclick=async()=>{
+  if(!cur) return;
+  const left=fresh(cur.pool,cur.film.id);
+  if(!left.length){$("err").textContent="Больше фильмов из этой страны нет. Крутите глобус заново.";return;}
+  $("err").textContent="";
+  closePlayer();
+  const {cc,pool}=cur,film=pick(left);
+  $("again").disabled=true;
+  try{
+    if(filmSpin&&!RM){audio();$("result").hidden=true;await filmReel(pool,film,cc,preloadPosters(pool));}
+    show(cc,pool,film);
+  }finally{$("again").disabled=false;$("freel").hidden=true;}
+};
+$("seen").onclick=()=>{
+  if(!cur) return;
+  let msg="✓ Уже отмечено";
+  if(!seen.has(cur.film.id)){
+    seen.add(cur.film.id);store.set("seen",[...seen]);
+    const isNew=!visited[cur.cc];
+    visited[cur.cc]=(visited[cur.cc]||0)+1;lastCC=cur.cc;
+    store.set("visited",visited);store.set("lastCC",lastCC);
+    msg=isNew?"🌍 Страна открыта!":"✓ Отмечено";
+  }
+  updHist();
+  $("seen").textContent=msg;setTimeout(()=>$("seen").textContent="✓ Посмотрел",1500);
+};
+</script>
+</body>
+</html>

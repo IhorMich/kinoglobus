@@ -30,10 +30,9 @@ button:disabled{opacity:.5}
 button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
 .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.acts button{flex:1;min-width:140px}
 .country{font:700 34px/1.1 Georgia,serif;margin:0}
-.flag{font-size:44px;line-height:1;display:block;margin-bottom:6px}
+.flag{font-size:56px;line-height:1;display:block;margin-bottom:6px}
 .wave{display:inline-block;line-height:1;vertical-align:middle;transform-origin:0 50%;animation:flagwave 1.8s ease-in-out infinite}
-.wave svg{display:block;width:1.5em;height:1em;border-radius:3px;box-shadow:0 2px 6px rgba(0,0,0,.28)}
-.flag .wave svg,.ri .wave svg{width:68px;height:45px}
+.wave svg{display:block;width:1.35em;height:.9em;border-radius:4px;box-shadow:0 2px 6px rgba(0,0,0,.28)}
 @keyframes flagwave{0%,100%{transform:perspective(140px) rotateY(0deg)}35%{transform:perspective(140px) rotateY(16deg) skewY(1.5deg)}70%{transform:perspective(140px) rotateY(-8deg)}}
 .rcol.fast .wave{animation:none}
 .meta{color:var(--mute);font-size:14px;margin:4px 0 12px}
@@ -88,16 +87,17 @@ button.chip[aria-pressed="true"]{background:var(--acc);color:var(--onacc);border
 .reel{text-align:center;padding:14px 14px 18px;overflow:hidden;transition:opacity .45s;
  background:radial-gradient(120% 90% at 50% 0%,color-mix(in srgb,var(--acc) 16%,var(--panel)),var(--panel))}
 .reel.out{opacity:0}
-.rwin{--rh:84px;position:relative;height:calc(var(--rh)*3);overflow:hidden;
+.rwin{--rh:104px;position:relative;height:calc(var(--rh)*3);overflow:hidden;
  -webkit-mask-image:linear-gradient(transparent,#000 32%,#000 68%,transparent);mask-image:linear-gradient(transparent,#000 32%,#000 68%,transparent)}
 .rcol{will-change:transform;transition:filter .5s}
 .rcol.fast{filter:blur(2px)}
-.ri{height:var(--rh);display:flex;align-items:center;justify-content:center;font-size:54px;line-height:1}
+.ri{height:var(--rh);display:flex;align-items:center;justify-content:center;font-size:68px;line-height:1}
 .rlens{position:absolute;left:14%;right:14%;top:var(--rh);height:var(--rh);border-radius:10px;pointer-events:none;
  border-top:1px solid color-mix(in srgb,var(--acc) 55%,transparent);border-bottom:1px solid color-mix(in srgb,var(--acc) 55%,transparent)}
 .rlens.hit{animation:ring .9s ease-out}
 @keyframes ring{from{box-shadow:0 0 0 0 color-mix(in srgb,var(--acc) 55%,transparent)}to{box-shadow:0 0 0 28px transparent}}
 .fhead{font:700 18px/1.2 Georgia,serif;margin-bottom:10px}
+.fhead .wave{font-size:32px;margin-right:6px}
 .fwin{--fw:92px;position:relative;height:138px;width:calc(var(--fw)*3);margin:0 auto;overflow:hidden;
  -webkit-mask-image:linear-gradient(90deg,transparent,#000 28%,#000 72%,transparent);mask-image:linear-gradient(90deg,transparent,#000 28%,#000 72%,transparent)}
 .fcol{display:flex;will-change:transform;transition:filter .5s}
@@ -105,7 +105,7 @@ button.chip[aria-pressed="true"]{background:var(--acc);color:var(--onacc);border
 .pi{flex:none;width:var(--fw);height:138px;display:flex;align-items:center;justify-content:center}
 .pi img,.pi .nop{width:76px;height:114px;object-fit:cover;border-radius:6px;background:var(--line)}
 .pi .nop{display:flex;align-items:center;justify-content:center;padding:4px;font-size:11px;line-height:1.2;overflow:hidden;color:var(--mute)}
-.flens{position:absolute;left:var(--fw);top:6px;width:var(--fw);height:126px;border-radius:10px;pointer-events:none;border:1px solid color-mix(in srgb,var(--acc) 55%,transparent)}
+.flens{position:absolute;left:calc(var(--fw) + (var(--fw) - 84px) / 2);top:8px;width:84px;height:122px;border-radius:10px;pointer-events:none;border:1px solid color-mix(in srgb,var(--acc) 55%,transparent)}
 .flens.hit{animation:ring .9s ease-out}
 .rname{font:700 22px/1.2 Georgia,serif;min-height:28px;margin-top:10px;opacity:0;transform:translateY(6px);transition:opacity .5s,transform .5s}
 .rname.on{opacity:1;transform:none}
@@ -697,7 +697,7 @@ $("snd").value=snd;$("snd").onchange=()=>{snd=$("snd").value;store.set("snd",snd
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const RM=matchMedia("(prefers-reduced-motion: reduce)").matches;
 // Vertical flag reel: spins at constant speed while data loads, then eases out onto the chosen country.
-const H=84, SPEED=22; // row height (px, = --rh) and rows per second
+const H=104, SPEED=22; // row height (px, = --rh) and rows per second
 let seq=[],tIdx=-1,tCC=null,raf=0,pos=0,phase="idle",lastB=null,spinAt=0;
 const SPIN_MIN=1500, LAND_MS=4600; // min. fast spin and deceleration length, ms
 const flagAt=i=>i===tIdx?tCC:seq[((i%seq.length)+seq.length)%seq.length];
@@ -838,21 +838,24 @@ async function filmReel(pool,film,cc,warm){
   $("fcol").classList.add("fast");
   box.classList.remove("out");box.hidden=false;
   box.scrollIntoView({behavior:"smooth",block:"nearest"});
-  const room=Math.max(4,seqF.length-4);
-  const spinMs=Math.min(SPIN_MIN, room*0.45/F_SPEED*1000);
-  const landMs=Math.min(LAND_MS, room*0.55/F_SPEED*1000);
+  const maxEnd=Math.max(1,seqF.length-4);
+  const spinMs=2200, landMs=3400;
+  const spinRows=Math.min(F_SPEED*spinMs/1000, maxEnd*0.62);
+  const speed=spinRows/(spinMs/1000);
   await new Promise(res=>{
     const t0=performance.now(),p0=0;
     let pos=p0,last=-1,landing=false,pStart=0,pEnd=0,tl=0;
     const step=now=>{
       let t=0;
       if(!landing){
-        pos=p0+F_SPEED*(now-t0)/1000;
+        pos=p0+speed*(now-t0)/1000;
         if(now-t0>=spinMs||fSkip){
-          landing=true;pStart=Math.min(pos,room-2);pos=pStart;
-          const left=Math.max(2,room-(pStart-p0));
-          pEnd=pStart+Math.min(left-1, F_SPEED*(landMs/1000)/3);
-          fIdx=Math.floor(pEnd)+1;tl=now;$("fcol").classList.remove("fast");
+          landing=true;pStart=Math.min(pos,maxEnd-1);
+          const coast=speed*(landMs/1000)/3;
+          pEnd=Math.round(pStart+Math.min(coast,maxEnd-pStart));
+          if(pEnd<=Math.floor(pStart)) pEnd=Math.min(maxEnd,Math.floor(pStart)+1);
+          if(pEnd>maxEnd) pEnd=maxEnd;
+          fIdx=pEnd+1;tl=now;$("fcol").classList.remove("fast");
         }
       }
       if(landing){

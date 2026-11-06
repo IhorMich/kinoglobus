@@ -55,6 +55,15 @@ dialog::backdrop{background:rgba(0,0,0,.55)}
 button.tog{min-width:96px;padding:9px 14px;background:var(--bg);border:1px solid var(--line)}
 button.sbtn{width:100%;margin-top:8px}
 button.chip[hidden]{display:none}
+.tools{display:flex;gap:8px;flex:none}
+dialog{max-height:85vh;overflow:auto}
+.jhead{font:700 20px/1.2 Georgia,serif;margin:4px 0 8px}
+.jbar{height:10px;border-radius:6px;background:var(--line);overflow:hidden}
+.jbar i{display:block;height:100%;width:0;background:var(--acc);transition:width .7s}
+.jstats div{margin:7px 0}
+.pill{display:inline-block;margin:3px;padding:5px 10px;border-radius:999px;background:var(--bg);border:1px solid var(--line);font-size:14px}
+.pill.off{opacity:.55}
+details summary{cursor:pointer;margin:12px 0 6px;color:var(--mute)}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 button.chip{padding:8px 12px;border-radius:999px;font-size:14px;background:var(--bg);border:1px solid var(--line)}
 button.chip[aria-pressed="true"]{background:var(--acc);color:var(--onacc);border-color:var(--acc);font-weight:700}
@@ -98,7 +107,8 @@ button:active{transform:scale(.97)}
   <header class="top">
     <div><h1>Киноглобус</h1>
     <p class="sub">Случайная страна, затем случайный фильм из её лучших.</p></div>
-    <button id="gear" class="gear" aria-label="Настройки">⚙️</button>
+    <div class="tools"><button id="mapBtn" class="gear" aria-label="Моё путешествие">🗺️</button>
+    <button id="gear" class="gear" aria-label="Настройки">⚙️</button></div>
   </header>
 
   <div class="card" id="keyCard" hidden>
@@ -112,7 +122,7 @@ button:active{transform:scale(.97)}
     <label>Категории (можно несколько)</label>
     <div class="chips" id="chips"></div>
     <p class="note" id="worstBox" hidden>Берутся фильмы с оценкой зрителей от 1 до 4.9 из 10, начиная с самых низких. Выбор оценки выше отключён.</p>
-    <p class="note" id="adultNote" hidden>Берутся фильмы с самым строгим возрастным рейтингом своей страны (во Франции, Германии, Корее и других это 18+, в США R). У части стран такой разметки нет, их глобус пропустит.</p>
+    <p class="note" id="adultNote" hidden>Берутся фильмы со строгим возрастным рейтингом своей страны (18+, в США R) и фильмы с откровенной сексуальной темой. Порнография не включена. У части стран такой разметки мало, их глобус пропустит.</p>
     <div class="row" style="margin-top:12px">
       <div><label for="year">Год не раньше</label>
         <input id="year" type="number" inputmode="numeric" min="1900" max="2026" placeholder="любой"></div>
@@ -156,6 +166,16 @@ button:active{transform:scale(.97)}
     </div>
   </div>
 
+  <dialog id="journey" aria-labelledby="jtitle">
+    <div class="srow"><h2 id="jtitle">Моё путешествие</h2><button id="jclose" aria-label="Закрыть">✕</button></div>
+    <div id="jhead" class="jhead"></div>
+    <div class="jbar"><i id="jfill"></i></div>
+    <div id="jstats" class="jstats"></div>
+    <p class="note" id="jopenT">Открытые страны</p>
+    <div id="jopen"></div>
+    <details><summary id="jclosedsum"></summary><div id="jclosed"></div></details>
+  </dialog>
+
   <dialog id="settings" aria-labelledby="stitle">
     <div class="srow"><h2 id="stitle">Настройки</h2><button id="sclose" aria-label="Закрыть">✕</button></div>
     <div class="srow"><label for="snd">Звук</label>
@@ -163,7 +183,7 @@ button:active{transform:scale(.97)}
         <option value="casino">Казино</option><option value="marimba">Маримба</option><option value="space">Космос</option><option value="off">Выкл</option></select></div>
     <div class="srow"><span>Вибрация</span><button id="fx" class="tog"></button></div>
     <div class="srow"><span>Крутить фильмы<br><small>второй барабан с постерами</small></span><button id="filmTog" class="tog"></button></div>
-    <div class="srow"><span>Категории 18+<br><small>эротика и «только 18+»</small></span><button id="adultVis" class="tog"></button></div>
+    <div class="srow"><span>Категория 18+<br><small>«Взрослое кино 18+»</small></span><button id="adultVis" class="tog"></button></div>
     <button class="sbtn" id="resetSettings">Сбросить настройки</button>
     <button class="sbtn" id="resetHist"></button>
     <button class="sbtn" id="changeKey">Сменить ключ TMDB</button>
@@ -187,18 +207,20 @@ const store={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.
  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 let apiKey=store.get("tmdbKey","");
 let seen=new Set(store.get("seen",[]));
+let visited=store.get("visited",{});
+let lastCC=store.get("lastCC","");
 let fx=store.get("fx",true);
 let showAdult=store.get("showAdult",true);
 let filmSpin=store.get("filmSpin",true);
 const cache={}; let cur=null; // {cc, pool, film}
 
-const NOGENRE=["adult","erotic","worst"];
+const NOGENRE=["adult","worst"];
 const sel=new Set(store.get("cats",[]));
+if(sel.delete("erotic"))sel.add("adult");   // old separate "erotic" category is now part of 18+
 $("chips").innerHTML=`<button class="chip" data-k="any">🌐 Любой жанр</button>`
  +Object.entries(GENRES).filter(([k])=>k).map(([k,v])=>`<button class="chip" data-k="${k}">${v}</button>`).join("")
- +`<button class="chip" data-k="erotic">🌹 Эротика и откровенные драмы</button>`
  +`<button class="chip" data-k="worst">📉 Худшие из худших</button>`
- +`<button class="chip" data-k="adult">🔞 Только 18+</button>`;
+ +`<button class="chip" data-k="adult">🔞 Взрослое кино 18+</button>`;
 function paintChips(){
   const anyGenre=[...sel].some(k=>!NOGENRE.includes(k));
   document.querySelectorAll(".chip").forEach(b=>{const k=b.dataset.k;
@@ -219,13 +241,41 @@ function closeSettings(){dlg.close?dlg.close():dlg.removeAttribute("open");}
 $("gear").onclick=()=>{dlg.showModal?dlg.showModal():dlg.setAttribute("open","");};
 $("sclose").onclick=closeSettings;
 dlg.addEventListener("click",e=>{if(e.target===dlg)closeSettings();});
+// ---- journey: stats of opened countries
+function renderJourney(){
+  const open=COUNTRIES.filter(c=>visited[c]).sort((a,b)=>visited[b]-visited[a]);
+  const all=COUNTRIES.length,n=open.length,pct=Math.round(n/all*100);
+  const films=open.reduce((sum,c)=>sum+visited[c],0);
+  $("jhead").textContent=`Открыто ${n} из ${all} стран (${pct}%)`;
+  $("jfill").style.width=pct+"%";
+  if(!n){
+    $("jstats").innerHTML="<div>Пока пусто. Отмечай просмотренные фильмы кнопкой «✓ Посмотрел», и страны начнут открываться.</div>";
+    $("jopenT").hidden=true;$("jopen").innerHTML="";
+  }else{
+    const top=open[0];
+    $("jstats").innerHTML=`<div>🎬 Фильмов просмотрено: <b>${films}</b></div>`
+      +`<div>🏆 Самая исследованная: <b>${flag(top)} ${cname(top)}</b> (${visited[top]})</div>`
+      +(lastCC&&visited[lastCC]?`<div>📍 Последняя открытая: <b>${flag(lastCC)} ${cname(lastCC)}</b></div>`:"");
+    $("jopenT").hidden=false;
+    $("jopen").innerHTML=open.map(c=>`<span class="pill">${flag(c)} ${cname(c)} · ${visited[c]}</span>`).join("");
+  }
+  const closed=COUNTRIES.filter(c=>!visited[c]);
+  $("jclosedsum").textContent=`Ещё не открыто: ${closed.length}`;
+  $("jclosed").innerHTML=closed.map(c=>`<span class="pill off">${flag(c)} ${cname(c)}</span>`).join("");
+}
+const jd=$("journey");
+$("mapBtn").onclick=()=>{renderJourney();jd.showModal?jd.showModal():jd.setAttribute("open","");};
+const closeJ=()=>jd.close?jd.close():jd.removeAttribute("open");
+$("jclose").onclick=closeJ;
+jd.addEventListener("click",e=>{if(e.target===jd)closeJ();});
+
 function filmLabel(){$("filmTog").textContent=filmSpin?"Вкл":"Выкл";}
 $("filmTog").onclick=()=>{filmSpin=!filmSpin;store.set("filmSpin",filmSpin);filmLabel();};
 filmLabel();
 function adultVisLabel(){$("adultVis").textContent=showAdult?"Показаны":"Скрыты";}
 function applyAdultVis(){
-  document.querySelectorAll('.chip[data-k="adult"],.chip[data-k="erotic"]').forEach(b=>{b.hidden=!showAdult;});
-  if(!showAdult){sel.delete("adult");sel.delete("erotic");store.set("cats",[...sel]);}
+  document.querySelectorAll('.chip[data-k="adult"]').forEach(b=>{b.hidden=!showAdult;});
+  if(!showAdult){sel.delete("adult");store.set("cats",[...sel]);}
   adultVisLabel();paintChips();
 }
 $("adultVis").onclick=()=>{showAdult=!showAdult;store.set("showAdult",showAdult);applyAdultVis();};
@@ -247,16 +297,10 @@ showKeyUi();updHist();
 
 $("saveKey").onclick=()=>{const v=$("key").value.trim(); if(!v)return; apiKey=v; store.set("tmdbKey",v); showKeyUi();};
 $("changeKey").onclick=()=>{apiKey="";store.set("tmdbKey","");showKeyUi();closeSettings();};
-$("resetHist").onclick=()=>{seen=new Set();store.set("seen",[]);updHist();};
+$("resetHist").onclick=()=>{seen=new Set();store.set("seen",[]);visited={};lastCC="";store.set("visited",visited);store.set("lastCC","");updHist();};
 
 async function api(params){
-  const q=new URLSearchParams({
-  api_key: apiKey,
-  language: "ru-RU",
-  include_adult: (sel.has("adult") || sel.has("erotic")) ? "true" : "false",
-  sort_by: "vote_average.desc",
-  ...params
-});
+  const q=new URLSearchParams({api_key:apiKey,language:"ru-RU",include_adult:"false",sort_by:"vote_average.desc",...params});
   const r=await fetch("https://api.themoviedb.org/3/discover/movie?"+q);
   if(r.status===401) throw new Error("Ключ не подошёл. Проверьте его и введите заново.");
   if(!r.ok) throw new Error("TMDB недоступен, попробуйте ещё раз.");
@@ -264,32 +308,52 @@ async function api(params){
 }
 
 // Pool for a country: tiers of vote thresholds, up to 100 best films.
-async function getPool(cc){
-  const g=[...sel].filter(k=>!NOGENRE.includes(k)).join(","), adult=sel.has("adult"), ero=sel.has("erotic"), worst=sel.has("worst"), rmin=$("rmin").value, y=$("year").value;
-  const key=[cc,g,adult,ero,worst,rmin,y].join("|");
-  const kw=ero?await eroticKw():"";
-  if(cache[key]) return cache[key];
+// One pool for a country: tries vote-count tiers (and rating levels, if given) until >= MIN_POOL films.
+async function buildPool(cc,o){
   const tiers=BIG.has(cc)?[1000,300,100]:[200,50,20];
-  let result=null;
-  const certList=adult?await certCandidates(cc):[null];
-  outer:
+  const certList=o.certs||[null];
   for(const cert of certList) for(const t of tiers){
     const base={with_origin_country:cc,"vote_count.gte":t};
-    if(g) base.with_genres=g;
-    if(kw) base.with_keywords=kw;
-    if(worst){base.sort_by="vote_average.asc";base["vote_average.gte"]=1;base["vote_average.lte"]=4.9;}
-    else if(rmin) base["vote_average.gte"]=rmin;
+    if(o.g) base.with_genres=o.g;
+    if(o.kw) base.with_keywords=o.kw;
+    if(o.worst){base.sort_by="vote_average.asc";base["vote_average.gte"]=1;base["vote_average.lte"]=4.9;}
+    else if(o.rmin) base["vote_average.gte"]=o.rmin;
     if(cert){base.certification_country=cc;base["certification.gte"]=cert;}
-    if(y) base["primary_release_date.gte"]=y+"-01-01";
+    if(o.y) base["primary_release_date.gte"]=o.y+"-01-01";
     const p1=await api({...base,page:1});
     if(p1.total_results<MIN_POOL) continue;
     const pages=Math.min(p1.total_pages,Math.ceil(MAX_POOL/20));
     const rest=await Promise.all(Array.from({length:pages-1},(_,i)=>api({...base,page:i+2})));
-    const all=[p1,...rest].flatMap(p=>p.results).slice(0,MAX_POOL);
-    result={films:all,votes:t,total:p1.total_results,worst};
-    break outer;
+    const films=[p1,...rest].flatMap(p=>p.results).slice(0,MAX_POOL);
+    return {films,votes:t,total:p1.total_results,worst:!!o.worst};
   }
-  cache[key]=result; // null = not enough films
+  return null;
+}
+
+async function getPool(cc){
+  const g=[...sel].filter(k=>!NOGENRE.includes(k)).join(","), adult=sel.has("adult"), worst=sel.has("worst"), rmin=$("rmin").value, y=$("year").value;
+  const key=[cc,g,adult,worst,rmin,y].join("|");
+  if(key in cache) return cache[key];                 // null is cached too: "not enough films"
+  const o={g,worst,rmin,y};
+  let result;
+  if(!adult) result=await buildPool(cc,o);
+  else{
+    // 18+ = strict age rating of the country OR an erotic theme; two pools merged
+    const [kw,certs]=await Promise.all([eroticKw().catch(()=>""),certCandidates(cc)]);
+    const [byRating,byTheme]=await Promise.all([
+      certs.length?buildPool(cc,{...o,certs}):null,
+      kw?buildPool(cc,{...o,kw}):null]);
+    const parts=[byRating,byTheme].filter(Boolean);
+    if(!parts.length) result=null;
+    else{
+      const ids=new Set();
+      let films=parts.flatMap(p=>p.films).filter(f=>!ids.has(f.id)&&ids.add(f.id));
+      films.sort((p,q)=>worst?p.vote_average-q.vote_average:q.vote_average-p.vote_average);
+      films=films.slice(0,MAX_POOL);
+      result=films.length>=MIN_POOL?{films,votes:Math.min(...parts.map(p=>p.votes)),total:films.length,worst}:null;
+    }
+  }
+  cache[key]=result;
   return result;
 }
 
@@ -390,6 +454,7 @@ function drawReel(p){
   $("rcol").style.transform=`translateY(${-f*H}px)`;
 }
 function reelStart(){
+  closePlayer();
   const r=$("reel");
   $("result").hidden=true;r.classList.remove("out");r.hidden=false;
   $("rname").classList.remove("on");$("rname").textContent="";
@@ -439,18 +504,23 @@ async function reelLand(cc){
 
 // ---- trailers (TMDB videos; Russian first, then English)
 const vcache={};
-async function trailerFor(id){
+async function trailerFor(film){
+  const id=film.id;
   if(id in vcache) return vcache[id];
-  let key=null;
-  for(const lang of ["ru-RU","en-US"]){
+  const ol=film.original_language;
+  const langs=["ru-RU",ol&&!["ru","en","xx"].includes(ol)?ol:null,"en-US"].filter(Boolean);
+  let key=null,teaser=null;
+  for(const lang of langs){
     try{
       const r=await fetch(`https://api.themoviedb.org/3/movie/${id}/videos?`+new URLSearchParams({api_key:apiKey,language:lang}));
-      const v=((await r.json()).results||[]).filter(x=>x.site==="YouTube"&&x.type==="Trailer");
-      const best=v.find(x=>x.official)||v[0];
+      const v=((await r.json()).results||[]).filter(x=>x.site==="YouTube");
+      const tr=v.filter(x=>x.type==="Trailer");
+      const best=tr.find(x=>x.official)||tr[0];
       if(best){key=best.key;break;}
+      if(!teaser){const t=v.find(x=>x.type==="Teaser");if(t)teaser=t.key;}
     }catch(e){}
   }
-  return vcache[id]=key;
+  return vcache[id]=key||teaser;
 }
 let tKey=null;
 function closePlayer(){
@@ -462,7 +532,7 @@ function setTrailer(film){
   tKey=null;closePlayer();
   t.textContent="▶ Найти трейлер";
   t.href="https://www.youtube.com/results?search_query="+encodeURIComponent(`${film.title} ${(film.release_date||"").slice(0,4)} трейлер`);
-  trailerFor(film.id).then(k=>{
+  trailerFor(film).then(k=>{
     if(k&&cur&&cur.film.id===film.id){tKey=k;t.href="https://www.youtube.com/watch?v="+k;t.textContent="▶ Смотреть трейлер";}
   });
 }
@@ -600,6 +670,7 @@ $("again").onclick=async()=>{
   const left=fresh(cur.pool,cur.film.id);
   if(!left.length){$("err").textContent="Больше фильмов из этой страны нет. Крутите глобус заново.";return;}
   $("err").textContent="";
+  closePlayer();
   const {cc,pool}=cur,film=pick(left);
   $("again").disabled=true;
   try{
@@ -609,9 +680,16 @@ $("again").onclick=async()=>{
 };
 $("seen").onclick=()=>{
   if(!cur) return;
-  seen.add(cur.film.id);store.set("seen",[...seen]);
+  let msg="✓ Уже отмечено";
+  if(!seen.has(cur.film.id)){
+    seen.add(cur.film.id);store.set("seen",[...seen]);
+    const isNew=!visited[cur.cc];
+    visited[cur.cc]=(visited[cur.cc]||0)+1;lastCC=cur.cc;
+    store.set("visited",visited);store.set("lastCC",lastCC);
+    msg=isNew?"🌍 Страна открыта!":"✓ Отмечено";
+  }
   updHist();
-  $("seen").textContent="✓ Отмечено";setTimeout(()=>$("seen").textContent="✓ Посмотрел",1200);
+  $("seen").textContent=msg;setTimeout(()=>$("seen").textContent="✓ Посмотрел",1500);
 };
 </script>
 </body>

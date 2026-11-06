@@ -482,7 +482,8 @@ async function filmDetails(film){
       if(!r.ok) continue;
       const j=await r.json();
       if(!out.genres.length&&j.genres&&j.genres.length){
-        out.genres=j.genres.map(g=>g.name).filter(Boolean);
+        // Only keep genres from our adult-safe list (ignore Family etc.)
+        out.genres=j.genres.map(g=>GENRES[g.id]).filter(Boolean);
       }
       if(!out.overview&&j.overview&&j.overview.trim()){
         out.overview=j.overview.trim();

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0e1a1f">
+<meta name="theme-color" content="#07060a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>Киноглобус</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiMwZTFhMWYiLz48ZyBmaWxsPSJub25lIiBzdHJva2U9IiNmZmI4MzAiPjxjaXJjbGUgY3g9IjMyIiBjeT0iMzIiIHI9IjIwIiBzdHJva2Utd2lkdGg9IjMiLz48ZWxsaXBzZSBjeD0iMzIiIGN5PSIzMiIgcng9IjkiIHJ5PSIyMCIgc3Ryb2tlLXdpZHRoPSIyIiBvcGFjaXR5PSIuNjciLz48cGF0aCBkPSJNMTIgMzJoNDBNMTUgMjJoMzRNMTUgNDJoMzQiIHN0cm9rZS13aWR0aD0iMiIgb3BhY2l0eT0iLjY3Ii8+PC9nPjxjaXJjbGUgY3g9IjMyIiBjeT0iMzIiIHI9IjkiIGZpbGw9IiNmZmI4MzAiLz48cGF0aCBkPSJNMjkuNSAyNy41djlsOC00LjV6IiBmaWxsPSIjMGUxYTFmIi8+PC9zdmc+">
@@ -12,40 +12,38 @@
 <style>
 :root{--bg:#eef2f3;--panel:#fff;--ink:#10252b;--mute:#5b7077;--line:#d3dde0;--acc:#b86e00;--onacc:#fff;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0a1216;--panel:#142228;--ink:#e8f0f2;--mute:#8fa5ac;--line:#25393f;--acc:#ffb830;--onacc:#1a1200;color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#0a1216;--panel:#142228;--ink:#e8f0f2;--mute:#8fa5ac;--line:#25393f;--acc:#ffb830;--onacc:#1a1200;color-scheme:dark}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#120f16;--panel:#1c1822;--ink:#f4efe6;--mute:#b3a79a;--line:#3a3140;--acc:#ffb830;--onacc:#1a1200;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#120f16;--panel:#1c1822;--ink:#f4efe6;--mute:#b3a79a;--line:#3a3140;--acc:#ffb830;--onacc:#1a1200;color-scheme:dark}
 *{box-sizing:border-box}
 html,body{margin:0}
 body{
-  background:var(--bg);
+  background-color:#07060a;
   color:var(--ink);
   font:16px/1.45 "Trebuchet MS",system-ui,sans-serif;
   min-height:100%;
   background-image:
-    radial-gradient(ellipse 120% 80% at 50% -20%, color-mix(in srgb,var(--acc) 18%, transparent), transparent 55%),
-    radial-gradient(ellipse 70% 50% at 90% 100%, color-mix(in srgb,var(--acc) 8%, transparent), transparent 50%),
-    linear-gradient(180deg, transparent 0%, color-mix(in srgb,var(--bg) 92%, #000) 100%);
+    radial-gradient(ellipse 90% 42% at 50% -8%, rgba(255,184,48,.28), transparent 58%),
+    radial-gradient(ellipse 34% 80% at -6% 42%, rgba(92,18,28,.55), transparent 62%),
+    radial-gradient(ellipse 34% 80% at 106% 42%, rgba(92,18,28,.55), transparent 62%),
+    radial-gradient(ellipse 70% 40% at 50% 115%, rgba(0,0,0,.55), transparent 60%),
+    linear-gradient(180deg, #1a1218 0%, #0c0a10 38%, #07060a 100%);
   background-attachment:fixed;
 }
 body::before{
   content:"";
   position:fixed;inset:0;pointer-events:none;z-index:0;
-  opacity:.045;
-  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size:180px;
+  opacity:.09;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:160px;
 }
 body::after{
   content:"";
   position:fixed;inset:0;pointer-events:none;z-index:0;
-  background:
-    repeating-linear-gradient(90deg, transparent 0 38px, color-mix(in srgb,var(--ink) 4%, transparent) 38px 40px),
-    repeating-linear-gradient(0deg, transparent 0 28px, color-mix(in srgb,var(--ink) 3%, transparent) 28px 29px);
-  opacity:.35;
-  mask-image:linear-gradient(180deg, transparent, #000 12%, #000 88%, transparent);
+  background:radial-gradient(ellipse 75% 70% at 50% 42%, transparent 40%, rgba(0,0,0,.55) 100%);
 }
 main{position:relative;z-index:1;max-width:520px;margin:0 auto;padding:20px 16px 40px}
-h1{font:700 26px/1.1 Georgia,serif;margin:0 0 4px}
-.sub{color:var(--mute);margin:0 0 18px;font-size:14px}
+h1{font:700 26px/1.1 Georgia,serif;margin:0 0 4px;color:#f6f0e6;text-shadow:0 2px 18px rgba(255,184,48,.28)}
+.sub{color:#cbbba8;margin:0 0 18px;font-size:14px}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:14px}
 label{display:block;font-size:13px;color:var(--mute);margin:0 0 4px}
 input,select{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
@@ -77,8 +75,9 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 .badge{display:inline-block;background:var(--acc);color:var(--onacc);font-weight:700;border-radius:8px;padding:2px 8px;font-size:14px}
 .over{margin:12px 0 0;font-size:15px}
 .note{color:var(--mute);font-size:13px;margin-top:10px}
-button.hintbtn{display:block;width:auto;margin:8px auto 0;padding:5px 12px;background:transparent;color:var(--mute);font-size:13px;text-decoration:underline}
-button.hintbtn[aria-expanded="true"]{color:var(--ink)}
+main>.note{color:#cbbba8}
+button.hintbtn{display:block;width:auto;margin:8px auto 0;padding:5px 12px;background:transparent;color:#cbbba8;font-size:13px;text-decoration:underline}
+button.hintbtn[aria-expanded="true"]{color:#f6f0e6}
 .player{position:relative;aspect-ratio:16/9;margin-top:12px;border-radius:12px;overflow:hidden;background:#000}
 .player iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
 .note a{color:var(--ink)}
@@ -123,7 +122,7 @@ details.fold .foldbody{padding:0 14px 14px}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 button.chip{padding:8px 12px;border-radius:999px;font-size:14px;background:var(--bg);border:1px solid var(--line)}
 button.chip[aria-pressed="true"]{background:var(--acc);color:var(--onacc);border-color:var(--acc);font-weight:700}
-.err{color:#c0392b;font-size:14px;margin-top:8px}
+.err{color:#ff8d7a;font-size:14px;margin-top:8px}
 .spin{animation:s .5s linear infinite;display:inline-block}
 @keyframes s{to{transform:rotate(360deg)}}
 .reel{text-align:center;padding:14px 14px 18px;overflow:hidden;transition:opacity .5s cubic-bezier(.22,.61,.36,1);
@@ -240,8 +239,11 @@ button:active{transform:scale(.97)}
 
   <button class="main" id="go">🎲 Крутить глобус</button>
   <button class="side" id="top1" type="button">🏆 Топ-1</button>
+  <button class="side" id="oscar" type="button">🎬 Оскар</button>
   <button type="button" class="hintbtn" aria-expanded="false" aria-controls="topNote">Подсказка</button>
   <p class="note" id="topNote" hidden>Топ-1 берёт фильм с самой убедительной оценкой: высокая средняя и много отзывов. Картина, которую почти никто не оценил, не обходит ту, которую оценили тысячи. С годом страна каждый раз другая, и год на карточке совпадает с выбранным.</p>
+  <button type="button" class="hintbtn" aria-expanded="false" aria-controls="oscarNote">Подсказка</button>
+  <p class="note" id="oscarNote" hidden>«Оскар» выбирает случайного лауреата премии за лучший фильм. Год может быть любым: страна, жанр, год и оценка с глобуса не учитываются.</p>
   <div id="err" class="err" role="alert"></div>
   <div class="card reel" id="reel" hidden aria-live="polite" style="margin-top:14px">
     <div class="rwin" aria-hidden="true"><div class="rcol" id="rcol"></div><div class="rlens"></div></div>
@@ -327,7 +329,17 @@ const THEMES=[
   {id:"hk",name:"Гонконгские боевики",cc:["HK"],g:"28"},
   {id:"ir",name:"Иранское кино",cc:["IR"],g:"18"},
   {id:"tr",name:"Турецкие драмы",cc:["TR"],g:"18"},
-  {id:"inact",name:"Индийские боевики",cc:["IN"],g:"28"}
+  {id:"inact",name:"Индийские боевики",cc:["IN"],g:"28"},
+  {id:"frnoir",name:"Французский нуар",cc:["FR"],g:"80|53"},
+  {id:"gbdet",name:"Британские детективы",cc:["GB"],g:"9648"},
+  {id:"itcrime",name:"Итальянский криминал",cc:["IT"],g:"80"},
+  {id:"thhorror",name:"Тайские ужасы",cc:["TH"],g:"27"},
+  {id:"auhorror",name:"Австралийские ужасы",cc:["AU"],g:"27"},
+  {id:"suwar",name:"Советское кино о войне",cc:["SU"],g:"10752"},
+  {id:"krdrama",name:"Корейские драмы",cc:["KR"],g:"18"},
+  {id:"cnfan",name:"Китайское фэнтези",cc:["CN","HK"],g:"14"},
+  {id:"mxdrama",name:"Мексиканские драмы",cc:["MX"],g:"18"},
+  {id:"latam",name:"Латиноамериканский нуар",cc:["MX","BR","AR","CL"],g:"80|53"}
 ];
 const SURPRISE_NOTE={
   light:"Случайные страна и жанр. Оценка не ниже 6, фильмы оценило много зрителей.",
@@ -1106,11 +1118,18 @@ function topCaption(cc,pool,film){
   const head=pool.themeName?pool.themeName+". ":"";
   return head+when+(where?` Производство: ${where}.`:"")+genre;
 }
+function oscarCaption(cc,film){
+  const year=(film.release_date||"").slice(0,4);
+  const made=(film.origin_country||[]).filter(Boolean);
+  const codes=made.length?made:[cc];
+  const where=joinRu(codes.map(cname).filter(Boolean));
+  return `«Оскар» за лучший фильм${year?`, ${year} год`:""}.`+(where?` Производство: ${where}.`:"");
+}
 function show(cc,pool,film){
   cur={cc,pool,film};
   $("flag").innerHTML=flag(cc);
   $("cname").textContent=cname(cc);
-  $("cmeta").textContent=pool.top1?topCaption(cc,pool,film):poolLine(pool);
+  $("cmeta").textContent=pool.oscar?oscarCaption(cc,film):pool.top1?topCaption(cc,pool,film):poolLine(pool);
   const po=$("poster");po.classList.remove("ok");po.onload=()=>po.classList.add("ok");
   if(film.poster_path)po.src="https://image.tmdb.org/t/p/w342"+film.poster_path;else{po.removeAttribute("src");po.classList.add("ok");}
   $("title").textContent=film.title+(film.original_title&&film.original_title!==film.title?` (${film.original_title})`:"");
@@ -1121,7 +1140,7 @@ function show(cc,pool,film){
   paintRating(film.vote_count,film.vote_average);
   $("crew").hidden=true;$("crew").innerHTML="";
   $("over").textContent=film.overview||"Описания на русском пока нет.";
-  $("again").hidden=!!pool.top1;
+  $("again").hidden=!!pool.top1||!!pool.oscar;
   setTrailer(film);
   paintCrew(film);
   $("result").hidden=false;
@@ -1220,13 +1239,14 @@ function paintCrew(film){
 function fresh(pool,exceptId){return pool.films.filter(f=>!seen.has(f.id)&&f.id!==exceptId)}
 function filmCC(pool,film,fallback){return (pool.byCountry&&pool.byCountry[film.id])||fallback}
 function lockSpin(label){
-  $("go").disabled=true;$("top1").disabled=true;
+  $("go").disabled=true;$("top1").disabled=true;$("oscar").disabled=true;
   $("go").innerHTML=label;
 }
 function unlockSpin(){
-  $("go").disabled=false;$("top1").disabled=false;
+  $("go").disabled=false;$("top1").disabled=false;$("oscar").disabled=false;
   $("go").textContent=goLabel();
   $("top1").textContent="🏆 Топ-1";
+  $("oscar").textContent="🎬 Оскар";
 }
 function topQuery(){
   const theme=THEMES.find(t=>t.id===themeId);
@@ -1328,6 +1348,59 @@ async function spinTop(){
   finally{reelAbort();unlockSpin();}
 }
 
+const OSCAR_LIST="101353";
+let oscarCache=null;
+async function oscarFilms(){
+  if(oscarCache) return oscarCache;
+  const all=[];
+  for(let page=1;page<=8;page++){
+    const q=new URLSearchParams({api_key:apiKey,language:"ru-RU",page:String(page)});
+    const r=await fetch("https://api.themoviedb.org/3/list/"+OSCAR_LIST+"?"+q);
+    if(r.status===401) throw new Error("Ключ не подошёл. Проверьте его и введите заново.");
+    if(!r.ok) throw new Error("Список лауреатов недоступен, попробуйте ещё раз.");
+    const j=await r.json();
+    all.push(...(j.items||[]).filter(m=>m&&m.id&&m.media_type!=="tv"));
+    if(page>=(j.total_pages||1)) break;
+  }
+  if(!all.length) throw new Error("Список лауреатов пуст.");
+  oscarCache=all;
+  return all;
+}
+async function spinOscar(){
+  $("err").textContent="";
+  if(!apiKey){showKeyUi();$("err").textContent="Сначала введите ключ TMDB.";return;}
+  audio();
+  lockSpin('<span class="spin">🎬</span> Ищем «Оскар»…');
+  reelStart();
+  try{
+    const left=(await oscarFilms()).filter(f=>!seen.has(f.id));
+    if(!left.length){$("err").textContent="Все лауреаты из списка уже в истории. Сбросьте историю, чтобы смотреть их снова.";return;}
+    const film=pick(left);
+    let cc=(film.origin_country&&film.origin_country[0])||"US";
+    try{
+      const q=new URLSearchParams({api_key:apiKey,language:"ru-RU"});
+      const r=await fetch("https://api.themoviedb.org/3/movie/"+film.id+"?"+q);
+      if(r.ok){
+        const d=await r.json();
+        const origins=(d.origin_country&&d.origin_country.length)?d.origin_country
+          :(d.production_countries||[]).map(c=>c.iso_3166_1).filter(Boolean);
+        if(origins.length){film.origin_country=origins;cc=origins[0];}
+        if(d.title) film.title=d.title;
+        if(d.original_title) film.original_title=d.original_title;
+        if(d.overview) film.overview=d.overview;
+        if(d.release_date) film.release_date=d.release_date;
+        if(d.poster_path) film.poster_path=d.poster_path;
+        film.vote_average=d.vote_average;
+        film.vote_count=d.vote_count;
+        film.genre_ids=d.genres?d.genres.map(g=>g.id):(film.genre_ids||[]);
+      }
+    }catch(e){}
+    await reelLand(cc);
+    show(cc,{films:[film],oscar:true,votes:film.vote_count||0,total:1},film);
+  }catch(e){$("err").textContent=e.message}
+  finally{reelAbort();unlockSpin();}
+}
+
 async function spin(){
   $("err").textContent="";
   if(!apiKey){showKeyUi();$("err").textContent="Сначала введите ключ TMDB.";return;}
@@ -1361,6 +1434,7 @@ async function spin(){
 
 $("go").onclick=spin;
 $("top1").onclick=spinTop;
+$("oscar").onclick=spinOscar;
 $("again").onclick=async()=>{
   if(!cur||cur.pool.top1) return;
   $("err").textContent="";

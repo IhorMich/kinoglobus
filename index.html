@@ -197,6 +197,8 @@ button:active{transform:scale(.97)}
     <div class="srow"><span>Вибрация</span><button id="fx" class="tog"></button></div>
     <div class="srow"><span>Крутить фильмы<br><small>второй барабан с постерами</small></span><button id="filmTog" class="tog"></button></div>
     <div class="srow"><span>Категория 18+<br><small>«Взрослое кино 18+»</small></span><button id="adultVis" class="tog"></button></div>
+    <div class="srow"><span>Доп. раздел<br><small>отдельная страница</small></span><button id="extraVis" class="tog"></button></div>
+    <a id="extraLink" class="btn" href="extra.html" hidden style="margin-top:8px">Открыть доп. раздел</a>
     <button class="sbtn" id="resetSettings">Сбросить настройки</button>
     <button class="sbtn" id="resetHist"></button>
     <button class="sbtn" id="changeKey">Сменить ключ TMDB</button>
@@ -226,6 +228,7 @@ let visited=store.get("visited",{});
 let lastCC=store.get("lastCC","");
 let fx=store.get("fx",true);
 let showAdult=store.get("showAdult",true);
+let showExtra=store.get("showExtra",false);
 let filmSpin=store.get("filmSpin",true);
 const cache={}; let cur=null; // {cc, pool, film}
 
@@ -313,6 +316,13 @@ function applyAdultVis(){
 }
 $("adultVis").onclick=()=>{showAdult=!showAdult;store.set("showAdult",showAdult);applyAdultVis();};
 applyAdultVis();
+function extraVisLabel(){$("extraVis").textContent=showExtra?"Вкл":"Выкл";}
+function applyExtraVis(){
+  $("extraLink").hidden=!showExtra;
+  extraVisLabel();
+}
+$("extraVis").onclick=()=>{showExtra=!showExtra;store.set("showExtra",showExtra);applyExtraVis();};
+applyExtraVis();
 $("resetSettings").onclick=()=>{
   sel.clear();store.set("cats",[]);
   $("year").value="";store.set("year","");$("rmin").value="";store.set("rmin","");
@@ -320,6 +330,7 @@ $("resetSettings").onclick=()=>{
   fx=true;store.set("fx",true);fxLabel();
   filmSpin=true;store.set("filmSpin",true);filmLabel();
   showAdult=true;store.set("showAdult",true);applyAdultVis();
+  showExtra=false;store.set("showExtra",false);applyExtraVis();
 };
 $("year").value=store.get("year","");
 $("rmin").value=store.get("rmin","");

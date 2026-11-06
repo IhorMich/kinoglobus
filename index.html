@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -38,6 +37,8 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 @keyframes flagwave{0%,100%{transform:perspective(140px) rotateY(0deg)}35%{transform:perspective(140px) rotateY(16deg) skewY(1.5deg)}70%{transform:perspective(140px) rotateY(-8deg)}}
 .rcol.fast .wave{animation:none}
 .meta{color:var(--mute);font-size:14px;margin:4px 0 12px}
+#fgenre{margin-top:-8px;color:var(--ink)}
+.tagline{font-style:italic;color:var(--mute);margin:0 0 8px}
 .film{display:flex;gap:12px}
 .film img{width:112px;height:168px;object-fit:cover;border-radius:8px;background:var(--line);flex:none;opacity:0;transition:opacity .7s}
 .film img.ok{opacity:1}
@@ -176,9 +177,9 @@ button:active{transform:scale(.97)}
         <div><label for="year">Год не раньше</label>
           <input id="year" type="number" inputmode="numeric" min="1900" max="2026" placeholder="любой"></div>
         <div><label for="rmin">Оценка зрителей от</label>
-          <select id="rmin"><option value="">любая</option><option value="5">5</option><option value="6">6</option><option value="6.5">6.5</option><option value="7">7</option><option value="7.5">7.5</option><option value="8">8</option></select></div>
+          <select id="rmin"><option value="5">5</option><option value="6">6</option><option value="6.5">6.5</option><option value="7">7</option><option value="7.5">7.5</option><option value="8">8</option></select></div>
       </div>
-      <p class="note">Для «Топ-1» год означает ровно этот год. Для «Крутить глобус» — фильмы не раньше него.</p>
+      <p class="note">Для «Топ-1» год означает ровно этот год. Для «Крутить глобус» — фильмы не раньше него. Оценка по умолчанию не ниже 6. Ниже этого порога ищут только «Худшие», «Полная случайность» и «Хардкор».</p>
     </div>
   </details>
 
@@ -192,7 +193,7 @@ button:active{transform:scale(.97)}
 
   <button class="main" id="go">🎲 Крутить глобус</button>
   <button class="side" id="top1" type="button">🏆 Топ-1</button>
-  <p class="note" id="topNote">Топ-1 без года берёт лучший фильм случайной страны. С годом, например 1950, ищет лучший фильм этого года среди стран списка.</p>
+  <p class="note" id="topNote">Топ-1 берёт фильм с самой убедительной оценкой: высокая средняя и много отзывов. Картина, которую почти никто не оценил, не обходит ту, которую оценили тысячи. С годом страна каждый раз другая, и год на карточке совпадает с выбранным.</p>
   <div id="err" class="err" role="alert"></div>
   <div class="card reel" id="reel" hidden aria-live="polite" style="margin-top:14px">
     <div class="rwin" aria-hidden="true"><div class="rcol" id="rcol"></div><div class="rlens"></div></div>
@@ -214,16 +215,18 @@ button:active{transform:scale(.97)}
       <div>
         <h2 id="title"></h2>
         <div class="meta" id="fmeta"></div>
+        <div class="meta" id="fgenre"></div>
         <span class="badge" id="rating"></span>
       </div>
     </div>
     <div class="crew" id="crew" hidden></div>
+    <p class="tagline" id="tagline" hidden></p>
     <p class="over" id="over"></p>
     <button type="button" id="trailer" class="btn">▶ Смотреть трейлер</button>
     <div class="player" id="player" hidden></div>
     <p class="note" id="ytnote" hidden>Не воспроизводится? <a id="ytlink" target="_blank" rel="noopener">Открыть на YouTube</a></p>
     <div class="acts">
-      <button id="again">Другой фильм отсюда</button>
+      <button type="button" id="again">Другой фильм отсюда</button>
       <button id="seen">✓ Посмотрел</button>
     </div>
   </div>
@@ -277,7 +280,7 @@ const THEMES=[
   {id:"inact",name:"Индийские боевики",cc:["IN"],g:"28"}
 ];
 const SURPRISE_NOTE={
-  light:"Случайные страна и жанр. Берутся фильмы, которые оценило много зрителей.",
+  light:"Случайные страна и жанр. Оценка не ниже 6, фильмы оценило много зрителей.",
   find:"Случайные страна и жанр. Оценка от 7 при небольшом числе голосов: фильм хороший, но его мало кто видел.",
   wild:"Случайная страна. Жанр и оценка не задаются.",
   hard:"Случайная страна и случайный год. Любой фильм: без жанра, оценки и числа отзывов, включая 18+."
@@ -289,7 +292,7 @@ const $=id=>document.getElementById(id);
 const HIST={SU:"СССР",YU:"Югославия",CS:"Чехословакия",DD:"ГДР"};
 // These codes are not in Unicode regional indicators, so the old stand-ins were a brick, a temple, a star and a hammer.
 const HIST_SVG={
-SU:'<svg viewBox="0 0 90 60" aria-hidden="true"><rect width="90" height="60" fill="#ce2028"/><polygon fill="#ffd700" points="16,8 18.4,14.6 25.4,14.6 19.8,18.7 22,25.4 16,21.3 10,25.4 12.2,18.7 6.6,14.6 13.6,14.6"/><path fill="none" stroke="#ffd700" stroke-width="1.7" stroke-linecap="round" d="M18 27c7-9 16-6 16 2 0 5-4 8-8 8"/><path stroke="#ffd700" stroke-width="1.7" stroke-linecap="round" d="M22 24 l11 15 M24 37 h9"/></svg>',
+SU:'<svg viewBox="0 0 90 60" aria-hidden="true"><rect width="90" height="60" fill="#CC0000"/><g fill="#FFD700"><polygon points="24,4.5 26.5,11.6 34,11.6 27.9,16 30.3,23.2 24,18.9 17.7,23.2 20.1,16 14,11.6 21.5,11.6"/><path d="M38 26.5c0 7.6-6 13.2-13.2 13.2-2.2 0-4.3-.5-6.1-1.4l1.9-3.4a8 8 0 0 0 4.2 1.2c4.4 0 8-3.6 8-8.4 0-3.4-2-6.2-4.8-7.4l1.5-3.5c4.8 1.8 8.5 6.2 8.5 9.7z"/><path d="M21.2 35.2 12.2 48.4 16.6 50.8 25.6 37.6z"/><path d="M27.2 29.2 42.2 34.4 40.6 38.6 25.6 33.4z"/><path d="M32.4 31.2 25.6 46.6 29.6 48.2 36.4 32.8z"/></g></svg>',
 YU:'<svg viewBox="0 0 90 60" aria-hidden="true"><rect width="90" height="20" fill="#003893"/><rect y="20" width="90" height="20" fill="#fff"/><rect y="40" width="90" height="20" fill="#c6363c"/><polygon fill="#c6363c" stroke="#fcd116" stroke-width="1.2" stroke-linejoin="round" points="45,16 50,30 64,30 53,38 57,52 45,43 33,52 37,38 26,30 40,30"/></svg>',
 CS:'<svg viewBox="0 0 90 60" aria-hidden="true"><rect width="90" height="30" fill="#fff"/><rect y="30" width="90" height="30" fill="#d7141a"/><path d="M0 0 L42 30 L0 60 Z" fill="#11457e"/></svg>',
 DD:'<svg viewBox="0 0 90 60" aria-hidden="true"><rect width="90" height="20" fill="#000"/><rect y="20" width="90" height="20" fill="#dd0000"/><rect y="40" width="90" height="20" fill="#ffce00"/><g transform="translate(45 30)"><circle r="9" fill="#ffce00" stroke="#111" stroke-width=".6"/><circle r="7" fill="none" stroke="#dd0000" stroke-width="1.1"/><path fill="#dd0000" d="M-4 2.2 h8 v1.5 h-8 z M-1.2 -3 h1.6 v7 h-1.6 z M1.2 -2.2 l4.2 7 h-1.5 l-4.2-7 z"/></g></svg>'
@@ -468,7 +471,7 @@ addEventListener("keydown",e=>{
 });
 $("resetSettings").onclick=()=>{
   sel.clear();store.set("cats",[]);
-  $("year").value="";store.set("year","");$("rmin").value="";store.set("rmin","");paintExtraSum();
+  $("year").value="";store.set("year","");$("rmin").value="6";store.set("rmin","6");paintExtraSum();
   snd="roulette";$("snd").value=snd;store.set("snd",snd);
   fx=true;store.set("fx",true);fxLabel();
   filmSpin=true;store.set("filmSpin",true);filmLabel();
@@ -476,7 +479,7 @@ $("resetSettings").onclick=()=>{
   themeId="";store.set("theme","");paintThemes();paintGo();
 };
 $("year").value=store.get("year","");
-$("rmin").value=store.get("rmin","");
+$("rmin").value=["5","6","6.5","7","7.5","8"].includes(store.get("rmin",""))?store.get("rmin",""):"6";
 $("year").oninput=()=>{store.set("year",$("year").value);paintExtraSum();};
 $("rmin").onchange=()=>{store.set("rmin",$("rmin").value);paintExtraSum();};
 paintExtraSum();
@@ -485,7 +488,7 @@ function restoreFold(el,key,forceOpen){
   el.open=saved==null?!!forceOpen:!!saved;
   el.addEventListener("toggle",()=>store.set(key,el.open));
 }
-restoreFold($("extraCard"),"foldExtra",!!($("year").value||$("rmin").value));
+restoreFold($("extraCard"),"foldExtra",!!($("year").value||$("rmin").value!=="6"));
 restoreFold($("themeCard"),"foldTheme",!!themeId);
 function showKeyUi(){ $("keyCard").hidden=!!apiKey; }
 function updHist(){ $("resetHist").textContent=`Сбросить историю (${seen.size})`; }
@@ -519,12 +522,26 @@ async function takePool(base,minCount){
   const films=[p1,...rest].flatMap(p=>p.results).slice(0,MAX_POOL);
   return {films,total:p1.total_results};
 }
+function scoreFloor(o){
+  if(!o||o.worst||o.hard||o.wild) return 0;
+  const n=parseFloat(o.rmin);
+  return n>0?n:6;
+}
+function withScore(got,floor){
+  if(!got||!floor) return got;
+  const films=got.films.filter(f=>Number(f.vote_average)>=floor);
+  if(films.length<MIN_POOL) return null;
+  return {...got,films};
+}
 function poolBase(cc,o,t){
   const base={with_origin_country:cc,"vote_count.gte":t};
   if(o.g) base.with_genres=o.g;
   if(o.kw) base.with_keywords=o.kw;
   if(o.worst){base.sort_by="vote_average.asc";base["vote_average.gte"]=1;base["vote_average.lte"]=4.9;}
-  else if(o.rmin) base["vote_average.gte"]=o.rmin;
+  else{
+    const floor=scoreFloor(o);
+    if(floor) base["vote_average.gte"]=floor;
+  }
   if(o.y) base["primary_release_date.gte"]=o.y+"-01-01";
   return base;
 }
@@ -573,25 +590,26 @@ async function buildPool(cc,o){
     for(const b of bands){
       const base={with_origin_country:cc,"vote_count.gte":b.gte,"vote_count.lte":b.lte,"vote_average.gte":7};
       if(o.g) base.with_genres=o.g;
-      const got=await takePool(base,MIN_POOL);
-      if(got) return {films:got.films,votes:b.gte,vmax:b.lte,total:got.total,find:true};
+      const got=withScore(await takePool(base,MIN_POOL),7);
+      if(got) return {films:got.films,votes:b.gte,vmax:b.lte,total:got.total,find:true,scoreMin:7};
     }
     return null;
   }
   const floors=o.light?(BIG.has(cc)?[800,200,50]:[200,50,20]):[20];
   const certList=o.certs||[null];
+  const floor=scoreFloor(o);
   for(const cert of certList){
     for(const t of floors){
       const base=poolBase(cc,o,t);
       if(cert){base.certification_country=cc;base["certification.gte"]=cert;}
-      const got=await takePool(base,MAX_POOL);
-      if(got) return {films:got.films,votes:t,total:got.total,worst:!!o.worst,light:!!o.light,byRating:true};
+      const got=withScore(await takePool(base,MAX_POOL),floor);
+      if(got) return {films:got.films,votes:t,total:got.total,worst:!!o.worst,light:!!o.light,byRating:true,scoreMin:floor||""};
     }
     const base=poolBase(cc,o,1);
     if(!o.worst) base.sort_by="vote_count.desc";
     if(cert){base.certification_country=cc;base["certification.gte"]=cert;}
-    const got=await takePool(base,MIN_POOL);
-    if(got) return {films:got.films,votes:1,total:got.total,worst:!!o.worst,light:!!o.light,anyVotes:true};
+    const got=withScore(await takePool(base,MIN_POOL),floor);
+    if(got) return {films:got.films,votes:1,total:got.total,worst:!!o.worst,light:!!o.light,anyVotes:true,scoreMin:floor||""};
   }
   return null;
 }
@@ -642,7 +660,7 @@ async function getPool(cc,q){
       let films=parts.flatMap(p=>p.films).filter(f=>!ids.has(f.id)&&ids.add(f.id));
       films.sort((a,b)=>q.worst?a.vote_average-b.vote_average:b.vote_average-a.vote_average);
       films=films.slice(0,MAX_POOL);
-      result=films.length>=MIN_POOL?{films,votes:Math.min(...parts.map(p=>p.votes)),total:films.length,worst:q.worst,anyVotes:parts.every(p=>p.anyVotes),byRating:parts.every(p=>p.byRating)}:null;
+      result=films.length>=MIN_POOL?{films,votes:Math.min(...parts.map(p=>p.votes)),total:films.length,worst:q.worst,anyVotes:parts.every(p=>p.anyVotes),byRating:parts.every(p=>p.byRating),scoreMin:scoreFloor(q)||""}:null;
     }
   }
   result=tagPool(result,q);
@@ -736,11 +754,23 @@ $("snd").value=snd;$("snd").onchange=()=>{snd=$("snd").value;store.set("snd",snd
 
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const RM=matchMedia("(prefers-reduced-motion: reduce)").matches;
-// Vertical flag reel: spins at constant speed while data loads, then eases out onto the chosen country.
-const H=104, SPEED=22; // row height (px, = --rh) and rows per second
+// Vertical flag reel. The opening is a fast blur while the search starts, then a readable cruise, then a slow landing.
+const H=104, FLAG_FAST=15, FLAG_CRUISE=6; // row height (px, = --rh) and rows per second
 let seq=[],tIdx=-1,tCC=null,raf=0,pos=0,phase="idle",lastB=null,spinAt=0;
-const SPIN_MIN=1500, LAND_MS=4600; // min. fast spin and deceleration length, ms
+const FLAG_FAST_MS=1400, FLAG_LAND_MS=2600;
 const flagAt=i=>i===tIdx?tCC:seq[((i%seq.length)+seq.length)%seq.length];
+// The landing row is replaced by the chosen country. Pick a row whose neighbours are other countries, so the same flag is not painted twice in the window.
+function landingIndex(pEnd,cc){
+  const n=seq.length;
+  if(!cc||n<5) return pEnd+1;
+  const at=i=>((i%n)+n)%n;
+  const clear=idx=>{
+    for(let d=-2;d<=2;d++) if(d&&seq[at(idx+d)]===cc) return false;
+    return true;
+  };
+  for(let extra=0;extra<n;extra++) if(clear(pEnd+1+extra)) return pEnd+1+extra;
+  return pEnd+1;
+}
 function drawReel(p){
   const b=Math.floor(p),f=p-b;
   if(b!==lastB){lastB=b;$("rcol").innerHTML=[0,1,2,3].map(k=>`<div class="ri">${flag(flagAt(b+k))}</div>`).join("");}
@@ -757,8 +787,11 @@ function reelStart(){
   pos=Math.floor(Math.random()*seq.length);phase="spin";spinAt=performance.now();
   $("rcol").classList.add("fast");
   let t0=performance.now(),lastRow=Math.floor(pos);
-  const step=now=>{if(phase!=="spin")return;const dt=Math.min(.05,(now-t0)/1000);t0=now;pos+=SPEED*dt;
-    const row=Math.floor(pos);if(row!==lastRow){lastRow=row;sTick((row%8)/16);}   // sound from the very first moment
+  const step=now=>{if(phase!=="spin")return;const dt=Math.min(.05,(now-t0)/1000);t0=now;
+    const fast=now-spinAt<FLAG_FAST_MS;
+    $("rcol").classList.toggle("fast",fast);
+    pos+=(fast?FLAG_FAST:FLAG_CRUISE)*dt;
+    const row=Math.floor(pos);if(row!==lastRow){lastRow=row;sTick((row%8)/16);}
     drawReel(pos);raf=requestAnimationFrame(step);};
   raf=requestAnimationFrame(step);
 }
@@ -770,11 +803,13 @@ async function reelLand(cc){
     $("rname").textContent=cname(cc);$("rname").classList.add("on");
     await sleep(500);r.hidden=true;return;
   }
-  await sleep(Math.max(0,SPIN_MIN-(performance.now()-spinAt)));   // never stop too early, even if data is ready
+  await sleep(Math.max(0,FLAG_FAST_MS-(performance.now()-spinAt)));
   phase="land";cancelAnimationFrame(raf);
-  const T=LAND_MS,p0=pos;
-  const pEnd=Math.ceil(p0+SPEED*(T/1000)/3);   // easeOutCubic starts at the same speed as the spin
-  tIdx=pEnd+1;tCC=cc;                          // target sits far below the visible rows, so the swap is invisible
+  const T=FLAG_LAND_MS,p0=pos;
+  let pEnd=Math.ceil(p0+FLAG_CRUISE*(T/1000)/3);   // landing starts at cruise speed, not the opening blur
+  tCC=cc;
+  tIdx=landingIndex(pEnd,cc);                  // target sits below the visible rows, and not beside its own copy
+  pEnd=tIdx-1;
   $("rcol").classList.remove("fast");
   await new Promise(res=>{
     const t0=performance.now();let last=Math.floor(p0);
@@ -849,11 +884,26 @@ $("trailer").onclick=()=>{
   $("trailer").textContent="✕ Закрыть трейлер";
 };
 
-// ---- second reel: movie posters of the chosen country (same timing as the country reel)
-const FW=92, F_SPEED=14;
+// ---- second reel: posters. A short list is repeated so the strip has room to spin and then slow down.
+const FW=92, F_SPEED=8;
+const F_SPIN_MS=1700, F_LAND_MS=2300;
 let seqF=[],fTarget=null,fIdx=-1,fLast=null,raf2=0,fSkip=false;
 const esc=t=>String(t||"").replace(/[<>&"]/g,"");
 const fItemAt=i=>i===fIdx?fTarget:(i<0||i>=seqF.length)?{title:"",poster_path:null}:seqF[i];
+function posterStrip(films){
+  const base=[];
+  const ids=new Set();
+  for(const f of shuffle(films)){
+    if(!f||ids.has(f.id)) continue;
+    ids.add(f.id);base.push(f);
+  }
+  if(base.length<2) return null;
+  const need=Math.ceil(F_SPEED*F_SPIN_MS/1000+F_SPEED*(F_LAND_MS/1000)/3+4);
+  if(base.length>=need) return base.slice(0,Math.min(base.length,need+12));
+  const strip=[];
+  for(let i=0;strip.length<need;i++) strip.push(base[i%base.length]);
+  return strip;
+}
 const posterItem=m=>`<div class="pi">${m.poster_path?`<img src="https://image.tmdb.org/t/p/w154${m.poster_path}" alt="">`:`<div class="nop">${esc(m.title)}</div>`}</div>`;
 function drawF(p){
   const b=Math.floor(p),f=p-b;
@@ -867,11 +917,11 @@ function preloadPosters(pool){
 $("fskip").onclick=()=>{fSkip=true;};
 async function filmReel(pool,film,cc,warm){
   if(RM||!filmSpin) return;
-  const pics=shuffle(pool.films);
-  if(pics.length<6) return;
+  const pics=posterStrip(pool.films);
+  if(!pics) return;
   const box=$("freel");
   seqF=pics;
-  await Promise.race([warm||Promise.resolve(),sleep(900)]);
+  await Promise.race([warm||Promise.resolve(),sleep(500)]);
   $("fhead").innerHTML=`${flag(cc)} ${cname(cc)}`;
   $("fname").textContent="";$("fname").classList.remove("on");
   fTarget=film;fIdx=-1;fLast=null;fSkip=false;
@@ -879,9 +929,7 @@ async function filmReel(pool,film,cc,warm){
   box.classList.remove("out");box.hidden=false;
   box.scrollIntoView({behavior:"smooth",block:"nearest"});
   const maxEnd=Math.max(1,seqF.length-4);
-  const spinMs=2200, landMs=3400;
-  const spinRows=Math.min(F_SPEED*spinMs/1000, maxEnd*0.62);
-  const speed=spinRows/(spinMs/1000);
+  const speed=F_SPEED;
   await new Promise(res=>{
     const t0=performance.now(),p0=0;
     let pos=p0,last=-1,landing=false,pStart=0,pEnd=0,tl=0;
@@ -889,9 +937,9 @@ async function filmReel(pool,film,cc,warm){
       let t=0;
       if(!landing){
         pos=p0+speed*(now-t0)/1000;
-        if(now-t0>=spinMs||fSkip){
+        if(now-t0>=F_SPIN_MS||fSkip){
           landing=true;pStart=Math.min(pos,maxEnd-1);
-          const coast=speed*(landMs/1000)/3;
+          const coast=speed*(F_LAND_MS/1000)/3;
           pEnd=Math.round(pStart+Math.min(coast,maxEnd-pStart));
           if(pEnd<=Math.floor(pStart)) pEnd=Math.min(maxEnd,Math.floor(pStart)+1);
           if(pEnd>maxEnd) pEnd=maxEnd;
@@ -899,7 +947,7 @@ async function filmReel(pool,film,cc,warm){
         }
       }
       if(landing){
-        t=fSkip?1:Math.min(1,(now-tl)/landMs);
+        t=fSkip?1:Math.min(1,(now-tl)/F_LAND_MS);
         pos=pStart+(pEnd-pStart)*(1-Math.pow(1-t,3));
       }
       const row=Math.floor(pos);
@@ -935,9 +983,13 @@ function show(cc,pool,film){
   if(film.poster_path)po.src="https://image.tmdb.org/t/p/w342"+film.poster_path;else{po.removeAttribute("src");po.classList.add("ok");}
   $("title").textContent=film.title+(film.original_title&&film.original_title!==film.title?` (${film.original_title})`:"");
   $("fmeta").textContent=(film.release_date||"").slice(0,4);
-  $("rating").textContent="★ "+film.vote_average.toFixed(1);
+  const genres=genreLine(film);
+  $("fgenre").textContent=genres?"Жанр: "+genres:"";
+  $("tagline").hidden=true;$("tagline").textContent="";
+  paintRating(film.vote_count,film.vote_average);
   $("crew").hidden=true;$("crew").innerHTML="";
   $("over").textContent=film.overview||"Описания на русском пока нет.";
+  $("again").hidden=!!pool.top1;
   setTrailer(film);
   paintCrew(film);
   $("result").hidden=false;
@@ -951,23 +1003,23 @@ function poolLine(pool){
   if(pool.hard) return "Хардкор: случайный год, любой фильм страны. Без жанра, оценки и порога отзывов, 18+ тоже попадают.";
   if(pool.wild) return "Полная случайность: без жанра и без порога оценки.";
   if(pool.find) return `Настоящее открытие${genre}: оценка от 7, голосов от ${pool.votes} до ${pool.vmax}.`;
-  if(pool.light && !pool.anyVotes) return `Лёгкое удивление${genre}: фильмы, которые оценили минимум ${pool.votes} зрителей.`;
+  if(pool.light && !pool.anyVotes) return `Лёгкое удивление${genre}: оценка от ${pool.scoreMin||6}, фильмы оценили минимум ${pool.votes} зрителей.`;
   const head=pool.themeName?pool.themeName+". ":"";
   if(pool.anyVotes){
     const base=n>=MAX_POOL
       ?"Сотни фильмов с устойчивой оценкой не набралось, взяты 100 картин с любым числом отзывов."
       :`По оценке набралось мало фильмов, взяты ${n} картин с любым числом отзывов.`;
-    return head+(pool.light?"Лёгкое удивление. ":"")+base;
+    return head+(pool.light?"Лёгкое удивление. ":"")+base+(pool.scoreMin?` Оценка не ниже ${pool.scoreMin}.`:"");
   }
   if(pool.top1&&pool.exactYear){
-    const where=pool.themeName?`в подборке «${pool.themeName}»`:"среди стран списка";
-    return `Топ-1, ${pool.exactYear}: лучший фильм этого года ${where}${genre}. Не меньше ${pool.votes} отзывов.`;
+    return head+`Топ-1, ${pool.exactYear}${genre}: лучший фильм этой страны за ${pool.exactYear} год среди картин, которые оценили хотя бы ${pool.votes} зрителей.`;
   }
-  if(pool.top1) return head+`Топ-1${genre}: лучший фильм страны, не меньше ${pool.votes} отзывов.`;
+  if(pool.top1) return head+`Топ-1${genre}: лучший фильм страны среди картин, которые оценили хотя бы ${pool.votes} зрителей.`;
   const rank=pool.worst?"худших":"лучших";
+  const score=pool.scoreMin?`, оценка от ${pool.scoreMin}`:"";
   const base=n===MAX_POOL
-    ?`Случайный фильм из 100 ${rank} по оценке (не меньше ${pool.votes} отзывов).`
-    :`По оценке нашлось ${n} фильмов (не меньше ${pool.votes} отзывов). Фильм выбран из них.`;
+    ?`Случайный фильм из 100 ${rank} по оценке (не меньше ${pool.votes} отзывов${score}).`
+    :`По оценке нашлось ${n} фильмов (не меньше ${pool.votes} отзывов${score}). Фильм выбран из них.`;
   return head+base;
 }
 function fmtRuntime(m){
@@ -985,17 +1037,43 @@ async function filmDetails(id){
     api_key:apiKey, language:"ru-RU", append_to_response:"credits"}));
   if(!r.ok) throw new Error("details");
   const j=await r.json();
-  const dirs=(j.credits&&j.credits.crew||[]).filter(c=>c.job==="Director").map(c=>c.name);
-  const cast=(j.credits&&j.credits.cast||[]).slice(0,4).map(c=>c.name);
-  return detailCache[id]={runtime:j.runtime||0,dirs,cast,budget:j.budget||0,revenue:j.revenue||0};
+  const crew=j.credits&&j.credits.crew||[];
+  const dirs=crew.filter(c=>c.job==="Director"||c.job==="Режиссёр").map(c=>c.name);
+  const writers=[];
+  crew.filter(c=>/screenplay|writer|сценари/i.test(c.job)).forEach(c=>{if(!writers.includes(c.name))writers.push(c.name);});
+  const cast=(j.credits&&j.credits.cast||[]).slice(0,5).map(c=>c.name);
+  const genres=(j.genres||[]).map(g=>g.name).filter(Boolean);
+  return detailCache[id]={runtime:j.runtime||0,dirs,writers:writers.slice(0,3),cast,genres,budget:j.budget||0,revenue:j.revenue||0,tagline:j.tagline||"",votes:j.vote_count||0,average:j.vote_average||0};
+}
+function genreLine(film){
+  const fromIds=(film.genre_ids||[]).map(id=>GENRES[id]).filter(Boolean);
+  return fromIds.slice(0,4).join(", ");
+}
+const voteFmt=new Intl.NumberFormat("ru-RU");
+function votesWord(n){
+  const m=n%100, k=n%10;
+  if(m>10&&m<20) return "оценок";
+  if(k===1) return "оценка";
+  if(k>1&&k<5) return "оценки";
+  return "оценок";
+}
+function paintRating(votes,average){
+  if(!votes){$("rating").textContent="Нет оценки";return;}
+  $("rating").textContent="★ "+Number(average).toFixed(1)+` · ${voteFmt.format(votes)} ${votesWord(votes)}`;
 }
 function paintCrew(film){
   const year=(film.release_date||"").slice(0,4);
   filmDetails(film.id).then(d=>{
     if(!cur||cur.film.id!==film.id) return;
     $("fmeta").textContent=[year,d.runtime?fmtRuntime(d.runtime):""].filter(Boolean).join(" · ");
+    paintRating(d.votes,d.average);
+    const genres=(d.genres.length?d.genres:genreLine(film).split(", ").filter(Boolean)).slice(0,4);
+    $("fgenre").textContent=genres.length?"Жанр: "+genres.join(", "):"";
+    $("tagline").hidden=!d.tagline;
+    $("tagline").textContent=d.tagline||"";
     const lines=[];
     if(d.dirs.length) lines.push(`<div><b>${d.dirs.length>1?"Режиссёры":"Режиссёр"}:</b> ${esc(d.dirs.join(", "))}</div>`);
+    if(d.writers.length) lines.push(`<div><b>Сценарий:</b> ${esc(d.writers.join(", "))}</div>`);
     if(d.cast.length) lines.push(`<div><b>В ролях:</b> ${esc(d.cast.join(", "))}</div>`);
     lines.push(`<div><b>Бюджет:</b> ${money(d.budget)}</div>`);
     lines.push(`<div><b>Сборы:</b> ${money(d.revenue)}</div>`);
@@ -1025,72 +1103,54 @@ function topQuery(){
     countries:theme?theme.cc:null
   };
 }
+function spinOrder(list){
+  let order=shuffle(list);
+  if(cur&&cur.cc&&order.length>1&&order.includes(cur.cc))
+    order=order.filter(c=>c!==cur.cc).concat(cur.cc);
+  return order;
+}
+function topVotes(cc,q){
+  if(q.worst) return q.y?[15]:[30];
+  const big=BIG.has(cc);
+  if(q.y) return big?[1000,400,150]:[200,80,40];
+  return big?[3000,1200,400]:[400,150,60];
+}
+// A few perfect scores must not beat a film that thousands of people rated.
+function weighed(f){
+  const v=f.vote_count||0, r=Number(f.vote_average)||0, m=800;
+  return (v/(v+m))*r + (m/(v+m))*6.6;
+}
+function fromCountry(f,cc){
+  const list=f.origin_country;
+  return !list||!list.length||list.includes(cc);
+}
 async function topOfCountry(cc,q){
-  const floors=q.worst?[20]:(BIG.has(cc)?[200,50,20]:[50,20]);
-  for(const votes of floors){
-    const p=await api({...poolBase(cc,{...q,y:""},votes),page:1});
-    const films=(p.results||[]).slice(0,20);
+  for(const votes of topVotes(cc,q)){
+    const base=poolBase(cc,{...q,y:""},votes);
+    if(q.y){
+      base.primary_release_year=q.y;
+      base["primary_release_date.gte"]=q.y+"-01-01";
+      base["primary_release_date.lte"]=q.y+"-12-31";
+    }
+    const pages=[api({...base,page:1})];
+    if(q.y&&!q.worst) pages.push(api({...base,page:1,sort_by:"popularity.desc"}));
+    const got=await Promise.all(pages);
+    const floor=scoreFloor(q);
+    const ids=new Set();
+    let films=[];
+    for(const row of got.flatMap(p=>p.results||[])){
+      if(!row||ids.has(row.id)) continue;
+      if(q.y&&(row.release_date||"").slice(0,4)!==q.y) continue;
+      if(floor&&Number(row.vote_average)<floor) continue;
+      if(!fromCountry(row,cc)) continue;
+      ids.add(row.id);
+      films.push(row);
+    }
     if(!films.length) continue;
-    return tagPool({films,votes,total:p.total_results||films.length,top1:true,byRating:true},q);
+    if(!q.worst) films.sort((a,b)=>weighed(b)-weighed(a));
+    return tagPool({films:films.slice(0,20),votes,total:films.length,top1:true,exactYear:q.y||"",byRating:true,scoreMin:floor||""},q);
   }
   return null;
-}
-async function bestOfYear(q){
-  const allow=new Set(q.countries||COUNTRIES);
-  const floors=q.worst?[20]:[100,20];
-  for(const votes of floors){
-    const base={"vote_count.gte":votes,
-      "primary_release_date.gte":q.y+"-01-01","primary_release_date.lte":q.y+"-12-31"};
-    if(q.g) base.with_genres=q.g;
-    if(q.worst){base.sort_by="vote_average.asc";base["vote_average.gte"]=1;base["vote_average.lte"]=4.9;}
-    else if(q.rmin) base["vote_average.gte"]=q.rmin;
-    const found=[], seenId=new Set();
-    let sawRows=false, sawOrigin=false;
-    for(let page=1;page<=5&&found.length<20;page++){
-      const p=await api({...base,page});
-      const rows=p.results||[];
-      if(!rows.length) break;
-      sawRows=true;
-      if(rows.some(f=>Array.isArray(f.origin_country))) sawOrigin=true;
-      for(const f of rows){
-        const cc=(f.origin_country||[]).find(c=>allow.has(c));
-        if(!cc||seenId.has(f.id)||seen.has(f.id)) continue;
-        seenId.add(f.id);found.push({cc,film:f});
-      }
-      if(page>=(p.total_pages||1)) break;
-    }
-    if(sawRows&&!sawOrigin) return bestOfYearByCountry(q,votes);
-    if(!found.length) continue;
-    const byCountry={};
-    found.forEach(x=>{byCountry[x.film.id]=x.cc;});
-    const films=found.map(x=>x.film);
-    const pool=tagPool({films,votes,total:films.length,top1:true,exactYear:q.y,byRating:true,byCountry},q);
-    return {cc:found[0].cc,film:found[0].film,pool};
-  }
-  return null;
-}
-async function bestOfYearByCountry(q,votes){
-  const order=q.countries||COUNTRIES;
-  const dated={...poolBase("ZZ",q,votes),
-    "primary_release_date.gte":q.y+"-01-01","primary_release_date.lte":q.y+"-12-31"};
-  delete dated.with_origin_country;
-  const found=[];
-  for(let i=0;i<order.length;i+=5){
-    const batch=order.slice(i,i+5);
-    const pages=await Promise.all(batch.map(cc=>api({...dated,with_origin_country:cc,page:1}).then(p=>({cc,rows:p.results||[]})).catch(()=>({cc,rows:[]}))));
-    for(const {cc,rows} of pages){
-      const film=rows.find(f=>!seen.has(f.id));
-      if(film) found.push({cc,film});
-    }
-  }
-  found.sort((a,b)=>q.worst?a.film.vote_average-b.film.vote_average:b.film.vote_average-a.film.vote_average);
-  const top=found.slice(0,20);
-  if(!top.length) return null;
-  const byCountry={};
-  top.forEach(x=>{byCountry[x.film.id]=x.cc;});
-  const films=top.map(x=>x.film);
-  const pool=tagPool({films,votes,total:films.length,top1:true,exactYear:q.y,byRating:true,byCountry},q);
-  return {cc:top[0].cc,film:top[0].film,pool};
 }
 async function spinTop(){
   $("err").textContent="";
@@ -1101,16 +1161,8 @@ async function spinTop(){
   reelStart();
   try{
     const q=topQuery();
-    if(q.y){
-      const got=await bestOfYear(q);
-      if(!got){$("err").textContent="За этот год среди стран списка ничего не нашлось. Попробуйте другой год или сбросьте историю.";return;}
-      await reelLand(got.cc);
-      const mixed=got.pool.byCountry&&new Set(Object.values(got.pool.byCountry)).size>1;
-      if(!mixed) await filmReel(got.pool,got.film,got.cc,preloadPosters(got.pool));
-      show(got.cc,got.pool,got.film);return;
-    }
-    const order=shuffle(q.countries||COUNTRIES);
-    const cap=q.countries?order.length:Math.min(order.length,24);
+    const order=spinOrder(q.countries||COUNTRIES);
+    const cap=q.y||q.countries?Math.min(order.length,40):Math.min(order.length,24);
     for(let i=0;i<cap;i+=3){
       const batch=order.slice(i,i+3);
       const pools=await Promise.all(batch.map(cc=>topOfCountry(cc,q)));
@@ -1124,7 +1176,9 @@ async function spinTop(){
         show(batch[k],pool,film);return;
       }
     }
-    $("err").textContent="Лучший фильм не нашёлся. Смягчите фильтры или сбросьте историю.";
+    $("err").textContent=q.y
+      ?"За этот год подходящий фильм не нашёлся. Попробуйте другой год или сбросьте историю."
+      :"Лучший фильм не нашёлся. Смягчите фильтры или сбросьте историю.";
   }catch(e){$("err").textContent=e.message}
   finally{reelAbort();unlockSpin();}
 }
@@ -1163,7 +1217,7 @@ async function spin(){
 $("go").onclick=spin;
 $("top1").onclick=spinTop;
 $("again").onclick=async()=>{
-  if(!cur) return;
+  if(!cur||cur.pool.top1) return;
   $("err").textContent="";
   closePlayer();
   $("again").disabled=true;

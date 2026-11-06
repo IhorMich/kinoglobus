@@ -249,6 +249,7 @@ $("chips").onclick=e=>{
   if(k==="any") sel.clear();
   else sel.has(k)?sel.delete(k):sel.add(k);
   store.set("cats",[...sel]);
+  for(const key of Object.keys(cache)) delete cache[key];
   paintChips();
 };
 paintChips();
@@ -435,27 +436,41 @@ async function api(params){
   return r.json();
 }
 
-// Only adult:true titles. Soft vote tiers — porn rarely has high vote counts.
-// When tags (keywords) are on, country+keyword+adult is often empty — allow 1 hit and global fallback.
+// Only adult:true. No vote_count minimum — include titles with zero reviews.
+// Genre/keyword: allow 1 hit + client-side genre filter + global fallback in spin().
 async function buildPool(cc,o){
-  const minNeed=o.kw?1:MIN_POOL;
-  const tiers=o.kw?(BIG.has(cc)?[20,5,1,0]:[10,3,1,0]):(BIG.has(cc)?[100,30,5,1]:[30,10,3,1]);
-  for(const t of tiers){
+  const tight=!!(o.g||o.kw);
+  const minNeed=tight?1:Math.min(MIN_POOL,3);
+  const genreIds=(o.g||"").split(",").filter(Boolean).map(Number);
+
+  async function fetchFilms(useGenreApi){
     const base={};
     if(cc) base.with_origin_country=cc;
-    if(t>0) base["vote_count.gte"]=t;
-    if(o.g) base.with_genres=o.g;
+    // no vote_count.gte — search everything available
+    if(useGenreApi&&o.g) base.with_genres=o.g;
     if(o.kw) base.with_keywords=o.kw;
-    // Exclude gay titles from general search unless user chose the Gay tag
     if(o.noGay&&o.noGay.length) base.without_keywords=o.noGay.join("|");
     if(o.rmin) base["vote_average.gte"]=o.rmin;
     if(o.y) base["primary_release_date.gte"]=o.y+"-01-01";
     const p1=await api({...base,page:1});
     const pages=Math.min(p1.total_pages||1,Math.ceil(MAX_POOL/20),8);
     const rest=pages>1?await Promise.all(Array.from({length:pages-1},(_,i)=>api({...base,page:i+2}))):[];
-    let films=[p1,...rest].flatMap(p=>p.results).filter(f=>f.adult===true).slice(0,MAX_POOL);
-    if(films.length<minNeed) continue;
-    return {films,votes:t,total:films.length,porn:true};
+    let films=[p1,...rest].flatMap(p=>p.results).filter(f=>f.adult===true);
+    if(genreIds.length){
+      films=films.filter(f=>{
+        const ids=f.genre_ids||[];
+        return genreIds.some(g=>ids.includes(g));
+      });
+    }
+    return films.slice(0,MAX_POOL);
+  }
+
+  let films=await fetchFilms(true);
+  if(films.length>=minNeed) return {films,votes:0,total:films.length,porn:true};
+
+  if(o.g){
+    films=await fetchFilms(false);
+    if(films.length>=minNeed) return {films,votes:0,total:films.length,porn:true};
   }
   return null;
 }
@@ -472,10 +487,10 @@ async function getPool(cc){
   return result;
 }
 
-// Global search by tags only (no country) — used when country roulette finds nothing.
-async function getGlobalTagPool(){
-  if(!tagSel.size) return null;
-  return getPool(""); // empty cc → no with_origin_country
+// Global search without country — when roulette finds nothing for genre/tag filters.
+async function getGlobalFilterPool(){
+  if(!tagSel.size&&!sel.size) return null;
+  return getPool("");
 }
 function filmCountry(film){
   const oc=film.origin_country;
@@ -776,8 +791,8 @@ function show(cc,pool,film){
   $("cname").textContent=cname(cc);
   const n=pool.films.length;
   $("cmeta").textContent=n===MAX_POOL
-    ?`Случайный фильм из 100 adult-фильмов страны (каждый оценили минимум ${pool.votes} зрителей)`
-    :`В этой стране нашлось ${n} adult-фильмов, каждый оценили минимум ${pool.votes} зрителей`;
+    ?`Случайный фильм из 100 adult-фильмов страны`
+    :`В этой стране нашлось ${n} adult-фильмов`;
   const po=$("poster");po.classList.remove("ok");po.onload=()=>po.classList.add("ok");
   if(film.poster_path)po.src="https://image.tmdb.org/t/p/w342"+film.poster_path;else{po.removeAttribute("src");po.classList.add("ok");}
   $("title").textContent=film.title+(film.original_title&&film.original_title!==film.title?` (${film.original_title})`:"");
@@ -812,8 +827,8 @@ async function spin(){
   reelStart();
   try{
     const order=shuffle(COUNTRIES);
-    // Prefer countries with hits; try more when tags are on (scarcer)
-    const limit=tagSel.size?Math.min(order.length,60):Math.min(order.length,30);
+    const tight=tagSel.size||sel.size;
+    const limit=tight?Math.min(order.length,60):Math.min(order.length,30);
     for(let i=0;i<limit;i+=3){
       const batch=order.slice(i,i+3);
       const pools=await Promise.all(batch.map(getPool));
@@ -829,9 +844,9 @@ async function spin(){
         show(batch[k],pool,film);return;
       }
     }
-    // Tags selected but no country hit → world-wide adult+keyword search
-    if(tagSel.size){
-      const pool=await getGlobalTagPool();
+    // Genre/tag filters but no country hit → world-wide adult search
+    if(tight){
+      const pool=await getGlobalFilterPool();
       if(pool){
         const left=fresh(pool);
         if(left.length){
@@ -844,8 +859,8 @@ async function spin(){
         }
       }
     }
-    $("err").textContent=tagSel.size
-      ?"С этими тегами adult-фильмов почти нет (или все уже в истории). Снимите часть тегов / жанров."
+    $("err").textContent=tight
+      ?"С этими жанрами/тегами adult-фильмов почти нет (или все уже в истории). Снимите часть фильтров."
       :"Подходящих фильмов не нашлось. Смягчите фильтры или сбросьте историю.";
   }catch(e){$("err").textContent=e.message}
   finally{reelAbort();$("go").disabled=false;$("go").textContent="🎲 Крутить глобус"}

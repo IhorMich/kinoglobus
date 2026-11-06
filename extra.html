@@ -299,7 +299,7 @@ $("tags").onclick=e=>{
 paintTags();
 
 // Resolve tag → TMDB keyword id(s), cached (versioned).
-const kwCache=store.get("kwCache_v2",{});
+const kwCache=store.get("kwCache_v3",{});
 async function resolveTag(key){
   if(kwCache[key]&&kwCache[key].length) return kwCache[key];
   const def=TAGS[key];if(!def) return [];
@@ -309,21 +309,23 @@ async function resolveTag(key){
       const r=await fetch("https://api.themoviedb.org/3/search/keyword?"+new URLSearchParams({api_key:apiKey,query:q}));
       if(!r.ok) continue;
       const j=await r.json();
-      (j.results||[]).slice(0,8).forEach(k=>{
+      const qq=q.toLowerCase();
+      (j.results||[]).slice(0,12).forEach(k=>{
         const n=(k.name||"").toLowerCase();
-        const qq=q.toLowerCase();
-        if(n===qq||n.startsWith(qq)||qq.startsWith(n)) ids.add(k.id);
+        // looser match: exact, starts with, contains
+        if(n===qq||n.startsWith(qq)||qq.startsWith(n)||n.includes(qq)||qq.includes(n)) ids.add(k.id);
       });
+      // if still empty, take top result for this query
+      if(!ids.size&&j.results&&j.results[0]) ids.add(j.results[0].id);
     }catch(e){}
   }
   kwCache[key]=[...ids];
-  store.set("kwCache_v2",kwCache);
+  store.set("kwCache_v3",kwCache);
   return kwCache[key];
 }
 async function resolveGayExcludeIds(){
   if(kwCache.__gayEx&&kwCache.__gayEx.length) return kwCache.__gayEx;
   const ids=new Set();
-  // Prefer ids already resolved for the gay tag
   (await resolveTag("gay")).forEach(id=>ids.add(id));
   for(const q of GAY_QUERIES){
     try{
@@ -337,7 +339,7 @@ async function resolveGayExcludeIds(){
     }catch(e){}
   }
   kwCache.__gayEx=[...ids];
-  store.set("kwCache_v2",kwCache);
+  store.set("kwCache_v3",kwCache);
   return kwCache.__gayEx;
 }
 async function resolveSelectedTags(){
@@ -437,11 +439,13 @@ async function api(params){
 }
 
 // Only adult:true titles. Soft vote tiers — porn rarely has high vote counts.
+// When tags (keywords) are on, country+keyword+adult is often empty — allow 1 hit and global fallback.
 async function buildPool(cc,o){
-  const minNeed=o.kw?3:MIN_POOL;
-  const tiers=o.kw?(BIG.has(cc)?[30,10,2,0]:[15,5,1,0]):(BIG.has(cc)?[100,30,5,1]:[30,10,3,1]);
+  const minNeed=o.kw?1:MIN_POOL;
+  const tiers=o.kw?(BIG.has(cc)?[20,5,1,0]:[10,3,1,0]):(BIG.has(cc)?[100,30,5,1]:[30,10,3,1]);
   for(const t of tiers){
-    const base={with_origin_country:cc};
+    const base={};
+    if(cc) base.with_origin_country=cc;
     if(t>0) base["vote_count.gte"]=t;
     if(o.g) base.with_genres=o.g;
     if(o.kw) base.with_keywords=o.kw;
@@ -464,11 +468,28 @@ async function getPool(cc){
   const kw=tagSel.size?await resolveSelectedTags():"";
   const wantGay=tagSel.has("gay");
   const noGay=wantGay?[]:await resolveGayExcludeIds();
-  const key=[cc,g,kw,wantGay?"gay":"nogay",rmin,y].join("|");
+  const key=[cc||"WW",g,kw,wantGay?"gay":"nogay",rmin,y].join("|");
   if(key in cache) return cache[key];
   const result=await buildPool(cc,{g,kw,noGay,rmin,y});
   cache[key]=result;
   return result;
+}
+
+// Global search by tags only (no country) — used when country roulette finds nothing.
+async function getGlobalTagPool(){
+  if(!tagSel.size) return null;
+  return getPool(""); // empty cc → no with_origin_country
+}
+function filmCountry(film){
+  const oc=film.origin_country;
+  if(Array.isArray(oc)&&oc.length){
+    const hit=oc.find(c=>COUNTRIES.includes(c));
+    if(hit) return hit;
+    return oc[0];
+  }
+  const lang=(film.original_language||"").toUpperCase();
+  const map={EN:"US",JA:"JP",KO:"KR",ZH:"CN",FR:"FR",DE:"DE",ES:"ES",IT:"IT",PT:"BR",RU:"RU",PL:"PL",SV:"SE",DA:"DK",NL:"NL",TR:"TR",HI:"IN",TH:"TH"};
+  return map[lang]||"US";
 }
 
 // Full details from TMDB: genres + overview + homepage + imdb_id.
@@ -794,14 +815,16 @@ async function spin(){
   reelStart();
   try{
     const order=shuffle(COUNTRIES);
-    for(let i=0;i<Math.min(order.length,30);i+=3){   // 3 countries at once; the first valid one in random order wins
+    // Prefer countries with hits; try more when tags are on (scarcer)
+    const limit=tagSel.size?Math.min(order.length,60):Math.min(order.length,30);
+    for(let i=0;i<limit;i+=3){
       const batch=order.slice(i,i+3);
       const pools=await Promise.all(batch.map(getPool));
       for(let k=0;k<batch.length;k++){
         const pool=pools[k];
-        if(!pool) continue;                   // too few films
+        if(!pool) continue;
         const left=fresh(pool);
-        if(!left.length) continue;            // everything here already watched
+        if(!left.length) continue;
         const film=pick(left);
         const warm=preloadPosters(pool);
         await reelLand(batch[k]);
@@ -809,7 +832,24 @@ async function spin(){
         show(batch[k],pool,film);return;
       }
     }
-    $("err").textContent="Подходящих фильмов не нашлось. Смягчите фильтры или сбросьте историю.";
+    // Tags selected but no country hit → world-wide adult+keyword search
+    if(tagSel.size){
+      const pool=await getGlobalTagPool();
+      if(pool){
+        const left=fresh(pool);
+        if(left.length){
+          const film=pick(left);
+          const cc=filmCountry(film);
+          const warm=preloadPosters(pool);
+          await reelLand(COUNTRIES.includes(cc)?cc:pick(COUNTRIES));
+          await filmReel(pool,film,cc,warm);
+          show(cc,pool,film);return;
+        }
+      }
+    }
+    $("err").textContent=tagSel.size
+      ?"С этими тегами adult-фильмов почти нет (или все уже в истории). Снимите часть тегов / жанров."
+      :"Подходящих фильмов не нашлось. Смягчите фильтры или сбросьте историю.";
   }catch(e){$("err").textContent=e.message}
   finally{reelAbort();$("go").disabled=false;$("go").textContent="🎲 Крутить глобус"}
 }

@@ -168,9 +168,13 @@ button:active{transform:scale(.97)}
       </div>
     </div>
     <p class="over" id="over"></p>
-    <a id="trailer" class="btn" target="_blank" rel="noopener">▶ Найти трейлер</a>
+    <div class="acts" id="mediaActs" style="margin-top:12px">
+      <a id="trailer" class="btn" href="#" target="_blank" rel="noopener" style="margin:0;flex:1;min-width:140px">▶ Найти превью</a>
+      <a id="homeLink" class="btn" href="#" target="_blank" rel="noopener" hidden style="margin:0;flex:1;min-width:140px">🌐 Сайт фильма</a>
+      <a id="tmdbLink" class="btn" href="#" target="_blank" rel="noopener" style="margin:0;flex:1;min-width:140px">TMDB</a>
+    </div>
     <div class="player" id="player" hidden></div>
-    <p class="note" id="ytnote" hidden>Не воспроизводится? <a id="ytlink" target="_blank" rel="noopener">Открыть на YouTube</a></p>
+    <p class="note" id="ytnote" hidden>Не воспроизводится? <a id="ytlink" target="_blank" rel="noopener">Открыть ролик</a></p>
     <div class="acts">
       <button id="again">Другой фильм отсюда</button>
       <button id="seen">✓ Посмотрел</button>
@@ -458,15 +462,14 @@ async function getPool(cc){
   return result;
 }
 
-// Full details from TMDB: genres + overview (RU → EN → original language).
+// Full details from TMDB: genres + overview + homepage + imdb_id.
 async function filmDetails(film){
-  const out={overview:(film.overview||"").trim(), genres:[]};
+  const out={overview:(film.overview||"").trim(), genres:[], homepage:"", imdb_id:""};
   if(film.genre_ids&&film.genre_ids.length){
     out.genres=film.genre_ids.map(id=>GENRES[id]).filter(Boolean);
   }
   const langs=["ru-RU","en-US",film.original_language].filter((v,i,a)=>v&&a.indexOf(v)===i);
   for(const lang of langs){
-    if(out.overview&&out.genres.length) break;
     try{
       const r=await fetch(`https://api.themoviedb.org/3/movie/${film.id}?`+new URLSearchParams({api_key:apiKey,language:lang}));
       if(!r.ok) continue;
@@ -477,6 +480,9 @@ async function filmDetails(film){
       if(!out.overview&&j.overview&&j.overview.trim()){
         out.overview=j.overview.trim();
       }
+      if(!out.homepage&&j.homepage) out.homepage=j.homepage;
+      if(!out.imdb_id&&j.imdb_id) out.imdb_id=j.imdb_id;
+      if(out.overview&&out.genres.length&&out.homepage) break;
     }catch(e){}
   }
   return out;
@@ -599,54 +605,82 @@ async function reelLand(cc){
   r.hidden=true;r.classList.remove("out");phase="idle";
 }
 
-// ---- trailers (TMDB videos; any language / Trailer → Teaser → Clip)
+// ---- media: Vimeo only from TMDB (no YouTube — adult is blocked there).
+// Fallback: DuckDuckGo. Also: film homepage + TMDB page.
 const vcache={};
 async function trailerFor(film){
   const id=film.id;
   if(id in vcache) return vcache[id];
   const ol=film.original_language;
-  // empty language = all videos on the entry
   const langs=["ru-RU",ol&&!["ru","en","xx"].includes(ol)?ol:null,"en-US",""].filter(v=>v!==null&&v!==undefined);
-  let key=null,teaser=null,clip=null;
+  const pick=(list,type)=>{
+    const t=list.filter(x=>x.type===type);
+    return t.find(x=>x.official)||t[0]||null;
+  };
+  let found=null;
   for(const lang of langs){
     try{
       const q=new URLSearchParams({api_key:apiKey});
       if(lang) q.set("language",lang);
       const r=await fetch(`https://api.themoviedb.org/3/movie/${id}/videos?`+q);
-      const v=((await r.json()).results||[]).filter(x=>x.site==="YouTube");
-      const tr=v.filter(x=>x.type==="Trailer");
-      const best=tr.find(x=>x.official)||tr[0];
-      if(best){key=best.key;break;}
-      if(!teaser){const t=v.find(x=>x.type==="Teaser");if(t)teaser=t.key;}
-      if(!clip){const c=v.find(x=>x.type==="Clip");if(c)clip=c.key;}
+      // Adult section: ignore YouTube entirely
+      const v=((await r.json()).results||[]).filter(x=>x.site==="Vimeo");
+      const order=["Trailer","Teaser","Clip","Featurette"];
+      for(const type of order){
+        const vm=pick(v,type);
+        if(vm){found={site:"Vimeo",key:vm.key,type:vm.type};break;}
+      }
+      if(found) break;
     }catch(e){}
   }
-  return vcache[id]=key||teaser||clip;
+  return vcache[id]=found;
 }
-let tKey=null;
+let tVid=null; // only Vimeo
 function closePlayer(){
   $("player").innerHTML="";$("player").hidden=true;$("ytnote").hidden=true;
-  if(tKey)$("trailer").textContent="▶ Смотреть трейлер";
+  if(tVid)$("trailer").textContent="▶ Смотреть превью";
 }
-function setTrailer(film){
+function searchUrl(film){
+  const title=film.original_title||film.title||"";
+  const alt=film.title&&film.title!==film.original_title?film.title:"";
+  const year=(film.release_date||"").slice(0,4);
+  const q=[title,alt,year,"trailer","preview"].filter(Boolean).join(" ");
+  return "https://duckduckgo.com/?q="+encodeURIComponent(q)+"&ia=web";
+}
+function setTrailer(film,extra){
   const t=$("trailer");
-  tKey=null;closePlayer();
-  t.textContent="▶ Найти трейлер";
-  const q=[film.original_title||film.title,film.title,(film.release_date||"").slice(0,4),"trailer"].filter(Boolean).join(" ");
-  t.href="https://www.youtube.com/results?search_query="+encodeURIComponent(q);
-  trailerFor(film).then(k=>{
-    if(k&&cur&&cur.film.id===film.id){tKey=k;t.href="https://www.youtube.com/watch?v="+k;t.textContent="▶ Смотреть трейлер";}
+  tVid=null;closePlayer();
+  // Always default to DuckDuckGo — never YouTube
+  t.textContent="▶ Найти превью";
+  t.href=searchUrl(film);
+  t.target="_blank";
+  t.rel="noopener";
+  $("tmdbLink").href="https://www.themoviedb.org/movie/"+film.id;
+  const home=$("homeLink");
+  if(extra&&extra.homepage){
+    home.href=extra.homepage;home.hidden=false;
+  }else{
+    home.hidden=true;home.removeAttribute("href");
+  }
+  trailerFor(film).then(v=>{
+    if(!v||!cur||cur.film.id!==film.id) return;
+    tVid=v;
+    t.href="https://vimeo.com/"+v.key;
+    t.textContent="▶ Смотреть превью";
   });
 }
-// With a trailer found: play inside the app. Otherwise the link opens a YouTube search.
 $("trailer").onclick=e=>{
-  if(!tKey) return;
+  // No Vimeo → open DuckDuckGo via href, do not intercept
+  if(!tVid) return;
   e.preventDefault();
   if(!$("player").hidden){closePlayer();return;}
-  $("player").innerHTML=`<iframe src="https://www.youtube-nocookie.com/embed/${tKey}?autoplay=1&playsinline=1&rel=0" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" title="Трейлер"></iframe>`;
+  const src=`https://player.vimeo.com/video/${tVid.key}?autoplay=1`;
+  const open="https://vimeo.com/"+tVid.key;
+  $("player").innerHTML=`<iframe src="${src}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" title="Превью"></iframe>`;
   $("player").hidden=false;
-  $("ytlink").href="https://www.youtube.com/watch?v="+tKey;$("ytnote").hidden=false;
-  $("trailer").textContent="✕ Закрыть трейлер";
+  $("ytlink").href=open;$("ytlink").textContent="Открыть на Vimeo";
+  $("ytnote").hidden=false;
+  $("trailer").textContent="✕ Закрыть превью";
 };
 
 // ---- second reel: movie posters of the chosen country (same timing as the country reel)
@@ -730,14 +764,15 @@ function show(cc,pool,film){
   $("fmeta").textContent=[year,quickGenres.join(" · ")].filter(Boolean).join(" · ")||year||"";
   $("rating").textContent="★ "+(film.vote_average!=null?film.vote_average.toFixed(1):"—");
   $("over").textContent=film.overview||"Загрузка описания…";
-  // Categories + description from TMDB detail page; trailer from /videos
+  setTrailer(film,null);
+  // Categories + description + homepage from TMDB detail page
   filmDetails(film).then(d=>{
     if(!cur||cur.film.id!==film.id) return;
     const gl=d.genres.length?d.genres.join(" · "):quickGenres.join(" · ");
     $("fmeta").textContent=[year,gl].filter(Boolean).join(" · ")||year||"";
     $("over").textContent=d.overview||"Описания на TMDB нет.";
+    setTrailer(film,d);
   });
-  setTrailer(film);
   $("result").hidden=false;
   [...$("result").children].forEach((c,i)=>c.style.animationDelay=(i*70)+"ms");
   $("result").classList.remove("pop");void $("result").offsetWidth;$("result").classList.add("pop");

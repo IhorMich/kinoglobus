@@ -333,7 +333,13 @@ $("changeKey").onclick=()=>{apiKey="";store.set("tmdbKey","");showKeyUi();closeS
 $("resetHist").onclick=()=>{seen=new Set();store.set("seen",[]);visited={};lastCC="";store.set("visited",visited);store.set("lastCC","");updHist();};
 
 async function api(params){
-  const q=new URLSearchParams({api_key:apiKey,language:"ru-RU",include_adult:"false",sort_by:"vote_average.desc",...params});
+  const q=new URLSearchParams({
+  api_key: apiKey,
+  language: "ru-RU",
+  include_adult: (sel.has("adult") || sel.has("erotic")) ? "true" : "false",
+  sort_by: "vote_average.desc",
+  ...params
+});
   const r=await fetch("https://api.themoviedb.org/3/discover/movie?"+q);
   if(r.status===401) throw new Error("Ключ не подошёл. Проверьте его и введите заново.");
   if(!r.ok) throw new Error("TMDB недоступен, попробуйте ещё раз.");

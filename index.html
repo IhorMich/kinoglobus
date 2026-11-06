@@ -26,6 +26,7 @@ input,select{width:100%;font:inherit;color:var(--ink);background:var(--bg);borde
 .row{display:flex;gap:10px}.row>div{flex:1}
 button{font:inherit;border:0;border-radius:12px;padding:13px 16px;cursor:pointer;background:var(--line);color:var(--ink);transition:transform .15s,background .25s,opacity .25s}
 button.main{background:linear-gradient(135deg,var(--acc),color-mix(in srgb,var(--acc) 70%,#fff));color:var(--onacc);font-weight:700;width:100%;font-size:18px;padding:16px}
+button.side{width:100%;margin-top:8px;background:var(--panel);border:1px solid var(--line);font-weight:700;font-size:16px}
 button:disabled{opacity:.5}
 button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
 .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.acts button{flex:1;min-width:140px}
@@ -78,6 +79,12 @@ dialog{max-height:85vh;overflow:auto}
 .pill{display:inline-block;margin:3px;padding:5px 10px;border-radius:999px;background:var(--bg);border:1px solid var(--line);font-size:14px}
 .pill.off{opacity:.55}
 details summary{cursor:pointer;margin:12px 0 6px;color:var(--mute)}
+details.fold{padding:0}
+details.fold summary{list-style:none;margin:0;padding:14px;color:var(--ink);font-weight:700;font-size:15px}
+details.fold summary::-webkit-details-marker{display:none}
+details.fold summary::after{content:"▸";float:right;color:var(--mute);font-weight:400}
+details.fold[open] summary::after{content:"▾"}
+details.fold .foldbody{padding:0 14px 14px}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 button.chip{padding:8px 12px;border-radius:999px;font-size:14px;background:var(--bg);border:1px solid var(--line)}
 button.chip[aria-pressed="true"]{background:var(--acc);color:var(--onacc);border-color:var(--acc);font-weight:700}
@@ -159,21 +166,32 @@ button:active{transform:scale(.97)}
     <div class="chips" id="chips"></div>
     <p class="note" id="worstBox" hidden>Берутся фильмы с оценкой зрителей от 1 до 4.9 из 10, начиная с самых низких. Выбор оценки выше отключён.</p>
     <p class="note" id="adultNote" hidden>Берутся фильмы со строгим возрастным рейтингом своей страны (18+, в США R) и фильмы с откровенной сексуальной темой. Порнография не включена. У части стран такой разметки мало, их глобус пропустит.</p>
-    <div class="row" style="margin-top:12px">
-      <div><label for="year">Год не раньше</label>
-        <input id="year" type="number" inputmode="numeric" min="1900" max="2026" placeholder="любой"></div>
-      <div><label for="rmin">Оценка зрителей от</label>
-        <select id="rmin"><option value="">любая</option><option value="5">5</option><option value="6">6</option><option value="6.5">6.5</option><option value="7">7</option><option value="7.5">7.5</option><option value="8">8</option></select></div>
-    </div>
   </div>
 
-  <div class="card" id="themeCard">
-    <label>Тематические подборки</label>
-    <div class="chips" id="themes"></div>
-    <p class="note" id="themeNote" hidden>Подборка задаёт страны и жанр. Год, оценка, «худшие» и 18+ по-прежнему учитываются. Нажмите подборку ещё раз, чтобы снять её.</p>
-  </div>
+  <details class="card fold" id="extraCard">
+    <summary id="extraSum">Год и оценка</summary>
+    <div class="foldbody">
+      <div class="row">
+        <div><label for="year">Год не раньше</label>
+          <input id="year" type="number" inputmode="numeric" min="1900" max="2026" placeholder="любой"></div>
+        <div><label for="rmin">Оценка зрителей от</label>
+          <select id="rmin"><option value="">любая</option><option value="5">5</option><option value="6">6</option><option value="6.5">6.5</option><option value="7">7</option><option value="7.5">7.5</option><option value="8">8</option></select></div>
+      </div>
+      <p class="note">Для «Топ-1» год означает ровно этот год. Для «Крутить глобус» — фильмы не раньше него.</p>
+    </div>
+  </details>
+
+  <details class="card fold" id="themeCard">
+    <summary id="themeSum">Тематические подборки</summary>
+    <div class="foldbody">
+      <div class="chips" id="themes"></div>
+      <p class="note" id="themeNote" hidden>Подборка задаёт страны и жанр. Год, оценка, «худшие» и 18+ по-прежнему учитываются. Нажмите подборку ещё раз, чтобы снять её.</p>
+    </div>
+  </details>
 
   <button class="main" id="go">🎲 Крутить глобус</button>
+  <button class="side" id="top1" type="button">🏆 Топ-1</button>
+  <p class="note" id="topNote">Топ-1 без года берёт лучший фильм случайной страны. С годом, например 1950, ищет лучший фильм этого года среди стран списка.</p>
   <div id="err" class="err" role="alert"></div>
   <div class="card reel" id="reel" hidden aria-live="polite" style="margin-top:14px">
     <div class="rwin" aria-hidden="true"><div class="rcol" id="rcol"></div><div class="rlens"></div></div>
@@ -246,14 +264,16 @@ const MIN_POOL=10, MAX_POOL=100;
 const GENRE_IDS=Object.keys(GENRES).filter(Boolean);
 // Ready country+genre sets. Pipe in g is TMDB OR; a comma would mean AND.
 const THEMES=[
-  {id:"nordic",name:"Скандинавские детективы",cc:["SE","DK","NO","FI","IS"],g:"80|9648"},
-  {id:"fr",name:"Французские комедии",cc:["FR"],g:"35"},
   {id:"kr",name:"Корейские триллеры",cc:["KR"],g:"53"},
   {id:"jp",name:"Японская анимация",cc:["JP"],g:"16"},
+  {id:"jhorror",name:"Японские ужасы",cc:["JP"],g:"27"},
+  {id:"eshorror",name:"Испанские ужасы",cc:["ES"],g:"27"},
+  {id:"idhorror",name:"Индонезийские ужасы",cc:["ID"],g:"27"},
+  {id:"nordic",name:"Скандинавский нуар",cc:["SE","DK","NO","FI","IS"],g:"80|53"},
   {id:"hk",name:"Гонконгские боевики",cc:["HK"],g:"28"},
-  {id:"it",name:"Итальянские драмы",cc:["IT"],g:"18"},
-  {id:"in",name:"Индийские мелодрамы",cc:["IN"],g:"10749"},
-  {id:"latam",name:"Латиноамериканские драмы",cc:["MX","AR","CL","BR"],g:"18"}
+  {id:"ir",name:"Иранское кино",cc:["IR"],g:"18"},
+  {id:"tr",name:"Турецкие драмы",cc:["TR"],g:"18"},
+  {id:"inact",name:"Индийские боевики",cc:["IN"],g:"28"}
 ];
 const SURPRISE_NOTE={
   light:"Случайные страна и жанр. Берутся фильмы, которые оценило много зрителей.",
@@ -306,11 +326,12 @@ $("chips").innerHTML=`<button class="chip" data-k="any">🌐 Любой жанр
  +`<button class="chip" data-k="adult">🔞 Взрослое кино 18+</button>`;
 function paintChips(){
   const anyGenre=[...sel].some(k=>!NOGENRE.includes(k));
-  document.querySelectorAll(".chip").forEach(b=>{const k=b.dataset.k;
+  document.querySelectorAll("#chips .chip").forEach(b=>{const k=b.dataset.k;
     b.setAttribute("aria-pressed",k==="any"?!anyGenre:sel.has(k));});
   $("adultNote").hidden=!sel.has("adult");
   $("worstBox").hidden=!sel.has("worst");
   $("rmin").disabled=sel.has("worst");
+  if($("extraSum")) paintExtraSum();
 }
 $("chips").onclick=e=>{const b=e.target.closest(".chip");if(!b)return;const k=b.dataset.k;
  if(k==="any"){[...sel].forEach(x=>{if(!NOGENRE.includes(x))sel.delete(x)});}
@@ -322,7 +343,15 @@ $("themes").innerHTML=THEMES.map(t=>`<button type="button" class="chip" data-t="
 function paintThemes(){
   document.querySelectorAll("#themes .chip").forEach(b=>{
     b.setAttribute("aria-pressed", b.dataset.t===themeId);});
+  const t=THEMES.find(x=>x.id===themeId);
+  $("themeSum").textContent=t?"Тематические подборки · "+t.name:"Тематические подборки";
   $("themeNote").hidden=!themeId;
+}
+function paintExtraSum(){
+  const bits=[];
+  if($("year").value) bits.push("с "+$("year").value);
+  if($("rmin").value&&!$("rmin").disabled) bits.push("оценка от "+$("rmin").value);
+  $("extraSum").textContent=bits.length?"Год и оценка · "+bits.join(", "):"Год и оценка";
 }
 $("themes").onclick=e=>{
   const b=e.target.closest(".chip");if(!b)return;
@@ -350,6 +379,7 @@ function applyMode(){
   $("modeSurprise").setAttribute("aria-pressed", sur?"true":"false");
   $("surpriseCard").hidden=!sur;
   $("filterCard").hidden=sur;
+  $("extraCard").hidden=sur;
   $("themeCard").hidden=sur;
   paintSurprise();paintThemes();paintGo();
 }
@@ -437,7 +467,7 @@ addEventListener("keydown",e=>{
 });
 $("resetSettings").onclick=()=>{
   sel.clear();store.set("cats",[]);
-  $("year").value="";store.set("year","");$("rmin").value="";store.set("rmin","");
+  $("year").value="";store.set("year","");$("rmin").value="";store.set("rmin","");paintExtraSum();
   snd="roulette";$("snd").value=snd;store.set("snd",snd);
   fx=true;store.set("fx",true);fxLabel();
   filmSpin=true;store.set("filmSpin",true);filmLabel();
@@ -446,7 +476,16 @@ $("resetSettings").onclick=()=>{
 };
 $("year").value=store.get("year","");
 $("rmin").value=store.get("rmin","");
-$("rmin").onchange=()=>store.set("rmin",$("rmin").value);
+$("year").oninput=()=>{store.set("year",$("year").value);paintExtraSum();};
+$("rmin").onchange=()=>{store.set("rmin",$("rmin").value);paintExtraSum();};
+paintExtraSum();
+function restoreFold(el,key,forceOpen){
+  const saved=store.get(key,null);
+  el.open=saved==null?!!forceOpen:!!saved;
+  el.addEventListener("toggle",()=>store.set(key,el.open));
+}
+restoreFold($("extraCard"),"foldExtra",!!($("year").value||$("rmin").value));
+restoreFold($("themeCard"),"foldTheme",!!themeId);
 function showKeyUi(){ $("keyCard").hidden=!!apiKey; }
 function updHist(){ $("resetHist").textContent=`Сбросить историю (${seen.size})`; }
 showKeyUi();updHist();
@@ -907,7 +946,7 @@ function show(cc,pool,film){
 }
 function poolLine(pool){
   const n=pool.films.length;
-  const genre=GENRES[pool.genre]?`, жанр «${GENRES[pool.genre]}»`:"";
+  const genre=pool.genre&&GENRES[pool.genre]?`, жанр «${GENRES[pool.genre]}»`:"";
   if(pool.hard) return "Хардкор: случайный год, любой фильм страны. Без жанра, оценки и порога отзывов, 18+ тоже попадают.";
   if(pool.wild) return "Полная случайность: без жанра и без порога оценки.";
   if(pool.find) return `Настоящее открытие${genre}: оценка от 7, голосов от ${pool.votes} до ${pool.vmax}.`;
@@ -919,6 +958,11 @@ function poolLine(pool){
       :`По оценке набралось мало фильмов, взяты ${n} картин с любым числом отзывов.`;
     return head+(pool.light?"Лёгкое удивление. ":"")+base;
   }
+  if(pool.top1&&pool.exactYear){
+    const where=pool.themeName?`в подборке «${pool.themeName}»`:"среди стран списка";
+    return `Топ-1, ${pool.exactYear}: лучший фильм этого года ${where}${genre}. Не меньше ${pool.votes} отзывов.`;
+  }
+  if(pool.top1) return head+`Топ-1${genre}: лучший фильм страны, не меньше ${pool.votes} отзывов.`;
   const rank=pool.worst?"худших":"лучших";
   const base=n===MAX_POOL
     ?`Случайный фильм из 100 ${rank} по оценке (не меньше ${pool.votes} отзывов).`
@@ -960,13 +1004,136 @@ function paintCrew(film){
 }
 
 function fresh(pool,exceptId){return pool.films.filter(f=>!seen.has(f.id)&&f.id!==exceptId)}
+function filmCC(pool,film,fallback){return (pool.byCountry&&pool.byCountry[film.id])||fallback}
+function lockSpin(label){
+  $("go").disabled=true;$("top1").disabled=true;
+  $("go").innerHTML=label;
+}
+function unlockSpin(){
+  $("go").disabled=false;$("top1").disabled=false;
+  $("go").textContent=goLabel();
+  $("top1").textContent="🏆 Топ-1";
+}
+function topQuery(){
+  const theme=THEMES.find(t=>t.id===themeId);
+  return {
+    g:theme?theme.g:[...sel].filter(k=>!NOGENRE.includes(k)).join(","),
+    adult:sel.has("adult"),worst:sel.has("worst"),
+    rmin:sel.has("worst")?"":$("rmin").value,y:String($("year").value||"").trim(),
+    theme:theme?theme.id:"",themeName:theme?theme.name:"",
+    countries:theme?theme.cc:null
+  };
+}
+async function topOfCountry(cc,q){
+  const floors=q.worst?[20]:(BIG.has(cc)?[200,50,20]:[50,20]);
+  for(const votes of floors){
+    const p=await api({...poolBase(cc,{...q,y:""},votes),page:1});
+    const films=(p.results||[]).slice(0,20);
+    if(!films.length) continue;
+    return tagPool({films,votes,total:p.total_results||films.length,top1:true,byRating:true},q);
+  }
+  return null;
+}
+async function bestOfYear(q){
+  const allow=new Set(q.countries||COUNTRIES);
+  const floors=q.worst?[20]:[100,20];
+  for(const votes of floors){
+    const base={"vote_count.gte":votes,
+      "primary_release_date.gte":q.y+"-01-01","primary_release_date.lte":q.y+"-12-31"};
+    if(q.g) base.with_genres=q.g;
+    if(q.worst){base.sort_by="vote_average.asc";base["vote_average.gte"]=1;base["vote_average.lte"]=4.9;}
+    else if(q.rmin) base["vote_average.gte"]=q.rmin;
+    const found=[], seenId=new Set();
+    let sawRows=false, sawOrigin=false;
+    for(let page=1;page<=5&&found.length<20;page++){
+      const p=await api({...base,page});
+      const rows=p.results||[];
+      if(!rows.length) break;
+      sawRows=true;
+      if(rows.some(f=>Array.isArray(f.origin_country))) sawOrigin=true;
+      for(const f of rows){
+        const cc=(f.origin_country||[]).find(c=>allow.has(c));
+        if(!cc||seenId.has(f.id)||seen.has(f.id)) continue;
+        seenId.add(f.id);found.push({cc,film:f});
+      }
+      if(page>=(p.total_pages||1)) break;
+    }
+    if(sawRows&&!sawOrigin) return bestOfYearByCountry(q,votes);
+    if(!found.length) continue;
+    const byCountry={};
+    found.forEach(x=>{byCountry[x.film.id]=x.cc;});
+    const films=found.map(x=>x.film);
+    const pool=tagPool({films,votes,total:films.length,top1:true,exactYear:q.y,byRating:true,byCountry},q);
+    return {cc:found[0].cc,film:found[0].film,pool};
+  }
+  return null;
+}
+async function bestOfYearByCountry(q,votes){
+  const order=q.countries||COUNTRIES;
+  const dated={...poolBase("ZZ",q,votes),
+    "primary_release_date.gte":q.y+"-01-01","primary_release_date.lte":q.y+"-12-31"};
+  delete dated.with_origin_country;
+  const found=[];
+  for(let i=0;i<order.length;i+=5){
+    const batch=order.slice(i,i+5);
+    const pages=await Promise.all(batch.map(cc=>api({...dated,with_origin_country:cc,page:1}).then(p=>({cc,rows:p.results||[]})).catch(()=>({cc,rows:[]}))));
+    for(const {cc,rows} of pages){
+      const film=rows.find(f=>!seen.has(f.id));
+      if(film) found.push({cc,film});
+    }
+  }
+  found.sort((a,b)=>q.worst?a.film.vote_average-b.film.vote_average:b.film.vote_average-a.film.vote_average);
+  const top=found.slice(0,20);
+  if(!top.length) return null;
+  const byCountry={};
+  top.forEach(x=>{byCountry[x.film.id]=x.cc;});
+  const films=top.map(x=>x.film);
+  const pool=tagPool({films,votes,total:films.length,top1:true,exactYear:q.y,byRating:true,byCountry},q);
+  return {cc:top[0].cc,film:top[0].film,pool};
+}
+async function spinTop(){
+  $("err").textContent="";
+  if(!apiKey){showKeyUi();$("err").textContent="Сначала введите ключ TMDB.";return;}
+  store.set("year",$("year").value);
+  audio();
+  lockSpin('<span class="spin">🏆</span> Ищем лучший…');
+  reelStart();
+  try{
+    const q=topQuery();
+    if(q.y){
+      const got=await bestOfYear(q);
+      if(!got){$("err").textContent="За этот год среди стран списка ничего не нашлось. Попробуйте другой год или сбросьте историю.";return;}
+      await reelLand(got.cc);
+      const mixed=got.pool.byCountry&&new Set(Object.values(got.pool.byCountry)).size>1;
+      if(!mixed) await filmReel(got.pool,got.film,got.cc,preloadPosters(got.pool));
+      show(got.cc,got.pool,got.film);return;
+    }
+    const order=shuffle(q.countries||COUNTRIES);
+    const cap=q.countries?order.length:Math.min(order.length,24);
+    for(let i=0;i<cap;i+=3){
+      const batch=order.slice(i,i+3);
+      const pools=await Promise.all(batch.map(cc=>topOfCountry(cc,q)));
+      for(let k=0;k<batch.length;k++){
+        const pool=pools[k];
+        if(!pool||!pool.films.length) continue;
+        if(seen.has(pool.films[0].id)) continue;
+        const film=pool.films[0];
+        await reelLand(batch[k]);
+        await filmReel(pool,film,batch[k],preloadPosters(pool));
+        show(batch[k],pool,film);return;
+      }
+    }
+    $("err").textContent="Лучший фильм не нашёлся. Смягчите фильтры или сбросьте историю.";
+  }catch(e){$("err").textContent=e.message}
+  finally{reelAbort();unlockSpin();}
+}
 
 async function spin(){
   $("err").textContent="";
   if(!apiKey){showKeyUi();$("err").textContent="Сначала введите ключ TMDB.";return;}
   store.set("year",$("year").value);
   audio();
-  $("go").disabled=true;$("go").innerHTML='<span class="spin">🌍</span> Крутим…';
+  lockSpin('<span class="spin">🌍</span> Крутим…');
   reelStart();
   try{
     const q=currentQuery();
@@ -989,10 +1156,11 @@ async function spin(){
     }
     $("err").textContent="Подходящих фильмов не нашлось. Смягчите фильтры или сбросьте историю.";
   }catch(e){$("err").textContent=e.message}
-  finally{reelAbort();$("go").disabled=false;$("go").textContent=goLabel()}
+  finally{reelAbort();unlockSpin();}
 }
 
 $("go").onclick=spin;
+$("top1").onclick=spinTop;
 $("again").onclick=async()=>{
   if(!cur) return;
   $("err").textContent="";
@@ -1006,7 +1174,8 @@ $("again").onclick=async()=>{
     }
     const left=fresh(pool,cur.film.id);
     if(!left.length){$("err").textContent="Больше фильмов из этой страны нет. Крутите глобус заново.";return;}
-    const {cc}=cur,film=pick(left);
+    const film=pool.top1?left[0]:pick(left);
+    const cc=filmCC(pool,film,cur.cc);
     if(filmSpin&&!RM){audio();$("result").hidden=true;await filmReel(pool,film,cc,preloadPosters(pool));}
     show(cc,pool,film);
   }catch(e){$("err").textContent=e.message}

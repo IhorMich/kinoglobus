@@ -1,319 +1,1197 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#07060a">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<title>Киноглобус</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiMwZTFhMWYiLz48ZyBmaWxsPSJub25lIiBzdHJva2U9IiNmZmI4MzAiPjxjaXJjbGUgY3g9IjMyIiBjeT0iMzIiIHI9IjIwIiBzdHJva2Utd2lkdGg9IjMiLz48ZWxsaXBzZSBjeD0iMzIiIGN5PSIzMiIgcng9IjkiIHJ5PSIyMCIgc3Ryb2tlLXdpZHRoPSIyIiBvcGFjaXR5PSIuNjciLz48cGF0aCBkPSJNMTIgMzJoNDBNMTUgMjJoMzRNMTUgNDJoMzQiIHN0cm9rZS13aWR0aD0iMiIgb3BhY2l0eT0iLjY3Ii8+PC9nPjxjaXJjbGUgY3g9IjMyIiBjeT0iMzIiIHI9IjkiIGZpbGw9IiNmZmI4MzAiLz48cGF0aCBkPSJNMjkuNSAyNy41djlsOC00LjV6IiBmaWxsPSIjMGUxYTFmIi8+PC9zdmc+">
-<link rel="icon" type="image/png" sizes="64x64" href="data:image/png;base64,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">
-<link rel="apple-touch-icon" href="data:image/png;base64,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">
-<style>
-:root{--bg:#eef2f3;--panel:#fff;--ink:#10252b;--mute:#5b7077;--line:#d3dde0;--acc:#b86e00;--onacc:#fff;
-box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#120f16;--panel:#1c1822;--ink:#f4efe6;--mute:#b3a79a;--line:#3a3140;--acc:#ffb830;--onacc:#1a1200;color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#120f16;--panel:#1c1822;--ink:#f4efe6;--mute:#b3a79a;--line:#3a3140;--acc:#ffb830;--onacc:#1a1200;color-scheme:dark}
-*{box-sizing:border-box}
-html,body{margin:0}
-body{
-  background-color:#07060a;
-  color:var(--ink);
-  font:16px/1.45 "Trebuchet MS",system-ui,sans-serif;
-  min-height:100%;
-  background-image:
-    radial-gradient(ellipse 90% 42% at 50% -8%, rgba(255,184,48,.28), transparent 58%),
-    radial-gradient(ellipse 34% 80% at -6% 42%, rgba(92,18,28,.55), transparent 62%),
-    radial-gradient(ellipse 34% 80% at 106% 42%, rgba(92,18,28,.55), transparent 62%),
-    radial-gradient(ellipse 70% 40% at 50% 115%, rgba(0,0,0,.55), transparent 60%),
-    linear-gradient(180deg, #1a1218 0%, #0c0a10 38%, #07060a 100%);
-  background-attachment:fixed;
-}
-body::before{
-  content:"";
-  position:fixed;inset:0;pointer-events:none;z-index:0;
-  opacity:.09;
-  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size:160px;
-}
-body::after{
-  content:"";
-  position:fixed;inset:0;pointer-events:none;z-index:0;
-  background:radial-gradient(ellipse 75% 70% at 50% 42%, transparent 40%, rgba(0,0,0,.55) 100%);
-}
-main{position:relative;z-index:1;max-width:520px;margin:0 auto;padding:20px 16px 40px}
-h1{font:700 26px/1.1 Georgia,serif;margin:0 0 4px;color:#f6f0e6;text-shadow:0 2px 18px rgba(255,184,48,.28)}
-.sub{color:#cbbba8;margin:0 0 18px;font-size:14px}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:14px}
-label{display:block;font-size:13px;color:var(--mute);margin:0 0 4px}
-input,select{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
-.row{display:flex;gap:10px}.row>div{flex:1}
-button{font:inherit;border:0;border-radius:12px;padding:13px 16px;cursor:pointer;background:var(--line);color:var(--ink);transition:transform .15s,background .25s,opacity .25s}
-button.main{background:linear-gradient(135deg,var(--acc),color-mix(in srgb,var(--acc) 70%,#fff));color:var(--onacc);font-weight:700;width:100%;font-size:18px;padding:16px}
-button.side{width:100%;margin-top:8px;background:var(--panel);border:1px solid var(--line);font-weight:700;font-size:16px}
-button:disabled{opacity:.5}
-button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
-.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.acts button{flex:1;min-width:140px}
-.country{font:700 34px/1.1 Georgia,serif;margin:0}
-.flag{font-size:56px;line-height:1;display:block;margin-bottom:6px}
-.wave{display:inline-block;line-height:1;vertical-align:middle;transform-origin:50% 50%;animation:flagwave 2.6s cubic-bezier(.45,.05,.55,.95) infinite;filter:drop-shadow(0 2px 4px rgba(0,0,0,.25))}
-.wave svg{display:block;width:1.4em;height:.93em;border-radius:3px;box-shadow:0 1px 4px rgba(0,0,0,.3)}
-@keyframes flagwave{
-  0%,100%{transform:perspective(180px) rotateY(0deg) rotateX(0deg) scale(1)}
-  25%{transform:perspective(180px) rotateY(12deg) rotateX(2deg) scale(1.02)}
-  50%{transform:perspective(180px) rotateY(-6deg) rotateX(-1deg) scale(1)}
-  75%{transform:perspective(180px) rotateY(8deg) rotateX(1deg) scale(1.015)}
-}
-.rcol.fast .wave,.fcol.fast .wave{animation:none;filter:none}
-.meta{color:var(--mute);font-size:14px;margin:4px 0 12px}
-#fgenre{margin-top:-8px;color:var(--ink)}
-.tagline{font-style:italic;color:var(--mute);margin:0 0 8px}
-.film{display:flex;gap:12px}
-.film img{width:112px;height:168px;object-fit:cover;border-radius:8px;background:var(--line);flex:none;opacity:0;transition:opacity .7s}
-.film img.ok{opacity:1}
-.film h2{font:700 20px/1.2 Georgia,serif;margin:0 0 4px}
-.badge{display:inline-block;background:var(--acc);color:var(--onacc);font-weight:700;border-radius:8px;padding:2px 8px;font-size:14px}
-.over{margin:12px 0 0;font-size:15px}
-.note{color:var(--mute);font-size:13px;margin-top:10px}
-main>.note{color:#cbbba8}
-.player{position:relative;aspect-ratio:16/9;margin-top:12px;border-radius:12px;overflow:hidden;background:#000}
-.player iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
-.note a{color:var(--ink)}
-.btn{display:block;width:100%;text-align:center;text-decoration:none;border-radius:12px;padding:13px 16px;background:var(--line);color:var(--ink);margin-top:12px}
-.btn:disabled{opacity:.55}
-.btn:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
-.top{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;margin-bottom:6px}
-button.gear{flex:none;width:44px;height:44px;padding:0;font-size:20px;background:var(--panel);border:1px solid var(--line)}
-dialog{width:min(92vw,420px);border:1px solid var(--line);border-radius:16px;background:var(--panel);color:var(--ink);padding:16px}
-dialog::backdrop{background:rgba(0,0,0,.55)}
-.srow{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:12px 0}
-.srow h2{font:700 20px/1.2 Georgia,serif;margin:0}
-.srow select{width:auto;min-width:150px}
-.srow small{color:var(--mute)}
-button.tog{min-width:96px;padding:9px 14px;background:var(--bg);border:1px solid var(--line)}
-button.sbtn{width:100%;margin-top:8px}
-button.chip[hidden]{display:none}
-.tools{display:flex;gap:8px;flex:none}
-dialog{max-height:85vh;overflow:auto}
-.jhead{font:700 20px/1.2 Georgia,serif;margin:4px 0 8px}
-.jbar{height:10px;border-radius:6px;background:var(--line);overflow:hidden}
-.jbar i{display:block;height:100%;width:0;background:var(--acc);transition:width .7s}
-.jstats div{margin:7px 0}
-.mapbox{margin-top:12px;border-radius:12px;background:var(--bg);border:1px solid var(--line);overflow:auto;max-height:300px;-webkit-overflow-scrolling:touch}
-.mapbox svg{display:block;height:auto}
-.mo{fill:var(--line)}
-.mc{fill:color-mix(in srgb,var(--mute) 40%,var(--line));stroke:var(--panel);stroke-width:.8;cursor:pointer;transition:fill .4s}
-.mc.v{fill:var(--acc)}
-.mc.last{stroke:var(--ink);stroke-width:2}
-.mapctl{display:flex;align-items:center;gap:8px;margin:8px 0}
-.mapctl .tog{min-width:44px;padding:6px 10px}
-.mapctl .note{margin:0 0 0 4px}
-.jfilms{display:flex;gap:10px;overflow-x:auto;padding:2px 0 8px;-webkit-overflow-scrolling:touch}
-button.jfilm{flex:none;width:84px;margin:0;padding:0;background:transparent;border:0;border-radius:8px;color:inherit;text-align:left;font-size:12px;line-height:1.25}
-button.jfilm img,button.jfilm .ph{width:84px;height:126px;object-fit:cover;border-radius:8px;background:var(--line);display:block}
-button.jfilm .ph{display:flex;align-items:flex-end;padding:6px;font-size:11px}
-button.jfilm b{display:block;margin-top:4px;font-weight:700;max-height:2.5em;overflow:hidden}
-button.jfilm small{display:block;color:var(--mute);font-size:11px;font-weight:400}
-.pill{display:inline-block;margin:3px;padding:5px 10px;border-radius:999px;background:var(--bg);border:1px solid var(--line);font-size:14px}
-.pill.off{opacity:.55}
-details summary{cursor:pointer;margin:12px 0 6px;color:var(--mute)}
-details.fold{padding:0}
-details.fold summary{list-style:none;margin:0;padding:14px;color:var(--ink);font-weight:700;font-size:15px}
-details.fold summary::-webkit-details-marker{display:none}
-details.fold summary::after{content:"▸";float:right;color:var(--mute);font-weight:400}
-details.fold[open] summary::after{content:"▾"}
-details.fold .foldbody{padding:0 14px 14px}
-.chips{display:flex;flex-wrap:wrap;gap:8px}
-button.chip{padding:8px 12px;border-radius:999px;font-size:14px;background:var(--bg);border:1px solid var(--line)}
-button.chip[aria-pressed="true"]{background:var(--acc);color:var(--onacc);border-color:var(--acc);font-weight:700}
-.err{color:#ff8d7a;font-size:14px;margin-top:8px}
-.spin{animation:s .5s linear infinite;display:inline-block}
-@keyframes s{to{transform:rotate(360deg)}}
-.reel{text-align:center;padding:14px 14px 18px;overflow:hidden;transition:opacity .5s cubic-bezier(.22,.61,.36,1);
- background:
-   radial-gradient(ellipse 100% 70% at 50% 0%, color-mix(in srgb,var(--acc) 22%, transparent), transparent 60%),
-   radial-gradient(120% 90% at 50% 100%, color-mix(in srgb,var(--acc) 8%, var(--panel)), var(--panel));
- box-shadow:inset 0 1px 0 color-mix(in srgb,var(--acc) 25%, transparent)}
-.reel.out{opacity:0}
-.rwin{--rh:104px;position:relative;height:calc(var(--rh)*3);overflow:hidden;
- -webkit-mask-image:linear-gradient(transparent,#000 32%,#000 68%,transparent);mask-image:linear-gradient(transparent,#000 32%,#000 68%,transparent)}
-.rcol{will-change:transform;transition:filter .5s}
-.rcol.fast{filter:blur(3.5px) brightness(1.05);transition:filter .35s ease}
-.ri{height:var(--rh);display:flex;align-items:center;justify-content:center;font-size:64px;line-height:1}
-.rlens{position:absolute;left:14%;right:14%;top:var(--rh);height:var(--rh);border-radius:12px;pointer-events:none;
- border-top:1px solid color-mix(in srgb,var(--acc) 55%,transparent);border-bottom:1px solid color-mix(in srgb,var(--acc) 55%,transparent)}
-.rlens.hit{animation:ring .9s ease-out}
-@keyframes ring{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--acc) 70%,transparent);transform:scale(1)}40%{box-shadow:0 0 0 12px color-mix(in srgb,var(--acc) 35%,transparent);transform:scale(1.03)}100%{box-shadow:0 0 0 32px transparent;transform:scale(1)}}
-.fhead{font:700 18px/1.2 Georgia,serif;margin-bottom:10px}
-.fhead .wave{font-size:32px;margin-right:6px}
-.fwin{--fw:92px;position:relative;height:138px;width:calc(var(--fw)*3);margin:0 auto;overflow:hidden;
- -webkit-mask-image:linear-gradient(90deg,transparent,#000 28%,#000 72%,transparent);mask-image:linear-gradient(90deg,transparent,#000 28%,#000 72%,transparent)}
-.fcol{display:flex;will-change:transform;transition:filter .4s cubic-bezier(.22,.61,.36,1)}
-.fcol.fast{filter:blur(3px) brightness(1.05);transition:filter .35s ease}
-.pi{flex:none;width:var(--fw);height:138px;display:flex;align-items:center;justify-content:center}
-.pi img,.pi .nop{width:76px;height:114px;object-fit:cover;border-radius:7px;background:var(--line);box-shadow:0 4px 14px rgba(0,0,0,.28);transition:transform .35s,box-shadow .35s}
-.pi .nop{display:flex;align-items:center;justify-content:center;padding:4px;font-size:11px;line-height:1.2;overflow:hidden;color:var(--mute)}
-.flens{position:absolute;left:calc(var(--fw) + (var(--fw) - 84px) / 2);top:8px;width:84px;height:122px;border-radius:10px;pointer-events:none;border:1px solid color-mix(in srgb,var(--acc) 55%,transparent)}
-.flens.hit{animation:ring .9s ease-out}
-.rname{font:700 22px/1.2 Georgia,serif;min-height:28px;margin-top:10px;opacity:0;transform:translateY(6px);transition:opacity .5s,transform .5s}
-.rname.on{opacity:1;transform:none}
-@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-.pop>*{animation:rise .7s cubic-bezier(.2,.7,.2,1) both}
-.card{box-shadow:0 14px 34px -20px rgba(0,0,0,.5)}
-button:active{transform:scale(.97)}
-@media(prefers-reduced-motion:reduce){.spin,.pop>*,.rlens.hit,.wave{animation:none}.rcol,.fcol,.rname,.film img,.reel,button{transition:none}.rcol.fast{filter:none}}
-.link{background:none;padding:6px 0;color:var(--mute);text-decoration:underline;font-size:13px;flex:none;min-width:0}
-.modes{display:flex;gap:8px;margin:0 0 14px}
-.modes button{flex:1;padding:11px 8px;font-size:15px;background:var(--panel);border:1px solid var(--line)}
-.modes button[aria-pressed="true"]{background:var(--acc);color:var(--onacc);border-color:var(--acc);font-weight:700}
-.crew{margin:10px 0 0;font-size:14px}
-.crew div{margin:2px 0}
-</style>
-</head>
-<body>
-<main>
-  <header class="top">
-    <div><h1 id="brand">Киноглобус</h1>
-    <p class="sub">Случайная страна, затем случайный фильм из её лучших.</p></div>
-    <div class="tools"><button id="mapBtn" class="gear" aria-label="Моё путешествие">🗺️</button>
-    <button id="gear" class="gear" aria-label="Настройки">⚙️</button></div>
-  </header>
+<!DOCTYPE html><html class="dark" lang="ru"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"><meta content="mobile_tab" name="shell-type"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,600;0,700;1,400&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "surface-container-lowest": "#100d14", "text-muted": "#b3a79a", "tertiary": "#e6e1d8", "on-tertiary": "#32302a", "on-primary-container": "#6e4b00", "on-primary-fixed-variant": "#604100", "background": "#151219", "on-background": "#e8e0ea", "on-tertiary-fixed": "#1d1c16", "surface-bright": "#3c3840", "outline": "#9e8e7a", "surface": "#151219", "on-error": "#690005", "surface-border-subtle": "#3a3140", "on-secondary-fixed-variant": "#861a45", "secondary": "#ffb1c5", "surface-variant": "#37333b", "on-primary": "#432c00", "surface-tint": "#ffba3a", "tertiary-fixed": "#e7e2d9", "on-surface-variant": "#d5c4ad", "on-tertiary-fixed-variant": "#494740", "on-secondary": "#65002f", "inverse-primary": "#7e5700", "surface-dim": "#151219", "inverse-surface": "#e8e0ea", "on-error-container": "#ffdad6", "error": "#ffb4ab", "feedback-error": "#ff8d7a", "surface-panel": "#1c1822", "primary-fixed-dim": "#ffba3a", "secondary-fixed-dim": "#ffb1c5", "cinema-amber-glow": "rgba(255, 184, 48, 0.28)", "tertiary-fixed-dim": "#cac6be", "secondary-fixed": "#ffd9e1", "outline-variant": "#514534", "on-secondary-fixed": "#3f001a", "on-secondary-container": "#ff96b3", "primary": "#ffdca8", "inverse-on-surface": "#332f37", "primary-container": "#ffb830", "on-primary-fixed": "#281900", "surface-container-highest": "#37333b", "surface-container": "#221e26", "surface-container-high": "#2c2830", "cinema-velvet-glow": "rgba(131, 24, 67, 0.35)", "surface-border": "#231f2e", "surface-container-low": "#1d1a22", "on-surface": "#e8e0ea", "on-tertiary-container": "#54524b", "cinema-velvet-deep": "#4c0519", "error-container": "#93000a", "secondary-container": "#861a45", "tertiary-container": "#c9c5bc", "primary-fixed": "#ffdead", "canvas-obsidian": "#07060a" }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, spacing: { "space-xs": "0.25rem", "gutter-mobile": "0.75rem", "space-sm": "0.5rem", "margin": "1.5rem", "gutter": "1rem", "space-md": "0.875rem", "space-xl": "2rem", "margin-mobile": "1rem", "space-lg": "1.25rem" }, fontFamily: { "label-sm": ["Plus Jakarta Sans"], "body-md": ["Plus Jakarta Sans"], "micro-caption": ["Plus Jakarta Sans"], "display-hero-mobile": ["Noto Serif"], "label-lg": ["Plus Jakarta Sans"], "body-sm": ["Plus Jakarta Sans"], "headline-md": ["Noto Serif"], "headline-sm": ["Noto Serif"], "display-hero": ["Noto Serif"], "label-md": ["Plus Jakarta Sans"], "body-lg": ["Plus Jakarta Sans"], "headline-lg": ["Noto Serif"] }, fontSize: { "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }], "body-md": ["15px", { "lineHeight": "22px", "fontWeight": "400" }], "micro-caption": ["11px", { "lineHeight": "14px", "fontWeight": "500" }], "display-hero-mobile": ["26px", { "lineHeight": "30px", "letterSpacing": "-0.01em", "fontWeight": "700" }], "label-lg": ["16px", { "lineHeight": "20px", "fontWeight": "700" }], "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }], "headline-md": ["20px", { "lineHeight": "24px", "fontWeight": "600" }], "headline-sm": ["18px", { "lineHeight": "22px", "fontWeight": "600" }], "display-hero": ["34px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "label-md": ["14px", { "lineHeight": "18px", "letterSpacing": "0.01em", "fontWeight": "600" }], "body-lg": ["18px", { "lineHeight": "26px", "fontWeight": "400" }], "headline-lg": ["24px", { "lineHeight": "28px", "fontWeight": "700" }] } } } };</script><style>@layer base{html,body{width:100vw;margin:0;padding:0;background-color:#07060a;color:#e8e0ea;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 0.5rem);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+    @keyframes floatPostersA {
+      0% { transform: translateY(0px) rotate(-3deg); }
+      50% { transform: translateY(-10px) rotate(-1.5deg); }
+      100% { transform: translateY(6px) rotate(-4deg); }
+    }
+    @keyframes floatPostersB {
+      0% { transform: translateY(0px) rotate(2deg); }
+      50% { transform: translateY(8px) rotate(3.5deg); }
+      100% { transform: translateY(-8px) rotate(1deg); }
+    }
+    @keyframes ambientGlowPulse {
+      0%, 100% { opacity: 0.35; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.08); }
+    }
+    @keyframes cardHighlight {
+      0% { box-shadow: 0 0 0 0 rgba(255, 184, 48, 0); transform: scale(1); }
+      40% { box-shadow: 0 0 36px 6px rgba(255, 184, 48, 0.6); transform: scale(1.02); }
+      100% { box-shadow: 0 0 0 0 rgba(255, 184, 48, 0); transform: scale(1); }
+    }
+    @keyframes hintPulse {
+      0%, 100% { transform: translateY(0); opacity: 0.85; }
+      50% { transform: translateY(-2px); opacity: 1; }
+    }
+    .floating-poster-col-1 {
+      animation: floatPostersA 12s ease-in-out infinite alternate;
+    }
+    .floating-poster-col-2 {
+      animation: floatPostersB 15s ease-in-out infinite alternate;
+    }
+    .ambient-glow {
+      animation: ambientGlowPulse 8s ease-in-out infinite;
+    }
+    .card-discovery-win {
+      animation: cardHighlight 1.1s cubic-bezier(0.2, 0.8, 0.25, 1);
+    }
+    .hint-float {
+      animation: hintPulse 2.8s ease-in-out infinite;
+    }
+    @keyframes shimmerMove {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(200%); }
+    }
+  </style></head><body class="bg-canvas-obsidian font-body-md text-on-surface flex flex-col min-h-screen relative">
+<!-- Atmospheric Living Theater Background Layer with Floating Posters -->
+<div class="fixed inset-0 pointer-events-none overflow-hidden -z-10 select-none">
+<!-- Ambient Projector Velvet & Amber Glow Orbs -->
+<div class="ambient-glow absolute top-10 -left-20 w-96 h-96 rounded-full bg-cinema-velvet-glow blur-3xl"></div>
+<div class="ambient-glow absolute top-1/3 -right-20 w-[420px] h-[420px] rounded-full bg-cinema-amber-glow blur-3xl" style="animation-delay: -3s;"></div>
+<div class="ambient-glow absolute -bottom-16 left-1/4 w-80 h-80 rounded-full bg-cinema-velvet-deep/40 blur-3xl" style="animation-delay: -5s;"></div>
+<!-- Tilted Living Poster Columns -->
+<div class="absolute inset-0 flex justify-between px-2 sm:px-6 opacity-[0.14] scale-105">
+<!-- Left Column of Tilted Backdrop Posters -->
+<div class="floating-poster-col-1 flex flex-col gap-8 w-36 sm:w-44 -mt-10">
+<div class="w-full h-52 rounded-xl overflow-hidden shadow-2xl bg-surface-container border border-surface-border-subtle">
+<img alt="Atmospheric cinema poster" class="w-full h-full object-cover grayscale contrast-125" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBEBYpUpdpDxZAH0dgOrtXjEMJIr9drBPsXvBjPJ12hJ2OqDfWUjDnadfqtEfV6DR9Bmy7E3H33Hfr9gwa2imXfa2lINROpisUA7YkHAAjvATjQkq2FQ1FBU6KoVJ8D3xa3e8fpAPokeJRCbsIULBV-233jf69lO5X-2NGhIFhvh2F88m05sBN7wwlT14dl5-vlKMm8Gag6XLHcCziC7ZLXLbmp6cxjtP6SzfAcAqHo">
+</div>
+<div class="w-full h-56 rounded-xl overflow-hidden shadow-2xl bg-surface-container border border-surface-border-subtle">
+<img alt="Atmospheric cinema poster" class="w-full h-full object-cover grayscale contrast-125" src="https://lh3.googleusercontent.com/aida/ALJJyrDi_5qMF118mTmPsNTuEPGLQlPT09_lQDrwfhBGmt6gsMaKZbmUCXt4Mq5CHODglk7y_sCBQoF0t9H6_iXpdLRfnpGcIQ-H8lQG_Gt4G7E65n0jMd052Yw64i62c2fjZyk9lWg58u17mnGpravDOuS-ENfbx36T1QYJhzu3xA9nLnofx76XZngLQHCoLIl3-3Tos9wHi7JaYoq7q0Hmfx_T8h7j5QNlHuZoQhipfrY3">
+</div>
+<div class="w-full h-52 rounded-xl overflow-hidden shadow-2xl bg-surface-container border border-surface-border-subtle">
+<img alt="Atmospheric cinema poster" class="w-full h-full object-cover grayscale contrast-125" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBEBYpUpdpDxZAH0dgOrtXjEMJIr9drBPsXvBjPJ12hJ2OqDfWUjDnadfqtEfV6DR9Bmy7E3H33Hfr9gwa2imXfa2lINROpisUA7YkHAAjvATjQkq2FQ1FBU6KoVJ8D3xa3e8fpAPokeJRCbsIULBV-233jf69lO5X-2NGhIFhvh2F88m05sBN7wwlT14dl5-vlKMm8Gag6XLHcCziC7ZLXLbmp6cxjtP6SzfAcAqHo">
+</div>
+</div>
+<!-- Right Column of Tilted Backdrop Posters -->
+<div class="floating-poster-col-2 flex flex-col gap-8 w-36 sm:w-44 mt-6">
+<div class="w-full h-56 rounded-xl overflow-hidden shadow-2xl bg-surface-container border border-surface-border-subtle">
+<img alt="Atmospheric cinema poster" class="w-full h-full object-cover grayscale contrast-125" src="https://lh3.googleusercontent.com/aida/ALJJyrDi_5qMF118mTmPsNTuEPGLQlPT09_lQDrwfhBGmt6gsMaKZbmUCXt4Mq5CHODglk7y_sCBQoF0t9H6_iXpdLRfnpGcIQ-H8lQG_Gt4G7E65n0jMd052Yw64i62c2fjZyk9lWg58u17mnGpravDOuS-ENfbx36T1QYJhzu3xA9nLnofx76XZngLQHCoLIl3-3Tos9wHi7JaYoq7q0Hmfx_T8h7j5QNlHuZoQhipfrY3">
+</div>
+<div class="w-full h-52 rounded-xl overflow-hidden shadow-2xl bg-surface-container border border-surface-border-subtle">
+<img alt="Atmospheric cinema poster" class="w-full h-full object-cover grayscale contrast-125" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBEBYpUpdpDxZAH0dgOrtXjEMJIr9drBPsXvBjPJ12hJ2OqDfWUjDnadfqtEfV6DR9Bmy7E3H33Hfr9gwa2imXfa2lINROpisUA7YkHAAjvATjQkq2FQ1FBU6KoVJ8D3xa3e8fpAPokeJRCbsIULBV-233jf69lO5X-2NGhIFhvh2F88m05sBN7wwlT14dl5-vlKMm8Gag6XLHcCziC7ZLXLbmp6cxjtP6SzfAcAqHo">
+</div>
+<div class="w-full h-56 rounded-xl overflow-hidden shadow-2xl bg-surface-container border border-surface-border-subtle">
+<img alt="Atmospheric cinema poster" class="w-full h-full object-cover grayscale contrast-125" src="https://lh3.googleusercontent.com/aida/ALJJyrDi_5qMF118mTmPsNTuEPGLQlPT09_lQDrwfhBGmt6gsMaKZbmUCXt4Mq5CHODglk7y_sCBQoF0t9H6_iXpdLRfnpGcIQ-H8lQG_Gt4G7E65n0jMd052Yw64i62c2fjZyk9lWg58u17mnGpravDOuS-ENfbx36T1QYJhzu3xA9nLnofx76XZngLQHCoLIl3-3Tos9wHi7JaYoq7q0Hmfx_T8h7j5QNlHuZoQhipfrY3">
+</div>
+</div>
+</div>
+<!-- Dark Vignette Overlay for Crisp Readability of Forefront Elements -->
+<div class="absolute inset-0 bg-gradient-to-b from-canvas-obsidian via-canvas-obsidian/85 to-canvas-obsidian"></div>
+</div>
+<header class="fixed top-0 w-full z-50 pt-safe bg-surface-panel/85 backdrop-blur-xl shadow-[0_4px_24px_rgba(7,6,10,0.85)]"><div class="h-20 px-gutter-mobile flex items-center justify-between gap-space-sm max-w-[520px] mx-auto"><div class="flex items-center gap-space-sm min-w-0 flex-1"><div class="relative flex-shrink-0"><div class="w-11 h-11 rounded-full p-[2px] bg-gradient-to-tr from-cinema-velvet-deep via-primary-container to-primary flex items-center justify-center shadow-[0_0_12px_rgba(255,184,48,0.28)]"><span class="material-symbols-outlined text-primary-fixed text-[24px]">public</span></div></div><div class="flex flex-col min-w-0"><div class="flex items-center gap-space-xs"><h1 class="font-headline-sm text-headline-sm font-bold tracking-tight text-primary drop-shadow-[0_0_14px_rgba(255,184,48,0.35)] truncate">Киноглобус</h1><span class="px-1.5 py-0.5 rounded-full bg-cinema-velvet-deep/70 text-secondary font-micro-caption text-micro-caption tracking-wider border-none">PRO</span></div><p class="font-micro-caption text-micro-caption text-text-muted truncate">Случайная страна · Лучшие фильмы</p></div></div><div class="flex items-center gap-space-xs flex-shrink-0"><a class="flex items-center gap-1.5 h-9 px-3 rounded-full bg-surface-container-high/90 text-primary-fixed border border-primary-container/20 transition-all active:scale-95 shadow-[0_0_10px_rgba(255,184,48,0.15)] hover:border-primary-container/50" data-path="moe-puteshestvie" href="#" title="Моё путешествие"><span class="material-symbols-outlined text-[16px] text-primary-container">explore</span><span class="font-label-sm text-label-sm font-bold text-primary-fixed tracking-wide">42/104</span></a><a aria-label="Настройки" class="w-9 h-9 flex items-center justify-center rounded-full text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all active:scale-95" data-path="nastrojki" href="#"><span class="material-symbols-outlined text-[20px]">settings</span></a><img alt="Profile" class="w-8 h-8 rounded-full object-cover border border-primary-container/30 shadow-[0_0_8px_rgba(255,184,48,0.25)] ml-0.5" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCdLg3sLBvV5C2sZ07bWRzHNAJmJaRmEX2Goq4C0MdemCoCPam7pZebU2QLXvbPIGiROKivIg5-BQrwLFBR1jND7Mm3QCBX2sm4c6mKTZKsJ7cM956ZwqniQ_ajzjh6Qt_hjTIbhqP2tu4tuNyBCe34OM_6Ei49zUEcke8sVmNKfalQmBXxvFY3w6gj0wjWsHNoh97ZLOMjX3FT4nK7mMo6yYR__VDDQb7D8fbOucu4"></div></div></header><main class="flex flex-col relative w-full pt-20 pb-28 bg-transparent min-h-screen max-w-[520px] mx-auto"><div class="flex flex-col w-full px-margin-mobile space-y-space-lg select-none">
+<!-- 1. Mode Switcher Segmented Control -->
+<section class="w-full">
+<div class="p-1 rounded-full bg-surface-container-low shadow-inner flex items-center gap-1"><button class="flex-1 py-2.5 px-4 rounded-full font-label-md text-label-md transition-all duration-300 flex items-center justify-center gap-2 text-white font-bold cursor-pointer border border-white/20" id="btn-mode-filters" style="background: linear-gradient(135deg, rgb(255, 78, 32) 0%, rgb(255, 140, 0) 100%); box-shadow: rgba(255, 94, 58, 0.4) 0px 4px 18px, rgba(255, 255, 255, 0.3) 0px 1px 0px inset;" type="button"><span class="material-symbols-outlined text-[18px]">tune</span><span class="">Свои фильтры</span></button><button class="flex-1 py-2.5 px-4 rounded-full font-label-md text-label-md transition-all duration-300 flex items-center justify-center gap-2 text-text-muted hover:text-on-surface bg-surface-panel/85 border border-surface-border-subtle cursor-pointer backdrop-blur-md" id="btn-mode-surprise" type="button"><span class="material-symbols-outlined text-[18px] text-secondary">auto_awesome</span><span class="">Удиви меня</span></button></div>
+</section>
+<!-- 2. 'Удиви меня' Pill Matrix (Collapsible by mode) -->
+<section class="hidden flex flex-col space-y-2" id="surprise-levels-panel">
+<div class="flex items-center justify-between px-1">
+<span class="font-label-sm text-label-sm text-text-muted uppercase tracking-wider">Градус неожиданности</span>
+<span class="material-symbols-outlined text-secondary text-[16px]">casino</span>
+</div>
+<div class="grid grid-cols-2 gap-2">
+<button class="surprise-chip py-2.5 px-3 rounded-xl bg-surface-panel text-on-surface font-label-sm text-label-sm text-left flex items-center justify-between transition-all duration-150 active:scale-95 shadow-sm" type="button">
+<span class="">Лёгкое удивление</span>
+<span class="material-symbols-outlined text-[16px] text-text-muted">emoji_objects</span>
+</button>
+<button class="surprise-chip py-2.5 px-3 rounded-xl bg-surface-container-high text-primary-fixed font-label-sm text-label-sm text-left flex items-center justify-between transition-all duration-150 active:scale-95 shadow-[0_0_10px_rgba(255,184,48,0.2)]" type="button">
+<span class="">Настоящее открытие</span>
+<span class="material-symbols-outlined text-[16px] text-primary-container">explore</span>
+</button>
+<button class="surprise-chip py-2.5 px-3 rounded-xl bg-surface-panel text-on-surface font-label-sm text-label-sm text-left flex items-center justify-between transition-all duration-150 active:scale-95 shadow-sm" type="button">
+<span class="">Полная случайность</span>
+<span class="material-symbols-outlined text-[16px] text-text-muted">shuffle</span>
+</button>
+<button class="surprise-chip py-2.5 px-3 rounded-xl bg-surface-panel text-on-surface font-label-sm text-label-sm text-left flex items-center justify-between transition-all duration-150 active:scale-95 shadow-sm" type="button">
+<span class="">Хардкор</span>
+<span class="material-symbols-outlined text-[16px] text-feedback-error">local_fire_department</span>
+</button>
+</div>
+<p class="font-micro-caption text-micro-caption text-text-muted px-1" id="surprise-description-text">
+      Случайная страна и редкий шедевр с рейтингом от ⭐ 7.0, который пропустил массовый зритель.
+    </p>
+</section>
+<!-- 3. PHOTOREALISTIC EARTH CINE-GLOBE & RADAR SECTION -->
+<section class="relative w-full rounded-2xl bg-gradient-to-b from-surface-panel via-surface-panel/95 to-surface-container-lowest shadow-[0_8px_36px_rgba(7,6,10,0.95)] p-space-md flex flex-col items-center overflow-hidden border border-surface-border-subtle/80 backdrop-blur-2xl" id="roulette-section">
+<!-- Ambient Holographic Nebula Flares -->
+<div class="absolute -top-16 -left-16 w-52 h-52 rounded-full bg-cinema-velvet-glow blur-3xl pointer-events-none opacity-80"></div>
+<div class="absolute -bottom-16 -right-16 w-56 h-56 rounded-full bg-cinema-amber-glow blur-3xl pointer-events-none opacity-90"></div>
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 rounded-full bg-primary-container/10 blur-3xl pointer-events-none"></div>
+<!-- Fullscreen Hologram Flash Flare on Win -->
+<div class="pointer-events-none absolute inset-0 z-40 bg-radial from-white/90 via-primary-container/70 to-transparent opacity-0 transition-opacity duration-300" id="winner-flash" style="opacity: 0;"></div>
+<!-- Visor HUD Header with Live Satellite Status -->
+<div class="w-full flex items-center justify-between mb-2 z-20">
+<div class="flex items-center gap-2">
+<span class="relative flex h-2.5 w-2.5">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-container opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary-container" id="roulette-status-dot"></span>
+</span>
+<span class="font-label-sm text-label-sm text-primary-fixed uppercase tracking-wider font-bold drop-shadow-[0_0_8px_rgba(255,184,48,0.4)]">Кинорадар стран</span>
+<span class="text-[10px] px-1.5 py-0.2 rounded bg-surface-container text-text-muted font-mono tracking-tighter" id="radar-freq">SAT·40.4°N</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-primary/40 transition-colors bg-primary" id="tick-spark"></span>
+<span class="font-micro-caption text-micro-caption px-2.5 py-0.5 rounded-full bg-surface-container-high/90 text-primary-fixed border border-primary-container/20 shadow-[0_0_10px_rgba(255,184,48,0.15)]" id="roulette-status-badge">104 страны онлайн</span>
+</div>
+</div>
+<!-- Interactive Swipe Gesture Floating Micro-Badge -->
+<div class="z-20 mb-1 flex items-center justify-center pointer-events-none gap-2">
+<div class="hint-float flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-lowest/85 backdrop-blur-md border border-primary-container/30 shadow-[0_0_14px_rgba(255,184,48,0.2)]">
+<span class="text-[13px]">✨</span>
+<span class="font-micro-caption text-[11px] font-semibold text-primary tracking-wide">Вращай глобус для поиска фильмов со всего мира</span>
+</div>
+</div>
+<!-- Photorealistic Earth Space Viewport Card -->
+<div class="relative w-full mx-auto rounded-2xl bg-black overflow-hidden flex flex-col items-center justify-between border border-surface-border group h-[440px] select-none" id="globe-container">
+<!-- 1. STATIC DEEP SPACE BACKGROUND LAYER -->
+<div class="absolute inset-0 z-0 overflow-hidden pointer-events-none select-none" id="starfield-bg">
+<img alt="Звёздный космос" class="w-full h-full object-cover object-center scale-105 pointer-events-none select-none opacity-90 contrast-125" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?auto=format&amp;fit=crop&amp;w=1200&amp;q=80';" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCw7EVs-EIN58ZB48eqSorkRk__GGUCEehvqTAWGutyFic_TDEh-AyqufQ1M1kdYbs6bwR4EURILyWVTD0O4UzYFcJ3TVKj03XHFGbqIkTMG9YnAJd7HYk2F4h1x_bt9Zu9RDBqPFzETDqins3ADcVSUjDImhPG4-i7ntOYbFQVsTv4E4cps9GjZYAe9rO1gcxB8NG-aZqbTWslJOjgw_3wsDMcmYCRM4FXvb-sZG9-">
+<div class="absolute inset-0 bg-black/40 pointer-events-none"></div>
+</div>
+<!-- 2. 3D PLANET EARTH CANVASES & RENDER VIEWPORT -->
+<div class="absolute inset-0 flex items-center justify-center pointer-events-auto z-10" id="earth-canvas-container">
+<!-- Interactive 3D Earth WebGL Canvas -->
+<canvas class="w-full h-full cursor-grab active:cursor-grabbing block relative z-10" height="876" id="earth-webgl-canvas" style="width: 326px; height: 438px;" width="652"></canvas>
+</div>
+<!-- Gold Radar Visor Corners -->
+<div class="absolute inset-x-4 inset-y-4 z-20 pointer-events-none rounded-2xl border border-primary-container/25 bg-gradient-to-b from-primary-container/[0.03] to-transparent shadow-[0_0_24px_rgba(255,184,48,0.12)] flex items-center justify-between p-2.5 transition-all duration-300" id="focal-lens"><div class="absolute top-2 left-2 w-4 h-4 border-t-2 border-l-2 border-primary-container shadow-[0_0_8px_rgba(255,184,48,0.6)]"></div><div class="absolute top-2 right-2 w-4 h-4 border-t-2 border-r-2 border-primary-container shadow-[0_0_8px_rgba(255,184,48,0.6)]"></div><div class="absolute bottom-2 left-2 w-4 h-4 border-b-2 border-l-2 border-primary-container shadow-[0_0_8px_rgba(255,184,48,0.6)]"></div><div class="absolute bottom-2 right-2 w-4 h-4 border-b-2 border-r-2 border-primary-container shadow-[0_0_8px_rgba(255,184,48,0.6)]"></div></div>
+<!-- Selected Country Holographic Display Card: reveals selected country details with golden radiance -->
+<div class="relative z-30 flex flex-col items-center justify-center px-4 pt-2 pb-3 transition-all duration-300 w-full max-w-[320px] text-center pointer-events-none mt-auto" id="hero-hologram-display" style="filter: drop-shadow(rgba(255, 184, 48, 0.5) 0px 0px 20px);"><div class="relative w-15 h-15 rounded-2xl p-[2px] bg-gradient-to-tr from-cinema-velvet-deep via-primary-container to-primary shadow-[0_0_28px_rgba(255,184,48,0.7)] flex items-center justify-center backdrop-blur-md mb-1.5 transition-transform" id="hologram-flag-orb"><div class="w-full h-full rounded-[14px] bg-surface-container-lowest/90 flex items-center justify-center overflow-hidden relative shadow-[0_0_16px_rgba(255,184,48,0.4)]"><div class="absolute inset-0 bg-gradient-to-b from-white/15 via-transparent to-transparent pointer-events-none"></div><span class="text-3xl drop-shadow-[0_4px_16px_rgba(0,0,0,0.8)] select-none transition-all duration-150" id="hero-country-flag">🇪🇸</span></div><div class="absolute -bottom-1 inset-x-3 h-2 bg-primary-container/70 blur-sm rounded-full"></div></div><div class="inline-flex items-center gap-1 px-3 py-0.5 rounded-full bg-[#20152a]/95 border border-primary-container/50 text-primary-container font-micro-caption mb-1 shadow-[0_0_12px_rgba(255,184,48,0.3)]"><span class="text-primary text-[10px]">✪</span><span class="font-bold tracking-wider uppercase text-amber-200">ВЫПАЛА СТРАНА</span></div><h2 class="font-headline-lg text-headline-lg font-bold text-primary tracking-tight leading-tight drop-shadow-[0_0_16px_rgba(255,215,120,0.45)] truncate max-w-[260px]" id="hero-country-name">Испания</h2><div class="flex items-center gap-1.5 mt-1"><span class="px-2.5 py-0.5 rounded-full bg-surface-container-high/90 text-primary-fixed font-micro-caption text-micro-caption tracking-wider uppercase border border-primary-container/20" id="hero-country-region">ЮЖНАЯ ЕВРОПА</span><span class="px-2.5 py-0.5 rounded-full bg-cinema-velvet-deep/70 text-secondary font-micro-caption text-micro-caption tracking-wider" id="hero-country-films">295 лент</span></div><div class="flex items-center gap-1 text-text-muted font-micro-caption text-micro-caption mt-1.5 opacity-90"><span class="material-symbols-outlined text-[13px] text-primary-container">movie</span><span class="truncate max-w-[250px]" id="hero-country-master">Педро Альмодовар · Гильермо дель Торо</span></div></div></div>
+<!-- Tactile Primary CTA Button: 'Крутить глобус' -->
+<div class="w-full mt-3.5 z-10">
+<button class="relative w-full py-4 px-6 rounded-2xl text-canvas-obsidian font-headline-sm text-[17px] font-bold tracking-wider uppercase flex items-center justify-between shadow-[0_8px_32px_rgba(255,115,0,0.45)] transition-all duration-200 hover:brightness-110 active:scale-[0.97] overflow-hidden group select-none cursor-pointer border border-white/20" id="btn-spin-roulette" style="background: linear-gradient(135deg, rgb(255, 78, 32) 0%, rgb(255, 140, 0) 48%, rgb(255, 193, 7) 100%); box-shadow: rgba(255, 115, 0, 0.45) 0px 8px 30px, rgba(255, 255, 255, 0.4) 0px 1px 1px inset;" type="button"><span class="w-9 h-9 rounded-xl bg-black/20 flex items-center justify-center text-lg select-none">🎲</span><span class="font-bold tracking-wide text-canvas-obsidian drop-shadow-[0_1px_1px_rgba(255,255,255,0.4)] flex items-center gap-2" id="btn-spin-text"><span class="material-symbols-outlined text-[22px] text-canvas-obsidian font-bold transition-transform duration-300" id="btn-spin-icon">casino</span><span class="">КРУТИТЬ ГЛОБУС</span></span><span class="w-9 h-9 rounded-xl flex items-center justify-center text-xl text-black select-none font-bold transition-transform duration-300 group-hover:rotate-180" id="btn-spin-secondary-icon">↻</span><div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/35 to-transparent -translate-x-full animate-[shimmerMove_2.5s_infinite]"></div></button>
+</div>
+<!-- Secondary Quick-Action Cinema Launchers -->
+<div class="w-full grid grid-cols-2 gap-2 mt-2.5 z-10"><button class="py-2.5 px-3 rounded-xl text-on-surface hover:text-primary font-label-sm text-label-sm flex items-center justify-center gap-2 transition-all duration-200 active:scale-95 cursor-pointer backdrop-blur-md border border-primary-container/25 shadow-[0_4px_16px_rgba(0,0,0,0.4)] hover:border-primary-container/50 hover:shadow-[0_0_14px_rgba(255,184,48,0.25)]" id="btn-top-one" style="background: linear-gradient(rgba(38, 30, 48, 0.85) 0%, rgba(22, 18, 28, 0.95) 100%);" type="button"><span class="material-symbols-outlined text-[18px] text-primary-container">military_tech</span><span class="font-medium">Топ-1 всех времён</span></button><button class="py-2.5 px-3 rounded-xl text-on-surface hover:text-secondary font-label-sm text-label-sm flex items-center justify-center gap-2 transition-all duration-200 active:scale-95 cursor-pointer backdrop-blur-md border border-secondary/25 shadow-[0_4px_16px_rgba(0,0,0,0.4)] hover:border-secondary/50 hover:shadow-[0_0_14px_rgba(255,177,197,0.25)]" id="btn-oscar-laureate" style="background: linear-gradient(rgba(48, 22, 38, 0.85) 0%, rgba(28, 14, 24, 0.95) 100%);" type="button"><span class="material-symbols-outlined text-[18px] text-secondary">hotel_class</span><span class="font-medium">Лауреат Оскар</span></button></div>
+</section>
+<!-- 4. Collapsible Modern Expandable Filter Accordions -->
+<section class="w-full flex flex-col space-y-2.5">
+<!-- Accordion 1: Категории & Жанры -->
+<details class="group rounded-xl bg-surface-panel shadow-sm overflow-hidden" open="">
+<summary class="flex items-center justify-between p-3.5 cursor-pointer list-none select-none bg-surface-panel hover:bg-surface-container transition-colors">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-container text-[20px]">movie_creation</span>
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold">Категории &amp; Жанры</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="font-micro-caption text-micro-caption text-text-muted">Любой</span>
+<span class="material-symbols-outlined text-text-muted text-[20px] transition-transform duration-200 group-open:rotate-180">expand_more</span>
+</div>
+</summary>
+<div class="p-3.5 pt-1 flex flex-wrap gap-2">
+<button class="genre-pill h-[34px] px-4 rounded-full font-label-sm text-label-sm flex items-center gap-1 text-canvas-obsidian font-bold cursor-pointer border border-white/20 transition-all" style="background: linear-gradient(135deg, rgb(255, 78, 32) 0%, rgb(255, 149, 0) 50%, rgb(255, 193, 7) 100%); box-shadow: rgba(255, 115, 0, 0.4) 0px 2px 14px, rgba(255, 255, 255, 0.35) 0px 1px 0px inset;" type="button"><span class="">🌐 Любой жанр</span></button>
+<button class="genre-pill h-[34px] px-3.5 rounded-full font-label-sm text-label-sm flex items-center gap-1 bg-surface-container text-text-muted hover:text-on-surface" type="button">
+<span class="">Боевик</span>
+</button>
+<button class="genre-pill h-[34px] px-3.5 rounded-full font-label-sm text-label-sm flex items-center gap-1 bg-surface-container text-text-muted hover:text-on-surface" type="button">
+<span class="">Детектив</span>
+</button>
+<button class="genre-pill h-[34px] px-3.5 rounded-full font-label-sm text-label-sm flex items-center gap-1 bg-surface-container text-text-muted hover:text-on-surface" type="button">
+<span class="">Драма</span>
+</button>
+<button class="genre-pill h-[34px] px-3.5 rounded-full font-label-sm text-label-sm flex items-center gap-1 bg-surface-container text-text-muted hover:text-on-surface" type="button">
+<span class="">Комедия</span>
+</button>
+<button class="genre-pill h-[34px] px-3.5 rounded-full font-label-sm text-label-sm flex items-center gap-1 bg-surface-container text-text-muted hover:text-on-surface" type="button">
+<span class="">Триллер</span>
+</button>
+<button class="genre-pill h-[34px] px-3.5 rounded-full font-label-sm text-label-sm flex items-center gap-1 bg-surface-container text-text-muted hover:text-on-surface" type="button">
+<span class="">Ужасы</span>
+</button>
+<button class="genre-pill h-[34px] px-3.5 rounded-full font-label-sm text-label-sm flex items-center gap-1 bg-surface-container-high text-on-surface-variant hover:text-on-surface" type="button">
+<span class="">📉 Худшие из худших</span>
+</button>
+<button class="genre-pill h-[34px] px-3.5 rounded-full font-label-sm text-label-sm flex items-center gap-1 bg-surface-container-high text-secondary hover:text-secondary-fixed" type="button">
+<span class="">🔞 Взрослое кино 18+</span>
+</button>
+</div>
+</details>
+<!-- Accordion 2: Год и рейтинг -->
+<details class="group rounded-xl bg-surface-panel shadow-sm overflow-hidden">
+<summary class="flex items-center justify-between p-3.5 cursor-pointer list-none select-none bg-surface-panel hover:bg-surface-container transition-colors">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-container text-[20px]">calendar_month</span>
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold">Год и рейтинг</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="font-micro-caption text-micro-caption text-text-muted">1920–2026 · ⭐ 6.0+</span>
+<span class="material-symbols-outlined text-text-muted text-[20px] transition-transform duration-200 group-open:rotate-180">expand_more</span>
+</div>
+</summary>
+<div class="p-3.5 pt-1 space-y-3">
+<!-- Dual Year Inputs -->
+<div class="flex items-center gap-2">
+<div class="flex-1 flex flex-col">
+<label class="font-micro-caption text-micro-caption text-text-muted mb-1">Год от</label>
+<div class="h-12 px-3 rounded-lg bg-surface-container-lowest flex items-center shadow-inner">
+<input class="w-full bg-transparent font-label-md text-label-md text-on-surface outline-none" max="2026" min="1920" type="number" value="1970">
+</div>
+</div>
+<span class="text-text-muted mt-5">—</span>
+<div class="flex-1 flex flex-col">
+<label class="font-micro-caption text-micro-caption text-text-muted mb-1">Год до</label>
+<div class="h-12 px-3 rounded-lg bg-surface-container-lowest flex items-center shadow-inner">
+<input class="w-full bg-transparent font-label-md text-label-md text-on-surface outline-none" max="2026" min="1920" type="number" value="2026">
+</div>
+</div>
+</div>
+<!-- Rating Filter Selector Chips -->
+<div class="flex flex-col">
+<label class="font-micro-caption text-micro-caption text-text-muted mb-1.5">Минимальная оценка зрителей</label>
+<div class="flex items-center justify-between gap-1.5 overflow-x-auto pb-1">
+<button class="flex-1 py-1.5 px-2 rounded-lg bg-surface-container font-label-sm text-label-sm text-text-muted hover:text-on-surface" type="button">5.0</button>
+<button class="flex-1 py-1.5 px-2 rounded-lg bg-primary-container text-on-primary-container font-label-sm text-label-sm shadow-[0_0_8px_rgba(255,184,48,0.25)] font-bold" type="button">⭐ 6.0</button>
+<button class="flex-1 py-1.5 px-2 rounded-lg bg-surface-container font-label-sm text-label-sm text-text-muted hover:text-on-surface" type="button">7.0</button>
+<button class="flex-1 py-1.5 px-2 rounded-lg bg-surface-container font-label-sm text-label-sm text-text-muted hover:text-on-surface" type="button">7.5</button>
+<button class="flex-1 py-1.5 px-2 rounded-lg bg-surface-container font-label-sm text-label-sm text-text-muted hover:text-on-surface" type="button">8.0+</button>
+</div>
+</div>
+</div>
+</details>
+<!-- Accordion 3: Тематические коллекции -->
+<details class="group rounded-xl bg-surface-panel shadow-sm overflow-hidden">
+<summary class="flex items-center justify-between p-3.5 cursor-pointer list-none select-none bg-surface-panel hover:bg-surface-container transition-colors">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-container text-[20px]">collections_bookmark</span>
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold">Тематические коллекции</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="font-micro-caption text-micro-caption text-text-muted">Готовые сеты</span>
+<span class="material-symbols-outlined text-text-muted text-[20px] transition-transform duration-200 group-open:rotate-180">expand_more</span>
+</div>
+</summary>
+<div class="p-3.5 pt-1 flex flex-wrap gap-2">
+<button class="h-[34px] px-3.5 rounded-full font-label-sm text-label-sm bg-surface-container text-text-muted hover:text-primary transition-colors flex items-center gap-1.5" type="button">
+<span class="">🔪 Корейские триллеры</span>
+</button>
+<button class="h-[34px] px-3.5 rounded-full font-label-sm text-label-sm bg-surface-container text-text-muted hover:text-primary transition-colors flex items-center gap-1.5" type="button">
+<span class="">❄️ Скандинавский нуар</span>
+</button>
+<button class="h-[34px] px-3.5 rounded-full font-label-sm text-label-sm bg-surface-container text-text-muted hover:text-primary transition-colors flex items-center gap-1.5" type="button">
+<span class="">🌸 Японское аниме</span>
+</button>
+<button class="h-[34px] px-3.5 rounded-full font-label-sm text-label-sm bg-surface-container text-text-muted hover:text-primary transition-colors flex items-center gap-1.5" type="button">
+<span class="">☕ Французский нуар</span>
+</button>
+<button class="h-[34px] px-3.5 rounded-full font-label-sm text-label-sm bg-surface-container text-text-muted hover:text-primary transition-colors flex items-center gap-1.5" type="button">
+<span class="">🥋 Гонконгские боевики</span>
+</button>
+</div>
+</details>
+</section>
+<!-- 5. Active / Recent Discovery Mini-Card Banner -->
+<section class="w-full rounded-2xl bg-surface-panel p-3.5 shadow-xl relative overflow-hidden transition-all duration-300 border border-surface-border-subtle card-discovery-win" id="recent-discovery-card"><div class="flex items-center justify-between mb-2.5"><div class="flex items-center gap-1.5"><span class="material-symbols-outlined text-primary-container text-[16px]">history_edu</span><span class="font-micro-caption text-micro-caption text-text-muted uppercase tracking-wider font-semibold">Последняя находка</span></div><span class="font-micro-caption text-micro-caption text-primary-fixed font-medium" id="discovery-timestamp">#1 по рейтингу</span></div><div class="flex gap-3"><div class="relative w-20 h-28 rounded-lg overflow-hidden flex-shrink-0 bg-surface-container-high shadow-md"><img alt="Постер фильма" class="w-full h-full object-cover transition-opacity duration-300" id="discovery-poster" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCpkySIT3QFOrvaTrn_y3e9VU2oJXCOiXlq4gTLB2lruBr4zze6OOCSX4ly_tDA8-zMStZ3ymPns5xeDFmrV8gX0MGNY_McudquZZMMYeeZN8R0iNYKkP35pdycV3BcxA8ot4M-ve0cbgCdLZwE971O4I8elJaULWCr-vmaDWzqdmskz5GvRBIqCPqPM35WWOKSwoUbQT4BunQfy9yBuT1CKDD6ef4ISV7wyD5Gu0jR"><div class="absolute bottom-1 right-1 px-1.5 py-0.5 rounded bg-surface-container-lowest/85 font-micro-caption text-micro-caption font-bold text-primary-fixed" id="discovery-rating">8.2</div></div><div class="flex flex-col justify-between flex-1 min-w-0 py-0.5"><div><div class="flex items-center gap-1.5"><h3 class="font-headline-sm text-headline-sm font-bold text-on-surface truncate" id="discovery-title">Лабиринт Фавна</h3><span class="text-micro-caption text-text-muted font-body-sm" id="discovery-year">(2006)</span></div><p class="font-label-sm text-label-sm text-primary-fixed mt-0.5 flex items-center gap-1"><span class="" id="discovery-country">Испания</span><span class="" id="discovery-flag">🇪🇸</span><span class="text-text-muted truncate" id="discovery-genres">· Фэнтези, Драма · 118 мин</span></p><p class="font-body-sm text-body-sm text-text-muted line-clamp-2 mt-1" id="discovery-desc">Испания 1944 года: одинокая девочка находит тайный древний лабиринт и сказочного Фавна.</p></div><div class="flex items-center gap-2 mt-2"><button class="flex-1 py-2 px-3 rounded-xl text-white font-label-sm text-label-sm font-bold flex items-center justify-center gap-1.5 transition-all duration-150 hover:brightness-110 active:scale-95 cursor-pointer border border-white/20 shadow-[0_4px_16px_rgba(255,77,77,0.35)]" style="background: linear-gradient(135deg, rgb(255, 59, 48) 0%, rgb(255, 107, 34) 50%, rgb(245, 158, 11) 100%); box-shadow: rgba(255, 77, 77, 0.35) 0px 4px 18px, rgba(255, 255, 255, 0.3) 0px 1px 0px inset;" type="button"><span class="material-symbols-outlined text-[18px]">play_arrow</span><span class="truncate">Смотреть трейлер</span></button><button class="py-1.5 px-3 rounded-lg bg-surface-container-high text-on-surface font-label-sm text-label-sm flex items-center justify-center gap-1 hover:text-primary transition-all active:scale-95" id="btn-watched" title="Отметить как просмотренный" type="button"><span class="material-symbols-outlined text-[16px] text-primary-container">check</span><span class="">Посмотрел</span></button></div></div></div></section>
+</div>
 
-  <div class="card" id="keyCard" hidden>
-    <label for="key">Ключ TMDB API (v3)</label>
-    <input id="key" type="password" autocomplete="off" placeholder="Вставьте ключ">
-    <div class="acts"><button id="saveKey" class="main" style="font-size:16px;padding:12px">Сохранить ключ</button></div>
-    <p class="note">Бесплатный ключ: themoviedb.org → Настройки → API. Он хранится только на этом устройстве.</p>
+<!-- Bridge elements for Kinoglobus engine (visually hidden) -->
+<div id="kg-bridge" style="position:absolute;width:0;height:0;overflow:hidden;opacity:0;pointer-events:none" aria-hidden="true">
+  <button id="go"></button>
+  <button id="top1"></button>
+  <button id="oscar"></button>
+  <button id="again"></button>
+  <button id="seen"></button>
+  <button id="trailer"></button>
+  <button id="fskip"></button>
+  <button id="gear"></button>
+  <button id="mapBtn"></button>
+  <button id="sclose"></button>
+  <button id="jclose"></button>
+  <button id="fx"></button>
+  <button id="filmTog"></button>
+  <button id="adultVis"></button>
+  <button id="resetSettings"></button>
+  <button id="resetHist"></button>
+  <button id="changeKey"></button>
+  <button id="saveKey"></button>
+  <button id="modeFilters"></button>
+  <button id="modeSurprise"></button>
+  <button id="mzin"></button>
+  <button id="mzout"></button>
+  <div id="keyCard" hidden><input id="key"></div>
+  <div id="surpriseCard" hidden></div>
+  <div id="filterCard"><div id="chips"></div><div id="worstBox" hidden></div><div id="adultNote" hidden></div><span id="filterSum"></span></div>
+  <div id="extraCard"><input id="year"><input id="yearTo"><select id="rmin"><option value="6">6</option></select><select id="rmax"><option value=""></option></select><span id="extraSum"></span><div id="yearNote" hidden></div></div>
+  <div id="themeCard"><div id="themes"></div><div id="themeNote" hidden></div><span id="themeSum"></span></div>
+  <div id="surpriseChips"></div>
+  <div id="surpriseNote" hidden></div>
+  <div id="err"></div>
+  <div id="reel" hidden><div id="rcol"></div><div id="rname"></div><div class="rlens"></div></div>
+  <div id="freel" hidden><div id="fhead"></div><div id="fcol"></div><div id="fname"></div><div class="flens"></div></div>
+  <div id="result" hidden>
+    <span id="flag"></span><p id="cname"></p><p id="cmeta"></p>
+    <img id="poster"><h2 id="title"></h2><div id="fmeta"></div><div id="fgenre"></div><span id="rating"></span>
+    <div id="crew" hidden></div><p id="tagline" hidden></p><p id="over"></p>
+    <div id="player" hidden></div><p id="ytnote" hidden><a id="ytlink"></a></p>
   </div>
-
-  <div class="modes" role="group" aria-label="Режим">
-    <button type="button" id="modeFilters" aria-pressed="true">Свои фильтры</button>
-    <button type="button" id="modeSurprise" aria-pressed="false">Удиви меня</button>
-  </div>
-
-  <div class="card" id="surpriseCard" hidden>
-    <label>Насколько удивить</label>
-    <div class="chips" id="surpriseChips">
-      <button type="button" class="chip" data-s="light">Лёгкое удивление</button>
-      <button type="button" class="chip" data-s="find">Настоящее открытие</button>
-      <button type="button" class="chip" data-s="wild">Полная случайность</button>
-      <button type="button" class="chip" data-s="hard">Хардкор</button>
-    </div>
-    <p class="note" id="surpriseNote" hidden></p>
-  </div>
-
-  <details class="card fold" id="filterCard">
-    <summary id="filterSum">Категории</summary>
-    <div class="foldbody">
-      <div class="chips" id="chips"></div>
-      <p class="note" id="worstBox" hidden>Берутся фильмы с оценкой зрителей от 1 до 4.9 из 10, начиная с самых низких. Выбор оценки выше отключён.</p>
-      <p class="note" id="adultNote" hidden>Берутся фильмы со строгим возрастным рейтингом своей страны (18+, в США R) и фильмы с откровенной сексуальной темой. Порнография не включена. У части стран такой разметки мало, их глобус пропустит.</p>
-    </div>
-  </details>
-
-  <details class="card fold" id="extraCard">
-    <summary id="extraSum">Год и оценка</summary>
-    <div class="foldbody">
-      <div class="row">
-        <div><label for="year">Год от</label>
-          <input id="year" type="number" inputmode="numeric" min="1900" max="2026" placeholder="любой"></div>
-        <div><label for="yearTo">Год до</label>
-          <input id="yearTo" type="number" inputmode="numeric" min="1900" max="2026" placeholder="любой"></div>
-      </div>
-      <div class="row" style="margin-top:10px">
-        <div><label for="rmin">Оценка от</label>
-          <select id="rmin"><option value="5">5</option><option value="6">6</option><option value="6.5">6.5</option><option value="7">7</option><option value="7.5">7.5</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select></div>
-        <div><label for="rmax">Оценка до</label>
-          <select id="rmax"><option value="">любая</option><option value="5">5</option><option value="6">6</option><option value="6.5">6.5</option><option value="7">7</option><option value="7.5">7.5</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select></div>
-      </div>
-      <p class="note" id="yearNote" hidden>Для «Крутить глобус» «от» и «до» задают диапазон. Пустое поле оставляет границу открытой. Для «Топ-1» один заполненный год, или два одинаковых, означает ровно этот год. Два разных года — лучший фильм внутри диапазона. Оценка «от» по умолчанию 6. «До» можно не ставить. Ниже шести ищут только «Худшие», «Полная случайность» и «Хардкор».</p>
-    </div>
-  </details>
-
-  <details class="card fold" id="themeCard">
-    <summary id="themeSum">Тематические подборки</summary>
-    <div class="foldbody">
-      <div class="chips" id="themes"></div>
-      <p class="note" id="themeNote" hidden>Подборка задаёт страны и жанр. Год, оценка, «худшие» и 18+ по-прежнему учитываются. Нажмите подборку ещё раз, чтобы снять её.</p>
-    </div>
-  </details>
-
-  <button class="main" id="go">🎲 Крутить глобус</button>
-  <button class="side" id="top1" type="button">🏆 Топ-1</button>
-  <p class="note" id="topNote" hidden>Топ-1 берёт фильм с самой убедительной оценкой: высокая средняя и много отзывов. Картина, которую почти никто не оценил, не обходит ту, которую оценили тысячи. С годом страна каждый раз другая, и год на карточке совпадает с выбранным.</p>
-  <button class="side" id="oscar" type="button">🎬 Оскар</button>
-  <p class="note" id="oscarNote" hidden>«Оскар» выбирает случайного лауреата премии за лучший фильм. Год может быть любым: страна, жанр, год и оценка с глобуса не учитываются.</p>
-  <div id="err" class="err" role="alert"></div>
-  <div class="card reel" id="reel" hidden aria-live="polite" style="margin-top:14px">
-    <div class="rwin" aria-hidden="true"><div class="rcol" id="rcol"></div><div class="rlens"></div></div>
-    <div class="rname" id="rname"></div>
-  </div>
-  <div class="card reel" id="freel" hidden aria-live="polite" style="margin-top:14px">
-    <div class="fhead" id="fhead"></div>
-    <div class="fwin" aria-hidden="true"><div class="fcol" id="fcol"></div><div class="flens"></div></div>
-    <div class="rname" id="fname"></div>
-    <button class="link" id="fskip">Пропустить</button>
-  </div>
-
-  <div class="card" id="result" hidden style="margin-top:14px">
-    <span class="flag" id="flag"></span>
-    <p class="country" id="cname"></p>
-    <p class="meta" id="cmeta"></p>
-    <div class="film">
-      <img id="poster" alt="Постер">
-      <div>
-        <h2 id="title"></h2>
-        <div class="meta" id="fmeta"></div>
-        <div class="meta" id="fgenre"></div>
-        <span class="badge" id="rating"></span>
-      </div>
-    </div>
-    <div class="crew" id="crew" hidden></div>
-    <p class="tagline" id="tagline" hidden></p>
-    <p class="over" id="over"></p>
-    <button type="button" id="trailer" class="btn">▶ Смотреть трейлер</button>
-    <div class="player" id="player" hidden></div>
-    <p class="note" id="ytnote" hidden>Не воспроизводится? <a id="ytlink" target="_blank" rel="noopener">Открыть на YouTube</a></p>
-    <div class="acts">
-      <button type="button" id="again">Другой фильм отсюда</button>
-      <button id="seen">✓ Посмотрел</button>
-    </div>
-  </div>
-
-  <dialog id="journey" aria-labelledby="jtitle">
-    <div class="srow"><h2 id="jtitle">Моё путешествие</h2><button id="jclose" aria-label="Закрыть">✕</button></div>
-    <div id="jhead" class="jhead"></div>
-    <div class="jbar"><i id="jfill"></i></div>
-    <div class="mapbox" id="mapbox"></div>
-    <div class="mapctl"><button id="mzin" class="tog" aria-label="Приблизить">＋</button><button id="mzout" class="tog" aria-label="Отдалить">−</button>
-      <span class="note" id="minfo">Нажми на страну на карте</span></div>
-    <p class="note" id="jfilmsT">Просмотренные фильмы</p>
-    <div id="jfilms" class="jfilms"></div>
-    <p class="note">Исторические страны (СССР, Югославия, Чехословакия, ГДР) на карте не показаны, они есть только в списках ниже.</p>
-    <div id="jstats" class="jstats"></div>
-    <p class="note" id="jopenT">Открытые страны</p>
-    <div id="jopen"></div>
-    <details><summary id="jclosedsum"></summary><div id="jclosed"></div></details>
-  </dialog>
-
-  <dialog id="settings" aria-labelledby="stitle">
-    <div class="srow"><h2 id="stitle">Настройки</h2><button id="sclose" aria-label="Закрыть">✕</button></div>
-    <div class="srow"><label for="snd">Звук</label>
-      <select id="snd"><option value="roulette">Рулетка</option><option value="bells">Колокольчики</option><option value="arcade">Ретро</option>
-        <option value="casino">Казино</option><option value="marimba">Маримба</option><option value="space">Космос</option>
-        <option value="film">Кинопроектор</option><option value="orchestra">Оркестр</option><option value="jazz">Джаз</option>
-        <option value="synth">Синтвейв</option><option value="chimes">Колокольцы</option><option value="off">Выкл</option></select></div>
-    <div class="srow"><span>Вибрация</span><button id="fx" class="tog"></button></div>
-    <div class="srow"><span>Крутить фильмы<br><small>второй барабан с постерами</small></span><button id="filmTog" class="tog"></button></div>
-    <div class="srow"><span>Категория 18+<br><small>«Взрослое кино 18+»</small></span><button id="adultVis" class="tog"></button></div>
-    <button class="sbtn" id="resetSettings">Сбросить настройки</button>
-    <button class="sbtn" id="resetHist"></button>
-    <button class="sbtn" id="changeKey">Сменить ключ TMDB</button>
-  </dialog>
-  <p class="note" style="margin-top:18px">This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
-</main>
+  <dialog id="settings"><select id="snd"><option value="roulette">roulette</option><option value="bells">bells</option><option value="arcade">arcade</option><option value="casino">casino</option><option value="marimba">marimba</option><option value="space">space</option><option value="film">film</option><option value="orchestra">orchestra</option><option value="jazz">jazz</option><option value="synth">synth</option><option value="chimes">chimes</option><option value="off">off</option></select></dialog>
+  <dialog id="journey"><div id="jhead"></div><i id="jfill"></i><div id="mapbox"></div><div id="jstats"></div><div id="jopen"></div><div id="jclosed"></div><span id="jclosedsum"></span><div id="jfilms"></div><span id="jopenT"></span><span id="jfilmsT"></span><span id="minfo"></span><span id="jtitle"></span></dialog>
+  <span id="brand"></span>
+  <span id="topNote" hidden></span><span id="oscarNote" hidden></span>
+  <div id="rwin"></div>
+</div>
 
 <script>
+// ========== Design 3D + UI (from Pro Salon) — kept, spin overridden ==========
+
+  (function() {
+    // Mode Switcher Interaction
+    const btnFilters = document.getElementById('btn-mode-filters');
+    const btnSurprise = document.getElementById('btn-mode-surprise');
+    const surprisePanel = document.getElementById('surprise-levels-panel');
+
+    if (btnFilters && btnSurprise && surprisePanel) {
+      btnFilters.addEventListener('click', () => {
+        btnFilters.className = "flex-1 py-2.5 px-4 rounded-full font-label-md text-label-md transition-all duration-300 flex items-center justify-center gap-2 text-white font-bold cursor-pointer border border-white/20";
+        btnFilters.style.background = "linear-gradient(135deg, rgb(255, 78, 32) 0%, rgb(255, 140, 0) 100%)";
+        btnFilters.style.boxShadow = "rgba(255, 94, 58, 0.4) 0px 4px 18px, rgba(255, 255, 255, 0.3) 0px 1px 0px inset";
+
+        btnSurprise.className = "flex-1 py-2.5 px-4 rounded-full font-label-md text-label-md transition-all duration-300 flex items-center justify-center gap-2 text-text-muted hover:text-on-surface bg-surface-panel/85 border border-surface-border-subtle cursor-pointer backdrop-blur-md";
+        btnSurprise.style.background = "";
+        btnSurprise.style.boxShadow = "";
+        surprisePanel.classList.add('hidden');
+      });
+
+      btnSurprise.addEventListener('click', () => {
+        btnSurprise.className = "flex-1 py-2.5 px-4 rounded-full font-label-md text-label-md transition-all duration-300 flex items-center justify-center gap-2 text-white font-bold cursor-pointer border border-white/20";
+        btnSurprise.style.background = "linear-gradient(135deg, rgb(134, 26, 69) 0%, rgb(255, 78, 120) 100%)";
+        btnSurprise.style.boxShadow = "rgba(255, 115, 160, 0.4) 0px 4px 18px, rgba(255, 255, 255, 0.3) 0px 1px 0px inset";
+
+        btnFilters.className = "flex-1 py-2.5 px-4 rounded-full font-label-md text-label-md transition-all duration-300 flex items-center justify-center gap-2 text-text-muted hover:text-on-surface bg-surface-panel/85 border border-surface-border-subtle cursor-pointer backdrop-blur-md";
+        btnFilters.style.background = "";
+        btnFilters.style.boxShadow = "";
+        surprisePanel.classList.remove('hidden');
+      });
+    }
+
+    // Full 10 Real-World Countries Cinema Database with exact lat/lon
+    const catalog = [
+      {
+        id: 'KR',
+        name: 'Южная Корея',
+        flag: '🇰🇷',
+        reg: 'ВОСТОЧНАЯ АЗИЯ',
+        films: '412 лент',
+        dirs: 'Пон Чжун Хо · Пак Чхан Ук',
+        lat: 37.5,
+        lon: 126.9,
+        movie: {
+          title: 'Паразиты',
+          year: '(2019)',
+          rating: '8.5',
+          genres: '· Триллер, Драма · 132 мин',
+          desc: 'Бедная семья Ким обманом устраивается на работу в богатый дом Пак, но скрытая тайна меняет всё...',
+          poster: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=300&q=80'
+        }
+      },
+      {
+        id: 'JP',
+        name: 'Япония',
+        flag: '🇯🇵',
+        reg: 'ВОСТОЧНАЯ АЗИЯ',
+        films: '389 лент',
+        dirs: 'Акира Куросава · Хаяо Миядзаки',
+        lat: 36.2,
+        lon: 138.2,
+        movie: {
+          title: 'Унесённые призраками',
+          year: '(2001)',
+          rating: '8.6',
+          genres: '· Аниме, Приключения · 125 мин',
+          desc: 'Маленькая Тихиро попадает в потусторонний мир духов и колдуньи Юбабы, спасая родителей.',
+          poster: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=300&q=80'
+        }
+      },
+      {
+        id: 'FR',
+        name: 'Франция',
+        flag: '🇫🇷',
+        reg: 'ЗАПАДНАЯ ЕВРОПА',
+        films: '520 лент',
+        dirs: 'Франсуа Трюффо · Жан-Люк Годар',
+        lat: 46.2,
+        lon: 2.2,
+        movie: {
+          title: '1+1 (Неприкасаемые)',
+          year: '(2011)',
+          rating: '8.8',
+          genres: '· Драма, Комедия · 112 мин',
+          desc: 'Богатый аристократ в инвалидном кресле нанимает в сиделки парня с улицы.',
+          poster: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=300&q=80'
+        }
+      },
+      {
+        id: 'IT',
+        name: 'Италия',
+        flag: '🇮🇹',
+        reg: 'ЮЖНАЯ ЕВРОПА',
+        films: '310 лент',
+        dirs: 'Паоло Соррентино · Федерико Феллини',
+        lat: 41.9,
+        lon: 12.6,
+        movie: {
+          title: 'Великая красота',
+          year: '(2013)',
+          rating: '8.2',
+          genres: '· Драма, Философия · 141 мин',
+          desc: 'Писатель Джеп Гамбарделла наблюдает за римской жизнью в поисках подлинного смысла.',
+          poster: 'https://images.unsplash.com/photo-1518676590629-3dcbd9c5a5c9?auto=format&fit=crop&w=300&q=80'
+        }
+      },
+      {
+        id: 'US',
+        name: 'США',
+        flag: '🇺🇸',
+        reg: 'СЕВЕРНАЯ АМЕРИКА',
+        films: '1240 лент',
+        dirs: 'Кристофер Нолан · Мартин Скорсезе',
+        lat: 37.1,
+        lon: -95.7,
+        movie: {
+          title: 'Интерстеллар',
+          year: '(2014)',
+          rating: '8.7',
+          genres: '· Фантастика, Драма · 169 мин',
+          desc: 'Группа исследователей отправляется сквозь червоточину в поисках нового дома для человечества.',
+          poster: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=300&q=80'
+        }
+      },
+      {
+        id: 'BR',
+        name: 'Бразилия',
+        flag: '🇧🇷',
+        reg: 'ЮЖНАЯ АМЕРИКА',
+        films: '185 лент',
+        dirs: 'Фернанду Мейреллиш · Валтер Саллес',
+        lat: -14.2,
+        lon: -51.9,
+        movie: {
+          title: 'Город Бога',
+          year: '(2002)',
+          rating: '8.6',
+          genres: '· Криминал, Драма · 130 мин',
+          desc: 'Хроника взросления двух парней в жестоких трущобах Рио-де-Жанейро 1960–80-х годов.',
+          poster: 'https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?auto=format&fit=crop&w=300&q=80'
+        }
+      },
+      {
+        id: 'DE',
+        name: 'Германия',
+        flag: '🇩🇪',
+        reg: 'ЦЕНТРАЛЬНАЯ ЕВРОПА',
+        films: '430 лент',
+        dirs: 'Вим Вендерс · Фриц Ланг',
+        lat: 51.1,
+        lon: 10.4,
+        movie: {
+          title: 'Жизнь других',
+          year: '(2006)',
+          rating: '8.4',
+          genres: '· Триллер, Драма · 137 мин',
+          desc: 'Сотрудник Штази ведет тайную слежку за драматургом и проникается его свободой.',
+          poster: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=300&q=80'
+        }
+      },
+      {
+        id: 'GB',
+        name: 'Великобритания',
+        flag: '🇬🇧',
+        reg: 'ЗАПАДНАЯ ЕВРОПА',
+        films: '610 лент',
+        dirs: 'Стэнли Кубрик · Альфред Хичкок',
+        lat: 55.3,
+        lon: -3.4,
+        movie: {
+          title: 'Тёмный рыцарь',
+          year: '(2008)',
+          rating: '9.0',
+          genres: '· Боевик, Триллер · 152 мин',
+          desc: 'Бэтмен поднимает ставки в войне с криминалом, когда Готэм наводняет психопат Джокер.',
+          poster: 'https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?auto=format&fit=crop&w=300&q=80'
+        }
+      },
+      {
+        id: 'ES',
+        name: 'Испания',
+        flag: '🇪🇸',
+        reg: 'ЮЖНАЯ ЕВРОПА',
+        films: '295 лент',
+        dirs: 'Педро Альмодовар · Гильермо дель Торо',
+        lat: 40.4,
+        lon: -3.7,
+        movie: {
+          title: 'Лабиринт Фавна',
+          year: '(2006)',
+          rating: '8.2',
+          genres: '· Фэнтези, Драма · 118 мин',
+          desc: 'Испания 1944 года: одинокая девочка находит тайный древний лабиринт и сказочного Фавна.',
+          poster: 'https://images.unsplash.com/photo-1518676590629-3dcbd9c5a5c9?auto=format&fit=crop&w=300&q=80'
+        }
+      },
+      {
+        id: 'MX',
+        name: 'Мексика',
+        flag: '🇲🇽',
+        reg: 'СЕВЕРНАЯ АМЕРИКА',
+        films: '160 лент',
+        dirs: 'Алехандро Г. Иньярриту · Альфонсо Куарон',
+        lat: 23.6,
+        lon: -102.5,
+        movie: {
+          title: 'Сука-любовь',
+          year: '(2000)',
+          rating: '8.1',
+          genres: '· Драма, Триллер · 154 мин',
+          desc: 'Фатальная автомобильная авария в Мехико связывает судьбы трёх совершенно разных людей.',
+          poster: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=300&q=80'
+        }
+      }
+    ];
+
+    // Initial state: Spain (index 8) to match hero screen
+    let currentCountry = catalog[8];
+
+    // DOM Elements
+    const heroDisplay = document.getElementById('hero-hologram-display');
+    const heroFlag = document.getElementById('hero-country-flag');
+    const heroName = document.getElementById('hero-country-name');
+    const heroRegion = document.getElementById('hero-country-region');
+    const heroFilms = document.getElementById('hero-country-films');
+    const heroMaster = document.getElementById('hero-country-master');
+    const radarFreq = document.getElementById('radar-freq');
+
+    const focalLens = document.getElementById('focal-lens');
+    const winnerFlash = document.getElementById('winner-flash');
+    const discoveryCard = document.getElementById('recent-discovery-card');
+
+    function updateHolographicView(country, isStep = false) {
+      if (!country) return;
+      if (heroFlag) heroFlag.textContent = country.flag;
+      if (heroName) heroName.textContent = country.name;
+      if (heroRegion) heroRegion.textContent = country.reg;
+      if (heroFilms) heroFilms.textContent = country.films;
+      if (heroMaster) heroMaster.textContent = country.dirs;
+      if (radarFreq) {
+        const sign = country.lat >= 0 ? 'N' : 'S';
+        radarFreq.textContent = `SAT·${Math.abs(country.lat).toFixed(1)}°${sign}`;
+      }
+
+      if (isStep && heroDisplay) {
+        heroDisplay.style.transform = 'scale(0.96)';
+        setTimeout(() => { if (heroDisplay) heroDisplay.style.transform = 'scale(1)'; }, 100);
+      }
+    }
+
+    // Audio Engine
+    let soundEnabled = true;
+    const soundToggle = document.getElementById('btn-sound-toggle');
+    const soundIcon = document.getElementById('sound-icon');
+    if (soundToggle) {
+      soundToggle.addEventListener('click', () => {
+        soundEnabled = !soundEnabled;
+        soundIcon.textContent = soundEnabled ? 'volume_up' : 'volume_off';
+        soundToggle.classList.toggle('text-primary', soundEnabled);
+        soundToggle.classList.toggle('text-text-muted', !soundEnabled);
+      });
+    }
+
+    let audioCtx = null;
+    function playRadarChirp(freq = 900) {
+      if (!soundEnabled) return;
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(320, audioCtx.currentTime + 0.04);
+        gain.gain.setValueAtTime(0.09, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.04);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.045);
+      } catch(e) {}
+    }
+
+    function playHologramLockSound() {
+      if (!soundEnabled) return;
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const chords = [523.25, 659.25, 783.99, 1046.50, 1318.51];
+        chords.forEach((freq, idx) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, audioCtx.currentTime + idx * 0.05);
+          gain.gain.setValueAtTime(0.12, audioCtx.currentTime + idx * 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + idx * 0.05 + 0.45);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(audioCtx.currentTime + idx * 0.05);
+          osc.stop(audioCtx.currentTime + idx * 0.05 + 0.5);
+        });
+      } catch(e) {}
+    }
+
+    const tickSpark = document.getElementById('tick-spark');
+    function triggerTickEffect() {
+      if (tickSpark) {
+        tickSpark.classList.remove('bg-primary');
+        void tickSpark.offsetWidth;
+        tickSpark.classList.add('bg-primary');
+      }
+      if (navigator.vibrate) {
+        try { navigator.vibrate(10); } catch(e) {}
+      }
+      playRadarChirp(800 + Math.random() * 300);
+    }
+
+    // 3D PLANET EARTH ENGINE WITH AUTHENTIC AXIAL TILT & TRUE POLAR ROTATION
+    let tiltGroup, rotatingGroup;
+    let earthMesh, cloudsMesh, atmosphereMesh;
+    let camera;
+    let targetRotY = 0;
+    let targetRotX = 0;
+    let currentRotY = 0;
+    let currentRotX = 0;
+    let isDragging = false;
+    let previousMousePosition = { x: 0, y: 0 };
+    let lerpSpeed = 0.045;
+
+    // Authentic Earth axial tilt: 23.44 degrees = 0.4091 radians
+    const EARTH_AXIAL_TILT = 0.4091;
+
+    // Updated camera distances:
+    // Base default overview in resting state: 5.0
+    // During roulette scan: 5.0
+    // Soft zoom into target winner country: 3.2, then velvety dolly return back to 5.0
+    const CAMERA_DIST_DEFAULT = 5.0; // Distant harmonious overview in space
+    const CAMERA_DIST_SPIN = 5.0;    // Scan overview distance
+    const CAMERA_DIST_FOCUS = 3.2;   // Harmonic smooth zoom into target country on win
+
+    let targetCameraZ = CAMERA_DIST_DEFAULT;
+    let currentCameraZ = CAMERA_DIST_DEFAULT;
+    let targetCameraY = 0.18;
+    let currentCameraY = 0.18;
+    // Velvet, cinematic, slow camera interpolation lerp factor (0.026)
+    let zoomLerpFactor = 0.026;
+    let zoomResetTimeout = null;
+
+    // State machine: Idle meditative drift vs Active targeting/spin
+    let isSpinning = false;
+    let isLockedTarget = true;
+    let driftSpeed = 0.0016; // meditative 3D west-to-east axial spin
+
+    // Helper: shortest angle distance
+    function shortestAngleDist(a0, a1) {
+      const max = Math.PI * 2;
+      const da = (a1 - a0) % max;
+      return ((2 * da) % max) - da;
+    }
+
+    // Convert real lat/lon to sphere local polar rotations
+    function countryToRotations(lat, lon) {
+      // longitude moves along Y axis; latitude along X axis
+      const rotY = - (lon * Math.PI / 180) - Math.PI / 2;
+      const rotX = (lat * Math.PI / 180);
+      return { rotX, rotY };
+    }
+
+    function orientGlobeToCountry(country, immediate = false, speed = 0.065, zoomLevel = CAMERA_DIST_FOCUS) {
+      if (!country) return;
+      const rots = countryToRotations(country.lat, country.lon);
+      targetRotX = rots.rotX;
+      targetRotY = rots.rotY;
+      lerpSpeed = speed;
+      targetCameraZ = zoomLevel;
+
+      if (immediate && rotatingGroup) {
+        currentRotX = targetRotX;
+        currentRotY = targetRotY;
+        rotatingGroup.rotation.x = currentRotX;
+        rotatingGroup.rotation.y = currentRotY;
+        currentCameraZ = targetCameraZ;
+        if (camera) camera.position.z = currentCameraZ;
+      }
+    }
+
+    function initRealisticEarth() {
+      const canvas = document.getElementById('earth-webgl-canvas');
+      if (!canvas || !window.THREE) return;
+
+      const container = document.getElementById('earth-canvas-container');
+      const width = container.clientWidth || 360;
+      const height = container.clientHeight || 420;
+
+      const scene = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+      camera.position.set(0, currentCameraY, CAMERA_DIST_DEFAULT);
+
+      const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+      renderer.setSize(width, height);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      // Lighting: Warm cinema key light from top-left, gentle fill, subtle rim backlight
+      const sunLight = new THREE.DirectionalLight(0xfff6e4, 2.5);
+      sunLight.position.set(5.5, 3.2, 4.2);
+      scene.add(sunLight);
+
+      const ambientLight = new THREE.AmbientLight(0x182436, 0.55);
+      scene.add(ambientLight);
+
+      const backlight = new THREE.DirectionalLight(0x1b376b, 0.95);
+      backlight.position.set(-6, -2, -3.5);
+      scene.add(backlight);
+
+      // Hierarchical Setup for True 3D Axial Tilt & Rotation:
+      // 1. tiltGroup: Has Earth's authentic 23.4° obliquity (Z-tilt) and subtle precession
+      tiltGroup = new THREE.Group();
+      tiltGroup.position.y = 0.22;
+      tiltGroup.rotation.z = EARTH_AXIAL_TILT; // Realistic 23.4 degrees tilt
+      scene.add(tiltGroup);
+
+      // 2. rotatingGroup: Rotates along true polar Y axis and latitude tilt X
+      rotatingGroup = new THREE.Group();
+      tiltGroup.add(rotatingGroup);
+
+      // Earth Sphere Mesh
+      const earthRadius = 1.35;
+      const earthGeo = new THREE.SphereGeometry(earthRadius, 64, 64);
+
+      // Procedural Earth fallback texture
+      function createEarthTexture() {
+        const texCanvas = document.createElement('canvas');
+        texCanvas.width = 2048;
+        texCanvas.height = 1024;
+        const ctx = texCanvas.getContext('2d');
+
+        const oceanGrad = ctx.createLinearGradient(0, 0, 0, 1024);
+        oceanGrad.addColorStop(0, '#0a213a');
+        oceanGrad.addColorStop(0.5, '#07182b');
+        oceanGrad.addColorStop(1, '#051120');
+        ctx.fillStyle = oceanGrad;
+        ctx.fillRect(0, 0, 2048, 1024);
+
+        ctx.fillStyle = '#224e2b';
+        function drawLand(x, y, w, h) {
+          ctx.beginPath();
+          ctx.ellipse(x, y, w, h, 0, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        drawLand(1050, 480, 160, 200); // Africa
+        drawLand(1040, 310, 110, 75);  // Europe
+        drawLand(1380, 320, 290, 150); // Asia
+        drawLand(450, 320, 180, 130);  // N America
+        drawLand(540, 650, 130, 210);  // S America
+        drawLand(1580, 720, 120, 90);  // Australia
+
+        ctx.fillStyle = 'rgba(255, 225, 140, 0.7)';
+        const citySpots = [
+          [1040, 300], [1060, 315], [1020, 320], [1050, 330],
+          [440, 310], [470, 330], [420, 340], [380, 320],
+          [1420, 330], [1480, 340], [1360, 350], [1450, 380]
+        ];
+        citySpots.forEach(([cx, cy]) => {
+          ctx.beginPath();
+          ctx.arc(cx, cy, 3, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        return new THREE.CanvasTexture(texCanvas);
+      }
+
+      const textureLoader = new THREE.TextureLoader();
+      const earthMat = new THREE.MeshPhongMaterial({
+        map: createEarthTexture(),
+        specular: new THREE.Color(0x283b4e),
+        shininess: 20,
+        bumpScale: 0.05
+      });
+
+      textureLoader.load(
+        'https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg',
+        (tex) => {
+          earthMat.map = tex;
+          earthMat.needsUpdate = true;
+        }
+      );
+
+      earthMesh = new THREE.Mesh(earthGeo, earthMat);
+      rotatingGroup.add(earthMesh);
+
+      // Atmospheric cloud layer
+      const cloudsGeo = new THREE.SphereGeometry(earthRadius + 0.014, 48, 48);
+      const cloudsMat = new THREE.MeshLambertMaterial({
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.26,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+      });
+      cloudsMesh = new THREE.Mesh(cloudsGeo, cloudsMat);
+      rotatingGroup.add(cloudsMesh);
+
+      // Atmospheric fresnel outer halo
+      const glowGeo = new THREE.SphereGeometry(earthRadius + 0.024, 32, 32);
+      const glowMat = new THREE.MeshBasicMaterial({
+        color: 0x4895ef,
+        transparent: true,
+        opacity: 0.09,
+        blending: THREE.AdditiveBlending,
+        side: THREE.BackSide,
+        depthWrite: false
+      });
+      atmosphereMesh = new THREE.Mesh(glowGeo, glowMat);
+      tiltGroup.add(atmosphereMesh);
+
+      // Initial orientation strictly to default country (Spain) at distant default overview 5.0
+      orientGlobeToCountry(currentCountry, true, 0.08, CAMERA_DIST_DEFAULT);
+
+      // Interactive drag gestures
+      canvas.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        isLockedTarget = false;
+        previousMousePosition = { x: e.clientX, y: e.clientY };
+      });
+      canvas.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 1) {
+          isDragging = true;
+          isLockedTarget = false;
+          previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        }
+      }, { passive: true });
+
+      window.addEventListener('mousemove', (e) => {
+        if (!isDragging || !rotatingGroup) return;
+        const deltaX = e.clientX - previousMousePosition.x;
+        const deltaY = e.clientY - previousMousePosition.y;
+        targetRotY += deltaX * 0.008;
+        targetRotX = Math.max(-1.2, Math.min(1.2, targetRotX + deltaY * 0.008));
+        previousMousePosition = { x: e.clientX, y: e.clientY };
+      });
+      window.addEventListener('touchmove', (e) => {
+        if (!isDragging || !e.touches[0] || !rotatingGroup) return;
+        const deltaX = e.touches[0].clientX - previousMousePosition.x;
+        const deltaY = e.touches[0].clientY - previousMousePosition.y;
+        targetRotY += deltaX * 0.008;
+        targetRotX = Math.max(-1.2, Math.min(1.2, targetRotX + deltaY * 0.008));
+        previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      }, { passive: true });
+
+      window.addEventListener('mouseup', () => { isDragging = false; });
+      window.addEventListener('touchend', () => { isDragging = false; });
+
+      // Render & Cinematic Interpolation Loop
+      let clock = new THREE.Clock();
+
+      function animate() {
+        requestAnimationFrame(animate);
+        const elapsedTime = clock.getElapsedTime();
+
+        // Ultra-smooth cinematic camera zoom lerp (0.026 for slow, velvety pull-back)
+        currentCameraZ += (targetCameraZ - currentCameraZ) * zoomLerpFactor;
+        currentCameraY += (targetCameraY - currentCameraY) * zoomLerpFactor;
+        if (camera) {
+          camera.position.z = currentCameraZ;
+          camera.position.y = currentCameraY;
+        }
+
+        // Subtle organic orbital wobble / axial precession on tiltGroup
+        if (tiltGroup) {
+          tiltGroup.rotation.z = EARTH_AXIAL_TILT + Math.sin(elapsedTime * 0.4) * 0.015;
+          tiltGroup.rotation.x = Math.cos(elapsedTime * 0.3) * 0.012;
+        }
+
+        // Idle slow, hypnotic, meditative 3D rotation from west to east when not spinning or dragging
+        // Preserves exactly the roulette polar tilt plane (rotation.x and Y axis spin)
+        if (!isSpinning && !isDragging) {
+          targetRotY += driftSpeed;
+        }
+
+        if (rotatingGroup) {
+          // Smooth spherical 3D rotation interpolation
+          const diffY = shortestAngleDist(currentRotY, targetRotY);
+          currentRotY += diffY * lerpSpeed;
+          currentRotX += (targetRotX - currentRotX) * lerpSpeed;
+
+          rotatingGroup.rotation.y = currentRotY;
+          rotatingGroup.rotation.x = currentRotX;
+
+          if (cloudsMesh) {
+            cloudsMesh.rotation.y = currentRotY * 1.05 + elapsedTime * 0.0008;
+          }
+        }
+
+        renderer.render(scene, camera);
+      }
+      animate();
+
+      window.addEventListener('resize', () => {
+        if (!container || !renderer || !camera) return;
+        const w = container.clientWidth;
+        const h = container.clientHeight;
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        renderer.setSize(w, h);
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initRealisticEarth);
+    } else {
+      setTimeout(initRealisticEarth, 80);
+    }
+
+    // WINNER DISCOVERY CELEBRATION
+    function triggerWinnerCelebration(country) {
+      if (winnerFlash) {
+        winnerFlash.style.opacity = '1';
+        setTimeout(() => { if (winnerFlash) winnerFlash.style.opacity = '0'; }, 380);
+      }
+
+      if (focalLens) {
+        focalLens.classList.add('border-primary-container', 'shadow-[0_0_40px_rgba(255,184,48,0.7)]');
+        setTimeout(() => {
+          if (focalLens) focalLens.classList.remove('border-primary-container', 'shadow-[0_0_40px_rgba(255,184,48,0.7)]');
+        }, 1500);
+      }
+
+      if (heroDisplay) {
+        heroDisplay.style.transform = 'scale(1.08)';
+        heroDisplay.style.filter = 'drop-shadow(0 0 35px rgba(255,184,48,0.95)) brightness(1.2)';
+        setTimeout(() => {
+          if (heroDisplay) {
+            heroDisplay.style.transform = '';
+            heroDisplay.style.filter = 'drop-shadow(0 0 20px rgba(255,184,48,0.5))';
+          }
+        }, 1200);
+      }
+
+      playHologramLockSound();
+      if (navigator.vibrate) {
+        try { navigator.vibrate([70, 90, 220]); } catch(e) {}
+      }
+
+      // Sync Bottom Discovery Card
+      const cardTitle = document.getElementById('discovery-title');
+      const cardYear = document.getElementById('discovery-year');
+      const cardCountry = document.getElementById('discovery-country');
+      const cardFlag = document.getElementById('discovery-flag');
+      const cardGenres = document.getElementById('discovery-genres');
+      const cardDesc = document.getElementById('discovery-desc');
+      const cardRating = document.getElementById('discovery-rating');
+      const cardPoster = document.getElementById('discovery-poster');
+
+      if (cardTitle && country.movie) {
+        cardTitle.textContent = country.movie.title;
+        cardYear.textContent = country.movie.year;
+        cardCountry.textContent = country.name;
+        cardFlag.textContent = country.flag;
+        cardGenres.textContent = country.movie.genres;
+        cardDesc.textContent = country.movie.desc;
+        cardRating.textContent = country.movie.rating;
+        if (country.movie.poster) cardPoster.src = country.movie.poster;
+
+        if (discoveryCard) {
+          discoveryCard.classList.remove('card-discovery-win');
+          void discoveryCard.offsetWidth;
+          discoveryCard.classList.add('card-discovery-win');
+        }
+      }
+    }
+
+    // STRICT COUNTRY-BY-COUNTRY ROULETTE LOGIC WITH TRUE 3D POLAR ALIGNMENT
+    const spinBtn = document.getElementById('btn-spin-roulette');
+    const spinIcon = document.getElementById('btn-spin-icon');
+    const spinText = document.getElementById('btn-spin-text');
+    const spinSecIcon = document.getElementById('btn-spin-secondary-icon');
+    const statusBadge = document.getElementById('roulette-status-badge');
+
+    function runCountryRoulette(forcedTargetCountry = null) {
+      if (isSpinning) return;
+      isSpinning = true;
+      isLockedTarget = false;
+
+      // Cancel any ongoing dolly-back timer
+      if (zoomResetTimeout) {
+        clearTimeout(zoomResetTimeout);
+        zoomResetTimeout = null;
+      }
+
+      // Keep distant overview during roulette scanning (5.0)
+      targetCameraZ = CAMERA_DIST_SPIN;
+
+      // Select final winner country (different from current)
+      let finalWinner = forcedTargetCountry;
+      if (!finalWinner) {
+        const pool = catalog.filter(c => c.id !== currentCountry.id);
+        finalWinner = pool[Math.floor(Math.random() * pool.length)];
+      }
+
+      // Build sequence of 6-8 countries ending with finalWinner
+      const intermediateStepsCount = 6 + Math.floor(Math.random() * 3);
+      const countrySequence = [];
+      let prevId = currentCountry.id;
+
+      for (let i = 0; i < intermediateStepsCount - 1; i++) {
+        const available = catalog.filter(c => c.id !== prevId && c.id !== finalWinner.id);
+        const nextCountry = available[Math.floor(Math.random() * available.length)];
+        countrySequence.push(nextCountry);
+        prevId = nextCountry.id;
+      }
+      countrySequence.push(finalWinner);
+
+      // UI Scanning State
+      spinBtn.disabled = true;
+      spinBtn.classList.add('brightness-125', 'shadow-[0_0_36px_rgba(255,184,48,0.8)]');
+      if (spinIcon) {
+        spinIcon.textContent = 'sensors';
+        spinIcon.classList.add('animate-spin');
+      }
+      if (spinText) {
+        spinText.innerHTML = '<span class="material-symbols-outlined text-[22px] animate-spin">sensors</span><span>ПОИСК СТРАНЫ...</span>';
+      }
+      if (spinSecIcon) spinSecIcon.classList.add('animate-spin');
+
+      if (statusBadge) {
+        statusBadge.textContent = 'Сканирование...';
+        statusBadge.className = 'font-micro-caption text-micro-caption px-2.5 py-0.5 rounded-full bg-primary-container text-on-primary-container font-bold shadow-[0_0_12px_rgba(255,184,48,0.5)]';
+      }
+
+      if (focalLens) {
+        focalLens.classList.add('border-primary-container', 'shadow-[0_0_30px_rgba(255,184,48,0.4)]');
+      }
+
+      // Step-by-step deceleration sequence
+      let stepIndex = 0;
+      const delays = [140, 160, 200, 260, 340, 450, 590, 780];
+
+      function executeStep() {
+        if (stepIndex >= countrySequence.length) {
+          // Final Winner reached: align precisely with lat/lon and harmonic close-up zoom (3.2)
+          currentCountry = finalWinner;
+          orientGlobeToCountry(finalWinner, false, 0.055, CAMERA_DIST_FOCUS);
+          updateHolographicView(finalWinner, false);
+          triggerWinnerCelebration(finalWinner);
+
+          // Restore CTA Button
+          spinBtn.disabled = false;
+          spinBtn.classList.remove('brightness-125', 'shadow-[0_0_36px_rgba(255,184,48,0.8)]');
+          if (spinText) {
+            spinText.innerHTML = '<span class="material-symbols-outlined text-[22px] text-canvas-obsidian font-bold transition-transform duration-300" id="btn-spin-icon">casino</span><span>КРУТИТЬ ГЛОБУС</span>';
+          }
+          if (spinSecIcon) spinSecIcon.classList.remove('animate-spin');
+
+          if (statusBadge) {
+            statusBadge.textContent = '104 страны онлайн';
+            statusBadge.className = 'font-micro-caption text-micro-caption px-2.5 py-0.5 rounded-full bg-surface-container-high/90 text-primary-fixed border border-primary-container/20 shadow-[0_0_10px_rgba(255,184,48,0.15)]';
+          }
+
+          if (focalLens) {
+            focalLens.classList.remove('border-primary-container', 'shadow-[0_0_30px_rgba(255,184,48,0.4)]');
+          }
+
+          // Step 1: Hold the intimate zoom highlight for 2.2 seconds
+          // Step 2: Smoothly dolly the camera back out to the updated distant overview CAMERA_DIST_DEFAULT (5.0)
+          // with lerp factor 0.026 without resetting the polar axis/rotation orientation
+          zoomResetTimeout = setTimeout(() => {
+            targetCameraZ = CAMERA_DIST_DEFAULT;
+            // Seamlessly resume drift along the identical polar axis without angle jump
+            const rots = countryToRotations(finalWinner.lat, finalWinner.lon);
+            targetRotX = rots.rotX;
+            lerpSpeed = 0.035;
+            setTimeout(() => {
+              isSpinning = false;
+              isLockedTarget = true;
+            }, 800);
+          }, 2200);
+
+          return;
+        }
+
+        const stepCountry = countrySequence[stepIndex];
+        const isFinal = stepIndex === countrySequence.length - 1;
+
+        // Turn Earth precisely to this country's lat/lon in true 3D
+        const targetZoom = isFinal ? CAMERA_DIST_FOCUS : CAMERA_DIST_SPIN;
+        orientGlobeToCountry(stepCountry, false, isFinal ? 0.06 : 0.22, targetZoom);
+
+        // Update holographic card and sound
+        updateHolographicView(stepCountry, true);
+        triggerTickEffect();
+
+        const currentDelay = delays[stepIndex] || 450;
+        stepIndex++;
+        setTimeout(executeStep, currentDelay);
+      }
+
+      executeStep();
+    }
+
+    if (spinBtn) {
+      spinBtn.addEventListener('click', () => {
+        runCountryRoulette();
+      });
+    }
+
+    // Secondary Quick Launch Buttons
+    const btnTopOne = document.getElementById('btn-top-one');
+    const btnOscar = document.getElementById('btn-oscar-laureate');
+
+    if (btnTopOne) {
+      btnTopOne.addEventListener('click', () => {
+        const topPool = [catalog[0], catalog[4], catalog[7]];
+        const target = topPool[Math.floor(Math.random() * topPool.length)];
+        runCountryRoulette(target);
+      });
+    }
+
+    if (btnOscar) {
+      btnOscar.addEventListener('click', () => {
+        const oscarPool = [catalog[2], catalog[3], catalog[6], catalog[8]];
+        const target = oscarPool[Math.floor(Math.random() * oscarPool.length)];
+        runCountryRoulette(target);
+      });
+    }
+
+    // Watched Button feedback
+    const btnWatched = document.getElementById('btn-watched');
+    if (btnWatched) {
+      btnWatched.addEventListener('click', function() {
+        this.innerHTML = `<span class="material-symbols-outlined text-[16px] text-primary-fixed">task_alt</span><span>В архиве!</span>`;
+        this.classList.add('bg-primary-container/20', 'text-primary-fixed');
+      });
+    }
+
+    // Filter Chips Toggle
+    const pills = document.querySelectorAll('.genre-pill');
+    pills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        pills.forEach(p => {
+          p.className = 'genre-pill h-[34px] px-3.5 rounded-full font-label-sm text-label-sm flex items-center gap-1 bg-surface-container text-text-muted hover:text-on-surface';
+          p.style.background = '';
+          p.style.boxShadow = '';
+        });
+        pill.className = 'genre-pill h-[34px] px-4 rounded-full font-label-sm text-label-sm flex items-center gap-1 text-canvas-obsidian font-bold cursor-pointer border border-white/20 transition-all';
+        pill.style.background = 'linear-gradient(135deg, rgb(255, 78, 32) 0%, rgb(255, 149, 0) 50%, rgb(255, 193, 7) 100%)';
+        pill.style.boxShadow = 'rgba(255, 115, 0, 0.4) 0px 2px 14px, rgba(255, 255, 255, 0.35) 0px 1px 0px inset';
+      });
+    });
+
+    // Initial render
+    updateHolographicView(currentCountry);
+  })();
+
+</script>
+<script>
+// ========== Kinoglobus engine (TMDB, filters, history) ==========
+
 const GENRES={"":"Любой жанр",28:"Боевик",12:"Приключения",16:"Мультфильм",35:"Комедия",80:"Криминал",99:"Документальный",18:"Драма",10751:"Семейный",14:"Фэнтези",36:"История",27:"Ужасы",9648:"Детектив",10749:"Мелодрама",878:"Фантастика",53:"Триллер",10752:"Военный",37:"Вестерн"};
 const COUNTRIES=["US","GB","FR","DE","IT","ES","JP","KR","CN","HK","TW","IN","RU","CA","AU","MX","BR","AR","CL","CO","PE","CU","SE","DK","NO","FI","IS","PL","CZ","HU","RO","BG","RS","GR","TR","IR","IL","LB","EG","MA","NG","ZA","TH","VN","ID","PH","MY","SG","PK","KZ","UA","GE","AM","NL","BE","AT","CH","PT","IE","NZ","UY","VE","EC","BO","PY","CR","DO","LV","LT","EE","SK","SI","HR","BA","MK","AL","BY","MD","AZ","UZ","IQ","JO","SA","AE","TN","DZ","SN","KE","GH","ET","BF","ML","CI","BD","LK","NP","MN","KH","MM","LU","SU","YU","CS","DD"];
 const BIG=new Set(["US","GB","FR","DE","IT","ES","JP","KR","CN","HK","IN","RU","CA"]);
@@ -1518,6 +2396,103 @@ $("seen").onclick=()=>{
   updHist();
   $("seen").textContent=msg;setTimeout(()=>$("seen").textContent="✓ Посмотрел",1500);
 };
+
 </script>
-</body>
-</html>
+<script>
+// ========== Bridge: design buttons -> real engine ==========
+(function(){
+  function byId(id){ return document.getElementById(id); }
+
+  // Override design spin to call real TMDB spin
+  const spinBtn = byId("btn-spin-roulette");
+  if (spinBtn) {
+    // Remove design listeners by cloning
+    const neo = spinBtn.cloneNode(true);
+    spinBtn.parentNode.replaceChild(neo, spinBtn);
+    neo.addEventListener("click", function(e){
+      e.preventDefault();
+      const go = byId("go");
+      if (go) go.click();
+    });
+  }
+
+  const topBtn = byId("btn-top-one");
+  if (topBtn) {
+    const neo = topBtn.cloneNode(true);
+    topBtn.parentNode.replaceChild(neo, topBtn);
+    neo.addEventListener("click", function(e){ e.preventDefault(); const b=byId("top1"); if(b) b.click(); });
+  }
+
+  const oscarBtn = byId("btn-oscar-laureate");
+  if (oscarBtn) {
+    const neo = oscarBtn.cloneNode(true);
+    oscarBtn.parentNode.replaceChild(neo, oscarBtn);
+    neo.addEventListener("click", function(e){ e.preventDefault(); const b=byId("oscar"); if(b) b.click(); });
+  }
+
+  // Mode switcher -> working modeFilters / modeSurprise
+  const bf = byId("btn-mode-filters");
+  const bs = byId("btn-mode-surprise");
+  if (bf) bf.addEventListener("click", function(){ const b=byId("modeFilters"); if(b) b.click(); });
+  if (bs) bs.addEventListener("click", function(){ const b=byId("modeSurprise"); if(b) b.click(); });
+
+  // Journey / settings from header links
+  document.querySelectorAll('[data-path="moe-puteshestvie"]').forEach(a=>{
+    a.addEventListener("click", function(e){ e.preventDefault(); const b=byId("mapBtn"); if(b) b.click(); });
+  });
+  document.querySelectorAll('[data-path="nastrojki"]').forEach(a=>{
+    a.addEventListener("click", function(e){ e.preventDefault(); const b=byId("gear"); if(b) b.click(); });
+  });
+  document.querySelectorAll('[data-path="istoriya-posmotrel"]').forEach(a=>{
+    a.addEventListener("click", function(e){ e.preventDefault(); const b=byId("mapBtn"); if(b) b.click(); });
+  });
+
+  // When real show() paints result — sync hologram + discovery card
+  const _show = typeof show === "function" ? show : null;
+  if (_show) {
+    window.show = function(cc, pool, film) {
+      _show(cc, pool, film);
+      try {
+        // Hologram
+        const flag = (typeof emojiFlag === "function") ? emojiFlag(cc) : (document.getElementById("flag")||{}).textContent;
+        const name = (typeof cname === "function") ? cname(cc) : cc;
+        const hf = byId("hero-country-flag"); if (hf) hf.textContent = flag || "🌍";
+        const hn = byId("hero-country-name"); if (hn) hn.textContent = name || "";
+        const hr = byId("hero-country-region"); if (hr) hr.textContent = pool && pool.themeName ? pool.themeName : "КИНОГЛОБУС";
+        const hfilms = byId("hero-country-films"); if (hfilms) hfilms.textContent = (pool && pool.films ? pool.films.length : "—") + " лент";
+        const hm = byId("hero-country-master"); if (hm) hm.textContent = film && film.title ? film.title : "";
+
+        // Discovery card
+        const dt = byId("discovery-title"); if (dt) dt.textContent = film.title || "";
+        const dy = byId("discovery-year"); if (dy) dy.textContent = film.release_date ? "("+film.release_date.slice(0,4)+")" : "";
+        const dc = byId("discovery-country"); if (dc) dc.textContent = name || "";
+        const df = byId("discovery-flag"); if (df) df.textContent = flag || "";
+        const dg = byId("discovery-genres"); if (dg) dg.textContent = film.genre_ids ? "· кино" : "";
+        const dd = byId("discovery-desc"); if (dd) dd.textContent = (film.overview || "").slice(0, 160);
+        const dr = byId("discovery-rating"); if (dr) dr.textContent = film.vote_average ? Number(film.vote_average).toFixed(1) : "—";
+        const dp = byId("discovery-poster");
+        if (dp && film.poster_path) dp.src = "https://image.tmdb.org/t/p/w342" + film.poster_path;
+
+        const card = byId("recent-discovery-card");
+        if (card) { card.classList.remove("card-discovery-win"); void card.offsetWidth; card.classList.add("card-discovery-win"); }
+
+        // Orient design globe if available
+        if (typeof orientGlobeToCountry === "function" && film) {
+          // GEO fallbacks
+          const GEO = {US:[37.7,-98],GB:[54,-2],FR:[46.2,2.2],DE:[51.2,10.4],IT:[41.9,12.5],ES:[40.4,-3.7],JP:[36,138],KR:[36.5,127.8],CN:[35,103],RU:[60,100],BR:[-14,-51],MX:[23,-102]};
+          const g = GEO[cc];
+          if (g) orientGlobeToCountry({lat:g[0], lon:g[1], id:cc, name:name, flag:flag}, false, 0.055, 3.2);
+        }
+      } catch (err) { console.warn(err); }
+    };
+  }
+
+  // Watched button on discovery card
+  const bw = byId("btn-watched");
+  if (bw) bw.addEventListener("click", function(){ const s=byId("seen"); if(s) s.click(); });
+
+  // Reflect API key missing on spin
+  console.info("[Kinoglobus] Pro Salon UI + TMDB engine bridged");
+})();
+</script>
+</body></html>

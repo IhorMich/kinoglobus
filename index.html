@@ -87,6 +87,23 @@
 <section class="w-full">
 <div class="p-1 rounded-full bg-surface-container-low shadow-inner flex items-center gap-1"><button class="flex-1 py-2.5 px-4 rounded-full font-label-md text-label-md transition-all duration-300 flex items-center justify-center gap-2 text-white font-bold cursor-pointer border border-white/20" id="btn-mode-filters" style="background: linear-gradient(135deg, rgb(255, 78, 32) 0%, rgb(255, 140, 0) 100%); box-shadow: rgba(255, 94, 58, 0.4) 0px 4px 18px, rgba(255, 255, 255, 0.3) 0px 1px 0px inset;" type="button"><span class="material-symbols-outlined text-[18px]">tune</span><span class="">Свои фильтры</span></button><button class="flex-1 py-2.5 px-4 rounded-full font-label-md text-label-md transition-all duration-300 flex items-center justify-center gap-2 text-text-muted hover:text-on-surface bg-surface-panel/85 border border-surface-border-subtle cursor-pointer backdrop-blur-md" id="btn-mode-surprise" type="button"><span class="material-symbols-outlined text-[18px] text-secondary">auto_awesome</span><span class="">Удиви меня</span></button></div>
 </section>
+
+<!-- Visible TMDB key prompt (shown when key missing) -->
+<section id="tmdb-key-banner" class="w-full rounded-xl bg-surface-panel border border-primary-container/40 p-3.5 shadow-lg hidden">
+  <div class="flex items-start gap-3">
+    <span class="material-symbols-outlined text-primary-container text-[22px]">vpn_key</span>
+    <div class="flex-1 min-w-0">
+      <p class="font-label-md text-label-md text-on-surface font-semibold mb-1">Нужен ключ TMDB</p>
+      <p class="font-body-sm text-body-sm text-text-muted mb-2">Без бесплатного API-ключа крутить глобус нельзя. Получи ключ на themoviedb.org → Settings → API.</p>
+      <div class="flex gap-2">
+        <input id="tmdb-key-input" type="text" placeholder="Вставь API key" class="flex-1 h-10 px-3 rounded-lg bg-surface-container-lowest font-label-md text-label-md text-on-surface outline-none border border-surface-border-subtle">
+        <button id="tmdb-key-save" type="button" class="h-10 px-4 rounded-lg bg-primary-container text-on-primary-container font-label-sm font-bold">Сохранить</button>
+      </div>
+      <p id="tmdb-key-err" class="font-micro-caption text-feedback-error mt-1.5 hidden"></p>
+    </div>
+  </div>
+</section>
+
 <!-- 2. 'Удиви меня' Pill Matrix (Collapsible by mode) -->
 <section class="hidden flex flex-col space-y-2" id="surprise-levels-panel">
 <div class="flex items-center justify-between px-1">
@@ -1186,6 +1203,24 @@
 
     // Initial render
     updateHolographicView(currentCountry);
+
+    // === Export for engine bridge ===
+    window.KinoglobusGlobe = {
+      catalog,
+      get currentCountry() { return currentCountry; },
+      set currentCountry(v) { currentCountry = v; },
+      orientGlobeToCountry,
+      updateHolographicView,
+      triggerWinnerCelebration,
+      triggerTickEffect,
+      get isSpinning() { return isSpinning; },
+      set isSpinning(v) { isSpinning = v; },
+      runCountryRoulette,
+      countryToRotations,
+      CAMERA_DIST_DEFAULT,
+      CAMERA_DIST_FOCUS,
+      CAMERA_DIST_SPIN
+    };
   })();
 
 </script>
@@ -2399,100 +2434,317 @@ $("seen").onclick=()=>{
 
 </script>
 <script>
-// ========== Bridge: design buttons -> real engine ==========
+// ========== Bridge: design 3D roulette + real TMDB engine ==========
 (function(){
   function byId(id){ return document.getElementById(id); }
+  function $(id){ return document.getElementById(id); }
 
-  // Override design spin to call real TMDB spin
-  const spinBtn = byId("btn-spin-roulette");
-  if (spinBtn) {
-    // Remove design listeners by cloning
-    const neo = spinBtn.cloneNode(true);
-    spinBtn.parentNode.replaceChild(neo, spinBtn);
-    neo.addEventListener("click", function(e){
-      e.preventDefault();
-      const go = byId("go");
-      if (go) go.click();
+  // --- Visible TMDB key banner ---
+  function refreshKeyBanner(){
+    const banner = byId("tmdb-key-banner");
+    if (!banner) return;
+    const hasKey = !!(typeof apiKey !== "undefined" && apiKey);
+    banner.classList.toggle("hidden", hasKey);
+  }
+  const keySave = byId("tmdb-key-save");
+  const keyInput = byId("tmdb-key-input");
+  if (keySave && keyInput) {
+    keySave.addEventListener("click", function(){
+      const v = (keyInput.value || "").trim();
+      const err = byId("tmdb-key-err");
+      if (!v) {
+        if (err) { err.textContent = "Вставь ключ"; err.classList.remove("hidden"); }
+        return;
+      }
+      try {
+        apiKey = v;
+        if (typeof store !== "undefined") store.set("tmdbKey", v);
+        if (typeof showKeyUi === "function") showKeyUi();
+        refreshKeyBanner();
+        if (err) err.classList.add("hidden");
+        keyInput.value = "";
+      } catch (e) {
+        if (err) { err.textContent = String(e.message || e); err.classList.remove("hidden"); }
+      }
     });
   }
+  // show banner on load if no key
+  setTimeout(refreshKeyBanner, 100);
 
-  const topBtn = byId("btn-top-one");
-  if (topBtn) {
-    const neo = topBtn.cloneNode(true);
-    topBtn.parentNode.replaceChild(neo, topBtn);
-    neo.addEventListener("click", function(e){ e.preventDefault(); const b=byId("top1"); if(b) b.click(); });
+  // Real-world lat/lon for countries used by the 3D globe
+  const GEO = {
+    US:[37.7,-98], GB:[54,-2], FR:[46.2,2.2], DE:[51.2,10.4], IT:[41.9,12.5], ES:[40.4,-3.7],
+    JP:[36,138], KR:[36.5,127.8], CN:[35,103], HK:[22.3,114.2], TW:[23.7,121], IN:[20.6,78.9],
+    RU:[60,100], CA:[56,-106], AU:[-25,134], MX:[23,-102], BR:[-14,-51], AR:[-34,-64],
+    CL:[-35,-71], CO:[4,-74], SE:[62,15], DK:[56,10], NO:[62,10], FI:[64,26], IS:[65,-18],
+    PL:[52,19], CZ:[50,15], HU:[47,19], RO:[46,25], GR:[39,22], TR:[39,35], IR:[32,53],
+    IL:[31,35], EG:[26,30], ZA:[-29,24], TH:[15,100], VN:[16,108], ID:[-2,118], PH:[13,122],
+    MY:[4,102], SG:[1.3,103.8], NL:[52.1,5.3], BE:[50.5,4.5], AT:[47.5,14.5], CH:[47,8],
+    PT:[39.4,-8], IE:[53,-8], NZ:[-41,174], UA:[49,32], GE:[42,43.5], AM:[40,45],
+    KZ:[48,67], UZ:[41,64], LB:[34,36], SA:[24,45], AE:[24,54], TN:[34,9], DZ:[28,3],
+    NG:[10,8], KE:[0,38], GH:[8,-1], ET:[9,40], CU:[22,-80], PE:[-10,-76], VE:[7,-66],
+    EC:[-1,-78], UY:[-33,-56], CR:[10,-84], DO:[19,-70], LV:[57,25], LT:[55,24], EE:[59,25],
+    SK:[49,20], SI:[46,15], HR:[45,16], BA:[44,18], RS:[44,21], BG:[43,25], MK:[42,22],
+    AL:[41,20], BY:[53,28], MD:[47,29], AZ:[40,48], IQ:[33,44], JO:[31,36], PK:[30,70],
+    BD:[24,90], LK:[7,81], NP:[28,84], MN:[46,105], KH:[13,105], MM:[22,96], LU:[50,6]
+  };
+
+  function toGlobeCountry(cc) {
+    const name = (typeof cname === "function") ? cname(cc) : cc;
+    const flag = (typeof emojiFlag === "function") ? emojiFlag(cc) : "🌍";
+    const g = GEO[cc] || [20, 0];
+    return {
+      id: cc, name: name, flag: flag, reg: "КИНОГЛОБУС", films: "—", dirs: "",
+      lat: g[0], lon: g[1], movie: null
+    };
   }
 
-  const oscarBtn = byId("btn-oscar-laureate");
-  if (oscarBtn) {
-    const neo = oscarBtn.cloneNode(true);
-    oscarBtn.parentNode.replaceChild(neo, oscarBtn);
-    neo.addEventListener("click", function(e){ e.preventDefault(); const b=byId("oscar"); if(b) b.click(); });
+  function buildSequence(finalCC, count) {
+    const G = window.KinoglobusGlobe;
+    const all = (typeof COUNTRIES !== "undefined" ? COUNTRIES.slice() :
+      (G && G.catalog ? G.catalog.map(c => c.id) : ["ES","FR","JP","KR","US","IT","DE","GB","BR","MX"]));
+    const seq = [];
+    let prev = (G && G.currentCountry && G.currentCountry.id) || "ES";
+    for (let i = 0; i < count - 1; i++) {
+      const pool = all.filter(c => c !== prev && c !== finalCC);
+      const next = pool.length ? pool[Math.floor(Math.random() * pool.length)] : all[0];
+      seq.push(toGlobeCountry(next));
+      prev = next;
+    }
+    seq.push(toGlobeCountry(finalCC));
+    return seq;
   }
 
-  // Mode switcher -> working modeFilters / modeSurprise
+  function setSpinUi(scanning) {
+    const spinBtn = byId("btn-spin-roulette");
+    const spinIcon = byId("btn-spin-icon");
+    const spinText = byId("btn-spin-text");
+    const spinSecIcon = byId("btn-spin-secondary-icon");
+    const statusBadge = byId("roulette-status-badge");
+    const focalLens = byId("focal-lens");
+    if (scanning) {
+      if (spinBtn) {
+        spinBtn.disabled = true;
+        spinBtn.classList.add("brightness-125", "shadow-[0_0_36px_rgba(255,184,48,0.8)]");
+      }
+      if (spinIcon) { spinIcon.textContent = "sensors"; spinIcon.classList.add("animate-spin"); }
+      if (spinText) {
+        spinText.innerHTML = '<span class="material-symbols-outlined text-[22px] animate-spin">sensors</span><span>ПОИСК СТРАНЫ...</span>';
+      }
+      if (spinSecIcon) spinSecIcon.classList.add("animate-spin");
+      if (statusBadge) {
+        statusBadge.textContent = "Сканирование...";
+        statusBadge.className = "font-micro-caption text-micro-caption px-2.5 py-0.5 rounded-full bg-primary-container text-on-primary-container font-bold shadow-[0_0_12px_rgba(255,184,48,0.5)]";
+      }
+      if (focalLens) focalLens.classList.add("border-primary-container", "shadow-[0_0_30px_rgba(255,184,48,0.4)]");
+    } else {
+      if (spinBtn) {
+        spinBtn.disabled = false;
+        spinBtn.classList.remove("brightness-125", "shadow-[0_0_36px_rgba(255,184,48,0.8)]");
+      }
+      if (spinText) {
+        spinText.innerHTML = '<span class="material-symbols-outlined text-[22px] text-canvas-obsidian font-bold transition-transform duration-300" id="btn-spin-icon">casino</span><span>КРУТИТЬ ГЛОБУС</span>';
+      }
+      if (spinSecIcon) spinSecIcon.classList.remove("animate-spin");
+      if (statusBadge) {
+        statusBadge.textContent = "104 страны онлайн";
+        statusBadge.className = "font-micro-caption text-micro-caption px-2.5 py-0.5 rounded-full bg-surface-container-high/90 text-primary-fixed border border-primary-container/20 shadow-[0_0_10px_rgba(255,184,48,0.15)]";
+      }
+      if (focalLens) focalLens.classList.remove("border-primary-container", "shadow-[0_0_30px_rgba(255,184,48,0.4)]");
+    }
+  }
+
+  function playDesignRoulette(finalCC, pool, film) {
+    const G = window.KinoglobusGlobe;
+    if (!G || !G.orientGlobeToCountry) {
+      if (typeof window.__kg_original_show === "function") window.__kg_original_show(finalCC, pool, film);
+      window.__kg_animating = false;
+      setSpinUi(false);
+      return;
+    }
+    if (G.isSpinning) {
+      // force reset if stuck
+      G.isSpinning = false;
+    }
+    G.isSpinning = true;
+    setSpinUi(true);
+
+    const sequence = buildSequence(finalCC, 6 + Math.floor(Math.random() * 3));
+    const delays = [140, 160, 200, 260, 340, 450, 590, 780];
+    let step = 0;
+
+    function finish() {
+      const winner = toGlobeCountry(finalCC);
+      G.currentCountry = winner;
+      G.orientGlobeToCountry(winner, false, 0.055, G.CAMERA_DIST_FOCUS || 3.2);
+      G.updateHolographicView(winner, false);
+
+      winner.movie = {
+        title: (film && film.title) || "",
+        year: film && film.release_date ? "(" + film.release_date.slice(0,4) + ")" : "",
+        rating: film && film.vote_average != null ? Number(film.vote_average).toFixed(1) : "—",
+        genres: "· кино",
+        desc: film && film.overview ? String(film.overview).slice(0, 180) : "",
+        poster: film && film.poster_path ? "https://image.tmdb.org/t/p/w342" + film.poster_path : ""
+      };
+      if (G.triggerWinnerCelebration) G.triggerWinnerCelebration(winner);
+
+      try {
+        if (typeof window.__kg_original_show === "function") {
+          window.__kg_original_show(finalCC, pool, film);
+        }
+      } catch (e) { console.warn(e); }
+
+      setSpinUi(false);
+      setTimeout(function(){
+        G.orientGlobeToCountry(winner, false, 0.035, G.CAMERA_DIST_DEFAULT || 5.0);
+        setTimeout(function(){
+          G.isSpinning = false;
+          window.__kg_animating = false;
+        }, 800);
+      }, 2200);
+    }
+
+    function next() {
+      if (step >= sequence.length) {
+        finish();
+        return;
+      }
+      const c = sequence[step];
+      const isFinal = step === sequence.length - 1;
+      try {
+        G.orientGlobeToCountry(c, false, isFinal ? 0.06 : 0.22, isFinal ? (G.CAMERA_DIST_FOCUS || 3.2) : (G.CAMERA_DIST_SPIN || 5.0));
+        G.updateHolographicView(c, true);
+        if (G.triggerTickEffect) G.triggerTickEffect();
+      } catch (e) { console.warn(e); }
+      const delay = delays[step] || 450;
+      step++;
+      setTimeout(next, delay);
+    }
+    next();
+  }
+
+  // Patch show()
+  if (typeof show === "function") {
+    window.__kg_original_show = show;
+    window.show = function(cc, pool, film) {
+      if (window.__kg_animating) {
+        window.__kg_original_show(cc, pool, film);
+        return;
+      }
+      window.__kg_animating = true;
+      playDesignRoulette(cc, pool, film);
+    };
+  }
+
+  // --- Robust spin trigger ---
+  function doSpin() {
+    refreshKeyBanner();
+    if (typeof apiKey === "undefined" || !apiKey) {
+      const banner = byId("tmdb-key-banner");
+      if (banner) {
+        banner.classList.remove("hidden");
+        banner.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+      const errEl = byId("err");
+      if (errEl) errEl.textContent = "Сначала введите ключ TMDB.";
+      alert("Сначала введи ключ TMDB (бесплатно на themoviedb.org → Settings → API).");
+      return;
+    }
+    setSpinUi(true);
+    try {
+      if (typeof hideHints === "function") hideHints();
+      if (typeof spin === "function") {
+        spin();
+      } else {
+        const go = byId("go");
+        if (go) go.click();
+        else {
+          setSpinUi(false);
+          alert("Движок спина не найден");
+        }
+      }
+    } catch (e) {
+      console.error(e);
+      setSpinUi(false);
+      window.__kg_animating = false;
+      alert("Ошибка: " + (e.message || e));
+    }
+  }
+
+  function bindClick(el, fn) {
+    if (!el) return;
+    // clone to drop old listeners
+    const neo = el.cloneNode(true);
+    el.parentNode.replaceChild(neo, el);
+    neo.addEventListener("click", function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      fn();
+    });
+    return neo;
+  }
+
+  bindClick(byId("btn-spin-roulette"), doSpin);
+
+  bindClick(byId("btn-top-one"), function(){
+    if (typeof apiKey === "undefined" || !apiKey) return doSpin();
+    setSpinUi(true);
+    try {
+      if (typeof spinTop === "function") spinTop();
+      else { const b = byId("top1"); if (b) b.click(); }
+    } catch (e) { setSpinUi(false); console.error(e); }
+  });
+
+  bindClick(byId("btn-oscar-laureate"), function(){
+    if (typeof apiKey === "undefined" || !apiKey) return doSpin();
+    setSpinUi(true);
+    try {
+      if (typeof spinOscar === "function") spinOscar();
+      else { const b = byId("oscar"); if (b) b.click(); }
+    } catch (e) { setSpinUi(false); console.error(e); }
+  });
+
+  // Mode switcher -> engine
   const bf = byId("btn-mode-filters");
   const bs = byId("btn-mode-surprise");
   if (bf) bf.addEventListener("click", function(){ const b=byId("modeFilters"); if(b) b.click(); });
   if (bs) bs.addEventListener("click", function(){ const b=byId("modeSurprise"); if(b) b.click(); });
 
-  // Journey / settings from header links
-  document.querySelectorAll('[data-path="moe-puteshestvie"]').forEach(a=>{
+  // Nav
+  document.querySelectorAll('[data-path="moe-puteshestvie"]').forEach(function(a){
     a.addEventListener("click", function(e){ e.preventDefault(); const b=byId("mapBtn"); if(b) b.click(); });
   });
-  document.querySelectorAll('[data-path="nastrojki"]').forEach(a=>{
+  document.querySelectorAll('[data-path="nastrojki"]').forEach(function(a){
     a.addEventListener("click", function(e){ e.preventDefault(); const b=byId("gear"); if(b) b.click(); });
   });
-  document.querySelectorAll('[data-path="istoriya-posmotrel"]').forEach(a=>{
+  document.querySelectorAll('[data-path="istoriya-posmotrel"]').forEach(function(a){
     a.addEventListener("click", function(e){ e.preventDefault(); const b=byId("mapBtn"); if(b) b.click(); });
   });
 
-  // When real show() paints result — sync hologram + discovery card
-  const _show = typeof show === "function" ? show : null;
-  if (_show) {
-    window.show = function(cc, pool, film) {
-      _show(cc, pool, film);
-      try {
-        // Hologram
-        const flag = (typeof emojiFlag === "function") ? emojiFlag(cc) : (document.getElementById("flag")||{}).textContent;
-        const name = (typeof cname === "function") ? cname(cc) : cc;
-        const hf = byId("hero-country-flag"); if (hf) hf.textContent = flag || "🌍";
-        const hn = byId("hero-country-name"); if (hn) hn.textContent = name || "";
-        const hr = byId("hero-country-region"); if (hr) hr.textContent = pool && pool.themeName ? pool.themeName : "КИНОГЛОБУС";
-        const hfilms = byId("hero-country-films"); if (hfilms) hfilms.textContent = (pool && pool.films ? pool.films.length : "—") + " лент";
-        const hm = byId("hero-country-master"); if (hm) hm.textContent = film && film.title ? film.title : "";
-
-        // Discovery card
-        const dt = byId("discovery-title"); if (dt) dt.textContent = film.title || "";
-        const dy = byId("discovery-year"); if (dy) dy.textContent = film.release_date ? "("+film.release_date.slice(0,4)+")" : "";
-        const dc = byId("discovery-country"); if (dc) dc.textContent = name || "";
-        const df = byId("discovery-flag"); if (df) df.textContent = flag || "";
-        const dg = byId("discovery-genres"); if (dg) dg.textContent = film.genre_ids ? "· кино" : "";
-        const dd = byId("discovery-desc"); if (dd) dd.textContent = (film.overview || "").slice(0, 160);
-        const dr = byId("discovery-rating"); if (dr) dr.textContent = film.vote_average ? Number(film.vote_average).toFixed(1) : "—";
-        const dp = byId("discovery-poster");
-        if (dp && film.poster_path) dp.src = "https://image.tmdb.org/t/p/w342" + film.poster_path;
-
-        const card = byId("recent-discovery-card");
-        if (card) { card.classList.remove("card-discovery-win"); void card.offsetWidth; card.classList.add("card-discovery-win"); }
-
-        // Orient design globe if available
-        if (typeof orientGlobeToCountry === "function" && film) {
-          // GEO fallbacks
-          const GEO = {US:[37.7,-98],GB:[54,-2],FR:[46.2,2.2],DE:[51.2,10.4],IT:[41.9,12.5],ES:[40.4,-3.7],JP:[36,138],KR:[36.5,127.8],CN:[35,103],RU:[60,100],BR:[-14,-51],MX:[23,-102]};
-          const g = GEO[cc];
-          if (g) orientGlobeToCountry({lat:g[0], lon:g[1], id:cc, name:name, flag:flag}, false, 0.055, 3.2);
-        }
-      } catch (err) { console.warn(err); }
-    };
-  }
-
-  // Watched button on discovery card
+  // Watched
   const bw = byId("btn-watched");
   if (bw) bw.addEventListener("click", function(){ const s=byId("seen"); if(s) s.click(); });
 
-  // Reflect API key missing on spin
-  console.info("[Kinoglobus] Pro Salon UI + TMDB engine bridged");
+  // Wire design year inputs (no id) to engine year/yearTo if possible
+  try {
+    const yearInputs = document.querySelectorAll('input[type="number"][min="1920"]');
+    if (yearInputs.length >= 2 && byId("year") && byId("yearTo")) {
+      yearInputs[0].addEventListener("input", function(){ byId("year").value = this.value; byId("year").dispatchEvent(new Event("input")); });
+      yearInputs[1].addEventListener("input", function(){ byId("yearTo").value = this.value; byId("yearTo").dispatchEvent(new Event("input")); });
+    }
+  } catch (e) {}
+
+  // If spin fails / ends without show, unlock UI after timeout
+  const _unlock = typeof unlockSpin === "function" ? unlockSpin : null;
+  if (_unlock) {
+    window.unlockSpin = function(){
+      _unlock();
+      if (!window.__kg_animating) setSpinUi(false);
+    };
+  }
+
+  console.info("[Kinoglobus] Bridge ready — spin button wired to engine");
 })();
 </script>
 </body></html>

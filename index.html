@@ -2434,6 +2434,7 @@ $("seen").onclick=()=>{
 
 </script>
 <script>
+<script>
 // ========== Bridge v2: дизайн + движок TMDB ==========
 (function(){
 const $=id=>document.getElementById(id);
@@ -2464,6 +2465,7 @@ st.textContent=`
 .jfilm small{color:#b3a79a}
 .wave{display:inline-block}.wave svg,#hero-country-flag svg,#discovery-flag svg{width:1.5em;height:1em;vertical-align:-.15em}
 #hero-country-flag svg{width:2em;height:1.4em}
+#focal-lens{display:none!important}
 #err{color:#ff8d7a;font-size:12px;text-align:center;width:100%;margin-top:6px;z-index:10}
 `;
 document.head.appendChild(st);
@@ -2577,7 +2579,9 @@ const heroHist=c=>{if(HIST_SVG[c.id])$("hero-country-flag").innerHTML=HIST_SVG[c
 const hero=(c,step)=>{G.updateHolographicView(c,step);heroHist(c);};
 function gc(cc){const g=GEO[cc]||[20,0];
   return {id:cc,name:cname(cc),flag:HIST_SVG[cc]?"🏳️":emojiFlag(cc),reg:"КИНОРАДАР",films:"—",dirs:"Ищем фильм…",lat:g[0],lon:g[1],movie:null};}
-let scanOn=false,scanT=0,landed=false,tmr=[];
+let scanOn=false,scanT=0,scanAt=0,landed=false,tmr=[];
+const SCAN_MIN_MS=3500;   // минимум времени «поиска» до остановки (мс)
+const LAND_STEPS=[220,300,400,540,720,950];   // замедление перед остановкой
 function setSpinUi(on){
   const b=$("btn-spin-roulette"),t=$("btn-spin-text"),s=$("btn-spin-secondary-icon"),sb=$("roulette-status-badge"),f=$("focal-lens");
   b.disabled=on;b.classList.toggle("brightness-125",on);
@@ -2593,14 +2597,15 @@ const _lock=window.lockSpin,_unlock=window.unlockSpin;
 window.lockSpin=function(l){_lock(l);setSpinUi(true);};
 window.unlockSpin=function(){_unlock();setSpinUi(false);};
 window.reelStart=function(){
-  closePlayer();tmr.forEach(clearTimeout);tmr=[];landed=false;scanOn=true;G.isSpinning=true;
+  closePlayer();tmr.forEach(clearTimeout);tmr=[];landed=false;scanOn=true;scanAt=performance.now();G.isSpinning=true;
   const loop=()=>{if(!scanOn)return;const c=gc(pick(COUNTRIES));
     G.orientGlobeToCountry(c,false,0.22,G.CAMERA_DIST_SPIN);hero(c,true);sTick(Math.random());buzz(8);scanT=setTimeout(loop,170);};
   loop();
 };
 window.reelLand=async function(cc){
+  await sleep(Math.max(0,SCAN_MIN_MS-(performance.now()-scanAt)));
   scanOn=false;clearTimeout(scanT);
-  for(const d of [210,290,400,560]){
+  for(const d of LAND_STEPS){
     const c=gc(pick(COUNTRIES.filter(x=>x!==cc)));
     G.orientGlobeToCountry(c,false,0.22,G.CAMERA_DIST_SPIN);hero(c,true);sTick(.4+Math.random()*.4);await sleep(d);
   }
@@ -2694,10 +2699,14 @@ go("globus-random",()=>scrollTo({top:0,behavior:"smooth"}));
 go("podborki-i-zhanry",()=>{DET[2].open=true;DET[2].scrollIntoView({behavior:"smooth",block:"start"});});
 
 // ---------- Старт ----------
+// планета чуть дальше от экрана
+G.CAMERA_DIST_DEFAULT=5.8;G.CAMERA_DIST_SPIN=5.8;G.CAMERA_DIST_FOCUS=3.9;
+G.orientGlobeToCountry(G.currentCountry,false,0.08,G.CAMERA_DIST_DEFAULT);
 playMode="filters";store.set("playMode","filters");applyMode();
 syncDesign();setSpinUi(false);
 console.info("[Kinoglobus] Bridge v2 ready");
 })();
 </script>
+
 
 </body></html>

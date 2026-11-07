@@ -2434,7 +2434,7 @@ $("seen").onclick=()=>{
 
 </script>
 <script>
-// ========== Bridge v3: дизайн + движок TMDB ==========
+// ========== Bridge v4: дизайн + движок TMDB ==========
 (function(){
 const $=id=>document.getElementById(id);
 const G=window.KinoglobusGlobe;
@@ -2696,14 +2696,44 @@ $("film-reel-track").addEventListener("click",e=>{
   const b=e.target.closest("[data-n]");if(!b)return;
   const f=strip.list[+b.dataset.n];if(f)window.show(filmCC(strip.pool,f,strip.cc),strip.pool,f);
 });
-function shuffleStrip(){
-  clearInterval(shufT);
-  const tr=$("film-reel-track");let n=0;
-  shufT=setInterval(()=>{
-    n++;tr.scrollLeft=(n%2?10:90)+Math.random()*80;sTick(Math.random());
-    if(n>=8){clearInterval(shufT);const af=$("film-active-frame");
-      if(af)tr.scrollTo({left:Math.max(0,af.offsetLeft-tr.clientWidth/2+af.clientWidth/2),behavior:"smooth"});}
-  },70);
+// Настоящая прокрутка киноленты: постеры из выборки летят справа налево и тормозят на выбранном фильме
+let runRaf=0,spinTimer=0;
+function stopReel(){clearTimeout(spinTimer);cancelAnimationFrame(runRaf);const tr=$("film-reel-track");if(tr)tr.style.overflow="";}
+function spinReel(pool,film,cc){
+  const tr=$("film-reel-track");
+  const others=shuffle((pool.films||[]).filter(f=>f.id!==film.id));
+  if(!others.length||RM) return;                       // нечего крутить
+  const STEP=90,PAD=8,NEED=22,T=3400;
+  const pic=f=>f.poster_path
+    ?`<img alt="" class="w-full h-full object-cover" src="https://image.tmdb.org/t/p/w185${f.poster_path}">`
+    :`<div class="w-full h-full flex items-center justify-center p-1 text-[10px] text-center text-text-muted">${esc(f.title)}</div>`;
+  const seq=[];
+  for(let i=0;i<NEED;i++) seq.push(others[i%others.length]);
+  seq.push(film);
+  for(let i=0;i<5;i++) seq.push(others[(i+2)%others.length]);
+  const run=document.createElement("div");
+  run.style.cssText="display:flex;gap:10px;will-change:transform";
+  run.innerHTML=seq.map((f,i)=>`<div class="flex-shrink-0 w-20 h-28 rounded overflow-hidden border ${i===NEED?"border-primary-container":"border-surface-border"} bg-surface-container">${pic(f)}</div>`).join("");
+  tr.style.scrollBehavior="auto";tr.scrollLeft=0;tr.style.overflow="hidden";
+  tr.innerHTML="";tr.appendChild(run);
+  const W=tr.clientWidth,S=PAD+NEED*STEP+40-W/2;
+  const t0=performance.now();let last=-1;
+  const step=now=>{
+    const t=Math.min(1,(now-t0)/T),e=1-Math.pow(1-t,4),x=S*e;
+    run.style.transform=`translateX(${-x}px)`;
+    const row=Math.floor(x/STEP);
+    if(row!==last){last=row;sTick(.3+.7*t);if(t>.6)buzz(7);}
+    if(t<1){runRaf=requestAnimationFrame(step);return;}
+    buzz([25,50,60]);
+    if(!cur||cur.film.id!==film.id) return;
+    buildStrip(pool,film,cc);                             // итоговая лента с выбранным фильмом в центре
+    tr.style.overflow="";
+    const af=$("film-active-frame");
+    if(af)tr.scrollLeft=Math.max(0,af.offsetLeft-tr.clientWidth/2+af.clientWidth/2);
+    tr.style.scrollBehavior="smooth";
+    card.classList.remove("card-discovery-win");void card.offsetWidth;card.classList.add("card-discovery-win");
+  };
+  runRaf=requestAnimationFrame(step);
 }
 
 // «Где смотреть»: TMDB watch/providers (данные JustWatch), регион по языку браузера, запасной US
@@ -2768,8 +2798,12 @@ window.show=function(cc,pool,film){
     trailerBtn.dataset.url=k?watchUrl(k):"";lab.textContent=k?"Смотреть трейлер":"Трейлера нет";trailerBtn.style.opacity=k?"1":".5";
   });
   showProviders(film);
-  card.classList.remove("card-discovery-win");void card.offsetWidth;card.classList.add("card-discovery-win");
-  setTimeout(()=>{card.scrollIntoView({behavior:"smooth",block:"center"});setTimeout(shuffleStrip,500);},1800);
+  stopReel();
+  const fromSpin=G.isSpinning;
+  spinTimer=setTimeout(()=>{
+    card.scrollIntoView({behavior:"smooth",block:"center"});
+    spinTimer=setTimeout(()=>spinReel(pool,film,cc),800);
+  },fromSpin?1800:0);
 };
 trailerBtn.addEventListener("click",()=>{if(trailerBtn.dataset.url)window.open(trailerBtn.dataset.url,"_blank","noopener");});
 bw.addEventListener("click",()=>{
@@ -2807,8 +2841,9 @@ G.CAMERA_DIST_DEFAULT=5.8;G.CAMERA_DIST_SPIN=5.8;G.CAMERA_DIST_FOCUS=3.9;
 G.orientGlobeToCountry(G.currentCountry,false,0.08,G.CAMERA_DIST_DEFAULT);
 playMode="filters";store.set("playMode","filters");applyMode();
 syncDesign();setSpinUi(false);
-console.info("[Kinoglobus] Bridge v3 ready");
+console.info("[Kinoglobus] Bridge v4 ready");
 })();
 </script>
+
 
 </body></html>

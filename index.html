@@ -2434,7 +2434,7 @@ $("seen").onclick=()=>{
 
 </script>
 <script>
-// ========== Bridge v4: дизайн + движок TMDB ==========
+// ========== Bridge v5: дизайн + движок TMDB ==========
 (function(){
 const $=id=>document.getElementById(id);
 const G=window.KinoglobusGlobe;
@@ -2698,12 +2698,21 @@ $("film-reel-track").addEventListener("click",e=>{
 });
 // Настоящая прокрутка киноленты: постеры из выборки летят справа налево и тормозят на выбранном фильме
 let runRaf=0,spinTimer=0;
+const loaded=new Set();
+function loadPoster(f){
+  return new Promise(r=>{
+    if(!f.poster_path||loaded.has(f.poster_path))return r();
+    const i=new Image();i.onload=i.onerror=()=>{loaded.add(f.poster_path);r();};
+    i.src="https://image.tmdb.org/t/p/w185"+f.poster_path;
+  });
+}
+const warmPosters=pool=>Promise.all((pool.films||[]).map(loadPoster));
 function stopReel(){clearTimeout(spinTimer);cancelAnimationFrame(runRaf);const tr=$("film-reel-track");if(tr)tr.style.overflow="";}
-function spinReel(pool,film,cc){
+async function spinReel(pool,film,cc){
   const tr=$("film-reel-track");
   const others=shuffle((pool.films||[]).filter(f=>f.id!==film.id));
-  if(!others.length||RM) return;                       // нечего крутить
-  const STEP=90,PAD=8,NEED=22,T=3400;
+  if(!others.length) return;                            // нечего крутить
+  const STEP=90,PAD=8,NEED=26,T=4200;
   const pic=f=>f.poster_path
     ?`<img alt="" class="w-full h-full object-cover" src="https://image.tmdb.org/t/p/w185${f.poster_path}">`
     :`<div class="w-full h-full flex items-center justify-center p-1 text-[10px] text-center text-text-muted">${esc(f.title)}</div>`;
@@ -2711,6 +2720,8 @@ function spinReel(pool,film,cc){
   for(let i=0;i<NEED;i++) seq.push(others[i%others.length]);
   seq.push(film);
   for(let i=0;i<5;i++) seq.push(others[(i+2)%others.length]);
+  await Promise.race([warmPosters(pool),sleep(2500)]);   // без этого летят пустые рамки
+  if(!cur||cur.film.id!==film.id) return;
   const run=document.createElement("div");
   run.style.cssText="display:flex;gap:10px;will-change:transform";
   run.innerHTML=seq.map((f,i)=>`<div class="flex-shrink-0 w-20 h-28 rounded overflow-hidden border ${i===NEED?"border-primary-container":"border-surface-border"} bg-surface-container">${pic(f)}</div>`).join("");
@@ -2719,7 +2730,7 @@ function spinReel(pool,film,cc){
   const W=tr.clientWidth,S=PAD+NEED*STEP+40-W/2;
   const t0=performance.now();let last=-1;
   const step=now=>{
-    const t=Math.min(1,(now-t0)/T),e=1-Math.pow(1-t,4),x=S*e;
+    const t=Math.min(1,(now-t0)/T),e=1-Math.pow(1-t,3),x=S*e;
     run.style.transform=`translateX(${-x}px)`;
     const row=Math.floor(x/STEP);
     if(row!==last){last=row;sTick(.3+.7*t);if(t>.6)buzz(7);}
@@ -2798,11 +2809,11 @@ window.show=function(cc,pool,film){
     trailerBtn.dataset.url=k?watchUrl(k):"";lab.textContent=k?"Смотреть трейлер":"Трейлера нет";trailerBtn.style.opacity=k?"1":".5";
   });
   showProviders(film);
-  stopReel();
+  stopReel();warmPosters(pool);
   const fromSpin=G.isSpinning;
   spinTimer=setTimeout(()=>{
     card.scrollIntoView({behavior:"smooth",block:"center"});
-    spinTimer=setTimeout(()=>spinReel(pool,film,cc),800);
+    spinTimer=setTimeout(()=>spinReel(pool,film,cc).catch(e=>console.warn('[Kinoglobus] reel',e)),800);
   },fromSpin?1800:0);
 };
 trailerBtn.addEventListener("click",()=>{if(trailerBtn.dataset.url)window.open(trailerBtn.dataset.url,"_blank","noopener");});
@@ -2841,9 +2852,10 @@ G.CAMERA_DIST_DEFAULT=5.8;G.CAMERA_DIST_SPIN=5.8;G.CAMERA_DIST_FOCUS=3.9;
 G.orientGlobeToCountry(G.currentCountry,false,0.08,G.CAMERA_DIST_DEFAULT);
 playMode="filters";store.set("playMode","filters");applyMode();
 syncDesign();setSpinUi(false);
-console.info("[Kinoglobus] Bridge v4 ready");
+console.info("[Kinoglobus] Bridge v5 ready");
 })();
 </script>
+
 
 
 </body></html>

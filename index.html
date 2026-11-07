@@ -2434,7 +2434,7 @@ $("seen").onclick=()=>{
 
 </script>
 <script>
-// ========== Bridge v5: дизайн + движок TMDB ==========
+// ========== Bridge v6: дизайн + движок TMDB ==========
 (function(){
 const $=id=>document.getElementById(id);
 const G=window.KinoglobusGlobe;
@@ -2510,6 +2510,37 @@ const CARD_HTML=`
 </section>`;
 {const old=$("cinema-35mm-reel-section")||$("recent-discovery-card");if(old)old.outerHTML=CARD_HTML;}
 
+
+// ---------- Реалистичная Земля (текстуры NASA из набора three.js) ----------
+(function(){
+  if(!window.THREE) return;
+  const TEX="https://raw.githubusercontent.com/mrdoob/three.js/r128/examples/textures/planets/";
+  const R=THREE.WebGLRenderer.prototype.render;let done=false;
+  function upgrade(scene,renderer){
+    const aniso=renderer.capabilities.getMaxAnisotropy();
+    const L=new THREE.TextureLoader();L.setCrossOrigin("anonymous");
+    const load=(f,cb)=>L.load(TEX+f,t=>{t.anisotropy=aniso;cb(t);},undefined,()=>console.warn("[Kinoglobus] текстура не загрузилась:",f));
+    scene.traverse(o=>{
+      if(o.isDirectionalLight&&o.intensity>2) o.intensity=1.5;              // солнце мягче, чтобы не пересвечивать
+      if(o.isAmbientLight){o.color.set(0x2b3d5c);o.intensity=1.0;}          // ночная сторона чуть видна
+      if(!o.isMesh||!o.material) return;
+      const m=o.material;
+      if(m.isMeshPhongMaterial){                                              // сама планета
+        load("earth_atmos_2048.jpg",t=>{m.map=t;m.needsUpdate=true;});
+        load("earth_specular_2048.jpg",t=>{m.specularMap=t;m.specular=new THREE.Color(0x5b7fa6);m.shininess=30;m.needsUpdate=true;});
+        load("earth_normal_2048.jpg",t=>{m.normalMap=t;m.normalScale=new THREE.Vector2(0.8,0.8);m.needsUpdate=true;});
+      }else if(m.isMeshLambertMaterial){                                      // облака
+        load("earth_clouds_1024.png",t=>{m.map=t;m.blending=THREE.NormalBlending;m.transparent=true;m.opacity=0.9;m.depthWrite=false;m.needsUpdate=true;});
+      }else if(m.isMeshBasicMaterial&&m.side===THREE.BackSide){               // голубая дымка атмосферы
+        m.color.set(0x5aa9ff);m.opacity=0.16;
+      }
+    });
+  }
+  THREE.WebGLRenderer.prototype.render=function(scene,camera){
+    if(!done&&scene&&scene.isScene){done=true;try{upgrade(scene,this);}catch(e){console.warn("[Kinoglobus] earth",e);}}
+    return R.apply(this,arguments);
+  };
+})();
 
 // ---------- Диалог настроек ----------
 const dlgS=$("settings"), sndSel=$("snd");
@@ -2852,9 +2883,10 @@ G.CAMERA_DIST_DEFAULT=5.8;G.CAMERA_DIST_SPIN=5.8;G.CAMERA_DIST_FOCUS=3.9;
 G.orientGlobeToCountry(G.currentCountry,false,0.08,G.CAMERA_DIST_DEFAULT);
 playMode="filters";store.set("playMode","filters");applyMode();
 syncDesign();setSpinUi(false);
-console.info("[Kinoglobus] Bridge v5 ready");
+console.info("[Kinoglobus] Bridge v6 ready");
 })();
 </script>
+
 
 
 

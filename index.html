@@ -2434,317 +2434,270 @@ $("seen").onclick=()=>{
 
 </script>
 <script>
-// ========== Bridge: design 3D roulette + real TMDB engine ==========
+// ========== Bridge v2: дизайн + движок TMDB ==========
 (function(){
-  function byId(id){ return document.getElementById(id); }
-  function $(id){ return document.getElementById(id); }
+const $=id=>document.getElementById(id);
+const G=window.KinoglobusGlobe;
+if(!G){console.error("[Kinoglobus] globe not ready");return;}
+const GEO={US:[37.7,-98],GB:[54,-2],FR:[46.2,2.2],DE:[51.2,10.4],IT:[41.9,12.5],ES:[40.4,-3.7],JP:[36,138],KR:[36.5,127.8],CN:[35,103],HK:[22.3,114.2],TW:[23.7,121],IN:[20.6,78.9],RU:[60,100],CA:[56,-106],AU:[-25,134],MX:[23,-102],BR:[-14,-51],AR:[-34,-64],CL:[-35,-71],CO:[4,-74],SE:[62,15],DK:[56,10],NO:[62,10],FI:[64,26],IS:[65,-18],PL:[52,19],CZ:[50,15],HU:[47,19],RO:[46,25],GR:[39,22],TR:[39,35],IR:[32,53],IL:[31,35],EG:[26,30],ZA:[-29,24],TH:[15,100],VN:[16,108],ID:[-2,118],PH:[13,122],MY:[4,102],SG:[1.3,103.8],NL:[52.1,5.3],BE:[50.5,4.5],AT:[47.5,14.5],CH:[47,8],PT:[39.4,-8],IE:[53,-8],NZ:[-41,174],UA:[49,32],GE:[42,43.5],AM:[40,45],KZ:[48,67],UZ:[41,64],LB:[34,36],SA:[24,45],AE:[24,54],TN:[34,9],DZ:[28,3],NG:[10,8],KE:[0,38],GH:[8,-1],ET:[9,40],CU:[22,-80],PE:[-10,-76],VE:[7,-66],EC:[-1,-78],UY:[-33,-56],CR:[10,-84],DO:[19,-70],LV:[57,25],LT:[55,24],EE:[59,25],SK:[49,20],SI:[46,15],HR:[45,16],BA:[44,18],RS:[44,21],BG:[43,25],MK:[42,22],AL:[41,20],BY:[53,28],MD:[47,29],AZ:[40,48],IQ:[33,44],JO:[31,36],PK:[30,70],BD:[24,90],LK:[7,81],NP:[28,84],MN:[46,105],KH:[13,105],MM:[22,96],LU:[50,6],MA:[32,-6],BO:[-17,-65],PY:[-23,-58],SN:[14,-14],BF:[12,-1.5],ML:[17,-3],CI:[7.5,-5.5],SU:[60,90],YU:[44,20],CS:[49,17],DD:[52,13]};
 
-  // --- Visible TMDB key banner ---
-  function refreshKeyBanner(){
-    const banner = byId("tmdb-key-banner");
-    if (!banner) return;
-    const hasKey = !!(typeof apiKey !== "undefined" && apiKey);
-    banner.classList.toggle("hidden", hasKey);
-  }
-  const keySave = byId("tmdb-key-save");
-  const keyInput = byId("tmdb-key-input");
-  if (keySave && keyInput) {
-    keySave.addEventListener("click", function(){
-      const v = (keyInput.value || "").trim();
-      const err = byId("tmdb-key-err");
-      if (!v) {
-        if (err) { err.textContent = "Вставь ключ"; err.classList.remove("hidden"); }
-        return;
-      }
-      try {
-        apiKey = v;
-        if (typeof store !== "undefined") store.set("tmdbKey", v);
-        if (typeof showKeyUi === "function") showKeyUi();
-        refreshKeyBanner();
-        if (err) err.classList.add("hidden");
-        keyInput.value = "";
-      } catch (e) {
-        if (err) { err.textContent = String(e.message || e); err.classList.remove("hidden"); }
-      }
-    });
-  }
-  // show banner on load if no key
-  setTimeout(refreshKeyBanner, 100);
+// ---------- CSS для диалогов и карты ----------
+const st=document.createElement("style");
+st.textContent=`
+.kg-dlg{border:1px solid #3a3140;border-radius:20px;background:#1c1822;color:#e8e0ea;padding:0;width:min(92vw,480px);max-height:88vh;font-family:'Plus Jakarta Sans',sans-serif}
+.kg-dlg::backdrop{background:rgba(7,6,10,.82);backdrop-filter:blur(6px)}
+.kg-in{padding:18px;display:flex;flex-direction:column;gap:12px;overflow:auto;max-height:88vh}
+.kg-h{font-family:'Noto Serif',serif;font-weight:700;color:#ffdca8;font-size:18px}
+.kg-sub{font-weight:700;color:#ffdca8;font-size:13px;margin-top:4px}
+.kg-row{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:14px}
+.kg-btn{padding:8px 14px;border-radius:12px;background:#2c2830;color:#ffdca8;font-weight:700;font-size:13px;border:1px solid rgba(255,184,48,.25)}
+.kg-btn.danger{color:#ff8d7a}
+.kg-dlg select{background:#100d14;color:#e8e0ea;border-radius:10px;padding:8px;border:1px solid #3a3140}
+.kg-bar{height:8px;background:#2c2830;border-radius:99px;overflow:hidden}
+#jfill{display:block;height:100%;width:0;background:linear-gradient(90deg,#ff4e20,#ffc107)}
+#mapbox{overflow:auto;border-radius:12px;background:#100d14}#mapbox svg{display:block}
+.mo{fill:#1d1a22}.mc{fill:#2c2830;stroke:#07060a;stroke-width:.6;cursor:pointer}.mc.v{fill:#ffb830}.mc.last{fill:#ff4e20}
+.pill{display:inline-block;padding:4px 10px;margin:2px;border-radius:99px;background:#2c2830;font-size:12px}.pill.off{opacity:.45}
+#jfilms{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.jfilm{display:flex;flex-direction:column;gap:3px;text-align:left;font-size:11px;color:#e8e0ea}
+.jfilm img,.jfilm .ph{width:100%;aspect-ratio:2/3;object-fit:cover;border-radius:8px;background:#2c2830;font-size:10px;padding:4px}
+.jfilm small{color:#b3a79a}
+.wave{display:inline-block}.wave svg,#hero-country-flag svg,#discovery-flag svg{width:1.5em;height:1em;vertical-align:-.15em}
+#hero-country-flag svg{width:2em;height:1.4em}
+#err{color:#ff8d7a;font-size:12px;text-align:center;width:100%;margin-top:6px;z-index:10}
+`;
+document.head.appendChild(st);
 
-  // Real-world lat/lon for countries used by the 3D globe
-  const GEO = {
-    US:[37.7,-98], GB:[54,-2], FR:[46.2,2.2], DE:[51.2,10.4], IT:[41.9,12.5], ES:[40.4,-3.7],
-    JP:[36,138], KR:[36.5,127.8], CN:[35,103], HK:[22.3,114.2], TW:[23.7,121], IN:[20.6,78.9],
-    RU:[60,100], CA:[56,-106], AU:[-25,134], MX:[23,-102], BR:[-14,-51], AR:[-34,-64],
-    CL:[-35,-71], CO:[4,-74], SE:[62,15], DK:[56,10], NO:[62,10], FI:[64,26], IS:[65,-18],
-    PL:[52,19], CZ:[50,15], HU:[47,19], RO:[46,25], GR:[39,22], TR:[39,35], IR:[32,53],
-    IL:[31,35], EG:[26,30], ZA:[-29,24], TH:[15,100], VN:[16,108], ID:[-2,118], PH:[13,122],
-    MY:[4,102], SG:[1.3,103.8], NL:[52.1,5.3], BE:[50.5,4.5], AT:[47.5,14.5], CH:[47,8],
-    PT:[39.4,-8], IE:[53,-8], NZ:[-41,174], UA:[49,32], GE:[42,43.5], AM:[40,45],
-    KZ:[48,67], UZ:[41,64], LB:[34,36], SA:[24,45], AE:[24,54], TN:[34,9], DZ:[28,3],
-    NG:[10,8], KE:[0,38], GH:[8,-1], ET:[9,40], CU:[22,-80], PE:[-10,-76], VE:[7,-66],
-    EC:[-1,-78], UY:[-33,-56], CR:[10,-84], DO:[19,-70], LV:[57,25], LT:[55,24], EE:[59,25],
-    SK:[49,20], SI:[46,15], HR:[45,16], BA:[44,18], RS:[44,21], BG:[43,25], MK:[42,22],
-    AL:[41,20], BY:[53,28], MD:[47,29], AZ:[40,48], IQ:[33,44], JO:[31,36], PK:[30,70],
-    BD:[24,90], LK:[7,81], NP:[28,84], MN:[46,105], KH:[13,105], MM:[22,96], LU:[50,6]
-  };
+// ---------- Диалог настроек ----------
+const dlgS=$("settings"), sndSel=$("snd");
+document.body.appendChild(dlgS);dlgS.className="kg-dlg";
+const inS=document.createElement("div");inS.className="kg-in";
+inS.innerHTML='<div class="kg-h">Настройки</div>';
+const row=(label,el)=>{const r=document.createElement("div");r.className="kg-row";r.innerHTML=`<span>${label}</span>`;r.appendChild(el);inS.appendChild(r);};
+[["fx","Вибрация"],["adultVis","Жанр 18+ в списке"]].forEach(([id,l])=>{$(id).className="kg-btn";row(l,$(id));});
+row("Звук рулетки",sndSel);
+const btns=[["changeKey","Сменить ключ TMDB",""],["resetHist","Сбросить историю","danger"],["resetSettings","Сбросить настройки","danger"],["sclose","Закрыть",""]];
+btns.forEach(([id,t,c])=>{const b=$(id);if(id!=="resetHist")b.textContent=t;b.className="kg-btn "+c;b.style.width="100%";inS.appendChild(b);});
+dlgS.innerHTML="";dlgS.appendChild(inS);
 
-  function toGlobeCountry(cc) {
-    const name = (typeof cname === "function") ? cname(cc) : cc;
-    const flag = (typeof emojiFlag === "function") ? emojiFlag(cc) : "🌍";
-    const g = GEO[cc] || [20, 0];
-    return {
-      id: cc, name: name, flag: flag, reg: "КИНОГЛОБУС", films: "—", dirs: "",
-      lat: g[0], lon: g[1], movie: null
-    };
-  }
+// ---------- Диалог «Моё путешествие» ----------
+const dlgJ=$("journey");
+const J={};["jhead","jfill","mapbox","minfo","jstats","jopenT","jopen","jclosed","jclosedsum","jfilmsT","jfilms","jclose","mzin","mzout"].forEach(id=>J[id]=$(id));
+document.body.appendChild(dlgJ);dlgJ.className="kg-dlg";
+const inJ=document.createElement("div");inJ.className="kg-in";
+const bar=document.createElement("div");bar.className="kg-bar";bar.appendChild(J.jfill);
+const zoom=document.createElement("div");zoom.className="kg-row";
+[J.mzout,J.mzin].forEach((b,i)=>{b.textContent=i?"＋":"－";b.className="kg-btn";});
+zoom.append(J.minfo,J.mzout,J.mzin);
+J.jopenT.textContent="Открытые страны";J.jopenT.className="kg-sub";J.jopenT.style.display="block";
+J.jfilmsT.textContent="Просмотренные фильмы";J.jfilmsT.className="kg-sub";J.jfilmsT.style.display="block";
+const det=document.createElement("details");const sm=document.createElement("summary");sm.appendChild(J.jclosedsum);sm.style.cursor="pointer";det.append(sm,J.jclosed);
+J.jclose.textContent="Закрыть";J.jclose.className="kg-btn";J.jclose.style.width="100%";J.jhead.className="kg-h";
+dlgJ.innerHTML="";
+inJ.append(J.jhead,bar,J.mapbox,zoom,J.jstats,J.jopenT,J.jopen,det,J.jfilmsT,J.jfilms,J.jclose);
+dlgJ.appendChild(inJ);
 
-  function buildSequence(finalCC, count) {
-    const G = window.KinoglobusGlobe;
-    const all = (typeof COUNTRIES !== "undefined" ? COUNTRIES.slice() :
-      (G && G.catalog ? G.catalog.map(c => c.id) : ["ES","FR","JP","KR","US","IT","DE","GB","BR","MX"]));
-    const seq = [];
-    let prev = (G && G.currentCountry && G.currentCountry.id) || "ES";
-    for (let i = 0; i < count - 1; i++) {
-      const pool = all.filter(c => c !== prev && c !== finalCC);
-      const next = pool.length ? pool[Math.floor(Math.random() * pool.length)] : all[0];
-      seq.push(toGlobeCountry(next));
-      prev = next;
-    }
-    seq.push(toGlobeCountry(finalCC));
-    return seq;
-  }
+// ---------- Поля оценки (в скрытом движке была только одна опция) ----------
+const RO=["5","6","6.5","7","7.5","8","9","10"];
+$("rmin").innerHTML=RO.map(v=>`<option value="${v}">${v}</option>`).join("");
+$("rmax").innerHTML='<option value=""></option>'+RO.map(v=>`<option value="${v}">${v}</option>`).join("");
+$("rmin").value=RO.includes(store.get("rmin",""))?store.get("rmin",""):"6";
+$("rmax").value=RO.includes(store.get("rmax",""))?store.get("rmax",""):"";
 
-  function setSpinUi(scanning) {
-    const spinBtn = byId("btn-spin-roulette");
-    const spinIcon = byId("btn-spin-icon");
-    const spinText = byId("btn-spin-text");
-    const spinSecIcon = byId("btn-spin-secondary-icon");
-    const statusBadge = byId("roulette-status-badge");
-    const focalLens = byId("focal-lens");
-    if (scanning) {
-      if (spinBtn) {
-        spinBtn.disabled = true;
-        spinBtn.classList.add("brightness-125", "shadow-[0_0_36px_rgba(255,184,48,0.8)]");
-      }
-      if (spinIcon) { spinIcon.textContent = "sensors"; spinIcon.classList.add("animate-spin"); }
-      if (spinText) {
-        spinText.innerHTML = '<span class="material-symbols-outlined text-[22px] animate-spin">sensors</span><span>ПОИСК СТРАНЫ...</span>';
-      }
-      if (spinSecIcon) spinSecIcon.classList.add("animate-spin");
-      if (statusBadge) {
-        statusBadge.textContent = "Сканирование...";
-        statusBadge.className = "font-micro-caption text-micro-caption px-2.5 py-0.5 rounded-full bg-primary-container text-on-primary-container font-bold shadow-[0_0_12px_rgba(255,184,48,0.5)]";
-      }
-      if (focalLens) focalLens.classList.add("border-primary-container", "shadow-[0_0_30px_rgba(255,184,48,0.4)]");
-    } else {
-      if (spinBtn) {
-        spinBtn.disabled = false;
-        spinBtn.classList.remove("brightness-125", "shadow-[0_0_36px_rgba(255,184,48,0.8)]");
-      }
-      if (spinText) {
-        spinText.innerHTML = '<span class="material-symbols-outlined text-[22px] text-canvas-obsidian font-bold transition-transform duration-300" id="btn-spin-icon">casino</span><span>КРУТИТЬ ГЛОБУС</span>';
-      }
-      if (spinSecIcon) spinSecIcon.classList.remove("animate-spin");
-      if (statusBadge) {
-        statusBadge.textContent = "104 страны онлайн";
-        statusBadge.className = "font-micro-caption text-micro-caption px-2.5 py-0.5 rounded-full bg-surface-container-high/90 text-primary-fixed border border-primary-container/20 shadow-[0_0_10px_rgba(255,184,48,0.15)]";
-      }
-      if (focalLens) focalLens.classList.remove("border-primary-container", "shadow-[0_0_30px_rgba(255,184,48,0.4)]");
-    }
-  }
-
-  function playDesignRoulette(finalCC, pool, film) {
-    const G = window.KinoglobusGlobe;
-    if (!G || !G.orientGlobeToCountry) {
-      if (typeof window.__kg_original_show === "function") window.__kg_original_show(finalCC, pool, film);
-      window.__kg_animating = false;
-      setSpinUi(false);
-      return;
-    }
-    if (G.isSpinning) {
-      // force reset if stuck
-      G.isSpinning = false;
-    }
-    G.isSpinning = true;
-    setSpinUi(true);
-
-    const sequence = buildSequence(finalCC, 6 + Math.floor(Math.random() * 3));
-    const delays = [140, 160, 200, 260, 340, 450, 590, 780];
-    let step = 0;
-
-    function finish() {
-      const winner = toGlobeCountry(finalCC);
-      G.currentCountry = winner;
-      G.orientGlobeToCountry(winner, false, 0.055, G.CAMERA_DIST_FOCUS || 3.2);
-      G.updateHolographicView(winner, false);
-
-      winner.movie = {
-        title: (film && film.title) || "",
-        year: film && film.release_date ? "(" + film.release_date.slice(0,4) + ")" : "",
-        rating: film && film.vote_average != null ? Number(film.vote_average).toFixed(1) : "—",
-        genres: "· кино",
-        desc: film && film.overview ? String(film.overview).slice(0, 180) : "",
-        poster: film && film.poster_path ? "https://image.tmdb.org/t/p/w342" + film.poster_path : ""
-      };
-      if (G.triggerWinnerCelebration) G.triggerWinnerCelebration(winner);
-
-      try {
-        if (typeof window.__kg_original_show === "function") {
-          window.__kg_original_show(finalCC, pool, film);
-        }
-      } catch (e) { console.warn(e); }
-
-      setSpinUi(false);
-      setTimeout(function(){
-        G.orientGlobeToCountry(winner, false, 0.035, G.CAMERA_DIST_DEFAULT || 5.0);
-        setTimeout(function(){
-          G.isSpinning = false;
-          window.__kg_animating = false;
-        }, 800);
-      }, 2200);
-    }
-
-    function next() {
-      if (step >= sequence.length) {
-        finish();
-        return;
-      }
-      const c = sequence[step];
-      const isFinal = step === sequence.length - 1;
-      try {
-        G.orientGlobeToCountry(c, false, isFinal ? 0.06 : 0.22, isFinal ? (G.CAMERA_DIST_FOCUS || 3.2) : (G.CAMERA_DIST_SPIN || 5.0));
-        G.updateHolographicView(c, true);
-        if (G.triggerTickEffect) G.triggerTickEffect();
-      } catch (e) { console.warn(e); }
-      const delay = delays[step] || 450;
-      step++;
-      setTimeout(next, delay);
-    }
-    next();
-  }
-
-  // Patch show()
-  if (typeof show === "function") {
-    window.__kg_original_show = show;
-    window.show = function(cc, pool, film) {
-      if (window.__kg_animating) {
-        window.__kg_original_show(cc, pool, film);
-        return;
-      }
-      window.__kg_animating = true;
-      playDesignRoulette(cc, pool, film);
-    };
-  }
-
-  // --- Robust spin trigger ---
-  function doSpin() {
-    refreshKeyBanner();
-    if (typeof apiKey === "undefined" || !apiKey) {
-      const banner = byId("tmdb-key-banner");
-      if (banner) {
-        banner.classList.remove("hidden");
-        banner.scrollIntoView({ behavior: "smooth", block: "center" });
-      }
-      const errEl = byId("err");
-      if (errEl) errEl.textContent = "Сначала введите ключ TMDB.";
-      alert("Сначала введи ключ TMDB (бесплатно на themoviedb.org → Settings → API).");
-      return;
-    }
-    setSpinUi(true);
-    try {
-      if (typeof hideHints === "function") hideHints();
-      if (typeof spin === "function") {
-        spin();
-      } else {
-        const go = byId("go");
-        if (go) go.click();
-        else {
-          setSpinUi(false);
-          alert("Движок спина не найден");
-        }
-      }
-    } catch (e) {
-      console.error(e);
-      setSpinUi(false);
-      window.__kg_animating = false;
-      alert("Ошибка: " + (e.message || e));
-    }
-  }
-
-  function bindClick(el, fn) {
-    if (!el) return;
-    // clone to drop old listeners
-    const neo = el.cloneNode(true);
-    el.parentNode.replaceChild(neo, el);
-    neo.addEventListener("click", function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      fn();
-    });
-    return neo;
-  }
-
-  bindClick(byId("btn-spin-roulette"), doSpin);
-
-  bindClick(byId("btn-top-one"), function(){
-    if (typeof apiKey === "undefined" || !apiKey) return doSpin();
-    setSpinUi(true);
-    try {
-      if (typeof spinTop === "function") spinTop();
-      else { const b = byId("top1"); if (b) b.click(); }
-    } catch (e) { setSpinUi(false); console.error(e); }
+// ---------- Подключение к дизайну: чипы, подборки, оценка, годы ----------
+const DET=[...document.querySelectorAll("details")];
+const gBox=DET[0].lastElementChild, rBox=DET[1].querySelector(".overflow-x-auto"), tBox=DET[2].lastElementChild;
+const BASE="h-[34px] px-3.5 rounded-full font-label-sm text-label-sm flex items-center gap-1 transition-all ";
+function pills(box,sel,attr){
+  box.innerHTML="";
+  document.querySelectorAll(sel).forEach(h=>{
+    const b=document.createElement("button");b.type="button";b.textContent=h.textContent;b._h=h;
+    b.onclick=()=>h.click();box.appendChild(b);
   });
+}
+pills(gBox,"#chips .chip");pills(tBox,"#themes .chip");
+rBox.innerHTML="";
+[["5","5.0"],["6","⭐ 6.0"],["7","7.0"],["7.5","7.5"],["8","8.0+"]].forEach(([v,l])=>{
+  const b=document.createElement("button");b.type="button";b.dataset.v=v;b.textContent=l;
+  b.onclick=()=>{$("rmin").value=v;$("rmin").dispatchEvent(new Event("change"));syncDesign();};
+  rBox.appendChild(b);
+});
+const sChips=[...document.querySelectorAll(".surprise-chip")];
+$("surpriseChips").innerHTML=["light","find","wild","hard"].map(s=>`<button class="chip" data-s="${s}"></button>`).join("");
+sChips.forEach((c,i)=>c.addEventListener("click",()=>$("surpriseChips").children[i].click()));
+const yi=[...DET[1].querySelectorAll('input[type="number"]')];
+[[yi[0],"year","1920"],[yi[1],"yearTo","2026"]].forEach(([inp,id,def])=>inp.addEventListener("input",()=>{
+  const v=inp.value.trim(),e=$(id);e.value=(v===""||v===def)?"":v;e.dispatchEvent(new Event("input"));}));
 
-  bindClick(byId("btn-oscar-laureate"), function(){
-    if (typeof apiKey === "undefined" || !apiKey) return doSpin();
-    setSpinUi(true);
-    try {
-      if (typeof spinOscar === "function") spinOscar();
-      else { const b = byId("oscar"); if (b) b.click(); }
-    } catch (e) { setSpinUi(false); console.error(e); }
+function plural(n){const m=n%100,k=n%10;return (k===1&&m!==11)?"страна":(k>1&&k<5&&(m<12||m>14))?"страны":"стран";}
+function spinLabel(){
+  if(playMode==="surprise") return "УДИВИ МЕНЯ";
+  const t=THEMES.find(x=>x.id===themeId);return t?t.name.toUpperCase():"КРУТИТЬ ГЛОБУС";
+}
+function sumText(id,prefix){const t=$(id).textContent;return t.startsWith(prefix+" · ")?t.slice(prefix.length+3):"Любой";}
+function syncDesign(){
+  const paint=box=>[...box.children].forEach(b=>{
+    const on=b._h.getAttribute("aria-pressed")==="true";b.hidden=b._h.hidden;
+    b.className=BASE+(on?"text-canvas-obsidian font-bold border border-white/20":"bg-surface-container text-text-muted hover:text-on-surface");
+    b.style.background=on?"linear-gradient(135deg,#ff4e20,#ff9500 50%,#ffc107)":"";
+    b.style.boxShadow=on?"0 2px 14px rgba(255,115,0,.4)":"";
   });
+  paint(gBox);paint(tBox);
+  [...rBox.children].forEach(b=>{const on=$("rmin").value===b.dataset.v&&!$("rmin").disabled;
+    b.className="flex-1 py-1.5 px-2 rounded-lg font-label-sm text-label-sm "+(on?"bg-primary-container text-on-primary-container font-bold":"bg-surface-container text-text-muted");});
+  sChips.forEach((c,i)=>{const on=["light","find","wild","hard"][i]===surprise;
+    c.style.background=on?"#2c2830":"#1c1822";c.style.color=on?"#ffdca8":"#e8e0ea";c.style.boxShadow=on?"0 0 10px rgba(255,184,48,.25)":"";});
+  const d=$("surprise-description-text");if(d)d.textContent=SURPRISE_NOTE[surprise];
+  const sums=[sumText("filterSum","Категории"),sumText("extraSum","Год и оценка"),sumText("themeSum","Тематические подборки")];
+  DET.forEach((d,i)=>{const s=d.querySelector("summary > div:last-child > span:first-child");if(s)s.textContent=i===2&&sums[2]==="Любой"?"Готовые сеты":sums[i];});
+  if(document.activeElement!==yi[0])yi[0].value=$("year").value||"1920";
+  if(document.activeElement!==yi[1])yi[1].value=$("yearTo").value||"2026";
+  const cnt=document.querySelector('header a[data-path="moe-puteshestvie"] span:last-child');
+  if(cnt)cnt.textContent=Object.keys(visited).length+"/"+COUNTRIES.length;
+  const sb=$("btn-spin-roulette");if(sb&&!sb.disabled){const t=sb.querySelector("#btn-spin-text span:last-child");if(t)t.textContent=spinLabel();}
+}
+["paintChips","paintThemes","paintSurprise","paintExtraSum","paintGo","updHist"].forEach(n=>{
+  const f=window[n];if(typeof f!=="function")return;
+  window[n]=function(){const r=f.apply(this,arguments);try{syncDesign()}catch(e){console.warn(e)}return r;};
+});
 
-  // Mode switcher -> engine
-  const bf = byId("btn-mode-filters");
-  const bs = byId("btn-mode-surprise");
-  if (bf) bf.addEventListener("click", function(){ const b=byId("modeFilters"); if(b) b.click(); });
-  if (bs) bs.addEventListener("click", function(){ const b=byId("modeSurprise"); if(b) b.click(); });
+// ---------- Баннер ключа TMDB ----------
+function refreshKey(){const b=$("tmdb-key-banner");if(b)b.classList.toggle("hidden",!!apiKey);}
+$("tmdb-key-save").addEventListener("click",()=>{
+  const v=$("tmdb-key-input").value.trim(),e=$("tmdb-key-err");
+  if(!v){e.textContent="Вставь ключ";e.classList.remove("hidden");return;}
+  apiKey=v;store.set("tmdbKey",v);showKeyUi();refreshKey();e.classList.add("hidden");$("tmdb-key-input").value="";
+});
+const _ck=$("changeKey").onclick;
+$("changeKey").onclick=()=>{_ck();refreshKey();};
+refreshKey();
 
-  // Nav
-  document.querySelectorAll('[data-path="moe-puteshestvie"]').forEach(function(a){
-    a.addEventListener("click", function(e){ e.preventDefault(); const b=byId("mapBtn"); if(b) b.click(); });
-  });
-  document.querySelectorAll('[data-path="nastrojki"]').forEach(function(a){
-    a.addEventListener("click", function(e){ e.preventDefault(); const b=byId("gear"); if(b) b.click(); });
-  });
-  document.querySelectorAll('[data-path="istoriya-posmotrel"]').forEach(function(a){
-    a.addEventListener("click", function(e){ e.preventDefault(); const b=byId("mapBtn"); if(b) b.click(); });
-  });
-
-  // Watched
-  const bw = byId("btn-watched");
-  if (bw) bw.addEventListener("click", function(){ const s=byId("seen"); if(s) s.click(); });
-
-  // Wire design year inputs (no id) to engine year/yearTo if possible
-  try {
-    const yearInputs = document.querySelectorAll('input[type="number"][min="1920"]');
-    if (yearInputs.length >= 2 && byId("year") && byId("yearTo")) {
-      yearInputs[0].addEventListener("input", function(){ byId("year").value = this.value; byId("year").dispatchEvent(new Event("input")); });
-      yearInputs[1].addEventListener("input", function(){ byId("yearTo").value = this.value; byId("yearTo").dispatchEvent(new Event("input")); });
-    }
-  } catch (e) {}
-
-  // If spin fails / ends without show, unlock UI after timeout
-  const _unlock = typeof unlockSpin === "function" ? unlockSpin : null;
-  if (_unlock) {
-    window.unlockSpin = function(){
-      _unlock();
-      if (!window.__kg_animating) setSpinUi(false);
-    };
+// ---------- Глобус вместо барабана флагов ----------
+const heroHist=c=>{if(HIST_SVG[c.id])$("hero-country-flag").innerHTML=HIST_SVG[c.id];};
+const hero=(c,step)=>{G.updateHolographicView(c,step);heroHist(c);};
+function gc(cc){const g=GEO[cc]||[20,0];
+  return {id:cc,name:cname(cc),flag:HIST_SVG[cc]?"🏳️":emojiFlag(cc),reg:"КИНОРАДАР",films:"—",dirs:"Ищем фильм…",lat:g[0],lon:g[1],movie:null};}
+let scanOn=false,scanT=0,landed=false,tmr=[];
+function setSpinUi(on){
+  const b=$("btn-spin-roulette"),t=$("btn-spin-text"),s=$("btn-spin-secondary-icon"),sb=$("roulette-status-badge"),f=$("focal-lens");
+  b.disabled=on;b.classList.toggle("brightness-125",on);
+  t.innerHTML=on?'<span class="material-symbols-outlined text-[22px] animate-spin">sensors</span><span>ПОИСК СТРАНЫ...</span>'
+    :'<span class="material-symbols-outlined text-[22px] text-canvas-obsidian font-bold">casino</span><span>'+spinLabel()+'</span>';
+  s.classList.toggle("animate-spin",on);
+  sb.textContent=on?"Сканирование...":COUNTRIES.length+" "+plural(COUNTRIES.length)+" онлайн";
+  sb.className=on?"font-micro-caption text-micro-caption px-2.5 py-0.5 rounded-full bg-primary-container text-on-primary-container font-bold"
+    :"font-micro-caption text-micro-caption px-2.5 py-0.5 rounded-full bg-surface-container-high/90 text-primary-fixed border border-primary-container/20";
+  f.classList.toggle("border-primary-container",on);
+}
+const _lock=window.lockSpin,_unlock=window.unlockSpin;
+window.lockSpin=function(l){_lock(l);setSpinUi(true);};
+window.unlockSpin=function(){_unlock();setSpinUi(false);};
+window.reelStart=function(){
+  closePlayer();tmr.forEach(clearTimeout);tmr=[];landed=false;scanOn=true;G.isSpinning=true;
+  const loop=()=>{if(!scanOn)return;const c=gc(pick(COUNTRIES));
+    G.orientGlobeToCountry(c,false,0.22,G.CAMERA_DIST_SPIN);hero(c,true);sTick(Math.random());buzz(8);scanT=setTimeout(loop,170);};
+  loop();
+};
+window.reelLand=async function(cc){
+  scanOn=false;clearTimeout(scanT);
+  for(const d of [210,290,400,560]){
+    const c=gc(pick(COUNTRIES.filter(x=>x!==cc)));
+    G.orientGlobeToCountry(c,false,0.22,G.CAMERA_DIST_SPIN);hero(c,true);sTick(.4+Math.random()*.4);await sleep(d);
   }
+  const w=gc(cc);G.currentCountry=w;
+  G.orientGlobeToCountry(w,false,0.055,G.CAMERA_DIST_FOCUS);hero(w,false);G.triggerWinnerCelebration(w);buzz([25,50,60]);
+  landed=true;
+  tmr.push(setTimeout(()=>{G.orientGlobeToCountry(w,false,0.035,G.CAMERA_DIST_DEFAULT);
+    tmr.push(setTimeout(()=>{G.isSpinning=false;},800));},3200));
+  await sleep(400);
+};
+window.reelAbort=function(){
+  scanOn=false;clearTimeout(scanT);
+  if(!landed){G.isSpinning=false;const c=G.currentCountry;G.orientGlobeToCountry(c,false,0.035,G.CAMERA_DIST_DEFAULT);hero(c,false);}
+};
+window.filmReel=async function(){};   // в дизайне барабана постеров нет
 
-  console.info("[Kinoglobus] Bridge ready — spin button wired to engine");
+// ---------- Карточка «Последняя находка» ----------
+const card=$("recent-discovery-card");
+const trailerBtn=card.querySelector("button:not(#btn-watched)");
+const watchedOld=$("btn-watched");const watchedHTML=watchedOld.innerHTML;
+const bw=watchedOld.cloneNode(true);watchedOld.replaceWith(bw);
+const ag=document.createElement("button");ag.type="button";ag.title="Ещё фильм из этой страны";
+ag.className="py-1.5 px-2 rounded-lg bg-surface-container-high text-on-surface flex items-center";
+ag.innerHTML='<span class="material-symbols-outlined text-[18px] text-primary-container">refresh</span>';
+bw.after(ag);
+const set=(id,t)=>{$(id).textContent=t;};
+const _show=window.show;
+window.show=function(cc,pool,film){
+  _show(cc,pool,film);
+  const w=gc(cc);
+  set("hero-country-films",pool.oscar?"Оскар":pool.top1?"Топ-1":(pool.films.length+" в выборке"));
+  set("hero-country-master",film.title||"");
+  if(!G.isSpinning){   // «ещё фильм» или фильм из истории: просто показать страну
+    G.currentCountry=w;G.orientGlobeToCountry(w,false,0.055,G.CAMERA_DIST_FOCUS);hero(w,false);
+    set("hero-country-films",$("hero-country-films").textContent);set("hero-country-master",film.title||"");
+    tmr.push(setTimeout(()=>G.orientGlobeToCountry(w,false,0.035,G.CAMERA_DIST_DEFAULT),3000));
+  }
+  const y=(film.release_date||"").slice(0,4);
+  set("discovery-title",film.title||"");set("discovery-year",y?"("+y+")":"");
+  set("discovery-country",cname(cc));$("discovery-flag").innerHTML=flag(cc,false);
+  set("discovery-genres","· "+(genreLine(film)||"кино"));
+  set("discovery-desc",film.overview||"Описания на русском пока нет.");
+  set("discovery-rating",film.vote_count?Number(film.vote_average).toFixed(1):"—");
+  set("discovery-timestamp",pool.oscar?"Лауреат «Оскара»":pool.top1?"Топ-1 страны":pool.worst?"Из худших":"Случайная находка");
+  const p=$("discovery-poster");
+  if(film.poster_path)p.src="https://image.tmdb.org/t/p/w342"+film.poster_path;else p.removeAttribute("src");
+  filmDetails(film.id).then(d=>{
+    if(!cur||cur.film.id!==film.id)return;
+    const g=(d.genres.length?d.genres:genreLine(film).split(", ")).filter(Boolean).slice(0,3).join(", ");
+    set("discovery-genres","· "+[g,d.runtime?d.runtime+" мин":""].filter(Boolean).join(" · "));
+  }).catch(()=>{});
+  bw.innerHTML=watchedHTML;
+  ag.hidden=$("again").hidden;
+  const lab=trailerBtn.querySelector("span.truncate");
+  lab.textContent="Ищем трейлер…";trailerBtn.dataset.url="";trailerBtn.style.opacity=".6";
+  trailerFor(film).then(k=>{
+    if(!cur||cur.film.id!==film.id)return;
+    trailerBtn.dataset.url=k?watchUrl(k):"";lab.textContent=k?"Смотреть трейлер":"Трейлера нет";trailerBtn.style.opacity=k?"1":".5";
+  });
+  card.classList.remove("card-discovery-win");void card.offsetWidth;card.classList.add("card-discovery-win");
+  setTimeout(()=>card.scrollIntoView({behavior:"smooth",block:"center"}),1800);
+};
+trailerBtn.addEventListener("click",()=>{if(trailerBtn.dataset.url)window.open(trailerBtn.dataset.url,"_blank","noopener");});
+bw.addEventListener("click",()=>{
+  if(!cur)return;$("seen").click();
+  bw.innerHTML='<span class="material-symbols-outlined text-[16px] text-primary-fixed">task_alt</span><span>В архиве!</span>';
+  syncDesign();
+});
+ag.addEventListener("click",()=>$("again").click());
+
+// ---------- Кнопки глобуса ----------
+const clone=el=>{const n=el.cloneNode(true);el.replaceWith(n);return n;};
+clone($("btn-spin-roulette")).addEventListener("click",()=>{
+  refreshKey();
+  if(!apiKey){const b=$("tmdb-key-banner");b.classList.remove("hidden");b.scrollIntoView({behavior:"smooth",block:"center"});return;}
+  $("go").click();
+});
+const needKey=fn=>()=>{if(!apiKey){refreshKey();$("tmdb-key-banner").scrollIntoView({behavior:"smooth",block:"center"});return;}fn();};
+clone($("btn-top-one")).addEventListener("click",needKey(()=>$("top1").click()));
+clone($("btn-oscar-laureate")).addEventListener("click",needKey(()=>$("oscar").click()));
+$("btn-top-one").parentNode.after($("err"));
+$("btn-mode-filters").addEventListener("click",()=>$("modeFilters").click());
+$("btn-mode-surprise").addEventListener("click",()=>$("modeSurprise").click());
+
+// ---------- Навигация ----------
+const go=(sel,fn)=>document.querySelectorAll(`[data-path="${sel}"]`).forEach(a=>a.addEventListener("click",e=>{e.preventDefault();fn();}));
+go("moe-puteshestvie",()=>$("mapBtn").click());
+go("istoriya-posmotrel",()=>$("mapBtn").click());
+go("nastrojki",()=>$("gear").click());
+go("globus-random",()=>scrollTo({top:0,behavior:"smooth"}));
+go("podborki-i-zhanry",()=>{DET[2].open=true;DET[2].scrollIntoView({behavior:"smooth",block:"start"});});
+
+// ---------- Старт ----------
+playMode="filters";store.set("playMode","filters");applyMode();
+syncDesign();setSpinUi(false);
+console.info("[Kinoglobus] Bridge v2 ready");
 })();
 </script>
+
 </body></html>

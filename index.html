@@ -2448,10 +2448,10 @@ async function trailerFor(film){
 }
 let tKey=null;
 function watchUrl(v){return v.site==="Vimeo"?`https://vimeo.com/${v.key}`:`https://www.youtube.com/watch?v=${v.key}`;}
-function embedSrc(v){
+function embedSrc(v,autoplay=true){
   return v.site==="Vimeo"
-    ?`https://player.vimeo.com/video/${v.key}?autoplay=1`
-    :`https://www.youtube-nocookie.com/embed/${v.key}?autoplay=1&playsinline=1&rel=0`;
+    ?`https://player.vimeo.com/video/${v.key}?autoplay=${autoplay?1:0}`
+    :`https://www.youtube-nocookie.com/embed/${v.key}?autoplay=${autoplay?1:0}&playsinline=1&rel=0`;
 }
 function closePlayer(){
   $("player").innerHTML="";$("player").hidden=true;$("ytnote").hidden=true;

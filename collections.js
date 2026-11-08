@@ -176,9 +176,7 @@ function cardHtml(t,i){
   const g0=gnames(t)[0]||"";
   const top=special?`<div class="flex items-center justify-between mb-2"><span class="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-secondary-container/60 text-secondary font-micro-caption text-micro-caption font-bold"><span class="material-symbols-outlined text-[13px]">history_edu</span>АРХИВ ИСЧЕЗНУВШИХ ЭПОХ</span><span data-k="r" class="font-micro-caption text-micro-caption text-primary-container font-bold">★ …</span></div>`:"";
   const rate=special?"":`<span data-k="r" class="px-2 py-0.5 rounded-full bg-primary-container/15 text-primary-container font-micro-caption text-micro-caption font-bold flex-shrink-0">★ …</span>`;
-  const btn=special
-    ?`<button type="button" data-act="spin" data-t="${t.id}" class="px-2.5 py-1 rounded-lg bg-primary-container text-on-primary-container font-label-sm text-label-sm font-bold flex items-center gap-1 shadow-[0_0_12px_rgba(255,184,48,0.25)]"><span>Рулетка</span><span class="material-symbols-outlined text-[14px]">casino</span></button>`
-    :`<button type="button" aria-label="Крутить" data-act="spin" data-t="${t.id}" class="w-8 h-8 rounded-full bg-surface-container-high hover:bg-primary-container hover:text-on-primary-container text-primary flex items-center justify-center transition-all"><span class="material-symbols-outlined text-[18px]">casino</span></button>`;
+  const btn=`<button type="button" aria-label="Крутить" data-act="spin" data-t="${t.id}" class="w-8 h-8 rounded-full bg-surface-container-high hover:bg-primary-container hover:text-on-primary-container text-primary flex items-center justify-center transition-all"><span class="material-symbols-outlined text-[18px]">casino</span></button>`;
   return `<article class="collection-card relative flex flex-col ${special?"p-4 bg-gradient-to-br from-cinema-velvet-deep/40 via-surface-panel to-surface-panel shadow-[0_6px_24px_rgba(0,0,0,0.6)]":"p-3.5 bg-surface-panel shadow-[0_4px_20px_rgba(0,0,0,0.45)]"} rounded-2xl transition-all active:scale-[0.99] cursor-pointer" data-t="${t.id}" data-cat="${m[0]}" data-i="${i}">
 ${top}<div class="flex items-start gap-3">
 <div class="relative w-20 h-28 rounded-lg overflow-hidden shrink-0 bg-surface-container-high"><img data-k="img" alt="" class="w-full h-full object-cover opacity-0 transition-opacity duration-500 ${special?"grayscale contrast-125":""}"><span class="absolute bottom-1 right-1 px-1.5 rounded bg-surface-container-lowest/80 text-[10px] font-bold text-primary">${esc(codeOf(t))}</span></div>
@@ -369,17 +367,15 @@ function renderFilms(){
 }
 function selectedFilmHtml(f){
   const year=(f.release_date||"").slice(0,4);
-  const trailerButton=f._playing?"Закрыть трейлер":f._trailerStatus==="loading"?"Ищем трейлер…":f._trailerStatus==="missing"?"Трейлер не найден":"Смотреть трейлер";
   const cast=(f.castFull||[]).map(c=>`<div class="flex-shrink-0 w-28 flex flex-col items-center text-center p-2 rounded-xl bg-surface-container-high">
 <div class="w-14 h-14 rounded-full overflow-hidden mb-2 bg-surface-variant shadow-md flex items-center justify-center">${c.photo?`<img class="w-full h-full object-cover" loading="lazy" alt="" src="${P(c.photo,"w185")}">`:'<span class="material-symbols-outlined text-text-muted">person</span>'}</div>
 <span class="font-label-sm text-label-sm text-on-surface font-semibold truncate w-full">${esc(c.name)}</span><span class="font-micro-caption text-micro-caption text-text-muted truncate w-full">${esc(c.role)}</span></div>`).join("");
-  const trailerContent=f._playing&&f._trailer
-    ?`<iframe src="${embedSrc(f._trailer)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" title="Трейлер ${esc(f.title)}" style="position:absolute;inset:0;width:100%;height:100%;border:0"></iframe>`
-    :`<div class="absolute inset-0 flex items-center justify-center text-text-muted font-body-sm text-body-sm">${f._trailerStatus==="missing"?"Для этого фильма трейлера не нашлось":f._trailerStatus==="loading"?"Ищем трейлер…":"Трейлер не запущен"}</div>`;
+  const trailerContent=f._trailer
+    ?`<iframe src="${embedSrc(f._trailer,false)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" title="Трейлер ${esc(f.title)}" style="position:absolute;inset:0;width:100%;height:100%;border:0"></iframe>`
+    :`<div class="absolute inset-0 flex items-center justify-center text-text-muted font-body-sm text-body-sm">${f._trailerStatus==="missing"?"Трейлер не найден":f._trailerStatus==="loading"?"Загружаем превью трейлера…":"Превью трейлера недоступно"}</div>`;
   return `<section class="flex flex-col gap-space-sm p-3.5 rounded-2xl bg-surface-panel border border-primary-container/30 shadow-xl" data-selected-film="${f.id}">
 <div class="flex items-start justify-between gap-2"><div class="min-w-0"><h3 class="font-headline-md text-headline-md text-primary font-bold">${esc(f.title||"Фильм")}</h3><p class="font-micro-caption text-micro-caption text-text-muted mt-1">${fl(f._cc)} ${esc(cname(f._cc))}${year?" • "+year:""}${f.runtime?" • "+f.runtime+" мин":""}</p></div>
 <button type="button" data-act="close-film" aria-label="Закрыть описание" class="w-9 h-9 flex-shrink-0 rounded-full bg-surface-container-high text-text-muted hover:text-primary flex items-center justify-center"><span class="material-symbols-outlined">close</span></button></div>
-<button type="button" data-act="selected-trailer" class="py-2.5 px-3 rounded-lg bg-surface-container-high text-primary-fixed hover:bg-surface-bright font-label-md text-label-md font-semibold flex items-center justify-center gap-1.5 transition-colors" ${f._trailerStatus==="loading"||f._trailerStatus==="missing"?"disabled":""}><span class="material-symbols-outlined text-[18px]">${f._playing?"close":"play_circle"}</span>${trailerButton}</button>
 <div class="relative w-full aspect-video rounded-xl overflow-hidden bg-black border border-primary-container/30" id="cl-inline-trailer">${trailerContent}</div>
 <div class="flex flex-col gap-1"><h4 class="font-label-md text-label-md text-primary-fixed font-semibold">О фильме</h4><p class="font-body-sm text-body-sm text-text-muted leading-relaxed">${esc(f.overview||"Загружаем описание…")}</p></div>
 <div class="flex flex-col gap-2"><h4 class="font-label-md text-label-md text-primary-fixed font-semibold">Актёры</h4>${cast?`<div class="flex gap-2.5 overflow-x-auto py-1" style="-webkit-overflow-scrolling:touch">${cast}</div>`:`<p class="font-body-sm text-body-sm text-text-muted">${f._detailsLoaded?"Сведения об актёрах недоступны.":"Загружаем актёров…"}</p>`}</div></section>`;
@@ -443,7 +439,7 @@ async function openCollection(id,opt){
 }
 
 function openFilm(f){
-  D.selected={...f,overview:f.overview||"Загружаем описание…",_trailerStatus:"idle",_playing:false};
+  D.selected={...f,overview:f.overview||"Загружаем описание…",_trailerStatus:"loading"};
   renderFilms();
   const selected=D.selected;
   filmDetails(f.id).then(details=>{
@@ -460,22 +456,17 @@ function openFilm(f){
     selected._detailsLoaded=true;
     renderFilms();
   });
-}
-async function toggleSelectedTrailer(){
-  const f=D.selected;if(!f)return;
-  if(f._playing){f._playing=false;renderFilms();return;}
-  if(f._trailer){f._playing=true;renderFilms();return;}
-  f._trailerStatus="loading";renderFilms();
-  try{
-    const trailer=await trailerFor(f);
-    if(D.selected!==f)return;
-    if(!trailer){f._trailerStatus="missing";renderFilms();return;}
-    f._trailer=trailer;f._playing=true;renderFilms();
-  }catch(e){
-    if(D.selected!==f)return;
-    f._trailerStatus="idle";renderFilms();
+  trailerFor(f).then(trailer=>{
+    if(D.selected!==selected)return;
+    selected._trailer=trailer;
+    selected._trailerStatus=trailer?"ready":"missing";
+    renderFilms();
+  }).catch(e=>{
+    if(D.selected!==selected)return;
+    selected._trailerStatus="missing";
+    renderFilms();
     console.error("[Kinoglobus] Не удалось загрузить трейлер:",e);
-  }
+  });
 }
 /* ---------- трейлер в окне поверх подборки (без перехода на YouTube) ---------- */
 let trEl=null,trTok=0;
@@ -632,7 +623,6 @@ vd.addEventListener("click",e=>{
   const el=e.target.closest("[data-act]");if(!el)return;
   const a=el.dataset.act;
   if(a==="close-film"){D.selected=null;renderFilms();return;}
-  if(a==="selected-trailer"){toggleSelectedTrailer();return;}
   if(a==="back"){e.preventDefault();showView("collections");return;}
   if(a==="goto"){e.preventDefault();openCollection(el.dataset.t);return;}
   if(a==="spin"){inPageRoulette();return;}

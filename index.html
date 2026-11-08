@@ -2655,7 +2655,7 @@ async function filmDetails(id){
     return any?{text:String(any.data[field]).trim(),lang:any.iso_639_1}:{text:"",lang:""};
   };
   const ov=pickText("overview"), tg=pickText("tagline");
-  return detailCache[id]={runtime:j.runtime||0,dirs,writers:writers.slice(0,3),cast,genres,budget:j.budget||0,revenue:j.revenue||0,
+  return detailCache[id]={runtime:j.runtime||0,dirs,writers:writers.slice(0,3),cast,castFull:(j.credits&&j.credits.cast||[]).slice(0,10).map(c=>({name:c.name,role:c.character||"",photo:c.profile_path||""})),genres,budget:j.budget||0,revenue:j.revenue||0,
     tagline:tg.text,overview:ov.text,overviewLang:ov.lang,
     release:j.release_date||"",originalTitle:j.original_title||"",originalLang:j.original_language||"",
     companies:(j.production_companies||[]).map(c=>c.name).filter(Boolean).slice(0,3),
@@ -3038,6 +3038,7 @@ st.textContent=`
 @keyframes kgRise{from{opacity:0;transform:translateY(18px);filter:blur(6px)}to{opacity:1;transform:none;filter:blur(0)}}
 @media(prefers-reduced-motion:reduce){#film-details.opening>*{animation:none}}
 #err{color:#ff8d7a;font-size:12px;text-align:center;width:100%;margin-top:6px;z-index:10}
+#discovery-desc,#discovery-desc-lang{display:none}
 `;
 document.head.appendChild(st);
 
@@ -3480,36 +3481,76 @@ const moneyOrNo=n=>n?moneyFmt.format(n):"нет данных";
 function factRow(k,v){
   return v?`<div class="flex gap-2"><span class="text-text-muted flex-shrink-0" style="min-width:104px">${k}</span><span class="text-on-surface min-w-0" style="overflow-wrap:anywhere">${esc(v)}</span></div>`:"";
 }
+function synopsisHTML(text,note){
+  return `<div class="p-3.5 rounded-xl bg-surface-container flex flex-col gap-2">
+    <div class="flex items-center gap-1.5 text-primary"><span class="material-symbols-outlined text-[18px]">auto_stories</span><h3 class="font-headline-sm text-headline-sm">Синопсис</h3></div>
+    <p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">${esc(text)}</p>
+    ${note?`<p class="font-micro-caption text-micro-caption text-text-muted">${esc(note)}</p>`:""}
+  </div>`;
+}
 function renderExtra(film,d){
-  // Описание: русское, иначе английское, иначе язык оригинала или любой другой
-  const text=d.overview||film.overview||"";
-  set("discovery-desc",text||"Описания нет ни на одном языке.");
-  const dl=$("discovery-desc-lang");
-  if(d.overview&&d.overviewLang&&d.overviewLang!=="ru"){
-    dl.textContent="Описания на русском нет. Показано на языке: "+langName(d.overviewLang)+".";dl.hidden=false;
-  }else dl.hidden=true;
+  const cc=cur?cur.cc:"";
+  const year=(film.release_date||"").slice(0,4);
+  const text=d.overview||film.overview||"Описания нет ни на одном языке.";
+  const note=(d.overview&&d.overviewLang&&d.overviewLang!=="ru")
+    ?"Описания на русском нет. Показано на языке: "+langName(d.overviewLang)+".":"";
+  set("discovery-desc",text);
   const tg=$("film-tagline");
   tg.textContent=d.tagline?"«"+d.tagline+"»":"";tg.hidden=!d.tagline;
+
+  // создатели
+  const card=(label,val,main)=>val?`<div class="p-2.5 rounded-xl bg-surface-container-high flex flex-col min-w-0">
+    <span class="font-micro-caption text-micro-caption text-text-muted">${label}</span>
+    <span class="font-label-md text-label-md ${main?"text-primary":"text-on-surface"} mt-0.5" style="overflow-wrap:anywhere">${esc(val)}</span></div>`:"";
+  const crew=[card(d.dirs.length>1?"Режиссёры":"Режиссёр",d.dirs.join(", "),true),card("Сценарий",d.writers.join(", "),false)].filter(Boolean);
+
+  // актёры
+  const cast=(d.castFull||[]).map(c=>`<div class="flex-shrink-0 w-28 flex flex-col items-center text-center p-2 rounded-xl bg-surface-container-high">
+    <div class="w-14 h-14 rounded-full overflow-hidden mb-2 bg-surface-variant shadow-md flex items-center justify-center">
+      ${c.photo?`<img class="w-full h-full object-cover" loading="lazy" alt="" src="https://image.tmdb.org/t/p/w185${c.photo}">`:'<span class="material-symbols-outlined text-text-muted">person</span>'}
+    </div>
+    <span class="font-label-sm text-label-sm text-on-surface font-semibold truncate w-full">${esc(c.name)}</span>
+    <span class="font-micro-caption text-micro-caption text-text-muted truncate w-full">${esc(c.role)}</span></div>`).join("");
+
+  const people=(crew.length||cast)?`<div class="flex flex-col gap-2">
+    <div class="flex items-center justify-between"><h3 class="font-headline-sm text-headline-sm text-on-surface">Создатели и актёры</h3>
+      <span class="font-micro-caption text-micro-caption text-text-muted">${esc([cc?cname(cc):"",year].filter(Boolean).join(" · "))}</span></div>
+    ${crew.length?`<div class="grid ${crew.length>1?"grid-cols-2":"grid-cols-1"} gap-2">${crew.join("")}</div>`:""}
+    ${cast?`<div class="flex gap-2.5 overflow-x-auto py-1" style="-webkit-overflow-scrolling:touch">${cast}</div>`:""}
+  </div>`:"";
+
+  // остальные факты
   let when="";
-  if(d.release){
-    const t=new Date(d.release+"T00:00:00");
-    when=isNaN(t)?d.release:t.toLocaleDateString("ru-RU",{day:"numeric",month:"long",year:"numeric"});
-  }
-  const rows=[
-    factRow(d.dirs.length>1?"Режиссёры":"Режиссёр",d.dirs.join(", ")),
-    factRow("Сценарий",d.writers.join(", ")),
-    factRow("В ролях",d.cast.join(", ")),
-    factRow("Длительность",d.runtime?fmtRuntime(d.runtime):""),
-    factRow("Дата выхода",when),
-    factRow("Бюджет",moneyOrNo(d.budget)),
-    factRow("Сборы",moneyOrNo(d.revenue)),
-    factRow("Студии",d.companies.join(", ")),
-    factRow("Страны",d.countries.map(cname).filter(Boolean).join(", ")),
-    factRow("Язык оригинала",langName(d.originalLang)),
-    factRow("Оригинальное название",d.originalTitle&&d.originalTitle!==film.title?d.originalTitle:"")
-  ].filter(Boolean);
-  $("film-facts").innerHTML=rows.join("");
+  if(d.release){const t=new Date(d.release+"T00:00:00");when=isNaN(t)?d.release:t.toLocaleDateString("ru-RU",{day:"numeric",month:"long",year:"numeric"});}
+  const facts=[
+    ["Длительность",d.runtime?fmtRuntime(d.runtime):"",0],["Дата выхода",when,0],
+    ["Бюджет",moneyOrNo(d.budget),0],["Сборы",moneyOrNo(d.revenue),0],
+    ["Студии",d.companies.join(", "),1],["Страны",d.countries.map(cname).filter(Boolean).join(", "),1],
+    ["Язык оригинала",langName(d.originalLang),0],
+    ["Оригинальное название",d.originalTitle&&d.originalTitle!==film.title?d.originalTitle:"",1]
+  ].filter(f=>f[1]).map(([k,v,wide])=>`<div class="p-2.5 rounded-xl bg-surface-container-high flex flex-col min-w-0 ${wide?"col-span-2":""}">
+    <span class="font-micro-caption text-micro-caption text-text-muted">${k}</span>
+    <span class="font-label-md text-label-md text-on-surface mt-0.5" style="overflow-wrap:anywhere">${esc(v)}</span></div>`).join("");
+
+  // страна и прогресс
+  const n=visited[cc]||0,open=Object.keys(visited).length,all=COUNTRIES.length,pct=Math.round(open/all*100);
+  const tag=cur&&cur.pool.oscar?"ОСКАР":cur&&cur.pool.top1?"ТОП-1":"НАХОДКА";
+  const country=cc?`<div class="p-3.5 rounded-xl bg-surface-container-high flex flex-col gap-2.5">
+    <div class="flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2 min-w-0"><div class="w-7 h-7 rounded-full bg-cinema-velvet-deep flex items-center justify-center text-secondary flex-shrink-0"><span class="material-symbols-outlined text-[16px]">travel_explore</span></div>
+        <span class="font-label-md text-label-md text-primary font-bold truncate">Кинематограф: ${esc(cname(cc))}</span></div>
+      <span class="px-2 py-0.5 rounded-full bg-surface-panel text-primary-fixed font-micro-caption text-micro-caption font-bold flex-shrink-0">${tag}</span></div>
+    <p class="font-body-sm text-body-sm text-on-surface-variant">Фильмов из этой страны в паспорте: <strong class="text-primary font-bold">${n}</strong>. Открыто стран: <strong class="text-primary font-bold">${open} из ${all}</strong>.</p>
+    <div class="w-full bg-surface-variant/70 rounded-full h-2 overflow-hidden"><div class="bg-primary-container h-full rounded-full transition-all duration-500" style="width:${pct}%"></div></div>
+    <div class="flex items-center justify-between text-text-muted"><span class="font-micro-caption text-micro-caption">Прогресс: ${pct}%</span>
+      <button type="button" data-kg="passport" class="inline-flex items-center gap-1 font-micro-caption text-micro-caption text-primary hover:underline"><span>Смотреть паспорт</span><span class="material-symbols-outlined text-[12px]">chevron_right</span></button></div>
+  </div>`:"";
+
+  const fx=$("film-facts");
+  fx.className="flex flex-col gap-3 mt-2";
+  fx.innerHTML=synopsisHTML(text,note)+people+(facts?`<div class="grid grid-cols-2 gap-2">${facts}</div>`:"")+country;
 }
+$("film-facts").addEventListener("click",e=>{if(e.target.closest('[data-kg="passport"]'))$("mapBtn").click();});
 
 // ---------- Трейлер прямо в приложении ----------
 let ftKey=null;

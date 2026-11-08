@@ -76,8 +76,8 @@
       const day=Math.floor((Date.now()-Date.UTC(new Date().getUTCFullYear(),0,0))/86400000);
       state.feature=state.films[(day-1+state.films.length)%state.films.length];
       renderDecades(root);renderFeature(root,deps);renderList(root,deps);renderProgress(root,deps);
-      await loadFeatureDetails(root,deps);
-      await loadCountries(root,deps);
+      loadFeatureDetails(root,deps);
+      loadCountries(root,deps).catch(error=>console.warn("[Kinoglobus] Не удалось загрузить географию лауреатов:",error));
     }catch(e){
       if(token!==state.request)return;
       error.textContent=e.message||"Не удалось загрузить список лауреатов.";
@@ -115,7 +115,7 @@
     catch(e){console.warn("[Kinoglobus] Не удалось загрузить сведения о лауреате дня:",e);}
   }
   async function loadCountries(root,deps){
-    const films=state.films.slice(0,24),counts=new Map();
+    const request=state.request,films=state.films.slice(0,12),counts=new Map();
     await mapLimit(films,4,async f=>{
       const direct=(f.origin_country||[]).filter(Boolean);
       let countries=direct;
@@ -124,7 +124,7 @@
       }
       countries.forEach(c=>counts.set(c,(counts.get(c)||0)+1));
     });
-    if(!root.isConnected)return;
+    if(request!==state.request||!root.isConnected)return;
     const ordered=[...counts].sort((a,b)=>b[1]-a[1]).slice(0,6);
     root.querySelector("#oscar-country-total").textContent=ordered.length?`${ordered.length} стран в выборке`:"Данные о странах недоступны";
     root.querySelector("#oscar-countries").innerHTML=ordered.length?ordered.map(([cc,n])=>`<div class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container text-on-surface font-label-sm text-label-sm"><span>${esc(deps.countryName(cc))}</span><span class="text-primary font-bold ml-0.5">${n}</span></div>`).join(""):'<span class="font-micro-caption text-micro-caption text-text-muted">TMDB не предоставил данные о странах для списка.</span>';

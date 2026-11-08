@@ -860,8 +860,38 @@ function update3DCountryFlag(country, popAnimation = false) {
     };
     makeRing('pulse1', 0.08);
     makeRing('pulse2', 0.08);
+// 5. Мягкая подсветка «территории» страны
+const areaGeo = new THREE.CircleGeometry(0.16, 32);
+areaGeo.rotateX(-Math.PI / 2);
+const areaMat = new THREE.MeshBasicMaterial({
+  color: 0xffc857,
+  transparent: true,
+  opacity: 0.22,
+  side: THREE.DoubleSide,
+  depthWrite: false
+});
+const areaMesh = new THREE.Mesh(areaGeo, areaMat);
+areaMesh.name = 'area';
+areaMesh.position.y = 0.002;
+flagPinGroup.add(areaMesh);
 
-    rotatingGroup.add(flagPinGroup);
+// Тонкое кольцо-контур зоны
+const areaRingGeo = new THREE.RingGeometry(0.145, 0.165, 48);
+areaRingGeo.rotateX(-Math.PI / 2);
+const areaRingMat = new THREE.MeshBasicMaterial({
+  color: 0xffe08a,
+  transparent: true,
+  opacity: 0.7,
+  side: THREE.DoubleSide,
+  depthWrite: false
+});
+const areaRingMesh = new THREE.Mesh(areaRingGeo, areaRingMat);
+areaRingMesh.name = 'areaRing';
+areaRingMesh.position.y = 0.003;
+flagPinGroup.add(areaRingMesh);
+
+rotatingGroup.add(flagPinGroup);
+    
   }
 
   // Ориентация маркера по нормали поверхности
@@ -1062,7 +1092,7 @@ function update3DCountryFlag(country, popAnimation = false) {
       rotatingGroup.add(earthMesh);
 
       // Atmospheric cloud layer
-      const cloudsGeo = new THREE.SphereGeometry(earthRadius + 0.015, 48, 48);
+      const cloudsGeo = new THREE.SphereGeometry(earthRadius + 0.012, 48, 48);
       const cloudsMat = new THREE.MeshLambertMaterial({
         color: 0xffffff,
         transparent: true,
@@ -1074,11 +1104,11 @@ function update3DCountryFlag(country, popAnimation = false) {
       rotatingGroup.add(cloudsMesh);
 
       // Luminous blue ozone layer: SphereGeometry(1.465)
-      const glowGeo = new THREE.SphereGeometry(1.465, 32, 32);
+      const glowGeo = new THREE.SphereGeometry(earthRadius * 1.045, 48, 48);
       const glowMat = new THREE.MeshBasicMaterial({
-        color: 0x3d94ff,
+        color: 0x5aa8ff,
         transparent: true,
-        opacity: 0.16,
+        opacity: 0.11,
         blending: THREE.AdditiveBlending,
         side: THREE.BackSide,
         depthWrite: false
@@ -1175,7 +1205,22 @@ if (flagPinGroup && flagPinGroup.visible) {
     glow.scale.set(g, g, g);
     glow.material.opacity = 0.28 + Math.sin(t * 2.2) * 0.08;
   }
+
+// Дыхание зоны вокруг маркера
+const area = flagPinGroup.getObjectByName('area');
+const areaRing = flagPinGroup.getObjectByName('areaRing');
+
+if (area) {
+  area.material.opacity = 0.16 + Math.sin(t * 1.6) * 0.05;
 }
+
+if (areaRing) {
+  areaRing.material.opacity = 0.55 + Math.sin(t * 1.6) * 0.15;
+}
+
+}
+
+ 
         // Idle slow rotation
         if (!isSpinning && !isDragging) {
           targetRotY += driftSpeed;

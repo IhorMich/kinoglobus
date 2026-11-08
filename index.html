@@ -2859,7 +2859,11 @@ async function spinOscar(){
       }
     }catch(e){}
     await reelLand(cc);
-    show(cc,{films:[film],oscar:true,votes:film.vote_count||0,total:1},film);
+    const all=await oscarFilms();
+// для прокрутки плёнки берём 40 случайных лауреатов с постерами + сам выпавший фильм
+const reelFilms=shuffle(all.filter(f=>f.poster_path&&f.id!==film.id)).slice(0,40);
+reelFilms.push(film);
+show(cc,{films:reelFilms,oscar:true,votes:film.vote_count||0,total:all.length},film);
   }catch(e){$("err").textContent=e.message}
   finally{reelAbort();unlockSpin();}
 }

@@ -1579,19 +1579,33 @@ YU:'<svg viewBox="0 0 90 60" aria-hidden="true"><rect width="90" height="20" fil
 CS:'<svg viewBox="0 0 90 60" aria-hidden="true"><rect width="90" height="30" fill="#fff"/><rect y="30" width="90" height="30" fill="#d7141a"/><path d="M0 0 L42 30 L0 60 Z" fill="#11457e"/></svg>',
 DD:'<svg viewBox="0 0 90 60" aria-hidden="true"><rect width="90" height="20" fill="#000"/><rect y="20" width="90" height="20" fill="#dd0000"/><rect y="40" width="90" height="20" fill="#ffce00"/><g transform="translate(45 30)"><circle r="11" fill="none" stroke="#ffce00" stroke-width="1.4"/><circle r="9.2" fill="none" stroke="#111" stroke-width=".5"/><path fill="#ffce00" d="M-1.2-6.5h2.4v8.2h-2.4z"/><path fill="#ffce00" d="M-5.2-1.2h10.4v2.2h-10.4z"/><path fill="none" stroke="#ffce00" stroke-width="1.3" d="M-4.5 2.5 A5.5 5.5 0 0 0 4.5 2.5"/><path fill="#ffce00" d="M-6.2 3.8 L-4.8 1.2 L-3.4 3.8z M4.8 1.2 L6.2 3.8 L3.4 3.8z"/><circle cx="0" cy="-2.2" r="1.6" fill="#dd0000"/></g></svg>'
 };
+// Локальные SVG исторических государств
+const HIST_FLAG_FILES = {
+  SU: "assets/flags/ussr.svg",
+  YU: "assets/flags/yugoslavia.svg",
+  DD: "assets/flags/east-germany.svg"
+};    
 const cname=c=>HIST[c]||names.of(c);
-const emojiFlag=c=>[...c].map(x=>String.fromCodePoint(127397+x.charCodeAt(0))).join("");
+const emojiFlag=c=>[…c].map(x=>String.fromCodePoint(127397+x.charCodeAt(0))).join(””);
+
+const HIST_FLAG_FILES = {
+SU: “assets/flags/ussr.svg”,
+YU: “assets/flags/yugoslavia.svg”,
+DD: “assets/flags/east-germany.svg”
+};
 
 const flag=(c,wave=true)=>{
-  const body = HIST_SVG[c] ||
-    `<img
-      class="flag-img"
-      src="https://flagcdn.com/${c.toLowerCase()}.svg"
-      alt=""
-      onerror="this.onerror=null;this.replaceWith(document.createTextNode('${emojiFlag(c)}'))"
-    >`;
+let body;
 
-  return wave ? `<span class="wave">${body}</span>` : body;
+if (HIST_FLAG_FILES[c]) {
+body = <img class="flag-img" src="${HIST_FLAG_FILES[c]}" alt="">;
+} else if (HIST_SVG[c]) {
+body = HIST_SVG[c];
+} else {
+body = <img class="flag-img" src="https://flagcdn.com/${c.toLowerCase()}.svg" alt="" onerror="this.onerror=null;this.replaceWith(document.createTextNode('${emojiFlag(c)}'))" >;
+}
+
+return wave ? <span class="wave">${body}</span> : body;
 };
 // storage (guarded)
 const store={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},

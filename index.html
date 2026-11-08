@@ -172,7 +172,7 @@
 <!-- 2. 3D PLANET EARTH CANVASES & RENDER VIEWPORT -->
 <div class="absolute inset-0 flex items-center justify-center pointer-events-auto z-10" id="earth-canvas-container">
 <!-- Interactive 3D Earth WebGL Canvas -->
-<canvas class="w-full h-full cursor-grab active:cursor-grabbing block relative z-10" height="876" id="earth-webgl-canvas" style="width: 326px; height: 438px;" width="652"></canvas>
+<canvas class="w-full h-full block touch-none cursor-grab active:cursor-grabbing" id="earth-webgl-canvas"></canvas>
 </div>
 <!-- Gold Radar Visor Corners -->
 <div class="absolute inset-x-4 inset-y-4 z-20 pointer-events-none rounded-2xl border border-primary-container/25 bg-gradient-to-b from-primary-container/[0.03] to-transparent shadow-[0_0_24px_rgba(255,184,48,0.12)] flex items-center justify-between p-2.5 transition-all duration-300" id="focal-lens"><div class="absolute top-2 left-2 w-4 h-4 border-t-2 border-l-2 border-primary-container shadow-[0_0_8px_rgba(255,184,48,0.6)]"></div><div class="absolute top-2 right-2 w-4 h-4 border-t-2 border-r-2 border-primary-container shadow-[0_0_8px_rgba(255,184,48,0.6)]"></div><div class="absolute bottom-2 left-2 w-4 h-4 border-b-2 border-l-2 border-primary-container shadow-[0_0_8px_rgba(255,184,48,0.6)]"></div><div class="absolute bottom-2 right-2 w-4 h-4 border-b-2 border-r-2 border-primary-container shadow-[0_0_8px_rgba(255,184,48,0.6)]"></div></div>
@@ -352,7 +352,7 @@
 </div>
 
 <script>
-// ========== Design 3D + UI (from Pro Salon) — kept, spin overridden ==========
+// ========== Глобус и UI: перенесены 1:1 из дизайна (вращение подключает мост ниже) ==========
 
   (function() {
     // Mode Switcher Interaction
@@ -384,7 +384,7 @@
       });
     }
 
-    // Full 10 Real-World Countries Cinema Database with exact lat/lon
+    // Full Real-World Countries Cinema Database with exact lat/lon
     const catalog = [
       {
         id: 'KR',
@@ -568,7 +568,7 @@
       }
     ];
 
-    // Initial state: Spain (index 8) to match hero screen
+    // Initial state: Spain (index 8)
     let currentCountry = catalog[8];
 
     // DOM Elements
@@ -604,17 +604,6 @@
 
     // Audio Engine
     let soundEnabled = true;
-    const soundToggle = document.getElementById('btn-sound-toggle');
-    const soundIcon = document.getElementById('sound-icon');
-    if (soundToggle) {
-      soundToggle.addEventListener('click', () => {
-        soundEnabled = !soundEnabled;
-        soundIcon.textContent = soundEnabled ? 'volume_up' : 'volume_off';
-        soundToggle.classList.toggle('text-primary', soundEnabled);
-        soundToggle.classList.toggle('text-text-muted', !soundEnabled);
-      });
-    }
-
     let audioCtx = null;
     function playRadarChirp(freq = 900) {
       if (!soundEnabled) return;
@@ -672,6 +661,9 @@
     // 3D PLANET EARTH ENGINE WITH AUTHENTIC AXIAL TILT & TRUE POLAR ROTATION
     let tiltGroup, rotatingGroup;
     let earthMesh, cloudsMesh, atmosphereMesh;
+    let flagPinGroup = null;
+    let flagBannerMesh = null;
+    let targetFlagScale = 0.001;
     let camera;
     let targetRotY = 0;
     let targetRotX = 0;
@@ -681,46 +673,234 @@
     let previousMousePosition = { x: 0, y: 0 };
     let lerpSpeed = 0.045;
 
-    // Authentic Earth axial tilt: 23.44 degrees = 0.4091 radians
-    const EARTH_AXIAL_TILT = 0.4091;
+    // Beacon dots storage map & group
+    let dotMeshMap = {};
+    let beaconGroup = null;
 
-    // Updated camera distances:
-    // Base default overview in resting state: 5.0
-    // During roulette scan: 5.0
-    // Soft zoom into target winner country: 3.2, then velvety dolly return back to 5.0
-    const CAMERA_DIST_DEFAULT = 5.0; // Distant harmonious overview in space
-    const CAMERA_DIST_SPIN = 5.0;    // Scan overview distance
-    const CAMERA_DIST_FOCUS = 3.2;   // Harmonic smooth zoom into target country on win
+    // Authentic Earth axial tilt: 23.4 degrees = 0.4084 radians
+    const axialTilt = 23.4 * (Math.PI / 180);
 
-    let targetCameraZ = CAMERA_DIST_DEFAULT;
-    let currentCameraZ = CAMERA_DIST_DEFAULT;
-    let targetCameraY = 0.18;
-    let currentCameraY = 0.18;
-    // Velvet, cinematic, slow camera interpolation lerp factor (0.026)
-    let zoomLerpFactor = 0.026;
+    // Exact camera distances:
+    const defaultDist = 5.0; // Distant comfortable overview
+    const focusDist = 3.65;  // Delicate zoom into target country
+
+    let targetCameraZ = defaultDist;
+    let currentCameraZ = defaultDist;
+    let targetCameraY = 0.15;
+    let currentCameraY = 0.15;
+    let zoomLerpFactor = 0.035;
     let zoomResetTimeout = null;
 
-    // State machine: Idle meditative drift vs Active targeting/spin
     let isSpinning = false;
-    let isLockedTarget = true;
-    let driftSpeed = 0.0016; // meditative 3D west-to-east axial spin
+    let driftSpeed = 0.0018;
 
-    // Helper: shortest angle distance
     function shortestAngleDist(a0, a1) {
       const max = Math.PI * 2;
       const da = (a1 - a0) % max;
       return ((2 * da) % max) - da;
     }
 
-    // Convert real lat/lon to sphere local polar rotations
     function countryToRotations(lat, lon) {
-      // longitude moves along Y axis; latitude along X axis
       const rotY = - (lon * Math.PI / 180) - Math.PI / 2;
       const rotX = (lat * Math.PI / 180);
       return { rotX, rotY };
     }
 
-    function orientGlobeToCountry(country, immediate = false, speed = 0.065, zoomLevel = CAMERA_DIST_FOCUS) {
+    function latLonToVector3(lat, lon, radius) {
+      const phi = (90 - lat) * (Math.PI / 180);
+      const theta = (lon + 180) * (Math.PI / 180);
+      const x = - (radius * Math.sin(phi) * Math.cos(theta));
+      const z = (radius * Math.sin(phi) * Math.sin(theta));
+      const y = (radius * Math.cos(phi));
+      return new THREE.Vector3(x, y, z);
+    }
+
+    // High quality canvas texture for the 3D winner flag
+    function createFlagCanvasTexture(country) {
+      const canvas = document.createElement('canvas');
+      canvas.width = 256;
+      canvas.height = 160;
+      const ctx = canvas.getContext('2d');
+
+      // Rounded banner background
+      ctx.fillStyle = '#1c1626';
+      ctx.fillRect(0, 0, 256, 160);
+
+      // Gold border
+      const borderGrad = ctx.createLinearGradient(0, 0, 256, 160);
+      borderGrad.addColorStop(0, '#ffdca8');
+      borderGrad.addColorStop(0.5, '#ffb830');
+      borderGrad.addColorStop(1, '#9e6200');
+      ctx.strokeStyle = borderGrad;
+      ctx.lineWidth = 6;
+      ctx.strokeRect(3, 3, 250, 154);
+
+      // Emoji Flag
+      ctx.font = '82px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(country.flag || '🌐', 128, 70);
+
+      // Country Name
+      ctx.fillStyle = '#ffdca8';
+      ctx.font = 'bold 20px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText((country.name || '').toUpperCase(), 128, 134);
+
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.needsUpdate = true;
+      return texture;
+    }
+
+    // Hide all beacon dots to maintain a clean and pristine Earth
+    function hideAllBeacons() {
+      Object.keys(dotMeshMap).forEach(key => {
+        const item = dotMeshMap[key];
+        if (item && item.holder) {
+          item.holder.visible = false;
+          if (item.dotMat) item.dotMat.opacity = 0;
+          if (item.ringMat) item.ringMat.opacity = 0;
+        }
+      });
+    }
+
+    // Turn on beacon dot strictly for a specific winning country
+    function showSingleBeacon(country) {
+      hideAllBeacons();
+      const countryId = (country && typeof country === 'object') ? country.id : country;
+      let target = dotMeshMap[countryId];
+      if (!target && country && typeof country === 'object') target = addBeacon(country);
+      if (target && target.holder) {
+        target.holder.visible = true;
+        if (target.dotMat) target.dotMat.opacity = 1.0;
+        if (target.ringMat) target.ringMat.opacity = 0.85;
+      }
+    }
+
+    // Hide the 3D flagpost
+    function hideFlagPost() {
+      if (flagPinGroup) {
+        flagPinGroup.visible = false;
+        flagPinGroup.scale.set(0.001, 0.001, 0.001);
+      }
+      targetFlagScale = 0.001;
+    }
+
+    // Winner 3D Flagpost setup - banner angled at ~28° (rotation.y = 0.48) for perfect readability
+    function update3DCountryFlag(country, popAnimation = false) {
+      if (!rotatingGroup || !country) return;
+      const radius = 1.42;
+      const pos = latLonToVector3(country.lat, country.lon, radius);
+      const normal = pos.clone().normalize();
+
+      if (!flagPinGroup) {
+        flagPinGroup = new THREE.Group();
+
+        // 1. Pole
+        const poleHeight = 0.45;
+        const poleGeo = new THREE.CylinderGeometry(0.01, 0.014, poleHeight, 16);
+        poleGeo.translate(0, poleHeight / 2, 0);
+        const poleMat = new THREE.MeshBasicMaterial({ color: 0xffd56b });
+        const poleMesh = new THREE.Mesh(poleGeo, poleMat);
+        flagPinGroup.add(poleMesh);
+
+        // 2. Tip orb
+        const tipGeo = new THREE.SphereGeometry(0.028, 16, 16);
+        tipGeo.translate(0, poleHeight, 0);
+        const tipMat = new THREE.MeshBasicMaterial({ color: 0xfff0aa });
+        const tipMesh = new THREE.Mesh(tipGeo, tipMat);
+        flagPinGroup.add(tipMesh);
+
+        // 3. Ground ring
+        const ringGeo = new THREE.RingGeometry(0.02, 0.06, 24);
+        ringGeo.rotateX(-Math.PI / 2);
+        const ringMat = new THREE.MeshBasicMaterial({ color: 0xffb830, side: THREE.DoubleSide });
+        const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+        flagPinGroup.add(ringMesh);
+
+        // 4. Banner mesh turned ~28 degrees towards the camera
+        const bannerGeo = new THREE.PlaneGeometry(0.32, 0.20);
+        bannerGeo.translate(0.16, poleHeight - 0.10, 0);
+        const bannerMat = new THREE.MeshBasicMaterial({
+          map: createFlagCanvasTexture(country),
+          side: THREE.DoubleSide,
+          transparent: true
+        });
+        flagBannerMesh = new THREE.Mesh(bannerGeo, bannerMat);
+        // rotation.y = 0.48 (~28 degrees) to prevent standing on edge
+        flagBannerMesh.rotation.y = 0.48;
+        flagPinGroup.add(flagBannerMesh);
+
+        rotatingGroup.add(flagPinGroup);
+      } else if (flagBannerMesh) {
+        flagBannerMesh.material.map = createFlagCanvasTexture(country);
+        flagBannerMesh.material.needsUpdate = true;
+      }
+
+      flagPinGroup.position.copy(pos);
+      const up = new THREE.Vector3(0, 1, 0);
+      const quaternion = new THREE.Quaternion().setFromUnitVectors(up, normal);
+      flagPinGroup.setRotationFromQuaternion(quaternion);
+
+      flagPinGroup.visible = true;
+
+      if (popAnimation) {
+        flagPinGroup.scale.set(0.01, 0.01, 0.01);
+        targetFlagScale = 1.0;
+      } else {
+        flagPinGroup.scale.set(1.0, 1.0, 1.0);
+        targetFlagScale = 1.0;
+      }
+    }
+
+    // Beacon dots: created once per country on demand (hidden in idle state)
+    let beaconGeo = null;
+    function addBeacon(item) {
+      if (!rotatingGroup || !item) return null;
+      if (!beaconGroup) {
+        beaconGroup = new THREE.Group();
+        rotatingGroup.add(beaconGroup);
+      }
+      if (!beaconGeo) {
+        beaconGeo = {
+          dotGeo: new THREE.SphereGeometry(0.022, 16, 16),
+          pulseRingGeo: new THREE.RingGeometry(0.024, 0.052, 24)
+        };
+      }
+      if (dotMeshMap[item.id]) return dotMeshMap[item.id];
+
+      const holder = new THREE.Group();
+      const pos = latLonToVector3(item.lat, item.lon, 1.422);
+      const normal = pos.clone().normalize();
+
+      const dotMat = new THREE.MeshBasicMaterial({ color: 0xffcc44, transparent: true, opacity: 0 });
+      const dotMesh = new THREE.Mesh(beaconGeo.dotGeo, dotMat);
+      dotMesh.position.copy(pos);
+      holder.add(dotMesh);
+
+      const ringMat = new THREE.MeshBasicMaterial({ color: 0xffa500, side: THREE.DoubleSide, transparent: true, opacity: 0 });
+      const ringMesh = new THREE.Mesh(beaconGeo.pulseRingGeo, ringMat);
+      ringMesh.position.copy(pos);
+      const up = new THREE.Vector3(0, 0, 1);
+      ringMesh.quaternion.setFromUnitVectors(up, normal);
+      holder.add(ringMesh);
+
+      // Pristine Earth: Initialized hidden
+      holder.visible = false;
+      beaconGroup.add(holder);
+
+      dotMeshMap[item.id] = { holder: holder, dotMat: dotMat, ringMat: ringMat, country: item };
+      return dotMeshMap[item.id];
+    }
+
+    function createCountryBeacons() {
+      if (!rotatingGroup) return;
+      beaconGroup = new THREE.Group();
+      dotMeshMap = {};
+      rotatingGroup.add(beaconGroup);
+      catalog.forEach(item => addBeacon(item));
+    }
+
+    function orientGlobeToCountry(country, immediate = false, speed = 0.065, zoomLevel = focusDist, showFlag = true) {
       if (!country) return;
       const rots = countryToRotations(country.lat, country.lon);
       targetRotX = rots.rotX;
@@ -736,6 +916,12 @@
         currentCameraZ = targetCameraZ;
         if (camera) camera.position.z = currentCameraZ;
       }
+
+      if (showFlag) {
+        update3DCountryFlag(country, !immediate);
+      } else {
+        hideFlagPost();
+      }
     }
 
     function initRealisticEarth() {
@@ -748,89 +934,92 @@
 
       const scene = new THREE.Scene();
       camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
-      camera.position.set(0, currentCameraY, CAMERA_DIST_DEFAULT);
+      camera.position.set(0, currentCameraY, defaultDist);
 
       const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
       renderer.setSize(width, height);
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-      // Lighting: Warm cinema key light from top-left, gentle fill, subtle rim backlight
-      const sunLight = new THREE.DirectionalLight(0xfff6e4, 2.5);
-      sunLight.position.set(5.5, 3.2, 4.2);
-      scene.add(sunLight);
+      // Cinema Lighting: Soft ambient & directional space lighting without blinding specular hotspot
+      const dirLight = new THREE.DirectionalLight(0xfff6eb, 1.25);
+      dirLight.position.set(4, 2, 4);
+      scene.add(dirLight);
 
-      const ambientLight = new THREE.AmbientLight(0x182436, 0.55);
-      scene.add(ambientLight);
+      const ambLight = new THREE.AmbientLight(0x7687a2, 1.35);
+      scene.add(ambLight);
 
-      const backlight = new THREE.DirectionalLight(0x1b376b, 0.95);
-      backlight.position.set(-6, -2, -3.5);
-      scene.add(backlight);
+      const hemiLight = new THREE.HemisphereLight(0xdce6ff, 0x121622, 0.85);
+      scene.add(hemiLight);
 
-      // Hierarchical Setup for True 3D Axial Tilt & Rotation:
-      // 1. tiltGroup: Has Earth's authentic 23.4° obliquity (Z-tilt) and subtle precession
+      // Hierarchical Setup for True 3D Axial Tilt (23.4°) & Rotation:
       tiltGroup = new THREE.Group();
-      tiltGroup.position.y = 0.22;
-      tiltGroup.rotation.z = EARTH_AXIAL_TILT; // Realistic 23.4 degrees tilt
+      tiltGroup.position.y = 0.20;
+      tiltGroup.rotation.z = axialTilt; // Canonical 23.4 degrees tilt
       scene.add(tiltGroup);
 
-      // 2. rotatingGroup: Rotates along true polar Y axis and latitude tilt X
       rotatingGroup = new THREE.Group();
       tiltGroup.add(rotatingGroup);
 
-      // Earth Sphere Mesh
-      const earthRadius = 1.35;
-      const earthGeo = new THREE.SphereGeometry(earthRadius, 64, 64);
+      // Earth Sphere Geometry (SphereGeometry(1.42, 64, 48))
+      const earthRadius = 1.42;
+      const earthGeo = new THREE.SphereGeometry(earthRadius, 64, 48);
 
-      // Procedural Earth fallback texture
+      // High-resolution realistic NASA Blue Marble procedural texture
       function createEarthTexture() {
         const texCanvas = document.createElement('canvas');
         texCanvas.width = 2048;
         texCanvas.height = 1024;
         const ctx = texCanvas.getContext('2d');
 
+        // Deep blue oceans gradient (#061a38 - #0e3a75)
         const oceanGrad = ctx.createLinearGradient(0, 0, 0, 1024);
-        oceanGrad.addColorStop(0, '#0a213a');
-        oceanGrad.addColorStop(0.5, '#07182b');
-        oceanGrad.addColorStop(1, '#051120');
+        oceanGrad.addColorStop(0, '#061a38');
+        oceanGrad.addColorStop(0.5, '#0e3a75');
+        oceanGrad.addColorStop(1, '#061a38');
         ctx.fillStyle = oceanGrad;
         ctx.fillRect(0, 0, 2048, 1024);
 
-        ctx.fillStyle = '#224e2b';
-        function drawLand(x, y, w, h) {
+        // Continental shapes & topography
+        ctx.fillStyle = '#265432';
+        function drawBlob(x, y, w, h) {
           ctx.beginPath();
           ctx.ellipse(x, y, w, h, 0, 0, Math.PI * 2);
           ctx.fill();
         }
-        drawLand(1050, 480, 160, 200); // Africa
-        drawLand(1040, 310, 110, 75);  // Europe
-        drawLand(1380, 320, 290, 150); // Asia
-        drawLand(450, 320, 180, 130);  // N America
-        drawLand(540, 650, 130, 210);  // S America
-        drawLand(1580, 720, 120, 90);  // Australia
+        // Eurasia
+        drawBlob(1350, 310, 280, 140);
+        // Europe
+        drawBlob(1050, 290, 110, 75);
+        // Africa
+        ctx.fillStyle = '#61542f';
+        drawBlob(1070, 480, 150, 180);
+        // North America
+        ctx.fillStyle = '#2e5b38';
+        drawBlob(460, 310, 180, 130);
+        // South America
+        ctx.fillStyle = '#245230';
+        drawBlob(570, 640, 120, 200);
+        // Australia
+        ctx.fillStyle = '#6f5734';
+        drawBlob(1580, 710, 110, 80);
 
-        ctx.fillStyle = 'rgba(255, 225, 140, 0.7)';
-        const citySpots = [
-          [1040, 300], [1060, 315], [1020, 320], [1050, 330],
-          [440, 310], [470, 330], [420, 340], [380, 320],
-          [1420, 330], [1480, 340], [1360, 350], [1450, 380]
-        ];
-        citySpots.forEach(([cx, cy]) => {
-          ctx.beginPath();
-          ctx.arc(cx, cy, 3, 0, Math.PI * 2);
-          ctx.fill();
-        });
+        // Soft cloud wisps overlay
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.22)';
+        for (let i = 0; i < 40; i++) {
+          const cx = Math.random() * 2048;
+          const cy = Math.random() * 1024;
+          drawBlob(cx, cy, 60 + Math.random() * 120, 15 + Math.random() * 30);
+        }
 
         return new THREE.CanvasTexture(texCanvas);
       }
 
-      const textureLoader = new THREE.TextureLoader();
-      const earthMat = new THREE.MeshPhongMaterial({
-        map: createEarthTexture(),
-        specular: new THREE.Color(0x283b4e),
-        shininess: 20,
-        bumpScale: 0.05
+      // Smooth Lambert material (NO glaring specular white spot)
+      const earthMat = new THREE.MeshLambertMaterial({
+        map: createEarthTexture()
       });
 
+      const textureLoader = new THREE.TextureLoader();
       textureLoader.load(
         'https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg',
         (tex) => {
@@ -843,23 +1032,23 @@
       rotatingGroup.add(earthMesh);
 
       // Atmospheric cloud layer
-      const cloudsGeo = new THREE.SphereGeometry(earthRadius + 0.014, 48, 48);
+      const cloudsGeo = new THREE.SphereGeometry(earthRadius + 0.015, 48, 48);
       const cloudsMat = new THREE.MeshLambertMaterial({
         color: 0xffffff,
         transparent: true,
-        opacity: 0.26,
+        opacity: 0.18,
         blending: THREE.AdditiveBlending,
         depthWrite: false
       });
       cloudsMesh = new THREE.Mesh(cloudsGeo, cloudsMat);
       rotatingGroup.add(cloudsMesh);
 
-      // Atmospheric fresnel outer halo
-      const glowGeo = new THREE.SphereGeometry(earthRadius + 0.024, 32, 32);
+      // Luminous blue ozone layer: SphereGeometry(1.465)
+      const glowGeo = new THREE.SphereGeometry(1.465, 32, 32);
       const glowMat = new THREE.MeshBasicMaterial({
-        color: 0x4895ef,
+        color: 0x3d94ff,
         transparent: true,
-        opacity: 0.09,
+        opacity: 0.16,
         blending: THREE.AdditiveBlending,
         side: THREE.BackSide,
         depthWrite: false
@@ -867,19 +1056,22 @@
       atmosphereMesh = new THREE.Mesh(glowGeo, glowMat);
       tiltGroup.add(atmosphereMesh);
 
-      // Initial orientation strictly to default country (Spain) at distant default overview 5.0
-      orientGlobeToCountry(currentCountry, true, 0.08, CAMERA_DIST_DEFAULT);
+      // Build beacon dots structure (all hidden initially for pristine look)
+      createCountryBeacons();
 
-      // Interactive drag gestures
+      // Initial clean idle orientation to Spain (no dots, no flag)
+      orientGlobeToCountry(currentCountry, true, 0.08, defaultDist, false);
+      hideAllBeacons();
+      hideFlagPost();
+
+      // Drag & Touch gestures
       canvas.addEventListener('mousedown', (e) => {
         isDragging = true;
-        isLockedTarget = false;
         previousMousePosition = { x: e.clientX, y: e.clientY };
       });
       canvas.addEventListener('touchstart', (e) => {
         if (e.touches.length === 1) {
           isDragging = true;
-          isLockedTarget = false;
           previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
         }
       }, { passive: true });
@@ -904,14 +1096,13 @@
       window.addEventListener('mouseup', () => { isDragging = false; });
       window.addEventListener('touchend', () => { isDragging = false; });
 
-      // Render & Cinematic Interpolation Loop
-      let clock = new THREE.Clock();
-
+      // Animation Loop
+      const clock = new THREE.Clock();
       function animate() {
         requestAnimationFrame(animate);
         const elapsedTime = clock.getElapsedTime();
 
-        // Ultra-smooth cinematic camera zoom lerp (0.026 for slow, velvety pull-back)
+        // Camera smooth zoom lerp
         currentCameraZ += (targetCameraZ - currentCameraZ) * zoomLerpFactor;
         currentCameraY += (targetCameraY - currentCameraY) * zoomLerpFactor;
         if (camera) {
@@ -919,20 +1110,18 @@
           camera.position.y = currentCameraY;
         }
 
-        // Subtle organic orbital wobble / axial precession on tiltGroup
-        if (tiltGroup) {
-          tiltGroup.rotation.z = EARTH_AXIAL_TILT + Math.sin(elapsedTime * 0.4) * 0.015;
-          tiltGroup.rotation.x = Math.cos(elapsedTime * 0.3) * 0.012;
+        // Flag rise animation
+        if (flagPinGroup && flagPinGroup.visible) {
+          const s = flagPinGroup.scale.x + (targetFlagScale - flagPinGroup.scale.x) * 0.08;
+          flagPinGroup.scale.set(s, s, s);
         }
 
-        // Idle slow, hypnotic, meditative 3D rotation from west to east when not spinning or dragging
-        // Preserves exactly the roulette polar tilt plane (rotation.x and Y axis spin)
+        // Idle slow rotation
         if (!isSpinning && !isDragging) {
           targetRotY += driftSpeed;
         }
 
         if (rotatingGroup) {
-          // Smooth spherical 3D rotation interpolation
           const diffY = shortestAngleDist(currentRotY, targetRotY);
           currentRotY += diffY * lerpSpeed;
           currentRotX += (targetRotX - currentRotX) * lerpSpeed;
@@ -941,7 +1130,7 @@
           rotatingGroup.rotation.x = currentRotX;
 
           if (cloudsMesh) {
-            cloudsMesh.rotation.y = currentRotY * 1.05 + elapsedTime * 0.0008;
+            cloudsMesh.rotation.y = currentRotY * 1.04 + elapsedTime * 0.0006;
           }
         }
 
@@ -962,10 +1151,10 @@
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', initRealisticEarth);
     } else {
-      setTimeout(initRealisticEarth, 80);
+      setTimeout(initRealisticEarth, 50);
     }
 
-    // WINNER DISCOVERY CELEBRATION
+    // Discovery celebration on win
     function triggerWinnerCelebration(country) {
       if (winnerFlash) {
         winnerFlash.style.opacity = '1';
@@ -1023,7 +1212,7 @@
       }
     }
 
-    // STRICT COUNTRY-BY-COUNTRY ROULETTE LOGIC WITH TRUE 3D POLAR ALIGNMENT
+    // Roulette execution
     const spinBtn = document.getElementById('btn-spin-roulette');
     const spinIcon = document.getElementById('btn-spin-icon');
     const spinText = document.getElementById('btn-spin-text');
@@ -1033,25 +1222,24 @@
     function runCountryRoulette(forcedTargetCountry = null) {
       if (isSpinning) return;
       isSpinning = true;
-      isLockedTarget = false;
 
-      // Cancel any ongoing dolly-back timer
+      // Keep all dots and flag hidden during spinning
+      hideAllBeacons();
+      hideFlagPost();
+
       if (zoomResetTimeout) {
         clearTimeout(zoomResetTimeout);
         zoomResetTimeout = null;
       }
 
-      // Keep distant overview during roulette scanning (5.0)
-      targetCameraZ = CAMERA_DIST_SPIN;
+      targetCameraZ = defaultDist;
 
-      // Select final winner country (different from current)
       let finalWinner = forcedTargetCountry;
       if (!finalWinner) {
         const pool = catalog.filter(c => c.id !== currentCountry.id);
         finalWinner = pool[Math.floor(Math.random() * pool.length)];
       }
 
-      // Build sequence of 6-8 countries ending with finalWinner
       const intermediateStepsCount = 6 + Math.floor(Math.random() * 3);
       const countrySequence = [];
       let prevId = currentCountry.id;
@@ -1064,7 +1252,6 @@
       }
       countrySequence.push(finalWinner);
 
-      // UI Scanning State
       spinBtn.disabled = true;
       spinBtn.classList.add('brightness-125', 'shadow-[0_0_36px_rgba(255,184,48,0.8)]');
       if (spinIcon) {
@@ -1085,19 +1272,18 @@
         focalLens.classList.add('border-primary-container', 'shadow-[0_0_30px_rgba(255,184,48,0.4)]');
       }
 
-      // Step-by-step deceleration sequence
       let stepIndex = 0;
       const delays = [140, 160, 200, 260, 340, 450, 590, 780];
 
       function executeStep() {
         if (stepIndex >= countrySequence.length) {
-          // Final Winner reached: align precisely with lat/lon and harmonic close-up zoom (3.2)
           currentCountry = finalWinner;
-          orientGlobeToCountry(finalWinner, false, 0.055, CAMERA_DIST_FOCUS);
+          // Final landing: Show beacon dot ONLY for winner and tilt 3D flag ~28° facing the camera
+          showSingleBeacon(finalWinner.id);
+          orientGlobeToCountry(finalWinner, false, 0.055, focusDist, true);
           updateHolographicView(finalWinner, false);
           triggerWinnerCelebration(finalWinner);
 
-          // Restore CTA Button
           spinBtn.disabled = false;
           spinBtn.classList.remove('brightness-125', 'shadow-[0_0_36px_rgba(255,184,48,0.8)]');
           if (spinText) {
@@ -1114,20 +1300,15 @@
             focalLens.classList.remove('border-primary-container', 'shadow-[0_0_30px_rgba(255,184,48,0.4)]');
           }
 
-          // Step 1: Hold the intimate zoom highlight for 2.2 seconds
-          // Step 2: Smoothly dolly the camera back out to the updated distant overview CAMERA_DIST_DEFAULT (5.0)
-          // with lerp factor 0.026 without resetting the polar axis/rotation orientation
           zoomResetTimeout = setTimeout(() => {
-            targetCameraZ = CAMERA_DIST_DEFAULT;
-            // Seamlessly resume drift along the identical polar axis without angle jump
+            targetCameraZ = defaultDist;
             const rots = countryToRotations(finalWinner.lat, finalWinner.lon);
             targetRotX = rots.rotX;
             lerpSpeed = 0.035;
             setTimeout(() => {
               isSpinning = false;
-              isLockedTarget = true;
             }, 800);
-          }, 2200);
+          }, 2400);
 
           return;
         }
@@ -1135,11 +1316,10 @@
         const stepCountry = countrySequence[stepIndex];
         const isFinal = stepIndex === countrySequence.length - 1;
 
-        // Turn Earth precisely to this country's lat/lon in true 3D
-        const targetZoom = isFinal ? CAMERA_DIST_FOCUS : CAMERA_DIST_SPIN;
-        orientGlobeToCountry(stepCountry, false, isFinal ? 0.06 : 0.22, targetZoom);
+        const targetZoom = isFinal ? focusDist : defaultDist;
+        // Keep flag hidden during intermediate steps
+        orientGlobeToCountry(stepCountry, false, isFinal ? 0.06 : 0.22, targetZoom, false);
 
-        // Update holographic card and sound
         updateHolographicView(stepCountry, true);
         triggerTickEffect();
 
@@ -1157,7 +1337,7 @@
       });
     }
 
-    // Secondary Quick Launch Buttons
+    // Secondary Buttons
     const btnTopOne = document.getElementById('btn-top-one');
     const btnOscar = document.getElementById('btn-oscar-laureate');
 
@@ -1177,7 +1357,7 @@
       });
     }
 
-    // Watched Button feedback
+    // Watched button
     const btnWatched = document.getElementById('btn-watched');
     if (btnWatched) {
       btnWatched.addEventListener('click', function() {
@@ -1186,7 +1366,7 @@
       });
     }
 
-    // Filter Chips Toggle
+    // Filter Chips
     const pills = document.querySelectorAll('.genre-pill');
     pills.forEach(pill => {
       pill.addEventListener('click', () => {
@@ -1205,6 +1385,24 @@
     updateHolographicView(currentCountry);
 
     // === Export for engine bridge ===
+    // Helpers below repeat exactly what the design's runCountryRoulette does around the spin.
+    function beginScan() {
+      if (zoomResetTimeout) { clearTimeout(zoomResetTimeout); zoomResetTimeout = null; }
+      hideAllBeacons();
+      hideFlagPost();
+      targetCameraZ = defaultDist;
+      isSpinning = true;
+    }
+    function dollyBack(country) {
+      targetCameraZ = defaultDist;
+      if (country) {
+        const rots = countryToRotations(country.lat, country.lon);
+        targetRotX = rots.rotX;
+      }
+      lerpSpeed = 0.035;
+    }
+    function hideMarks() { hideAllBeacons(); hideFlagPost(); }
+
     window.KinoglobusGlobe = {
       catalog,
       get currentCountry() { return currentCountry; },
@@ -1213,13 +1411,17 @@
       updateHolographicView,
       triggerWinnerCelebration,
       triggerTickEffect,
+      showSingleBeacon,
+      hideMarks,
+      beginScan,
+      dollyBack,
       get isSpinning() { return isSpinning; },
       set isSpinning(v) { isSpinning = v; },
       runCountryRoulette,
       countryToRotations,
-      CAMERA_DIST_DEFAULT,
-      CAMERA_DIST_FOCUS,
-      CAMERA_DIST_SPIN
+      get CAMERA_DIST_DEFAULT() { return defaultDist; },
+      get CAMERA_DIST_SPIN() { return defaultDist; },
+      get CAMERA_DIST_FOCUS() { return focusDist; }
     };
   })();
 
@@ -2464,8 +2666,25 @@ st.textContent=`
 .jfilm small{color:#b3a79a}
 .wave{display:inline-block}.wave svg,#hero-country-flag svg,#discovery-flag svg{width:1.5em;height:1em;vertical-align:-.15em}
 #hero-country-flag svg{width:2em;height:1.4em}
-#focal-lens{display:none!important}
-#film-reel-track{scrollbar-width:none}#film-reel-track::-webkit-scrollbar{display:none}
+#film-reel-window{position:relative;height:150px;overflow:hidden;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 13%,#000 87%,transparent);mask-image:linear-gradient(90deg,transparent,#000 13%,#000 87%,transparent)}
+#film-reel-track{position:absolute;inset:0;overflow:hidden}
+#film-reel-track .run{position:absolute;left:0;top:0;height:100%;display:flex;align-items:center;gap:10px;padding-left:8px;will-change:transform}
+#film-reel-track .run.fast{filter:blur(1.4px) brightness(1.08)}
+.film-cell{position:relative;flex:none;width:80px;height:112px;border-radius:6px;overflow:hidden;background:#221e26;border:1px solid #231f2e;padding:0;opacity:.62;transition:opacity .45s,transform .45s,box-shadow .45s,filter .35s;color:#b3a79a;font-size:10px;line-height:1.2}
+.film-cell img{width:100%;height:100%;object-fit:cover;display:block}
+.film-cell .nop{width:100%;height:100%;display:flex;align-items:center;justify-content:center;text-align:center;padding:4px}
+.film-cell.spinning{opacity:.92}
+.film-cell.chosen{opacity:1;transform:scale(1.07);box-shadow:0 0 22px rgba(255,184,48,.55)}
+.film-cell .yr{position:absolute;left:0;right:0;bottom:0;background:rgba(0,0,0,.78);font:600 9px/1.4 ui-monospace,monospace;text-align:center;color:#b3a79a}
+#film-center-frame{position:absolute;left:50%;top:50%;width:94px;height:128px;transform:translate(-50%,-50%);z-index:5;pointer-events:none;border:2px solid #ffb830;border-radius:10px;box-shadow:0 0 18px rgba(255,184,48,.5),inset 0 0 14px rgba(255,184,48,.22)}
+#film-center-frame::before,#film-center-frame::after{content:"";position:absolute;left:50%;transform:translateX(-50%);border:6px solid transparent}
+#film-center-frame::before{top:-9px;border-top:7px solid #ffb830;border-bottom:0}
+#film-center-frame::after{bottom:-9px;border-bottom:7px solid #ffb830;border-top:0}
+#film-center-frame.hit{animation:kgFrameHit 1s cubic-bezier(.2,.8,.25,1)}
+@keyframes kgFrameHit{0%{box-shadow:0 0 0 0 rgba(255,184,48,.8),inset 0 0 14px rgba(255,184,48,.22)}45%{box-shadow:0 0 38px 8px rgba(255,184,48,.75),inset 0 0 22px rgba(255,184,48,.4)}100%{box-shadow:0 0 18px rgba(255,184,48,.5),inset 0 0 14px rgba(255,184,48,.22)}}
+#film-details{transition:opacity .6s,filter .6s}
+#film-details.veiled{opacity:.1;filter:blur(7px);pointer-events:none}
 #err{color:#ff8d7a;font-size:12px;text-align:center;width:100%;margin-top:6px;z-index:10}
 `;
 document.head.appendChild(st);
@@ -2486,10 +2705,10 @@ const CARD_HTML=`
 </div>
 <div class="relative w-full rounded-xl bg-canvas-obsidian border border-primary-container/30 overflow-hidden shadow-[inset_0_2px_12px_rgba(0,0,0,0.95)] my-2 p-1">
 <div class="w-full flex items-center justify-between px-2 py-1 bg-black/60 border-b border-white/10 select-none overflow-hidden"><div class="flex items-center gap-2.5 opacity-75">${HOLES}</div><span class="font-mono text-[9px] text-primary/40 uppercase tracking-widest">KODAK 35MM</span></div>
-<div class="relative w-full flex items-center justify-start gap-2.5 py-2 px-2 overflow-x-auto select-none" id="film-reel-track" style="scroll-behavior:smooth"><div class="text-text-muted text-xs p-4">Лента появится после первого поиска</div></div>
+<div id="film-reel-window" class="select-none"><div id="film-reel-track"></div><div id="film-center-frame" aria-hidden="true"></div></div>
 <div class="w-full flex items-center justify-between px-2 py-1 bg-black/60 border-t border-white/10 select-none overflow-hidden"><div class="flex items-center gap-2.5 opacity-75">${HOLES}</div><span class="font-mono text-[9px] text-primary/40 uppercase tracking-widest">35MM NITRATE</span></div>
 </div>
-<div class="flex flex-col mt-2.5 pt-2 border-t border-surface-border-subtle/80">
+<div class="flex flex-col mt-2.5 pt-2 border-t border-surface-border-subtle/80" id="film-details">
 <div class="flex items-start justify-between gap-2">
 <div class="min-w-0 flex-1">
 <div class="flex items-center gap-1.5 flex-wrap"><h3 class="font-headline-sm text-headline-sm font-bold text-on-surface" id="discovery-title">Крутите глобус</h3><span class="text-micro-caption text-text-muted font-body-sm" id="discovery-year"></span><span id="oscar-badge" style="display:none" class="px-1.5 rounded bg-surface-container text-secondary text-micro-caption font-semibold flex items-center gap-1 border border-secondary/25"><span class="material-symbols-outlined text-[12px]">workspace_premium</span>Оскар</span></div>
@@ -2510,37 +2729,6 @@ const CARD_HTML=`
 </section>`;
 {const old=$("cinema-35mm-reel-section")||$("recent-discovery-card");if(old)old.outerHTML=CARD_HTML;}
 
-
-// ---------- Реалистичная Земля (текстуры NASA из набора three.js) ----------
-(function(){
-  if(!window.THREE) return;
-  const TEX="https://raw.githubusercontent.com/mrdoob/three.js/r128/examples/textures/planets/";
-  const R=THREE.WebGLRenderer.prototype.render;let done=false;
-  function upgrade(scene,renderer){
-    const aniso=renderer.capabilities.getMaxAnisotropy();
-    const L=new THREE.TextureLoader();L.setCrossOrigin("anonymous");
-    const load=(f,cb)=>L.load(TEX+f,t=>{t.anisotropy=aniso;cb(t);},undefined,()=>console.warn("[Kinoglobus] текстура не загрузилась:",f));
-    scene.traverse(o=>{
-      if(o.isDirectionalLight&&o.intensity>2) o.intensity=1.5;              // солнце мягче, чтобы не пересвечивать
-      if(o.isAmbientLight){o.color.set(0x2b3d5c);o.intensity=1.0;}          // ночная сторона чуть видна
-      if(!o.isMesh||!o.material) return;
-      const m=o.material;
-      if(m.isMeshPhongMaterial){                                              // сама планета
-        load("earth_atmos_2048.jpg",t=>{m.map=t;m.needsUpdate=true;});
-        load("earth_specular_2048.jpg",t=>{m.specularMap=t;m.specular=new THREE.Color(0x5b7fa6);m.shininess=30;m.needsUpdate=true;});
-        load("earth_normal_2048.jpg",t=>{m.normalMap=t;m.normalScale=new THREE.Vector2(0.8,0.8);m.needsUpdate=true;});
-      }else if(m.isMeshLambertMaterial){                                      // облака
-        load("earth_clouds_1024.png",t=>{m.map=t;m.blending=THREE.NormalBlending;m.transparent=true;m.opacity=0.9;m.depthWrite=false;m.needsUpdate=true;});
-      }else if(m.isMeshBasicMaterial&&m.side===THREE.BackSide){               // голубая дымка атмосферы
-        m.color.set(0x5aa9ff);m.opacity=0.16;
-      }
-    });
-  }
-  THREE.WebGLRenderer.prototype.render=function(scene,camera){
-    if(!done&&scene&&scene.isScene){done=true;try{upgrade(scene,this);}catch(e){console.warn("[Kinoglobus] earth",e);}}
-    return R.apply(this,arguments);
-  };
-})();
 
 // ---------- Диалог настроек ----------
 const dlgS=$("settings"), sndSel=$("snd");
@@ -2669,9 +2857,10 @@ const _lock=window.lockSpin,_unlock=window.unlockSpin;
 window.lockSpin=function(l){_lock(l);setSpinUi(true);};
 window.unlockSpin=function(){_unlock();setSpinUi(false);};
 window.reelStart=function(){
-  closePlayer();tmr.forEach(clearTimeout);tmr=[];landed=false;scanOn=true;scanAt=performance.now();G.isSpinning=true;
+  closePlayer();tmr.forEach(clearTimeout);tmr=[];landed=false;scanOn=true;scanAt=performance.now();
+  G.beginScan();                       // как в дизайне: маяки и флаг скрыты, камера на обзорной дистанции
   const loop=()=>{if(!scanOn)return;const c=gc(pick(COUNTRIES));
-    G.orientGlobeToCountry(c,false,0.22,G.CAMERA_DIST_SPIN);hero(c,true);sTick(Math.random());buzz(8);scanT=setTimeout(loop,170);};
+    G.orientGlobeToCountry(c,false,0.22,G.CAMERA_DIST_SPIN,false);hero(c,true);sTick(Math.random());buzz(8);scanT=setTimeout(loop,170);};
   loop();
 };
 window.reelLand=async function(cc){
@@ -2679,18 +2868,20 @@ window.reelLand=async function(cc){
   scanOn=false;clearTimeout(scanT);
   for(const d of LAND_STEPS){
     const c=gc(pick(COUNTRIES.filter(x=>x!==cc)));
-    G.orientGlobeToCountry(c,false,0.22,G.CAMERA_DIST_SPIN);hero(c,true);sTick(.4+Math.random()*.4);await sleep(d);
+    G.orientGlobeToCountry(c,false,0.22,G.CAMERA_DIST_SPIN,false);hero(c,true);sTick(.4+Math.random()*.4);await sleep(d);
   }
   const w=gc(cc);G.currentCountry=w;
-  G.orientGlobeToCountry(w,false,0.055,G.CAMERA_DIST_FOCUS);hero(w,false);G.triggerWinnerCelebration(w);buzz([25,50,60]);
+  G.showSingleBeacon(w);                                              // маяк только у выпавшей страны
+  G.orientGlobeToCountry(w,false,0.055,G.CAMERA_DIST_FOCUS,true);     // 3D-флажок на стране
+  hero(w,false);G.triggerWinnerCelebration(w);buzz([25,50,60]);
   landed=true;
-  tmr.push(setTimeout(()=>{G.orientGlobeToCountry(w,false,0.035,G.CAMERA_DIST_DEFAULT);
-    tmr.push(setTimeout(()=>{G.isSpinning=false;},800));},3200));
+  tmr.push(setTimeout(()=>{G.dollyBack(w);
+    tmr.push(setTimeout(()=>{G.isSpinning=false;},800));},2400));
   await sleep(400);
 };
 window.reelAbort=function(){
   scanOn=false;clearTimeout(scanT);
-  if(!landed){G.isSpinning=false;const c=G.currentCountry;G.orientGlobeToCountry(c,false,0.035,G.CAMERA_DIST_DEFAULT);hero(c,false);}
+  if(!landed){G.isSpinning=false;const c=G.currentCountry;G.orientGlobeToCountry(c,false,0.035,G.CAMERA_DIST_DEFAULT,false);G.hideMarks();hero(c,false);}
 };
 window.filmReel=async function(){};   // в дизайне барабана постеров нет
 
@@ -2702,33 +2893,47 @@ const bw=watchedOld.cloneNode(true);watchedOld.replaceWith(bw);
 const ag=$("btn-spin-another-film");
 const set=(id,t)=>{const e=$(id);if(e)e.textContent=t;};
 const pad=n=>(n<10?"0":"")+n;
-let strip={list:[],pool:null,cc:""},shufT=0;
-
-function buildStrip(pool,film,cc){
+const STEP=90,PAD=8,CELL=80;     // шаг ячейки, левый отступ, ширина постера
+let strip={list:[],pool:null,cc:"",idx:-1,busy:false},runEl=null;
+const trackEl=$("film-reel-track"),frameEl=$("film-center-frame");
+const trackW=()=>trackEl.clientWidth||320;
+const centerX=i=>PAD+i*STEP+CELL/2-trackW()/2;   // сдвиг ленты, при котором ячейка i стоит точно под рамкой
+function cellHTML(f,i,cls){
+  const t=f?esc(f.title):"";
+  const y=f&&f.release_date?f.release_date.slice(0,4):"";
+  const inner=!f?'<div class="nop"><span class="material-symbols-outlined" style="font-size:22px;opacity:.35">movie</span></div>'
+    :f.poster_path?`<img alt="${t}" draggable="false" src="https://image.tmdb.org/t/p/w185${f.poster_path}">`
+    :`<div class="nop">${t}</div>`;
+  return `<button type="button" tabindex="${f?0:-1}" data-i="${i}" class="film-cell ${cls||""}">${inner}${f&&y?`<span class="yr">${y}</span>`:""}</button>`;
+}
+function mountRun(list,idx,cls){
+  runEl=document.createElement("div");runEl.className="run";
+  runEl.innerHTML=list.map((f,i)=>cellHTML(f,i,i===idx?cls:"")).join("");
+  trackEl.innerHTML="";trackEl.appendChild(runEl);
+  runEl.style.transform=`translateX(${-centerX(idx)}px)`;
+}
+// Пустая плёнка: рамка по центру видна сразу, ещё до первого поиска
+function renderBlank(){
+  strip={list:[],pool:null,cc:"",idx:-1,busy:false};
+  mountRun(new Array(9).fill(null),4,"");
+  set("reel-frame-counter","Кадр 00 / 00");
+}
+function renderStatic(pool,film,cc){      // готовая лента без прокрутки: выбранный фильм под рамкой
   let list=(pool.films&&pool.films.length)?pool.films:[film];
   let i=list.findIndex(f=>f.id===film.id);
   if(i<0){list=[film];i=0;}
-  strip={list,pool,cc};
-  const from=Math.max(0,i-3),to=Math.min(list.length,i+3);
-  let html="";
-  for(let n=from;n<to;n++){
-    const f=list[n],y=(f.release_date||"").slice(0,4),t=esc(f.title);
-    const img=f.poster_path
-      ?`<img alt="${t}" class="w-full h-full object-cover" src="https://image.tmdb.org/t/p/w185${f.poster_path}">`
-      :`<div class="w-full h-full flex items-center justify-center p-1 text-[10px] text-center text-text-muted">${t}</div>`;
-    html+=n===i
-      ?`<div class="relative flex-shrink-0 w-24 h-32 rounded-lg bg-surface-container overflow-hidden border-2 border-primary-container shadow-[0_0_24px_rgba(255,184,48,0.7)] scale-105 z-10" id="film-active-frame">${img}<div class="absolute inset-0 pointer-events-none flex flex-col justify-between p-1"><div class="flex justify-between items-center text-[10px] text-primary font-mono"><span>⛶ 24FPS</span><span class="bg-primary-container text-canvas-obsidian font-bold px-1 rounded-sm text-[9px]">⭐ ${f.vote_count?Number(f.vote_average).toFixed(1):"—"}</span></div><div class="bg-cinema-velvet-deep/90 text-primary-fixed font-micro-caption text-[10px] text-center rounded py-0.5 border border-primary-container/40">ВЫБОР СЕАНСА</div></div></div>`
-      :`<button type="button" data-n="${n}" class="relative flex-shrink-0 w-20 h-28 rounded bg-surface-container border border-surface-border overflow-hidden opacity-70 hover:opacity-100 transition-all">${img}<div class="absolute bottom-0 inset-x-0 bg-black/80 px-1 py-0.5 text-[9px] font-mono text-center text-text-muted truncate">#${pad(n+1)}${y?" · "+y:""}</div></button>`;
-  }
-  $("film-reel-track").innerHTML=html;
+  strip={list,pool,cc,idx:i,busy:false};
+  mountRun(list,i,"chosen");
   set("reel-frame-counter",`Кадр ${pad(i+1)} / ${list.length}`);
 }
-$("film-reel-track").addEventListener("click",e=>{
-  const b=e.target.closest("[data-n]");if(!b)return;
-  const f=strip.list[+b.dataset.n];if(f)window.show(filmCC(strip.pool,f,strip.cc),strip.pool,f);
+function recenter(){if(runEl&&strip.idx>=0)runEl.style.transform=`translateX(${-centerX(strip.idx)}px)`;}
+window.addEventListener("resize",recenter);
+trackEl.addEventListener("click",e=>{
+  const b=e.target.closest("[data-i]");if(!b||strip.busy)return;
+  const f=strip.list[+b.dataset.i];if(f&&(!cur||f.id!==cur.film.id))window.show(filmCC(strip.pool,f,strip.cc),strip.pool,f);
 });
-// Настоящая прокрутка киноленты: постеры из выборки летят справа налево и тормозят на выбранном фильме
-let runRaf=0,spinTimer=0;
+renderBlank();
+
 const loaded=new Set();
 function loadPoster(f){
   return new Promise(r=>{
@@ -2738,44 +2943,54 @@ function loadPoster(f){
   });
 }
 const warmPosters=pool=>Promise.all((pool.films||[]).map(loadPoster));
-function stopReel(){clearTimeout(spinTimer);cancelAnimationFrame(runRaf);const tr=$("film-reel-track");if(tr)tr.style.overflow="";}
+let runRaf=0,spinTimer=0;
+function stopReel(){clearTimeout(spinTimer);cancelAnimationFrame(runRaf);strip.busy=false;}
+const detailsEl=$("film-details");
+const veil=on=>detailsEl.classList.toggle("veiled",on);
+
+// Прокрутка плёнки: постеры летят справа налево и тормозят так, что выбранный фильм встаёт ровно под центральную рамку
 async function spinReel(pool,film,cc){
-  const tr=$("film-reel-track");
   const others=shuffle((pool.films||[]).filter(f=>f.id!==film.id));
-  if(!others.length) return;                            // нечего крутить
-  const STEP=90,PAD=8,NEED=26,T=4200;
-  const pic=f=>f.poster_path
-    ?`<img alt="" class="w-full h-full object-cover" src="https://image.tmdb.org/t/p/w185${f.poster_path}">`
-    :`<div class="w-full h-full flex items-center justify-center p-1 text-[10px] text-center text-text-muted">${esc(f.title)}</div>`;
+  if(!others.length||RM){renderStatic(pool,film,cc);reveal(film,pool);return;}   // крутить нечего
+  const NEED=26,T=4600,TAIL=6;
   const seq=[];
-  for(let i=0;i<NEED;i++) seq.push(others[i%others.length]);
+  for(let i=0;i<NEED;i++)seq.push(others[i%others.length]);
   seq.push(film);
-  for(let i=0;i<5;i++) seq.push(others[(i+2)%others.length]);
-  await Promise.race([warmPosters(pool),sleep(2500)]);   // без этого летят пустые рамки
-  if(!cur||cur.film.id!==film.id) return;
-  const run=document.createElement("div");
-  run.style.cssText="display:flex;gap:10px;will-change:transform";
-  run.innerHTML=seq.map((f,i)=>`<div class="flex-shrink-0 w-20 h-28 rounded overflow-hidden border ${i===NEED?"border-primary-container":"border-surface-border"} bg-surface-container">${pic(f)}</div>`).join("");
-  tr.style.scrollBehavior="auto";tr.scrollLeft=0;tr.style.overflow="hidden";
-  tr.innerHTML="";tr.appendChild(run);
-  const W=tr.clientWidth,S=PAD+NEED*STEP+40-W/2;
+  for(let i=0;i<TAIL;i++)seq.push(others[(i+2)%others.length]);
+  await Promise.race([warmPosters(pool),sleep(2500)]);    // без этого летят пустые рамки
+  if(!cur||cur.film.id!==film.id)return;
+  strip={list:seq,pool,cc,idx:NEED,busy:true};
+  mountRun(seq,NEED,"");
+  [...runEl.children].forEach(c=>c.classList.add("spinning"));
+  set("reel-frame-counter","Кадр -- / "+pad(pool.films.length));
+  const x0=centerX(0),x1=centerX(NEED);
+  runEl.style.transform=`translateX(${-x0}px)`;
+  runEl.classList.add("fast");
   const t0=performance.now();let last=-1;
   const step=now=>{
-    const t=Math.min(1,(now-t0)/T),e=1-Math.pow(1-t,3),x=S*e;
-    run.style.transform=`translateX(${-x}px)`;
-    const row=Math.floor(x/STEP);
+    if(!cur||cur.film.id!==film.id){strip.busy=false;return;}
+    const t=Math.min(1,(now-t0)/T),e=1-Math.pow(1-t,4),x=x0+(x1-x0)*e;
+    runEl.style.transform=`translateX(${-x}px)`;
+    if(t>.4)runEl.classList.remove("fast");
+    const row=Math.round((x-x0)/STEP);
     if(row!==last){last=row;sTick(.3+.7*t);if(t>.6)buzz(7);}
     if(t<1){runRaf=requestAnimationFrame(step);return;}
-    buzz([25,50,60]);
-    if(!cur||cur.film.id!==film.id) return;
-    buildStrip(pool,film,cc);                             // итоговая лента с выбранным фильмом в центре
-    tr.style.overflow="";
-    const af=$("film-active-frame");
-    if(af)tr.scrollLeft=Math.max(0,af.offsetLeft-tr.clientWidth/2+af.clientWidth/2);
-    tr.style.scrollBehavior="smooth";
+    strip.busy=false;
+    runEl.style.transform=`translateX(${-centerX(NEED)}px)`;
+    [...runEl.children].forEach((c,i)=>{c.classList.remove("spinning");c.classList.toggle("chosen",i===NEED);});
+    frameEl.classList.remove("hit");void frameEl.offsetWidth;frameEl.classList.add("hit");
+    const k=pool.films.findIndex(f=>f.id===film.id);
+    set("reel-frame-counter",`Кадр ${pad((k<0?0:k)+1)} / ${pad(pool.films.length)}`);
+    sWin();buzz([25,50,60]);
     card.classList.remove("card-discovery-win");void card.offsetWidth;card.classList.add("card-discovery-win");
+    reveal(film,pool);
   };
   runRaf=requestAnimationFrame(step);
+}
+// Название, рейтинг и кнопки открываются, когда плёнка остановилась на выбранном фильме
+function reveal(film,pool){
+  veil(false);
+  set("hero-country-master",film.title||"");
 }
 
 // «Где смотреть»: TMDB watch/providers (данные JustWatch), регион по языку браузера, запасной US
@@ -2810,11 +3025,12 @@ window.show=function(cc,pool,film){
   _show(cc,pool,film);
   const w=gc(cc);
   set("hero-country-films",pool.oscar?"Оскар":pool.top1?"Топ-1":(pool.films.length+" в выборке"));
-  set("hero-country-master",film.title||"");
+  set("hero-country-master","Ищем фильм…");
   if(!G.isSpinning){   // «другой фильм» или фильм из истории: просто показать страну
-    G.currentCountry=w;G.orientGlobeToCountry(w,false,0.055,G.CAMERA_DIST_FOCUS);hero(w,false);
-    set("hero-country-films",pool.oscar?"Оскар":pool.top1?"Топ-1":(pool.films.length+" в выборке"));set("hero-country-master",film.title||"");
-    tmr.push(setTimeout(()=>G.orientGlobeToCountry(w,false,0.035,G.CAMERA_DIST_DEFAULT),3000));
+    G.currentCountry=w;G.showSingleBeacon(w);G.orientGlobeToCountry(w,false,0.055,G.CAMERA_DIST_FOCUS,true);hero(w,false);
+    set("hero-country-films",pool.oscar?"Оскар":pool.top1?"Топ-1":(pool.films.length+" в выборке"));set("hero-country-master","Ищем фильм…");
+    tmr.forEach(clearTimeout);tmr=[];
+    tmr.push(setTimeout(()=>G.dollyBack(w),2400));
   }
   const y=(film.release_date||"").slice(0,4),votes=film.vote_count||0;
   set("discovery-title",film.title||"");set("discovery-year",y?"("+y+")":"");
@@ -2824,7 +3040,7 @@ window.show=function(cc,pool,film){
   set("discovery-rating",votes?Number(film.vote_average).toFixed(1):"—");setVotes(votes);
   set("discovery-timestamp",pool.oscar?"Лауреат «Оскара»":pool.top1?"Топ-1 страны":pool.worst?"Из худших":"Случайная находка · "+cname(cc));
   $("oscar-badge").style.display=pool.oscar?"":"none";
-  buildStrip(pool,film,cc);
+  veil(true);renderBlank();                 // название и рейтинг скрыты до остановки плёнки, спойлера нет
   filmDetails(film.id).then(d=>{
     if(!cur||cur.film.id!==film.id)return;
     const g=(d.genres.length?d.genres:genreLine(film).split(", ")).filter(Boolean).slice(0,3).join(", ");
@@ -2842,10 +3058,10 @@ window.show=function(cc,pool,film){
   showProviders(film);
   stopReel();warmPosters(pool);
   const fromSpin=G.isSpinning;
-  spinTimer=setTimeout(()=>{
+  spinTimer=setTimeout(()=>{      // плёнка запускается сразу после того, как планета выбрала страну
     card.scrollIntoView({behavior:"smooth",block:"center"});
-    spinTimer=setTimeout(()=>spinReel(pool,film,cc).catch(e=>console.warn('[Kinoglobus] reel',e)),800);
-  },fromSpin?1800:0);
+    spinTimer=setTimeout(()=>spinReel(pool,film,cc).catch(e=>{console.warn('[Kinoglobus] reel',e);renderStatic(pool,film,cc);reveal(film,pool);}),500);
+  },fromSpin?1200:0);
 };
 trailerBtn.addEventListener("click",()=>{if(trailerBtn.dataset.url)window.open(trailerBtn.dataset.url,"_blank","noopener");});
 bw.addEventListener("click",()=>{
@@ -2878,9 +3094,7 @@ go("globus-random",()=>scrollTo({top:0,behavior:"smooth"}));
 go("podborki-i-zhanry",()=>{DET[2].open=true;DET[2].scrollIntoView({behavior:"smooth",block:"start"});});
 
 // ---------- Старт ----------
-// планета чуть дальше от экрана
-G.CAMERA_DIST_DEFAULT=5.8;G.CAMERA_DIST_SPIN=5.8;G.CAMERA_DIST_FOCUS=3.9;
-G.orientGlobeToCountry(G.currentCountry,false,0.08,G.CAMERA_DIST_DEFAULT);
+G.orientGlobeToCountry(G.currentCountry,true,0.08,G.CAMERA_DIST_DEFAULT,false);G.hideMarks();
 playMode="filters";store.set("playMode","filters");applyMode();
 syncDesign();setSpinUi(false);
 console.info("[Kinoglobus] Bridge v6 ready");

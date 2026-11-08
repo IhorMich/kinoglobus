@@ -2190,7 +2190,7 @@ function stopFilmReelSound() {
   filmReelNodes = null;
 }
 function startFilmReelSound() {
-  if (!fx || snd === "off") return;
+  if (snd === "off") return;
   audio();
   if (!ac) return;
   stopFilmReelSound();
@@ -3285,13 +3285,14 @@ async function spinReel(pool,film,cc){
     card.classList.add("card-discovery-win");
     reveal(film, pool);
   };
-  runRaf = requestAnimationFrame(step);   // ← только здесь, снаружи step
+  r  runRaf = requestAnimationFrame(step);
+}    
+
 // Название, рейтинг и кнопки открываются, когда плёнка остановилась на выбранном фильме
 function reveal(film,pool){
   veil(false);
   set("hero-country-master",film.title||"");
 }
-
 // «Где смотреть»: TMDB watch/providers (данные JustWatch), регион по языку браузера, запасной US
 const provCache={};
 async function showProviders(film){

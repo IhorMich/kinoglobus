@@ -796,7 +796,7 @@
         flagPinGroup = new THREE.Group();
 
         // 1. Pole
-        const poleHeight = 0.45;
+        const poleHeight = 0.3;
         const poleGeo = new THREE.CylinderGeometry(0.01, 0.014, poleHeight, 16);
         poleGeo.translate(0, poleHeight / 2, 0);
         const poleMat = new THREE.MeshBasicMaterial({ color: 0xffd56b });
@@ -827,9 +827,8 @@
         });
         flagBannerMesh = new THREE.Mesh(bannerGeo, bannerMat);
         flagBannerMesh.position.set(0, poleHeight, 0);
-        flagBannerMesh.rotation.x = -0.8;   // ~63 degrees: banner faces the viewer instead of standing edge-on
+        flagBannerMesh.rotation.set(0, Math.PI / 2, 0); // ~63 degrees: banner faces the viewer instead of standing edge-on
         flagPinGroup.add(flagBannerMesh);
-
         rotatingGroup.add(flagPinGroup);
       } else if (flagBannerMesh) {
         flagBannerMesh.material.map = createFlagCanvasTexture(country);

@@ -677,6 +677,9 @@
     // Beacon dots storage map & group
     let dotMeshMap = {};
     let beaconGroup = null;
+    // Вспышки во время поиска: точка загорается у проходимой страны и плавно гаснет
+    const FLASH_MS = 850;
+    let flashing = {};   // id страны -> момент вспышки (performance.now())
 
     // Authentic Earth axial tilt: 23.4 degrees = 0.4084 radians
     const axialTilt = 23.4 * (Math.PI / 180);
@@ -769,14 +772,51 @@
 
     // Hide all beacon dots to maintain a clean and pristine Earth
     function hideAllBeacons() {
+      flashing = {};
       Object.keys(dotMeshMap).forEach(key => {
         const item = dotMeshMap[key];
         if (item && item.holder) {
           item.holder.visible = false;
           if (item.dotMat) item.dotMat.opacity = 0;
           if (item.ringMat) item.ringMat.opacity = 0;
+          if (item.dotMesh) item.dotMesh.scale.setScalar(1);
+          if (item.ringMesh) item.ringMesh.scale.setScalar(1);
         }
       });
+    }
+
+    // Вспышка точки у страны, которую сейчас проходит поиск
+    function flashBeacon(country) {
+      if (!country || !rotatingGroup) return;
+      const b = dotMeshMap[country.id] || addBeacon(country);
+      if (!b || !b.holder) return;
+      b.holder.visible = true;
+      b.dotMat.opacity = 1;
+      b.ringMat.opacity = 0.85;
+      flashing[country.id] = performance.now();
+    }
+
+    // Каждый кадр: точки вспышек гаснут, кольцо расходится
+    function updateFlashes(now) {
+      for (const id in flashing) {
+        const b = dotMeshMap[id];
+        if (!b) { delete flashing[id]; continue; }
+        const p = (now - flashing[id]) / FLASH_MS;
+        if (p >= 1) {
+          b.holder.visible = false;
+          b.dotMat.opacity = 0;
+          b.ringMat.opacity = 0;
+          b.dotMesh.scale.setScalar(1);
+          b.ringMesh.scale.setScalar(1);
+          delete flashing[id];
+          continue;
+        }
+        const fade = Math.pow(1 - p, 1.6);
+        b.dotMat.opacity = fade;
+        b.ringMat.opacity = fade * 0.85;
+        b.dotMesh.scale.setScalar(1 + 1.2 * (1 - Math.min(1, p * 3)));   // вспыхивает крупнее и сжимается
+        b.ringMesh.scale.setScalar(1 + p * 1.8);                         // кольцо расходится
+      }
     }
 
     // Turn on beacon dot strictly for a specific winning country
@@ -963,7 +1003,7 @@ rotatingGroup.add(flagPinGroup);
       holder.visible = false;
       beaconGroup.add(holder);
 
-      dotMeshMap[item.id] = { holder: holder, dotMat: dotMat, ringMat: ringMat, country: item };
+      dotMeshMap[item.id] = { holder: holder, dotMat: dotMat, ringMat: ringMat, dotMesh: dotMesh, ringMesh: ringMesh, country: item };
       return dotMeshMap[item.id];
     }
 
@@ -1253,6 +1293,7 @@ if (areaRing) {
           }
         }
 
+        updateFlashes(performance.now());
         renderer.render(scene, camera);
       }
       animate();
@@ -1531,6 +1572,7 @@ if (areaRing) {
       triggerWinnerCelebration,
       triggerTickEffect,
       showSingleBeacon,
+      flashBeacon,
       hideMarks,
       beginScan,
       dollyBack,
@@ -3154,7 +3196,7 @@ window.reelStart=function(){
   closePlayer();tmr.forEach(clearTimeout);tmr=[];landed=false;focusedCC="";scanOn=true;scanAt=performance.now();
   G.beginScan();                       // как в дизайне: маяки и флаг скрыты, камера на обзорной дистанции
   const loop=()=>{if(!scanOn)return;const c=gc(pick(COUNTRIES));
-    G.orientGlobeToCountry(c,false,0.22,G.CAMERA_DIST_SPIN,false);hero(c,true);sTick(Math.random());buzz(8);scanT=setTimeout(loop,170);};
+    G.orientGlobeToCountry(c,false,0.22,G.CAMERA_DIST_SPIN,false);G.flashBeacon(c);hero(c,true);sTick(Math.random());buzz(8);scanT=setTimeout(loop,170);};
   loop();
 };
 window.reelLand=async function(cc){
@@ -3162,7 +3204,7 @@ window.reelLand=async function(cc){
   scanOn=false;clearTimeout(scanT);
   for(const d of LAND_STEPS){
     const c=gc(pick(COUNTRIES.filter(x=>x!==cc)));
-    G.orientGlobeToCountry(c,false,0.22,G.CAMERA_DIST_SPIN,false);hero(c,true);sTick(.4+Math.random()*.4);await sleep(d);
+    G.orientGlobeToCountry(c,false,0.22,G.CAMERA_DIST_SPIN,false);G.flashBeacon(c);hero(c,true);sTick(.4+Math.random()*.4);await sleep(d);
   }
   const w=gc(cc);G.currentCountry=w;focusedCC=cc;
   G.showSingleBeacon(w);                                              // маяк только у выпавшей страны

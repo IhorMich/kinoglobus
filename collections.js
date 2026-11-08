@@ -188,7 +188,11 @@ const vc=document.createElement("div");vc.id="view-collections";
 vc.className="flex flex-col w-full px-gutter-mobile gap-space-lg select-none";vc.style.display="none";
 const vd=document.createElement("div");vd.id="view-collection";
 vd.className="flex flex-col w-full px-margin-mobile gap-space-lg select-none pb-space-xl";vd.style.display="none";
-home.after(vc);vc.after(vd);
+const vm=document.createElement("div");vm.id="view-mood";
+vm.className="flex flex-col w-full px-gutter-mobile select-none";vm.style.display="none";
+const vo=document.createElement("div");vo.id="view-oscar";
+vo.className="flex flex-col w-full select-none";vo.style.display="none";
+home.after(vc);vc.after(vd);vd.after(vm);vm.after(vo);
 
 const NB="flex flex-col items-center justify-center gap-1 min-w-[64px] h-12 transition-all active:scale-95 ";
 const NON="text-primary-container font-bold drop-shadow-[0_0_12px_rgba(255,184,48,0.45)]",NOFF="text-text-muted";
@@ -203,15 +207,24 @@ let view="home";
 function showView(v){
   view=v;
   if(v!=="collection")rStop();
+  if(D.selected&&["mood","oscar"].includes(D.selected._placement)&&D.selected._placement!==v){
+    const oldTarget=$(D.selected._detailTarget)||(D.selected._placement==="mood"?$("mood-film-detail"):$("oscar-film-detail"));
+    if(oldTarget)oldTarget.replaceChildren();
+    D.selected=null;
+  }
   home.style.display=v==="home"?"":"none";
   vc.style.display=v==="collections"?"":"none";
   vd.style.display=v==="collection"?"":"none";
-  const act=v==="collection"?"collections":v;
+  vm.style.display=v==="mood"?"":"none";
+  vo.style.display=v==="oscar"?"":"none";
+  const act=["collection","mood","oscar"].includes(v)?"collections":v;
   nav.querySelectorAll("[data-view]").forEach(a=>{a.className=NB+(a.dataset.view===act&&a.dataset.view!=="journey"?NON:NOFF);});
   const sub=document.querySelector("header .flex-col > p");
-  if(sub) sub.textContent=v==="home"?"Случайная страна · Лучшие фильмы":"Киноглобус — Тематическая Подборка";
+  if(sub) sub.textContent=v==="home"?"Случайная страна · Лучшие фильмы":v==="mood"?"Подборки · По настроению":v==="oscar"?"Подборки · Зал славы Оскара":"Киноглобус — Тематическая Подборка";
   scrollTo({top:0});
   if(v==="collections") initCatalog();
+  if(v==="mood"&&(!vm.dataset.ready||vm.dataset.key!==apiKey)){window.KGMoodPage.render(vm,pageDeps);vm.dataset.ready="true";vm.dataset.key=apiKey;}
+  if(v==="oscar"&&(!vo.dataset.ready||vo.dataset.key!==apiKey)){window.KGOscarPage.render(vo,pageDeps);vo.dataset.ready="true";vo.dataset.key=apiKey;}
 }
 nav.addEventListener("click",e=>{
   const a=e.target.closest("[data-view]");if(!a)return;e.preventDefault();
@@ -272,7 +285,12 @@ function buildCatalog(){
 <p class="font-body-sm text-body-sm text-text-muted leading-relaxed">${THEMES.length} авторских киномаршрутов: от азиатского саспенса и скандинавского холода до исторических эпох</p>
 <div class="relative w-full mt-2"><div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-text-muted"><span class="material-symbols-outlined text-[20px]">search</span></div>
 <input id="cat-search" type="search" placeholder="Найти подборку, страну или жанр..." class="w-full h-12 pl-11 pr-10 rounded-xl bg-surface-container-low text-on-surface placeholder:text-text-muted font-body-sm text-body-sm focus:outline-none focus:bg-surface-container transition-all shadow-[0_4px_16px_rgba(0,0,0,0.4)]">
-<div id="cat-clear" data-act="clear" style="display:none" class="absolute inset-y-0 right-0 pr-3 items-center cursor-pointer text-text-muted hover:text-primary"><span class="material-symbols-outlined text-[18px]">cancel</span></div></div></section>
+<div id="cat-clear" data-act="clear" style="display:none" class="absolute inset-y-0 right-0 pr-3 items-center cursor-pointer text-text-muted hover:text-primary"><span class="material-symbols-outlined text-[18px]">cancel</span></div></div>
+<div class="grid grid-cols-3 gap-1.5 mt-2 rounded-xl bg-surface-panel p-1.5" role="tablist" aria-label="Разделы подборок">
+<button type="button" data-collection-route="collections" class="px-2 py-2 rounded-lg bg-primary-container text-on-primary-container font-label-sm text-label-sm font-semibold">Коллекции</button>
+<button type="button" data-collection-route="mood" class="px-2 py-2 rounded-lg text-text-muted hover:text-primary font-label-sm text-label-sm">По настроению</button>
+<button type="button" data-collection-route="oscar" class="px-2 py-2 rounded-lg text-text-muted hover:text-primary font-label-sm text-label-sm">Оскар</button>
+</div></section>
 <section id="cat-chips" class="flex gap-2 overflow-x-auto pb-1 -mx-gutter-mobile px-gutter-mobile">
 <button type="button" data-f="all" class="${chipCls(true)}"><span>Все ${THEMES.length}</span></button>
 ${Object.keys(CAT).filter(k=>counts[k]).map(k=>`<button type="button" data-f="${k}" class="${chipCls(false)}"><span>${CAT[k][0]} (${counts[k]})</span></button>`).join("")}</section>
@@ -342,6 +360,8 @@ vc.addEventListener("input",e=>{
 });
 vc.addEventListener("change",e=>{if(e.target.id==="cat-sort"){sortMode=e.target.value;sortCatalog();}});
 vc.addEventListener("click",e=>{
+  const route=e.target.closest("[data-collection-route]");
+  if(route){showView(route.dataset.collectionRoute);return;}
   const chip=e.target.closest("#cat-chips [data-f]");
   if(chip){activeCat=chip.dataset.f;vc.querySelectorAll("#cat-chips [data-f]").forEach(c=>c.className=chipCls(c===chip));filterCatalog();return;}
   const act=e.target.closest("[data-act]");
@@ -370,6 +390,40 @@ vc.addEventListener("keydown",e=>{
 
 /* ================= СТРАНИЦА ПОДБОРКИ ================= */
 let D={t:null,all:[],total:0,totals:{},cc:"",sort:"rating",shown:5,selected:null,picked:null};
+async function markPageWatched(film){
+  const details=await filmDetails(film.id).catch(()=>null);
+  const cc=(film.origin_country||[])[0]||(details&&details.countries||[])[0]||"";
+  if(!seen.has(film.id)){
+    seen.add(film.id);store.set("seen",[...seen]);
+    if(cc){
+      visited[cc]=(visited[cc]||0)+1;lastCC=cc;
+      store.set("visited",visited);store.set("lastCC",lastCC);
+    }
+  }
+  if(!watched.some(item=>item.id===film.id)){
+    watched.unshift(filmRecord(cc,film));store.set("watched",watched);
+  }
+  updHist();
+}
+function closePageFilm(placement){
+  const selected=D.selected&&D.selected._placement===placement?D.selected:null;
+  if(selected)D.selected=null;
+  const target=$(selected?._detailTarget)||(placement==="mood"?$("mood-film-detail"):$("oscar-film-detail"));
+  if(target)target.replaceChildren();
+}
+const pageDeps={
+  api:(params)=>api(params),
+  details:id=>filmDetails(id),
+  getFilms:()=>oscarFilms(),
+  hasKey:()=>Boolean(apiKey),
+  countryName:cc=>cname(cc),
+  isWatched:id=>watched.some(item=>item.id===Number(id)),
+  markWatched:film=>markPageWatched(film),
+  openFilm:(film,placement,detailTarget)=>openFilm(film,placement,detailTarget),
+  closeFilm:placement=>closePageFilm(placement),
+  refreshFilm:()=>renderSelectedPanel(),
+  back:()=>showView("collections")
+};
 const CCON="bg-primary-container text-on-primary shadow-[0_0_12px_rgba(255,184,48,0.28)] font-semibold",CCOFF="bg-surface-container text-text-muted hover:text-on-surface";
 const SON="bg-surface-container-high text-primary-fixed font-semibold",SOFF="text-text-muted hover:text-on-surface";
 const ccCls=on=>"h-[34px] px-3 rounded-full font-label-sm text-label-sm flex-shrink-0 transition-colors "+(on?CCON:CCOFF);
@@ -388,18 +442,21 @@ const byId=id=>D.all.find(f=>String(f.id)===String(id));
 function filmItem(f){
   const y=(f.release_date||"").slice(0,4),bm=BOOK.has(f.id);
   const gs=(f.genre_ids||[]).map(i=>GENRES[i]).filter(Boolean).slice(0,2);
-  return `<div class="flex gap-space-sm p-3 rounded-xl bg-surface-panel shadow-md hover:bg-surface-container-low transition-colors cursor-pointer" data-act="open" data-id="${f.id}">
+  const selected=D.selected&&D.selected._placement==="list"&&String(D.selected.id)===String(f.id)?D.selected:null;
+  return `<article class="flex flex-col gap-space-sm p-3 rounded-xl bg-surface-panel shadow-md hover:bg-surface-container-low transition-colors">
+<div class="flex gap-space-sm cursor-pointer" data-act="open" data-id="${f.id}">
 <div class="relative w-20 h-28 flex-shrink-0 rounded-lg overflow-hidden bg-surface-container-high">${f.poster_path?`<img class="w-full h-full object-cover" loading="lazy" alt="" src="${P(f.poster_path,"w185")}">`:`<div class="w-full h-full flex items-center justify-center text-text-muted"><span class="material-symbols-outlined">movie</span></div>`}
 <span class="absolute top-1 left-1 px-1 py-0.5 rounded bg-surface-panel/90 text-primary-container font-micro-caption text-micro-caption font-bold">${Number(f.vote_average).toFixed(1)} ★</span></div>
 <div class="flex flex-col justify-between flex-1 min-w-0"><div class="flex flex-col gap-0.5">
 <div class="flex items-center justify-between"><span class="font-micro-caption text-micro-caption text-text-muted">${fl(f._cc)} ${esc(cname(f._cc))}${y?" • "+y:""}</span><span data-rt="${f.id}" class="font-micro-caption text-micro-caption px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant">— мин</span></div>
 <h4 class="font-label-lg text-label-lg text-on-surface font-bold truncate">${esc(f.title)}</h4>
 <p data-dir="${f.id}" class="font-micro-caption text-micro-caption text-text-muted truncate">&nbsp;</p>
-<div class="flex items-center gap-1.5 pt-1">${gs.map(g=>`<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-micro-caption text-micro-caption">${esc(g)}</span>`).join("")}</div></div>
+<div class="flex items-center gap-1.5 pt-1">${gs.map(g=>`<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-micro-caption text-micro-caption">${esc(g)}</span>`).join("")}</div></div></div>
 <div class="flex items-center justify-end gap-2 pt-2">
-<button type="button" data-act="bm" data-id="${f.id}" title="В закладки" class="text-primary-container hover:text-primary transition-colors p-1"><span class="material-symbols-outlined text-[18px]">${bm?"bookmark_added":"bookmark_border"}</span></button></div></div></div>`;
+<button type="button" data-act="bm" data-id="${f.id}" title="В закладки" class="text-primary-container hover:text-primary transition-colors p-1"><span class="material-symbols-outlined text-[18px]">${bm?"bookmark_added":"bookmark_border"}</span></button></div>
+${selected?selectedFilmHtml(selected,true):""}</article>`;
 }
-function pearlHtml(f){
+function pearlHtml(f,selected=null){
   const y=(f.release_date||"").slice(0,4),bm=BOOK.has(f.id);
   return `<div class="flex flex-col gap-space-xs"><div class="flex items-center gap-1.5 px-1"><span class="material-symbols-outlined text-[18px] text-primary-container">stars</span><h3 class="font-headline-sm text-headline-sm text-primary font-bold">Жемчужина коллекции</h3></div>
 <div class="relative overflow-hidden rounded-xl bg-surface-panel p-space-md shadow-xl flex flex-col gap-space-md"><div class="flex gap-space-md cursor-pointer" data-act="open" data-id="${f.id}">
@@ -411,7 +468,8 @@ function pearlHtml(f){
 <p class="font-micro-caption text-micro-caption text-text-muted italic truncate">${f.original_title&&f.original_title!==f.title?esc(f.original_title):"&nbsp;"}</p>
 <p data-dir="${f.id}" class="font-micro-caption text-micro-caption text-on-surface-variant">&nbsp;</p></div>
 <p class="font-body-sm text-body-sm text-text-muted kg-clip2 pt-1">${esc(f.overview||"Описания на русском пока нет.")}</p></div></div>
-<div class="flex items-center justify-end pt-1"><button type="button" data-act="bm" data-id="${f.id}" aria-label="Сохранить" class="w-11 h-11 flex-shrink-0 rounded-lg bg-surface-container-high text-primary-container flex items-center justify-center transition-transform active:scale-95 shadow-sm"><span class="material-symbols-outlined text-[20px]" style="font-variation-settings:'FILL' 1;">${bm?"bookmark_added":"bookmark_border"}</span></button></div></div></div>`;
+<div class="flex items-center justify-end pt-1"><button type="button" data-act="bm" data-id="${f.id}" aria-label="Сохранить" class="w-11 h-11 flex-shrink-0 rounded-lg bg-surface-container-high text-primary-container flex items-center justify-center transition-transform active:scale-95 shadow-sm"><span class="material-symbols-outlined text-[20px]" style="font-variation-settings:'FILL' 1;">${bm?"bookmark_added":"bookmark_border"}</span></button></div>
+${selected?selectedFilmHtml(selected,true):""}</div></div>`;
 }
 function renderFilms(){
   const box=$("cl-films");if(!box)return;
@@ -419,10 +477,10 @@ function renderFilms(){
   const selectedInList=D.selected&&D.selected._placement==="list";
   if(!best){box.innerHTML=(selectedInList?selectedFilmHtml(D.selected):"")+'<p class="font-body-sm text-body-sm text-text-muted px-1">Подходящих фильмов не нашлось.</p>';return;}
   const list=rest.slice(0,D.shown);
-  const pearl=pearlHtml(best)+(selectedInList&&String(D.selected.id)===String(best.id)?selectedFilmHtml(D.selected):"");
+  const pearl=pearlHtml(best,selectedInList&&String(D.selected.id)===String(best.id)?D.selected:null);
   box.innerHTML=pearl+
   `<div class="flex flex-col gap-space-sm"><div class="flex items-center justify-between px-1"><h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">Отобранные шедевры</h3><span class="font-micro-caption text-micro-caption text-text-muted">${list.length} из ${nf(Math.max(totalFor(),list.length+1))}</span></div>
-  <div class="flex flex-col gap-space-sm">${list.map(f=>filmItem(f)+(selectedInList&&String(D.selected.id)===String(f.id)?selectedFilmHtml(D.selected):"")).join("")}</div>
+  <div class="flex flex-col gap-space-sm">${list.map(f=>filmItem(f)).join("")}</div>
   ${rest.length>D.shown?`<button type="button" data-act="more" class="w-full py-3 rounded-xl bg-surface-panel hover:bg-surface-container-low text-primary text-center font-label-md text-label-md font-semibold flex items-center justify-center gap-2 transition-colors shadow-sm"><span class="material-symbols-outlined text-[18px]">expand_more</span><span>Показать ещё</span></button>`:""}</div>`;
   [best,...list].forEach(f=>filmDetails(f.id).then(d=>{
     const rt=vd.querySelectorAll(`[data-rt="${f.id}"]`),dr=vd.querySelectorAll(`[data-dir="${f.id}"]`);
@@ -524,7 +582,13 @@ async function openCollection(id,opt){
 
 function renderSelectedPanel(){
   const selected=D.selected;if(!selected)return;
+  if(selected._placement==="list"){renderFilms();return;}
   const html=selectedFilmHtml(selected);
+  if(selected._placement==="mood"||selected._placement==="oscar"){
+    const target=$(selected._detailTarget)||(selected._placement==="mood"?$("mood-film-detail"):$("oscar-film-detail"));
+    if(target)target.innerHTML=selectedFilmHtml(selected,true);
+    return;
+  }
   if(selected._placement==="home"){
     const film=homeEditorial.films.find(f=>String(f.id)===String(selected.id));
     if(film){
@@ -542,11 +606,14 @@ function renderSelectedPanel(){
     const result=$("cl-result");if(result)result.innerHTML=html;
     return;
   }
-  const current=vd.querySelector(`[data-selected-film="${selected.id}"]`);
-  if(current){current.outerHTML=html;return;}
   renderFilms();
 }
-function openFilm(f,placement="list"){
+function openFilm(f,placement="list",detailTarget=null){
+  if(D.selected&&D.selected._placement===placement&&String(D.selected.id)===String(f.id)&&D.selected._detailTarget===detailTarget){
+    if(placement==="mood"||placement==="oscar")closePageFilm(placement);
+    else{D.selected=null;if(placement==="list")renderFilms();}
+    return;
+  }
   if(D.selected&&D.selected._placement.startsWith("home")&&D.selected._placement!==placement){
     const oldDetail=$(D.selected._placement==="home"?"kg-home-film-detail":"kg-home-europe-detail");
       oldDetail?.replaceChildren();if(oldDetail)oldDetail.hidden=true;
@@ -554,10 +621,13 @@ function openFilm(f,placement="list"){
   }
   if(placement==="list")$("cl-result").innerHTML="";
   if(placement==="home-europe")$("kg-home-europe-detail").hidden=false;
-  D.selected={...f,_placement:placement,overview:russianText(f.overview)||"Загружаем описание…",_trailerStatus:"loading"};
+  if(D.selected&&D.selected._placement===placement&&D.selected._detailTarget&&D.selected._detailTarget!==detailTarget){
+    $(D.selected._detailTarget)?.replaceChildren();
+  }
+  D.selected={...f,_placement:placement,_detailTarget:detailTarget,overview:russianText(f.overview)||"Загружаем описание…",_trailerStatus:"loading"};
   const selected=D.selected;
-  if(placement==="roulette"||placement==="home"||placement==="home-europe")renderSelectedPanel();else renderFilms();
-  const panel=placement==="roulette"?$("cl-result")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="home"?$("kg-home-feature")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="home-europe"?$("kg-home-europe-detail")?.querySelector(`[data-selected-film="${f.id}"]`):vd.querySelector(`[data-selected-film="${f.id}"]`);
+  if(placement==="roulette"||placement==="home"||placement==="home-europe"||placement==="mood"||placement==="oscar")renderSelectedPanel();else renderFilms();
+  const panel=detailTarget?$(detailTarget):placement==="roulette"?$("cl-result")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="home"?$("kg-home-feature")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="home-europe"?$("kg-home-europe-detail")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="mood"?$("mood-film-detail")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="oscar"?$("oscar-film-detail")?.querySelector(`[data-selected-film="${f.id}"]`):vd.querySelector(`[data-selected-film="${f.id}"]`);
   panel?.scrollIntoView({behavior:"smooth",block:"nearest"});
   filmDetails(f.id).then(details=>{
     if(D.selected!==selected)return;
@@ -746,44 +816,25 @@ const HOME_EUROPE=["FR","IT","ES","DE","GB","PL","SE","DK","NO","FI","PT","NL","
 const homeEditorial={films:[],details:new Set(),directorData:new Map(),loadedKey:"",token:0,loading:false,pending:null,observer:null,scrollAnchorId:null};
 const homeEditorialRoot=$("kg-home-editorial");
 function homeFilmYear(f){return (f.release_date||"").slice(0,4);}
-function homeFilmGenre(f,d){
-  const names=d&&d.genres&&d.genres.length?d.genres:(f.genre_ids||[]).map(id=>GENRES[id]).filter(Boolean);
-  return names.slice(0,2).join(" · ");
-}
 function homeFeatureMarkup(f,d,expandedFilm=null){
-  const cc=f._cc||((f.origin_country||[])[0])||"FR";
   const title=esc(f.title||f.original_title||"Фильм");
-  const original=f.original_title&&f.original_title!==f.title?esc(f.original_title):"";
   const year=homeFilmYear(f);
-  const directors=d?(d.dirs&&d.dirs.length?esc(d.dirs.slice(0,2).join(", ")):"Нет данных"):"Загружаем данные…";
-  const runtime=d&&d.runtime?fmtRuntime(d.runtime):"";
-  const genres=homeFilmGenre(f,d);
+  const rating=Number(f.vote_average)||0;
   const synopsis=(d&&d.overview)||russianText(f.overview)||"Описание на русском и английском пока недоступно.";
-  const synopsisLang=d&&d.overview?d.overviewLang:(russianText(f.overview)?"ru":"");
-  const tagline=d&&d.tagline&&d.taglineLang===synopsisLang?`<span class="font-semibold text-on-surface">«${esc(d.tagline)}»</span> `:"";
   const poster=f.poster_path
     ?`<img class="w-full h-full object-cover" src="${P(f.poster_path,"w342")}" alt="Постер фильма «${title}»" loading="lazy">`
     :`<span class="material-symbols-outlined text-primary-container text-[32px]">movie</span>`;
-  const saved=BOOK.has(f.id);
-  const rating=Number(f.vote_average)||0;
-  const tags=[cname(cc),runtime,d&&d.companies&&d.companies[0]].filter(Boolean).map((text,i)=>
-    `<span class="px-2 py-0.5 rounded-full bg-surface-container-lowest ${i===2?"text-primary-container":"text-on-surface-variant"} font-micro-caption text-micro-caption">${esc(text)}</span>`).join("");
   const isExpanded=expandedFilm&&String(expandedFilm.id)===String(f.id);
-  return `<article data-home-act="open" data-id="${f.id}" class="w-full rounded-xl bg-surface-container-high shadow-xl p-4 cursor-pointer">
-<div class="flex items-center justify-between gap-2 pb-1.5 mb-1.5"><span class="font-micro-caption text-micro-caption uppercase tracking-wider text-primary font-bold">Выбор дня · Программа № ${homeDayNumber()}</span><span class="px-2 py-0.5 rounded bg-surface-container-highest text-on-surface-variant font-micro-caption text-micro-caption truncate">${esc(homeFilmGenre(f,d)||"Европейское кино")}</span></div>
-<div class="flex gap-3.5">
-<button type="button" class="relative w-28 h-40 shrink-0 rounded-lg overflow-hidden shadow-md bg-surface-container-lowest flex items-center justify-center" data-home-act="open" data-id="${f.id}" aria-label="Открыть фильм «${title}»">${poster}<span class="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded bg-surface-container-lowest/90 text-primary-container font-label-sm text-label-sm font-bold flex items-center gap-0.5 shadow"><span class="material-symbols-outlined text-[13px]">star</span>${rating.toFixed(1)}</span></button>
-<div class="flex-1 flex flex-col justify-between min-w-0">
-<div><button type="button" data-home-act="open" data-id="${f.id}" class="text-left w-full"><span class="font-headline-sm text-headline-sm text-on-surface font-bold leading-snug line-clamp-2 block">${title}</span></button>
-<p class="font-body-sm text-body-sm text-on-surface-variant italic mt-0.5 truncate">${[original,year].filter(Boolean).join(" · ")}</p>
-<div class="mt-1.5"><span class="font-micro-caption text-micro-caption text-on-surface-variant uppercase block">Режиссёр${d&&d.dirs&&d.dirs.length>1?"ы":""}</span><p class="font-label-sm text-label-sm text-on-surface truncate font-medium">${directors}</p></div>
-<div class="flex flex-wrap gap-1 mt-2">${tags}</div></div>
-<div class="flex items-center gap-1.5 mt-3">
-<button type="button" data-home-act="trailer" data-id="${f.id}" class="flex-1 min-w-0 flex items-center justify-center gap-1 py-1.5 px-2 rounded-lg bg-surface-container-highest text-on-surface hover:text-primary-container active:scale-95 transition-all shadow-sm"><span class="material-symbols-outlined text-[18px] shrink-0">play_circle</span><span class="font-label-sm text-label-sm font-semibold truncate">Трейлер</span></button>
-<button type="button" data-home-act="bookmark" data-id="${f.id}" aria-label="${saved?"Убрать из избранного":"Сохранить в избранное"}" title="${saved?"Убрать из избранного":"Сохранить в избранное"}" class="w-9 h-9 shrink-0 rounded-lg bg-surface-container-highest flex items-center justify-center text-on-surface hover:text-primary-container active:scale-95 transition-all shadow-sm"><span class="material-symbols-outlined text-[19px]">${saved?"bookmark_added":"bookmark_add"}</span></button>
-<button type="button" data-home-act="share" data-id="${f.id}" aria-label="Поделиться карточкой" title="Поделиться карточкой" class="w-9 h-9 shrink-0 rounded-lg bg-surface-container-highest flex items-center justify-center text-on-surface hover:text-primary-container active:scale-95 transition-all shadow-sm"><span class="material-symbols-outlined text-[19px]">share</span></button>
-</div></div></div>
-${isExpanded?selectedFilmHtml(expandedFilm,true):`<div class="mt-3.5 p-3 rounded-lg bg-surface-container-lowest"><p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed kg-clip3">${tagline}${esc(synopsis)}</p></div>`}</article>`;
+  return `<article data-home-act="open" data-id="${f.id}" class="w-full rounded-xl bg-surface-container-high shadow-xl p-3.5 cursor-pointer">
+<p class="font-micro-caption text-micro-caption uppercase tracking-wider text-primary font-bold mb-2">Выбор дня · Программа № ${homeDayNumber()}</p>
+<div class="flex gap-3.5 items-start">
+<div class="relative w-28 h-40 shrink-0 rounded-lg overflow-hidden shadow-md bg-surface-container-lowest flex items-center justify-center">${poster}<span class="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded bg-surface-container-lowest/90 text-primary-container font-label-sm text-label-sm font-bold shadow">★ ${rating.toFixed(1)}</span></div>
+<div class="min-w-0 flex-1">
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-bold leading-snug">${title}</h3>
+${year?`<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">${year}</p>`:""}
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed mt-2 kg-clip3">${esc(synopsis)}</p>
+</div></div>
+${isExpanded?selectedFilmHtml(expandedFilm,true):""}</article>`;
 }
 function homeDayNumber(){
   const now=new Date();

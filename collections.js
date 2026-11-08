@@ -30,6 +30,9 @@ st2.textContent=`.kgr-win{position:relative;height:150px;overflow:hidden;-webkit
 .kgr-rise{animation:kgrRise .6s cubic-bezier(.2,.7,.2,1) both}
 @keyframes kgrRise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 .kg-clip3{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.kg-home-europe{scrollbar-width:none;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
+.kg-home-europe::-webkit-scrollbar{display:none}
+.kg-home-film{flex:0 0 9rem;scroll-snap-align:start}
 @media(prefers-reduced-motion:reduce){.kgr-rise{animation:none}}`;
 document.head.appendChild(st2);
 
@@ -661,6 +664,190 @@ const reelCard=$("cinema-35mm-reel-section");
 if(reelCard)reelCard.style.display="none";
 const _showFilm=window.show;
 if(typeof _showFilm==="function")window.show=function(){if(reelCard)reelCard.style.display="";return _showFilm.apply(this,arguments);};
+
+/* ---------- Главная: редакционная карточка и европейская палитра ---------- */
+const HOME_EUROPE=["FR","IT","ES","DE","GB","PL","SE","DK","NO","FI","PT","NL","BE","IE"];
+const homeEditorial={films:[],details:new Set(),directorData:new Map(),loadedKey:"",token:0,loading:false,observer:null};
+const homeEditorialRoot=$("kg-home-editorial");
+function homeFilmYear(f){return (f.release_date||"").slice(0,4);}
+function homeFilmGenre(f,d){
+  const names=d&&d.genres&&d.genres.length?d.genres:(f.genre_ids||[]).map(id=>GENRES[id]).filter(Boolean);
+  return names.slice(0,2).join(" · ");
+}
+function homeFeatureMarkup(f,d){
+  const cc=f._cc||((f.origin_country||[])[0])||"FR";
+  const title=esc(f.title||f.original_title||"Фильм");
+  const original=f.original_title&&f.original_title!==f.title?esc(f.original_title):"";
+  const year=homeFilmYear(f);
+  const directors=d?(d.dirs&&d.dirs.length?esc(d.dirs.slice(0,2).join(", ")):"Нет данных"):"Загружаем данные…";
+  const runtime=d&&d.runtime?fmtRuntime(d.runtime):"";
+  const genres=homeFilmGenre(f,d);
+  const synopsis=(d&&d.overview)||f.overview||"Описание пока недоступно.";
+  const tagline=d&&d.tagline?`<span class="font-semibold text-on-surface">«${esc(d.tagline)}»</span> `:"";
+  const poster=f.poster_path
+    ?`<img class="w-full h-full object-cover" src="${P(f.poster_path,"w342")}" alt="Постер фильма «${title}»" loading="lazy">`
+    :`<span class="material-symbols-outlined text-primary-container text-[32px]">movie</span>`;
+  const saved=BOOK.has(f.id);
+  const rating=Number(f.vote_average)||0;
+  const tags=[cname(cc),runtime,d&&d.companies&&d.companies[0]].filter(Boolean).map((text,i)=>
+    `<span class="px-2 py-0.5 rounded-full bg-surface-container-lowest ${i===2?"text-primary-container":"text-on-surface-variant"} font-micro-caption text-micro-caption">${esc(text)}</span>`).join("");
+  return `<article class="w-full rounded-xl bg-surface-container-high shadow-xl p-4">
+<div class="flex items-center justify-between gap-2 pb-1.5 mb-1.5"><span class="font-micro-caption text-micro-caption uppercase tracking-wider text-primary font-bold">Выбор дня · Программа № ${homeDayNumber()}</span><span class="px-2 py-0.5 rounded bg-surface-container-highest text-on-surface-variant font-micro-caption text-micro-caption truncate">${esc(homeFilmGenre(f,d)||"Европейское кино")}</span></div>
+<div class="flex gap-3.5">
+<button type="button" class="relative w-28 h-40 shrink-0 rounded-lg overflow-hidden shadow-md bg-surface-container-lowest flex items-center justify-center" data-home-act="open" data-id="${f.id}" aria-label="Открыть фильм «${title}»">${poster}<span class="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded bg-surface-container-lowest/90 text-primary-container font-label-sm text-label-sm font-bold flex items-center gap-0.5 shadow"><span class="material-symbols-outlined text-[13px]">star</span>${rating.toFixed(1)}</span></button>
+<div class="flex-1 flex flex-col justify-between min-w-0">
+<div><button type="button" data-home-act="open" data-id="${f.id}" class="text-left w-full"><span class="font-headline-sm text-headline-sm text-on-surface font-bold leading-snug line-clamp-2 block">${title}</span></button>
+<p class="font-body-sm text-body-sm text-on-surface-variant italic mt-0.5 truncate">${[original,year].filter(Boolean).join(" · ")}</p>
+<div class="mt-1.5"><span class="font-micro-caption text-micro-caption text-on-surface-variant uppercase block">Режиссёр${d&&d.dirs&&d.dirs.length>1?"ы":""}</span><p class="font-label-sm text-label-sm text-on-surface truncate font-medium">${directors}</p></div>
+<div class="flex flex-wrap gap-1 mt-2">${tags}</div></div>
+<div class="flex items-center gap-1.5 mt-3">
+<button type="button" data-home-act="trailer" data-id="${f.id}" class="flex-1 min-w-0 flex items-center justify-center gap-1 py-1.5 px-2 rounded-lg bg-surface-container-highest text-on-surface hover:text-primary-container active:scale-95 transition-all shadow-sm"><span class="material-symbols-outlined text-[18px] shrink-0">play_circle</span><span class="font-label-sm text-label-sm font-semibold truncate">Трейлер</span></button>
+<button type="button" data-home-act="bookmark" data-id="${f.id}" aria-label="${saved?"Убрать из избранного":"Сохранить в избранное"}" title="${saved?"Убрать из избранного":"Сохранить в избранное"}" class="w-9 h-9 shrink-0 rounded-lg bg-surface-container-highest flex items-center justify-center text-on-surface hover:text-primary-container active:scale-95 transition-all shadow-sm"><span class="material-symbols-outlined text-[19px]">${saved?"bookmark_added":"bookmark_add"}</span></button>
+<button type="button" data-home-act="share" data-id="${f.id}" aria-label="Поделиться карточкой" title="Поделиться карточкой" class="w-9 h-9 shrink-0 rounded-lg bg-surface-container-highest flex items-center justify-center text-on-surface hover:text-primary-container active:scale-95 transition-all shadow-sm"><span class="material-symbols-outlined text-[19px]">share</span></button>
+</div></div></div>
+<div class="mt-3.5 p-3 rounded-lg bg-surface-container-lowest"><p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed kg-clip3">${tagline}${esc(synopsis)}</p></div></article>`;
+}
+function homeDayNumber(){
+  const now=new Date();
+  return Math.floor((Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),now.getUTCDate())-Date.UTC(now.getUTCFullYear(),0,0))/86400000);
+}
+function homeFilmCard(f){
+  const title=esc(f.title||f.original_title||"Фильм"),year=homeFilmYear(f);
+  const details=homeEditorial.directorData.get(f.id);
+  const credit=details&&details.dirs&&details.dirs.length?details.dirs[0]:cname(f._cc);
+  const poster=f.poster_path?`<img class="w-full h-full object-cover" src="${P(f.poster_path,"w342")}" alt="Постер фильма «${title}»" loading="lazy">`:'<span class="material-symbols-outlined text-primary-container text-[32px]">movie</span>';
+  return `<button type="button" data-home-act="open" data-home-meta="${f.id}" data-id="${f.id}" class="kg-home-film shrink-0 rounded-xl bg-surface-container-high p-2 shadow-md text-left">
+<span class="relative w-full h-44 rounded-lg overflow-hidden mb-1.5 bg-surface-container-lowest flex items-center justify-center block">${poster}<span class="absolute bottom-1 right-1 px-1.5 py-0.5 rounded bg-surface-container-lowest/90 font-micro-caption text-micro-caption text-primary-container font-bold">★ ${(Number(f.vote_average)||0).toFixed(1)}</span></span>
+<span class="font-label-sm text-label-sm font-bold text-on-surface block truncate">${title}</span>
+<span class="font-micro-caption text-micro-caption text-on-surface-variant block truncate" data-home-director="${f.id}">${esc(credit)}${year?" · "+year:""}</span></button>`;
+}
+function renderHomeEditorial(){
+  if(!homeEditorialRoot)return;
+  const feature=$("kg-home-feature"),carousel=$("kg-home-europe");
+  const films=homeEditorial.films;
+  if(!films.length)return;
+  const dayIndex=(homeDayNumber()-1)%films.length,featured=films[dayIndex];
+  feature.innerHTML=homeFeatureMarkup(featured,homeEditorial.featureDetails||null);
+  carousel.innerHTML=films.map(homeFilmCard).join("");
+  homeEditorial.observer?.disconnect();
+  if("IntersectionObserver"in window){
+    [...carousel.querySelectorAll("[data-home-meta]")].slice(0,4).forEach(card=>loadHomeDirector(card.dataset.homeMeta));
+    homeEditorial.observer=new IntersectionObserver(entries=>entries.forEach(entry=>{
+      if(!entry.isIntersecting)return;
+      const card=entry.target;homeEditorial.observer.unobserve(card);
+      loadHomeDirector(card.dataset.homeMeta);
+    }),{root:carousel,rootMargin:"80px"});
+    carousel.querySelectorAll("[data-home-meta]").forEach(card=>homeEditorial.observer.observe(card));
+  }else{
+    [...carousel.querySelectorAll("[data-home-meta]")].slice(0,4).forEach(card=>loadHomeDirector(card.dataset.homeMeta));
+  }
+  if(!homeEditorial.details.has(featured.id)){
+    homeEditorial.details.add(featured.id);
+    filmDetails(featured.id).then(d=>{
+      if(!homeEditorial.films.length||homeEditorial.films[dayIndex].id!==featured.id)return;
+      homeEditorial.featureDetails=d;homeEditorial.directorData.set(featured.id,d);
+      feature.innerHTML=homeFeatureMarkup(featured,d);
+      const credit=document.querySelector(`[data-home-director="${featured.id}"]`);
+      if(credit&&d.dirs.length)credit.textContent=[d.dirs[0],homeFilmYear(featured)].filter(Boolean).join(" · ");
+    }).catch(e=>{homeEditorial.details.delete(featured.id);console.warn("[Kinoglobus] Не удалось загрузить данные фильма дня:",e);});
+  }
+}
+async function loadHomeDirector(id){
+  if(homeEditorial.details.has(Number(id)))return;
+  homeEditorial.details.add(Number(id));
+  const f=homeEditorial.films.find(x=>String(x.id)===String(id));
+  if(!f)return;
+  try{
+    const d=await filmDetails(f.id),target=document.querySelector(`[data-home-director="${f.id}"]`);
+    homeEditorial.directorData.set(f.id,d);
+    if(target)target.textContent=[d.dirs[0],homeFilmYear(f)].filter(Boolean).join(" · ")||cname(f._cc);
+    const featureIndex=(homeDayNumber()-1)%homeEditorial.films.length;
+    if(homeEditorial.films[featureIndex]?.id===f.id){
+      homeEditorial.featureDetails=d;
+      $("kg-home-feature").innerHTML=homeFeatureMarkup(f,d);
+    }
+  }catch(e){
+    homeEditorial.details.delete(f.id);
+    const featureIndex=(homeDayNumber()-1)%homeEditorial.films.length;
+    if(homeEditorial.films[featureIndex]?.id===f.id){
+      const emptyDetails={dirs:[],genres:[],companies:[],runtime:0,tagline:"",overview:""};
+      homeEditorial.featureDetails=emptyDetails;
+      $("kg-home-feature").innerHTML=homeFeatureMarkup(f,emptyDetails);
+    }
+    console.warn("[Kinoglobus] Не удалось загрузить режиссёра:",e);
+  }
+}
+function renderHomeEditorialMessage(message,action){
+  $("kg-home-feature").innerHTML=`<p class="font-micro-caption text-micro-caption text-primary font-bold uppercase tracking-wider">Выбор дня</p><p role="status" class="font-body-sm text-body-sm text-text-muted mt-2">${esc(message)}</p>${action?`<button type="button" data-home-act="${action}" class="mt-3 px-3 py-2 rounded-lg bg-surface-container-highest text-primary-container font-label-sm text-label-sm font-semibold">${action==="set-key"?"Добавить ключ TMDB":"Повторить загрузку"}</button>`:""}`;
+  $("kg-home-europe").innerHTML=`<p class="font-body-sm text-body-sm text-text-muted py-2">Фильмы появятся после загрузки данных.</p>`;
+}
+async function loadHomeEditorial(){
+  if(homeEditorial.loading)return;
+  if(!apiKey){renderHomeEditorialMessage("Добавьте ключ TMDB, чтобы загрузить фильм и подборку европейского кино.","set-key");return;}
+  if(homeEditorial.loadedKey===apiKey)return;
+  const token=++homeEditorial.token;
+  homeEditorial.loading=true;
+  renderHomeEditorialMessage("Загружаем фильмы и данные TMDB…");
+  const results=await Promise.allSettled(HOME_EUROPE.map(async cc=>{
+    let response=await api({with_origin_country:cc,sort_by:"popularity.desc","vote_count.gte":30,include_adult:"false",page:1});
+    let films=response.results||[];
+    if(!films.length){
+      response=await api({with_origin_country:cc,sort_by:"popularity.desc","vote_count.gte":1,include_adult:"false",page:1});
+      films=response.results||[];
+    }
+    return films.length?{...films[0],_cc:cc}:null;
+  }));
+  if(token!==homeEditorial.token)return;
+  homeEditorial.loading=false;
+  results.forEach((result,i)=>{if(result.status==="rejected")console.warn(`[Kinoglobus] Не удалось загрузить фильмы ${HOME_EUROPE[i]}:`,result.reason);});
+  const films=results.filter(result=>result.status==="fulfilled"&&result.value).map(result=>result.value);
+  if(!films.length){
+    homeEditorial.loadedKey="";
+    const error=results.find(result=>result.status==="rejected");
+    renderHomeEditorialMessage(error&&error.reason&&error.reason.message||"Не удалось загрузить европейские фильмы.","retry");
+    return;
+  }
+  homeEditorial.films=films;
+  homeEditorial.loadedKey=apiKey;
+  homeEditorial.details.clear();homeEditorial.directorData.clear();homeEditorial.featureDetails=null;
+  renderHomeEditorial();
+}
+homeEditorialRoot.addEventListener("click",async e=>{
+  const button=e.target.closest("[data-home-act]");
+  if(!button)return;
+  const action=button.dataset.homeAct;
+  if(action==="set-key"){
+    const banner=$("tmdb-key-banner");banner.classList.remove("hidden");banner.scrollIntoView({behavior:"smooth",block:"center"});$("tmdb-key-input").focus();return;
+  }
+  if(action==="retry"){homeEditorial.loadedKey="";loadHomeEditorial();return;}
+  const film=homeEditorial.films.find(f=>String(f.id)===button.dataset.id);
+  if(!film)return;
+  if(action==="open"){
+    window.show(film._cc,{films:[film],total:1,votes:0},film);return;
+  }
+  if(action==="trailer"){playTrailer(film);return;}
+  if(action==="bookmark"){
+    BOOK.has(film.id)?BOOK.delete(film.id):BOOK.add(film.id);
+    store.set("kgBookmarks",[...BOOK]);
+    toast(BOOK.has(film.id)?"Добавлено в закладки":"Убрано из закладок","bookmark");
+    renderHomeEditorial();return;
+  }
+  if(action==="share"){
+    try{
+      const info={title:film.title||film.original_title||"Фильм",text:"Посмотри этот фильм в Kinoglobus",url:`https://www.themoviedb.org/movie/${film.id}`};
+      if(navigator.share)await navigator.share(info);
+      else if(navigator.clipboard&&navigator.clipboard.writeText){await navigator.clipboard.writeText(info.url);toast("Ссылка скопирована","link");}
+      else throw new Error("Поделиться из этого браузера не удалось.");
+    }catch(error){
+      if(error.name!=="AbortError"){console.error("[Kinoglobus] Не удалось поделиться фильмом:",error);toast("Не удалось поделиться фильмом","share");}
+    }
+  }
+});
+$("kg-home-europe-link").addEventListener("click",()=>{
+  const carousel=$("kg-home-europe");carousel.scrollTo({left:carousel.scrollWidth,behavior:"smooth"});
+});
+$("tmdb-key-save").addEventListener("click",()=>{homeEditorial.loadedKey="";loadHomeEditorial();});
+loadHomeEditorial();
 showView("home");
 console.info("[Kinoglobus] v8 collections ready");
 })();

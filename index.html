@@ -1581,18 +1581,15 @@ DD:'<svg viewBox="0 0 90 60" aria-hidden="true"><rect width="90" height="20" fil
 };
 // Локальные SVG исторических государств
 const HIST_FLAG_FILES = {
-  SU: "assets/flags/ussr.svg",
-  YU: "assets/flags/yugoslavia.svg",
-  DD: "assets/flags/east-germany.svg"
-};    
-const cname=c=>HIST[c]||names.of(c);
-const emojiFlag=c=>[…c].map(x=>String.fromCodePoint(127397+x.charCodeAt(0))).join(””);
-
-const HIST_FLAG_FILES = {
-SU: “assets/flags/ussr.svg”,
-YU: “assets/flags/yugoslavia.svg”,
-DD: “assets/flags/east-germany.svg”
+  SU: "assets/flags/Flag_of_the_Soviet_Union.svg",
+  YU: "assets/flags/Flag_of_Yugoslavia_(1946-1992).svg",
+  DD: "assets/flags/Flag_of_East_Germany.svg"
 };
+
+const cname = c => HIST[c] || names.of(c);
+
+const emojiFlag = c =>
+  [...c].map(x => String.fromCodePoint(127397 + x.charCodeAt(0))).join("");
 
 const flag=(c,wave=true)=>{
 let body;

@@ -111,27 +111,76 @@ function toast(msg,icon){
 /* ---------- загрузка данных TMDB ---------- */
 const floorOf=cc=>BIG.has(cc)?300:60;
 const qs=(t,cc)=>({with_origin_country:cc,with_genres:t.g,"vote_count.gte":floorOf(cc),"vote_average.gte":"6.5"});
-async function loadTheme(t,pages){
-  const jobs=[];
-  t.cc.forEach(cc=>{for(let p=1;p<=pages;p++)jobs.push(api({...qs(t,cc),page:p}).then(r=>({cc,p,total:r.total_results||0,films:(r.results||[]).map(f=>({...f,_cc:cc}))})));});
-  const parts=await Promise.all(jobs);
-  const totals={},ids=new Set();let films=[];
-  parts.forEach(x=>{if(x.p===1)totals[x.cc]=x.total;films.push(...x.films.filter(f=>!ids.has(f.id)&&ids.add(f.id)));});
-  const total=Object.values(totals).reduce((a,b)=>a+b,0);
-  films.sort((a,b)=>weighed(b)-weighed(a));
-  return {total,totals,films};
+const russianText=text=>{
+  if(!text)return "";
+  const value=String(text),ru=(value.match(/[А-Яа-яЁё]/g)||[]).length,latin=(value.match(/[A-Za-z]/g)||[]).length;
+  return ru>=3&&ru>latin?value:"";
+};
+const DAY_MS=24*60*60*1000;
+const themeDataCache=new Map(),themeRetryAfter=new Map(),themeInflight=new Map(),metaRetryAfter=new Map(),metaInflight=new Map();
+const themeDataKey=(t,pages)=>`${t.id}:${pages}:${playMode!=="surprise"&&(sel.has("adult")||sel.has("erotic"))?"adult":"all"}`;
+async function loadTheme(t,pages,force=false){
+  const key=themeDataKey(t,pages),cached=themeDataCache.get(key),now=Date.now();
+  if(!force&&cached&&now-cached.ts<DAY_MS)return cached.data;
+  if(!force&&(themeRetryAfter.get(key)||0)>now){
+    if(cached)return {...cached.data,_stale:true};
+    throw new Error("Подборка временно недоступна для обновления.");
+  }
+  const active=themeInflight.get(key);
+  if(active){
+    if(!force||active.fresh)return active.promise;
+    try{await active.promise;}catch{}
+    return loadTheme(t,pages,true);
+  }
+  const promise=(async()=>{
+    const jobs=[];
+    t.cc.forEach(cc=>{for(let p=1;p<=pages;p++)jobs.push(api({...qs(t,cc),page:p},{fresh:force}).then(r=>({cc,p,total:r.total_results||0,films:(r.results||[]).map(f=>({...f,_cc:cc}))})));});
+    try{
+      const parts=await Promise.all(jobs);
+      const aggregate=selected=>{
+        const totals={},ids=new Set();let films=[];
+        selected.forEach(x=>{if(x.p===1)totals[x.cc]=x.total;films.push(...x.films.filter(f=>!ids.has(f.id)&&ids.add(f.id)));});
+        const total=Object.values(totals).reduce((a,b)=>a+b,0);
+        films.sort((a,b)=>weighed(b)-weighed(a));
+        return {total,totals,films};
+      };
+      const data=aggregate(parts);
+      const refreshedAt=Date.now(),date=localDateKey();
+      themeDataCache.set(key,{data,ts:refreshedAt,date});themeRetryAfter.delete(key);
+      if(pages>1)themeDataCache.set(themeDataKey(t,1),{data:aggregate(parts.filter(x=>x.p===1)),ts:refreshedAt,date});
+      return data;
+    }catch(error){
+      themeRetryAfter.set(key,Date.now()+15*60*1000);
+      if(cached){console.warn(`[Kinoglobus] Обновление подборки «${t.name}» не удалось; показываем сохранённые данные.`,error);return {...cached.data,_stale:true};}
+      throw error;
+    }
+  })();
+  const entry={promise,fresh:force};themeInflight.set(key,entry);
+  try{return await promise;}finally{if(themeInflight.get(key)===entry)themeInflight.delete(key);}
 }
 const META=store.get("kgThemeMeta",{});
-const FRESH=12*3600e3;
-async function loadMeta(t){
-  const m=META[t.id];
-  if(m&&Date.now()-m.ts<FRESH) return m;
-  const d=await loadTheme(t,1);
+const FRESH=DAY_MS;
+function saveThemeMeta(t,d){
   const top=d.films.slice(0,10);
   const r=top.length?top.reduce((s,f)=>s+Number(f.vote_average||0),0)/top.length:0;
   const meta={n:d.total,r:r?r.toFixed(1):"",p:(d.films.find(f=>f.poster_path)||{}).poster_path||"",b:(d.films.find(f=>f.backdrop_path)||{}).backdrop_path||"",ts:Date.now()};
-  META[t.id]=meta;store.set("kgThemeMeta",META);
-  return meta;
+  META[t.id]=meta;store.set("kgThemeMeta",META);return meta;
+}
+async function loadMeta(t,force=false){
+  if(metaInflight.has(t.id))return metaInflight.get(t.id);
+  const m=META[t.id];
+  if(!force&&m&&Date.now()-m.ts<FRESH)return m;
+  if((metaRetryAfter.get(t.id)||0)>Date.now()){if(m)return m;throw new Error("Метаданные подборки временно недоступны.");}
+  const request=(async()=>{
+    try{
+      const d=await loadTheme(t,1,force);
+      if(d._stale){if(m&&!force)return m;throw new Error("Метаданные подборки временно недоступны.");}
+      const meta=saveThemeMeta(t,d);metaRetryAfter.delete(t.id);
+      return meta;
+    }catch(error){metaRetryAfter.set(t.id,Date.now()+15*60*1000);throw error;}
+  })();
+  metaInflight.set(t.id,request);
+  try{return await request;}finally{metaInflight.delete(t.id);}
 }
 
 /* ---------- экраны и навигация ---------- */
@@ -193,7 +242,7 @@ ${top}<div class="flex items-start gap-3">
 
 function spotlightHtml(t){
   const m=TM[t.id]||["noir","","",""];
-  return `<section id="spot" data-t="${t.id}" class="relative w-full rounded-2xl overflow-hidden bg-surface-panel shadow-[0_14px_34px_-10px_rgba(0,0,0,0.85)]">
+  return `<section id="spot" data-t="${t.id}" tabindex="0" aria-label="Открыть подборку «${esc(t.name)}»" class="relative w-full rounded-2xl overflow-hidden bg-surface-panel shadow-[0_14px_34px_-10px_rgba(0,0,0,0.85)] cursor-pointer">
 <div data-k="bg" class="w-full h-56 bg-cover bg-center relative bg-surface-container-high"><div class="absolute inset-0 bg-gradient-to-t from-surface-panel via-surface-panel/60 to-transparent"></div>
 <div class="absolute top-3 left-3 right-3 flex items-center justify-between"><div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-cinema-velvet-deep text-secondary font-micro-caption text-micro-caption shadow-md"><span class="material-symbols-outlined text-[14px]">local_fire_department</span>ХИТ НЕДЕЛИ</div>
 <div class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container-lowest/80 backdrop-blur-md text-primary font-label-sm text-label-sm"><span class="material-symbols-outlined text-[15px] text-primary-container" style="font-variation-settings:'FILL' 1;">star</span><span data-k="r">…</span></div></div>
@@ -202,6 +251,12 @@ function spotlightHtml(t){
 <p class="font-body-sm text-body-sm text-text-muted kg-clip2">${esc(m[3])}</p>
 <div class="flex items-center gap-2 pt-1"><button type="button" data-act="spin" data-t="${t.id}" class="flex-1 h-11 px-4 rounded-xl bg-primary-container text-on-primary-container font-label-md text-label-md flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(255,184,48,0.32)] transition-transform active:scale-95"><span class="material-symbols-outlined text-[20px]">casino</span><span>Крутить рулетку</span></button>
 <button type="button" aria-label="Подробнее" data-act="open" data-t="${t.id}" class="w-11 h-11 rounded-xl bg-surface-container-high text-primary flex items-center justify-center transition-colors hover:bg-surface-bright active:scale-95"><span class="material-symbols-outlined text-[20px]">arrow_forward</span></button></div></div></section>`;
+}
+function updateWeeklySpotlight(){
+  const spot=$("spot"),selected=spotlightTheme();
+  if(!spot||spot.dataset.t===selected.id)return;
+  spot.outerHTML=spotlightHtml(selected);
+  paintMeta(selected.id);
 }
 
 const CHON="bg-primary-container text-on-primary-container shadow-[0_0_14px_rgba(255,184,48,0.28)]",CHOFF="bg-surface-panel text-text-muted hover:text-on-surface";
@@ -259,7 +314,7 @@ function filterCatalog(){
   $("cat-empty").style.display=vis?"none":"flex";
 }
 function sortCatalog(){
-  const grid=$("cat-grid"),cards=[...grid.children];
+  const grid=$("cat-grid");if(!grid)return;const cards=[...grid.children];
   cards.sort((a,b)=>{
     const ma=META[a.dataset.t]||{},mb=META[b.dataset.t]||{};
     if(sortMode==="rating")return (parseFloat(mb.r)||0)-(parseFloat(ma.r)||0);
@@ -268,17 +323,19 @@ function sortCatalog(){
     return a.dataset.i-b.dataset.i;
   }).forEach(c=>grid.appendChild(c));
 }
-async function loadAllMeta(){
+async function loadAllMeta(force=false){
   const note=$("cat-note");
-  if(!apiKey){note.textContent="Введите ключ TMDB на экране «Глобус», чтобы увидеть число фильмов и рейтинги подборок.";note.style.display="";return;}
-  note.style.display="none";
-  await Promise.all(THEMES.map(t=>loadMeta(t).then(()=>paintMeta(t.id)).catch(()=>{})));
+  if(!apiKey){if(note){note.textContent="Введите ключ TMDB на экране «Глобус», чтобы увидеть число фильмов и рейтинги подборок.";note.style.display="";}return false;}
+  if(note)note.style.display="none";
+  const results=await Promise.allSettled(THEMES.map(t=>loadMeta(t,force).then(()=>{if(catBuilt)paintMeta(t.id);})));
   if(sortMode!=="curated")sortCatalog();
+  return results.every(r=>r.status==="fulfilled");
 }
 function initCatalog(){
   if(!catBuilt)buildCatalog();
+  updateWeeklySpotlight();
   THEMES.forEach(t=>paintMeta(t.id));
-  loadAllMeta();
+  if(!dailyRefreshPromise)loadAllMeta();
 }
 vc.addEventListener("input",e=>{
   if(e.target.id==="cat-search"){$("cat-clear").style.display=e.target.value?"flex":"none";filterCatalog();}
@@ -301,8 +358,14 @@ vc.addEventListener("click",e=>{
       toast("Выбрано: «"+T[c.dataset.t].name+"»!");return;
     }
   }
+  const spot=e.target.closest("#spot");
+  if(spot&&!e.target.closest("[data-act]")){openCollection(spot.dataset.t);return;}
   const card=e.target.closest(".collection-card");
   if(card)openCollection(card.dataset.t);
+});
+vc.addEventListener("keydown",e=>{
+  if(e.target.id!=="spot"||(e.key!=="Enter"&&e.key!==" "))return;
+  e.preventDefault();openCollection(e.target.dataset.t);
 });
 
 /* ================= СТРАНИЦА ПОДБОРКИ ================= */
@@ -427,18 +490,28 @@ ${t.cc.length>1?`<div class="flex flex-col gap-1.5 pt-1"><span class="font-micro
 async function openCollection(id,opt){
   const t=T[id];if(!t)return;
   rStop();
-  D={t,all:[],total:0,totals:{},cc:"",sort:"rating",shown:5,selected:null,picked:null};
+  const cached=themeDataCache.get(themeDataKey(t,2));
+  const initial=cached&&cached.data;
+  D={t,all:initial?initial.films:[],total:initial?initial.total:0,totals:initial?initial.totals:{},cc:"",sort:"rating",shown:5,selected:null,picked:null};
   renderCollection();showView("collection");
   if(!apiKey){$("cl-films").innerHTML='<p class="font-body-sm text-body-sm text-text-muted px-1">Введите ключ TMDB на экране «Глобус», чтобы загрузить фильмы подборки.</p>';return;}
+  if(initial){
+    $("cl-count").textContent=nf(D.total)+" "+(fw(D.total)==="фильм"?"картина":fw(D.total)==="фильма"?"картины":"картин");
+    renderFilms();
+  }
   try{
     const r=await loadTheme(t,2);
     if(D.t!==t)return;
+    if(r._stale){$("cl-films").insertAdjacentHTML("afterbegin",`<p role="status" class="font-micro-caption text-micro-caption text-text-muted">Не удалось обновить данные; показана сохранённая подборка.</p>`);return;}
     D.all=r.films;D.total=r.total;D.totals=r.totals;
     $("cl-count").textContent=nf(r.total)+" "+(fw(r.total)==="фильм"?"картина":fw(r.total)==="фильма"?"картины":"картин");
     renderFilms();
     if(opt&&opt.spin)inPageRoulette();
   }catch(e){
-    $("cl-films").innerHTML=`<p class="font-body-sm text-body-sm text-feedback-error px-1">${esc(e.message||"Не удалось загрузить подборку.")}</p>`;
+    if(initial){
+      $("cl-films").insertAdjacentHTML("afterbegin",`<p role="status" class="font-micro-caption text-micro-caption text-text-muted">Не удалось обновить данные; показана сохранённая подборка.</p>`);
+      console.error("[Kinoglobus] Не удалось обновить подборку:",e);
+    }else $("cl-films").innerHTML=`<p class="font-body-sm text-body-sm text-feedback-error px-1">${esc(e.message||"Не удалось загрузить подборку.")}</p>`;
   }
 }
 
@@ -447,6 +520,11 @@ function renderSelectedPanel(){
   const html=selectedFilmHtml(selected);
   if(selected._placement==="home"){
     const detail=$("kg-home-film-detail");
+    if(detail){detail.innerHTML=html;detail.hidden=false;}
+    return;
+  }
+  if(selected._placement==="home-europe"){
+    const detail=$("kg-home-europe-detail");
     if(detail){detail.innerHTML=html;detail.hidden=false;}
     return;
   }
@@ -459,16 +537,22 @@ function renderSelectedPanel(){
   renderFilms();
 }
 function openFilm(f,placement="list"){
+  if(D.selected&&D.selected._placement.startsWith("home")&&D.selected._placement!==placement){
+    const oldDetail=$(D.selected._placement==="home"?"kg-home-film-detail":"kg-home-europe-detail");
+    oldDetail.replaceChildren();oldDetail.hidden=true;
+  }
   if(placement==="list")$("cl-result").innerHTML="";
   if(placement==="home")$("kg-home-film-detail").hidden=false;
-  D.selected={...f,_placement:placement,overview:f.overview||"Загружаем описание…",_trailerStatus:"loading"};
+  if(placement==="home-europe")$("kg-home-europe-detail").hidden=false;
+  D.selected={...f,_placement:placement,overview:russianText(f.overview)||"Загружаем описание…",_trailerStatus:"loading"};
   const selected=D.selected;
-  if(placement==="roulette"||placement==="home")renderSelectedPanel();else renderFilms();
-  const panel=placement==="roulette"?$("cl-result")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="home"?$("kg-home-film-detail")?.querySelector(`[data-selected-film="${f.id}"]`):vd.querySelector(`[data-selected-film="${f.id}"]`);
+  if(placement==="roulette"||placement==="home"||placement==="home-europe")renderSelectedPanel();else renderFilms();
+  const panel=placement==="roulette"?$("cl-result")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="home"?$("kg-home-film-detail")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="home-europe"?$("kg-home-europe-detail")?.querySelector(`[data-selected-film="${f.id}"]`):vd.querySelector(`[data-selected-film="${f.id}"]`);
   panel?.scrollIntoView({behavior:"smooth",block:"nearest"});
   filmDetails(f.id).then(details=>{
     if(D.selected!==selected)return;
-    selected.overview=details.overview||f.overview||"Описания на русском пока нет.";
+    selected.overview=details.overview||russianText(f.overview)||"Описания на русском и английском пока нет.";
+    selected.overviewLang=details.overview?details.overviewLang:(russianText(f.overview)?"ru":"");
     selected.runtime=details.runtime;
     selected.dirs=details.dirs;
     selected.castFull=details.castFull;
@@ -476,7 +560,8 @@ function openFilm(f,placement="list"){
     renderSelectedPanel();
   }).catch(error=>{
     if(D.selected!==selected)return;
-    selected.overview=f.overview||"Не удалось загрузить описание.";
+    selected.overview=russianText(f.overview)||"Не удалось загрузить описание.";
+    selected.overviewLang=russianText(f.overview)?"ru":"";
     selected._detailsLoaded=true;
     renderSelectedPanel();
     console.error("[Kinoglobus] Не удалось загрузить сведения о фильме:",error);
@@ -645,7 +730,7 @@ if(typeof _showFilm==="function")window.show=function(){if(reelCard)reelCard.sty
 
 /* ---------- Главная: редакционная карточка и европейская палитра ---------- */
 const HOME_EUROPE=["FR","IT","ES","DE","GB","PL","SE","DK","NO","FI","PT","NL","BE","IE"];
-const homeEditorial={films:[],details:new Set(),directorData:new Map(),loadedKey:"",token:0,loading:false,observer:null};
+const homeEditorial={films:[],details:new Set(),directorData:new Map(),loadedKey:"",token:0,loading:false,pending:null,observer:null,scrollAnchorId:null};
 const homeEditorialRoot=$("kg-home-editorial");
 function homeFilmYear(f){return (f.release_date||"").slice(0,4);}
 function homeFilmGenre(f,d){
@@ -660,8 +745,9 @@ function homeFeatureMarkup(f,d){
   const directors=d?(d.dirs&&d.dirs.length?esc(d.dirs.slice(0,2).join(", ")):"Нет данных"):"Загружаем данные…";
   const runtime=d&&d.runtime?fmtRuntime(d.runtime):"";
   const genres=homeFilmGenre(f,d);
-  const synopsis=(d&&d.overview)||f.overview||"Описание пока недоступно.";
-  const tagline=d&&d.tagline?`<span class="font-semibold text-on-surface">«${esc(d.tagline)}»</span> `:"";
+  const synopsis=(d&&d.overview)||russianText(f.overview)||"Описание на русском и английском пока недоступно.";
+  const synopsisLang=d&&d.overview?d.overviewLang:(russianText(f.overview)?"ru":"");
+  const tagline=d&&d.tagline&&d.taglineLang===synopsisLang?`<span class="font-semibold text-on-surface">«${esc(d.tagline)}»</span> `:"";
   const poster=f.poster_path
     ?`<img class="w-full h-full object-cover" src="${P(f.poster_path,"w342")}" alt="Постер фильма «${title}»" loading="lazy">`
     :`<span class="material-symbols-outlined text-primary-container text-[32px]">movie</span>`;
@@ -702,11 +788,17 @@ function homeFilmCard(f){
 function renderHomeEditorial(){
   if(!homeEditorialRoot)return;
   const feature=$("kg-home-feature"),carousel=$("kg-home-europe");
+  const scrollLeft=carousel.scrollLeft,anchor=homeEditorial.scrollAnchorId&&carousel.querySelector(`[data-home-meta="${homeEditorial.scrollAnchorId}"]`),anchorTop=anchor?anchor.getBoundingClientRect().top:null;
   const films=homeEditorial.films;
   if(!films.length)return;
   const dayIndex=(homeDayNumber()-1)%films.length,featured=films[dayIndex];
   feature.innerHTML=homeFeatureMarkup(featured,homeEditorial.featureDetails||null);
   carousel.innerHTML=films.map(homeFilmCard).join("");
+  carousel.scrollLeft=scrollLeft;
+  if(anchorTop!==null)requestAnimationFrame(()=>{
+    const restored=carousel.querySelector(`[data-home-meta="${homeEditorial.scrollAnchorId}"]`);
+    if(restored)window.scrollBy(0,restored.getBoundingClientRect().top-anchorTop);
+  });
   homeEditorial.observer?.disconnect();
   if("IntersectionObserver"in window){
     [...carousel.querySelectorAll("[data-home-meta]")].slice(0,4).forEach(card=>loadHomeDirector(card.dataset.homeMeta));
@@ -759,50 +851,62 @@ function renderHomeEditorialMessage(message,action){
   $("kg-home-feature").innerHTML=`<p class="font-micro-caption text-micro-caption text-primary font-bold uppercase tracking-wider">Выбор дня</p><p role="status" class="font-body-sm text-body-sm text-text-muted mt-2">${esc(message)}</p>${action?`<button type="button" data-home-act="${action}" class="mt-3 px-3 py-2 rounded-lg bg-surface-container-highest text-primary-container font-label-sm text-label-sm font-semibold">${action==="set-key"?"Добавить ключ TMDB":"Повторить загрузку"}</button>`:""}`;
   $("kg-home-europe").innerHTML=`<p class="font-body-sm text-body-sm text-text-muted py-2">Фильмы появятся после загрузки данных.</p>`;
 }
-async function loadHomeEditorial(){
-  if(homeEditorial.loading)return;
-  if(!apiKey){renderHomeEditorialMessage("Добавьте ключ TMDB, чтобы загрузить фильм и подборку европейского кино.","set-key");return;}
-  if(homeEditorial.loadedKey===apiKey)return;
-  const token=++homeEditorial.token;
+async function loadHomeEditorial(force=false){
+  if(homeEditorial.loading)return homeEditorial.pending;
+  if(!apiKey){if(!homeEditorial.films.length)renderHomeEditorialMessage("Добавьте ключ TMDB, чтобы загрузить фильм и подборку европейского кино.","set-key");return false;}
+  if(!force&&homeEditorial.loadedKey===apiKey)return true;
+  const token=++homeEditorial.token,oldByCountry=new Map(homeEditorial.films.map(f=>[f._cc,f]));
   homeEditorial.loading=true;
-  renderHomeEditorialMessage("Загружаем фильмы и данные TMDB…");
-  const results=await Promise.allSettled(HOME_EUROPE.map(async cc=>{
-    let response=await api({with_origin_country:cc,sort_by:"popularity.desc","vote_count.gte":30,include_adult:"false",page:1});
-    let films=response.results||[];
-    if(!films.length){
-      response=await api({with_origin_country:cc,sort_by:"popularity.desc","vote_count.gte":1,include_adult:"false",page:1});
-      films=response.results||[];
+  if(!homeEditorial.films.length)renderHomeEditorialMessage("Загружаем фильмы и данные TMDB…");
+  const pending=(async()=>{
+    const results=await Promise.allSettled(HOME_EUROPE.map(async cc=>{
+      let response=await api({with_origin_country:cc,sort_by:"popularity.desc","vote_count.gte":30,include_adult:"false",page:1},{fresh:force});
+      let films=response.results||[];
+      if(!films.length){
+        response=await api({with_origin_country:cc,sort_by:"popularity.desc","vote_count.gte":1,include_adult:"false",page:1},{fresh:force});
+        films=response.results||[];
+      }
+      return films.length?{...films[0],_cc:cc}:null;
+    }));
+    if(token!==homeEditorial.token)return false;
+    results.forEach((result,i)=>{if(result.status==="rejected")console.warn(`[Kinoglobus] Не удалось загрузить фильмы ${HOME_EUROPE[i]}:`,result.reason);});
+    const succeeded=results.some(result=>result.status==="fulfilled");
+    const byCountry=new Map();
+    results.forEach((result,i)=>{
+      if(result.status==="fulfilled"){if(result.value)byCountry.set(HOME_EUROPE[i],result.value);}
+      else if(oldByCountry.has(HOME_EUROPE[i]))byCountry.set(HOME_EUROPE[i],oldByCountry.get(HOME_EUROPE[i]));
+    });
+    const films=HOME_EUROPE.map(cc=>byCountry.get(cc)).filter(Boolean);
+    if(!succeeded||!films.length){
+      const error=results.find(result=>result.status==="rejected");
+      if(!homeEditorial.films.length)renderHomeEditorialMessage(error&&error.reason&&error.reason.message||"Не удалось загрузить европейские фильмы.","retry");
+      return false;
     }
-    return films.length?{...films[0],_cc:cc}:null;
-  }));
-  if(token!==homeEditorial.token)return;
-  homeEditorial.loading=false;
-  results.forEach((result,i)=>{if(result.status==="rejected")console.warn(`[Kinoglobus] Не удалось загрузить фильмы ${HOME_EUROPE[i]}:`,result.reason);});
-  const films=results.filter(result=>result.status==="fulfilled"&&result.value).map(result=>result.value);
-  if(!films.length){
-    homeEditorial.loadedKey="";
-    const error=results.find(result=>result.status==="rejected");
-    renderHomeEditorialMessage(error&&error.reason&&error.reason.message||"Не удалось загрузить европейские фильмы.","retry");
-    return;
+    homeEditorial.films=films;
+    homeEditorial.loadedKey=apiKey;
+    homeEditorial.details.clear();homeEditorial.directorData.clear();homeEditorial.featureDetails=null;
+    store.set("kgHomeEditorial",{films,ts:Date.now()});
+    renderHomeEditorial();
+    return results.every(result=>result.status==="fulfilled");
+  })();
+  homeEditorial.pending=pending;
+  try{return await pending;}finally{
+    if(homeEditorial.pending===pending){homeEditorial.pending=null;homeEditorial.loading=false;}
   }
-  homeEditorial.films=films;
-  homeEditorial.loadedKey=apiKey;
-  homeEditorial.details.clear();homeEditorial.directorData.clear();homeEditorial.featureDetails=null;
-  renderHomeEditorial();
 }
 homeEditorialRoot.addEventListener("click",async e=>{
-  const detailAction=e.target.closest("#kg-home-film-detail [data-act]");
+  const detailAction=e.target.closest("#kg-home-film-detail [data-act],#kg-home-europe-detail [data-act]");
   if(detailAction){
     e.stopPropagation();
     if(detailAction.dataset.act==="close-film"){
-      if(D.selected&&D.selected._placement==="home")D.selected=null;
-      $("kg-home-film-detail").replaceChildren();
-      $("kg-home-film-detail").hidden=true;
+      if(D.selected&&D.selected._placement.startsWith("home"))D.selected=null;
+      const container=detailAction.closest("#kg-home-film-detail,#kg-home-europe-detail");
+      container.replaceChildren();container.hidden=true;
     }else if(detailAction.dataset.act==="bm"){
       const id=Number(detailAction.dataset.id);
       BOOK.has(id)?BOOK.delete(id):BOOK.add(id);
       store.set("kgBookmarks",[...BOOK]);
-      if(D.selected&&D.selected._placement==="home"&&D.selected.id===id)renderSelectedPanel();
+      if(D.selected&&D.selected._placement.startsWith("home")&&D.selected.id===id)renderSelectedPanel();
       toast(BOOK.has(id)?"Добавлено в закладки":"Убрано из закладок","bookmark");
     }
     return;
@@ -818,7 +922,9 @@ homeEditorialRoot.addEventListener("click",async e=>{
   const film=homeEditorial.films.find(f=>String(f.id)===button.dataset.id);
   if(!film)return;
   if(action==="open"){
-    openFilm(film,"home");return;
+    if(button.dataset.homeMeta){homeEditorial.scrollAnchorId=String(film.id);openFilm(film,"home-europe");}
+    else openFilm(film,"home");
+    return;
   }
   if(action==="trailer"){
     openFilm(film,"home");
@@ -844,8 +950,96 @@ homeEditorialRoot.addEventListener("click",async e=>{
 $("kg-home-europe-link").addEventListener("click",()=>{
   const carousel=$("kg-home-europe");carousel.scrollTo({left:carousel.scrollWidth,behavior:"smooth"});
 });
-$("tmdb-key-save").addEventListener("click",()=>{homeEditorial.loadedKey="";loadHomeEditorial();});
-loadHomeEditorial();
+async function settleWithLimit(items,limit,work){
+  const results=new Array(items.length);let next=0;
+  await Promise.all(Array.from({length:Math.min(limit,items.length)},async()=>{
+    while(next<items.length){
+      const index=next++;
+      try{results[index]={status:"fulfilled",value:await work(items[index],index)};}
+      catch(reason){results[index]={status:"rejected",reason};}
+    }
+  }));
+  return results;
+}
+async function refreshAllCollections(forceAll=false){
+  const results=await settleWithLimit(THEMES,4,async t=>{
+    const cached=themeDataCache.get(themeDataKey(t,2));
+    if(!forceAll&&cached&&cached.date===localDateKey()&&Date.now()-cached.ts<DAY_MS)return cached.data;
+    const data=await loadTheme(t,2,true);
+    if(data._stale)throw new Error("Сохранённые данные подборки не удалось обновить.");
+    const firstPage=themeDataCache.get(themeDataKey(t,1))?.data;
+    if(firstPage){saveThemeMeta(t,firstPage);if(catBuilt)paintMeta(t.id);}
+    return data;
+  });
+  if(sortMode!=="curated")sortCatalog();
+  const activeIndex=view==="collection"&&D.t?THEMES.findIndex(t=>t.id===D.t.id):-1;
+  if(activeIndex>=0){
+    const result=results[activeIndex];
+    if(result.status==="fulfilled"){
+      const t=D.t,r=result.value;
+      D.all=r.films;D.total=r.total;D.totals=r.totals;
+      $("cl-count").textContent=nf(r.total)+" "+(fw(r.total)==="фильм"?"картина":fw(r.total)==="фильма"?"картины":"картин");
+      renderFilms();
+    }
+  }
+  return results.every(r=>r.status==="fulfilled");
+}
+function localDateKey(date=new Date()){
+  return [date.getFullYear(),String(date.getMonth()+1).padStart(2,"0"),String(date.getDate()).padStart(2,"0")].join("-");
+}
+function dailyRefreshDue(){
+  const last=Number(store.get("kgDailyRefreshAt",0));
+  return !last||Date.now()-last>=DAY_MS||store.get("kgDailyRefreshDate","")!==localDateKey();
+}
+let dailyRefreshPromise=null,dailyAttemptAt=0;
+async function refreshDailyData(force=false,ignoreCooldown=false){
+  if(!apiKey||(!force&&!dailyRefreshDue()))return false;
+  if(dailyRefreshPromise)return dailyRefreshPromise;
+  if(!ignoreCooldown&&Date.now()-dailyAttemptAt<15*60*1000)return false;
+  dailyAttemptAt=Date.now();
+  const pending=(async()=>{
+    if(typeof window.invalidateFilmDataCaches==="function")window.invalidateFilmDataCaches();
+    const results=await Promise.all([
+      loadHomeEditorial(true),
+      refreshAllCollections(force)
+    ]);
+    if(results.every(Boolean)){
+      const now=Date.now();
+      store.set("kgDailyRefreshAt",now);
+      store.set("kgDailyRefreshDate",localDateKey());
+      return true;
+    }
+    console.warn("[Kinoglobus] Ежедневное обновление выполнено частично; сохранённые данные оставлены.");
+    setTimeout(()=>refreshDailyData(),15*60*1000);
+    return false;
+  })();
+  dailyRefreshPromise=pending;
+  try{return await pending;}finally{if(dailyRefreshPromise===pending)dailyRefreshPromise=null;}
+}
+function checkDailyRefresh(){updateWeeklySpotlight();if(dailyRefreshDue())refreshDailyData();}
+function scheduleDailyRefresh(){
+  const now=new Date(),next=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1,0,0,5);
+  const weekBoundary=(Math.floor(Date.now()/6048e5)+1)*6048e5;
+  setTimeout(()=>{checkDailyRefresh();scheduleDailyRefresh();},Math.max(1000,Math.min(next.getTime(),weekBoundary)-Date.now()));
+}
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")checkDailyRefresh();});
+window.addEventListener("pageshow",checkDailyRefresh);
+window.addEventListener("focus",checkDailyRefresh);
+const refreshForNewKey=()=>{
+  homeEditorial.loadedKey="";
+  refreshDailyData(true,true);
+};
+$("tmdb-key-save").addEventListener("click",refreshForNewKey);
+$("saveKey").addEventListener("click",()=>setTimeout(refreshForNewKey,0));
+const savedHome=store.get("kgHomeEditorial",null);
+if(savedHome&&Array.isArray(savedHome.films)&&savedHome.films.length){
+  homeEditorial.films=savedHome.films;
+  homeEditorial.loadedKey=apiKey;
+  renderHomeEditorial();
+}
+if(dailyRefreshDue())refreshDailyData();
+else if(!homeEditorial.films.length)loadHomeEditorial();
+scheduleDailyRefresh();
 showView("home");
 console.info("[Kinoglobus] v8 collections ready");
 })();

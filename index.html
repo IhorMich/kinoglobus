@@ -314,6 +314,7 @@
       <button id="kg-home-europe-link" type="button" class="font-label-sm text-label-sm text-primary-container font-semibold hover:underline flex-shrink-0">Все 14 стран →</button>
     </div>
     <div id="kg-home-europe" class="kg-home-europe flex gap-2 overflow-x-auto pb-2" aria-label="Фильмы европейского кино"></div>
+    <div id="kg-home-europe-detail" class="w-full mt-2" hidden></div>
   </section>
 </div>
 </div>
@@ -1963,7 +1964,7 @@ $("saveKey").onclick=()=>{const v=$("key").value.trim(); if(!v)return; apiKey=v;
 $("changeKey").onclick=()=>{apiKey="";store.set("tmdbKey","");showKeyUi();closeSettings();};
 $("resetHist").onclick=()=>{seen=new Set();store.set("seen",[]);watched=[];store.set("watched",watched);visited={};lastCC="";store.set("visited",visited);store.set("lastCC","");updHist();};
 
-async function api(params){
+async function api(params,options={}){
   const adult=playMode!=="surprise" && (sel.has("adult") || sel.has("erotic"));
   const q=new URLSearchParams({
   api_key: apiKey,
@@ -1972,7 +1973,7 @@ async function api(params){
   sort_by: "vote_average.desc",
   ...params
 });
-  const r=await fetch("https://api.themoviedb.org/3/discover/movie?"+q);
+  const r=await fetch("https://api.themoviedb.org/3/discover/movie?"+q,{cache:options.fresh?"no-store":"default"});
   if(r.status===401) throw new Error("Ключ не подошёл. Проверьте его и введите заново.");
   if(!r.ok) throw new Error("TMDB недоступен, попробуйте ещё раз.");
   return r.json();
@@ -2441,7 +2442,7 @@ async function trailerFor(film){
   const loadVideos=async langs=>{
     try{
       const r=await fetch(`https://api.themoviedb.org/3/movie/${id}/videos?`+new URLSearchParams({
-        api_key:apiKey, include_video_language:langs}));
+        api_key:apiKey, include_video_language:langs}),{cache:"no-store"});
       return (await r.json()).results||[];
     }catch(e){return [];}
   };
@@ -2621,7 +2622,7 @@ function show(cc,pool,film){
   $("tagline").hidden=true;$("tagline").textContent="";
   paintRating(film.vote_count,film.vote_average);
   $("crew").hidden=true;$("crew").innerHTML="";
-  $("over").textContent=film.overview||"Описания на русском пока нет.";
+  $("over").textContent=russianCopy(film.overview)||"Описание на русском или английском пока недоступно.";
   $("again").hidden=!!pool.top1||!!pool.oscar||!!pool.saved;
   setTrailer(film);
   paintCrew(film);
@@ -2665,11 +2666,16 @@ function fmtRuntime(m){
 }
 const moneyFmt=new Intl.NumberFormat("ru-RU",{style:"currency",currency:"USD",maximumFractionDigits:0});
 function money(n){return n?moneyFmt.format(n):"—";}
+const russianCopy=text=>{
+  if(!text)return "";
+  const value=String(text),ru=(value.match(/[А-Яа-яЁё]/g)||[]).length,latin=(value.match(/[A-Za-z]/g)||[]).length;
+  return ru>=3&&ru>latin?value:"";
+};
 const detailCache={};
 async function filmDetails(id){
   if(id in detailCache) return detailCache[id];
   const r=await fetch("https://api.themoviedb.org/3/movie/"+id+"?"+new URLSearchParams({
-    api_key:apiKey, language:"ru-RU", append_to_response:"credits,translations"}));
+    api_key:apiKey, language:"ru-RU", append_to_response:"credits,translations"}),{cache:"no-store"});
   if(!r.ok) throw new Error("details");
   const j=await r.json();
   const crew=j.credits&&j.credits.crew||[];
@@ -2682,19 +2688,18 @@ async function filmDetails(id){
   const tr=(j.translations&&j.translations.translations)||[];
   const textIn=(field,lang)=>{const t=tr.find(x=>x.iso_639_1===lang&&x.data&&String(x.data[field]||"").trim());return t?String(t.data[field]).trim():"";};
   const pickText=field=>{
+    const ru=textIn(field,"ru");
+    if(ru)return {text:ru,lang:"ru"};
     const own=String(j[field]||"").trim();
-    if(own) return {text:own,lang:"ru"};
-    for(const l of ["ru","en",j.original_language]){
-      if(!l) continue;
-      const t=textIn(field,l);
-      if(t) return {text:t,lang:l};
-    }
-    const any=tr.find(x=>x.data&&String(x.data[field]||"").trim());
-    return any?{text:String(any.data[field]).trim(),lang:any.iso_639_1}:{text:"",lang:""};
+    if(russianCopy(own))return {text:own,lang:"ru"};
+    const en=textIn(field,"en");
+    if(en)return {text:en,lang:"en"};
+    if(own&&j.original_language==="en")return {text:own,lang:"en"};
+    return {text:"",lang:""};
   };
   const ov=pickText("overview"), tg=pickText("tagline");
   return detailCache[id]={runtime:j.runtime||0,dirs,writers:writers.slice(0,3),cast,castFull:(j.credits&&j.credits.cast||[]).slice(0,10).map(c=>({name:c.name,role:c.character||"",photo:c.profile_path||""})),genres,budget:j.budget||0,revenue:j.revenue||0,
-    tagline:tg.text,overview:ov.text,overviewLang:ov.lang,
+    tagline:tg.text,taglineLang:tg.lang,overview:ov.text,overviewLang:ov.lang,
     release:j.release_date||"",originalTitle:j.original_title||"",originalLang:j.original_language||"",
     companies:(j.production_companies||[]).map(c=>c.name).filter(Boolean).slice(0,3),
     countries:(j.production_countries||[]).map(c=>c.iso_3166_1).filter(Boolean),
@@ -2724,8 +2729,12 @@ function paintCrew(film){
     paintRating(d.votes,d.average);
     const genres=(d.genres.length?d.genres:genreLine(film).split(", ").filter(Boolean)).slice(0,4);
     $("fgenre").textContent=genres.length?"Жанр: "+genres.join(", "):"";
-    $("tagline").hidden=!d.tagline;
-    $("tagline").textContent=d.tagline||"";
+    const synopsis=d.overview||russianCopy(film.overview)||"Описание на русском и английском пока недоступно.";
+    const synopsisLang=d.overview?d.overviewLang:(russianCopy(film.overview)?"ru":"");
+    $("over").textContent=synopsis;
+    const matchingTagline=!!d.tagline&&d.taglineLang===synopsisLang;
+    $("tagline").hidden=!matchingTagline;
+    $("tagline").textContent=matchingTagline?d.tagline:"";
     const lines=[];
     if(d.dirs.length) lines.push(`<div><b>${d.dirs.length>1?"Режиссёры":"Режиссёр"}:</b> ${esc(d.dirs.join(", "))}</div>`);
     if(d.writers.length) lines.push(`<div><b>Сценарий:</b> ${esc(d.writers.join(", "))}</div>`);
@@ -2893,7 +2902,7 @@ async function spinOscar(){
         if(origins.length){film.origin_country=origins;cc=origins[0];}
         if(d.title) film.title=d.title;
         if(d.original_title) film.original_title=d.original_title;
-        if(d.overview) film.overview=d.overview;
+        if(d.overview) film.overview=russianCopy(d.overview);
         if(d.release_date) film.release_date=d.release_date;
         if(d.poster_path) film.poster_path=d.poster_path;
         film.vote_average=d.vote_average;
@@ -3490,13 +3499,16 @@ function reveal(film,pool){
 
 // «Где смотреть»: TMDB watch/providers (данные JustWatch), регион по языку браузера, запасной US
 const provCache={};
+window.invalidateFilmDataCaches=function(){
+  [detailCache,vcache,provCache].forEach(cache=>Object.keys(cache).forEach(key=>delete cache[key]));
+};
 async function showProviders(film){
   const box=$("where-list"),lab=$("where-label");
   box.innerHTML='<span class="text-text-muted text-[11px]">…</span>';
   try{
     let d=provCache[film.id];
     if(!d){
-      const r=await fetch(`https://api.themoviedb.org/3/movie/${film.id}/watch/providers?api_key=${apiKey}`);
+      const r=await fetch(`https://api.themoviedb.org/3/movie/${film.id}/watch/providers?api_key=${apiKey}`,{cache:"no-store"});
       d=(await r.json()).results||{};provCache[film.id]=d;
     }
     if(!cur||cur.film.id!==film.id)return;
@@ -3531,12 +3543,13 @@ function synopsisHTML(text,note){
 function renderExtra(film,d){
   const cc=cur?cur.cc:"";
   const year=(film.release_date||"").slice(0,4);
-  const text=d.overview||film.overview||"Описания нет ни на одном языке.";
+  const text=d.overview||russianCopy(film.overview)||"Описания на русском и английском пока нет.";
   const note=(d.overview&&d.overviewLang&&d.overviewLang!=="ru")
     ?"Описания на русском нет. Показано на языке: "+langName(d.overviewLang)+".":"";
   set("discovery-desc",text);
   const tg=$("film-tagline");
-  tg.textContent=d.tagline?"«"+d.tagline+"»":"";tg.hidden=!d.tagline;
+  const matchingTagline=!!d.tagline&&d.taglineLang===d.overviewLang;
+  tg.textContent=matchingTagline?"«"+d.tagline+"»":"";tg.hidden=!matchingTagline;
 
   // создатели
   const card=(label,val,main)=>val?`<div class="p-2.5 rounded-xl bg-surface-container-high flex flex-col min-w-0">
@@ -3639,7 +3652,7 @@ window.show=function(cc,pool,film){
   $("film-trailer-status").textContent="Ищем трейлер…";
   set("discovery-country",cname(cc));$("discovery-flag").innerHTML=flag(cc,false);
   set("discovery-genres","· "+(genreLine(film)||"кино"));
-  set("discovery-desc",film.overview||"Ищем описание…");
+  set("discovery-desc",russianCopy(film.overview)||"Ищем описание…");
   $("discovery-desc-lang").hidden=true;$("film-tagline").hidden=true;
   $("film-facts").innerHTML='<span class="text-text-muted">Загружаем подробности…</span>';
   set("discovery-rating",votes?Number(film.vote_average).toFixed(1):"—");setVotes(votes);
@@ -3654,7 +3667,7 @@ window.show=function(cc,pool,film){
     renderExtra(film,d);
   }).catch(()=>{
     if(!cur||cur.film.id!==film.id)return;
-    set("discovery-desc",film.overview||"Не удалось загрузить описание.");
+    set("discovery-desc",russianCopy(film.overview)||"Не удалось загрузить описание.");
     $("film-facts").innerHTML='<span class="text-text-muted">Подробности сейчас недоступны.</span>';
   });
   bw.innerHTML=watchedHTML;

@@ -3031,16 +3031,6 @@ function gc(cc) {
     movie: null
   };
 }
-  id: cc,
-  name: cname(cc),
-  flag: flag(cc, false),   // HTML оригинального флага
-  reg: "КИНОРАДАР",
-  films: "—",
-  dirs: "Ищем фильм…",
-  lat: g[0],
-  lon: g[1],
-  movie: null
-};
 let scanOn=false,scanT=0,scanAt=0,landed=false,tmr=[];
 const SCAN_MIN_MS=3500;   // минимум времени «поиска» до остановки (мс)
 const LAND_STEPS=[220,300,400,540,720,950];   // замедление перед остановкой

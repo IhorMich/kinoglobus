@@ -2168,6 +2168,91 @@ function sWin(){
   const gap=snd==="bells"?0.1:0.06,len=snd==="bells"?0.8:1.4;
   notes.forEach((f,i)=>{tone(f,len,0.1,"sine",i*gap);tone(f*2,len*0.6,0.03,"sine",i*gap);});
 }
+    // ---- 35mm film projector loop (для плёнки) ----
+let filmReelNodes = null;   // { sources, gains, timer }
+function stopFilmReelSound() {
+  if (!filmReelNodes) return;
+  try {
+    const t = (ac && ac.currentTime) || 0;
+    filmReelNodes.gains.forEach(g => {
+      try {
+        g.gain.cancelScheduledValues(t);
+        g.gain.setValueAtTime(g.gain.value, t);
+        g.gain.linearRampToValueAtTime(0.0001, t + 0.18);
+      } catch (e) {}
+    });
+    const nodes = filmReelNodes;
+    setTimeout(() => {
+      nodes.sources.forEach(s => { try { s.stop(); } catch (e) {} });
+    }, 220);
+  } catch (e) {}
+  if (filmReelNodes.timer) clearInterval(filmReelNodes.timer);
+  filmReelNodes = null;
+}
+function startFilmReelSound() {
+  if (!fx || snd === "off") return;
+  audio();
+  if (!ac) return;
+  stopFilmReelSound();
+  try {
+    const t0 = ac.currentTime;
+    const sources = [];
+    const gains = [];
+
+    // 1) Низкий гул мотора проектора
+    const hum = ac.createOscillator();
+    const humG = ac.createGain();
+    hum.type = "sawtooth";
+    hum.frequency.value = 48;
+    humG.gain.setValueAtTime(0.0001, t0);
+    humG.gain.linearRampToValueAtTime(0.045, t0 + 0.12);
+    const humF = ac.createBiquadFilter();
+    humF.type = "lowpass";
+    humF.frequency.value = 180;
+    hum.connect(humF);
+    humF.connect(humG);
+    humG.connect(ac.destination);
+    hum.start(t0);
+    sources.push(hum);
+    gains.push(humG);
+
+    // 2) Шипение плёнки (петля шума)
+    const nLen = Math.floor(ac.sampleRate * 0.5);
+    const nBuf = ac.createBuffer(1, nLen, ac.sampleRate);
+    const nd = nBuf.getChannelData(0);
+    for (let i = 0; i < nLen; i++) nd[i] = (Math.random() * 2 - 1) * 0.6;
+    const noise = ac.createBufferSource();
+    noise.buffer = nBuf;
+    noise.loop = true;
+    const noiseF = ac.createBiquadFilter();
+    noiseF.type = "bandpass";
+    noiseF.frequency.value = 2200;
+    noiseF.Q.value = 0.7;
+    const noiseG = ac.createGain();
+    noiseG.gain.setValueAtTime(0.0001, t0);
+    noiseG.gain.linearRampToValueAtTime(0.028, t0 + 0.15);
+    noise.connect(noiseF);
+    noiseF.connect(noiseG);
+    noiseG.connect(ac.destination);
+    noise.start(t0);
+    sources.push(noise);
+    gains.push(noiseG);
+
+    // 3) Перфорация / зубья — ритмичные щелчки (~12 в сек, как у 35мм на ускоренной перемотке)
+    const timer = setInterval(() => {
+      if (!filmReelNodes || !ac) return;
+      try {
+        click(0.22 + Math.random() * 0.12, 700 + Math.random() * 500);
+        // лёгкий «тук» механизма
+        tone(70 + Math.random() * 20, 0.03, 0.035, "triangle");
+      } catch (e) {}
+    }, 80);
+
+    filmReelNodes = { sources, gains, timer };
+  } catch (e) {
+    filmReelNodes = null;
+  }
+}
 function preview(){audio();let i=0;const id=setInterval(()=>{sTick(i/10);if(++i>5){clearInterval(id);setTimeout(sWin,150);}},120);}
 function buzz(p){if(fx&&navigator.vibrate){try{navigator.vibrate(p)}catch(e){}}}
 function fxLabel(){$("fx").textContent=fx?"Вкл":"Выкл";}
@@ -3132,7 +3217,12 @@ function loadPoster(f){
 }
 const warmPosters=pool=>Promise.all((pool.films||[]).map(loadPoster));
 let runRaf=0,spinTimer=0;
-function stopReel(){clearTimeout(spinTimer);cancelAnimationFrame(runRaf);strip.busy=false;}
+function stopReel(){
+  clearTimeout(spinTimer);
+  cancelAnimationFrame(runRaf);
+  strip.busy=false;
+  stopFilmReelSound();
+}
 const detailsEl=$("film-details");
 const veil=on=>detailsEl.classList.toggle("veiled",on);
 
@@ -3151,30 +3241,51 @@ async function spinReel(pool,film,cc){
   mountRun(seq,NEED,"");
   [...runEl.children].forEach(c=>c.classList.add("spinning"));
   set("reel-frame-counter","Кадр -- / "+pad(pool.films.length));
+  startFilmReelSound();
   const x0=centerX(0),x1=centerX(NEED);
   runEl.style.transform=`translateX(${-x0}px)`;
   runEl.classList.add("fast");
   const t0=performance.now();let last=-1;
-  const step=now=>{
-    if(!cur||cur.film.id!==film.id){strip.busy=false;return;}
-    const t=Math.min(1,(now-t0)/T),e=1-Math.pow(1-t,4),x=x0+(x1-x0)*e;
-    runEl.style.transform=`translateX(${-x}px)`;
-    if(t>.4)runEl.classList.remove("fast");
-    const row=Math.round((x-x0)/STEP);
-    if(row!==last){last=row;sTick(.3+.7*t);if(t>.6)buzz(7);}
-    if(t<1){runRaf=requestAnimationFrame(step);return;}
-    strip.busy=false;
-    runEl.style.transform=`translateX(${-centerX(NEED)}px)`;
-    [...runEl.children].forEach((c,i)=>{c.classList.remove("spinning");c.classList.toggle("chosen",i===NEED);});
-    frameEl.classList.remove("hit");void frameEl.offsetWidth;frameEl.classList.add("hit");
-    const k=pool.films.findIndex(f=>f.id===film.id);
-    set("reel-frame-counter",`Кадр ${pad((k<0?0:k)+1)} / ${pad(pool.films.length)}`);
-    sWin();buzz([25,50,60]);
-    card.classList.remove("card-discovery-win");void card.offsetWidth;card.classList.add("card-discovery-win");
-    reveal(film,pool);
+    const step = now => {
+    if (!cur || cur.film.id !== film.id) {
+      strip.busy = false;
+      stopFilmReelSound();
+      return;
+    }
+    const t = Math.min(1, (now - t0) / T), e = 1 - Math.pow(1 - t, 4), x = x0 + (x1 - x0) * e;
+    runEl.style.transform = `translateX(${-x}px)`;
+    if (t > .4) runEl.classList.remove("fast");
+    const row = Math.round((x - x0) / STEP);
+    if (row !== last) {
+      last = row;
+      sTick(.3 + .7 * t);
+      if (t > .6) buzz(7);
+    }
+    if (t < 1) {
+      runRaf = requestAnimationFrame(step);
+      return;
+    }
+    // финиш
+    strip.busy = false;
+    stopFilmReelSound();
+    runEl.style.transform = `translateX(${-centerX(NEED)}px)`;
+    [...runEl.children].forEach((c, i) => {
+      c.classList.remove("spinning");
+      c.classList.toggle("chosen", i === NEED);
+    });
+    frameEl.classList.remove("hit");
+    void frameEl.offsetWidth;
+    frameEl.classList.add("hit");
+    const k = pool.films.findIndex(f => f.id === film.id);
+    set("reel-frame-counter", `Кадр ${pad((k < 0 ? 0 : k) + 1)} / ${pad(pool.films.length)}`);
+    sWin();
+    buzz([25, 50, 60]);
+    card.classList.remove("card-discovery-win");
+    void card.offsetWidth;
+    card.classList.add("card-discovery-win");
+    reveal(film, pool);
   };
-  runRaf=requestAnimationFrame(step);
-}
+  runRaf = requestAnimationFrame(step);   // ← только здесь, снаружи step
 // Название, рейтинг и кнопки открываются, когда плёнка остановилась на выбранном фильме
 function reveal(film,pool){
   veil(false);

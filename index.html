@@ -1591,18 +1591,18 @@ const cname = c => HIST[c] || names.of(c);
 const emojiFlag = c =>
   [...c].map(x => String.fromCodePoint(127397 + x.charCodeAt(0))).join("");
 
-const flag=(c,wave=true)=>{
-let body;
+const flag = (c, wave = true) => {
+  let body;
 
-if (HIST_FLAG_FILES[c]) {
-body = <img class="flag-img" src="${HIST_FLAG_FILES[c]}" alt="">;
-} else if (HIST_SVG[c]) {
-body = HIST_SVG[c];
-} else {
-body = <img class="flag-img" src="https://flagcdn.com/${c.toLowerCase()}.svg" alt="" onerror="this.onerror=null;this.replaceWith(document.createTextNode('${emojiFlag(c)}'))" >;
-}
+  if (HIST_FLAG_FILES[c]) {
+    body = `<img class="flag-img" src="${HIST_FLAG_FILES[c]}" alt="">`;
+  } else if (HIST_SVG[c]) {
+    body = HIST_SVG[c];
+  } else {
+    body = `<img class="flag-img" src="https://flagcdn.com/${c.toLowerCase()}.svg" alt="" onerror="this.onerror=null;this.replaceWith(document.createTextNode('${emojiFlag(c)}'))">`;
+  }
 
-return wave ? <span class="wave">${body}</span> : body;
+  return wave ? `<span class="wave">${body}</span>` : body;
 };
 // storage (guarded)
 const store={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},

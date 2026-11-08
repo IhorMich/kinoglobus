@@ -430,7 +430,7 @@ function renderFilms(){
     dr.forEach(e=>e.textContent=d.dirs.length?"Реж. "+d.dirs.slice(0,2).join(", "):"");
   }).catch(()=>{}));
 }
-function selectedFilmHtml(f){
+function selectedFilmHtml(f,embedded=false){
   const year=(f.release_date||"").slice(0,4);
   const poster=f.poster_path?`<img class="w-full h-full object-cover" loading="lazy" alt="Постер фильма «${esc(f.title||"Фильм")}»" src="${P(f.poster_path,"w185")}">`:`<span class="material-symbols-outlined text-text-muted">movie</span>`;
   const cast=(f.castFull||[]).map(c=>`<div class="flex-shrink-0 w-28 flex flex-col items-center text-center p-2 rounded-xl bg-surface-container-high">
@@ -439,13 +439,20 @@ function selectedFilmHtml(f){
   const trailerContent=f._trailer
     ?`<iframe src="${embedSrc(f._trailer,false)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" title="Трейлер ${esc(f.title)}" style="position:absolute;inset:0;width:100%;height:100%;border:0"></iframe>`
     :`<div class="absolute inset-0 flex items-center justify-center text-text-muted font-body-sm text-body-sm">${f._trailerStatus==="missing"?"Трейлер не найден":f._trailerStatus==="loading"?"Загружаем превью трейлера…":"Превью трейлера недоступно"}</div>`;
-  return `<section class="flex flex-col gap-space-sm p-3.5 rounded-2xl bg-surface-panel border border-primary-container/30 shadow-xl scroll-mt-20" data-selected-film="${f.id}">
-<div class="flex items-start gap-3"><div class="w-16 h-24 flex-shrink-0 rounded-lg overflow-hidden bg-surface-container-high flex items-center justify-center shadow-md">${poster}</div><div class="min-w-0 flex-1"><h3 class="font-headline-md text-headline-md text-primary font-bold">${esc(f.title||"Фильм")}</h3><p class="font-micro-caption text-micro-caption text-text-muted mt-1">${fl(f._cc)} ${esc(cname(f._cc))}${year?" • "+year:""}${f.runtime?" • "+f.runtime+" мин":""}</p></div>
+  const tagline=f.tagline&&f.taglineLang===f.overviewLang?`<p class="font-body-sm text-body-sm text-primary-fixed italic">${esc(f.tagline)}</p>`:"";
+  const shell=embedded?"div":"section",shellClass=embedded?"flex flex-col gap-space-sm pt-3 border-t border-surface-border-subtle scroll-mt-20":"flex flex-col gap-space-sm p-3.5 rounded-2xl bg-surface-panel border border-primary-container/30 shadow-xl scroll-mt-20";
+  const header=embedded
+    ?`<div class="flex items-center justify-between gap-2"><h4 class="font-label-md text-label-md text-primary-fixed font-semibold">Подробности о фильме</h4><button type="button" data-act="close-film" aria-label="Свернуть карточку" class="w-9 h-9 flex-shrink-0 rounded-full bg-surface-container-high text-text-muted hover:text-primary flex items-center justify-center"><span class="material-symbols-outlined">expand_less</span></button></div>`
+    :`<div class="flex items-start gap-3"><div class="w-16 h-24 flex-shrink-0 rounded-lg overflow-hidden bg-surface-container-high flex items-center justify-center shadow-md">${poster}</div><div class="min-w-0 flex-1"><h3 class="font-headline-md text-headline-md text-primary font-bold">${esc(f.title||"Фильм")}</h3><p class="font-micro-caption text-micro-caption text-text-muted mt-1">${fl(f._cc)} ${esc(cname(f._cc))}${year?" • "+year:""}${f.runtime?" • "+f.runtime+" мин":""}</p></div>
 <button type="button" data-act="bm" data-id="${f.id}" aria-label="${BOOK.has(f.id)?"Убрать из закладок":"Сохранить в закладки"}" class="w-9 h-9 flex-shrink-0 rounded-full bg-surface-container-high text-primary-container flex items-center justify-center"><span class="material-symbols-outlined">${BOOK.has(f.id)?"bookmark_added":"bookmark_border"}</span></button>
-<button type="button" data-act="close-film" aria-label="Закрыть описание" class="w-9 h-9 flex-shrink-0 rounded-full bg-surface-container-high text-text-muted hover:text-primary flex items-center justify-center"><span class="material-symbols-outlined">close</span></button></div>
+<button type="button" data-act="close-film" aria-label="Закрыть описание" class="w-9 h-9 flex-shrink-0 rounded-full bg-surface-container-high text-text-muted hover:text-primary flex items-center justify-center"><span class="material-symbols-outlined">close</span></button></div>`;
+  const director=f.dirs&&f.dirs.length?`<div class="flex flex-col gap-1"><h4 class="font-label-md text-label-md text-primary-fixed font-semibold">Режиссёр${f.dirs.length>1?"ы":""}</h4><p class="font-body-sm text-body-sm text-text-muted">${esc(f.dirs.join(", "))}</p></div>`:`<div class="flex flex-col gap-1"><h4 class="font-label-md text-label-md text-primary-fixed font-semibold">Режиссёр</h4><p class="font-body-sm text-body-sm text-text-muted">${f._detailsLoaded?"Сведения недоступны.":"Загружаем данные…"}</p></div>`;
+  return `<${shell} class="${shellClass}" data-selected-film="${f.id}">
+${header}
 <div class="relative w-full kg-detail-trailer rounded-xl overflow-hidden bg-black border border-primary-container/30" id="cl-inline-trailer">${trailerContent}</div>
-<div class="flex flex-col gap-1"><h4 class="font-label-md text-label-md text-primary-fixed font-semibold">О фильме</h4><p class="font-body-sm text-body-sm text-text-muted leading-relaxed">${esc(f.overview||"Загружаем описание…")}</p></div>
-<div class="flex flex-col gap-2"><h4 class="font-label-md text-label-md text-primary-fixed font-semibold">Актёры</h4>${cast?`<div class="flex gap-2.5 overflow-x-auto py-1" style="-webkit-overflow-scrolling:touch">${cast}</div>`:`<p class="font-body-sm text-body-sm text-text-muted">${f._detailsLoaded?"Сведения об актёрах недоступны.":"Загружаем актёров…"}</p>`}</div></section>`;
+${tagline}<div class="flex flex-col gap-1"><h4 class="font-label-md text-label-md text-primary-fixed font-semibold">О фильме</h4><p class="font-body-sm text-body-sm text-text-muted leading-relaxed">${esc(f.overview||"Загружаем описание…")}</p></div>
+${director}
+<div class="flex flex-col gap-2"><h4 class="font-label-md text-label-md text-primary-fixed font-semibold">Актёры</h4>${cast?`<div class="flex gap-2.5 overflow-x-auto py-1" style="-webkit-overflow-scrolling:touch">${cast}</div>`:`<p class="font-body-sm text-body-sm text-text-muted">${f._detailsLoaded?"Сведения об актёрах недоступны.":"Загружаем актёров…"}</p>`}</div></${shell}>`;
 }
 function otherHtml(t){
   const m=META[t.id]||{};
@@ -519,8 +526,11 @@ function renderSelectedPanel(){
   const selected=D.selected;if(!selected)return;
   const html=selectedFilmHtml(selected);
   if(selected._placement==="home"){
-    const detail=$("kg-home-film-detail");
-    if(detail){detail.innerHTML=html;detail.hidden=false;}
+    const film=homeEditorial.films.find(f=>String(f.id)===String(selected.id));
+    if(film){
+      homeEditorial.featureDetails={...homeEditorial.featureDetails,...selected};
+      $("kg-home-feature").innerHTML=homeFeatureMarkup(film,homeEditorial.featureDetails,selected);
+    }
     return;
   }
   if(selected._placement==="home-europe"){
@@ -539,15 +549,15 @@ function renderSelectedPanel(){
 function openFilm(f,placement="list"){
   if(D.selected&&D.selected._placement.startsWith("home")&&D.selected._placement!==placement){
     const oldDetail=$(D.selected._placement==="home"?"kg-home-film-detail":"kg-home-europe-detail");
-    oldDetail.replaceChildren();oldDetail.hidden=true;
+      oldDetail?.replaceChildren();if(oldDetail)oldDetail.hidden=true;
+    if(D.selected._placement==="home"){D.selected=null;renderHomeEditorial();}
   }
   if(placement==="list")$("cl-result").innerHTML="";
-  if(placement==="home")$("kg-home-film-detail").hidden=false;
   if(placement==="home-europe")$("kg-home-europe-detail").hidden=false;
   D.selected={...f,_placement:placement,overview:russianText(f.overview)||"Загружаем описание…",_trailerStatus:"loading"};
   const selected=D.selected;
   if(placement==="roulette"||placement==="home"||placement==="home-europe")renderSelectedPanel();else renderFilms();
-  const panel=placement==="roulette"?$("cl-result")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="home"?$("kg-home-film-detail")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="home-europe"?$("kg-home-europe-detail")?.querySelector(`[data-selected-film="${f.id}"]`):vd.querySelector(`[data-selected-film="${f.id}"]`);
+  const panel=placement==="roulette"?$("cl-result")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="home"?$("kg-home-feature")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="home-europe"?$("kg-home-europe-detail")?.querySelector(`[data-selected-film="${f.id}"]`):vd.querySelector(`[data-selected-film="${f.id}"]`);
   panel?.scrollIntoView({behavior:"smooth",block:"nearest"});
   filmDetails(f.id).then(details=>{
     if(D.selected!==selected)return;
@@ -556,7 +566,10 @@ function openFilm(f,placement="list"){
     selected.runtime=details.runtime;
     selected.dirs=details.dirs;
     selected.castFull=details.castFull;
+    selected.tagline=details.tagline;
+    selected.taglineLang=details.taglineLang;
     selected._detailsLoaded=true;
+    if(placement==="home")homeEditorial.featureDetails={...homeEditorial.featureDetails,...selected};
     renderSelectedPanel();
   }).catch(error=>{
     if(D.selected!==selected)return;
@@ -737,7 +750,7 @@ function homeFilmGenre(f,d){
   const names=d&&d.genres&&d.genres.length?d.genres:(f.genre_ids||[]).map(id=>GENRES[id]).filter(Boolean);
   return names.slice(0,2).join(" · ");
 }
-function homeFeatureMarkup(f,d){
+function homeFeatureMarkup(f,d,expandedFilm=null){
   const cc=f._cc||((f.origin_country||[])[0])||"FR";
   const title=esc(f.title||f.original_title||"Фильм");
   const original=f.original_title&&f.original_title!==f.title?esc(f.original_title):"";
@@ -755,6 +768,7 @@ function homeFeatureMarkup(f,d){
   const rating=Number(f.vote_average)||0;
   const tags=[cname(cc),runtime,d&&d.companies&&d.companies[0]].filter(Boolean).map((text,i)=>
     `<span class="px-2 py-0.5 rounded-full bg-surface-container-lowest ${i===2?"text-primary-container":"text-on-surface-variant"} font-micro-caption text-micro-caption">${esc(text)}</span>`).join("");
+  const isExpanded=expandedFilm&&String(expandedFilm.id)===String(f.id);
   return `<article data-home-act="open" data-id="${f.id}" class="w-full rounded-xl bg-surface-container-high shadow-xl p-4 cursor-pointer">
 <div class="flex items-center justify-between gap-2 pb-1.5 mb-1.5"><span class="font-micro-caption text-micro-caption uppercase tracking-wider text-primary font-bold">Выбор дня · Программа № ${homeDayNumber()}</span><span class="px-2 py-0.5 rounded bg-surface-container-highest text-on-surface-variant font-micro-caption text-micro-caption truncate">${esc(homeFilmGenre(f,d)||"Европейское кино")}</span></div>
 <div class="flex gap-3.5">
@@ -769,7 +783,7 @@ function homeFeatureMarkup(f,d){
 <button type="button" data-home-act="bookmark" data-id="${f.id}" aria-label="${saved?"Убрать из избранного":"Сохранить в избранное"}" title="${saved?"Убрать из избранного":"Сохранить в избранное"}" class="w-9 h-9 shrink-0 rounded-lg bg-surface-container-highest flex items-center justify-center text-on-surface hover:text-primary-container active:scale-95 transition-all shadow-sm"><span class="material-symbols-outlined text-[19px]">${saved?"bookmark_added":"bookmark_add"}</span></button>
 <button type="button" data-home-act="share" data-id="${f.id}" aria-label="Поделиться карточкой" title="Поделиться карточкой" class="w-9 h-9 shrink-0 rounded-lg bg-surface-container-highest flex items-center justify-center text-on-surface hover:text-primary-container active:scale-95 transition-all shadow-sm"><span class="material-symbols-outlined text-[19px]">share</span></button>
 </div></div></div>
-<div class="mt-3.5 p-3 rounded-lg bg-surface-container-lowest"><p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed kg-clip3">${tagline}${esc(synopsis)}</p></div></article>`;
+${isExpanded?selectedFilmHtml(expandedFilm,true):`<div class="mt-3.5 p-3 rounded-lg bg-surface-container-lowest"><p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed kg-clip3">${tagline}${esc(synopsis)}</p></div>`}</article>`;
 }
 function homeDayNumber(){
   const now=new Date();
@@ -792,7 +806,8 @@ function renderHomeEditorial(){
   const films=homeEditorial.films;
   if(!films.length)return;
   const dayIndex=(homeDayNumber()-1)%films.length,featured=films[dayIndex];
-  feature.innerHTML=homeFeatureMarkup(featured,homeEditorial.featureDetails||null);
+  const selected=D.selected&&D.selected._placement==="home"&&String(D.selected.id)===String(featured.id)?D.selected:null;
+  feature.innerHTML=homeFeatureMarkup(featured,homeEditorial.featureDetails||null,selected);
   carousel.innerHTML=films.map(homeFilmCard).join("");
   carousel.scrollLeft=scrollLeft;
   if(anchorTop!==null)requestAnimationFrame(()=>{
@@ -816,7 +831,8 @@ function renderHomeEditorial(){
     filmDetails(featured.id).then(d=>{
       if(!homeEditorial.films.length||homeEditorial.films[dayIndex].id!==featured.id)return;
       homeEditorial.featureDetails=d;homeEditorial.directorData.set(featured.id,d);
-      feature.innerHTML=homeFeatureMarkup(featured,d);
+      const selected=D.selected&&D.selected._placement==="home"&&String(D.selected.id)===String(featured.id)?D.selected:null;
+      feature.innerHTML=homeFeatureMarkup(featured,d,selected);
       const credit=document.querySelector(`[data-home-director="${featured.id}"]`);
       if(credit&&d.dirs.length)credit.textContent=[d.dirs[0],homeFilmYear(featured)].filter(Boolean).join(" · ");
     }).catch(e=>{homeEditorial.details.delete(featured.id);console.warn("[Kinoglobus] Не удалось загрузить данные фильма дня:",e);});
@@ -834,7 +850,8 @@ async function loadHomeDirector(id){
     const featureIndex=(homeDayNumber()-1)%homeEditorial.films.length;
     if(homeEditorial.films[featureIndex]?.id===f.id){
       homeEditorial.featureDetails=d;
-      $("kg-home-feature").innerHTML=homeFeatureMarkup(f,d);
+      const selected=D.selected&&D.selected._placement==="home"&&String(D.selected.id)===String(f.id)?D.selected:null;
+      $("kg-home-feature").innerHTML=homeFeatureMarkup(f,d,selected);
     }
   }catch(e){
     homeEditorial.details.delete(f.id);
@@ -842,7 +859,8 @@ async function loadHomeDirector(id){
     if(homeEditorial.films[featureIndex]?.id===f.id){
       const emptyDetails={dirs:[],genres:[],companies:[],runtime:0,tagline:"",overview:""};
       homeEditorial.featureDetails=emptyDetails;
-      $("kg-home-feature").innerHTML=homeFeatureMarkup(f,emptyDetails);
+      const selected=D.selected&&D.selected._placement==="home"&&String(D.selected.id)===String(f.id)?D.selected:null;
+      $("kg-home-feature").innerHTML=homeFeatureMarkup(f,emptyDetails,selected);
     }
     console.warn("[Kinoglobus] Не удалось загрузить режиссёра:",e);
   }
@@ -895,13 +913,18 @@ async function loadHomeEditorial(force=false){
   }
 }
 homeEditorialRoot.addEventListener("click",async e=>{
-  const detailAction=e.target.closest("#kg-home-film-detail [data-act],#kg-home-europe-detail [data-act]");
+  const detailAction=e.target.closest("#kg-home-feature [data-act],#kg-home-europe-detail [data-act]");
   if(detailAction){
     e.stopPropagation();
     if(detailAction.dataset.act==="close-film"){
-      if(D.selected&&D.selected._placement.startsWith("home"))D.selected=null;
-      const container=detailAction.closest("#kg-home-film-detail,#kg-home-europe-detail");
-      container.replaceChildren();container.hidden=true;
+      const placement=D.selected&&D.selected._placement;
+      if(placement==="home"){
+        D.selected=null;renderHomeEditorial();
+      }else{
+        if(placement&&placement.startsWith("home"))D.selected=null;
+        const container=detailAction.closest("#kg-home-europe-detail");
+        if(container){container.replaceChildren();container.hidden=true;}
+      }
     }else if(detailAction.dataset.act==="bm"){
       const id=Number(detailAction.dataset.id);
       BOOK.has(id)?BOOK.delete(id):BOOK.add(id);

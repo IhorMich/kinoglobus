@@ -827,14 +827,14 @@
         });
         flagBannerMesh = new THREE.Mesh(bannerGeo, bannerMat);
         flagBannerMesh.position.set(0, poleHeight, 0);
-        flagBannerMesh.rotation.set(0, Math.PI / 2, 0); // ~63 degrees: banner faces the viewer instead of standing edge-on
+        // Угол ~28° + лёгкий наклон, чтобы флаг был лицом к зрителю, а не ребром
+        flagBannerMesh.rotation.set(-0.18, 0.48, 0.12);
         flagPinGroup.add(flagBannerMesh);
         rotatingGroup.add(flagPinGroup);
       } else if (flagBannerMesh) {
         flagBannerMesh.material.map = createFlagCanvasTexture(country);
         flagBannerMesh.material.needsUpdate = true;
       }
-
       flagPinGroup.position.copy(pos);
       const up = new THREE.Vector3(0, 1, 0);
       const quaternion = new THREE.Quaternion().setFromUnitVectors(up, normal);
@@ -1101,7 +1101,7 @@
         requestAnimationFrame(animate);
         const elapsedTime = clock.getElapsedTime();
 
-        // Camera smooth zoom lerp
+                // Camera smooth zoom lerp
         currentCameraZ += (targetCameraZ - currentCameraZ) * zoomLerpFactor;
         currentCameraY += (targetCameraY - currentCameraY) * zoomLerpFactor;
         if (camera) {
@@ -1109,17 +1109,24 @@
           camera.position.y = currentCameraY;
         }
 
-        // Flag rise animation
+        // Flag rise + wave animation
         if (flagPinGroup && flagPinGroup.visible) {
           const s = flagPinGroup.scale.x + (targetFlagScale - flagPinGroup.scale.x) * 0.08;
           flagPinGroup.scale.set(s, s, s);
+
+          // Мягкое развевание флага
+          if (flagBannerMesh) {
+            const t = elapsedTime;
+            flagBannerMesh.rotation.z = 0.12 + Math.sin(t * 2.4) * 0.14;
+            flagBannerMesh.rotation.x = -0.18 + Math.sin(t * 1.8) * 0.07;
+            flagBannerMesh.rotation.y = 0.48 + Math.sin(t * 1.1) * 0.05;
+          }
         }
 
         // Idle slow rotation
         if (!isSpinning && !isDragging) {
           targetRotY += driftSpeed;
         }
-
         if (rotatingGroup) {
           const diffY = shortestAngleDist(currentRotY, targetRotY);
           currentRotY += diffY * lerpSpeed;

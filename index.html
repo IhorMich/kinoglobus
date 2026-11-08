@@ -3226,16 +3226,15 @@ function stopReel(){
 const detailsEl=$("film-details");
 const veil=on=>detailsEl.classList.toggle("veiled",on);
 
-// Прокрутка плёнки: постеры летят справа налево и тормозят так, что выбранный фильм встаёт ровно под центральную рамку
 async function spinReel(pool,film,cc){
   const others=shuffle((pool.films||[]).filter(f=>f.id!==film.id));
-  if(!others.length||RM){renderStatic(pool,film,cc);reveal(film,pool);return;}   // крутить нечего
+  if(!others.length||RM){renderStatic(pool,film,cc);reveal(film,pool);return;}
   const NEED=26,T=4600,TAIL=6;
   const seq=[];
   for(let i=0;i<NEED;i++)seq.push(others[i%others.length]);
   seq.push(film);
   for(let i=0;i<TAIL;i++)seq.push(others[(i+2)%others.length]);
-  await Promise.race([warmPosters(pool),sleep(2500)]);    // без этого летят пустые рамки
+  await Promise.race([warmPosters(pool),sleep(2500)]);
   if(!cur||cur.film.id!==film.id)return;
   strip={list:seq,pool,cc,idx:NEED,busy:true};
   mountRun(seq,NEED,"");
@@ -3245,14 +3244,17 @@ async function spinReel(pool,film,cc){
   const x0=centerX(0),x1=centerX(NEED);
   runEl.style.transform=`translateX(${-x0}px)`;
   runEl.classList.add("fast");
-  const t0=performance.now();let last=-1;
-    const step = now => {
+  const t0=performance.now();
+  let last=-1;
+  const step = now => {
     if (!cur || cur.film.id !== film.id) {
       strip.busy = false;
       stopFilmReelSound();
       return;
     }
-    const t = Math.min(1, (now - t0) / T), e = 1 - Math.pow(1 - t, 4), x = x0 + (x1 - x0) * e;
+    const t = Math.min(1, (now - t0) / T);
+    const e = 1 - Math.pow(1 - t, 4);
+    const x = x0 + (x1 - x0) * e;
     runEl.style.transform = `translateX(${-x}px)`;
     if (t > .4) runEl.classList.remove("fast");
     const row = Math.round((x - x0) / STEP);
@@ -3265,7 +3267,6 @@ async function spinReel(pool,film,cc){
       runRaf = requestAnimationFrame(step);
       return;
     }
-    // финиш
     strip.busy = false;
     stopFilmReelSound();
     runEl.style.transform = `translateX(${-centerX(NEED)}px)`;
@@ -3285,10 +3286,9 @@ async function spinReel(pool,film,cc){
     card.classList.add("card-discovery-win");
     reveal(film, pool);
   };
-    r  runRaf = requestAnimationFrame(step);
+  runRaf = requestAnimationFrame(step);
 }
 
-// Название, рейтинг и кнопки открываются, когда плёнка остановилась на выбранном фильме
 function reveal(film,pool){
   veil(false);
   set("hero-country-master",film.title||"");

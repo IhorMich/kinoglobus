@@ -1590,7 +1590,7 @@ if (areaRing) {
 <script>
 // ========== Kinoglobus engine (TMDB, filters, history) ==========
 
-const GENRES={"":"Любой жанр",28:"Боевик",12:"Приключения",16:"Мультфильм",35:"Комедия",80:"Криминал",99:"Документальный",18:"Драма",10751:"Семейный",14:"Фэнтези",36:"История",27:"Ужасы",9648:"Детектив",10749:"Мелодрама",878:"Фантастика",53:"Триллер",10752:"Военный",37:"Вестерн"};
+const GENRES={"":"Любой жанр",28:"Боевик",12:"Приключения",16:"Мультфильм",35:"Комедия",80:"Криминал",99:"Документальный",18:"Драма",10751:"Семейный",14:"Фэнтези",36:"История",27:"Ужасы",9648:"Детектив",10402:"Музыка",10749:"Мелодрама",878:"Фантастика",53:"Триллер",10752:"Военный",37:"Вестерн"};
 const COUNTRIES=["US","GB","FR","DE","IT","ES","JP","KR","CN","HK","TW","IN","RU","CA","AU","MX","BR","AR","CL","CO","PE","CU","SE","DK","NO","FI","IS","PL","CZ","HU","RO","BG","RS","GR","TR","IR","IL","LB","EG","MA","NG","ZA","TH","VN","ID","PH","MY","SG","PK","KZ","UA","GE","AM","NL","BE","AT","CH","PT","IE","NZ","UY","VE","EC","BO","PY","CR","DO","LV","LT","EE","SK","SI","HR","BA","MK","AL","BY","MD","AZ","UZ","IQ","JO","SA","AE","TN","DZ","SN","KE","GH","ET","BF","ML","CI","BD","LK","NP","MN","KH","MM","LU","SU","YU","CS","DD"];
 const BIG=new Set(["US","GB","FR","DE","IT","ES","JP","KR","CN","HK","IN","RU","CA"]);
 const MIN_POOL=10, MAX_POOL=100;
@@ -1630,7 +1630,17 @@ const THEMES=[
   {id:"sufi",name:"Советская фантастика",cc:["SU"],g:"878"},
   {id:"jpscifi",name:"Японская фантастика",cc:["JP"],g:"878"},
   {id:"suanim",name:"Советская мультипликация",cc:["SU"],g:"16"},
-  {id:"uswestern",name:"Классический вестерн",cc:["US"],g:"37"}
+  {id:"uswestern",name:"Классический вестерн",cc:["US"],g:"37"},
+  {id:"uscrime",name:"Американский криминал и триллеры",cc:["US"],g:"80|53"},
+  {id:"ushorror",name:"Американские ужасы",cc:["US"],g:"27"},
+  {id:"usscifi",name:"Американская фантастика",cc:["US"],g:"878"},
+  {id:"uscomedy",name:"Американские комедии",cc:["US"],g:"35"},
+  {id:"usdrama",name:"Американские драмы",cc:["US"],g:"18"},
+  {id:"usanimation",name:"Американская анимация",cc:["US"],g:"16"},
+  {id:"african",name:"Африканское кино",cc:["ZA","NG","GH"],g:"18|80"},
+  {id:"arabic",name:"Арабское кино",cc:["EG","LB","MA","TN","DZ"],g:"18|80"},
+  {id:"inclassic",name:"Индийское кино: классика и мюзиклы",cc:["IN"],g:"10402|10749"},
+  {id:"jpcrime",name:"Японское криминальное кино",cc:["JP"],g:"80|9648"}
 ];
 const SURPRISE_NOTE={
   light:"Случайные страна и жанр. Оценка не ниже 6, фильмы оценило много зрителей.",
@@ -3686,7 +3696,7 @@ console.info("[Kinoglobus] Bridge v6 ready");
 })();
 </script>
 
-<script src="collections.js?v=4"></script>
+<script src="collections.js?v=5"></script>
 
 
 </body></html>

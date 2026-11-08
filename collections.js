@@ -1,4 +1,3 @@
-<script>
 // ========== Bridge v7: «Подборки» (каталог + страница подборки + нижняя навигация) ==========
 (function(){
 const $=id=>document.getElementById(id);
@@ -439,4 +438,3 @@ document.querySelectorAll('[data-path="podborki-i-zhanry"]').forEach(a=>a.addEve
 showView("home");
 console.info("[Kinoglobus] v7 collections ready");
 })();
-</script>

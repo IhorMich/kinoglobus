@@ -817,17 +817,17 @@
         const ringMesh = new THREE.Mesh(ringGeo, ringMat);
         flagPinGroup.add(ringMesh);
 
-        // 4. Banner mesh turned ~28 degrees towards the camera
-        const bannerGeo = new THREE.PlaneGeometry(0.32, 0.20);
-        bannerGeo.translate(0.16, poleHeight - 0.10, 0);
+        // 4. Banner mesh: pivot at the pole tip, leaned back towards the camera so the flag and country name read face-on
+        const bannerGeo = new THREE.PlaneGeometry(0.40, 0.25);
+        bannerGeo.translate(0.20, 0, 0);
         const bannerMat = new THREE.MeshBasicMaterial({
           map: createFlagCanvasTexture(country),
           side: THREE.DoubleSide,
           transparent: true
         });
         flagBannerMesh = new THREE.Mesh(bannerGeo, bannerMat);
-        // rotation.y = 0.48 (~28 degrees) to prevent standing on edge
-        flagBannerMesh.rotation.y = 0.48;
+        flagBannerMesh.position.set(0, poleHeight, 0);
+        flagBannerMesh.rotation.x = -1.1;   // ~63 degrees: banner faces the viewer instead of standing edge-on
         flagPinGroup.add(flagBannerMesh);
 
         rotatingGroup.add(flagPinGroup);
@@ -2671,7 +2671,7 @@ st.textContent=`
 #film-reel-track{position:absolute;inset:0;overflow:hidden}
 #film-reel-track .run{position:absolute;left:0;top:0;height:100%;display:flex;align-items:center;gap:10px;padding-left:8px;will-change:transform}
 #film-reel-track .run.fast{filter:blur(1.4px) brightness(1.08)}
-.film-cell{position:relative;flex:none;width:80px;height:112px;border-radius:6px;overflow:hidden;background:#221e26;border:1px solid #231f2e;padding:0;opacity:.62;transition:opacity .45s,transform .45s,box-shadow .45s,filter .35s;color:#b3a79a;font-size:10px;line-height:1.2}
+.film-cell{box-sizing:border-box;pointer-events:none;user-select:none;position:relative;flex:none;width:80px;height:112px;border-radius:6px;overflow:hidden;background:#221e26;border:1px solid #231f2e;padding:0;opacity:.62;transition:opacity .45s,transform .45s,box-shadow .45s,filter .35s;color:#b3a79a;font-size:10px;line-height:1.2}
 .film-cell img{width:100%;height:100%;object-fit:cover;display:block}
 .film-cell .nop{width:100%;height:100%;display:flex;align-items:center;justify-content:center;text-align:center;padding:4px}
 .film-cell.spinning{opacity:.92}
@@ -2904,7 +2904,7 @@ function cellHTML(f,i,cls){
   const inner=!f?'<div class="nop"><span class="material-symbols-outlined" style="font-size:22px;opacity:.35">movie</span></div>'
     :f.poster_path?`<img alt="${t}" draggable="false" src="https://image.tmdb.org/t/p/w185${f.poster_path}">`
     :`<div class="nop">${t}</div>`;
-  return `<button type="button" tabindex="${f?0:-1}" data-i="${i}" class="film-cell ${cls||""}">${inner}${f&&y?`<span class="yr">${y}</span>`:""}</button>`;
+  return `<div data-i="${i}" class="film-cell ${cls||""}">${inner}${f&&y?`<span class="yr">${y}</span>`:""}</div>`;
 }
 function mountRun(list,idx,cls){
   runEl=document.createElement("div");runEl.className="run";
@@ -2928,10 +2928,6 @@ function renderStatic(pool,film,cc){      // готовая лента без п
 }
 function recenter(){if(runEl&&strip.idx>=0)runEl.style.transform=`translateX(${-centerX(strip.idx)}px)`;}
 window.addEventListener("resize",recenter);
-trackEl.addEventListener("click",e=>{
-  const b=e.target.closest("[data-i]");if(!b||strip.busy)return;
-  const f=strip.list[+b.dataset.i];if(f&&(!cur||f.id!==cur.film.id))window.show(filmCC(strip.pool,f,strip.cc),strip.pool,f);
-});
 renderBlank();
 
 const loaded=new Set();

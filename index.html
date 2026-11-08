@@ -2443,8 +2443,9 @@ async function trailerFor(film){
     try{
       const r=await fetch(`https://api.themoviedb.org/3/movie/${id}/videos?`+new URLSearchParams({
         api_key:apiKey, include_video_language:langs}),{cache:"no-store"});
+      if(!r.ok)throw new Error(`TMDB videos: ${r.status}`);
       return (await r.json()).results||[];
-    }catch(e){return [];}
+    }catch(e){console.warn("[Kinoglobus] Не удалось загрузить список видео TMDB:",e);return [];}
   };
   const score=v=>{
     const type={Trailer:0,Teaser:1,Clip:2,Featurette:3}[v.type];
@@ -2454,12 +2455,17 @@ async function trailerFor(film){
     const lang=v.iso_639_1==="ru"?0:v.iso_639_1==="en"?1:2;
     return type*20+site*8+lang*2+(v.official?0:1);
   };
-  const pickBest=vids=>vids.filter(v=>score(v)<99).sort((a,b)=>score(a)-score(b))[0];
+  const sortVideos=vids=>vids.filter(v=>score(v)<99&&v.key).sort((a,b)=>score(a)-score(b));
   // Сначала русский, английский и ролики без языка; если пусто, трейлер на языке оригинала фильма
-  let best=pickBest(await loadVideos("ru,en,null"));
+  let videos=sortVideos(await loadVideos("ru,en,null"));
   const ol=film.original_language;
-  if(!best&&ol&&ol!=="ru"&&ol!=="en") best=pickBest(await loadVideos(ol));
-  return vcache[id]=best?{site:best.site,key:best.key}:null;
+  if(!videos.length&&ol&&ol!=="ru"&&ol!=="en") videos=sortVideos(await loadVideos(ol));
+  const unique=new Map();
+  videos.forEach(v=>unique.set(`${v.site}:${v.key}`,v));
+  const alternatives=[...unique.values()].slice(0,8).map(v=>({
+    site:v.site,key:v.key,name:v.name||"",type:v.type||"",language:v.iso_639_1||"",official:!!v.official
+  }));
+  return vcache[id]=alternatives.length?{...alternatives[0],alternatives}:null;
 }
 let tKey=null;
 function watchUrl(v){return v.site==="Vimeo"?`https://vimeo.com/${v.key}`:`https://www.youtube.com/watch?v=${v.key}`;}
@@ -2867,15 +2873,19 @@ const OSCAR_LIST="101353";
 let oscarCache=null;
 async function oscarFilms(){
   if(oscarCache) return oscarCache;
-  const all=[];
-  for(let page=1;page<=8;page++){
+  const loadPage=async page=>{
     const q=new URLSearchParams({api_key:apiKey,language:"ru-RU",page:String(page)});
     const r=await fetch("https://api.themoviedb.org/3/list/"+OSCAR_LIST+"?"+q);
     if(r.status===401) throw new Error("Ключ не подошёл. Проверьте его и введите заново.");
     if(!r.ok) throw new Error("Список лауреатов недоступен, попробуйте ещё раз.");
-    const j=await r.json();
-    all.push(...(j.items||[]).filter(m=>m&&m.id&&m.media_type!=="tv"));
-    if(page>=(j.total_pages||1)) break;
+    return r.json();
+  };
+  const first=await loadPage(1),totalPages=Math.min(first.total_pages||1,8),all=[];
+  all.push(...(first.items||[]).filter(m=>m&&m.id&&m.media_type!=="tv"));
+  for(let start=2;start<=totalPages;start+=4){
+    const pages=Array.from({length:Math.min(4,totalPages-start+1)},(_,i)=>start+i);
+    const results=await Promise.all(pages.map(loadPage));
+    results.forEach(j=>all.push(...(j.items||[]).filter(m=>m&&m.id&&m.media_type!=="tv")));
   }
   if(!all.length) throw new Error("Список лауреатов пуст.");
   oscarCache=all;
@@ -3130,7 +3140,7 @@ const CARD_HTML=`
 <div class="absolute inset-0" id="film-trailer-player" hidden></div>
 <button type="button" id="film-trailer-close" class="absolute top-3 right-3 z-10 w-10 h-10 rounded-full bg-black/70 text-white flex items-center justify-center hover:bg-black/90" aria-label="Закрыть трейлер" title="Закрыть трейлер" hidden><span class="material-symbols-outlined">close</span></button>
 </div>
-<p class="font-micro-caption text-[11px] text-text-muted mt-1.5" id="film-trailer-note" hidden>Не воспроизводится? <a id="film-trailer-link" target="_blank" rel="noopener" class="text-primary underline">Открыть на YouTube</a></p>
+<div class="font-micro-caption text-[11px] text-text-muted mt-1.5" id="film-trailer-note" hidden><span>Не воспроизводится? <a id="film-trailer-link" target="_blank" rel="noopener noreferrer" class="text-primary underline">Открыть на YouTube</a></span><div id="film-trailer-sources" class="flex gap-1.5 overflow-x-auto pt-2"></div></div>
 </div>
 <div class="mt-2.5 pt-2 border-t border-surface-border/50" id="film-more">
 <div class="grid gap-1 font-body-sm text-body-sm mt-1" id="film-facts"></div>
@@ -3613,11 +3623,11 @@ function renderExtra(film,d){
 $("film-facts").addEventListener("click",e=>{if(e.target.closest('[data-kg="passport"]'))$("mapBtn").click();});
 
 // ---------- Трейлер прямо в приложении ----------
-let ftKey=null;
+let ftKey=null,ftVideos=[];
 function closeFilmTrailer(){
   $("film-trailer-player").innerHTML="";$("film-trailer-player").hidden=true;
   $("film-trailer-preview").hidden=false;$("film-trailer-close").hidden=true;
-  $("film-trailer-note").hidden=true;
+  $("film-trailer-note").hidden=!ftKey;
 }
 { // любое закрытие старого плеера (новая прокрутка, «другой фильм») закрывает и новый
   const _closePlayer=window.closePlayer;
@@ -3635,6 +3645,16 @@ function playFilmTrailer(){
 }
 $("film-trailer-play").addEventListener("click",playFilmTrailer);
 $("film-trailer-close").addEventListener("click",closeFilmTrailer);
+$("film-trailer-sources").addEventListener("click",e=>{
+  const button=e.target.closest("[data-film-video-index]");if(!button)return;
+  const video=ftVideos[Number(button.dataset.filmVideoIndex)];if(!video)return;
+  ftKey=video;closeFilmTrailer();
+  $("film-trailer-status").textContent=video.name||`${video.type||"Видео"} · ${video.site}`;
+  $("film-trailer-thumbnail").src=video.site==="YouTube"?`https://img.youtube.com/vi/${encodeURIComponent(video.key)}/hqdefault.jpg`:"";
+  $("film-trailer-link").href=watchUrl(video);
+  $("film-trailer-link").textContent=`Открыть на ${video.site}`;
+  $("film-trailer-sources").querySelectorAll("[data-film-video-index]").forEach(b=>b.classList.toggle("bg-primary-container",b===button));
+});
 
 const _show=window.show;
 window.show=function(cc,pool,film){
@@ -3685,14 +3705,18 @@ window.show=function(cc,pool,film){
   });
   bw.innerHTML=watchedHTML;
   ag.style.display=$("again").hidden?"none":"";
-  ftKey=null;closeFilmTrailer();
+  ftKey=null;ftVideos=[];closeFilmTrailer();$("film-trailer-sources").replaceChildren();
   trailerFor(film).then(k=>{
     if(!cur||cur.film.id!==film.id)return;
     ftKey=k;
     if(k){
+      ftVideos=k.alternatives||[k];
       $("film-trailer-play").disabled=false;
-      $("film-trailer-status").textContent="Смотреть трейлер";
+      $("film-trailer-note").hidden=false;
+      $("film-trailer-status").textContent=k.name||"Смотреть трейлер";
       if(k.site==="YouTube")$("film-trailer-thumbnail").src=`https://img.youtube.com/vi/${encodeURIComponent(k.key)}/hqdefault.jpg`;
+      $("film-trailer-link").href=watchUrl(k);$("film-trailer-link").textContent=`Открыть на ${k.site}`;
+      if(ftVideos.length>1)$("film-trailer-sources").innerHTML=ftVideos.map((v,i)=>`<button type="button" data-film-video-index="${i}" class="shrink-0 px-2 py-1 rounded bg-surface-container text-on-surface-variant">${esc(v.name||v.type||"Видео")} · ${esc(v.site)}${v.language?` · ${esc(v.language.toUpperCase())}`:""}</button>`).join("");
     }else $("film-trailer-status").textContent="Трейлер не найден";
   });
   showProviders(film);
@@ -3740,9 +3764,9 @@ console.info("[Kinoglobus] Bridge v6 ready");
 })();
 </script>
 
-<script src="mood-page.js?v=3"></script>
-<script src="oscar-page.js?v=3"></script>
-<script src="collections.js?v=8"></script>
+<script src="mood-page.js?v=7"></script>
+<script src="oscar-page.js?v=7"></script>
+<script src="collections.js?v=12"></script>
 
 
 </body></html>

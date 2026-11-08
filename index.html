@@ -4,7 +4,7 @@
       min-height: max(884px, 100dvh);
     }
     @keyframes floatPostersA {
-      0% { transform: translateY(0px) rotate(-3deg); }
+      0% { transform: translateY(0px) rotate(-3deg); } ф
       50% { transform: translateY(-10px) rotate(-1.5deg); }
       100% { transform: translateY(6px) rotate(-4deg); }
     }
@@ -163,19 +163,18 @@
 </div>
 </div>
 <!-- Photorealistic Earth Space Viewport Card -->
-<div class="relative w-full mx-auto rounded-2xl bg-black overflow-hidden flex flex-col items-center justify-between border border-surface-border group h-[440px] select-none" id="globe-container">
+<div class="relative w-full mx-auto rounded-2xl bg-black overflow-hidden flex flex-col items-center justify-between group h-[440px] select-none" id="globe-container">
 <!-- 1. STATIC DEEP SPACE BACKGROUND LAYER -->
 <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none select-none" id="starfield-bg">
-<img alt="Звёздный космос" class="w-full h-full object-cover object-center scale-105 pointer-events-none select-none opacity-90 contrast-125" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?auto=format&amp;fit=crop&amp;w=1200&amp;q=80';" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCw7EVs-EIN58ZB48eqSorkRk__GGUCEehvqTAWGutyFic_TDEh-AyqufQ1M1kdYbs6bwR4EURILyWVTD0O4UzYFcJ3TVKj03XHFGbqIkTMG9YnAJd7HYk2F4h1x_bt9Zu9RDBqPFzETDqins3ADcVSUjDImhPG4-i7ntOYbFQVsTv4E4cps9GjZYAe9rO1gcxB8NG-aZqbTWslJOjgw_3wsDMcmYCRM4FXvb-sZG9-">
-<div class="absolute inset-0 bg-black/40 pointer-events-none"></div>
+<img alt="Млечный Путь, снятый экипажем Artemis II. Фото NASA, «No Place Like Home»." class="w-full h-full object-cover object-center scale-105 pointer-events-none select-none opacity-90 contrast-125" src="https://images-assets.nasa.gov/image/art002e028296/art002e028296~large.jpg">
+<div class="absolute inset-0 bg-gradient-to-b from-black/25 via-black/45 to-black/65 pointer-events-none"></div>
 </div>
+<a href="https://images.nasa.gov/details/art002e028296" target="_blank" rel="noopener noreferrer" title="«No Place Like Home» — снимок Млечного Пути экипажем Artemis II. Источник: NASA." class="absolute top-2 right-2 z-30 pointer-events-auto rounded-full bg-black/65 px-2 py-1 text-[9px] leading-none text-white/75 backdrop-blur-sm border border-white/10 hover:text-white">Фото: NASA · Artemis II</a>
 <!-- 2. 3D PLANET EARTH CANVASES & RENDER VIEWPORT -->
 <div class="absolute inset-0 flex items-center justify-center pointer-events-auto z-10" id="earth-canvas-container">
 <!-- Interactive 3D Earth WebGL Canvas -->
 <canvas class="w-full h-full block touch-none cursor-grab active:cursor-grabbing" id="earth-webgl-canvas"></canvas>
 </div>
-<!-- Gold Radar Visor Corners -->
-<div class="absolute inset-x-4 inset-y-4 z-20 pointer-events-none rounded-2xl border border-primary-container/25 bg-gradient-to-b from-primary-container/[0.03] to-transparent shadow-[0_0_24px_rgba(255,184,48,0.12)] flex items-center justify-between p-2.5 transition-all duration-300" id="focal-lens"><div class="absolute top-2 left-2 w-4 h-4 border-t-2 border-l-2 border-primary-container shadow-[0_0_8px_rgba(255,184,48,0.6)]"></div><div class="absolute top-2 right-2 w-4 h-4 border-t-2 border-r-2 border-primary-container shadow-[0_0_8px_rgba(255,184,48,0.6)]"></div><div class="absolute bottom-2 left-2 w-4 h-4 border-b-2 border-l-2 border-primary-container shadow-[0_0_8px_rgba(255,184,48,0.6)]"></div><div class="absolute bottom-2 right-2 w-4 h-4 border-b-2 border-r-2 border-primary-container shadow-[0_0_8px_rgba(255,184,48,0.6)]"></div></div>
 <!-- Selected Country Holographic Display Card: reveals selected country details with golden radiance -->
 <div class="relative z-30 flex flex-col items-center justify-center px-4 pt-2 pb-3 transition-all duration-300 w-full max-w-[320px] text-center pointer-events-none mt-auto" id="hero-hologram-display" style="filter: drop-shadow(rgba(255, 184, 48, 0.5) 0px 0px 20px);"><div class="relative w-15 h-15 rounded-2xl p-[2px] bg-gradient-to-tr from-cinema-velvet-deep via-primary-container to-primary shadow-[0_0_28px_rgba(255,184,48,0.7)] flex items-center justify-center backdrop-blur-md mb-1.5 transition-transform" id="hologram-flag-orb"><div class="w-full h-full rounded-[14px] bg-surface-container-lowest/90 flex items-center justify-center overflow-hidden relative shadow-[0_0_16px_rgba(255,184,48,0.4)]"><div class="absolute inset-0 bg-gradient-to-b from-white/15 via-transparent to-transparent pointer-events-none"></div><span class="text-3xl drop-shadow-[0_4px_16px_rgba(0,0,0,0.8)] select-none transition-all duration-150" id="hero-country-flag">🇪🇸</span></div><div class="absolute -bottom-1 inset-x-3 h-2 bg-primary-container/70 blur-sm rounded-full"></div></div><div class="inline-flex items-center gap-1 px-3 py-0.5 rounded-full bg-[#20152a]/95 border border-primary-container/50 text-primary-container font-micro-caption mb-1 shadow-[0_0_12px_rgba(255,184,48,0.3)]"><span class="text-primary text-[10px]">✪</span><span class="font-bold tracking-wider uppercase text-amber-200">ВЫПАЛА СТРАНА</span></div><h2 class="font-headline-lg text-headline-lg font-bold text-primary tracking-tight leading-tight drop-shadow-[0_0_16px_rgba(255,215,120,0.45)] truncate max-w-[260px]" id="hero-country-name">Испания</h2><div class="flex items-center gap-1.5 mt-1"><span class="px-2.5 py-0.5 rounded-full bg-surface-container-high/90 text-primary-fixed font-micro-caption text-micro-caption tracking-wider uppercase border border-primary-container/20" id="hero-country-region">ЮЖНАЯ ЕВРОПА</span><span class="px-2.5 py-0.5 rounded-full bg-cinema-velvet-deep/70 text-secondary font-micro-caption text-micro-caption tracking-wider" id="hero-country-films">295 лент</span></div><div class="flex items-center gap-1 text-text-muted font-micro-caption text-micro-caption mt-1.5 opacity-90"><span class="material-symbols-outlined text-[13px] text-primary-container">movie</span><span class="truncate max-w-[250px]" id="hero-country-master">Педро Альмодовар · Гильермо дель Торо</span></div></div></div>
 <!-- Tactile Primary CTA Button: 'Крутить глобус' -->
@@ -314,6 +313,7 @@
       <button id="kg-home-europe-link" type="button" class="font-label-sm text-label-sm text-primary-container font-semibold hover:underline flex-shrink-0">Все 14 стран →</button>
     </div>
     <div id="kg-home-europe" class="kg-home-europe flex gap-2 overflow-x-auto pb-2" aria-label="Фильмы европейского кино"></div>
+    <div id="kg-home-europe-detail" class="w-full mt-2" hidden></div>
   </section>
 </div>
 </div>
@@ -594,7 +594,6 @@
     const heroMaster = document.getElementById('hero-country-master');
     const radarFreq = document.getElementById('radar-freq');
 
-    const focalLens = document.getElementById('focal-lens');
     const winnerFlash = document.getElementById('winner-flash');
     const discoveryCard = document.getElementById('recent-discovery-card');
 
@@ -1335,13 +1334,6 @@ if (areaRing) {
         setTimeout(() => { if (winnerFlash) winnerFlash.style.opacity = '0'; }, 380);
       }
 
-      if (focalLens) {
-        focalLens.classList.add('border-primary-container', 'shadow-[0_0_40px_rgba(255,184,48,0.7)]');
-        setTimeout(() => {
-          if (focalLens) focalLens.classList.remove('border-primary-container', 'shadow-[0_0_40px_rgba(255,184,48,0.7)]');
-        }, 1500);
-      }
-
       if (heroDisplay) {
         heroDisplay.style.transform = 'scale(1.08)';
         heroDisplay.style.filter = 'drop-shadow(0 0 35px rgba(255,184,48,0.95)) brightness(1.2)';
@@ -1442,10 +1434,6 @@ if (areaRing) {
         statusBadge.className = 'font-micro-caption text-micro-caption px-2.5 py-0.5 rounded-full bg-primary-container text-on-primary-container font-bold shadow-[0_0_12px_rgba(255,184,48,0.5)]';
       }
 
-      if (focalLens) {
-        focalLens.classList.add('border-primary-container', 'shadow-[0_0_30px_rgba(255,184,48,0.4)]');
-      }
-
       let stepIndex = 0;
       const delays = [140, 160, 200, 260, 340, 450, 590, 780];
 
@@ -1468,10 +1456,6 @@ if (areaRing) {
           if (statusBadge) {
             statusBadge.textContent = '104 страны онлайн';
             statusBadge.className = 'font-micro-caption text-micro-caption px-2.5 py-0.5 rounded-full bg-surface-container-high/90 text-primary-fixed border border-primary-container/20 shadow-[0_0_10px_rgba(255,184,48,0.15)]';
-          }
-
-          if (focalLens) {
-            focalLens.classList.remove('border-primary-container', 'shadow-[0_0_30px_rgba(255,184,48,0.4)]');
           }
 
           zoomResetTimeout = setTimeout(() => {
@@ -1963,7 +1947,7 @@ $("saveKey").onclick=()=>{const v=$("key").value.trim(); if(!v)return; apiKey=v;
 $("changeKey").onclick=()=>{apiKey="";store.set("tmdbKey","");showKeyUi();closeSettings();};
 $("resetHist").onclick=()=>{seen=new Set();store.set("seen",[]);watched=[];store.set("watched",watched);visited={};lastCC="";store.set("visited",visited);store.set("lastCC","");updHist();};
 
-async function api(params){
+async function api(params,options={}){
   const adult=playMode!=="surprise" && (sel.has("adult") || sel.has("erotic"));
   const q=new URLSearchParams({
   api_key: apiKey,
@@ -1972,7 +1956,7 @@ async function api(params){
   sort_by: "vote_average.desc",
   ...params
 });
-  const r=await fetch("https://api.themoviedb.org/3/discover/movie?"+q);
+  const r=await fetch("https://api.themoviedb.org/3/discover/movie?"+q,{cache:options.fresh?"no-store":"default"});
   if(r.status===401) throw new Error("Ключ не подошёл. Проверьте его и введите заново.");
   if(!r.ok) throw new Error("TMDB недоступен, попробуйте ещё раз.");
   return r.json();
@@ -2441,7 +2425,7 @@ async function trailerFor(film){
   const loadVideos=async langs=>{
     try{
       const r=await fetch(`https://api.themoviedb.org/3/movie/${id}/videos?`+new URLSearchParams({
-        api_key:apiKey, include_video_language:langs}));
+        api_key:apiKey, include_video_language:langs}),{cache:"no-store"});
       return (await r.json()).results||[];
     }catch(e){return [];}
   };
@@ -2621,7 +2605,7 @@ function show(cc,pool,film){
   $("tagline").hidden=true;$("tagline").textContent="";
   paintRating(film.vote_count,film.vote_average);
   $("crew").hidden=true;$("crew").innerHTML="";
-  $("over").textContent=film.overview||"Описания на русском пока нет.";
+  $("over").textContent=russianCopy(film.overview)||"Описание на русском или английском пока недоступно.";
   $("again").hidden=!!pool.top1||!!pool.oscar||!!pool.saved;
   setTrailer(film);
   paintCrew(film);
@@ -2665,11 +2649,16 @@ function fmtRuntime(m){
 }
 const moneyFmt=new Intl.NumberFormat("ru-RU",{style:"currency",currency:"USD",maximumFractionDigits:0});
 function money(n){return n?moneyFmt.format(n):"—";}
+const russianCopy=text=>{
+  if(!text)return "";
+  const value=String(text),ru=(value.match(/[А-Яа-яЁё]/g)||[]).length,latin=(value.match(/[A-Za-z]/g)||[]).length;
+  return ru>=3&&ru>latin?value:"";
+};
 const detailCache={};
 async function filmDetails(id){
   if(id in detailCache) return detailCache[id];
   const r=await fetch("https://api.themoviedb.org/3/movie/"+id+"?"+new URLSearchParams({
-    api_key:apiKey, language:"ru-RU", append_to_response:"credits,translations"}));
+    api_key:apiKey, language:"ru-RU", append_to_response:"credits,translations"}),{cache:"no-store"});
   if(!r.ok) throw new Error("details");
   const j=await r.json();
   const crew=j.credits&&j.credits.crew||[];
@@ -2682,19 +2671,18 @@ async function filmDetails(id){
   const tr=(j.translations&&j.translations.translations)||[];
   const textIn=(field,lang)=>{const t=tr.find(x=>x.iso_639_1===lang&&x.data&&String(x.data[field]||"").trim());return t?String(t.data[field]).trim():"";};
   const pickText=field=>{
+    const ru=textIn(field,"ru");
+    if(ru)return {text:ru,lang:"ru"};
     const own=String(j[field]||"").trim();
-    if(own) return {text:own,lang:"ru"};
-    for(const l of ["ru","en",j.original_language]){
-      if(!l) continue;
-      const t=textIn(field,l);
-      if(t) return {text:t,lang:l};
-    }
-    const any=tr.find(x=>x.data&&String(x.data[field]||"").trim());
-    return any?{text:String(any.data[field]).trim(),lang:any.iso_639_1}:{text:"",lang:""};
+    if(russianCopy(own))return {text:own,lang:"ru"};
+    const en=textIn(field,"en");
+    if(en)return {text:en,lang:"en"};
+    if(own&&j.original_language==="en")return {text:own,lang:"en"};
+    return {text:"",lang:""};
   };
   const ov=pickText("overview"), tg=pickText("tagline");
   return detailCache[id]={runtime:j.runtime||0,dirs,writers:writers.slice(0,3),cast,castFull:(j.credits&&j.credits.cast||[]).slice(0,10).map(c=>({name:c.name,role:c.character||"",photo:c.profile_path||""})),genres,budget:j.budget||0,revenue:j.revenue||0,
-    tagline:tg.text,overview:ov.text,overviewLang:ov.lang,
+    tagline:tg.text,taglineLang:tg.lang,overview:ov.text,overviewLang:ov.lang,
     release:j.release_date||"",originalTitle:j.original_title||"",originalLang:j.original_language||"",
     companies:(j.production_companies||[]).map(c=>c.name).filter(Boolean).slice(0,3),
     countries:(j.production_countries||[]).map(c=>c.iso_3166_1).filter(Boolean),
@@ -2724,8 +2712,12 @@ function paintCrew(film){
     paintRating(d.votes,d.average);
     const genres=(d.genres.length?d.genres:genreLine(film).split(", ").filter(Boolean)).slice(0,4);
     $("fgenre").textContent=genres.length?"Жанр: "+genres.join(", "):"";
-    $("tagline").hidden=!d.tagline;
-    $("tagline").textContent=d.tagline||"";
+    const synopsis=d.overview||russianCopy(film.overview)||"Описание на русском и английском пока недоступно.";
+    const synopsisLang=d.overview?d.overviewLang:(russianCopy(film.overview)?"ru":"");
+    $("over").textContent=synopsis;
+    const matchingTagline=!!d.tagline&&d.taglineLang===synopsisLang;
+    $("tagline").hidden=!matchingTagline;
+    $("tagline").textContent=matchingTagline?d.tagline:"";
     const lines=[];
     if(d.dirs.length) lines.push(`<div><b>${d.dirs.length>1?"Режиссёры":"Режиссёр"}:</b> ${esc(d.dirs.join(", "))}</div>`);
     if(d.writers.length) lines.push(`<div><b>Сценарий:</b> ${esc(d.writers.join(", "))}</div>`);
@@ -2893,7 +2885,7 @@ async function spinOscar(){
         if(origins.length){film.origin_country=origins;cc=origins[0];}
         if(d.title) film.title=d.title;
         if(d.original_title) film.original_title=d.original_title;
-        if(d.overview) film.overview=d.overview;
+        if(d.overview) film.overview=russianCopy(d.overview);
         if(d.release_date) film.release_date=d.release_date;
         if(d.poster_path) film.poster_path=d.poster_path;
         film.vote_average=d.vote_average;
@@ -3101,9 +3093,21 @@ const CARD_HTML=`
 </div>
 <div class="veiled flex flex-col mt-2.5 pt-2 border-t border-surface-border-subtle/80" id="film-details">
 <div class="flex items-start justify-between gap-2">
+<div class="relative w-24 sm:w-28 flex-shrink-0 aspect-[2/3] rounded-lg overflow-hidden bg-surface-container-high shadow-md border border-primary-container/20">
+<span class="absolute inset-0 flex items-center justify-center text-primary-container"><span class="material-symbols-outlined text-[32px]">movie</span></span>
+<img class="relative w-full h-full object-cover" id="discovery-poster" alt="Постер фильма" loading="lazy">
+<div class="absolute bottom-1 left-1 right-1 px-1.5 py-1 rounded bg-surface-container-lowest/90 text-center shadow">
+<div class="font-headline-sm text-headline-sm font-bold text-primary-fixed" id="discovery-rating">—</div><span class="text-[9px] text-text-muted font-mono uppercase tracking-tighter">TMDB</span>
+</div></div>
 <div class="min-w-0 flex-1">
 <div class="flex items-center gap-1.5 flex-wrap"><h3 class="font-headline-sm text-headline-sm font-bold text-on-surface" id="discovery-title">Крутите глобус</h3><span class="text-micro-caption text-text-muted font-body-sm" id="discovery-year"></span><span id="oscar-badge" style="display:none" class="px-1.5 rounded bg-surface-container text-secondary text-micro-caption font-semibold flex items-center gap-1 border border-secondary/25"><span class="material-symbols-outlined text-[12px]">workspace_premium</span>Оскар</span></div>
 <p class="font-label-sm text-label-sm text-primary-fixed mt-0.5 flex items-center gap-1"><span id="discovery-country">—</span><span id="discovery-flag">🌍</span><span class="text-text-muted truncate" id="discovery-genres">· кино</span></p>
+<p class="font-body-sm text-body-sm text-primary-fixed mt-1" style="font-style:italic" id="film-tagline" hidden></p>
+<p class="font-body-sm text-body-sm text-text-muted leading-relaxed mt-2" id="discovery-desc">Выберите страну и фильм, и здесь появится описание.</p>
+<p class="font-micro-caption text-[11px] text-text-muted mt-0.5" id="discovery-desc-lang" style="opacity:.75" hidden></p>
+<div class="mt-2" id="film-people"></div>
+</div>
+</div>
 <div class="mt-2.5" id="film-trailer-box" hidden>
 <div class="relative w-full rounded-xl overflow-hidden bg-black border border-primary-container/30 shadow-md" style="aspect-ratio:16/10;min-height:220px;max-height:min(65vh,520px)" id="film-trailer-stage">
 <div class="absolute inset-0" id="film-trailer-preview"><img class="w-full h-full object-cover opacity-80" id="film-trailer-thumbnail" alt="" loading="lazy"><div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-black/20"></div><button type="button" id="film-trailer-play" class="absolute inset-0 flex items-center justify-center text-white disabled:opacity-40" aria-label="Воспроизвести трейлер" disabled><span class="w-16 h-16 rounded-full bg-primary-container/95 text-on-primary shadow-[0_0_32px_rgba(255,184,48,.45)] flex items-center justify-center transition-transform hover:scale-110"><span class="material-symbols-outlined text-[40px]">play_arrow</span></span></button><span class="absolute bottom-3 left-3 right-3 text-center font-label-sm text-label-sm text-white drop-shadow-lg" id="film-trailer-status">Ищем трейлер…</span></div>
@@ -3112,13 +3116,7 @@ const CARD_HTML=`
 </div>
 <p class="font-micro-caption text-[11px] text-text-muted mt-1.5" id="film-trailer-note" hidden>Не воспроизводится? <a id="film-trailer-link" target="_blank" rel="noopener" class="text-primary underline">Открыть на YouTube</a></p>
 </div>
-<p class="font-body-sm text-body-sm text-text-muted mt-2" id="discovery-desc">Выберите страну и фильм, и здесь появится карточка с рейтингом и трейлером.</p>
-<p class="font-micro-caption text-[11px] text-text-muted mt-0.5" id="discovery-desc-lang" style="opacity:.75" hidden></p>
-</div>
-<div class="flex flex-col items-end flex-shrink-0"><div class="px-2 py-1 rounded-lg bg-surface-container-high border border-primary-container/30 text-center shadow-md"><div class="font-headline-sm text-headline-sm font-bold text-primary-fixed" id="discovery-rating">—</div><span class="text-[9px] text-text-muted font-mono uppercase tracking-tighter">TMDB</span></div></div>
-</div>
 <div class="mt-2.5 pt-2 border-t border-surface-border/50" id="film-more">
-<p class="font-body-sm text-body-sm text-primary-fixed" style="font-style:italic" id="film-tagline" hidden></p>
 <div class="grid gap-1 font-body-sm text-body-sm mt-1" id="film-facts"></div>
 </div>
 <div class="flex items-center justify-between mt-2.5 pt-2 border-t border-surface-border/50 gap-2">
@@ -3280,7 +3278,7 @@ function pinLight(cc){
   hero(w,false);
 }
 function setSpinUi(on){
-  const b=$("btn-spin-roulette"),t=$("btn-spin-text"),s=$("btn-spin-secondary-icon"),sb=$("roulette-status-badge"),f=$("focal-lens");
+  const b=$("btn-spin-roulette"),t=$("btn-spin-text"),s=$("btn-spin-secondary-icon"),sb=$("roulette-status-badge");
   const known=!!activeTheme();
   b.disabled=on;b.classList.toggle("brightness-125",on);
   t.innerHTML=on
@@ -3291,7 +3289,6 @@ function setSpinUi(on){
   sb.textContent=on?(known?"Подборка":"Сканирование..."):COUNTRIES.length+" "+plural(COUNTRIES.length)+" онлайн";
   sb.className=on?"font-micro-caption text-micro-caption px-2.5 py-0.5 rounded-full bg-primary-container text-on-primary-container font-bold"
     :"font-micro-caption text-micro-caption px-2.5 py-0.5 rounded-full bg-surface-container-high/90 text-primary-fixed border border-primary-container/20";
-  f.classList.toggle("border-primary-container",on);
 }
 const _lock=window.lockSpin,_unlock=window.unlockSpin;
 window.lockSpin=function(l){_lock(l);setSpinUi(true);};
@@ -3490,13 +3487,16 @@ function reveal(film,pool){
 
 // «Где смотреть»: TMDB watch/providers (данные JustWatch), регион по языку браузера, запасной US
 const provCache={};
+window.invalidateFilmDataCaches=function(){
+  [detailCache,vcache,provCache].forEach(cache=>Object.keys(cache).forEach(key=>delete cache[key]));
+};
 async function showProviders(film){
   const box=$("where-list"),lab=$("where-label");
   box.innerHTML='<span class="text-text-muted text-[11px]">…</span>';
   try{
     let d=provCache[film.id];
     if(!d){
-      const r=await fetch(`https://api.themoviedb.org/3/movie/${film.id}/watch/providers?api_key=${apiKey}`);
+      const r=await fetch(`https://api.themoviedb.org/3/movie/${film.id}/watch/providers?api_key=${apiKey}`,{cache:"no-store"});
       d=(await r.json()).results||{};provCache[film.id]=d;
     }
     if(!cur||cur.film.id!==film.id)return;
@@ -3531,12 +3531,15 @@ function synopsisHTML(text,note){
 function renderExtra(film,d){
   const cc=cur?cur.cc:"";
   const year=(film.release_date||"").slice(0,4);
-  const text=d.overview||film.overview||"Описания нет ни на одном языке.";
+  const text=d.overview||russianCopy(film.overview)||"Описания на русском и английском пока нет.";
   const note=(d.overview&&d.overviewLang&&d.overviewLang!=="ru")
     ?"Описания на русском нет. Показано на языке: "+langName(d.overviewLang)+".":"";
   set("discovery-desc",text);
+  $("discovery-desc-lang").textContent=note;
+  $("discovery-desc-lang").hidden=!note;
   const tg=$("film-tagline");
-  tg.textContent=d.tagline?"«"+d.tagline+"»":"";tg.hidden=!d.tagline;
+  const matchingTagline=!!d.tagline&&d.taglineLang===d.overviewLang;
+  tg.textContent=matchingTagline?"«"+d.tagline+"»":"";tg.hidden=!matchingTagline;
 
   // создатели
   const card=(label,val,main)=>val?`<div class="p-2.5 rounded-xl bg-surface-container-high flex flex-col min-w-0">
@@ -3588,7 +3591,8 @@ function renderExtra(film,d){
 
   const fx=$("film-facts");
   fx.className="flex flex-col gap-3 mt-2";
-  fx.innerHTML=synopsisHTML(text,note)+people+(facts?`<div class="grid grid-cols-2 gap-2">${facts}</div>`:"")+country;
+  $("film-people").innerHTML=people;
+  fx.innerHTML=(facts?`<div class="grid grid-cols-2 gap-2">${facts}</div>`:"")+country;
 }
 $("film-facts").addEventListener("click",e=>{if(e.target.closest('[data-kg="passport"]'))$("mapBtn").click();});
 
@@ -3633,14 +3637,19 @@ window.show=function(cc,pool,film){
   }
   const y=(film.release_date||"").slice(0,4),votes=film.vote_count||0;
   set("discovery-title",film.title||"");set("discovery-year",y?"("+y+")":"");
+  const poster=$("discovery-poster");
+  poster.alt=`Постер фильма «${film.title||"Фильм"}»`;
+  if(film.poster_path){poster.src=`https://image.tmdb.org/t/p/w342${film.poster_path}`;poster.classList.remove("hidden");}
+  else{poster.removeAttribute("src");poster.classList.add("hidden");}
   $("film-trailer-box").hidden=false;
   $("film-trailer-thumbnail").src=film.poster_path?`https://image.tmdb.org/t/p/w780${film.poster_path}`:"";
   $("film-trailer-play").disabled=true;
   $("film-trailer-status").textContent="Ищем трейлер…";
   set("discovery-country",cname(cc));$("discovery-flag").innerHTML=flag(cc,false);
   set("discovery-genres","· "+(genreLine(film)||"кино"));
-  set("discovery-desc",film.overview||"Ищем описание…");
+  set("discovery-desc",russianCopy(film.overview)||"Ищем описание…");
   $("discovery-desc-lang").hidden=true;$("film-tagline").hidden=true;
+  $("film-people").innerHTML='<span class="text-text-muted">Загружаем режиссёра и актёров…</span>';
   $("film-facts").innerHTML='<span class="text-text-muted">Загружаем подробности…</span>';
   set("discovery-rating",votes?Number(film.vote_average).toFixed(1):"—");setVotes(votes);
   set("discovery-timestamp",pool.oscar?"Лауреат «Оскара»":pool.top1?"Топ-1 страны":pool.worst?"Из худших":"Случайная находка · "+cname(cc));
@@ -3654,7 +3663,8 @@ window.show=function(cc,pool,film){
     renderExtra(film,d);
   }).catch(()=>{
     if(!cur||cur.film.id!==film.id)return;
-    set("discovery-desc",film.overview||"Не удалось загрузить описание.");
+    set("discovery-desc",russianCopy(film.overview)||"Не удалось загрузить описание.");
+    $("film-people").innerHTML='<span class="text-text-muted">Сведения о режиссёре и актёрах сейчас недоступны.</span>';
     $("film-facts").innerHTML='<span class="text-text-muted">Подробности сейчас недоступны.</span>';
   });
   bw.innerHTML=watchedHTML;

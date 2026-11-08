@@ -1069,14 +1069,14 @@ rotatingGroup.add(flagPinGroup);
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
       // Cinema Lighting: Soft ambient & directional space lighting without blinding specular hotspot
-      const dirLight = new THREE.DirectionalLight(0xfff6eb, 1.25);
+      const dirLight = new THREE.DirectionalLight(0xfff6eb, 0.85);
       dirLight.position.set(4, 2, 4);
       scene.add(dirLight);
 
-      const ambLight = new THREE.AmbientLight(0x7687a2, 1.35);
+      const ambLight = new THREE.AmbientLight(0x7687a2, 0.55);
       scene.add(ambLight);
 
-      const hemiLight = new THREE.HemisphereLight(0xdce6ff, 0x121622, 0.85);
+      const hemiLight = new THREE.HemisphereLight(0xdce6ff, 0x121622, 0.45);
       scene.add(hemiLight);
 
       // Hierarchical Setup for True 3D Axial Tilt (23.4°) & Rotation:
@@ -1143,16 +1143,34 @@ rotatingGroup.add(flagPinGroup);
       }
 
       // Smooth Lambert material (NO glaring specular white spot)
+      const fallbackEarthTexture = createEarthTexture();
       const earthMat = new THREE.MeshLambertMaterial({
-        map: createEarthTexture()
+        map: fallbackEarthTexture
       });
+      earthMat.onBeforeCompile = (shader) => {
+        shader.fragmentShader = shader.fragmentShader.replace(
+          '#include <map_fragment>',
+          `#include <map_fragment>
+           float earthLuminance = dot(diffuseColor.rgb, vec3(0.2126, 0.7152, 0.0722));
+           diffuseColor.rgb = clamp(mix(vec3(earthLuminance), diffuseColor.rgb, 1.22), 0.0, 1.0);`
+        );
+      };
 
       const textureLoader = new THREE.TextureLoader();
+      textureLoader.setCrossOrigin('anonymous');
       textureLoader.load(
         'https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg',
         (tex) => {
+          tex.encoding = THREE.sRGBEncoding;
+          tex.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+          tex.needsUpdate = true;
           earthMat.map = tex;
           earthMat.needsUpdate = true;
+          fallbackEarthTexture.dispose();
+        },
+        undefined,
+        (error) => {
+          console.warn('[Kinoglobus] Не удалось загрузить текстуру Земли; оставляем запасную поверхность.', error);
         }
       );
 

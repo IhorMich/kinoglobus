@@ -70,9 +70,19 @@ inromance:["comedy","Indian Romance","Песни, танцы, большие ч�
 sufi:["scifi","Soviet Sci-Fi","«Солярис», «Сталкер», «Кин-дза-дза!» и философия космоса","Философская и ироничная советская фантастика: космос, будущее и вопросы о том, что значит быть человеком."],
 jpscifi:["scifi","Japanese Sci-Fi","Киберпанк, гигантские монстры и тревожное будущее","Японская фантастика: киберпанк, гигантские монстры и тревожные картины будущего."],
 suanim:["retro","Soviet Animation","Рисованные сказки, кукольные шедевры и «Ёжик в тумане»","Рисованные и кукольные шедевры: тёплые сказки, философские притчи и мультфильмы, ставшие классикой."],
-uswestern:["retro","Classic Western","Пыльные дороги, дуэли на рассвете и одинокие герои","Дуэли на рассвете, пыльные городки и одинокие герои: классический вестерн во всей красе."]
+uswestern:["retro","Classic Western","Пыльные дороги, дуэли на рассвете и одинокие герои","Дуэли на рассвете, пыльные городки и одинокие герои: классический вестерн во всей красе."],
+uscrime:["noir","American Crime & Thrillers","Голливудский нуар, громкие ограбления и напряжённые расследования","От нуарной классики до современных криминальных триллеров: роковые решения, ограбления и расследования по-американски."],
+ushorror:["horror","American Horror","От классики Universal до слэшеров и современного хоррора","Монстры, слэшеры и психологический ужас: американское кино десятилетиями переизобретает жанр."],
+usscifi:["scifi","American Science Fiction","Голливудские миры будущего, космические саги и научные загадки","Фантастика США — от масштабных космических историй до фильмов о технологиях, времени и будущем человечества."],
+uscomedy:["comedy","American Comedies","Голливудские комедии — от классического фарса до современной сатиры","Романтические комедии, фарсы и сатира: лёгкий и разнообразный маршрут по американскому юмору."],
+usdrama:["drama","American Drama","Большие семейные саги, независимое кино и сильные актёрские работы","Американская драма: от независимого кино и камерных историй до семейных саг и историй о переменах."],
+usanimation:["action","American Animation","Золотой век анимации, студийные хиты и независимые мультфильмы","Американская анимация — от классических мультфильмов до авторских историй и современных студийных хитов."],
+african:["drama","African Cinema","Кино ЮАР, Нигерии и Ганы: социальные истории и криминальные драмы","Африканское кино трех ярких индустрий — ЮАР, Нигерии и Ганы: социальные драмы и криминальные истории."],
+arabic:["drama","Arab Cinema","Египет, Левант и Магриб: драмы и криминальные истории арабского мира","Подборка фильмов Египта, Ливана, Марокко, Туниса и Алжира: драмы и криминальные истории из разных уголков арабского мира."],
+inclassic:["comedy","Indian Classics & Musicals","Золотой век Болливуда, музыкальные истории и большие чувства","Индийская классика и музыкальное кино: песни, танцы и истории любви, которые стали частью золотого века Болливуда."],
+jpcrime:["noir","Japanese Crime Cinema","Якудза, полицейские расследования и мрачный японский нуар","Криминальное кино Японии: якудза, полицейские расследования и напряжённые истории о чести, власти и мести."]
 };
-const REG={nordic:["Скандинавия","NORD"],cnfan:["Китай, Гонконг","CN"],latam:["Латинская Америка","LATAM"]};
+const REG={nordic:["Скандинавия","NORD"],cnfan:["Китай, Гонконг","CN"],latam:["Латинская Америка","LATAM"],african:["Африка","AFR"],arabic:["Арабский мир","ARAB"]};
 const ICON={nordic:"ac_unit"};
 const T=Object.fromEntries(THEMES.map(t=>[t.id,t]));
 const cat=t=>(TM[t.id]||["noir"])[0];
@@ -344,9 +354,10 @@ function pearlHtml(f){
 function renderFilms(){
   const box=$("cl-films");if(!box)return;
   const {best,rest}=derived();
-  if(!best){box.innerHTML='<p class="font-body-sm text-body-sm text-text-muted px-1">Подходящих фильмов не нашлось.</p>';return;}
+  if(!best){box.innerHTML=(D.selected?selectedFilmHtml(D.selected):"")+'<p class="font-body-sm text-body-sm text-text-muted px-1">Подходящих фильмов не нашлось.</p>';return;}
   const list=rest.slice(0,D.shown);
-  box.innerHTML=pearlHtml(best)+
+  const selected=D.selected?selectedFilmHtml(D.selected):"";
+  box.innerHTML=selected+pearlHtml(best)+
   `<div class="flex flex-col gap-space-sm"><div class="flex items-center justify-between px-1"><h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">Отобранные шедевры</h3><span class="font-micro-caption text-micro-caption text-text-muted">${list.length} из ${nf(Math.max(totalFor(),list.length+1))}</span></div>
   <div class="flex flex-col gap-space-sm">${list.map(filmItem).join("")}</div>
   ${rest.length>D.shown?`<button type="button" data-act="more" class="w-full py-3 rounded-xl bg-surface-panel hover:bg-surface-container-low text-primary text-center font-label-md text-label-md font-semibold flex items-center justify-center gap-2 transition-colors shadow-sm"><span class="material-symbols-outlined text-[18px]">expand_more</span><span>Показать ещё</span></button>`:""}</div>`;
@@ -355,6 +366,19 @@ function renderFilms(){
     rt.forEach(e=>e.textContent=d.runtime?d.runtime+" мин":"");
     dr.forEach(e=>e.textContent=d.dirs.length?"Реж. "+d.dirs.slice(0,2).join(", "):"");
   }).catch(()=>{}));
+}
+function selectedFilmHtml(f){
+  const year=(f.release_date||"").slice(0,4);
+  const trailerButton=f._playing?"Закрыть трейлер":f._trailerStatus==="loading"?"Ищем трейлер…":f._trailerStatus==="missing"?"Трейлер не найден":"Смотреть трейлер";
+  const trailerContent=f._playing&&f._trailer
+    ?`<iframe src="${embedSrc(f._trailer)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" title="Трейлер ${esc(f.title)}" style="position:absolute;inset:0;width:100%;height:100%;border:0"></iframe>`
+    :`<div class="absolute inset-0 flex items-center justify-center text-text-muted font-body-sm text-body-sm">${f._trailerStatus==="missing"?"Для этого фильма трейлера не нашлось":f._trailerStatus==="loading"?"Ищем трейлер…":"Трейлер не запущен"}</div>`;
+  return `<section class="flex flex-col gap-space-sm p-3.5 rounded-2xl bg-surface-panel border border-primary-container/30 shadow-xl" data-selected-film="${f.id}">
+<div class="flex items-start justify-between gap-2"><div class="min-w-0"><h3 class="font-headline-md text-headline-md text-primary font-bold">${esc(f.title||"Фильм")}</h3><p class="font-micro-caption text-micro-caption text-text-muted mt-1">${fl(f._cc)} ${esc(cname(f._cc))}${year?" • "+year:""}${f.runtime?" • "+f.runtime+" мин":""}</p></div>
+<button type="button" data-act="close-film" aria-label="Закрыть описание" class="w-9 h-9 flex-shrink-0 rounded-full bg-surface-container-high text-text-muted hover:text-primary flex items-center justify-center"><span class="material-symbols-outlined">close</span></button></div>
+<button type="button" data-act="selected-trailer" class="py-2.5 px-3 rounded-lg bg-surface-container-high text-primary-fixed hover:bg-surface-bright font-label-md text-label-md font-semibold flex items-center justify-center gap-1.5 transition-colors" ${f._trailerStatus==="loading"||f._trailerStatus==="missing"?"disabled":""}><span class="material-symbols-outlined text-[18px]">${f._playing?"close":"play_circle"}</span>${trailerButton}</button>
+<div class="relative w-full aspect-video rounded-xl overflow-hidden bg-black border border-primary-container/30" id="cl-inline-trailer">${trailerContent}</div>
+<div class="flex flex-col gap-1"><h4 class="font-label-md text-label-md text-primary-fixed font-semibold">О фильме</h4><p class="font-body-sm text-body-sm text-text-muted leading-relaxed">${esc(f.overview||"Загружаем описание…")}</p></div></section>`;
 }
 function otherHtml(t){
   const m=META[t.id]||{};
@@ -415,10 +439,36 @@ async function openCollection(id,opt){
 }
 
 function openFilm(f){
-  const byCountry={};D.all.forEach(x=>byCountry[x.id]=x._cc);
-  const films=shuffle(D.all.filter(x=>x.id!==f.id&&x.poster_path)).slice(0,60);films.push(f);
-  showView("home");
-  show(f._cc,{films,votes:0,total:D.total,themeName:D.t.name,byRating:true,byCountry},f);
+  D.selected={...f,overview:f.overview||"Загружаем описание…",_trailerStatus:"idle",_playing:false};
+  renderFilms();
+  const selected=D.selected;
+  filmDetails(f.id).then(details=>{
+    if(D.selected!==selected)return;
+    selected.overview=details.overview||f.overview||"Описания на русском пока нет.";
+    selected.runtime=details.runtime;
+    renderFilms();
+    vd.querySelector(`[data-selected-film="${f.id}"]`)?.scrollIntoView({behavior:"smooth",block:"start"});
+  }).catch(()=>{
+    if(D.selected!==selected)return;
+    selected.overview=f.overview||"Не удалось загрузить описание.";
+    renderFilms();
+  });
+}
+async function toggleSelectedTrailer(){
+  const f=D.selected;if(!f)return;
+  if(f._playing){f._playing=false;renderFilms();return;}
+  if(f._trailer){f._playing=true;renderFilms();return;}
+  f._trailerStatus="loading";renderFilms();
+  try{
+    const trailer=await trailerFor(f);
+    if(D.selected!==f)return;
+    if(!trailer){f._trailerStatus="missing";renderFilms();return;}
+    f._trailer=trailer;f._playing=true;renderFilms();
+  }catch(e){
+    if(D.selected!==f)return;
+    f._trailerStatus="idle";renderFilms();
+    console.error("[Kinoglobus] Не удалось загрузить трейлер:",e);
+  }
 }
 /* ---------- трейлер в окне поверх подборки (без перехода на YouTube) ---------- */
 let trEl=null,trTok=0;
@@ -574,6 +624,8 @@ window.addEventListener("resize",()=>{
 vd.addEventListener("click",e=>{
   const el=e.target.closest("[data-act]");if(!el)return;
   const a=el.dataset.act;
+  if(a==="close-film"){D.selected=null;renderFilms();return;}
+  if(a==="selected-trailer"){toggleSelectedTrailer();return;}
   if(a==="back"){e.preventDefault();showView("collections");return;}
   if(a==="goto"){e.preventDefault();openCollection(el.dataset.t);return;}
   if(a==="spin"){inPageRoulette();return;}

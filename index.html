@@ -3260,7 +3260,7 @@ async function spinReel(pool,film,cc){
     const row = Math.round((x - x0) / STEP);
     if (row !== last) {
       last = row;
-      sTick(.3 + .7 * t);
+      
       if (t > .6) buzz(7);
     }
     if (t < 1) {

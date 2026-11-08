@@ -661,9 +661,10 @@
     // 3D PLANET EARTH ENGINE WITH AUTHENTIC AXIAL TILT & TRUE POLAR ROTATION
     let tiltGroup, rotatingGroup;
     let earthMesh, cloudsMesh, atmosphereMesh;
-    let flagPinGroup = null;
-    let flagBannerMesh = null;
+    let flagPinGroup = null;      // теперь это группа маркера (луч + пульс)
+    let flagBannerMesh = null;    // больше не используем
     let targetFlagScale = 0.001;
+    let markerPulseT = 0;
     let camera;
     let targetRotY = 0;
     let targetRotX = 0;
@@ -681,8 +682,8 @@
     const axialTilt = 23.4 * (Math.PI / 180);
 
     // Exact camera distances:
-    const defaultDist = 5.55; // Distant comfortable overview (с запасом под мобильный)
-    const focusDist = 4.05;  // Delicate zoom into target country
+    const defaultDist = 6.35;
+    const focusDist = 4.75;
 
     let targetCameraZ = defaultDist;
     let currentCameraZ = defaultDist;
@@ -785,71 +786,101 @@
       targetFlagScale = 0.001;
     }
 
-    // Winner 3D Flagpost setup - banner angled at ~28° (rotation.y = 0.48) for perfect readability
-    function update3DCountryFlag(country, popAnimation = false) {
-      if (!rotatingGroup || !country) return;
-      const radius = 1.42;
-      const pos = latLonToVector3(country.lat, country.lon, radius);
-      const normal = pos.clone().normalize();
+    function hideFlagPost() {
+  if (flagPinGroup) {
+    flagPinGroup.visible = false;
+    flagPinGroup.scale.set(0.001, 0.001, 0.001);
+  }
+  targetFlagScale = 0.001;
+}
 
-      if (!flagPinGroup) {
-        flagPinGroup = new THREE.Group();
+// Современный маркер: световой луч + пульсирующие кольца
+function update3DCountryFlag(country, popAnimation = false) {
+  if (!rotatingGroup || !country) return;
 
-        // 1. Pole
-        const poleHeight = 0.3;
-        const poleGeo = new THREE.CylinderGeometry(0.01, 0.014, poleHeight, 16);
-        poleGeo.translate(0, poleHeight / 2, 0);
-        const poleMat = new THREE.MeshBasicMaterial({ color: 0xffd56b });
-        const poleMesh = new THREE.Mesh(poleGeo, poleMat);
-        flagPinGroup.add(poleMesh);
+  const radius = 1.285; // чуть выше поверхности (earthRadius 1.28)
+  const pos = latLonToVector3(country.lat, country.lon, radius);
+  const normal = pos.clone().normalize();
 
-        // 2. Tip orb
-        const tipGeo = new THREE.SphereGeometry(0.028, 16, 16);
-        tipGeo.translate(0, poleHeight, 0);
-        const tipMat = new THREE.MeshBasicMaterial({ color: 0xfff0aa });
-        const tipMesh = new THREE.Mesh(tipGeo, tipMat);
-        flagPinGroup.add(tipMesh);
+  if (!flagPinGroup) {
+    flagPinGroup = new THREE.Group();
 
-        // 3. Ground ring
-        const ringGeo = new THREE.RingGeometry(0.02, 0.06, 24);
-        ringGeo.rotateX(-Math.PI / 2);
-        const ringMat = new THREE.MeshBasicMaterial({ color: 0xffb830, side: THREE.DoubleSide });
-        const ringMesh = new THREE.Mesh(ringGeo, ringMat);
-        flagPinGroup.add(ringMesh);
+    // 1. Ядро (яркая точка на поверхности)
+    const coreGeo = new THREE.SphereGeometry(0.028, 16, 16);
+    const coreMat = new THREE.MeshBasicMaterial({
+      color: 0xffe08a,
+      transparent: true,
+      opacity: 1
+    });
+    const coreMesh = new THREE.Mesh(coreGeo, coreMat);
+    flagPinGroup.add(coreMesh);
 
-        // 4. Banner mesh: pivot at the pole tip, leaned back towards the camera so the flag and country name read face-on
-        const bannerGeo = new THREE.PlaneGeometry(0.40, 0.25);
-        bannerGeo.translate(0.20, 0, 0);
-        const bannerMat = new THREE.MeshBasicMaterial({
-          map: createFlagCanvasTexture(country),
-          side: THREE.DoubleSide,
-          transparent: true
-        });
-        flagBannerMesh = new THREE.Mesh(bannerGeo, bannerMat);
-        flagBannerMesh.position.set(0, poleHeight, 0);
-        // Угол ~28° + лёгкий наклон, чтобы флаг был лицом к зрителю, а не ребром
-        flagBannerMesh.rotation.set(-0.18, 0.48, 0.12);
-        flagPinGroup.add(flagBannerMesh);
-        rotatingGroup.add(flagPinGroup);
-      } else if (flagBannerMesh) {
-        flagBannerMesh.material.map = createFlagCanvasTexture(country);
-        flagBannerMesh.material.needsUpdate = true;
-      }
-      flagPinGroup.position.copy(pos);
-      const up = new THREE.Vector3(0, 1, 0);
-      const quaternion = new THREE.Quaternion().setFromUnitVectors(up, normal);
-      flagPinGroup.setRotationFromQuaternion(quaternion);
+    // 2. Вертикальный световой луч
+    const beamHeight = 0.55;
+    const beamGeo = new THREE.CylinderGeometry(0.006, 0.018, beamHeight, 12, 1, true);
+    beamGeo.translate(0, beamHeight / 2, 0);
+    const beamMat = new THREE.MeshBasicMaterial({
+      color: 0xffc857,
+      transparent: true,
+      opacity: 0.55,
+      depthWrite: false,
+      side: THREE.DoubleSide
+    });
+    const beamMesh = new THREE.Mesh(beamGeo, beamMat);
+    beamMesh.name = 'beam';
+    flagPinGroup.add(beamMesh);
 
-      flagPinGroup.visible = true;
+    // 3. Мягкое свечение у основания
+    const glowGeo = new THREE.SphereGeometry(0.07, 16, 16);
+    const glowMat = new THREE.MeshBasicMaterial({
+      color: 0xffb830,
+      transparent: true,
+      opacity: 0.35,
+      depthWrite: false
+    });
+    const glowMesh = new THREE.Mesh(glowGeo, glowMat);
+    glowMesh.name = 'glow';
+    flagPinGroup.add(glowMesh);
 
-      if (popAnimation) {
-        flagPinGroup.scale.set(0.01, 0.01, 0.01);
-        targetFlagScale = 1.0;
-      } else {
-        flagPinGroup.scale.set(1.0, 1.0, 1.0);
-        targetFlagScale = 1.0;
-      }
-    }
+    // 4. Два пульс-кольца на поверхности
+    const makeRing = (name, size) => {
+      const geo = new THREE.RingGeometry(size * 0.7, size, 32);
+      geo.rotateX(-Math.PI / 2);
+      const mat = new THREE.MeshBasicMaterial({
+        color: 0xffc857,
+        transparent: true,
+        opacity: 0.7,
+        side: THREE.DoubleSide,
+        depthWrite: false
+      });
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.name = name;
+      flagPinGroup.add(mesh);
+      return mesh;
+    };
+    makeRing('pulse1', 0.08);
+    makeRing('pulse2', 0.08);
+
+    rotatingGroup.add(flagPinGroup);
+  }
+
+  // Ориентация маркера по нормали поверхности
+  flagPinGroup.position.copy(pos);
+  const up = new THREE.Vector3(0, 1, 0);
+  const quaternion = new THREE.Quaternion().setFromUnitVectors(up, normal);
+  flagPinGroup.setRotationFromQuaternion(quaternion);
+
+  flagPinGroup.visible = true;
+  markerPulseT = 0;
+
+  if (popAnimation) {
+    flagPinGroup.scale.set(0.01, 0.01, 0.01);
+    targetFlagScale = 1.0;
+  } else {
+    flagPinGroup.scale.set(1.0, 1.0, 1.0);
+    targetFlagScale = 1.0;
+  }
+}
 
     // Beacon dots: created once per country on demand (hidden in idle state)
     let beaconGeo = null;
@@ -960,7 +991,7 @@
       tiltGroup.add(rotatingGroup);
 
       // Earth Sphere Geometry (SphereGeometry(1.42, 64, 48))
-      const earthRadius = 1.42;
+      const earthRadius = 1.28;
       const earthGeo = new THREE.SphereGeometry(earthRadius, 64, 48);
 
       // High-resolution realistic NASA Blue Marble procedural texture
@@ -1109,20 +1140,42 @@
           camera.position.y = currentCameraY;
         }
 
-        // Flag rise + wave animation
-        if (flagPinGroup && flagPinGroup.visible) {
-          const s = flagPinGroup.scale.x + (targetFlagScale - flagPinGroup.scale.x) * 0.08;
-          flagPinGroup.scale.set(s, s, s);
+        // Marker rise + cinematic pulse
+if (flagPinGroup && flagPinGroup.visible) {
+  const s = flagPinGroup.scale.x + (targetFlagScale - flagPinGroup.scale.x) * 0.1;
+  flagPinGroup.scale.set(s, s, s);
 
-          // Мягкое развевание флага
-          if (flagBannerMesh) {
-            const t = elapsedTime;
-            flagBannerMesh.rotation.z = 0.12 + Math.sin(t * 2.4) * 0.14;
-            flagBannerMesh.rotation.x = -0.18 + Math.sin(t * 1.8) * 0.07;
-            flagBannerMesh.rotation.y = 0.48 + Math.sin(t * 1.1) * 0.05;
-          }
-        }
+  markerPulseT += 0.016;
+  const t = markerPulseT;
 
+  const pulse1 = flagPinGroup.getObjectByName('pulse1');
+  const pulse2 = flagPinGroup.getObjectByName('pulse2');
+  const beam = flagPinGroup.getObjectByName('beam');
+  const glow = flagPinGroup.getObjectByName('glow');
+
+  if (pulse1) {
+    const p = (t % 1.8) / 1.8;
+    const scale = 0.6 + p * 2.4;
+    pulse1.scale.set(scale, scale, scale);
+    pulse1.material.opacity = (1 - p) * 0.75;
+  }
+
+  if (pulse2) {
+    const p = ((t + 0.9) % 1.8) / 1.8;
+    const scale = 0.6 + p * 2.4;
+    pulse2.scale.set(scale, scale, scale);
+    pulse2.material.opacity = (1 - p) * 0.55;
+  }
+
+  if (beam) {
+    beam.material.opacity = 0.42 + Math.sin(t * 2.2) * 0.12;
+  }
+  if (glow) {
+    const g = 0.9 + Math.sin(t * 2.2) * 0.15;
+    glow.scale.set(g, g, g);
+    glow.material.opacity = 0.28 + Math.sin(t * 2.2) * 0.08;
+  }
+}
         // Idle slow rotation
         if (!isSpinning && !isDragging) {
           targetRotY += driftSpeed;

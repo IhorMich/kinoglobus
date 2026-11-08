@@ -3285,17 +3285,15 @@ async function spinReel(pool,film,cc){
     card.classList.add("card-discovery-win");
     reveal(film, pool);
   };
-    runRaf = requestAnimationFrame(step);
-}  // ← ВОТ ЭТА СКОБКА ЗАКРЫВАЕТ spinReel
+    r  runRaf = requestAnimationFrame(step);
+}
 
 // Название, рейтинг и кнопки открываются, когда плёнка остановилась на выбранном фильме
 function reveal(film,pool){
   veil(false);
   set("hero-country-master",film.title||"");
 }
-  veil(false);
-  set("hero-country-master",film.title||"");
-}
+
 // «Где смотреть»: TMDB watch/providers (данные JustWatch), регион по языку браузера, запасной US
 const provCache={};
 async function showProviders(film){

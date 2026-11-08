@@ -153,7 +153,6 @@ let view="home";
 function showView(v){
   view=v;
   if(v!=="collection")rStop();
-  closeTrailer();
   home.style.display=v==="home"?"":"none";
   vc.style.display=v==="collections"?"":"none";
   vd.style.display=v==="collection"?"":"none";
@@ -306,7 +305,7 @@ vc.addEventListener("click",e=>{
 });
 
 /* ================= СТРАНИЦА ПОДБОРКИ ================= */
-let D={t:null,all:[],total:0,totals:{},cc:"",sort:"rating",shown:5};
+let D={t:null,all:[],total:0,totals:{},cc:"",sort:"rating",shown:5,selected:null,picked:null};
 const CCON="bg-primary-container text-on-primary shadow-[0_0_12px_rgba(255,184,48,0.28)] font-semibold",CCOFF="bg-surface-container text-text-muted hover:text-on-surface";
 const SON="bg-surface-container-high text-primary-fixed font-semibold",SOFF="text-text-muted hover:text-on-surface";
 const ccCls=on=>"h-[34px] px-3 rounded-full font-label-sm text-label-sm flex-shrink-0 transition-colors "+(on?CCON:CCOFF);
@@ -334,7 +333,6 @@ function filmItem(f){
 <p data-dir="${f.id}" class="font-micro-caption text-micro-caption text-text-muted truncate">&nbsp;</p>
 <div class="flex items-center gap-1.5 pt-1">${gs.map(g=>`<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-micro-caption text-micro-caption">${esc(g)}</span>`).join("")}</div></div>
 <div class="flex items-center justify-end gap-2 pt-2">
-<button type="button" data-act="trailer" data-id="${f.id}" title="Трейлер" class="text-text-muted hover:text-primary transition-colors p-1"><span class="material-symbols-outlined text-[18px]">play_arrow</span></button>
 <button type="button" data-act="bm" data-id="${f.id}" title="В закладки" class="text-primary-container hover:text-primary transition-colors p-1"><span class="material-symbols-outlined text-[18px]">${bm?"bookmark_added":"bookmark_border"}</span></button></div></div></div>`;
 }
 function pearlHtml(f){
@@ -349,18 +347,18 @@ function pearlHtml(f){
 <p class="font-micro-caption text-micro-caption text-text-muted italic truncate">${f.original_title&&f.original_title!==f.title?esc(f.original_title):"&nbsp;"}</p>
 <p data-dir="${f.id}" class="font-micro-caption text-micro-caption text-on-surface-variant">&nbsp;</p></div>
 <p class="font-body-sm text-body-sm text-text-muted kg-clip2 pt-1">${esc(f.overview||"Описания на русском пока нет.")}</p></div></div>
-<div class="flex items-center gap-space-sm pt-1"><button type="button" data-act="trailer" data-id="${f.id}" class="flex-1 py-2.5 px-3 rounded-lg bg-surface-container-high text-primary-fixed hover:bg-surface-bright font-label-md text-label-md font-semibold flex items-center justify-center gap-1.5 transition-colors"><span class="material-symbols-outlined text-[18px]">play_circle</span>Смотреть трейлер</button>
-<button type="button" data-act="bm" data-id="${f.id}" aria-label="Сохранить" class="w-11 h-11 flex-shrink-0 rounded-lg bg-surface-container-high text-primary-container flex items-center justify-center transition-transform active:scale-95 shadow-sm"><span class="material-symbols-outlined text-[20px]" style="font-variation-settings:'FILL' 1;">${bm?"bookmark_added":"bookmark_border"}</span></button></div></div></div>`;
+<div class="flex items-center justify-end pt-1"><button type="button" data-act="bm" data-id="${f.id}" aria-label="Сохранить" class="w-11 h-11 flex-shrink-0 rounded-lg bg-surface-container-high text-primary-container flex items-center justify-center transition-transform active:scale-95 shadow-sm"><span class="material-symbols-outlined text-[20px]" style="font-variation-settings:'FILL' 1;">${bm?"bookmark_added":"bookmark_border"}</span></button></div></div></div>`;
 }
 function renderFilms(){
   const box=$("cl-films");if(!box)return;
   const {best,rest}=derived();
-  if(!best){box.innerHTML=(D.selected?selectedFilmHtml(D.selected):"")+'<p class="font-body-sm text-body-sm text-text-muted px-1">Подходящих фильмов не нашлось.</p>';return;}
+  const selectedInList=D.selected&&D.selected._placement!=="roulette";
+  if(!best){box.innerHTML=(selectedInList?selectedFilmHtml(D.selected):"")+'<p class="font-body-sm text-body-sm text-text-muted px-1">Подходящих фильмов не нашлось.</p>';return;}
   const list=rest.slice(0,D.shown);
-  const pearl=pearlHtml(best)+(D.selected&&String(D.selected.id)===String(best.id)?selectedFilmHtml(D.selected):"");
+  const pearl=pearlHtml(best)+(selectedInList&&String(D.selected.id)===String(best.id)?selectedFilmHtml(D.selected):"");
   box.innerHTML=pearl+
   `<div class="flex flex-col gap-space-sm"><div class="flex items-center justify-between px-1"><h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">Отобранные шедевры</h3><span class="font-micro-caption text-micro-caption text-text-muted">${list.length} из ${nf(Math.max(totalFor(),list.length+1))}</span></div>
-  <div class="flex flex-col gap-space-sm">${list.map(f=>filmItem(f)+(D.selected&&String(D.selected.id)===String(f.id)?selectedFilmHtml(D.selected):"")).join("")}</div>
+  <div class="flex flex-col gap-space-sm">${list.map(f=>filmItem(f)+(selectedInList&&String(D.selected.id)===String(f.id)?selectedFilmHtml(D.selected):"")).join("")}</div>
   ${rest.length>D.shown?`<button type="button" data-act="more" class="w-full py-3 rounded-xl bg-surface-panel hover:bg-surface-container-low text-primary text-center font-label-md text-label-md font-semibold flex items-center justify-center gap-2 transition-colors shadow-sm"><span class="material-symbols-outlined text-[18px]">expand_more</span><span>Показать ещё</span></button>`:""}</div>`;
   [best,...list].forEach(f=>filmDetails(f.id).then(d=>{
     const rt=vd.querySelectorAll(`[data-rt="${f.id}"]`),dr=vd.querySelectorAll(`[data-dir="${f.id}"]`);
@@ -376,8 +374,9 @@ function selectedFilmHtml(f){
   const trailerContent=f._trailer
     ?`<iframe src="${embedSrc(f._trailer,false)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" title="Трейлер ${esc(f.title)}" style="position:absolute;inset:0;width:100%;height:100%;border:0"></iframe>`
     :`<div class="absolute inset-0 flex items-center justify-center text-text-muted font-body-sm text-body-sm">${f._trailerStatus==="missing"?"Трейлер не найден":f._trailerStatus==="loading"?"Загружаем превью трейлера…":"Превью трейлера недоступно"}</div>`;
-  return `<section class="flex flex-col gap-space-sm p-3.5 rounded-2xl bg-surface-panel border border-primary-container/30 shadow-xl" data-selected-film="${f.id}">
+  return `<section class="flex flex-col gap-space-sm p-3.5 rounded-2xl bg-surface-panel border border-primary-container/30 shadow-xl scroll-mt-20" data-selected-film="${f.id}">
 <div class="flex items-start justify-between gap-2"><div class="min-w-0"><h3 class="font-headline-md text-headline-md text-primary font-bold">${esc(f.title||"Фильм")}</h3><p class="font-micro-caption text-micro-caption text-text-muted mt-1">${fl(f._cc)} ${esc(cname(f._cc))}${year?" • "+year:""}${f.runtime?" • "+f.runtime+" мин":""}</p></div>
+<button type="button" data-act="bm" data-id="${f.id}" aria-label="${BOOK.has(f.id)?"Убрать из закладок":"Сохранить в закладки"}" class="w-9 h-9 flex-shrink-0 rounded-full bg-surface-container-high text-primary-container flex items-center justify-center"><span class="material-symbols-outlined">${BOOK.has(f.id)?"bookmark_added":"bookmark_border"}</span></button>
 <button type="button" data-act="close-film" aria-label="Закрыть описание" class="w-9 h-9 flex-shrink-0 rounded-full bg-surface-container-high text-text-muted hover:text-primary flex items-center justify-center"><span class="material-symbols-outlined">close</span></button></div>
 <div class="relative w-full aspect-video rounded-xl overflow-hidden bg-black border border-primary-container/30" id="cl-inline-trailer">${trailerContent}</div>
 <div class="flex flex-col gap-1"><h4 class="font-label-md text-label-md text-primary-fixed font-semibold">О фильме</h4><p class="font-body-sm text-body-sm text-text-muted leading-relaxed">${esc(f.overview||"Загружаем описание…")}</p></div>
@@ -425,8 +424,8 @@ ${t.cc.length>1?`<div class="flex flex-col gap-1.5 pt-1"><span class="font-micro
 
 async function openCollection(id,opt){
   const t=T[id];if(!t)return;
-  rStop();closeTrailer();
-  D={t,all:[],total:0,totals:{},cc:"",sort:"rating",shown:5};
+  rStop();
+  D={t,all:[],total:0,totals:{},cc:"",sort:"rating",shown:5,selected:null,picked:null};
   renderCollection();showView("collection");
   if(!apiKey){$("cl-films").innerHTML='<p class="font-body-sm text-body-sm text-text-muted px-1">Введите ключ TMDB на экране «Глобус», чтобы загрузить фильмы подборки.</p>';return;}
   try{
@@ -441,68 +440,50 @@ async function openCollection(id,opt){
   }
 }
 
-function openFilm(f){
-  D.selected={...f,overview:f.overview||"Загружаем описание…",_trailerStatus:"loading"};
+function renderSelectedPanel(){
+  const selected=D.selected;if(!selected)return;
+  const html=selectedFilmHtml(selected);
+  if(selected._placement==="roulette"){
+    const result=$("cl-result");if(result)result.innerHTML=html;
+    return;
+  }
+  const current=vd.querySelector(`[data-selected-film="${selected.id}"]`);
+  if(current){current.outerHTML=html;return;}
   renderFilms();
+}
+function openFilm(f,placement="list"){
+  if(placement==="list")$("cl-result").innerHTML="";
+  D.selected={...f,_placement:placement,overview:f.overview||"Загружаем описание…",_trailerStatus:"loading"};
   const selected=D.selected;
+  if(placement==="roulette")renderSelectedPanel();else renderFilms();
+  const panel=placement==="roulette"?$("cl-result")?.querySelector(`[data-selected-film="${f.id}"]`):vd.querySelector(`[data-selected-film="${f.id}"]`);
+  panel?.scrollIntoView({behavior:"smooth",block:"nearest"});
   filmDetails(f.id).then(details=>{
     if(D.selected!==selected)return;
     selected.overview=details.overview||f.overview||"Описания на русском пока нет.";
     selected.runtime=details.runtime;
+    selected.dirs=details.dirs;
     selected.castFull=details.castFull;
     selected._detailsLoaded=true;
-    renderFilms();
-    vd.querySelector(`[data-selected-film="${f.id}"]`)?.scrollIntoView({behavior:"smooth",block:"start"});
-  }).catch(()=>{
+    renderSelectedPanel();
+  }).catch(error=>{
     if(D.selected!==selected)return;
     selected.overview=f.overview||"Не удалось загрузить описание.";
     selected._detailsLoaded=true;
-    renderFilms();
+    renderSelectedPanel();
+    console.error("[Kinoglobus] Не удалось загрузить сведения о фильме:",error);
   });
   trailerFor(f).then(trailer=>{
     if(D.selected!==selected)return;
     selected._trailer=trailer;
     selected._trailerStatus=trailer?"ready":"missing";
-    renderFilms();
+    renderSelectedPanel();
   }).catch(e=>{
     if(D.selected!==selected)return;
     selected._trailerStatus="missing";
-    renderFilms();
+    renderSelectedPanel();
     console.error("[Kinoglobus] Не удалось загрузить трейлер:",e);
   });
-}
-/* ---------- трейлер в окне поверх подборки (без перехода на YouTube) ---------- */
-let trEl=null,trTok=0;
-function trModal(){
-  if(trEl)return trEl;
-  const el=document.createElement("div");el.id="kg-trailer";
-  el.style.cssText="position:fixed;inset:0;z-index:70;display:none;align-items:center;justify-content:center;padding:12px;background:rgba(7,6,10,.88);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)";
-  el.innerHTML=`<div class="w-full max-w-[520px] flex flex-col gap-2">
-<div class="flex items-center justify-between gap-2"><span id="kg-tr-title" class="font-label-lg text-label-lg text-primary font-bold truncate"></span><button type="button" id="kg-tr-x" aria-label="Закрыть" class="w-9 h-9 rounded-full bg-surface-container-high text-on-surface flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined text-[20px]">close</span></button></div>
-<div id="kg-tr-box" class="relative w-full rounded-xl overflow-hidden bg-black border border-primary-container/30" style="aspect-ratio:16/9"></div>
-<p class="font-micro-caption text-micro-caption text-text-muted">Не воспроизводится? <a id="kg-tr-link" target="_blank" rel="noopener" class="text-primary underline">Открыть на YouTube</a></p></div>`;
-  el.addEventListener("click",e=>{if(e.target===el||e.target.closest("#kg-tr-x"))closeTrailer();});
-  document.body.appendChild(el);trEl=el;return el;
-}
-function closeTrailer(){
-  trTok++;if(!trEl)return;
-  trEl.style.display="none";
-  const b=trEl.querySelector("#kg-tr-box");if(b)b.innerHTML="";   // убираем iframe: видео перестаёт играть
-}
-document.addEventListener("keydown",e=>{if(e.key==="Escape")closeTrailer();});
-const trMsg=t=>`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:12px;text-align:center;color:#b3a79a;font-size:13px">${t}</div>`;
-async function playTrailer(f){
-  const el=trModal(),tok=++trTok;
-  el.querySelector("#kg-tr-title").textContent=f.title||"Трейлер";
-  const box=el.querySelector("#kg-tr-box"),lk=el.querySelector("#kg-tr-link");
-  box.innerHTML=trMsg("Ищем трейлер…");lk.parentNode.style.display="none";el.style.display="flex";
-  try{
-    const k=await trailerFor(f);
-    if(tok!==trTok)return;
-    if(!k){box.innerHTML=trMsg("Для этого фильма трейлера не нашлось");return;}
-    box.innerHTML=`<iframe src="${embedSrc(k)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" title="Трейлер" style="position:absolute;inset:0;width:100%;height:100%;border:0"></iframe>`;
-    lk.href=watchUrl(k);lk.textContent=k.site==="Vimeo"?"Открыть на Vimeo":"Открыть на YouTube";lk.parentNode.style.display="";
-  }catch(e){if(tok===trTok)box.innerHTML=trMsg("Не удалось загрузить трейлер");}
 }
 
 /* ---------- рулетка с плёнкой прямо в подборке ---------- */
@@ -543,26 +524,7 @@ function rStop(){
 function finishPick(film,token){
   if(token!==R.token)return;
   R.busy=false;D.picked=film;setBtn(false);
-  const y=(film.release_date||"").slice(0,4),bm=BOOK.has(film.id);
-  const gs=(film.genre_ids||[]).map(i=>GENRES[i]).filter(Boolean).slice(0,3);
-  $("cl-result").innerHTML=`<div class="kgr-rise flex gap-space-md p-space-sm rounded-xl bg-surface-container-high">
-<div class="relative flex-shrink-0 w-24 h-36 rounded-lg overflow-hidden bg-surface-container shadow-md">${film.poster_path?`<img class="w-full h-full object-cover" alt="" src="${P(film.poster_path,"w342")}">`:`<div class="w-full h-full flex items-center justify-center text-text-muted"><span class="material-symbols-outlined">movie</span></div>`}
-<div class="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-surface-panel/90 text-primary-container font-label-sm text-label-sm font-bold">${Number(film.vote_average).toFixed(1)} ★</div></div>
-<div class="flex flex-col justify-between flex-1 min-w-0 gap-2"><div class="flex flex-col gap-0.5">
-<span class="font-micro-caption text-micro-caption text-primary-container font-bold tracking-wider uppercase">Выпало</span>
-<h4 class="font-headline-sm text-headline-sm text-on-surface font-bold leading-snug kg-clip2">${esc(film.title)}</h4>
-<p class="font-micro-caption text-micro-caption text-text-muted truncate">${fl(film._cc)} ${esc(cname(film._cc))}${y?" • "+y:""}${gs.length?" • "+esc(gs.join(", ")):""}<span data-rt="${film.id}"></span></p>
-<p data-dir="${film.id}" class="font-micro-caption text-micro-caption text-text-muted truncate">&nbsp;</p>
-<p class="font-body-sm text-body-sm text-on-surface-variant kg-clip3 pt-0.5">${esc(film.overview||"Описания на русском пока нет.")}</p></div>
-<div class="flex items-center gap-2 flex-wrap">
-<button type="button" data-act="trailer" data-id="${film.id}" class="px-3 py-2 rounded-lg bg-primary-container text-on-primary font-label-sm text-label-sm font-bold flex items-center gap-1 shadow-[0_0_14px_rgba(255,184,48,0.25)] active:scale-95 transition-transform"><span class="material-symbols-outlined text-[18px]">play_circle</span>Трейлер</button>
-<button type="button" data-act="open" data-id="${film.id}" class="px-3 py-2 rounded-lg bg-surface-container text-primary-fixed font-label-sm text-label-sm font-semibold flex items-center gap-1 hover:bg-surface-bright transition-colors"><span class="material-symbols-outlined text-[18px]">info</span>Подробнее</button>
-<button type="button" data-act="bm" data-id="${film.id}" aria-label="Сохранить" class="w-9 h-9 rounded-lg bg-surface-container text-primary-container flex items-center justify-center active:scale-95 transition-transform"><span class="material-symbols-outlined text-[20px]">${bm?"bookmark_added":"bookmark_border"}</span></button></div></div></div>`;
-  filmDetails(film.id).then(d=>{
-    if(D.picked!==film)return;
-    vd.querySelectorAll(`[data-rt="${film.id}"]`).forEach(e=>e.textContent=d.runtime?" • "+d.runtime+" мин":"");
-    vd.querySelectorAll(`[data-dir="${film.id}"]`).forEach(e=>e.textContent=d.dirs.length?"Реж. "+d.dirs.slice(0,2).join(", "):"");
-  }).catch(()=>{});
+  openFilm(film,"roulette");
 }
 async function inPageRoulette(){
   if(R.busy)return;
@@ -572,7 +534,8 @@ async function inPageRoulette(){
   if(!pool.length){toast("Все фильмы из выборки уже в истории","history");return;}
   const film=pick(pool);
   const others=shuffle(D.all.filter(f=>inCc(f)&&f.id!==film.id&&f.poster_path));
-  const token=++R.token;R.busy=true;R.skip=false;D.picked=null;
+  const token=++R.token;R.busy=true;R.skip=false;D.picked=null;D.selected=null;
+  renderFilms();
   $("cl-reel").style.display="";$("cl-result").innerHTML="";
   setBtn(true);
   try{audio();}catch(e){}
@@ -625,7 +588,13 @@ window.addEventListener("resize",()=>{
 vd.addEventListener("click",e=>{
   const el=e.target.closest("[data-act]");if(!el)return;
   const a=el.dataset.act;
-  if(a==="close-film"){D.selected=null;renderFilms();return;}
+  if(a==="close-film"){
+    const placement=D.selected&&D.selected._placement;
+    D.selected=null;
+    if(placement==="roulette")$("cl-result").innerHTML="";
+    else renderFilms();
+    return;
+  }
   if(a==="back"){e.preventDefault();showView("collections");return;}
   if(a==="goto"){e.preventDefault();openCollection(el.dataset.t);return;}
   if(a==="spin"){inPageRoulette();return;}
@@ -642,11 +611,12 @@ vd.addEventListener("click",e=>{
   }
   if(a==="more"){D.shown+=5;renderFilms();return;}
   const f=byId(el.dataset.id);if(!f)return;
-  if(a==="trailer"){e.stopPropagation();playTrailer(f);return;}
+  if(a==="trailer"){e.stopPropagation();openFilm(f);return;}
   if(a==="bm"){
     e.stopPropagation();
     BOOK.has(f.id)?BOOK.delete(f.id):BOOK.add(f.id);store.set("kgBookmarks",[...BOOK]);
     const ic=el.querySelector(".material-symbols-outlined");if(ic)ic.textContent=BOOK.has(f.id)?"bookmark_added":"bookmark_border";
+    el.setAttribute("aria-label",BOOK.has(f.id)?"Убрать из закладок":"Сохранить в закладки");
     toast(BOOK.has(f.id)?"Добавлено в закладки":"Убрано из закладок","bookmark");return;
   }
   if(a==="open")openFilm(f);
@@ -825,7 +795,11 @@ homeEditorialRoot.addEventListener("click",async e=>{
   if(action==="open"){
     window.show(film._cc,{films:[film],total:1,votes:0},film);return;
   }
-  if(action==="trailer"){playTrailer(film);return;}
+  if(action==="trailer"){
+    window.show(film._cc,{films:[film],total:1,votes:0},film);
+    $("cinema-35mm-reel-section").scrollIntoView({behavior:"smooth",block:"center"});
+    return;
+  }
   if(action==="bookmark"){
     BOOK.has(film.id)?BOOK.delete(film.id):BOOK.add(film.id);
     store.set("kgBookmarks",[...BOOK]);

@@ -356,10 +356,10 @@ function renderFilms(){
   const {best,rest}=derived();
   if(!best){box.innerHTML=(D.selected?selectedFilmHtml(D.selected):"")+'<p class="font-body-sm text-body-sm text-text-muted px-1">Подходящих фильмов не нашлось.</p>';return;}
   const list=rest.slice(0,D.shown);
-  const selected=D.selected?selectedFilmHtml(D.selected):"";
-  box.innerHTML=selected+pearlHtml(best)+
+  const pearl=pearlHtml(best)+(D.selected&&String(D.selected.id)===String(best.id)?selectedFilmHtml(D.selected):"");
+  box.innerHTML=pearl+
   `<div class="flex flex-col gap-space-sm"><div class="flex items-center justify-between px-1"><h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">Отобранные шедевры</h3><span class="font-micro-caption text-micro-caption text-text-muted">${list.length} из ${nf(Math.max(totalFor(),list.length+1))}</span></div>
-  <div class="flex flex-col gap-space-sm">${list.map(filmItem).join("")}</div>
+  <div class="flex flex-col gap-space-sm">${list.map(f=>filmItem(f)+(D.selected&&String(D.selected.id)===String(f.id)?selectedFilmHtml(D.selected):"")).join("")}</div>
   ${rest.length>D.shown?`<button type="button" data-act="more" class="w-full py-3 rounded-xl bg-surface-panel hover:bg-surface-container-low text-primary text-center font-label-md text-label-md font-semibold flex items-center justify-center gap-2 transition-colors shadow-sm"><span class="material-symbols-outlined text-[18px]">expand_more</span><span>Показать ещё</span></button>`:""}</div>`;
   [best,...list].forEach(f=>filmDetails(f.id).then(d=>{
     const rt=vd.querySelectorAll(`[data-rt="${f.id}"]`),dr=vd.querySelectorAll(`[data-dir="${f.id}"]`);
@@ -370,6 +370,9 @@ function renderFilms(){
 function selectedFilmHtml(f){
   const year=(f.release_date||"").slice(0,4);
   const trailerButton=f._playing?"Закрыть трейлер":f._trailerStatus==="loading"?"Ищем трейлер…":f._trailerStatus==="missing"?"Трейлер не найден":"Смотреть трейлер";
+  const cast=(f.castFull||[]).map(c=>`<div class="flex-shrink-0 w-28 flex flex-col items-center text-center p-2 rounded-xl bg-surface-container-high">
+<div class="w-14 h-14 rounded-full overflow-hidden mb-2 bg-surface-variant shadow-md flex items-center justify-center">${c.photo?`<img class="w-full h-full object-cover" loading="lazy" alt="" src="${P(c.photo,"w185")}">`:'<span class="material-symbols-outlined text-text-muted">person</span>'}</div>
+<span class="font-label-sm text-label-sm text-on-surface font-semibold truncate w-full">${esc(c.name)}</span><span class="font-micro-caption text-micro-caption text-text-muted truncate w-full">${esc(c.role)}</span></div>`).join("");
   const trailerContent=f._playing&&f._trailer
     ?`<iframe src="${embedSrc(f._trailer)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" title="Трейлер ${esc(f.title)}" style="position:absolute;inset:0;width:100%;height:100%;border:0"></iframe>`
     :`<div class="absolute inset-0 flex items-center justify-center text-text-muted font-body-sm text-body-sm">${f._trailerStatus==="missing"?"Для этого фильма трейлера не нашлось":f._trailerStatus==="loading"?"Ищем трейлер…":"Трейлер не запущен"}</div>`;
@@ -378,7 +381,8 @@ function selectedFilmHtml(f){
 <button type="button" data-act="close-film" aria-label="Закрыть описание" class="w-9 h-9 flex-shrink-0 rounded-full bg-surface-container-high text-text-muted hover:text-primary flex items-center justify-center"><span class="material-symbols-outlined">close</span></button></div>
 <button type="button" data-act="selected-trailer" class="py-2.5 px-3 rounded-lg bg-surface-container-high text-primary-fixed hover:bg-surface-bright font-label-md text-label-md font-semibold flex items-center justify-center gap-1.5 transition-colors" ${f._trailerStatus==="loading"||f._trailerStatus==="missing"?"disabled":""}><span class="material-symbols-outlined text-[18px]">${f._playing?"close":"play_circle"}</span>${trailerButton}</button>
 <div class="relative w-full aspect-video rounded-xl overflow-hidden bg-black border border-primary-container/30" id="cl-inline-trailer">${trailerContent}</div>
-<div class="flex flex-col gap-1"><h4 class="font-label-md text-label-md text-primary-fixed font-semibold">О фильме</h4><p class="font-body-sm text-body-sm text-text-muted leading-relaxed">${esc(f.overview||"Загружаем описание…")}</p></div></section>`;
+<div class="flex flex-col gap-1"><h4 class="font-label-md text-label-md text-primary-fixed font-semibold">О фильме</h4><p class="font-body-sm text-body-sm text-text-muted leading-relaxed">${esc(f.overview||"Загружаем описание…")}</p></div>
+<div class="flex flex-col gap-2"><h4 class="font-label-md text-label-md text-primary-fixed font-semibold">Актёры</h4>${cast?`<div class="flex gap-2.5 overflow-x-auto py-1" style="-webkit-overflow-scrolling:touch">${cast}</div>`:`<p class="font-body-sm text-body-sm text-text-muted">${f._detailsLoaded?"Сведения об актёрах недоступны.":"Загружаем актёров…"}</p>`}</div></section>`;
 }
 function otherHtml(t){
   const m=META[t.id]||{};
@@ -446,11 +450,14 @@ function openFilm(f){
     if(D.selected!==selected)return;
     selected.overview=details.overview||f.overview||"Описания на русском пока нет.";
     selected.runtime=details.runtime;
+    selected.castFull=details.castFull;
+    selected._detailsLoaded=true;
     renderFilms();
     vd.querySelector(`[data-selected-film="${f.id}"]`)?.scrollIntoView({behavior:"smooth",block:"start"});
   }).catch(()=>{
     if(D.selected!==selected)return;
     selected.overview=f.overview||"Не удалось загрузить описание.";
+    selected._detailsLoaded=true;
     renderFilms();
   });
 }

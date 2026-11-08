@@ -1151,7 +1151,7 @@ rotatingGroup.add(flagPinGroup);
           '#include <map_fragment>',
           `#include <map_fragment>
            float earthLuminance = dot(diffuseColor.rgb, vec3(0.2126, 0.7152, 0.0722));
-           diffuseColor.rgb = clamp(mix(vec3(earthLuminance), diffuseColor.rgb, 1.22), 0.0, 1.0);`
+           diffuseColor.rgb = clamp(mix(vec3(earthLuminance), diffuseColor.rgb, 1.30) * 1.06, 0.0, 1.0);`
         );
       };
 
@@ -3085,7 +3085,6 @@ st.textContent=`
 @keyframes kgRise{from{opacity:0;transform:translateY(18px);filter:blur(6px)}to{opacity:1;transform:none;filter:blur(0)}}
 @media(prefers-reduced-motion:reduce){#film-details.opening>*{animation:none}}
 #err{color:#ff8d7a;font-size:12px;text-align:center;width:100%;margin-top:6px;z-index:10}
-#discovery-desc,#discovery-desc-lang{display:none}
 `;
 document.head.appendChild(st);
 
@@ -3120,11 +3119,11 @@ const CARD_HTML=`
 <div class="flex items-center gap-1.5 flex-wrap"><h3 class="font-headline-sm text-headline-sm font-bold text-on-surface" id="discovery-title">Крутите глобус</h3><span class="text-micro-caption text-text-muted font-body-sm" id="discovery-year"></span><span id="oscar-badge" style="display:none" class="px-1.5 rounded bg-surface-container text-secondary text-micro-caption font-semibold flex items-center gap-1 border border-secondary/25"><span class="material-symbols-outlined text-[12px]">workspace_premium</span>Оскар</span></div>
 <p class="font-label-sm text-label-sm text-primary-fixed mt-0.5 flex items-center gap-1"><span id="discovery-country">—</span><span id="discovery-flag">🌍</span><span class="text-text-muted truncate" id="discovery-genres">· кино</span></p>
 <p class="font-body-sm text-body-sm text-primary-fixed mt-1" style="font-style:italic" id="film-tagline" hidden></p>
+</div>
+</div>
 <p class="font-body-sm text-body-sm text-text-muted leading-relaxed mt-2" id="discovery-desc">Выберите страну и фильм, и здесь появится описание.</p>
 <p class="font-micro-caption text-[11px] text-text-muted mt-0.5" id="discovery-desc-lang" style="opacity:.75" hidden></p>
 <div class="mt-2" id="film-people"></div>
-</div>
-</div>
 <div class="mt-2.5" id="film-trailer-box" hidden>
 <div class="relative w-full rounded-xl overflow-hidden bg-black border border-primary-container/30 shadow-md" style="aspect-ratio:16/10;min-height:220px;max-height:min(65vh,520px)" id="film-trailer-stage">
 <div class="absolute inset-0" id="film-trailer-preview"><img class="w-full h-full object-cover opacity-80" id="film-trailer-thumbnail" alt="" loading="lazy"><div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-black/20"></div><button type="button" id="film-trailer-play" class="absolute inset-0 flex items-center justify-center text-white disabled:opacity-40" aria-label="Воспроизвести трейлер" disabled><span class="w-16 h-16 rounded-full bg-primary-container/95 text-on-primary shadow-[0_0_32px_rgba(255,184,48,.45)] flex items-center justify-center transition-transform hover:scale-110"><span class="material-symbols-outlined text-[40px]">play_arrow</span></span></button><span class="absolute bottom-3 left-3 right-3 text-center font-label-sm text-label-sm text-white drop-shadow-lg" id="film-trailer-status">Ищем трейлер…</span></div>
@@ -3741,7 +3740,9 @@ console.info("[Kinoglobus] Bridge v6 ready");
 })();
 </script>
 
-<script src="collections.js?v=5"></script>
+<script src="mood-page.js?v=3"></script>
+<script src="oscar-page.js?v=3"></script>
+<script src="collections.js?v=8"></script>
 
 
 </body></html>

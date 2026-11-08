@@ -2792,16 +2792,21 @@ async function spinTop(){
     const q=topQuery();
     const order=spinOrder(q.countries||COUNTRIES);
     const cap=q.y||q.yto||q.countries?Math.min(order.length,40):Math.min(order.length,24);
+    const extra=[];   // фильмы из уже загруженных стран, для вида прокрутки
     for(let i=0;i<cap;i+=3){
       const batch=order.slice(i,i+3);
       const pools=await Promise.all(batch.map(cc=>topOfCountry(cc,q)));
+      pools.forEach(p=>{if(p)extra.push(...p.films);});
       for(let k=0;k<batch.length;k++){
         const pool=pools[k];
         if(!pool||!pool.films.length) continue;
         if(seen.has(pool.films[0].id)) continue;
         const film=pool.films[0];
+        const ids=new Set([film.id]);
+        const filler=shuffle(extra.filter(f=>f.poster_path&&!ids.has(f.id)&&ids.add(f.id))).slice(0,40);
+        filler.push(film);
         await reelLand(batch[k]);
-        show(batch[k],pool,film);return;
+        show(batch[k],{...pool,films:filler},film);return;
       }
     }
     $("err").textContent=q.y||q.yto

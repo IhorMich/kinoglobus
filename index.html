@@ -3285,11 +3285,14 @@ async function spinReel(pool,film,cc){
     card.classList.add("card-discovery-win");
     reveal(film, pool);
   };
-  r  runRaf = requestAnimationFrame(step);
-}    
+    runRaf = requestAnimationFrame(step);
+}  // ← ВОТ ЭТА СКОБКА ЗАКРЫВАЕТ spinReel
 
 // Название, рейтинг и кнопки открываются, когда плёнка остановилась на выбранном фильме
 function reveal(film,pool){
+  veil(false);
+  set("hero-country-master",film.title||"");
+}
   veil(false);
   set("hero-country-master",film.title||"");
 }

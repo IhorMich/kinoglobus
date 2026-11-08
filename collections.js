@@ -793,6 +793,7 @@ async function loadHomeEditorial(){
 homeEditorialRoot.addEventListener("click",async e=>{
   const detailAction=e.target.closest("#kg-home-film-detail [data-act]");
   if(detailAction){
+    e.stopPropagation();
     if(detailAction.dataset.act==="close-film"){
       if(D.selected&&D.selected._placement==="home")D.selected=null;
       $("kg-home-film-detail").replaceChildren();
@@ -808,6 +809,7 @@ homeEditorialRoot.addEventListener("click",async e=>{
   }
   const button=e.target.closest("[data-home-act]");
   if(!button)return;
+  e.stopPropagation();
   const action=button.dataset.homeAct;
   if(action==="set-key"){
     const banner=$("tmdb-key-banner");banner.classList.remove("hidden");banner.scrollIntoView({behavior:"smooth",block:"center"});$("tmdb-key-input").focus();return;

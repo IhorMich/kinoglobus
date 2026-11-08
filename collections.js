@@ -33,7 +33,7 @@ st2.textContent=`.kgr-win{position:relative;height:150px;overflow:hidden;-webkit
 .kg-home-europe{scrollbar-width:none;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
 .kg-home-europe::-webkit-scrollbar{display:none}
 .kg-home-film{flex:0 0 9rem;scroll-snap-align:start}
-.kg-detail-trailer{aspect-ratio:16/10;min-height:220px}
+.kg-detail-trailer{width:100%;height:clamp(180px,56.25vw,420px);min-height:0;max-height:65vh;flex:none}
 @media(prefers-reduced-motion:reduce){.kgr-rise{animation:none}}`;
 document.head.appendChild(st2);
 
@@ -494,9 +494,14 @@ function selectedFilmHtml(f,embedded=false){
   const cast=(f.castFull||[]).map(c=>`<div class="flex-shrink-0 w-28 flex flex-col items-center text-center p-2 rounded-xl bg-surface-container-high">
 <div class="w-14 h-14 rounded-full overflow-hidden mb-2 bg-surface-variant shadow-md flex items-center justify-center">${c.photo?`<img class="w-full h-full object-cover" loading="lazy" alt="" src="${P(c.photo,"w185")}">`:'<span class="material-symbols-outlined text-text-muted">person</span>'}</div>
 <span class="font-label-sm text-label-sm text-on-surface font-semibold truncate w-full">${esc(c.name)}</span><span class="font-micro-caption text-micro-caption text-text-muted truncate w-full">${esc(c.role)}</span></div>`).join("");
-  const trailerContent=f._trailer
-    ?`<iframe src="${embedSrc(f._trailer,false)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" title="Трейлер ${esc(f.title)}" style="position:absolute;inset:0;width:100%;height:100%;border:0"></iframe>`
-    :`<div class="absolute inset-0 flex items-center justify-center text-text-muted font-body-sm text-body-sm">${f._trailerStatus==="missing"?"Трейлер не найден":f._trailerStatus==="loading"?"Загружаем превью трейлера…":"Превью трейлера недоступно"}</div>`;
+  const videos=f._trailer?.alternatives?.length?f._trailer.alternatives:[f._trailer].filter(Boolean);
+  const activeVideo=f._trailerSelected||f._trailer||null;
+  const trailerContent=f._trailerPlaying&&activeVideo
+    ?`<iframe src="${embedSrc(activeVideo,false)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" title="Трейлер ${esc(f.title)}" style="position:absolute;inset:0;width:100%;height:100%;border:0"></iframe>`
+    :activeVideo
+      ?`<div class="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-gradient-to-br from-surface-container-high to-canvas-obsidian p-3 text-center"><span class="material-symbols-outlined text-[34px] text-primary-container">play_circle</span><span class="font-label-sm text-label-sm text-on-surface">${esc(activeVideo.name||`Видео с ${activeVideo.site}`)}</span><button type="button" data-trailer-action="play" data-id="${f.id}" class="px-3 py-1.5 rounded-lg bg-primary-container text-on-primary font-label-sm text-label-sm">Воспроизвести здесь</button></div>`
+      :`<div class="absolute inset-0 flex items-center justify-center text-text-muted font-body-sm text-body-sm">${f._trailerStatus==="missing"?"В TMDB нет подходящих видео":"Загружаем список видео TMDB…"}</div>`;
+  const videoOptions=videos.length>1?`<div class="flex flex-col gap-1"><h5 class="font-micro-caption text-micro-caption text-text-muted">Видео из TMDB</h5><div class="flex gap-1.5 overflow-x-auto pb-1">${videos.map((v,i)=>`<button type="button" data-trailer-action="select" data-id="${f.id}" data-video-index="${i}" class="shrink-0 max-w-56 px-2.5 py-1.5 rounded-lg ${activeVideo&&activeVideo.key===v.key&&activeVideo.site===v.site?"bg-primary-container text-on-primary":"bg-surface-container-high text-on-surface-variant"} font-micro-caption text-micro-caption text-left"><span class="block truncate">${esc(v.name||v.type||"Видео")}</span><span class="block opacity-75">${esc(v.site)}${v.language?` · ${esc(v.language.toUpperCase())}`:""}${v.official?" · официальный":""}</span></button>`).join("")}</div></div>`:"";
   const tagline=f.tagline&&f.taglineLang===f.overviewLang?`<p class="font-body-sm text-body-sm text-primary-fixed italic">${esc(f.tagline)}</p>`:"";
   const shell=embedded?"div":"section",shellClass=embedded?"flex flex-col gap-space-sm pt-3 border-t border-surface-border-subtle scroll-mt-20":"flex flex-col gap-space-sm p-3.5 rounded-2xl bg-surface-panel border border-primary-container/30 shadow-xl scroll-mt-20";
   const header=embedded
@@ -508,10 +513,27 @@ function selectedFilmHtml(f,embedded=false){
   return `<${shell} class="${shellClass}" data-selected-film="${f.id}">
 ${header}
 <div class="relative w-full kg-detail-trailer rounded-xl overflow-hidden bg-black border border-primary-container/30" id="cl-inline-trailer">${trailerContent}</div>
+${videoOptions}
+${activeVideo?`<a href="${watchUrl(activeVideo)}" target="_blank" rel="noopener noreferrer" class="font-micro-caption text-micro-caption text-primary underline">Не воспроизводится? Открыть на ${esc(activeVideo.site)}</a>`:""}
 ${tagline}<div class="flex flex-col gap-1"><h4 class="font-label-md text-label-md text-primary-fixed font-semibold">О фильме</h4><p class="font-body-sm text-body-sm text-text-muted leading-relaxed">${esc(f.overview||"Загружаем описание…")}</p></div>
 ${director}
 <div class="flex flex-col gap-2"><h4 class="font-label-md text-label-md text-primary-fixed font-semibold">Актёры</h4>${cast?`<div class="flex gap-2.5 overflow-x-auto py-1" style="-webkit-overflow-scrolling:touch">${cast}</div>`:`<p class="font-body-sm text-body-sm text-text-muted">${f._detailsLoaded?"Сведения об актёрах недоступны.":"Загружаем актёров…"}</p>`}</div></${shell}>`;
 }
+document.addEventListener("click",e=>{
+  const action=e.target.closest("[data-trailer-action]");
+  if(!action)return;
+  const selected=D.selected;
+  if(!selected||String(selected.id)!==String(action.dataset.id))return;
+  e.preventDefault();
+  if(action.dataset.trailerAction==="select"){
+    const video=selected._trailer?.alternatives?.[Number(action.dataset.videoIndex)];
+    if(!video)return;
+    selected._trailerSelected=video;selected._trailerPlaying=false;
+  }else if(action.dataset.trailerAction==="play"){
+    selected._trailerPlaying=true;
+  }else return;
+  renderSelectedPanel();
+});
 function otherHtml(t){
   const m=META[t.id]||{};
   return `<a href="#" data-act="goto" data-t="${t.id}" class="flex flex-col gap-1.5 p-3 rounded-xl bg-surface-panel hover:bg-surface-container-low min-w-[140px] max-w-[140px] flex-shrink-0 transition-colors shadow-md"><div class="w-full h-20 rounded-lg overflow-hidden bg-surface-container-high" data-oi="${t.id}">${m.p?`<img class="w-full h-full object-cover" alt="" src="${P(m.p,"w185")}">`:""}</div><span class="font-label-sm text-label-sm text-on-surface font-bold truncate">${esc(t.name)} ${fl(t.cc[0])}</span><span data-oc="${t.id}" class="font-micro-caption text-micro-caption text-text-muted">${m.n?nf(m.n)+" "+fw(m.n):"…"}</span></a>`;
@@ -1101,6 +1123,8 @@ window.addEventListener("pageshow",checkDailyRefresh);
 window.addEventListener("focus",checkDailyRefresh);
 const refreshForNewKey=()=>{
   homeEditorial.loadedKey="";
+  if(view==="mood"){vm.dataset.key="";showView("mood");}
+  if(view==="oscar"){vo.dataset.key="";showView("oscar");}
   refreshDailyData(true,true);
 };
 $("tmdb-key-save").addEventListener("click",refreshForNewKey);

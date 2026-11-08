@@ -2590,7 +2590,6 @@ function show(cc,pool,film){
   $("result").hidden=false;
   [...$("result").children].forEach((c,i)=>c.style.animationDelay=(i*70)+"ms");
   $("result").classList.remove("pop");void $("result").offsetWidth;$("result").classList.add("pop");
-  $("result").scrollIntoView({behavior:"smooth",block:"nearest"});
 }
 function poolLine(pool){
   const n=pool.films.length;
@@ -3212,13 +3211,30 @@ let scanOn=false,scanT=0,scanAt=0,landed=false,tmr=[];
 let focusedCC="";   // страна, на которой глобус уже стоит в фокусе с флажком (чтобы «другой фильм» не крутил планету заново)
 const SCAN_MIN_MS=3500;   // минимум времени «поиска» до остановки (мс)
 const LAND_STEPS=[220,300,400,540,720,950];   // замедление перед остановкой
+function activeTheme(){
+  const t=THEMES.find(x=>x.id===themeId);
+  return t&&t.cc&&t.cc.length?t:null;
+}
+// Подборка уже знает страну: только световая точка, без прокрутки глобуса и без флажка.
+function pinLight(cc){
+  const w=gc(cc);
+  scanOn=false;clearTimeout(scanT);
+  G.isSpinning=false;
+  G.currentCountry=w;focusedCC=cc;landed=true;
+  G.showSingleBeacon(w);
+  G.orientGlobeToCountry(w,false,0.08,G.CAMERA_DIST_FOCUS,false);
+  hero(w,false);
+}
 function setSpinUi(on){
   const b=$("btn-spin-roulette"),t=$("btn-spin-text"),s=$("btn-spin-secondary-icon"),sb=$("roulette-status-badge"),f=$("focal-lens");
+  const known=!!activeTheme();
   b.disabled=on;b.classList.toggle("brightness-125",on);
-  t.innerHTML=on?'<span class="material-symbols-outlined text-[22px] animate-spin">sensors</span><span>ПОИСК СТРАНЫ...</span>'
+  t.innerHTML=on
+    ?(known?'<span class="material-symbols-outlined text-[22px]">movie</span><span>ИЩЕМ ФИЛЬМ...</span>'
+      :'<span class="material-symbols-outlined text-[22px] animate-spin">sensors</span><span>ПОИСК СТРАНЫ...</span>')
     :'<span class="material-symbols-outlined text-[22px] text-canvas-obsidian font-bold">casino</span><span>'+spinLabel()+'</span>';
-  s.classList.toggle("animate-spin",on);
-  sb.textContent=on?"Сканирование...":COUNTRIES.length+" "+plural(COUNTRIES.length)+" онлайн";
+  s.classList.toggle("animate-spin",on&&!known);
+  sb.textContent=on?(known?"Подборка":"Сканирование..."):COUNTRIES.length+" "+plural(COUNTRIES.length)+" онлайн";
   sb.className=on?"font-micro-caption text-micro-caption px-2.5 py-0.5 rounded-full bg-primary-container text-on-primary-container font-bold"
     :"font-micro-caption text-micro-caption px-2.5 py-0.5 rounded-full bg-surface-container-high/90 text-primary-fixed border border-primary-container/20";
   f.classList.toggle("border-primary-container",on);
@@ -3227,13 +3243,23 @@ const _lock=window.lockSpin,_unlock=window.unlockSpin;
 window.lockSpin=function(l){_lock(l);setSpinUi(true);};
 window.unlockSpin=function(){_unlock();setSpinUi(false);};
 window.reelStart=function(){
-  closePlayer();tmr.forEach(clearTimeout);tmr=[];landed=false;focusedCC="";scanOn=true;scanAt=performance.now();
+  closePlayer();tmr.forEach(clearTimeout);tmr=[];landed=false;focusedCC="";
+  const theme=activeTheme();
+  if(theme){
+    scanOn=false;
+    G.isSpinning=false;
+    G.hideMarks();
+    if(theme.cc.length===1) pinLight(theme.cc[0]);
+    return;
+  }
+  scanOn=true;scanAt=performance.now();
   G.beginScan();                       // как в дизайне: маяки и флаг скрыты, камера на обзорной дистанции
   const loop=()=>{if(!scanOn)return;const c=gc(pick(COUNTRIES));
     G.orientGlobeToCountry(c,false,0.22,G.CAMERA_DIST_SPIN,false);G.flashBeacon(c);hero(c,true);sTick(Math.random());buzz(8);scanT=setTimeout(loop,170);};
   loop();
 };
 window.reelLand=async function(cc){
+  if(activeTheme()){pinLight(cc);return;}
   await sleep(Math.max(0,SCAN_MIN_MS-(performance.now()-scanAt)));
   scanOn=false;clearTimeout(scanT);
   for(const d of LAND_STEPS){

@@ -30,6 +30,9 @@ st2.textContent=`.kgr-win{position:relative;height:150px;overflow:hidden;-webkit
 .kgr-rise{animation:kgrRise .6s cubic-bezier(.2,.7,.2,1) both}
 @keyframes kgrRise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 .kg-clip3{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.kg-home-europe{scrollbar-width:none;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
+.kg-home-europe::-webkit-scrollbar{display:none}
+.kg-home-film{flex:0 0 9rem;scroll-snap-align:start}
 @media(prefers-reduced-motion:reduce){.kgr-rise{animation:none}}`;
 document.head.appendChild(st2);
 
@@ -150,7 +153,6 @@ let view="home";
 function showView(v){
   view=v;
   if(v!=="collection")rStop();
-  closeTrailer();
   home.style.display=v==="home"?"":"none";
   vc.style.display=v==="collections"?"":"none";
   vd.style.display=v==="collection"?"":"none";
@@ -303,7 +305,7 @@ vc.addEventListener("click",e=>{
 });
 
 /* ================= СТРАНИЦА ПОДБОРКИ ================= */
-let D={t:null,all:[],total:0,totals:{},cc:"",sort:"rating",shown:5};
+let D={t:null,all:[],total:0,totals:{},cc:"",sort:"rating",shown:5,selected:null,picked:null};
 const CCON="bg-primary-container text-on-primary shadow-[0_0_12px_rgba(255,184,48,0.28)] font-semibold",CCOFF="bg-surface-container text-text-muted hover:text-on-surface";
 const SON="bg-surface-container-high text-primary-fixed font-semibold",SOFF="text-text-muted hover:text-on-surface";
 const ccCls=on=>"h-[34px] px-3 rounded-full font-label-sm text-label-sm flex-shrink-0 transition-colors "+(on?CCON:CCOFF);
@@ -331,7 +333,6 @@ function filmItem(f){
 <p data-dir="${f.id}" class="font-micro-caption text-micro-caption text-text-muted truncate">&nbsp;</p>
 <div class="flex items-center gap-1.5 pt-1">${gs.map(g=>`<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-micro-caption text-micro-caption">${esc(g)}</span>`).join("")}</div></div>
 <div class="flex items-center justify-end gap-2 pt-2">
-<button type="button" data-act="trailer" data-id="${f.id}" title="Трейлер" class="text-text-muted hover:text-primary transition-colors p-1"><span class="material-symbols-outlined text-[18px]">play_arrow</span></button>
 <button type="button" data-act="bm" data-id="${f.id}" title="В закладки" class="text-primary-container hover:text-primary transition-colors p-1"><span class="material-symbols-outlined text-[18px]">${bm?"bookmark_added":"bookmark_border"}</span></button></div></div></div>`;
 }
 function pearlHtml(f){
@@ -346,18 +347,18 @@ function pearlHtml(f){
 <p class="font-micro-caption text-micro-caption text-text-muted italic truncate">${f.original_title&&f.original_title!==f.title?esc(f.original_title):"&nbsp;"}</p>
 <p data-dir="${f.id}" class="font-micro-caption text-micro-caption text-on-surface-variant">&nbsp;</p></div>
 <p class="font-body-sm text-body-sm text-text-muted kg-clip2 pt-1">${esc(f.overview||"Описания на русском пока нет.")}</p></div></div>
-<div class="flex items-center gap-space-sm pt-1"><button type="button" data-act="trailer" data-id="${f.id}" class="flex-1 py-2.5 px-3 rounded-lg bg-surface-container-high text-primary-fixed hover:bg-surface-bright font-label-md text-label-md font-semibold flex items-center justify-center gap-1.5 transition-colors"><span class="material-symbols-outlined text-[18px]">play_circle</span>Смотреть трейлер</button>
-<button type="button" data-act="bm" data-id="${f.id}" aria-label="Сохранить" class="w-11 h-11 flex-shrink-0 rounded-lg bg-surface-container-high text-primary-container flex items-center justify-center transition-transform active:scale-95 shadow-sm"><span class="material-symbols-outlined text-[20px]" style="font-variation-settings:'FILL' 1;">${bm?"bookmark_added":"bookmark_border"}</span></button></div></div></div>`;
+<div class="flex items-center justify-end pt-1"><button type="button" data-act="bm" data-id="${f.id}" aria-label="Сохранить" class="w-11 h-11 flex-shrink-0 rounded-lg bg-surface-container-high text-primary-container flex items-center justify-center transition-transform active:scale-95 shadow-sm"><span class="material-symbols-outlined text-[20px]" style="font-variation-settings:'FILL' 1;">${bm?"bookmark_added":"bookmark_border"}</span></button></div></div></div>`;
 }
 function renderFilms(){
   const box=$("cl-films");if(!box)return;
   const {best,rest}=derived();
-  if(!best){box.innerHTML=(D.selected?selectedFilmHtml(D.selected):"")+'<p class="font-body-sm text-body-sm text-text-muted px-1">Подходящих фильмов не нашлось.</p>';return;}
+  const selectedInList=D.selected&&D.selected._placement!=="roulette";
+  if(!best){box.innerHTML=(selectedInList?selectedFilmHtml(D.selected):"")+'<p class="font-body-sm text-body-sm text-text-muted px-1">Подходящих фильмов не нашлось.</p>';return;}
   const list=rest.slice(0,D.shown);
-  const pearl=pearlHtml(best)+(D.selected&&String(D.selected.id)===String(best.id)?selectedFilmHtml(D.selected):"");
+  const pearl=pearlHtml(best)+(selectedInList&&String(D.selected.id)===String(best.id)?selectedFilmHtml(D.selected):"");
   box.innerHTML=pearl+
   `<div class="flex flex-col gap-space-sm"><div class="flex items-center justify-between px-1"><h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">Отобранные шедевры</h3><span class="font-micro-caption text-micro-caption text-text-muted">${list.length} из ${nf(Math.max(totalFor(),list.length+1))}</span></div>
-  <div class="flex flex-col gap-space-sm">${list.map(f=>filmItem(f)+(D.selected&&String(D.selected.id)===String(f.id)?selectedFilmHtml(D.selected):"")).join("")}</div>
+  <div class="flex flex-col gap-space-sm">${list.map(f=>filmItem(f)+(selectedInList&&String(D.selected.id)===String(f.id)?selectedFilmHtml(D.selected):"")).join("")}</div>
   ${rest.length>D.shown?`<button type="button" data-act="more" class="w-full py-3 rounded-xl bg-surface-panel hover:bg-surface-container-low text-primary text-center font-label-md text-label-md font-semibold flex items-center justify-center gap-2 transition-colors shadow-sm"><span class="material-symbols-outlined text-[18px]">expand_more</span><span>Показать ещё</span></button>`:""}</div>`;
   [best,...list].forEach(f=>filmDetails(f.id).then(d=>{
     const rt=vd.querySelectorAll(`[data-rt="${f.id}"]`),dr=vd.querySelectorAll(`[data-dir="${f.id}"]`);
@@ -373,8 +374,9 @@ function selectedFilmHtml(f){
   const trailerContent=f._trailer
     ?`<iframe src="${embedSrc(f._trailer,false)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" title="Трейлер ${esc(f.title)}" style="position:absolute;inset:0;width:100%;height:100%;border:0"></iframe>`
     :`<div class="absolute inset-0 flex items-center justify-center text-text-muted font-body-sm text-body-sm">${f._trailerStatus==="missing"?"Трейлер не найден":f._trailerStatus==="loading"?"Загружаем превью трейлера…":"Превью трейлера недоступно"}</div>`;
-  return `<section class="flex flex-col gap-space-sm p-3.5 rounded-2xl bg-surface-panel border border-primary-container/30 shadow-xl" data-selected-film="${f.id}">
+  return `<section class="flex flex-col gap-space-sm p-3.5 rounded-2xl bg-surface-panel border border-primary-container/30 shadow-xl scroll-mt-20" data-selected-film="${f.id}">
 <div class="flex items-start justify-between gap-2"><div class="min-w-0"><h3 class="font-headline-md text-headline-md text-primary font-bold">${esc(f.title||"Фильм")}</h3><p class="font-micro-caption text-micro-caption text-text-muted mt-1">${fl(f._cc)} ${esc(cname(f._cc))}${year?" • "+year:""}${f.runtime?" • "+f.runtime+" мин":""}</p></div>
+<button type="button" data-act="bm" data-id="${f.id}" aria-label="${BOOK.has(f.id)?"Убрать из закладок":"Сохранить в закладки"}" class="w-9 h-9 flex-shrink-0 rounded-full bg-surface-container-high text-primary-container flex items-center justify-center"><span class="material-symbols-outlined">${BOOK.has(f.id)?"bookmark_added":"bookmark_border"}</span></button>
 <button type="button" data-act="close-film" aria-label="Закрыть описание" class="w-9 h-9 flex-shrink-0 rounded-full bg-surface-container-high text-text-muted hover:text-primary flex items-center justify-center"><span class="material-symbols-outlined">close</span></button></div>
 <div class="relative w-full aspect-video rounded-xl overflow-hidden bg-black border border-primary-container/30" id="cl-inline-trailer">${trailerContent}</div>
 <div class="flex flex-col gap-1"><h4 class="font-label-md text-label-md text-primary-fixed font-semibold">О фильме</h4><p class="font-body-sm text-body-sm text-text-muted leading-relaxed">${esc(f.overview||"Загружаем описание…")}</p></div>
@@ -422,8 +424,8 @@ ${t.cc.length>1?`<div class="flex flex-col gap-1.5 pt-1"><span class="font-micro
 
 async function openCollection(id,opt){
   const t=T[id];if(!t)return;
-  rStop();closeTrailer();
-  D={t,all:[],total:0,totals:{},cc:"",sort:"rating",shown:5};
+  rStop();
+  D={t,all:[],total:0,totals:{},cc:"",sort:"rating",shown:5,selected:null,picked:null};
   renderCollection();showView("collection");
   if(!apiKey){$("cl-films").innerHTML='<p class="font-body-sm text-body-sm text-text-muted px-1">Введите ключ TMDB на экране «Глобус», чтобы загрузить фильмы подборки.</p>';return;}
   try{
@@ -438,68 +440,50 @@ async function openCollection(id,opt){
   }
 }
 
-function openFilm(f){
-  D.selected={...f,overview:f.overview||"Загружаем описание…",_trailerStatus:"loading"};
+function renderSelectedPanel(){
+  const selected=D.selected;if(!selected)return;
+  const html=selectedFilmHtml(selected);
+  if(selected._placement==="roulette"){
+    const result=$("cl-result");if(result)result.innerHTML=html;
+    return;
+  }
+  const current=vd.querySelector(`[data-selected-film="${selected.id}"]`);
+  if(current){current.outerHTML=html;return;}
   renderFilms();
+}
+function openFilm(f,placement="list"){
+  if(placement==="list")$("cl-result").innerHTML="";
+  D.selected={...f,_placement:placement,overview:f.overview||"Загружаем описание…",_trailerStatus:"loading"};
   const selected=D.selected;
+  if(placement==="roulette")renderSelectedPanel();else renderFilms();
+  const panel=placement==="roulette"?$("cl-result")?.querySelector(`[data-selected-film="${f.id}"]`):vd.querySelector(`[data-selected-film="${f.id}"]`);
+  panel?.scrollIntoView({behavior:"smooth",block:"nearest"});
   filmDetails(f.id).then(details=>{
     if(D.selected!==selected)return;
     selected.overview=details.overview||f.overview||"Описания на русском пока нет.";
     selected.runtime=details.runtime;
+    selected.dirs=details.dirs;
     selected.castFull=details.castFull;
     selected._detailsLoaded=true;
-    renderFilms();
-    vd.querySelector(`[data-selected-film="${f.id}"]`)?.scrollIntoView({behavior:"smooth",block:"start"});
-  }).catch(()=>{
+    renderSelectedPanel();
+  }).catch(error=>{
     if(D.selected!==selected)return;
     selected.overview=f.overview||"Не удалось загрузить описание.";
     selected._detailsLoaded=true;
-    renderFilms();
+    renderSelectedPanel();
+    console.error("[Kinoglobus] Не удалось загрузить сведения о фильме:",error);
   });
   trailerFor(f).then(trailer=>{
     if(D.selected!==selected)return;
     selected._trailer=trailer;
     selected._trailerStatus=trailer?"ready":"missing";
-    renderFilms();
+    renderSelectedPanel();
   }).catch(e=>{
     if(D.selected!==selected)return;
     selected._trailerStatus="missing";
-    renderFilms();
+    renderSelectedPanel();
     console.error("[Kinoglobus] Не удалось загрузить трейлер:",e);
   });
-}
-/* ---------- трейлер в окне поверх подборки (без перехода на YouTube) ---------- */
-let trEl=null,trTok=0;
-function trModal(){
-  if(trEl)return trEl;
-  const el=document.createElement("div");el.id="kg-trailer";
-  el.style.cssText="position:fixed;inset:0;z-index:70;display:none;align-items:center;justify-content:center;padding:12px;background:rgba(7,6,10,.88);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)";
-  el.innerHTML=`<div class="w-full max-w-[520px] flex flex-col gap-2">
-<div class="flex items-center justify-between gap-2"><span id="kg-tr-title" class="font-label-lg text-label-lg text-primary font-bold truncate"></span><button type="button" id="kg-tr-x" aria-label="Закрыть" class="w-9 h-9 rounded-full bg-surface-container-high text-on-surface flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined text-[20px]">close</span></button></div>
-<div id="kg-tr-box" class="relative w-full rounded-xl overflow-hidden bg-black border border-primary-container/30" style="aspect-ratio:16/9"></div>
-<p class="font-micro-caption text-micro-caption text-text-muted">Не воспроизводится? <a id="kg-tr-link" target="_blank" rel="noopener" class="text-primary underline">Открыть на YouTube</a></p></div>`;
-  el.addEventListener("click",e=>{if(e.target===el||e.target.closest("#kg-tr-x"))closeTrailer();});
-  document.body.appendChild(el);trEl=el;return el;
-}
-function closeTrailer(){
-  trTok++;if(!trEl)return;
-  trEl.style.display="none";
-  const b=trEl.querySelector("#kg-tr-box");if(b)b.innerHTML="";   // убираем iframe: видео перестаёт играть
-}
-document.addEventListener("keydown",e=>{if(e.key==="Escape")closeTrailer();});
-const trMsg=t=>`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:12px;text-align:center;color:#b3a79a;font-size:13px">${t}</div>`;
-async function playTrailer(f){
-  const el=trModal(),tok=++trTok;
-  el.querySelector("#kg-tr-title").textContent=f.title||"Трейлер";
-  const box=el.querySelector("#kg-tr-box"),lk=el.querySelector("#kg-tr-link");
-  box.innerHTML=trMsg("Ищем трейлер…");lk.parentNode.style.display="none";el.style.display="flex";
-  try{
-    const k=await trailerFor(f);
-    if(tok!==trTok)return;
-    if(!k){box.innerHTML=trMsg("Для этого фильма трейлера не нашлось");return;}
-    box.innerHTML=`<iframe src="${embedSrc(k)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" title="Трейлер" style="position:absolute;inset:0;width:100%;height:100%;border:0"></iframe>`;
-    lk.href=watchUrl(k);lk.textContent=k.site==="Vimeo"?"Открыть на Vimeo":"Открыть на YouTube";lk.parentNode.style.display="";
-  }catch(e){if(tok===trTok)box.innerHTML=trMsg("Не удалось загрузить трейлер");}
 }
 
 /* ---------- рулетка с плёнкой прямо в подборке ---------- */
@@ -540,26 +524,7 @@ function rStop(){
 function finishPick(film,token){
   if(token!==R.token)return;
   R.busy=false;D.picked=film;setBtn(false);
-  const y=(film.release_date||"").slice(0,4),bm=BOOK.has(film.id);
-  const gs=(film.genre_ids||[]).map(i=>GENRES[i]).filter(Boolean).slice(0,3);
-  $("cl-result").innerHTML=`<div class="kgr-rise flex gap-space-md p-space-sm rounded-xl bg-surface-container-high">
-<div class="relative flex-shrink-0 w-24 h-36 rounded-lg overflow-hidden bg-surface-container shadow-md">${film.poster_path?`<img class="w-full h-full object-cover" alt="" src="${P(film.poster_path,"w342")}">`:`<div class="w-full h-full flex items-center justify-center text-text-muted"><span class="material-symbols-outlined">movie</span></div>`}
-<div class="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-surface-panel/90 text-primary-container font-label-sm text-label-sm font-bold">${Number(film.vote_average).toFixed(1)} ★</div></div>
-<div class="flex flex-col justify-between flex-1 min-w-0 gap-2"><div class="flex flex-col gap-0.5">
-<span class="font-micro-caption text-micro-caption text-primary-container font-bold tracking-wider uppercase">Выпало</span>
-<h4 class="font-headline-sm text-headline-sm text-on-surface font-bold leading-snug kg-clip2">${esc(film.title)}</h4>
-<p class="font-micro-caption text-micro-caption text-text-muted truncate">${fl(film._cc)} ${esc(cname(film._cc))}${y?" • "+y:""}${gs.length?" • "+esc(gs.join(", ")):""}<span data-rt="${film.id}"></span></p>
-<p data-dir="${film.id}" class="font-micro-caption text-micro-caption text-text-muted truncate">&nbsp;</p>
-<p class="font-body-sm text-body-sm text-on-surface-variant kg-clip3 pt-0.5">${esc(film.overview||"Описания на русском пока нет.")}</p></div>
-<div class="flex items-center gap-2 flex-wrap">
-<button type="button" data-act="trailer" data-id="${film.id}" class="px-3 py-2 rounded-lg bg-primary-container text-on-primary font-label-sm text-label-sm font-bold flex items-center gap-1 shadow-[0_0_14px_rgba(255,184,48,0.25)] active:scale-95 transition-transform"><span class="material-symbols-outlined text-[18px]">play_circle</span>Трейлер</button>
-<button type="button" data-act="open" data-id="${film.id}" class="px-3 py-2 rounded-lg bg-surface-container text-primary-fixed font-label-sm text-label-sm font-semibold flex items-center gap-1 hover:bg-surface-bright transition-colors"><span class="material-symbols-outlined text-[18px]">info</span>Подробнее</button>
-<button type="button" data-act="bm" data-id="${film.id}" aria-label="Сохранить" class="w-9 h-9 rounded-lg bg-surface-container text-primary-container flex items-center justify-center active:scale-95 transition-transform"><span class="material-symbols-outlined text-[20px]">${bm?"bookmark_added":"bookmark_border"}</span></button></div></div></div>`;
-  filmDetails(film.id).then(d=>{
-    if(D.picked!==film)return;
-    vd.querySelectorAll(`[data-rt="${film.id}"]`).forEach(e=>e.textContent=d.runtime?" • "+d.runtime+" мин":"");
-    vd.querySelectorAll(`[data-dir="${film.id}"]`).forEach(e=>e.textContent=d.dirs.length?"Реж. "+d.dirs.slice(0,2).join(", "):"");
-  }).catch(()=>{});
+  openFilm(film,"roulette");
 }
 async function inPageRoulette(){
   if(R.busy)return;
@@ -569,7 +534,8 @@ async function inPageRoulette(){
   if(!pool.length){toast("Все фильмы из выборки уже в истории","history");return;}
   const film=pick(pool);
   const others=shuffle(D.all.filter(f=>inCc(f)&&f.id!==film.id&&f.poster_path));
-  const token=++R.token;R.busy=true;R.skip=false;D.picked=null;
+  const token=++R.token;R.busy=true;R.skip=false;D.picked=null;D.selected=null;
+  renderFilms();
   $("cl-reel").style.display="";$("cl-result").innerHTML="";
   setBtn(true);
   try{audio();}catch(e){}
@@ -622,7 +588,13 @@ window.addEventListener("resize",()=>{
 vd.addEventListener("click",e=>{
   const el=e.target.closest("[data-act]");if(!el)return;
   const a=el.dataset.act;
-  if(a==="close-film"){D.selected=null;renderFilms();return;}
+  if(a==="close-film"){
+    const placement=D.selected&&D.selected._placement;
+    D.selected=null;
+    if(placement==="roulette")$("cl-result").innerHTML="";
+    else renderFilms();
+    return;
+  }
   if(a==="back"){e.preventDefault();showView("collections");return;}
   if(a==="goto"){e.preventDefault();openCollection(el.dataset.t);return;}
   if(a==="spin"){inPageRoulette();return;}
@@ -639,11 +611,12 @@ vd.addEventListener("click",e=>{
   }
   if(a==="more"){D.shown+=5;renderFilms();return;}
   const f=byId(el.dataset.id);if(!f)return;
-  if(a==="trailer"){e.stopPropagation();playTrailer(f);return;}
+  if(a==="trailer"){e.stopPropagation();openFilm(f);return;}
   if(a==="bm"){
     e.stopPropagation();
     BOOK.has(f.id)?BOOK.delete(f.id):BOOK.add(f.id);store.set("kgBookmarks",[...BOOK]);
     const ic=el.querySelector(".material-symbols-outlined");if(ic)ic.textContent=BOOK.has(f.id)?"bookmark_added":"bookmark_border";
+    el.setAttribute("aria-label",BOOK.has(f.id)?"Убрать из закладок":"Сохранить в закладки");
     toast(BOOK.has(f.id)?"Добавлено в закладки":"Убрано из закладок","bookmark");return;
   }
   if(a==="open")openFilm(f);
@@ -661,6 +634,194 @@ const reelCard=$("cinema-35mm-reel-section");
 if(reelCard)reelCard.style.display="none";
 const _showFilm=window.show;
 if(typeof _showFilm==="function")window.show=function(){if(reelCard)reelCard.style.display="";return _showFilm.apply(this,arguments);};
+
+/* ---------- Главная: редакционная карточка и европейская палитра ---------- */
+const HOME_EUROPE=["FR","IT","ES","DE","GB","PL","SE","DK","NO","FI","PT","NL","BE","IE"];
+const homeEditorial={films:[],details:new Set(),directorData:new Map(),loadedKey:"",token:0,loading:false,observer:null};
+const homeEditorialRoot=$("kg-home-editorial");
+function homeFilmYear(f){return (f.release_date||"").slice(0,4);}
+function homeFilmGenre(f,d){
+  const names=d&&d.genres&&d.genres.length?d.genres:(f.genre_ids||[]).map(id=>GENRES[id]).filter(Boolean);
+  return names.slice(0,2).join(" · ");
+}
+function homeFeatureMarkup(f,d){
+  const cc=f._cc||((f.origin_country||[])[0])||"FR";
+  const title=esc(f.title||f.original_title||"Фильм");
+  const original=f.original_title&&f.original_title!==f.title?esc(f.original_title):"";
+  const year=homeFilmYear(f);
+  const directors=d?(d.dirs&&d.dirs.length?esc(d.dirs.slice(0,2).join(", ")):"Нет данных"):"Загружаем данные…";
+  const runtime=d&&d.runtime?fmtRuntime(d.runtime):"";
+  const genres=homeFilmGenre(f,d);
+  const synopsis=(d&&d.overview)||f.overview||"Описание пока недоступно.";
+  const tagline=d&&d.tagline?`<span class="font-semibold text-on-surface">«${esc(d.tagline)}»</span> `:"";
+  const poster=f.poster_path
+    ?`<img class="w-full h-full object-cover" src="${P(f.poster_path,"w342")}" alt="Постер фильма «${title}»" loading="lazy">`
+    :`<span class="material-symbols-outlined text-primary-container text-[32px]">movie</span>`;
+  const saved=BOOK.has(f.id);
+  const rating=Number(f.vote_average)||0;
+  const tags=[cname(cc),runtime,d&&d.companies&&d.companies[0]].filter(Boolean).map((text,i)=>
+    `<span class="px-2 py-0.5 rounded-full bg-surface-container-lowest ${i===2?"text-primary-container":"text-on-surface-variant"} font-micro-caption text-micro-caption">${esc(text)}</span>`).join("");
+  return `<article class="w-full rounded-xl bg-surface-container-high shadow-xl p-4">
+<div class="flex items-center justify-between gap-2 pb-1.5 mb-1.5"><span class="font-micro-caption text-micro-caption uppercase tracking-wider text-primary font-bold">Выбор дня · Программа № ${homeDayNumber()}</span><span class="px-2 py-0.5 rounded bg-surface-container-highest text-on-surface-variant font-micro-caption text-micro-caption truncate">${esc(homeFilmGenre(f,d)||"Европейское кино")}</span></div>
+<div class="flex gap-3.5">
+<button type="button" class="relative w-28 h-40 shrink-0 rounded-lg overflow-hidden shadow-md bg-surface-container-lowest flex items-center justify-center" data-home-act="open" data-id="${f.id}" aria-label="Открыть фильм «${title}»">${poster}<span class="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded bg-surface-container-lowest/90 text-primary-container font-label-sm text-label-sm font-bold flex items-center gap-0.5 shadow"><span class="material-symbols-outlined text-[13px]">star</span>${rating.toFixed(1)}</span></button>
+<div class="flex-1 flex flex-col justify-between min-w-0">
+<div><button type="button" data-home-act="open" data-id="${f.id}" class="text-left w-full"><span class="font-headline-sm text-headline-sm text-on-surface font-bold leading-snug line-clamp-2 block">${title}</span></button>
+<p class="font-body-sm text-body-sm text-on-surface-variant italic mt-0.5 truncate">${[original,year].filter(Boolean).join(" · ")}</p>
+<div class="mt-1.5"><span class="font-micro-caption text-micro-caption text-on-surface-variant uppercase block">Режиссёр${d&&d.dirs&&d.dirs.length>1?"ы":""}</span><p class="font-label-sm text-label-sm text-on-surface truncate font-medium">${directors}</p></div>
+<div class="flex flex-wrap gap-1 mt-2">${tags}</div></div>
+<div class="flex items-center gap-1.5 mt-3">
+<button type="button" data-home-act="trailer" data-id="${f.id}" class="flex-1 min-w-0 flex items-center justify-center gap-1 py-1.5 px-2 rounded-lg bg-surface-container-highest text-on-surface hover:text-primary-container active:scale-95 transition-all shadow-sm"><span class="material-symbols-outlined text-[18px] shrink-0">play_circle</span><span class="font-label-sm text-label-sm font-semibold truncate">Трейлер</span></button>
+<button type="button" data-home-act="bookmark" data-id="${f.id}" aria-label="${saved?"Убрать из избранного":"Сохранить в избранное"}" title="${saved?"Убрать из избранного":"Сохранить в избранное"}" class="w-9 h-9 shrink-0 rounded-lg bg-surface-container-highest flex items-center justify-center text-on-surface hover:text-primary-container active:scale-95 transition-all shadow-sm"><span class="material-symbols-outlined text-[19px]">${saved?"bookmark_added":"bookmark_add"}</span></button>
+<button type="button" data-home-act="share" data-id="${f.id}" aria-label="Поделиться карточкой" title="Поделиться карточкой" class="w-9 h-9 shrink-0 rounded-lg bg-surface-container-highest flex items-center justify-center text-on-surface hover:text-primary-container active:scale-95 transition-all shadow-sm"><span class="material-symbols-outlined text-[19px]">share</span></button>
+</div></div></div>
+<div class="mt-3.5 p-3 rounded-lg bg-surface-container-lowest"><p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed kg-clip3">${tagline}${esc(synopsis)}</p></div></article>`;
+}
+function homeDayNumber(){
+  const now=new Date();
+  return Math.floor((Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),now.getUTCDate())-Date.UTC(now.getUTCFullYear(),0,0))/86400000);
+}
+function homeFilmCard(f){
+  const title=esc(f.title||f.original_title||"Фильм"),year=homeFilmYear(f);
+  const details=homeEditorial.directorData.get(f.id);
+  const credit=details&&details.dirs&&details.dirs.length?details.dirs[0]:cname(f._cc);
+  const poster=f.poster_path?`<img class="w-full h-full object-cover" src="${P(f.poster_path,"w342")}" alt="Постер фильма «${title}»" loading="lazy">`:'<span class="material-symbols-outlined text-primary-container text-[32px]">movie</span>';
+  return `<button type="button" data-home-act="open" data-home-meta="${f.id}" data-id="${f.id}" class="kg-home-film shrink-0 rounded-xl bg-surface-container-high p-2 shadow-md text-left">
+<span class="relative w-full h-44 rounded-lg overflow-hidden mb-1.5 bg-surface-container-lowest flex items-center justify-center block">${poster}<span class="absolute bottom-1 right-1 px-1.5 py-0.5 rounded bg-surface-container-lowest/90 font-micro-caption text-micro-caption text-primary-container font-bold">★ ${(Number(f.vote_average)||0).toFixed(1)}</span></span>
+<span class="font-label-sm text-label-sm font-bold text-on-surface block truncate">${title}</span>
+<span class="font-micro-caption text-micro-caption text-on-surface-variant block truncate" data-home-director="${f.id}">${esc(credit)}${year?" · "+year:""}</span></button>`;
+}
+function renderHomeEditorial(){
+  if(!homeEditorialRoot)return;
+  const feature=$("kg-home-feature"),carousel=$("kg-home-europe");
+  const films=homeEditorial.films;
+  if(!films.length)return;
+  const dayIndex=(homeDayNumber()-1)%films.length,featured=films[dayIndex];
+  feature.innerHTML=homeFeatureMarkup(featured,homeEditorial.featureDetails||null);
+  carousel.innerHTML=films.map(homeFilmCard).join("");
+  homeEditorial.observer?.disconnect();
+  if("IntersectionObserver"in window){
+    [...carousel.querySelectorAll("[data-home-meta]")].slice(0,4).forEach(card=>loadHomeDirector(card.dataset.homeMeta));
+    homeEditorial.observer=new IntersectionObserver(entries=>entries.forEach(entry=>{
+      if(!entry.isIntersecting)return;
+      const card=entry.target;homeEditorial.observer.unobserve(card);
+      loadHomeDirector(card.dataset.homeMeta);
+    }),{root:carousel,rootMargin:"80px"});
+    carousel.querySelectorAll("[data-home-meta]").forEach(card=>homeEditorial.observer.observe(card));
+  }else{
+    [...carousel.querySelectorAll("[data-home-meta]")].slice(0,4).forEach(card=>loadHomeDirector(card.dataset.homeMeta));
+  }
+  if(!homeEditorial.details.has(featured.id)){
+    homeEditorial.details.add(featured.id);
+    filmDetails(featured.id).then(d=>{
+      if(!homeEditorial.films.length||homeEditorial.films[dayIndex].id!==featured.id)return;
+      homeEditorial.featureDetails=d;homeEditorial.directorData.set(featured.id,d);
+      feature.innerHTML=homeFeatureMarkup(featured,d);
+      const credit=document.querySelector(`[data-home-director="${featured.id}"]`);
+      if(credit&&d.dirs.length)credit.textContent=[d.dirs[0],homeFilmYear(featured)].filter(Boolean).join(" · ");
+    }).catch(e=>{homeEditorial.details.delete(featured.id);console.warn("[Kinoglobus] Не удалось загрузить данные фильма дня:",e);});
+  }
+}
+async function loadHomeDirector(id){
+  if(homeEditorial.details.has(Number(id)))return;
+  homeEditorial.details.add(Number(id));
+  const f=homeEditorial.films.find(x=>String(x.id)===String(id));
+  if(!f)return;
+  try{
+    const d=await filmDetails(f.id),target=document.querySelector(`[data-home-director="${f.id}"]`);
+    homeEditorial.directorData.set(f.id,d);
+    if(target)target.textContent=[d.dirs[0],homeFilmYear(f)].filter(Boolean).join(" · ")||cname(f._cc);
+    const featureIndex=(homeDayNumber()-1)%homeEditorial.films.length;
+    if(homeEditorial.films[featureIndex]?.id===f.id){
+      homeEditorial.featureDetails=d;
+      $("kg-home-feature").innerHTML=homeFeatureMarkup(f,d);
+    }
+  }catch(e){
+    homeEditorial.details.delete(f.id);
+    const featureIndex=(homeDayNumber()-1)%homeEditorial.films.length;
+    if(homeEditorial.films[featureIndex]?.id===f.id){
+      const emptyDetails={dirs:[],genres:[],companies:[],runtime:0,tagline:"",overview:""};
+      homeEditorial.featureDetails=emptyDetails;
+      $("kg-home-feature").innerHTML=homeFeatureMarkup(f,emptyDetails);
+    }
+    console.warn("[Kinoglobus] Не удалось загрузить режиссёра:",e);
+  }
+}
+function renderHomeEditorialMessage(message,action){
+  $("kg-home-feature").innerHTML=`<p class="font-micro-caption text-micro-caption text-primary font-bold uppercase tracking-wider">Выбор дня</p><p role="status" class="font-body-sm text-body-sm text-text-muted mt-2">${esc(message)}</p>${action?`<button type="button" data-home-act="${action}" class="mt-3 px-3 py-2 rounded-lg bg-surface-container-highest text-primary-container font-label-sm text-label-sm font-semibold">${action==="set-key"?"Добавить ключ TMDB":"Повторить загрузку"}</button>`:""}`;
+  $("kg-home-europe").innerHTML=`<p class="font-body-sm text-body-sm text-text-muted py-2">Фильмы появятся после загрузки данных.</p>`;
+}
+async function loadHomeEditorial(){
+  if(homeEditorial.loading)return;
+  if(!apiKey){renderHomeEditorialMessage("Добавьте ключ TMDB, чтобы загрузить фильм и подборку европейского кино.","set-key");return;}
+  if(homeEditorial.loadedKey===apiKey)return;
+  const token=++homeEditorial.token;
+  homeEditorial.loading=true;
+  renderHomeEditorialMessage("Загружаем фильмы и данные TMDB…");
+  const results=await Promise.allSettled(HOME_EUROPE.map(async cc=>{
+    let response=await api({with_origin_country:cc,sort_by:"popularity.desc","vote_count.gte":30,include_adult:"false",page:1});
+    let films=response.results||[];
+    if(!films.length){
+      response=await api({with_origin_country:cc,sort_by:"popularity.desc","vote_count.gte":1,include_adult:"false",page:1});
+      films=response.results||[];
+    }
+    return films.length?{...films[0],_cc:cc}:null;
+  }));
+  if(token!==homeEditorial.token)return;
+  homeEditorial.loading=false;
+  results.forEach((result,i)=>{if(result.status==="rejected")console.warn(`[Kinoglobus] Не удалось загрузить фильмы ${HOME_EUROPE[i]}:`,result.reason);});
+  const films=results.filter(result=>result.status==="fulfilled"&&result.value).map(result=>result.value);
+  if(!films.length){
+    homeEditorial.loadedKey="";
+    const error=results.find(result=>result.status==="rejected");
+    renderHomeEditorialMessage(error&&error.reason&&error.reason.message||"Не удалось загрузить европейские фильмы.","retry");
+    return;
+  }
+  homeEditorial.films=films;
+  homeEditorial.loadedKey=apiKey;
+  homeEditorial.details.clear();homeEditorial.directorData.clear();homeEditorial.featureDetails=null;
+  renderHomeEditorial();
+}
+homeEditorialRoot.addEventListener("click",async e=>{
+  const button=e.target.closest("[data-home-act]");
+  if(!button)return;
+  const action=button.dataset.homeAct;
+  if(action==="set-key"){
+    const banner=$("tmdb-key-banner");banner.classList.remove("hidden");banner.scrollIntoView({behavior:"smooth",block:"center"});$("tmdb-key-input").focus();return;
+  }
+  if(action==="retry"){homeEditorial.loadedKey="";loadHomeEditorial();return;}
+  const film=homeEditorial.films.find(f=>String(f.id)===button.dataset.id);
+  if(!film)return;
+  if(action==="open"){
+    window.show(film._cc,{films:[film],total:1,votes:0},film);return;
+  }
+  if(action==="trailer"){
+    window.show(film._cc,{films:[film],total:1,votes:0},film);
+    $("cinema-35mm-reel-section").scrollIntoView({behavior:"smooth",block:"center"});
+    return;
+  }
+  if(action==="bookmark"){
+    BOOK.has(film.id)?BOOK.delete(film.id):BOOK.add(film.id);
+    store.set("kgBookmarks",[...BOOK]);
+    toast(BOOK.has(film.id)?"Добавлено в закладки":"Убрано из закладок","bookmark");
+    renderHomeEditorial();return;
+  }
+  if(action==="share"){
+    try{
+      const info={title:film.title||film.original_title||"Фильм",text:"Посмотри этот фильм в Kinoglobus",url:`https://www.themoviedb.org/movie/${film.id}`};
+      if(navigator.share)await navigator.share(info);
+      else if(navigator.clipboard&&navigator.clipboard.writeText){await navigator.clipboard.writeText(info.url);toast("Ссылка скопирована","link");}
+      else throw new Error("Поделиться из этого браузера не удалось.");
+    }catch(error){
+      if(error.name!=="AbortError"){console.error("[Kinoglobus] Не удалось поделиться фильмом:",error);toast("Не удалось поделиться фильмом","share");}
+    }
+  }
+});
+$("kg-home-europe-link").addEventListener("click",()=>{
+  const carousel=$("kg-home-europe");carousel.scrollTo({left:carousel.scrollWidth,behavior:"smooth"});
+});
+$("tmdb-key-save").addEventListener("click",()=>{homeEditorial.loadedKey="";loadHomeEditorial();});
+loadHomeEditorial();
 showView("home");
 console.info("[Kinoglobus] v8 collections ready");
 })();

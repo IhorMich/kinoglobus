@@ -163,7 +163,7 @@
 </div>
 </div>
 <!-- Photorealistic Earth Space Viewport Card -->
-<div class="relative w-full mx-auto rounded-2xl bg-black overflow-hidden flex flex-col items-center justify-between border border-surface-border group h-[440px] select-none" id="globe-container">
+<div class="relative w-full mx-auto rounded-2xl bg-black overflow-hidden flex flex-col items-center justify-between group h-[440px] select-none" id="globe-container">
 <!-- 1. STATIC DEEP SPACE BACKGROUND LAYER -->
 <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none select-none" id="starfield-bg">
 <img alt="Млечный Путь, снятый экипажем Artemis II. Фото NASA, «No Place Like Home»." class="w-full h-full object-cover object-center scale-105 pointer-events-none select-none opacity-90 contrast-125" src="https://images-assets.nasa.gov/image/art002e028296/art002e028296~large.jpg">
@@ -175,8 +175,6 @@
 <!-- Interactive 3D Earth WebGL Canvas -->
 <canvas class="w-full h-full block touch-none cursor-grab active:cursor-grabbing" id="earth-webgl-canvas"></canvas>
 </div>
-<!-- Gold Radar Visor Corners -->
-<div class="absolute inset-x-4 inset-y-4 z-20 pointer-events-none rounded-2xl border border-primary-container/25 bg-gradient-to-b from-primary-container/[0.03] to-transparent shadow-[0_0_24px_rgba(255,184,48,0.12)] flex items-center justify-between p-2.5 transition-all duration-300" id="focal-lens"><div class="absolute top-2 left-2 w-4 h-4 border-t-2 border-l-2 border-primary-container shadow-[0_0_8px_rgba(255,184,48,0.6)]"></div><div class="absolute top-2 right-2 w-4 h-4 border-t-2 border-r-2 border-primary-container shadow-[0_0_8px_rgba(255,184,48,0.6)]"></div><div class="absolute bottom-2 left-2 w-4 h-4 border-b-2 border-l-2 border-primary-container shadow-[0_0_8px_rgba(255,184,48,0.6)]"></div><div class="absolute bottom-2 right-2 w-4 h-4 border-b-2 border-r-2 border-primary-container shadow-[0_0_8px_rgba(255,184,48,0.6)]"></div></div>
 <!-- Selected Country Holographic Display Card: reveals selected country details with golden radiance -->
 <div class="relative z-30 flex flex-col items-center justify-center px-4 pt-2 pb-3 transition-all duration-300 w-full max-w-[320px] text-center pointer-events-none mt-auto" id="hero-hologram-display" style="filter: drop-shadow(rgba(255, 184, 48, 0.5) 0px 0px 20px);"><div class="relative w-15 h-15 rounded-2xl p-[2px] bg-gradient-to-tr from-cinema-velvet-deep via-primary-container to-primary shadow-[0_0_28px_rgba(255,184,48,0.7)] flex items-center justify-center backdrop-blur-md mb-1.5 transition-transform" id="hologram-flag-orb"><div class="w-full h-full rounded-[14px] bg-surface-container-lowest/90 flex items-center justify-center overflow-hidden relative shadow-[0_0_16px_rgba(255,184,48,0.4)]"><div class="absolute inset-0 bg-gradient-to-b from-white/15 via-transparent to-transparent pointer-events-none"></div><span class="text-3xl drop-shadow-[0_4px_16px_rgba(0,0,0,0.8)] select-none transition-all duration-150" id="hero-country-flag">🇪🇸</span></div><div class="absolute -bottom-1 inset-x-3 h-2 bg-primary-container/70 blur-sm rounded-full"></div></div><div class="inline-flex items-center gap-1 px-3 py-0.5 rounded-full bg-[#20152a]/95 border border-primary-container/50 text-primary-container font-micro-caption mb-1 shadow-[0_0_12px_rgba(255,184,48,0.3)]"><span class="text-primary text-[10px]">✪</span><span class="font-bold tracking-wider uppercase text-amber-200">ВЫПАЛА СТРАНА</span></div><h2 class="font-headline-lg text-headline-lg font-bold text-primary tracking-tight leading-tight drop-shadow-[0_0_16px_rgba(255,215,120,0.45)] truncate max-w-[260px]" id="hero-country-name">Испания</h2><div class="flex items-center gap-1.5 mt-1"><span class="px-2.5 py-0.5 rounded-full bg-surface-container-high/90 text-primary-fixed font-micro-caption text-micro-caption tracking-wider uppercase border border-primary-container/20" id="hero-country-region">ЮЖНАЯ ЕВРОПА</span><span class="px-2.5 py-0.5 rounded-full bg-cinema-velvet-deep/70 text-secondary font-micro-caption text-micro-caption tracking-wider" id="hero-country-films">295 лент</span></div><div class="flex items-center gap-1 text-text-muted font-micro-caption text-micro-caption mt-1.5 opacity-90"><span class="material-symbols-outlined text-[13px] text-primary-container">movie</span><span class="truncate max-w-[250px]" id="hero-country-master">Педро Альмодовар · Гильермо дель Торо</span></div></div></div>
 <!-- Tactile Primary CTA Button: 'Крутить глобус' -->
@@ -596,7 +594,6 @@
     const heroMaster = document.getElementById('hero-country-master');
     const radarFreq = document.getElementById('radar-freq');
 
-    const focalLens = document.getElementById('focal-lens');
     const winnerFlash = document.getElementById('winner-flash');
     const discoveryCard = document.getElementById('recent-discovery-card');
 
@@ -1337,13 +1334,6 @@ if (areaRing) {
         setTimeout(() => { if (winnerFlash) winnerFlash.style.opacity = '0'; }, 380);
       }
 
-      if (focalLens) {
-        focalLens.classList.add('border-primary-container', 'shadow-[0_0_40px_rgba(255,184,48,0.7)]');
-        setTimeout(() => {
-          if (focalLens) focalLens.classList.remove('border-primary-container', 'shadow-[0_0_40px_rgba(255,184,48,0.7)]');
-        }, 1500);
-      }
-
       if (heroDisplay) {
         heroDisplay.style.transform = 'scale(1.08)';
         heroDisplay.style.filter = 'drop-shadow(0 0 35px rgba(255,184,48,0.95)) brightness(1.2)';
@@ -1444,10 +1434,6 @@ if (areaRing) {
         statusBadge.className = 'font-micro-caption text-micro-caption px-2.5 py-0.5 rounded-full bg-primary-container text-on-primary-container font-bold shadow-[0_0_12px_rgba(255,184,48,0.5)]';
       }
 
-      if (focalLens) {
-        focalLens.classList.add('border-primary-container', 'shadow-[0_0_30px_rgba(255,184,48,0.4)]');
-      }
-
       let stepIndex = 0;
       const delays = [140, 160, 200, 260, 340, 450, 590, 780];
 
@@ -1470,10 +1456,6 @@ if (areaRing) {
           if (statusBadge) {
             statusBadge.textContent = '104 страны онлайн';
             statusBadge.className = 'font-micro-caption text-micro-caption px-2.5 py-0.5 rounded-full bg-surface-container-high/90 text-primary-fixed border border-primary-container/20 shadow-[0_0_10px_rgba(255,184,48,0.15)]';
-          }
-
-          if (focalLens) {
-            focalLens.classList.remove('border-primary-container', 'shadow-[0_0_30px_rgba(255,184,48,0.4)]');
           }
 
           zoomResetTimeout = setTimeout(() => {
@@ -3296,7 +3278,7 @@ function pinLight(cc){
   hero(w,false);
 }
 function setSpinUi(on){
-  const b=$("btn-spin-roulette"),t=$("btn-spin-text"),s=$("btn-spin-secondary-icon"),sb=$("roulette-status-badge"),f=$("focal-lens");
+  const b=$("btn-spin-roulette"),t=$("btn-spin-text"),s=$("btn-spin-secondary-icon"),sb=$("roulette-status-badge");
   const known=!!activeTheme();
   b.disabled=on;b.classList.toggle("brightness-125",on);
   t.innerHTML=on
@@ -3307,7 +3289,6 @@ function setSpinUi(on){
   sb.textContent=on?(known?"Подборка":"Сканирование..."):COUNTRIES.length+" "+plural(COUNTRIES.length)+" онлайн";
   sb.className=on?"font-micro-caption text-micro-caption px-2.5 py-0.5 rounded-full bg-primary-container text-on-primary-container font-bold"
     :"font-micro-caption text-micro-caption px-2.5 py-0.5 rounded-full bg-surface-container-high/90 text-primary-fixed border border-primary-container/20";
-  f.classList.toggle("border-primary-container",on);
 }
 const _lock=window.lockSpin,_unlock=window.unlockSpin;
 window.lockSpin=function(l){_lock(l);setSpinUi(true);};

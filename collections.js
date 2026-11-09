@@ -33,7 +33,7 @@ st2.textContent=`.kgr-win{position:relative;height:150px;overflow:hidden;-webkit
 .kg-home-europe{scrollbar-width:none;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
 .kg-home-europe::-webkit-scrollbar{display:none}
 .kg-home-film{flex:0 0 9rem;scroll-snap-align:start}
-.kg-detail-trailer{width:100%;height:auto;aspect-ratio:16/9;min-height:0;max-height:min(65vh,320px);flex:none}
+[data-selected-film]{min-width:0;max-width:100%}.kg-detail-trailer{box-sizing:border-box;width:100%;max-width:100%;height:auto;aspect-ratio:16/9;min-height:0;max-height:min(56dvh,320px);flex:none;overflow:hidden;contain:layout paint}.kg-detail-trailer iframe{position:absolute;inset:0;width:100%;height:100%;max-width:100%;border:0}
 @media(prefers-reduced-motion:reduce){.kgr-rise{animation:none}}`;
 document.head.appendChild(st2);
 
@@ -543,7 +543,7 @@ function filmItem(f){
 <div class="flex items-center justify-between"><span class="font-micro-caption text-micro-caption text-text-muted">${fl(f._cc)} ${esc(cname(f._cc))}${y?" • "+y:""}</span><span data-rt="${f.id}" class="font-micro-caption text-micro-caption px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant">— мин</span></div>
 <h4 class="font-label-lg text-label-lg text-on-surface font-bold truncate">${esc(f.title)}</h4>
 <p data-dir="${f.id}" class="font-micro-caption text-micro-caption text-text-muted truncate">&nbsp;</p>
-<div class="flex items-center gap-1.5 pt-1">${gs.map(g=>`<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-micro-caption text-micro-caption">${esc(g)}</span>`).join("")}</div></div></div>
+<div class="flex items-center gap-1.5 pt-1">${gs.map(g=>`<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-micro-caption text-micro-caption">${esc(g)}</span>`).join("")}</div></div></div></div>
 <div class="flex items-center justify-end gap-2 pt-2">
 <button type="button" data-act="bm" data-id="${f.id}" title="В закладки" class="text-primary-container hover:text-primary transition-colors p-1"><span class="material-symbols-outlined text-[18px]">${bm?"bookmark_added":"bookmark_border"}</span></button></div>
 ${selected?selectedFilmHtml(selected,true):""}</article>`;

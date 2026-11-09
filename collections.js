@@ -249,13 +249,13 @@ async function loadMeta(t,force=false){
 
 /* ---------- экраны и навигация ---------- */
 const vc=document.createElement("div");vc.id="view-collections";
-vc.className="flex flex-col w-full px-gutter-mobile gap-space-lg select-none";vc.style.display="none";
+vc.className="flex flex-col w-full px-gutter-mobile gap-space-lg select-none";
 const vd=document.createElement("div");vd.id="view-collection";
-vd.className="flex flex-col w-full px-margin-mobile gap-space-lg select-none pb-space-xl";vd.style.display="none";
+vd.className="flex flex-col w-full px-margin-mobile gap-space-lg select-none pb-space-xl";
 const vm=document.createElement("div");vm.id="view-mood";
-vm.className="flex flex-col w-full px-gutter-mobile select-none";vm.style.display="none";
+vm.className="flex flex-col w-full px-gutter-mobile select-none";
 const vo=document.createElement("div");vo.id="view-oscar";
-vo.className="flex flex-col w-full select-none";vo.style.display="none";
+vo.className="flex flex-col w-full select-none";
 const vf=$("film-page");
 if(!vf){console.error("[Kinoglobus] Film page element not found");return;}
 vf.style.display="none";

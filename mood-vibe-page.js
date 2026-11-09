@@ -122,7 +122,7 @@
     const genres=(d.genres||[]).slice(0,2);
     const booked=deps.isBooked?.(f.id);
     return `<div class="flex items-center gap-1.5 text-secondary"><span class="material-symbols-outlined text-[18px]">verified</span><span class="font-label-sm text-label-sm uppercase tracking-wider font-semibold">${esc(currentMood().x.jewel||"Жемчужина вайба · Выбор куратора")}</span></div>
-<div class="grid grid-cols-[108px_1fr] gap-space-md mt-1">
+<div data-vibe-film="${f.id}" data-detail-target="${target}" class="grid grid-cols-[108px_1fr] gap-space-md mt-1 cursor-pointer">
 <div class="relative w-full aspect-[2/3] rounded-xl overflow-hidden bg-surface-container-high shadow-lg">${f.poster_path?`<img class="w-full h-full object-cover" alt="Постер «${esc(f.title||f.original_title)}»" src="${poster(f.poster_path,"w342")}">`:""}<div class="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-md bg-black/75 backdrop-blur-md flex items-center gap-0.5 text-primary-container"><span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">star</span><span class="font-label-sm text-label-sm font-bold">${Number(f.vote_average||0).toFixed(1)}</span></div></div>
 <div class="flex flex-col justify-between min-w-0"><div class="flex flex-col gap-1"><div class="flex items-start justify-between gap-1"><h3 class="font-headline-md text-headline-md text-primary truncate leading-tight">${esc(f.title||f.original_title||"Фильм")}</h3><span class="px-2 py-0.5 rounded-full bg-secondary-container/60 text-secondary font-label-sm text-label-sm shrink-0">${year}${f._cc?` · ${flag(f._cc)}`:""}</span></div>
 <p class="font-micro-caption text-micro-caption text-text-muted">${orig}</p>
@@ -327,7 +327,7 @@
     if(!host||!host.isConnected){
       [...root.children].forEach(el=>{el.dataset.vibeHidden=el.style.display||"-";el.style.display="none";});
       host=document.createElement("div");host.id="mood-vibe-root";host.innerHTML="";
-      host.addEventListener("click",e=>{e.stopPropagation();handleClick(e,root,deps);});
+      host.addEventListener("click",e=>{handleClick(e,root,deps);});
       root.appendChild(host);
     }
     stopSpin(root);deps.closeFilm("mood");

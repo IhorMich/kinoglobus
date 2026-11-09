@@ -229,7 +229,7 @@
     if(error){error.hidden=true;error.textContent="";}
     if(state.loading){if(error){error.textContent="Подборка ещё загружается.";error.hidden=false;}return;}
     if(!pool.length){if(error){error.textContent="В выбранном настроении и хронометраже фильмов не нашлось. Выберите другой хронометраж.";error.hidden=false;}return;}
-    const film=pool[Math.floor(Math.random()*pool.length)];
+    const moodId=state.mood,film=pool[Math.floor(Math.random()*pool.length)],winnerDetailId=`mood-roulette-winner-detail-${moodId}`;
     const token=++state.spinToken,winnerIndex=26,others=pool.filter(item=>item.id!==film.id),sequence=[];
     for(let i=0;i<winnerIndex;i++)sequence.push(others.length?others[Math.floor(Math.random()*others.length)]:film);
     sequence.push(film);
@@ -240,7 +240,7 @@
     if(launchButton)launchButton.disabled=true;
     if(launchLabel)launchLabel.textContent="Плёнка крутится…";
     if(!panel){state.spinning=false;return;}
-    panel.innerHTML=`<div class="relative overflow-hidden rounded-2xl bg-surface-panel p-4 shadow-xl"><div class="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-cinema-amber-glow blur-3xl pointer-events-none"></div><h2 class="relative font-headline-sm text-headline-sm text-primary mb-3">Кинорулетка настроения</h2><div class="relative w-full rounded-xl bg-canvas-obsidian border border-primary-container/30 overflow-hidden shadow-[inset_0_2px_12px_rgba(0,0,0,0.95)] p-1"><div class="kgr-perf"><div>${"<i></i>".repeat(12)}</div><span>Kodak 35mm</span></div><div class="kgr-win select-none"><div class="kgr-track"><div class="kgr-run">${sequence.map(item=>`<div class="kgr-cell">${item.poster_path?`<img alt="${esc(item.title||item.original_title)}" draggable="false" src="${poster(item.poster_path)}">`:`<div class="nop">${esc(item.title||item.original_title)}</div>`}<span class="yr">${(item.release_date||"").slice(0,4)}</span></div>`).join("")}</div></div><div data-mood-reel-frame class="kgr-frame" aria-hidden="true"></div></div><div class="kgr-perf"><div>${"<i></i>".repeat(12)}</div><span>35mm nitrate</span></div></div><div class="flex items-center justify-between px-1"><span data-mood-frame-counter class="font-mono text-micro-caption text-primary-fixed font-semibold tracking-wide">Кадр -- / ${String(pool.length).padStart(2,"0")}</span><button type="button" data-mood-skip class="font-micro-caption text-micro-caption text-text-muted hover:text-primary underline">Пропустить</button></div><div data-mood-winner></div><div id="mood-roulette-winner-detail"></div></div>`;
+    panel.innerHTML=`<div class="relative overflow-hidden rounded-2xl bg-surface-panel p-4 shadow-xl"><div class="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-cinema-amber-glow blur-3xl pointer-events-none"></div><h2 class="relative font-headline-sm text-headline-sm text-primary mb-3">Кинорулетка настроения</h2><div class="relative w-full rounded-xl bg-canvas-obsidian border border-primary-container/30 overflow-hidden shadow-[inset_0_2px_12px_rgba(0,0,0,0.95)] p-1"><div class="kgr-perf"><div>${"<i></i>".repeat(12)}</div><span>Kodak 35mm</span></div><div class="kgr-win select-none"><div class="kgr-track"><div class="kgr-run">${sequence.map(item=>`<div class="kgr-cell">${item.poster_path?`<img alt="${esc(item.title||item.original_title)}" draggable="false" src="${poster(item.poster_path)}">`:`<div class="nop">${esc(item.title||item.original_title)}</div>`}<span class="yr">${(item.release_date||"").slice(0,4)}</span></div>`).join("")}</div></div><div data-mood-reel-frame class="kgr-frame" aria-hidden="true"></div></div><div class="kgr-perf"><div>${"<i></i>".repeat(12)}</div><span>35mm nitrate</span></div></div><div class="flex items-center justify-between px-1"><span data-mood-frame-counter class="font-mono text-micro-caption text-primary-fixed font-semibold tracking-wide">Кадр -- / ${String(pool.length).padStart(2,"0")}</span><button type="button" data-mood-skip class="font-micro-caption text-micro-caption text-text-muted hover:text-primary underline">Пропустить</button></div><div data-mood-winner></div><div id="${winnerDetailId}"></div></div>`;
     const run=panel.querySelector(".kgr-run"),cells=[...run.children],viewport=panel.querySelector(".kgr-win"),frame=panel.querySelector("[data-mood-reel-frame]"),skip=panel.querySelector("[data-mood-skip]");
     const offsetFor=index=>reelPadding+index*reelStep+reelCellWidth/2-viewport.clientWidth/2;
     const start=offsetFor(0),finish=offsetFor(winnerIndex),total=pool.length;
@@ -255,8 +255,8 @@
       if(skip)skip.hidden=true;
       frame.classList.remove("hit");void frame.offsetWidth;frame.classList.add("hit");
       panel.querySelector("[data-mood-winner]").innerHTML=`<article class="flex items-center gap-3 p-3 rounded-xl bg-surface-container mt-3"><div class="w-16 h-24 shrink-0 rounded-lg overflow-hidden bg-surface-container-lowest">${film.poster_path?`<img class="w-full h-full object-cover" alt="Постер «${esc(film.title||film.original_title)}»" src="${poster(film.poster_path)}">`:'<span class="material-symbols-outlined w-full h-full flex items-center justify-center text-primary-container">movie</span>'}</div><div class="min-w-0"><span class="font-micro-caption text-micro-caption text-primary-container">Ваша находка · ${film.runtime} мин · ★ ${Number(film.vote_average||0).toFixed(1)}</span><h3 class="font-headline-sm text-headline-sm text-on-surface font-semibold">${esc(film.title||film.original_title||"Фильм")}</h3><p class="font-body-sm text-body-sm text-text-muted line-clamp-3 mt-1">${esc(film.detail?.overview||film.overview||"Описание пока недоступно.")}</p></div></article>`;
-      deps.openFilm(film,"mood","mood-roulette-winner-detail");
-      scrollToMoodResult(panel);
+      deps.openFilm(film,"mood",winnerDetailId);
+      scrollToMoodResult(panel,moodId);
     };
     if(prefersReducedMotion()||!others.length){
       run.style.transform=`translateX(${-finish}px)`;complete();
@@ -280,7 +280,7 @@
       };
       state.spinFrame=requestAnimationFrame(step);
     }
-    scrollToMoodResult(panel);
+    scrollToMoodResult(panel,moodId);
   }
   function stop(root){stopSpin(root);}
   window.KGMoodPage={render,stop};

@@ -95,6 +95,8 @@ const cat=t=>(TM[t.id]||["noir"])[0];
 const fl=cc=>`<span class="kgf">${flag(cc,false)}</span>`;
 const P=(p,s)=>p?`https://image.tmdb.org/t/p/${s||"w185"}${p}`:"";
 const nf=n=>new Intl.NumberFormat("ru-RU").format(n);
+const moneyFmt=new Intl.NumberFormat("ru-RU",{style:"currency",currency:"USD",maximumFractionDigits:0});
+const moneyText=n=>Number(n)>0?moneyFmt.format(Number(n)):"Нет данных";
 function fw(n){const m=n%100,k=n%10;return (k===1&&m!==11)?"фильм":(k>1&&k<5&&(m<12||m>14))?"фильма":"фильмов";}
 const gnames=t=>t.g.split("|").map(x=>GENRES[x]).filter(Boolean);
 const codeOf=t=>REG[t.id]?REG[t.id][1]:(t.cc[0]==="SU"?"СССР":t.cc[0]);
@@ -512,7 +514,7 @@ function selectedFilmHtml(f,embedded=false){
 <span class="font-label-sm text-label-sm text-on-surface font-semibold truncate w-full">${esc(c.name)}</span><span class="font-micro-caption text-micro-caption text-text-muted truncate w-full">${esc(c.role)}</span></div>`).join("");
   const activeVideo=f._trailer||null;
   const trailerContent=f._trailerPlaying&&activeVideo
-    ?`<iframe src="${embedSrc(activeVideo,false)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" title="Трейлер ${esc(f.title)}" style="position:absolute;inset:0;width:100%;height:100%;border:0"></iframe>`
+    ?`<iframe src="${embedSrc(activeVideo,true)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" title="Трейлер ${esc(f.title)}" style="position:absolute;inset:0;width:100%;height:100%;border:0"></iframe>`
     :activeVideo
       ?`<button type="button" data-trailer-action="play" data-id="${f.id}" aria-label="Воспроизвести трейлер" class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-surface-container-high to-canvas-obsidian text-primary-container transition-colors hover:text-primary"><span class="material-symbols-outlined text-[48px]">play_arrow</span></button>`
       :`<div class="absolute inset-0 flex items-center justify-center text-text-muted font-body-sm text-body-sm">${f._trailerStatus==="missing"?"Трейлер не найден":"Ищем трейлер…"}</div>`;
@@ -524,12 +526,13 @@ function selectedFilmHtml(f,embedded=false){
 <button type="button" data-act="bm" data-id="${f.id}" aria-label="${BOOK.has(f.id)?"Убрать из закладок":"Сохранить в закладки"}" class="w-9 h-9 flex-shrink-0 rounded-full bg-surface-container-high text-primary-container flex items-center justify-center"><span class="material-symbols-outlined">${BOOK.has(f.id)?"bookmark_added":"bookmark_border"}</span></button>
 <button type="button" data-act="close-film" aria-label="Закрыть описание" class="w-9 h-9 flex-shrink-0 rounded-full bg-surface-container-high text-text-muted hover:text-primary flex items-center justify-center"><span class="material-symbols-outlined">close</span></button></div>`;
   const director=f.dirs&&f.dirs.length?`<div class="flex flex-col gap-1"><h4 class="font-label-md text-label-md text-primary-fixed font-semibold">Режиссёр${f.dirs.length>1?"ы":""}</h4><p class="font-body-sm text-body-sm text-text-muted">${esc(f.dirs.join(", "))}</p></div>`:`<div class="flex flex-col gap-1"><h4 class="font-label-md text-label-md text-primary-fixed font-semibold">Режиссёр</h4><p class="font-body-sm text-body-sm text-text-muted">${f._detailsLoaded?"Сведения недоступны.":"Загружаем данные…"}</p></div>`;
+  const boxOffice=`<div class="grid grid-cols-2 gap-2"><div class="p-2.5 rounded-xl bg-surface-container-high"><span class="block font-micro-caption text-micro-caption text-text-muted">Бюджет</span><span class="block font-label-md text-label-md text-on-surface mt-0.5">${f._detailsLoaded?moneyText(f.budget):"Загружаем…"}</span></div><div class="p-2.5 rounded-xl bg-surface-container-high"><span class="block font-micro-caption text-micro-caption text-text-muted">Сборы</span><span class="block font-label-md text-label-md text-on-surface mt-0.5">${f._detailsLoaded?moneyText(f.revenue):"Загружаем…"}</span></div></div>`;
   return `<${shell} class="${shellClass}" data-selected-film="${f.id}">
 ${header}
 <div class="relative w-full kg-detail-trailer rounded-xl overflow-hidden bg-black border border-primary-container/30" id="cl-inline-trailer">${trailerContent}</div>
 ${activeVideo?`<a href="${watchUrl(activeVideo)}" target="_blank" rel="noopener noreferrer" class="font-micro-caption text-micro-caption text-primary underline">Не воспроизводится? Открыть на ${esc(activeVideo.site)}</a>`:""}
 ${tagline}<div class="flex flex-col gap-1"><h4 class="font-label-md text-label-md text-primary-fixed font-semibold">О фильме</h4><p class="font-body-sm text-body-sm text-text-muted leading-relaxed">${esc(f.overview||"Загружаем описание…")}</p></div>
-${director}
+${director}${boxOffice}
 <div class="flex flex-col gap-2"><h4 class="font-label-md text-label-md text-primary-fixed font-semibold">Актёры</h4>${cast?`<div class="flex gap-2.5 overflow-x-auto py-1" style="-webkit-overflow-scrolling:touch">${cast}</div>`:`<p class="font-body-sm text-body-sm text-text-muted">${f._detailsLoaded?"Сведения об актёрах недоступны.":"Загружаем актёров…"}</p>`}</div></${shell}>`;
 }
 document.addEventListener("click",e=>{
@@ -675,6 +678,8 @@ function openFilm(f,placement="list",detailTarget=null){
     selected.runtime=details.runtime;
     selected.dirs=details.dirs;
     selected.castFull=details.castFull;
+    selected.budget=details.budget;
+    selected.revenue=details.revenue;
     selected._cc=(f.origin_country||[])[0]||(details.countries||[])[0]||selected._cc||"";
     selected.tagline=details.tagline;
     selected.taglineLang=details.taglineLang;

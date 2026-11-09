@@ -625,7 +625,8 @@ async function openCollection(id,opt){
 function renderSelectedPanel(){
   const selected=D.selected;if(!selected)return;
   if(selected._placement==="list"){renderFilms();return;}
-  const html=selectedFilmHtml(selected);
+  const inMoodList=selected._placement==="mood"&&String(selected._detailTarget||"").startsWith("mood-film-detail-");
+  const html=selectedFilmHtml(selected,inMoodList);
   if(selected._placement==="mood"||selected._placement==="oscar"){
     const target=$(selected._detailTarget)||(selected._placement==="mood"?$("mood-film-detail"):$("oscar-film-detail"));
     if(target)target.innerHTML=html;

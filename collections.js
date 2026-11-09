@@ -249,16 +249,13 @@ async function loadMeta(t,force=false){
 
 /* ---------- экраны и навигация ---------- */
 const vc=document.createElement("div");vc.id="view-collections";
-vc.className="flex flex-col w-full px-gutter-mobile gap-space-lg select-none";
+vc.className="flex flex-col w-full px-gutter-mobile gap-space-lg select-none";vc.style.display="none";
 const vd=document.createElement("div");vd.id="view-collection";
-vd.className="flex flex-col w-full px-margin-mobile gap-space-lg select-none pb-space-xl";
+vd.className="flex flex-col w-full px-margin-mobile gap-space-lg select-none pb-space-xl";vd.style.display="none";
 const vm=document.createElement("div");vm.id="view-mood";
-vm.className="flex flex-col w-full px-gutter-mobile select-none";
+vm.className="flex flex-col w-full px-gutter-mobile select-none";vm.style.display="none";
 const vo=document.createElement("div");vo.id="view-oscar";
-vo.className="flex flex-col w-full select-none";
-const vf=$("film-page");
-if(!vf){console.error("[Kinoglobus] Film page element not found");return;}
-vf.style.display="none";
+vo.className="flex flex-col w-full select-none";vo.style.display="none";
 const sectionNav=document.createElement("nav");
 sectionNav.setAttribute("aria-label","Разделы подборок");
 sectionNav.className="w-full px-gutter-mobile pt-2";
@@ -295,7 +292,6 @@ function showView(v){
   vd.style.display=v==="collection"?"":"none";
   vm.style.display=v==="mood"?"":"none";
   vo.style.display=v==="oscar"?"":"none";
-  vf.style.display=v==="film"?"":"none";
   const act=["collection","mood","oscar"].includes(v)?"collections":v;
   nav.querySelectorAll("[data-view]").forEach(a=>{a.className=NB+(a.dataset.view===act&&a.dataset.view!=="journey"?NON:NOFF);});
   const section=v==="collection"?"collections":v;
@@ -305,7 +301,7 @@ function showView(v){
     button.setAttribute("aria-current",String(active));
   });
   const sub=document.querySelector("header .flex-col > p");
-  if(sub) sub.textContent=v==="home"?"Случайная страна · Лучшие фильмы":v==="mood"?"Подборки · По настроению":v==="oscar"?"Подборки · Зал славы Оскара":v==="film"?"Страница фильма":"Киноглобус — Тематическая Подборка";
+  if(sub) sub.textContent=v==="home"?"Случайная страна · Лучшие фильмы":v==="mood"?"Подборки · По настроению":v==="oscar"?"Подборки · Зал славы Оскара":"Киноглобус — Тематическая Подборка";
   scrollTo({top:0});
   if(v==="collections") initCatalog();
   if(v==="mood"&&(!vm.dataset.ready||vm.dataset.key!==apiKey)){window.KGMoodPage.render(vm,pageDeps);vm.dataset.ready="true";vm.dataset.key=apiKey;}
@@ -518,8 +514,7 @@ const pageDeps={
   openFilm:(film,placement,detailTarget)=>openFilm(film,placement,detailTarget),
   closeFilm:placement=>closePageFilm(placement),
   refreshFilm:()=>renderSelectedPanel(),
-  back:()=>showView("collections"),
-  trailerFor:film=>trailerFor(film)
+  back:()=>showView("collections")
 };
 const CCON="bg-primary-container text-on-primary shadow-[0_0_12px_rgba(255,184,48,0.28)] font-semibold",CCOFF="bg-surface-container text-text-muted hover:text-on-surface";
 const SON="bg-surface-container-high text-primary-fixed font-semibold",SOFF="text-text-muted hover:text-on-surface";
@@ -747,28 +742,6 @@ function renderSelectedPanel(){
   renderFilms();
 }
 function openFilm(f,placement="list",detailTarget=null){
-  // For collection films, navigate to film detail page instead
-  if(placement==="mood"||placement==="oscar"){
-    const collectionType=placement;
-    let collectionId="",collectionName="";
-    
-    if(collectionType==="mood"&&window.KGMoodPage?.getCurrentMood){
-      const mood=window.KGMoodPage.getCurrentMood();
-      collectionId=mood.id;
-      collectionName=mood.title;
-    }else if(collectionType==="oscar"&&window.KGOscarPage?.getCurrentDecade){
-      const decade=window.KGOscarPage.getCurrentDecade();
-      collectionId=decade.id;
-      collectionName=decade.title;
-    }
-    
-    if(collectionId){
-      const encodedName=encodeURIComponent(collectionName||"");
-      window.location.hash=`#film/${f.id}/${collectionType}/${collectionId}/${encodedName}`;
-      return;
-    }
-  }
-  
   if(D.selected&&D.selected._placement===placement&&String(D.selected.id)===String(f.id)&&D.selected._detailTarget===detailTarget){
     if(placement==="mood"||placement==="oscar")closePageFilm(placement);
     else{D.selected=null;if(placement==="list")renderFilms();}
@@ -1283,31 +1256,6 @@ if(savedHome&&Array.isArray(savedHome.films)&&savedHome.films.length){
 if(dailyRefreshDue())refreshDailyData();
 else if(!homeEditorial.films.length)loadHomeEditorial();
 scheduleDailyRefresh();
-
-// Hash routing for film detail pages
-window.addEventListener("hashchange",()=>{
-  const hash=window.location.hash;
-  if(hash.startsWith("#film/")){
-    const parts=hash.substring(6).split("/");
-    if(parts.length>=3){
-      const filmId=parseInt(parts[0],10);
-      const collectionType=parts[1];
-      const collectionId=parts[2];
-      if(window.KGFilmDetailPage&&window.KGFilmDetailPage.openFilm){
-        const collectionName=decodeURIComponent(parts[3]||"");
-        showView("film");
-        window.KGFilmDetailPage.openFilm(filmId,collectionType,collectionId,collectionName,pageDeps);
-      }
-    }
-  }else if(hash==="#mood"){
-    showView("mood");
-  }else if(hash==="#oscar"){
-    showView("oscar");
-  }else if(hash===""||hash==="#"){
-    showView("home");
-  }
-});
-
 showView("home");
 window.KINOGLOBUS_THEME_COVERS = THEME_COVERS;
 console.info("[Kinoglobus] v8 collections ready + theme covers");

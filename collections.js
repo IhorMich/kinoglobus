@@ -278,6 +278,7 @@ document.body.appendChild(nav);
 let view="home";
 function showView(v){
   if(v!=="mood"&&window.KGMoodPage)window.KGMoodPage.stop(vm);
+  if(v!=="mood"&&window.KGMoodVibePage)window.KGMoodVibePage.stop();
   if(v!=="oscar"&&window.KGOscarPage&&window.KGOscarPage.stop)window.KGOscarPage.stop(vo);
   view=v;
   if(v!=="collection")rStop();
@@ -305,6 +306,7 @@ function showView(v){
   scrollTo({top:0});
   if(v==="collections") initCatalog();
   if(v==="mood"&&(!vm.dataset.ready||vm.dataset.key!==apiKey)){window.KGMoodPage.render(vm,pageDeps);vm.dataset.ready="true";vm.dataset.key=apiKey;}
+  if(v==="mood"&&window.KGMoodVibePage){window.KGMoodVibePage.init(vm,pageDeps);if(window._kgMoodSeen)window.KGMoodVibePage.reset(vm,pageDeps);window._kgMoodSeen=true;}
   if(v==="oscar"&&(!vo.dataset.ready||vo.dataset.key!==apiKey)){window.KGOscarPage.render(vo,pageDeps);vo.dataset.ready="true";vo.dataset.key=apiKey;}
 }
 nav.addEventListener("click",e=>{
@@ -514,7 +516,9 @@ const pageDeps={
   openFilm:(film,placement,detailTarget)=>openFilm(film,placement,detailTarget),
   closeFilm:placement=>closePageFilm(placement),
   refreshFilm:()=>renderSelectedPanel(),
-  back:()=>showView("collections")
+  back:()=>showView("collections"),
+  isBooked:id=>BOOK.has(id),
+  toggleBook:id=>{if(BOOK.has(id))BOOK.delete(id);else BOOK.add(id);store.set("kgBookmarks",[...BOOK]);toast(BOOK.has(id)?"Добавлено в закладки":"Убрано из закладок",BOOK.has(id)?"bookmark_added":"bookmark_border");return BOOK.has(id);}
 };
 const CCON="bg-primary-container text-on-primary shadow-[0_0_12px_rgba(255,184,48,0.28)] font-semibold",CCOFF="bg-surface-container text-text-muted hover:text-on-surface";
 const SON="bg-surface-container-high text-primary-fixed font-semibold",SOFF="text-text-muted hover:text-on-surface";

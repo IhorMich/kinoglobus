@@ -723,10 +723,25 @@ async function openCollection(id,opt){
   }
 }
 
+function placeListPanel(){
+  const box=$("cl-films");if(!box)return false;
+  const sel=D.selected&&D.selected._placement==="list"?D.selected:null;
+  box.querySelectorAll("[data-selected-film]").forEach(p=>{if(!sel||String(p.dataset.selectedFilm)!==String(sel.id))p.remove();});
+  if(!sel)return true;
+  const html=selectedFilmHtml(sel,true);
+  const cur=box.querySelector(`[data-selected-film="${sel.id}"]`);
+  if(cur){cur.outerHTML=html;return true;}
+  const open=[...box.querySelectorAll('[data-act="open"]')].find(e=>String(e.dataset.id)===String(sel.id));
+  if(!open)return false;
+  open.parentElement.insertAdjacentHTML("beforeend",html);
+  return true;
+}
 function renderSelectedPanel(){
   const selected=D.selected;if(!selected)return;
   if(selected._trailerPlaying&&document.querySelector(`[data-selected-film="${selected.id}"] #cl-inline-trailer iframe`))return;
-  if(selected._placement==="list"){renderFilms();return;}
+  if(selected._placement==="list"){
+    if(!placeListPanel())renderFilms();return;
+  }
   const inMoodList=selected._placement==="mood"&&String(selected._detailTarget||"").startsWith("mood-film-detail-");
   const inOscarList=selected._placement==="oscar"&&/^oscar-(list|feature|grid)-detail-/.test(String(selected._detailTarget||""));
   const html=selectedFilmHtml(selected,inMoodList||inOscarList);
@@ -757,7 +772,7 @@ function renderSelectedPanel(){
 function openFilm(f,placement="list",detailTarget=null){
   if(D.selected&&D.selected._placement===placement&&String(D.selected.id)===String(f.id)&&D.selected._detailTarget===detailTarget){
     if(placement==="mood"||placement==="oscar")closePageFilm(placement);
-    else{D.selected=null;if(placement==="list")renderFilms();}
+    else{D.selected=null;if(placement==="list"&&!placeListPanel())renderFilms();}
     return;
   }
   if(D.selected&&D.selected._placement.startsWith("home")&&D.selected._placement!==placement){
@@ -772,9 +787,9 @@ function openFilm(f,placement="list",detailTarget=null){
   }
   D.selected={...f,_cc:f._cc||(f.origin_country||[])[0]||"",_placement:placement,_detailTarget:detailTarget,overview:russianText(f.overview)||"Загружаем описание…",_trailerStatus:"loading"};;
   const selected=D.selected;
-  if(placement==="roulette"||placement==="home"||placement==="home-europe"||placement==="mood"||placement==="oscar")renderSelectedPanel();else renderFilms();
+  if(placement==="roulette"||placement==="home"||placement==="home-europe"||placement==="mood"||placement==="oscar")renderSelectedPanel();else if(!placeListPanel())renderFilms();
   const panel=detailTarget?$(detailTarget):placement==="roulette"?$("cl-result")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="home"?$("kg-home-feature")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="home-europe"?$("kg-home-europe-detail")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="mood"?$("mood-film-detail")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="oscar"?$("oscar-film-detail")?.querySelector(`[data-selected-film="${f.id}"]`):vd.querySelector(`[data-selected-film="${f.id}"]`);
-  panel?.scrollIntoView({behavior:"smooth",block:"nearest"});
+  panel?.scrollIntoView({behavior:placement==="list"?"auto":"smooth",block:"nearest"});
   filmDetails(f.id).then(details=>{
     if(D.selected!==selected)return;
     selected.overview=details.overview||russianText(f.overview)||"Описания на русском и английском пока нет.";

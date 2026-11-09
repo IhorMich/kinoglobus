@@ -73,7 +73,6 @@
 <div class="absolute top-space-md right-space-md flex items-center gap-1 px-space-sm py-1 rounded-full bg-cinema-velvet-deep/80 backdrop-blur-md text-secondary"><span class="material-symbols-outlined text-[15px] text-primary-container" style="font-variation-settings: 'FILL' 1;">${x.badge[0]}</span><span class="font-label-sm text-label-sm text-on-surface">${esc(x.badge[1])}</span></div>
 </div>
 <div class="relative p-space-md -mt-16 flex flex-col gap-space-sm">
-<div class="flex flex-wrap items-center gap-1.5">${x.tags.map((t,i)=>`<span class="px-2 py-0.5 rounded-full ${i===0?"bg-secondary-container/60 text-secondary":"bg-surface-container-highest text-tertiary-fixed-dim"} font-label-sm text-label-sm">${esc(t)}</span>`).join("")}</div>
 <div class="flex flex-col gap-1"><h1 class="font-display-hero-mobile text-display-hero-mobile text-primary tracking-tight">${esc(x.heading)}</h1><p class="font-body-md text-body-md text-on-surface-variant line-clamp-3 leading-relaxed">${esc(x.hero)}</p></div>
 <div class="grid grid-cols-3 gap-space-xs mt-1 pt-space-xs">
 <div class="flex flex-col items-center justify-center py-2 px-1 rounded-xl bg-surface-panel/80 shadow-[0_2px_8px_rgba(0,0,0,0.4)]"><span class="font-label-sm text-label-sm text-primary flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">${m.icon}</span><span data-mv-count>…</span></span><span class="font-micro-caption text-micro-caption text-text-muted mt-0.5">В каталоге</span></div>
@@ -81,12 +80,6 @@
 <div class="flex flex-col items-center justify-center py-2 px-1 rounded-xl bg-surface-panel/80 shadow-[0_2px_8px_rgba(0,0,0,0.4)]"><span class="font-label-sm text-label-sm text-secondary flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">${x.effect[0]}</span> ${esc(x.effect[1])}</span><span class="font-micro-caption text-micro-caption text-text-muted mt-0.5">Эффект</span></div>
 </div></div></section>
 <section class="flex flex-col gap-space-sm p-space-md rounded-2xl bg-surface-panel shadow-[0_12px_32px_rgba(7,6,10,0.85)] relative overflow-hidden">
-<div class="flex items-center justify-between"><div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-primary-container shadow-[0_0_8px_rgba(255,184,48,0.8)]"></div><span class="font-headline-sm text-headline-sm text-tertiary">${esc(x.projector)}</span></div><span class="font-micro-caption text-micro-caption tracking-widest text-text-muted uppercase">35mm · 24 FPS</span></div>
-<div class="relative w-full rounded-xl bg-canvas-obsidian overflow-hidden py-2 px-1 shadow-[inset_0_2px_12px_rgba(0,0,0,0.9)]">
-<div class="flex justify-between items-center px-2 pb-1.5 opacity-40">${'<div class="w-3 h-1.5 bg-text-muted rounded-xs"></div>'.repeat(7)}</div>
-<div class="flex gap-2 overflow-x-auto py-1 scroll-smooth snap-x" id="roulette-reel" data-vibe-reel></div>
-<div class="flex justify-between items-center px-2 pt-1.5 opacity-40">${'<div class="w-3 h-1.5 bg-text-muted rounded-xs"></div>'.repeat(7)}</div>
-</div>
 <button class="w-full h-12 rounded-xl bg-primary-container text-on-primary-fixed font-label-lg text-label-lg flex items-center justify-center gap-2 shadow-[0_0_24px_rgba(255,184,48,0.35)] active:scale-[0.98] transition-all hover:brightness-105" data-vibe-spin type="button"><span class="material-symbols-outlined text-[20px]">casino</span><span data-vibe-launch-label>${esc(x.spin)}</span></button>
 <p class="font-body-sm text-body-sm text-feedback-error" data-vibe-error role="status" hidden></p><button class="self-start px-3 py-2 rounded-lg bg-surface-container-high text-primary font-label-sm text-label-sm" data-vibe-retry type="button" hidden>Повторить загрузку</button>
 <div data-vibe-result></div>

@@ -30,8 +30,7 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
   function scrollToMoodResult(panel,moodId=state.mood){
     requestAnimationFrame(()=>{
       if(!panel.isConnected||moodId!==state.mood)return;
-      const card=panel.closest(".mood-card")||panel;
-      const top=window.scrollY+card.getBoundingClientRect().top-96;
+      const top=window.scrollY+panel.getBoundingClientRect().top-96;
       window.scrollTo({top:Math.max(0,top),behavior:"smooth"});
     });
   }
@@ -274,9 +273,11 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
       if(launchLabel)launchLabel.textContent=`Крутить ещё раз (${currentRuntime().button})`;
       if(skip)skip.hidden=true;
       frame.classList.remove("hit");void frame.offsetWidth;frame.classList.add("hit");
-     // panel.querySelector("[data-mood-winner]").innerHTML=`<article class="flex items-center gap-3 p-3 rounded-xl bg-surface-container mt-3"><div class="w-16 h-24 shrink-0 rounded-lg overflow-hidden bg-surface-container-lowest">${film.poster_path?`<img class="w-full h-full object-cover" alt="Постер «${esc(film.title||film.original_title)}»" src="${poster(film.poster_path)}">`:'<span class="material-symbols-outlined w-full h-full flex items-center justify-center text-primary-container">movie</span>'}</div><div class="min-w-0"><span class="font-micro-caption text-micro-caption text-primary-container">Ваша находка · ${film.runtime} мин · ★ ${Number(film.vote_average||0).toFixed(1)}</span><h3 class="font-headline-sm text-headline-sm text-on-surface font-semibold">${esc(film.title||film.original_title||"Фильм")}</h3><p class="font-body-sm text-body-sm text-text-muted line-clamp-3 mt-1">${esc(film.detail?.overview||film.overview||"Описание пока недоступно.")}</p></div></article>`;
       deps.openFilm(film,"mood",winnerDetailId);
-      scrollToMoodResult(panel,moodId);
+      requestAnimationFrame(()=>{
+        const d=document.getElementById(winnerDetailId);
+        if(d&&moodId===state.mood)window.scrollTo({top:Math.max(0,window.scrollY+d.getBoundingClientRect().top-96),behavior:"smooth"});
+      });
     };
     if(prefersReducedMotion()||!others.length){
       run.style.transform=`translateX(${-finish}px)`;complete();

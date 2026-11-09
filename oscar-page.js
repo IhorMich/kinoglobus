@@ -428,9 +428,5 @@ ${info.best?`<span class="block font-micro-caption text-micro-caption text-prima
     };
     state.spinFrame=requestAnimationFrame(step);
   }
-  function getCurrentDecade(){
-    const name=state.decade==="all"?"Все эпохи":state.decade==="gold"?"Золотой Голливуд":`${state.decade.slice(0,3)}0-е`;
-    return {id:state.decade,title:name};
-  }
-  window.KGOscarPage={render,stop:stopSpin,info:oscarInfo,awards:awardsFor,getCurrentDecade};
+  window.KGOscarPage={render,stop:stopSpin,info:oscarInfo,awards:awardsFor};
 })();

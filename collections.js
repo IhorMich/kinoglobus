@@ -37,6 +37,68 @@ st2.textContent=`.kgr-win{position:relative;height:150px;overflow:hidden;-webkit
 @media(prefers-reduced-motion:reduce){.kgr-rise{animation:none}}`;
 document.head.appendChild(st2);
 
+/* ==========================================================================
+   МАППИНГ ВСЕХ 44 АВТОРСКИХ КИНЕМАТОГРАФИЧНЫХ АРТ-ОБЛОЖЕК (16:9)
+   Каждая подборка получает гарантированный кураторский визуал
+   ========================================================================== */
+const THEME_COVERS = {
+  // 1. Азиатский блок
+  kr: "assets/covers/kr.jpg",
+  krdrama: "assets/covers/krdrama.jpg",
+  jp: "assets/covers/jp.jpg",
+  jhorror: "assets/covers/jhorror.jpg",
+  jpauteur: "assets/covers/jpauteur.jpg",
+  jpcrime: "assets/covers/jpcrime.jpg",
+  jpscifi: "assets/covers/jpscifi.jpg",
+  hk: "assets/covers/hk.jpg",
+  cnfan: "assets/covers/cnfan.jpg",
+  thhorror: "assets/covers/thhorror.jpg",
+  idhorror: "assets/covers/idhorror.jpg",
+  // 2. Индия и Ближний Восток
+  inact: "assets/covers/inact.jpg",
+  inromance: "assets/covers/inromance.jpg",
+  inclassic: "assets/covers/inclassic.jpg",
+  ir: "assets/covers/ir.jpg",
+  tr: "assets/covers/tr.jpg",
+  arabic: "assets/covers/arabic.jpg",
+  // 3. Европейский блок
+  nordic: "assets/covers/nordic.jpg",
+  frnoir: "assets/covers/frnoir.jpg",
+  frcom: "assets/covers/frcom.jpg",
+  itcrime: "assets/covers/itcrime.jpg",
+  itcom: "assets/covers/itcom.jpg",
+  eshorror: "assets/covers/eshorror.jpg",
+  esdrama: "assets/covers/esdrama.jpg",
+  dedrama: "assets/covers/dedrama.jpg",
+  gbdet: "assets/covers/gbdet.jpg",
+  gbdrama: "assets/covers/gbdrama.jpg",
+  pldrama: "assets/covers/pldrama.jpg",
+  // 4. Постсоветский архив
+  suwar: "assets/covers/suwar.jpg",
+  sufi: "assets/covers/sufi.jpg",
+  suanim: "assets/covers/suanim.jpg",
+  uadrama: "assets/covers/uadrama.jpg",
+  // 5. Америка и Латинская Америка
+  uscrime: "assets/covers/uscrime.jpg",
+  uswestern: "assets/covers/uswestern.jpg",
+  uscomedy: "assets/covers/uscomedy.jpg",
+  usdrama: "assets/covers/usdrama.jpg",
+  ushorror: "assets/covers/ushorror.jpg",
+  usscifi: "assets/covers/usscifi.jpg",
+  usanimation: "assets/covers/usanimation.jpg",
+  mxdrama: "assets/covers/mxdrama.jpg",
+  latam: "assets/covers/latam.jpg",
+  brazil: "assets/covers/brazil.jpg",
+  // 6. Африка и Океания
+  african: "assets/covers/african.jpg",
+  auhorror: "assets/covers/auhorror.jpg"
+};
+function getThemeCover(id){
+  return THEME_COVERS[id] || "";
+}
+
+
+
 /* ---------- данные подборок ---------- */
 const CAT={noir:["Триллер и Нуар","NOIR • CRIME"],horror:["Ужасы и Мистика","HORROR • MYSTERY"],drama:["Драма и Авторское","DRAMA • AUTEUR"],action:["Экшен и Фэнтези","ACTION • FANTASY"],retro:["Историческое","RETRO • WAR"],comedy:["Комедия и Романтика","COMEDY • ROMANCE"],scifi:["Фантастика","SCI-FI • FUTURE"]};
 // id: [категория, английское название, подпись в каталоге, описание]
@@ -267,7 +329,7 @@ function cardHtml(t,i){
   const btn=`<button type="button" aria-label="Крутить" data-act="spin" data-t="${t.id}" class="w-8 h-8 rounded-full bg-surface-container-high hover:bg-primary-container hover:text-on-primary-container text-primary flex items-center justify-center transition-all"><span class="material-symbols-outlined text-[18px]">casino</span></button>`;
   return `<article class="collection-card relative flex flex-col ${special?"p-4 bg-gradient-to-br from-cinema-velvet-deep/40 via-surface-panel to-surface-panel shadow-[0_6px_24px_rgba(0,0,0,0.6)]":"p-3.5 bg-surface-panel shadow-[0_4px_20px_rgba(0,0,0,0.45)]"} rounded-2xl transition-all active:scale-[0.99] cursor-pointer" data-t="${t.id}" data-cat="${m[0]}" data-i="${i}">
 ${top}<div class="flex items-start gap-3">
-<div class="relative w-20 h-28 rounded-lg overflow-hidden shrink-0 bg-surface-container-high"><img data-k="img" alt="" class="w-full h-full object-cover opacity-0 transition-opacity duration-500 ${special?"grayscale contrast-125":""}"><span class="absolute bottom-1 right-1 px-1.5 rounded bg-surface-container-lowest/80 text-[10px] font-bold text-primary">${esc(codeOf(t))}</span></div>
+<div class="relative w-20 h-28 rounded-lg overflow-hidden shrink-0 bg-surface-container-high"><img data-k="img" alt="${esc(t.name)}" src="${getThemeCover(t.id)}" class="w-full h-full object-cover transition-opacity duration-500 ${special?"grayscale contrast-125":""} ${getThemeCover(t.id)?"":"opacity-0"}"><span class="absolute bottom-1 right-1 px-1.5 rounded bg-surface-container-lowest/80 text-[10px] font-bold text-primary">${esc(codeOf(t))}</span></div>
 <div class="flex flex-col min-w-0 flex-1 justify-between h-28"><div>
 <div class="flex items-center justify-between gap-1"><span class="font-micro-caption text-micro-caption text-text-muted flex items-center gap-1 truncate">${flagsOf(t)} ${esc(where(t))}</span>${rate}</div>
 <h4 class="font-headline-sm text-headline-sm text-primary font-bold truncate mt-0.5">${i+1}. ${esc(t.name)}</h4>
@@ -279,7 +341,7 @@ ${top}<div class="flex items-start gap-3">
 function spotlightHtml(t){
   const m=TM[t.id]||["noir","","",""];
   return `<section id="spot" data-t="${t.id}" tabindex="0" aria-label="Открыть подборку «${esc(t.name)}»" class="relative w-full rounded-2xl overflow-hidden bg-surface-panel shadow-[0_14px_34px_-10px_rgba(0,0,0,0.85)] cursor-pointer">
-<div data-k="bg" class="w-full h-56 bg-cover bg-center relative bg-surface-container-high"><div class="absolute inset-0 bg-gradient-to-t from-surface-panel via-surface-panel/60 to-transparent"></div>
+<div data-k="bg" style="background-image: url('${getThemeCover(t.id)}');" class="w-full h-56 bg-cover bg-center relative bg-surface-container-high"><div class="absolute inset-0 bg-gradient-to-t from-surface-panel via-surface-panel/60 to-transparent"></div>
 <div class="absolute top-3 left-3 right-3 flex items-center justify-between"><div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-cinema-velvet-deep text-secondary font-micro-caption text-micro-caption shadow-md"><span class="material-symbols-outlined text-[14px]">local_fire_department</span>ХИТ НЕДЕЛИ</div>
 <div class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container-lowest/80 backdrop-blur-md text-primary font-label-sm text-label-sm"><span class="material-symbols-outlined text-[15px] text-primary-container" style="font-variation-settings:'FILL' 1;">star</span><span data-k="r">…</span></div></div>
 <div class="absolute bottom-3 left-3.5 right-3.5 flex items-center gap-1.5"><span class="px-2 py-0.5 rounded-full bg-surface-container-high/90 backdrop-blur text-primary font-micro-caption text-micro-caption tracking-wider">${t.cc.map(fl).join(" ")}</span><span class="font-micro-caption text-micro-caption text-text-muted truncate">${esc(t.cc.map(cname).join(", "))}</span></div></div>
@@ -325,10 +387,12 @@ ${spotlightHtml(spotlightTheme())}
 
 function paintMeta(id){
   const m=META[id];if(!m)return;
+  const customArt = getThemeCover(id);
   document.querySelectorAll(`#view-collections [data-t="${id}"]`).forEach(el=>{
     if(el.id==="spot"){
       const bg=el.querySelector('[data-k="bg"]');
-      const src=m.b?P(m.b,"w780"):P(m.p,"w500");
+      // Приоритет отдаётся авторской широкоформатной арт-обложке
+      const src=customArt || (m.b?P(m.b,"w780"):P(m.p,"w500"));
       if(src) bg.style.backgroundImage=`url('${src}')`;
     }
     const r=el.querySelector('[data-k="r"]');
@@ -336,7 +400,16 @@ function paintMeta(id){
     const c=el.querySelector('[data-k="cnt"]');
     if(c){const g=gnames(T[id])[0]||"";c.textContent=el.id==="spot"?`${nf(m.n)} ${fw(m.n)}`:`${nf(m.n)} ${fw(m.n)}${g?" · "+g:""}`;}
     const img=el.querySelector('[data-k="img"]');
-    if(img&&m.p){img.onload=()=>img.classList.remove("opacity-0");img.src=P(m.p,"w185");}
+    if(img){
+      // Сохраняем авторскую кураторскую обложку вместо случайного первого постера
+      if(customArt){
+        img.src = customArt;
+        img.classList.remove("opacity-0");
+      } else if(m.p){
+        img.onload=()=>img.classList.remove("opacity-0");
+        img.src=P(m.p,"w185");
+      }
+    }
   });
 }
 function filterCatalog(){
@@ -564,7 +637,11 @@ document.addEventListener("click",e=>{
 });
 function otherHtml(t){
   const m=META[t.id]||{};
-  return `<a href="#" data-act="goto" data-t="${t.id}" class="flex flex-col gap-1.5 p-3 rounded-xl bg-surface-panel hover:bg-surface-container-low min-w-[140px] max-w-[140px] flex-shrink-0 transition-colors shadow-md"><div class="w-full h-20 rounded-lg overflow-hidden bg-surface-container-high" data-oi="${t.id}">${m.p?`<img class="w-full h-full object-cover" alt="" src="${P(m.p,"w185")}">`:""}</div><span class="font-label-sm text-label-sm text-on-surface font-bold truncate">${esc(t.name)} ${fl(t.cc[0])}</span><span data-oc="${t.id}" class="font-micro-caption text-micro-caption text-text-muted">${m.n?nf(m.n)+" "+fw(m.n):"…"}</span></a>`;
+  const artCover = getThemeCover(t.id);
+  const imgMarkup = artCover 
+    ? `<img class="w-full h-full object-cover" alt="${esc(t.name)}" src="${artCover}">`
+    : (m.p ? `<img class="w-full h-full object-cover" alt="" src="${P(m.p,"w185")}">` : "");
+  return `<a href="#" data-act="goto" data-t="${t.id}" class="flex flex-col gap-1.5 p-3 rounded-xl bg-surface-panel hover:bg-surface-container-low min-w-[140px] max-w-[140px] flex-shrink-0 transition-colors shadow-md"><div class="w-full h-20 rounded-lg overflow-hidden bg-surface-container-high" data-oi="${t.id}">${imgMarkup}</div><span class="font-label-sm text-label-sm text-on-surface font-bold truncate">${esc(t.name)} ${fl(t.cc[0])}</span><span data-oc="${t.id}" class="font-micro-caption text-micro-caption text-text-muted">${m.n?nf(m.n)+" "+fw(m.n):"…"}</span></a>`;
 }
 
 function renderCollection(){
@@ -598,7 +675,11 @@ ${t.cc.length>1?`<div class="flex flex-col gap-1.5 pt-1"><span class="font-micro
   others.forEach(o=>loadMeta(o).then(m=>{
     const a=vd.querySelector(`[data-oc="${o.id}"]`),i=vd.querySelector(`[data-oi="${o.id}"]`);
     if(a)a.textContent=nf(m.n)+" "+fw(m.n);
-    if(i&&m.p&&!i.firstChild)i.innerHTML=`<img class="w-full h-full object-cover" alt="" src="${P(m.p,"w185")}">`;
+    if(i&&!i.firstChild){
+      const art=getThemeCover(o.id);
+      if(art) i.innerHTML=`<img class="w-full h-full object-cover" alt="" src="${art}">`;
+      else if(m.p) i.innerHTML=`<img class="w-full h-full object-cover" alt="" src="${P(m.p,"w185")}">`;
+    }
   }).catch(()=>{}));
 }
 
@@ -1176,5 +1257,6 @@ if(dailyRefreshDue())refreshDailyData();
 else if(!homeEditorial.films.length)loadHomeEditorial();
 scheduleDailyRefresh();
 showView("home");
-console.info("[Kinoglobus] v8 collections ready");
+window.KINOGLOBUS_THEME_COVERS = THEME_COVERS;
+console.info("[Kinoglobus] v8 collections ready + theme covers");
 })();

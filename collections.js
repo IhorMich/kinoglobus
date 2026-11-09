@@ -580,6 +580,10 @@ function renderFilms(){
     dr.forEach(e=>e.textContent=d.dirs.length?"Реж. "+d.dirs.slice(0,2).join(", "):"");
   }).catch(()=>{}));
 }
+function trailerThumb(v,f){
+  const src=v&&v.site==="YouTube"?`https://i.ytimg.com/vi/${encodeURIComponent(v.key)}/hqdefault.jpg`:f.backdrop_path?P(f.backdrop_path,"w780"):f.poster_path?P(f.poster_path,"w342"):"";
+  return src?`<img src="${src}" alt="" class="absolute inset-0 w-full h-full object-cover opacity-80" loading="eager" decoding="async" onerror="this.remove()">`:"";
+}
 function selectedFilmHtml(f,embedded=false){
   const year=(f.release_date||"").slice(0,4);
   const poster=f.poster_path?`<img class="w-full h-full object-cover" loading="lazy" alt="Постер фильма «${esc(f.title||"Фильм")}»" src="${P(f.poster_path,"w185")}">`:`<span class="material-symbols-outlined text-text-muted">movie</span>`;
@@ -590,7 +594,7 @@ function selectedFilmHtml(f,embedded=false){
   const trailerContent=f._trailerPlaying&&activeVideo
     ?`<iframe src="${embedSrc(activeVideo,true)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" title="Трейлер ${esc(f.title)}" style="position:absolute;inset:0;width:100%;height:100%;border:0"></iframe>`
     :activeVideo
-      ?`<button type="button" data-trailer-action="play" data-id="${f.id}" aria-label="Воспроизвести трейлер" class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-surface-container-high to-canvas-obsidian text-primary-container transition-colors hover:text-primary"><span class="material-symbols-outlined text-[48px]">play_arrow</span></button>`
+      ?`<button type="button" data-trailer-action="play" data-id="${f.id}" aria-label="Воспроизвести трейлер" class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-surface-container-high to-canvas-obsidian text-primary-container transition-colors hover:text-primary">${trailerThumb(activeVideo,f)}<span class="relative flex items-center justify-center w-16 h-16 rounded-full bg-black/55 border border-primary-container/60 backdrop-blur-sm"><span class="material-symbols-outlined text-[44px]">play_arrow</span></span></button>`
       :`<div class="absolute inset-0 flex items-center justify-center text-text-muted font-body-sm text-body-sm">${f._trailerStatus==="missing"?"Трейлер не найден":"Ищем трейлер…"}</div>`;
   const oscar=f._placement==="oscar"&&window.KGOscarPage&&window.KGOscarPage.info?window.KGOscarPage.info(f):null;
   const awardsHtml=oscar?(f._oscarAwards===undefined
@@ -713,6 +717,7 @@ async function openCollection(id,opt){
 
 function renderSelectedPanel(){
   const selected=D.selected;if(!selected)return;
+  if(selected._trailerPlaying&&document.querySelector(`[data-selected-film="${selected.id}"] #cl-inline-trailer iframe`))return;
   if(selected._placement==="list"){renderFilms();return;}
   const inMoodList=selected._placement==="mood"&&String(selected._detailTarget||"").startsWith("mood-film-detail-");
   const inOscarList=selected._placement==="oscar"&&/^oscar-(list|feature|grid)-detail-/.test(String(selected._detailTarget||""));
@@ -1019,6 +1024,7 @@ function renderHomeEditorial(){
   }
   if(!homeEditorial.details.has(featured.id)){
     homeEditorial.details.add(featured.id);
+    trailerFor(featured).catch(()=>{});
     filmDetails(featured.id).then(d=>{
       if(!homeEditorial.films.length||homeEditorial.films[dayIndex].id!==featured.id)return;
       homeEditorial.featureDetails=d;homeEditorial.directorData.set(featured.id,d);
@@ -1125,6 +1131,7 @@ homeEditorialRoot.addEventListener("click",async e=>{
     }
     return;
   }
+  if(e.target.closest("[data-trailer-action]"))return;
   const button=e.target.closest("[data-home-act]");
   if(!button)return;
   e.stopPropagation();

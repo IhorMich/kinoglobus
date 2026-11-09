@@ -85,7 +85,7 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
 <button type="button" data-mood-select data-mood-id="${m.id}" aria-pressed="${i===0}" class="relative z-10 w-full h-40 overflow-hidden text-left"><img class="absolute inset-0 w-full h-full object-cover" src="${m.image}" alt=""><span class="absolute inset-0 bg-gradient-to-t from-surface-container-high via-surface-container-high/35 to-transparent"></span><span class="absolute top-3 left-3 w-9 h-9 rounded-xl bg-surface-container-lowest/80 backdrop-blur-md flex items-center justify-center text-primary-container border border-surface-border-subtle"><span class="material-symbols-outlined text-[20px]">${m.icon}</span></span><span class="absolute bottom-3 left-4 right-12"><span class="mood-title block font-headline-sm text-headline-sm ${i===0?"text-primary":"text-on-surface"} leading-snug">${m.title}</span><span class="block font-micro-caption text-micro-caption text-text-muted mt-1">${m.tag}</span></span><span class="mood-radio absolute right-3 bottom-3 w-6 h-6 rounded-full ${i===0?"bg-primary-container text-on-primary shadow-md":"bg-surface-container-highest text-transparent"} flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">check</span></span></button>
 <p class="relative px-4 font-body-sm text-body-sm text-on-surface-variant mb-3 leading-snug">${m.description}</p>
 <div class="relative px-4 flex flex-wrap items-center gap-1.5 pt-1">${m.labels.map(x=>`<span class="font-label-sm text-label-sm px-2.5 py-1 rounded-full bg-surface-container-low text-text-muted">${x}</span>`).join("")}<span class="font-micro-caption text-micro-caption px-2 py-1 rounded-full bg-surface-container-low text-on-surface-variant ml-auto">${m.genreLabel}</span></div>
-<div data-mood-workbench ${i===0?"":"hidden"} class="relative z-10 mx-4 mt-4 mb-4 flex flex-col gap-3 border-t border-surface-border-subtle pt-3">
+<div data-mood-workbench class="relative z-10 mx-4 mt-4 mb-4 flex flex-col gap-3 border-t border-surface-border-subtle pt-3">
 <div class="flex justify-end"><button class="flex items-center gap-1 text-on-surface-variant hover:text-primary" data-mood-surprise type="button"><span class="material-symbols-outlined text-[15px]">shuffle</span><span class="font-micro-caption text-micro-caption underline">Другой вайб</span></button></div>
 <button class="w-full h-12 rounded-xl bg-primary-container text-on-primary font-label-lg text-label-lg flex items-center justify-center gap-2 shadow-[0_0_24px_rgba(255,184,48,0.35)] active:scale-[0.98] transition-all" data-mood-spin type="button"><span class="material-symbols-outlined text-[20px]">casino</span><span data-mood-launch-label>Крутить этот вайб</span></button>
 <p class="font-body-sm text-body-sm text-feedback-error" data-mood-error role="status" hidden></p><button class="self-start px-3 py-2 rounded-lg bg-surface-container-high text-primary font-label-sm text-label-sm" data-mood-retry type="button" hidden>Повторить загрузку</button>
@@ -110,7 +110,6 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
       card.querySelector("[data-mood-glow]").classList.toggle("opacity-20",active);
       card.querySelector("[data-mood-glow]").classList.toggle("opacity-0",!active);
       const select=card.querySelector("[data-mood-select]");if(select)select.setAttribute("aria-pressed",String(active));
-      const workbench=card.querySelector("[data-mood-workbench]");if(workbench)workbench.hidden=!active;
     });
   }
   function stopSpin(root){
@@ -136,6 +135,7 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
     if(id===state.mood)return;
     stopSpin(root);deps.closeFilm("mood");
     root.querySelectorAll("[data-mood-result],[data-mood-films]").forEach(el=>el.replaceChildren());
+    state.autoSpin=null;
     state.mood=id;state.films=[];state.shown=4;state.loadedKey="";state.page=0;state.totalPages=0;state.jobs=null;
     paintSelection(root);loadMood(root,deps);renderFilms(root,deps);updateLaunchLabel(root);
   }
@@ -195,7 +195,10 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
       if(token!==state.token)return;
       if(error){error.textContent=e.message||"Не удалось загрузить фильмы. Попробуйте ещё раз.";error.hidden=false;}if(retry)retry.hidden=false;
     }finally{
-      if(token===state.token){state.loading=false;renderFilms(root,deps);}
+      if(token===state.token){
+        state.loading=false;renderFilms(root,deps);
+        if(state.autoSpin===state.mood){state.autoSpin=null;launch(root,deps);}
+      }
     }
   }
   async function mapLimit(items,limit,fn){
@@ -207,6 +210,8 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
   function handleClick(e,root,deps){
     if(e.target.closest("[data-mood-back]")){deps.back();return;}
     if(e.target.closest('[data-act="close-film"]')){deps.closeFilm("mood");return;}
+    const ownerCard=e.target.closest(".mood-card");
+    if(ownerCard&&ownerCard.dataset.moodCard!==state.mood&&!e.target.closest("[data-mood-select]")&&e.target.closest("[data-mood-workbench]"))selectMood(ownerCard.dataset.moodCard,root,deps);
     const select=e.target.closest("[data-mood-select]");
     if(select){selectMood(select.dataset.moodId,root,deps);return;}
     const runtime=e.target.closest("[data-runtime]");
@@ -254,7 +259,7 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
     deps.closeFilm("mood");
     const error=activeElement(root,"[data-mood-error]"),pool=filtered();
     if(error){error.hidden=true;error.textContent="";}
-    if(state.loading){if(error){error.textContent="Подборка ещё загружается.";error.hidden=false;}return;}
+    if(state.loading){state.autoSpin=state.mood;if(error){error.textContent="Подборка загружается — рулетка запустится сама.";error.hidden=false;}return;}
     if(!pool.length){if(error){error.textContent="В выбранном настроении и хронометраже фильмов не нашлось. Выберите другой хронометраж.";error.hidden=false;}return;}
     const moodId=state.mood,film=pool[Math.floor(Math.random()*pool.length)],winnerDetailId=`mood-roulette-winner-detail-${moodId}`;
     const token=++state.spinToken,winnerIndex=26,others=pool.filter(item=>item.id!==film.id),sequence=[];

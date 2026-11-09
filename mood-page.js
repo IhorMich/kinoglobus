@@ -14,7 +14,9 @@
   ];
   const esc=s=>String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const poster=(path,size="w185")=>path?`https://image.tmdb.org/t/p/${size}${path}`:"";
-  const state={mood:"wine",runtime:"short",films:[],loading:false,loadedKey:"",token:0,spinToken:0};
+  const state={mood:"wine",runtime:"short",films:[],loading:false,loadedKey:"",token:0,spinToken:0,spinFrame:0,spinning:false,skipSpin:false,page:0,totalPages:0};
+  const reelStep=90,reelPadding=8,reelCellWidth=80;
+  const prefersReducedMotion=()=>window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches||false;
   let boundRoot=null;
   const currentMood=()=>moods.find(m=>m.id===state.mood)||moods[0];
   const currentRuntime=()=>runtimes.find(r=>r.id===state.runtime)||runtimes[0];
@@ -41,6 +43,7 @@
     }).join("");
   }
   function render(root,deps){
+    if(boundRoot===root)stopSpin(root);
     root.innerHTML=`
 <div class="flex flex-col w-full pb-8">
 <div class="flex items-center justify-between pt-2 pb-1"><button type="button" data-mood-back class="flex items-center gap-1.5 text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined text-[20px]">arrow_back</span><span class="font-label-sm text-label-sm">Подборки</span></button><span class="font-micro-caption text-micro-caption text-primary/80 uppercase tracking-widest">Mood &amp; Vibe</span></div>
@@ -60,8 +63,8 @@
 <aside class="sticky bottom-20 z-30 flex flex-col gap-2 p-3 rounded-2xl bg-surface-panel/95 backdrop-blur-md shadow-2xl shadow-black/80">
 <div class="flex items-center justify-between px-1"><div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-primary-container"></span><span class="font-micro-caption text-micro-caption text-primary" id="mood-pool-count">В пуле: загружаем…</span></div><button class="flex items-center gap-1 text-on-surface-variant hover:text-primary" id="mood-surprise" type="button"><span class="material-symbols-outlined text-[15px]">shuffle</span><span class="font-micro-caption text-micro-caption underline">Удиви меня</span></button></div>
 <button class="w-full h-12 rounded-xl bg-primary-container text-on-primary font-label-lg text-label-lg flex items-center justify-center gap-2 shadow-[0_0_24px_rgba(255,184,48,0.35)] active:scale-[0.98] transition-all" id="mood-launch" type="button"><span class="material-symbols-outlined text-[20px]">casino</span><span id="mood-launch-label">Запустить рулетку</span></button>
-<p class="font-body-sm text-body-sm text-feedback-error" id="mood-error" role="status" hidden></p></aside><section class="flex flex-col gap-2 mt-4"><h2 class="font-headline-sm text-headline-sm text-on-surface">Фильмы по настроению</h2><div id="mood-films"><p class="font-body-sm text-body-sm text-text-muted p-3 rounded-xl bg-surface-panel">Загрузка из TMDB…</p></div></section><div id="mood-result" class="mt-4"></div></div>`;
-    state.mood="wine";state.runtime="short";state.films=[];state.loadedKey="";
+<p class="font-body-sm text-body-sm text-feedback-error" id="mood-error" role="status" hidden></p><button class="self-start px-3 py-2 rounded-lg bg-surface-container-high text-primary font-label-sm text-label-sm" id="mood-retry" type="button" hidden>Повторить загрузку</button></aside><section class="flex flex-col gap-2 mt-4"><h2 class="font-headline-sm text-headline-sm text-on-surface">Фильмы по настроению</h2><div id="mood-films"><p class="font-body-sm text-body-sm text-text-muted p-3 rounded-xl bg-surface-panel">Загрузка из TMDB…</p></div></section><div id="mood-result" class="mt-4"></div></div>`;
+    state.mood="wine";state.runtime="short";state.films=[];state.loadedKey="";state.page=0;state.totalPages=0;
     updateCounts(root);
     if(boundRoot!==root){
       root.addEventListener("click",e=>handleClick(e,root,deps));
@@ -82,32 +85,49 @@
       card.querySelector("[data-mood-glow]").classList.toggle("opacity-0",!active);
     });
   }
-  function selectMood(id,root,deps){if(!moods.some(m=>m.id===id))return;deps.closeFilm("mood");state.spinToken++;root.querySelector("#mood-result").replaceChildren();state.mood=id;state.films=[];state.loadedKey="";paintSelection(root);loadMood(root,deps);renderFilms(root);}
+  function stopSpin(root){
+    state.spinToken++;cancelAnimationFrame(state.spinFrame);state.spinning=false;state.skipSpin=false;
+    const button=root.querySelector("#mood-launch"),label=root.querySelector("#mood-launch-label"),skip=root.querySelector("#mood-skip");
+    if(button)button.disabled=false;
+    if(label)label.textContent=`Запустить рулетку (${currentMood().emoji} + ${currentRuntime().button})`;
+    if(skip)skip.hidden=true;
+    if(state.spinning&&typeof window.stopFilmReelSound==="function")window.stopFilmReelSound();
+  }
+  function selectMood(id,root,deps){if(!moods.some(m=>m.id===id))return;stopSpin(root);deps.closeFilm("mood");root.querySelector("#mood-result").replaceChildren();state.mood=id;state.films=[];state.loadedKey="";state.page=0;state.totalPages=0;paintSelection(root);loadMood(root,deps);renderFilms(root);}
   async function loadMood(root,deps){
     const token=++state.token,key=state.mood;
     state.loading=true;updateCounts(root);renderFilms(root);
-    const error=root.querySelector("#mood-error");if(error){error.hidden=true;error.textContent="";}
+    const error=root.querySelector("#mood-error"),retry=root.querySelector("#mood-retry");if(error){error.hidden=true;error.textContent="";}if(retry)retry.hidden=true;
     if(!deps.hasKey()){state.loading=false;updateCounts(root);renderFilms(root);if(error){error.textContent="Добавьте ключ TMDB на экране «Глобус», чтобы загружать подборки.";error.hidden=false;}return;}
     try{
       const mood=currentMood();
-      const result=await deps.api({with_origin_country:mood.countries.join("|"),with_genres:mood.genres.join("|"),"vote_count.gte":30,"vote_average.gte":5.5,sort_by:"popularity.desc",page:1,include_adult:"false"});
-      const films=(result.results||[]).filter(f=>f.poster_path);
-      const candidateFilms=films.slice(0,20),details=[];
-      let detailFailures=0;
-      await mapLimit(candidateFilms,4,async f=>{
-        try{details.push([f.id,await deps.details(f.id)]);}catch(_){detailFailures++;details.push([f.id,null]);}
-      });
-      if(token!==state.token||key!==state.mood)return;
-      const byId=new Map(details);
-      state.films=candidateFilms.map(f=>({...f,runtime:(byId.get(f.id)||{}).runtime||0,detail:byId.get(f.id)})).filter(f=>f.runtime>0);
+      const params={with_origin_country:mood.countries.join("|"),with_genres:mood.genres.join("|"),"vote_count.gte":30,"vote_average.gte":5.5,sort_by:"popularity.desc",include_adult:"false"};
+      let detailFailures=0,attempted=0;
+      while(state.page<Math.min(state.totalPages||3,3)&&filtered().length<5){
+        const page=state.page+1;
+        const result=await deps.api({...params,page});
+        if(token!==state.token||key!==state.mood)return;
+        state.totalPages=Math.min(result.total_pages||1,3);
+        const candidates=(result.results||[]).filter(f=>f.poster_path&&!state.films.some(item=>item.id===f.id));
+        const details=[];
+        await mapLimit(candidates,4,async f=>{
+          try{details.push([f.id,await deps.details(f.id)]);}catch(_){detailFailures++;details.push([f.id,null]);}
+        });
+        if(token!==state.token||key!==state.mood)return;
+        attempted+=candidates.length;
+        const byId=new Map(details);
+        state.films.push(...candidates.map(f=>({...f,runtime:(byId.get(f.id)||{}).runtime||0,detail:byId.get(f.id)})).filter(f=>f.runtime>0));
+        state.page=page;
+        renderFilms(root);updateCounts(root);
+      }
       state.loadedKey=key;
-      if(candidateFilms.length&&!state.films.length&&detailFailures===candidateFilms.length){
+      if(attempted&&!state.films.length&&detailFailures===attempted){
         throw new Error("Не удалось получить хронометраж из TMDB. Проверьте API-ключ и подключение.");
       }
       renderFilms(root);
     }catch(e){
       if(token!==state.token)return;
-      if(error){error.textContent=e.message||"Не удалось загрузить фильмы. Попробуйте ещё раз.";error.hidden=false;}
+      if(error){error.textContent=e.message||"Не удалось загрузить фильмы. Попробуйте ещё раз.";error.hidden=false;}if(retry)retry.hidden=false;
     }finally{
       if(token===state.token){state.loading=false;updateCounts(root);renderFilms(root);}
     }
@@ -125,17 +145,20 @@
     if(card){selectMood(card.dataset.moodCard,root,deps);return;}
     const runtime=e.target.closest("[data-runtime]");
     if(runtime){
+      stopSpin(root);
       deps.closeFilm("mood");
-      state.spinToken++;root.querySelector("#mood-result").replaceChildren();
+      root.querySelector("#mood-result").replaceChildren();
       state.runtime=runtime.dataset.runtime;
       root.querySelectorAll(".mood-runtime").forEach(b=>b.className=`mood-runtime shrink-0 flex items-center gap-2 px-3.5 py-2.5 rounded-full ${b===runtime?"bg-primary-container text-on-primary shadow-[0_0_18px_rgba(255,184,48,0.28)]":"bg-surface-container text-text-muted"} font-label-sm text-label-sm transition-all active:scale-95`);
-      updateCounts(root);return;
+      updateCounts(root);renderFilms(root);if(!filtered().length&&!state.loading&&state.page<state.totalPages)loadMood(root,deps);return;
     }
     if(e.target.closest("#mood-surprise")){
       const m=moods[Math.floor(Math.random()*moods.length)];
       selectMood(m.id,root,deps);root.querySelector(`[data-mood-card="${m.id}"]`)?.scrollIntoView({behavior:"smooth",block:"center"});return;
     }
     if(e.target.closest("#mood-launch")){launch(root,deps);return;}
+    if(e.target.closest("#mood-skip")){state.skipSpin=true;return;}
+    if(e.target.closest("#mood-retry")){loadMood(root,deps);return;}
     const film=e.target.closest("[data-mood-film]");
     if(film){
       const item=state.films.find(f=>String(f.id)===film.dataset.moodFilm);
@@ -143,33 +166,63 @@
     }
   }
   function launch(root,deps){
+    if(state.spinning)return;
     deps.closeFilm("mood");
     const error=root.querySelector("#mood-error"),pool=filtered();
     if(error){error.hidden=true;error.textContent="";}
     if(state.loading){if(error){error.textContent="Подборка ещё загружается.";error.hidden=false;}return;}
     if(!pool.length){if(error){error.textContent="В выбранном настроении и хронометраже фильмов не нашлось. Выберите другой хронометраж.";error.hidden=false;}return;}
     const film=pool[Math.floor(Math.random()*pool.length)];
-    const token=++state.spinToken,trackLength=16,winnerIndex=12;
-    const sequence=Array.from({length:trackLength},(_,i)=>i===winnerIndex?film:pool[Math.floor(Math.random()*pool.length)]);
+    const token=++state.spinToken,winnerIndex=26,others=pool.filter(item=>item.id!==film.id),sequence=[];
+    for(let i=0;i<winnerIndex;i++)sequence.push(others.length?others[Math.floor(Math.random()*others.length)]:film);
+    sequence.push(film);
+    for(let i=0;i<6;i++)sequence.push(others.length?others[Math.floor(Math.random()*others.length)]:film);
     const panel=root.querySelector("#mood-result");
-    panel.innerHTML=`<div class="relative overflow-hidden rounded-2xl bg-surface-panel p-4 shadow-xl"><div class="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-cinema-amber-glow blur-3xl pointer-events-none"></div><h2 class="relative font-headline-sm text-headline-sm text-primary mb-3">Кинорулетка настроения</h2><div class="relative h-28 overflow-hidden rounded-xl bg-canvas-obsidian border border-primary-container/30"><div class="absolute inset-y-0 left-1/2 z-10 w-20 -translate-x-1/2 border-x-2 border-primary-container/80 pointer-events-none"></div><div id="mood-reel-track" class="absolute inset-y-0 left-0 flex items-center gap-2 px-2">${sequence.map((item,i)=>`<div data-mood-reel-index="${i}" class="relative h-24 w-16 shrink-0 overflow-hidden rounded-lg bg-surface-container-high">${item.poster_path?`<img class="h-full w-full object-cover" alt="" src="${poster(item.poster_path)}">`:'<div class="h-full w-full flex items-center justify-center"><span class="material-symbols-outlined text-primary-container">movie</span></div>'}</div>`).join("")}</div></div><div id="mood-roulette-result" class="mt-3 min-h-8 font-body-sm text-body-sm text-text-muted" aria-live="polite">Прокручиваем плёнку…</div><div id="mood-roulette-open" class="mt-2"></div><div id="mood-roulette-detail" class="mt-4"></div></div>`;
-    const reel=panel.querySelector("#mood-reel-track"),viewport=reel.parentElement,winningCard=reel.querySelector(`[data-mood-reel-index="${winnerIndex}"]`);
-    requestAnimationFrame(()=>{
-      if(token!==state.spinToken||!reel.isConnected)return;
-      const offset=winningCard.offsetLeft+winningCard.offsetWidth/2-viewport.clientWidth/2;
-      reel.style.transform="translateX(0)";
-      requestAnimationFrame(()=>{
-        if(token!==state.spinToken||!reel.isConnected)return;
-        reel.style.transition="transform 2.4s cubic-bezier(.12,.72,.12,1)";
-        reel.style.transform=`translateX(${-Math.max(0,offset)}px)`;
-      });
-    });
-    setTimeout(()=>{
+    state.spinning=true;state.skipSpin=false;
+    const launchButton=root.querySelector("#mood-launch"),launchLabel=root.querySelector("#mood-launch-label");
+    if(launchButton)launchButton.disabled=true;
+    if(launchLabel)launchLabel.textContent="Плёнка крутится…";
+    panel.innerHTML=`<div class="relative overflow-hidden rounded-2xl bg-surface-panel p-4 shadow-xl"><div class="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-cinema-amber-glow blur-3xl pointer-events-none"></div><h2 class="relative font-headline-sm text-headline-sm text-primary mb-3">Кинорулетка настроения</h2><div class="relative w-full rounded-xl bg-canvas-obsidian border border-primary-container/30 overflow-hidden shadow-[inset_0_2px_12px_rgba(0,0,0,0.95)] p-1"><div class="kgr-perf"><div>${"<i></i>".repeat(12)}</div><span>Kodak 35mm</span></div><div class="kgr-win select-none"><div id="mood-reel-track" class="kgr-track"><div class="kgr-run">${sequence.map(item=>`<div class="kgr-cell">${item.poster_path?`<img alt="${esc(item.title||item.original_title)}" draggable="false" src="${poster(item.poster_path)}">`:`<div class="nop">${esc(item.title||item.original_title)}</div>`}<span class="yr">${(item.release_date||"").slice(0,4)}</span></div>`).join("")}</div></div><div id="mood-reel-frame" class="kgr-frame" aria-hidden="true"></div></div><div class="kgr-perf"><div>${"<i></i>".repeat(12)}</div><span>35mm nitrate</span></div></div><div class="flex items-center justify-between px-1"><span id="mood-frame-counter" class="font-mono text-micro-caption text-primary-fixed font-semibold tracking-wide">Кадр -- / ${String(pool.length).padStart(2,"0")}</span><button type="button" id="mood-skip" class="font-micro-caption text-micro-caption text-text-muted hover:text-primary underline">Пропустить</button></div><div id="mood-roulette-result" class="min-h-8 font-body-sm text-body-sm text-text-muted" aria-live="polite"></div><div id="mood-roulette-open" class="mt-2"></div><div id="mood-roulette-detail" class="mt-4"></div></div>`;
+    const run=panel.querySelector(".kgr-run"),cells=[...run.children],viewport=panel.querySelector(".kgr-win"),frame=panel.querySelector("#mood-reel-frame"),skip=root.querySelector("#mood-skip");
+    const offsetFor=index=>reelPadding+index*reelStep+reelCellWidth/2-viewport.clientWidth/2;
+    const start=offsetFor(0),finish=offsetFor(winnerIndex),total=pool.length;
+    const complete=()=>{
       if(token!==state.spinToken||!panel.isConnected)return;
+      state.spinning=false;state.skipSpin=false;
+      cells.forEach((cell,index)=>{cell.classList.remove("spin");cell.classList.toggle("chosen",index===winnerIndex);});
+      run.style.transform=`translateX(${-finish}px)`;
+      panel.querySelector("#mood-frame-counter").textContent=`Кадр ${String(pool.indexOf(film)+1).padStart(2,"0")} / ${String(total).padStart(2,"0")}`;
+      if(launchButton)launchButton.disabled=false;
+      if(launchLabel)launchLabel.textContent=`Крутить ещё раз (${currentMood().emoji} + ${currentRuntime().button})`;
+      if(skip)skip.hidden=true;
+      frame.classList.remove("hit");void frame.offsetWidth;frame.classList.add("hit");
       panel.querySelector("#mood-roulette-result").innerHTML=`<span class="text-primary-fixed font-semibold">Ваша находка:</span> ${esc(film.title||film.original_title)} · ${film.runtime} мин · ★ ${Number(film.vote_average||0).toFixed(1)}`;
       panel.querySelector("#mood-roulette-open").innerHTML=`<button class="px-3 py-2 rounded-xl bg-primary-container text-on-primary font-label-sm text-label-sm font-bold" data-mood-film="${film.id}" data-detail-target="mood-roulette-detail" type="button">Трейлер и подробности</button>`;
-    },2450);
+    };
+    if(prefersReducedMotion()||!others.length){
+      run.style.transform=`translateX(${-finish}px)`;complete();
+    }else{
+      cells.forEach(cell=>cell.classList.add("spin"));
+      run.style.transform=`translateX(${-start}px)`;run.classList.add("fast");
+      if(typeof window.startFilmReelSound==="function")window.startFilmReelSound();
+      const startTime=performance.now(),duration=4600;
+      const step=now=>{
+        if(token!==state.spinToken||!panel.isConnected)return;
+        const progress=state.skipSpin?1:Math.min(1,(now-startTime)/duration);
+        const position=start+(finish-start)*(1-Math.pow(1-progress,4)),remaining=finish-position;
+        run.style.transform=`translateX(${-position}px)`;
+        if(progress>.4)run.classList.remove("fast");
+        if(progress<1&&remaining>=.75){
+          if(remaining<200&&typeof window.setFilmReelLevel==="function")window.setFilmReelLevel(remaining/200);
+          state.spinFrame=requestAnimationFrame(step);return;
+        }
+        if(typeof window.stopFilmReelSound==="function")window.stopFilmReelSound();
+        complete();
+      };
+      state.spinFrame=requestAnimationFrame(step);
+    }
     panel.scrollIntoView({behavior:"smooth",block:"nearest"});
   }
-  window.KGMoodPage={render};
+  function stop(root){stopSpin(root);}
+  window.KGMoodPage={render,stop};
 })();

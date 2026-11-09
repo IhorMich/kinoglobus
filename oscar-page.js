@@ -1,10 +1,65 @@
 (function(){
   const esc=s=>String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const image=(path,size="w342")=>path?`https://image.tmdb.org/t/p/${size}${path}`:"";
-  const state={films:[],decade:"all",shown:5,feature:null,featureDetails:null,selected:null,loading:false,loaded:false,modalFilm:null,request:0,spinToken:0};
+  const state={films:[],decade:"all",shown:5,feature:null,featureDetails:null,selected:null,loading:false,loaded:false,request:0,spinToken:0,spinFrame:0,spinning:false,skipSpin:false,spun:false};
   let boundRoot=null;
   const yearOf=f=>Number((f.release_date||"").slice(0,4))||0;
   const decadeOf=y=>y<1960?"gold":`${Math.floor(y/10)*10}`;
+  // «Лучший фильм» по порядку церемоний (номер церемонии = индекс + 1): [год выхода, оригинальное название]
+  const BEST_PICTURE=`1927 Wings|1929 The Broadway Melody|1930 All Quiet on the Western Front|1931 Cimarron|1932 Grand Hotel|1933 Cavalcade|1934 It Happened One Night|1935 Mutiny on the Bounty|1936 The Great Ziegfeld|1937 The Life of Emile Zola|1938 You Can't Take It with You|1939 Gone with the Wind|1940 Rebecca|1941 How Green Was My Valley|1942 Mrs. Miniver|1943 Casablanca|1944 Going My Way|1945 The Lost Weekend|1946 The Best Years of Our Lives|1947 Gentleman's Agreement|1948 Hamlet|1949 All the King's Men|1950 All About Eve|1951 An American in Paris|1952 The Greatest Show on Earth|1953 From Here to Eternity|1954 On the Waterfront|1955 Marty|1956 Around the World in 80 Days|1957 The Bridge on the River Kwai|1958 Gigi|1959 Ben-Hur|1960 The Apartment|1961 West Side Story|1962 Lawrence of Arabia|1963 Tom Jones|1964 My Fair Lady|1965 The Sound of Music|1966 A Man for All Seasons|1967 In the Heat of the Night|1968 Oliver!|1969 Midnight Cowboy|1970 Patton|1971 The French Connection|1972 The Godfather|1973 The Sting|1974 The Godfather Part II|1975 One Flew Over the Cuckoo's Nest|1976 Rocky|1977 Annie Hall|1978 The Deer Hunter|1979 Kramer vs. Kramer|1980 Ordinary People|1981 Chariots of Fire|1982 Gandhi|1983 Terms of Endearment|1984 Amadeus|1985 Out of Africa|1986 Platoon|1987 The Last Emperor|1988 Rain Man|1989 Driving Miss Daisy|1990 Dances with Wolves|1991 The Silence of the Lambs|1992 Unforgiven|1993 Schindler's List|1994 Forrest Gump|1995 Braveheart|1996 The English Patient|1997 Titanic|1998 Shakespeare in Love|1999 American Beauty|2000 Gladiator|2001 A Beautiful Mind|2002 Chicago|2003 The Lord of the Rings: The Return of the King|2004 Million Dollar Baby|2005 Crash|2006 The Departed|2007 No Country for Old Men|2008 Slumdog Millionaire|2009 The Hurt Locker|2010 The King's Speech|2011 The Artist|2012 Argo|2013 12 Years a Slave|2014 Birdman or (The Unexpected Virtue of Ignorance)|2015 Spotlight|2016 Moonlight|2017 The Shape of Water|2018 Green Book|2019 Parasite|2020 Nomadland|2021 CODA|2022 Everything Everywhere All at Once|2023 Oppenheimer|2024 Anora`.split("|").map(x=>[Number(x.slice(0,4)),x.slice(5)]);
+  const normTitle=t=>String(t||"").toLowerCase().replace(/[^a-z0-9а-яё]+/g,"");
+  const ceremonyYear=n=>n===1?1929:n===2||n===3?1930:n===4?1931:n===5?1932:n===6?1934:1928+n;
+  // Сопоставление по названию и году (±1): если не нашли, награду не выдумываем и показываем общий статус лауреата
+  function oscarInfo(f){
+    const y=yearOf(f),names=[normTitle(f.original_title),normTitle(f.title)].filter(Boolean);
+    for(let i=0;i<BEST_PICTURE.length;i++){
+      const [by,title]=BEST_PICTURE[i];
+      if(Math.abs(by-y)>1)continue;
+      if(names.includes(normTitle(title)))return {best:true,n:i+1,year:ceremonyYear(i+1),film:y};
+    }
+    return {best:false,film:y};
+  }
+  // ---------- награды и номинации из Wikidata (по TMDB-ID, свойство P4947) ----------
+  const awardCache=new Map();
+  async function wikidata(params){
+    const url=new URL("https://www.wikidata.org/w/api.php");
+    Object.entries({format:"json",origin:"*",...params}).forEach(([k,v])=>url.searchParams.set(k,v));
+    const r=await fetch(url);
+    if(!r.ok)throw new Error("wikidata "+r.status);
+    return r.json();
+  }
+  async function fetchAwards(film){
+    const found=await wikidata({action:"query",list:"search",srsearch:`haswbstatement:P4947=${film.id}`,srlimit:1});
+    const hit=found.query&&found.query.search&&found.query.search[0];
+    if(!hit)return [];
+    const entity=(await wikidata({action:"wbgetentities",ids:hit.title,props:"claims"})).entities[hit.title];
+    const claims=(entity&&entity.claims)||{},rows=[];
+    [["P166",true],["P1411",false]].forEach(([prop,won])=>(claims[prop]||[]).forEach(st=>{
+      const id=st.mainsnak&&st.mainsnak.datavalue&&st.mainsnak.datavalue.value&&st.mainsnak.datavalue.value.id;
+      if(!id)return;
+      const t=st.qualifiers&&st.qualifiers.P585&&st.qualifiers.P585[0]&&st.qualifiers.P585[0].datavalue&&st.qualifiers.P585[0].datavalue.value.time;
+      const year=t&&(String(t).match(/(\d{4})/)||[])[1];
+      rows.push({id,won,year:year?Number(year):0});
+    }));
+    if(!rows.length)return [];
+    const ids=[...new Set(rows.map(r=>r.id))].slice(0,50);
+    const labels=(await wikidata({action:"wbgetentities",ids:ids.join("|"),props:"labels",languages:"ru|en"})).entities||{};
+    const seen=new Set(),list=[];
+    rows.forEach(r=>{
+      const l=labels[r.id]&&labels[r.id].labels,label=(l&&((l.ru&&l.ru.value)||(l.en&&l.en.value)))||"";
+      if(!/academy award|оскар|киноакадеми/i.test(label))return;   // только «Оскар», без BAFTA и прочих
+      const key=r.won+"|"+label;if(seen.has(key))return;seen.add(key);
+      list.push({won:r.won,label,year:r.year});
+    });
+    return list.sort((a,b)=>(b.won-a.won)||a.label.localeCompare(b.label,"ru")).slice(0,14);
+  }
+  function awardsFor(film){
+    if(!awardCache.has(film.id)){
+      const p=fetchAwards(film).catch(e=>{awardCache.delete(film.id);throw e;});
+      awardCache.set(film.id,p);
+    }
+    return awardCache.get(film.id);
+  }
   const decadeLabel=(id,count)=>id==="all"?`Все (${count})`:id==="gold"?`Золотой Голливуд (${count})`:`${id.slice(0,3)}0-е (${count})`;
   const watchedCount=deps=>state.films.filter(f=>deps.isWatched(f.id)).length;
   const detailPromises=new Map();
@@ -32,6 +87,7 @@
     return sorted.slice(0,state.shown);
   }
   function render(root,deps){
+    stopSpin(root);
     state.films=[];state.decade="all";state.shown=5;state.feature=null;state.featureDetails=null;state.selected=null;state.loaded=false;
     root.innerHTML=`<div class="flex flex-col w-full pb-safe max-w-[520px] mx-auto overflow-hidden">
     <div class="flex items-center justify-between px-gutter-mobile pt-2"><button type="button" data-oscar-back class="w-11 h-11 -ml-1.5 flex items-center gap-1.5 text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined text-[22px]">arrow_back</span><span class="font-label-sm text-label-sm">Подборки</span></button><span class="font-micro-caption text-micro-caption text-text-muted">КИНОГЛОБУС · OSCAR WINNERS</span></div>
@@ -40,8 +96,9 @@
 <div class="relative flex flex-col items-center text-center"><div class="relative flex items-center justify-center w-16 h-16 rounded-full bg-surface-container shadow-inner mb-space-sm"><div class="absolute inset-0 rounded-full bg-gradient-to-tr from-primary-container/20 to-transparent"></div><span class="material-symbols-outlined text-[34px] text-primary-container" style="font-variation-settings:'FILL' 1;">workspace_premium</span><div class="absolute -bottom-1 px-2 py-0.5 rounded-full bg-surface-panel shadow-sm"><span class="font-micro-caption text-micro-caption text-primary font-semibold tracking-wider" id="oscar-age">ОСКАР</span></div></div>
 <h1 class="font-headline-lg text-headline-lg text-primary tracking-tight mt-1 mb-1.5">Зал славы Оскара</h1><p class="font-body-sm text-body-sm text-text-muted max-w-xs mb-space-md">Случайный выбор лучшего фильма или персональная хроника картин, отмеченных Академией</p>
 <button class="w-full flex items-center justify-between gap-space-sm bg-gradient-to-r from-primary-container via-primary-fixed-dim to-primary px-space-md py-3.5 rounded-xl text-on-primary-fixed shadow-lg shadow-cinema-amber-glow active:scale-[0.98] transition-all duration-200" id="oscar-roulette">
-<span class="flex items-center gap-2 min-w-0"><span class="material-symbols-outlined text-[22px]">casino</span><span class="font-label-lg text-label-lg tracking-tight truncate">Случайный лауреат</span></span><span class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-canvas-obsidian/20 shrink-0"><span class="font-micro-caption text-micro-caption font-bold" id="oscar-total">Загружаем…</span><span class="material-symbols-outlined text-[16px]">arrow_forward</span></span></button>
+<span class="flex items-center gap-2 min-w-0"><span class="material-symbols-outlined text-[22px]" id="oscar-roulette-icon">casino</span><span class="font-label-lg text-label-lg tracking-tight truncate" id="oscar-roulette-label">Случайный лауреат</span></span><span class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-canvas-obsidian/20 shrink-0"><span class="font-micro-caption text-micro-caption font-bold" id="oscar-total">Загружаем…</span><span class="material-symbols-outlined text-[16px]">arrow_forward</span></span></button>
 </div></div></div>
+<div id="oscar-reel" class="px-gutter-mobile mt-space-md" hidden></div>
 <section class="w-full mt-space-lg"><div class="px-gutter-mobile flex items-center justify-between mb-space-xs"><span class="font-label-sm text-label-sm text-text-muted uppercase tracking-wider">Эпохи кинематографа</span><span class="font-micro-caption text-micro-caption text-primary" id="oscar-range">История премии</span></div><div class="flex items-center gap-2 overflow-x-auto px-gutter-mobile py-1 no-scrollbar scroll-smooth" id="oscar-decades"></div></section>
 <section class="px-gutter-mobile mt-space-lg"><div class="flex items-center justify-between mb-space-xs"><div class="flex items-center gap-1.5"><span class="material-symbols-outlined text-primary text-[18px]">auto_awesome</span><span class="font-headline-sm text-headline-sm text-on-surface">Лауреат дня</span></div><span class="font-micro-caption text-micro-caption px-2 py-0.5 rounded-full bg-primary-container/15 text-primary-container font-semibold" id="oscar-feature-label">Сегодня</span></div><div id="oscar-feature"></div></section>
 <div id="oscar-film-detail" class="px-gutter-mobile mt-3"></div>
@@ -49,12 +106,11 @@
 <div class="flex items-center justify-between mb-2"><div class="flex items-center gap-2"><div class="w-7 h-7 rounded-lg bg-primary-container/20 flex items-center justify-center text-primary"><span class="material-symbols-outlined text-[18px]">public</span></div><span class="font-headline-sm text-headline-sm text-on-surface">География триумфов</span></div><span class="font-micro-caption text-micro-caption text-primary" id="oscar-country-total">Считаем страны…</span></div>
 <p class="font-body-sm text-body-sm text-text-muted mb-space-sm">Страны производства в первых 24 фильмах списка лауреатов.</p><div class="flex flex-wrap gap-1.5 mb-3" id="oscar-countries"><span class="font-micro-caption text-micro-caption text-text-muted">Загружаем данные о странах…</span></div>
 <div class="flex flex-col gap-1"><div class="flex items-center justify-between text-micro-caption font-micro-caption"><span class="text-text-muted">Прогресс просмотра лауреатов</span><span class="text-primary font-semibold" id="oscar-progress">0 из 0 (0%)</span></div><div class="w-full h-1.5 rounded-full bg-surface-container-highest overflow-hidden"><div class="h-full bg-gradient-to-r from-primary-container to-secondary rounded-full transition-all" id="oscar-progress-bar" style="width:0%"></div></div></div></div></section>
-</div></section>
 <section class="px-gutter-mobile mt-space-lg mb-space-lg"><div class="flex items-center justify-between mb-space-sm"><div class="flex items-center gap-1.5"><span class="material-symbols-outlined text-primary text-[20px]">movie_filter</span><h2 class="font-headline-sm text-headline-sm text-on-surface">Легендарные триумфаторы</h2></div><span class="font-label-sm text-label-sm text-primary flex items-center gap-0.5">Хронология <span class="material-symbols-outlined text-[16px]">swap_vert</span></span></div><div class="flex flex-col gap-space-sm" id="oscar-list"></div><button type="button" class="w-full mt-2 py-2.5 rounded-xl bg-surface-container text-primary font-label-md text-label-md" id="oscar-more" hidden>Показать ещё</button><p class="font-body-sm text-body-sm text-feedback-error mt-2" id="oscar-error" role="status" hidden></p><button type="button" class="mt-2 px-3 py-2 rounded-lg bg-surface-container-high text-primary font-label-sm text-label-sm" id="oscar-retry" hidden>Повторить загрузку</button></section>
-<div class="fixed inset-0 z-[60] hidden items-end justify-center bg-canvas-obsidian/80 backdrop-blur-md" id="oscar-modal"><div class="w-full max-w-[520px] p-space-lg rounded-t-3xl bg-surface-panel shadow-2xl relative"><div class="w-12 h-1 bg-surface-container-highest rounded-full mx-auto mb-space-md"></div><div class="flex items-center justify-between mb-space-sm"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary-container text-[24px]">casino</span><span class="font-headline-sm text-headline-sm text-primary">Кинорулетка Оскара</span></div><button class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-text-muted" id="oscar-modal-close" aria-label="Закрыть"><span class="material-symbols-outlined text-[20px]">close</span></button></div><div class="relative w-full min-h-32 rounded-xl bg-surface-container-lowest flex items-center justify-center my-space-md p-4 text-center"><div class="absolute inset-x-0 top-0 h-8 bg-gradient-to-b from-surface-container-lowest to-transparent pointer-events-none"></div><div id="oscar-slot" class="flex flex-col items-center gap-2 transition-transform duration-300"><span class="font-headline-lg text-headline-lg text-primary">Выберите лауреата</span></div></div><div class="flex gap-2"><button class="flex-1 py-3 rounded-xl bg-gradient-to-r from-primary-container to-primary-fixed-dim text-on-primary-fixed font-label-md text-label-md font-bold shadow-md active:scale-95 transition-all" id="oscar-spin-again">Крутить ещё раз</button><button class="flex-1 py-3 rounded-xl bg-surface-container-high text-on-surface font-label-md text-label-md font-semibold active:scale-95 transition-all" id="oscar-open-result" disabled>О фильме</button></div></div></div>
 </div>`;
     if(boundRoot!==root){
       root.addEventListener("click",e=>handleClick(e,root,deps));
+      root.addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&e.target.matches&&e.target.matches("[role=button][data-oscar-open]")){e.preventDefault();e.target.click();}});
       boundRoot=root;
     }
     load(root,deps);
@@ -96,18 +152,18 @@
   function renderFeature(root,deps){
     const f=state.feature;if(!f)return;
     const d=state.featureDetails||{};
-    const title=esc(f.title||f.original_title||"Фильм"),year=yearOf(f),rating=Number(f.vote_average)||0;
+    const title=esc(f.title||f.original_title||"Фильм"),year=yearOf(f),rating=Number(f.vote_average)||0,info=oscarInfo(f);
     const backdrop=f.backdrop_path||f.poster_path;
     const countries=(d.countries||f.origin_country||[]).slice(0,2).map(c=>deps.countryName(c)).filter(Boolean);
     const director=(d.dirs||[])[0]||"";
     const runtime=d.runtime?`${d.runtime} мин`:"";
     const bg=backdrop?`<img class="w-full h-full object-cover" alt="Кадр из фильма «${title}»" src="${image(backdrop,"w780")}">`:'<div class="w-full h-full bg-surface-container-high"></div>';
     root.querySelector("#oscar-feature").innerHTML=`<article class="relative overflow-hidden rounded-2xl bg-surface-panel shadow-2xl p-3.5">
-<div class="relative w-full h-56 rounded-xl overflow-hidden bg-surface-container-high">${bg}<div class="absolute inset-0 bg-gradient-to-t from-surface-panel via-surface-panel/40 to-transparent"></div>
+<div class="relative w-full h-56 rounded-xl overflow-hidden bg-surface-container-high cursor-pointer" data-oscar-open="${f.id}" role="button" tabindex="0" aria-label="Трейлер и подробности: ${title}">${bg}<div class="absolute inset-0 bg-gradient-to-t from-surface-panel via-surface-panel/40 to-transparent"></div>
 <div class="absolute top-2.5 left-2.5 flex items-center gap-1.5"><span class="px-2 py-1 rounded-md bg-canvas-obsidian/85 text-primary font-label-sm text-label-sm font-bold shadow-sm">★ ${rating?rating.toFixed(1):"—"}</span>${runtime?`<span class="px-2 py-1 rounded-md bg-canvas-obsidian/85 text-on-surface font-micro-caption text-micro-caption">${runtime}</span>`:""}</div>
 <div class="absolute top-2.5 right-2.5 px-2.5 py-1 rounded-md bg-cinema-velvet-deep/90 text-secondary font-label-sm text-label-sm font-semibold shadow-md"><span class="material-symbols-outlined text-[15px] align-middle mr-1">military_tech</span>Лауреат</div>
 <div class="absolute bottom-2.5 left-3 right-3 flex items-end justify-between gap-2"><div class="min-w-0"><div class="font-label-sm text-label-sm text-on-surface-variant mb-0.5">${countries.join(" / ")||"Кинематограф мира"} · ${year}</div><h2 class="font-headline-md text-headline-md text-on-surface font-bold drop-shadow truncate">${title}</h2></div><span class="text-text-muted font-body-sm text-body-sm shrink-0">${esc(director)}</span></div></div>
-<div class="flex flex-wrap gap-1.5 mt-3"><span class="px-2.5 py-1 rounded-lg bg-surface-container-high text-primary font-micro-caption text-micro-caption font-semibold flex items-center gap-1"><span class="material-symbols-outlined text-[13px] text-primary-container">trophy</span>Фильм — лауреат «Оскара»</span><span class="px-2.5 py-1 rounded-lg bg-surface-container text-on-surface-variant font-micro-caption text-micro-caption">${year}</span></div>
+<div class="flex flex-wrap gap-1.5 mt-3"><span class="px-2.5 py-1 rounded-lg bg-surface-container-high text-primary font-micro-caption text-micro-caption font-semibold flex items-center gap-1"><span class="material-symbols-outlined text-[13px] text-primary-container">trophy</span>${info.best?`Оскар · Лучший фильм · ${info.n}-я церемония, ${info.year}`:"Фильм — лауреат «Оскара»"}</span><span class="px-2.5 py-1 rounded-lg bg-surface-container text-on-surface-variant font-micro-caption text-micro-caption">${year}</span></div>
 <div class="grid grid-cols-2 gap-2 mt-3.5"><button type="button" data-oscar-open="${f.id}" class="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-surface-container-highest hover:bg-primary hover:text-on-primary text-on-surface font-label-md text-label-md transition-colors active:scale-[0.98]"><span class="material-symbols-outlined text-[18px]">play_circle</span><span>Трейлер и детали</span></button><button type="button" data-oscar-watched="${f.id}" class="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl ${deps.isWatched(f.id)?"bg-primary text-on-primary":"bg-secondary-container/60 text-secondary-fixed"} font-label-md text-label-md transition-colors active:scale-[0.98]"><span class="material-symbols-outlined text-[18px]">check_circle</span><span>${deps.isWatched(f.id)?"Просмотрено":"В просмотренные"}</span></button></div><div id="oscar-feature-detail-${f.id}" data-oscar-detail-host></div></article>`;
     if(deps.refreshFilm)deps.refreshFilm();
   }
@@ -142,11 +198,17 @@
       const d=f._details||{},title=esc(f.title||f.original_title||"Фильм"),y=yearOf(f);
       const countries=(f.origin_country||d.countries||[]).slice(0,2).map(cc=>deps.countryName(cc)).filter(Boolean).join(" / ");
       const directors=(d.dirs||[]).slice(0,1).join(", ");
-      return `<article class="group relative flex gap-3 p-2.5 rounded-xl bg-surface-panel hover:bg-surface-container transition-all">
-<button type="button" class="relative w-20 h-28 rounded-lg overflow-hidden shrink-0 bg-surface-container-high shadow-md text-left" data-oscar-open="${f.id}">${f.poster_path?`<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Постер «${title}»" src="${image(f.poster_path,"w185")}">`:""}<span class="absolute bottom-1 left-1 px-1.5 py-0.5 rounded bg-canvas-obsidian/85 text-primary font-micro-caption text-micro-caption font-bold">★ ${Number(f.vote_average||0).toFixed(1)}</span></button>
-<div class="flex flex-col justify-between min-w-0 flex-1 py-0.5"><div><div class="flex items-center justify-between gap-1"><span class="font-micro-caption text-micro-caption text-primary flex items-center gap-1 truncate"><span data-oscar-country="${f.id}">${esc(countries||"Кинематограф мира")}</span><span>• ${y}</span></span><span class="font-micro-caption text-micro-caption px-1.5 py-0.5 rounded bg-secondary-container/40 text-secondary font-semibold shrink-0">Лауреат</span></div>
-<button type="button" data-oscar-open="${f.id}" class="text-left w-full"><h3 class="font-headline-sm text-headline-sm text-on-surface font-semibold truncate mt-0.5">${title}</h3></button><p class="font-body-sm text-body-sm text-text-muted line-clamp-1 mt-0.5">${esc(f.overview||"Фильм из коллекции лауреатов премии Американской киноакадемии.")}</p></div>
-<div class="flex items-center justify-between pt-1"><span class="font-micro-caption text-micro-caption text-on-surface-variant font-medium truncate" data-oscar-director="${f.id}">${directors?`Реж. ${esc(directors)}`:"Лауреат «Оскара»"}</span><button type="button" data-oscar-watched="${f.id}" aria-label="${deps.isWatched(f.id)?"Уже просмотрено":"Отметить просмотренным"}" class="w-8 h-8 rounded-full ${deps.isWatched(f.id)?"bg-primary text-on-primary":"bg-surface-container-highest text-primary"} flex items-center justify-center transition-colors"><span class="material-symbols-outlined text-[18px]">${deps.isWatched(f.id)?"task_alt":"bookmark_add"}</span></button></div></div><div id="oscar-list-detail-${f.id}" data-oscar-detail-host></div></article>`;
+      const info=oscarInfo(f);
+      return `<article class="flex flex-col gap-2 p-3 rounded-xl bg-surface-panel shadow-md hover:bg-surface-container-low transition-colors">
+<button type="button" class="flex gap-3 text-left w-full" data-oscar-open="${f.id}" aria-label="Трейлер и подробности: ${title}">
+<span class="relative block w-20 h-28 rounded-lg overflow-hidden shrink-0 bg-surface-container-high shadow-md">${f.poster_path?`<img class="w-full h-full object-cover" loading="lazy" alt="Постер «${title}»" src="${image(f.poster_path,"w185")}">`:'<span class="material-symbols-outlined w-full h-full flex items-center justify-center text-text-muted">movie</span>'}<span class="absolute bottom-1 left-1 px-1.5 py-0.5 rounded bg-canvas-obsidian/85 text-primary font-micro-caption text-micro-caption font-bold">★ ${Number(f.vote_average||0).toFixed(1)}</span></span>
+<span class="flex flex-col justify-between min-w-0 flex-1 py-0.5"><span class="block"><span class="flex items-center justify-between gap-1"><span class="font-micro-caption text-micro-caption text-primary flex items-center gap-1 truncate"><span data-oscar-country="${f.id}">${esc(countries||"Кинематограф мира")}</span><span>• ${y}</span></span><span class="font-micro-caption text-micro-caption px-1.5 py-0.5 rounded bg-secondary-container/40 text-secondary font-semibold shrink-0">${info.best?"Лучший фильм":"Лауреат"}</span></span>
+<span class="block font-headline-sm text-headline-sm text-on-surface font-semibold truncate mt-0.5">${title}</span>
+${info.best?`<span class="block font-micro-caption text-micro-caption text-primary-container mt-0.5">Оскар ${info.year} · ${info.n}-я церемония</span>`:""}
+<span class="block font-body-sm text-body-sm text-text-muted line-clamp-1 mt-0.5">${esc(f.overview||"Фильм из коллекции лауреатов премии Американской киноакадемии.")}</span></span>
+<span class="block font-micro-caption text-micro-caption text-primary-container mt-1">Трейлер и подробности</span></span></button>
+<div class="flex items-center justify-between"><span class="font-micro-caption text-micro-caption text-on-surface-variant font-medium truncate" data-oscar-director="${f.id}">${directors?`Реж. ${esc(directors)}`:"Лауреат «Оскара»"}</span><button type="button" data-oscar-watched="${f.id}" aria-label="${deps.isWatched(f.id)?"Уже просмотрено":"Отметить просмотренным"}" class="w-8 h-8 rounded-full ${deps.isWatched(f.id)?"bg-primary text-on-primary":"bg-surface-container-highest text-primary"} flex items-center justify-center transition-colors"><span class="material-symbols-outlined text-[18px]">${deps.isWatched(f.id)?"task_alt":"bookmark_add"}</span></button></div>
+<div id="oscar-list-detail-${f.id}" data-oscar-detail-host></div></article>`;
     }).join(""):`<p class="font-body-sm text-body-sm text-text-muted p-3 rounded-xl bg-surface-panel">В этом десятилетии нет фильмов в загруженном списке.</p>`;
     const more=root.querySelector("#oscar-more");
     more.hidden=state.shown>=state.films.filter(f=>state.decade==="all"||decadeOf(yearOf(f))===state.decade).length;
@@ -173,40 +235,113 @@
     if(decade){state.decade=decade.dataset.decade;state.shown=5;renderDecades(root);renderList(root,deps);return;}
     if(e.target.closest("#oscar-more")){state.shown+=5;renderList(root,deps);return;}
     if(e.target.closest("#oscar-retry")){load(root,deps);return;}
-    if(e.target.closest("#oscar-roulette")){openModal(root);pickWinner(root,deps);return;}
-    if(e.target.closest("#oscar-modal-close")){closeModal(root);return;}
-    if(e.target.closest("#oscar-spin-again")){pickWinner(root,deps);return;}
-    if(e.target.closest("#oscar-open-result")){
-      if(state.modalFilm)deps.openFilm(state.modalFilm,"oscar");
-      closeModal(root);return;
-    }
+    if(e.target.closest("[data-oscar-skip]")){state.skipSpin=true;return;}
+    if(e.target.closest("#oscar-roulette")){spinReel(root,deps);return;}
     const open=e.target.closest("[data-oscar-open]");
-    if(open){const f=state.films.find(item=>String(item.id)===open.dataset.oscarOpen);if(f){const host=open.closest("article")?.querySelector("[data-oscar-detail-host]");deps.openFilm(f,"oscar",host?.id||"oscar-film-detail");}return;}
+    if(open){
+      if(state.spinning)return;   // пока плёнка крутится, постеры не открываем
+      const f=state.films.find(item=>String(item.id)===open.dataset.oscarOpen);
+      if(f){
+        const host=open.closest("article")?.querySelector("[data-oscar-detail-host]");
+        const target=host?.id||(open.closest("#oscar-reel")?"oscar-reel-detail":"oscar-film-detail");
+        deps.openFilm(f,"oscar",target);
+      }
+      return;
+    }
     const watched=e.target.closest("[data-oscar-watched]");
     if(watched){
       const f=state.films.find(item=>String(item.id)===watched.dataset.oscarWatched);
       if(f)deps.markWatched(f).then(()=>{renderFeature(root,deps);renderList(root,deps);renderProgress(root,deps);});
     }
   }
-  function openModal(root){
-    const modal=root.querySelector("#oscar-modal");modal.classList.remove("hidden");modal.classList.add("flex");
+  const reelStep=90,reelPadding=8,reelCellWidth=80;
+  const reducedMotion=()=>!!(window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  const sound=(name,arg)=>{try{if(typeof window[name]==="function")window[name](arg);}catch(_){}};
+  function shuffled(list){const a=list.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+  function setLaunch(root,spinning){
+    const button=root.querySelector("#oscar-roulette"),label=root.querySelector("#oscar-roulette-label"),icon=root.querySelector("#oscar-roulette-icon");
+    if(button){button.disabled=spinning;button.style.opacity=spinning?".75":"";}
+    if(label)label.textContent=spinning?"Плёнка крутится…":(state.spun?"Крутить ещё раз":"Случайный лауреат");
+    if(icon)icon.classList.toggle("animate-spin",spinning);
   }
-  function closeModal(root){
-    state.spinToken++;
-    const modal=root.querySelector("#oscar-modal");modal.classList.add("hidden");modal.classList.remove("flex");
+  function stopSpin(root){
+    state.spinToken++;cancelAnimationFrame(state.spinFrame);
+    if(state.spinning){sound("stopFilmReelSound");state.spinning=false;}
+    if(root&&root.isConnected)setLaunch(root,false);
   }
-  function pickWinner(root,deps){
+  function cellHtml(f){
+    const title=esc(f.title||f.original_title||"Фильм"),y=yearOf(f);
+    return `<div class="kgr-cell" data-oscar-open="${f.id}" role="button" tabindex="0" aria-label="Подробности: ${title}" style="cursor:pointer">${f.poster_path?`<img alt="${title}" draggable="false" src="${image(f.poster_path,"w185")}">`:`<div class="nop">${title}</div>`}${y?`<span class="yr">${y}</span>`:""}</div>`;
+  }
+  async function spinReel(root,deps){
+    if(state.spinning)return;
     const pool=state.decade==="all"?state.films:state.films.filter(f=>decadeOf(yearOf(f))===state.decade);
-    const slot=root.querySelector("#oscar-slot"),open=root.querySelector("#oscar-open-result");
-    if(!pool.length){slot.innerHTML='<span class="font-body-sm text-text-muted">В этой эпохе нет лауреатов.</span>';open.disabled=true;return;}
-    const token=++state.spinToken,spinAgain=root.querySelector("#oscar-spin-again");
-    open.disabled=true;spinAgain.disabled=true;slot.style.opacity=".35";slot.style.transform="scale(.9)";
-    setTimeout(()=>{
-      if(token!==state.spinToken)return;
-      const f=pool[Math.floor(Math.random()*pool.length)];state.modalFilm=f;
-      slot.innerHTML=`<div class="font-headline-lg text-headline-lg text-primary font-bold">${esc(f.title||f.original_title)}</div><div class="text-body-sm font-body-sm text-text-muted">${yearOf(f)} · Лауреат премии «Оскар»</div>`;
-      slot.style.opacity="1";slot.style.transform="scale(1)";open.disabled=false;spinAgain.disabled=false;
-    },280);
+    const panel=root.querySelector("#oscar-reel");
+    if(!panel||!pool.length)return;
+    const fresh=pool.filter(f=>!deps.isWatched(f.id)),source=fresh.length?fresh:pool;
+    const film=source[Math.floor(Math.random()*source.length)];
+    const others=shuffled(pool.filter(f=>f.id!==film.id&&f.poster_path));
+    const animate=others.length>0&&!reducedMotion();
+    const NEED=26,TAIL=6,sequence=[];
+    if(animate){
+      for(let i=0;i<NEED;i++)sequence.push(others[i%others.length]);
+      sequence.push(film);
+      for(let i=0;i<TAIL;i++)sequence.push(others[(i+2)%others.length]);
+    }else sequence.push(film);
+    const winnerIndex=animate?NEED:0;
+    const token=++state.spinToken;
+    deps.closeFilm("oscar");
+    state.spinning=true;state.skipSpin=false;state.spun=true;
+    setLaunch(root,true);
+    // ждём постеры (не дольше 2,5 с), чтобы лента не «моргала» при прокрутке
+    await Promise.race([
+      Promise.all(sequence.filter(f=>f.poster_path).map(f=>new Promise(r=>{const im=new Image();im.onload=im.onerror=r;im.src=image(f.poster_path,"w185");}))),
+      new Promise(r=>setTimeout(r,2500))
+    ]);
+    if(token!==state.spinToken||!panel.isConnected)return;
+    panel.hidden=false;
+    panel.innerHTML=`<div class="relative overflow-hidden rounded-2xl bg-surface-panel p-4 shadow-xl"><div class="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-cinema-amber-glow blur-3xl pointer-events-none"></div><h2 class="relative font-headline-sm text-headline-sm text-primary mb-3">Кинорулетка Оскара</h2><div class="relative w-full rounded-xl bg-canvas-obsidian border border-primary-container/30 overflow-hidden shadow-[inset_0_2px_12px_rgba(0,0,0,0.95)] p-1"><div class="kgr-perf"><div>${"<i></i>".repeat(12)}</div><span>Kodak 35mm</span></div><div class="kgr-win select-none"><div class="kgr-track"><div class="kgr-run">${sequence.map(cellHtml).join("")}</div></div><div data-oscar-reel-frame class="kgr-frame" aria-hidden="true"></div></div><div class="kgr-perf"><div>${"<i></i>".repeat(12)}</div><span>35mm nitrate</span></div></div><div class="flex items-center justify-between px-1 mt-2"><span data-oscar-frame-counter class="font-mono text-micro-caption text-primary-fixed font-semibold tracking-wide">Кадр -- / ${String(pool.length).padStart(2,"0")}</span><button type="button" data-oscar-skip class="font-micro-caption text-micro-caption text-text-muted hover:text-primary underline"${animate?"":" hidden"}>Пропустить</button></div><div id="oscar-reel-detail" class="mt-3"></div></div>`;
+    const run=panel.querySelector(".kgr-run"),cells=[...run.children],viewport=panel.querySelector(".kgr-win"),frame=panel.querySelector("[data-oscar-reel-frame]"),skip=panel.querySelector("[data-oscar-skip]"),counter=panel.querySelector("[data-oscar-frame-counter]");
+    const offsetFor=index=>reelPadding+index*reelStep+reelCellWidth/2-viewport.clientWidth/2;
+    const start=offsetFor(0),finish=offsetFor(winnerIndex);
+    panel.scrollIntoView({behavior:"smooth",block:"center"});
+    const complete=()=>{
+      if(token!==state.spinToken||!panel.isConnected)return;
+      state.spinning=false;state.skipSpin=false;
+      cells.forEach((cell,index)=>{cell.classList.remove("spin");cell.classList.toggle("chosen",index===winnerIndex);});
+      run.classList.remove("fast");
+      run.style.transform=`translateX(${-finish}px)`;
+      counter.textContent=`Кадр ${String(pool.indexOf(film)+1).padStart(2,"0")} / ${String(pool.length).padStart(2,"0")}`;
+      setLaunch(root,false);
+      if(skip)skip.hidden=true;
+      frame.classList.remove("hit");void frame.offsetWidth;frame.classList.add("hit");
+      try{if(navigator.vibrate)navigator.vibrate([25,50,60]);}catch(_){}
+      deps.openFilm(film,"oscar","oscar-reel-detail");
+      requestAnimationFrame(()=>{
+        const d=document.getElementById("oscar-reel-detail");
+        if(d&&token===state.spinToken)window.scrollTo({top:Math.max(0,window.scrollY+d.getBoundingClientRect().top-96),behavior:"smooth"});
+      });
+    };
+    if(!animate){run.style.transform=`translateX(${-finish}px)`;complete();return;}
+    cells.forEach(cell=>cell.classList.add("spin"));
+    run.style.transform=`translateX(${-start}px)`;run.classList.add("fast");
+    sound("startFilmReelSound");
+    const startTime=performance.now(),duration=4600;
+    const step=now=>{
+      if(token!==state.spinToken||!panel.isConnected)return;
+      if(!root.offsetParent){stopSpin(root);return;}   // ушли с экрана «Оскар»
+      const progress=state.skipSpin?1:Math.min(1,(now-startTime)/duration);
+      const position=start+(finish-start)*(1-Math.pow(1-progress,4)),remaining=finish-position;
+      run.style.transform=`translateX(${-position}px)`;
+      if(progress>.4)run.classList.remove("fast");
+      if(progress<1&&remaining>=.75){
+        if(remaining<200)sound("setFilmReelLevel",remaining/200);
+        state.spinFrame=requestAnimationFrame(step);return;
+      }
+      sound("stopFilmReelSound");
+      complete();
+    };
+    state.spinFrame=requestAnimationFrame(step);
   }
-  window.KGOscarPage={render};
+  window.KGOscarPage={render,stop:stopSpin,info:oscarInfo,awards:awardsFor};
 })();

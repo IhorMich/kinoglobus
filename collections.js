@@ -726,6 +726,14 @@ async function openCollection(id,opt){
 function placeListPanel(){
   const box=$("cl-films");if(!box)return false;
   const sel=D.selected&&D.selected._placement==="list"?D.selected:null;
+  const findOpen=id=>[...box.querySelectorAll('[data-act="open"]')].find(e=>String(e.dataset.id)===String(id));
+  const anchor=sel&&findOpen(sel.id),top0=anchor?anchor.getBoundingClientRect().top:0;
+  try{return placeInner(box,sel);}finally{
+    const el=sel&&findOpen(sel.id);
+    if(el){const d=el.getBoundingClientRect().top-top0;if(d)window.scrollBy(0,d);}
+  }
+}
+function placeInner(box,sel){
   box.querySelectorAll("[data-selected-film]").forEach(p=>{if(!sel||String(p.dataset.selectedFilm)!==String(sel.id))p.remove();});
   if(!sel)return true;
   const html=selectedFilmHtml(sel,true);
@@ -789,7 +797,7 @@ function openFilm(f,placement="list",detailTarget=null){
   const selected=D.selected;
   if(placement==="roulette"||placement==="home"||placement==="home-europe"||placement==="mood"||placement==="oscar")renderSelectedPanel();else if(!placeListPanel())renderFilms();
   const panel=detailTarget?$(detailTarget):placement==="roulette"?$("cl-result")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="home"?$("kg-home-feature")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="home-europe"?$("kg-home-europe-detail")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="mood"?$("mood-film-detail")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="oscar"?$("oscar-film-detail")?.querySelector(`[data-selected-film="${f.id}"]`):vd.querySelector(`[data-selected-film="${f.id}"]`);
-  panel?.scrollIntoView({behavior:placement==="list"?"auto":"smooth",block:"nearest"});
+  if(placement!=="list")panel?.scrollIntoView({behavior:"smooth",block:"nearest"});
   filmDetails(f.id).then(details=>{
     if(D.selected!==selected)return;
     selected.overview=details.overview||russianText(f.overview)||"Описания на русском и английском пока нет.";

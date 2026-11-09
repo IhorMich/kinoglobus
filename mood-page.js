@@ -60,7 +60,14 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
     }
     if(deps?.refreshFilm)deps.refreshFilm();
   }
+  function ensureStyle(){
+    if(document.getElementById("kg-mood-style"))return;
+    const s=document.createElement("style");s.id="kg-mood-style";
+    s.textContent="#view-mood [hidden]{display:none !important}";
+    document.head.appendChild(s);
+  }
   function render(root,deps){
+    ensureStyle();
     if(boundRoot===root)stopSpin(root);
     root.innerHTML=`
 <div class="flex flex-col w-full pb-8">
@@ -127,7 +134,8 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
     if(!moods.some(m=>m.id===id))return;
     collapseMoodFilms(root);
     if(id===state.mood)return;
-    stopSpin(root);deps.closeFilm("mood");activeElement(root,"[data-mood-result]")?.replaceChildren();
+    stopSpin(root);deps.closeFilm("mood");
+    root.querySelectorAll("[data-mood-result],[data-mood-films]").forEach(el=>el.replaceChildren());
     state.mood=id;state.films=[];state.shown=4;state.loadedKey="";state.page=0;state.totalPages=0;state.jobs=null;
     paintSelection(root);loadMood(root,deps);renderFilms(root,deps);updateLaunchLabel(root);
   }

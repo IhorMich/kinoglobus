@@ -634,7 +634,7 @@ function renderSelectedPanel(){
   const selected=D.selected;if(!selected)return;
   if(selected._placement==="list"){renderFilms();return;}
   const inMoodList=selected._placement==="mood"&&String(selected._detailTarget||"").startsWith("mood-film-detail-");
-  const inOscarList=selected._placement==="oscar"&&/^oscar-(list|feature)-detail-/.test(String(selected._detailTarget||""));
+  const inOscarList=selected._placement==="oscar"&&/^oscar-(list|feature|grid)-detail-/.test(String(selected._detailTarget||""));
   const html=selectedFilmHtml(selected,inMoodList||inOscarList);
   if(selected._placement==="mood"||selected._placement==="oscar"){
     const target=$(selected._detailTarget)||(selected._placement==="mood"?$("mood-film-detail"):$("oscar-film-detail"));

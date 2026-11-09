@@ -216,6 +216,7 @@ document.body.appendChild(nav);
 let view="home";
 function showView(v){
   if(v!=="mood"&&window.KGMoodPage)window.KGMoodPage.stop(vm);
+  if(v!=="oscar"&&window.KGOscarPage&&window.KGOscarPage.stop)window.KGOscarPage.stop(vo);
   view=v;
   if(v!=="collection")rStop();
   if(D.selected&&["mood","oscar"].includes(D.selected._placement)&&D.selected._placement!==v){
@@ -518,6 +519,13 @@ function selectedFilmHtml(f,embedded=false){
     :activeVideo
       ?`<button type="button" data-trailer-action="play" data-id="${f.id}" aria-label="Воспроизвести трейлер" class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-surface-container-high to-canvas-obsidian text-primary-container transition-colors hover:text-primary"><span class="material-symbols-outlined text-[48px]">play_arrow</span></button>`
       :`<div class="absolute inset-0 flex items-center justify-center text-text-muted font-body-sm text-body-sm">${f._trailerStatus==="missing"?"Трейлер не найден":"Ищем трейлер…"}</div>`;
+  const oscar=f._placement==="oscar"&&window.KGOscarPage&&window.KGOscarPage.info?window.KGOscarPage.info(f):null;
+  const awardsHtml=oscar?(f._oscarAwards===undefined
+    ?'<p class="font-micro-caption text-micro-caption text-text-muted pt-1">Загружаем награды и номинации…</p>'
+    :f._oscarAwards.length
+      ?`<div class="flex flex-col gap-1 pt-2 mt-1 border-t border-primary-container/20"><span class="font-micro-caption text-micro-caption text-text-muted uppercase tracking-wider">Награды и номинации</span>${f._oscarAwards.map(a=>`<div class="flex items-start gap-1.5"><span class="material-symbols-outlined text-[16px] shrink-0 ${a.won?"text-primary-container":"text-text-muted"}" style="font-variation-settings:'FILL' ${a.won?1:0};">${a.won?"emoji_events":"circle"}</span><span class="font-body-sm text-body-sm ${a.won?"text-on-surface font-semibold":"text-text-muted"}">${esc(a.label)}${a.year?" · "+a.year:""}${a.won?"":" (номинация)"}</span></div>`).join("")}</div>`
+      :""):"";
+  const oscarBlock=oscar?`<div class="flex items-start gap-3 p-3 rounded-xl bg-gradient-to-br from-cinema-velvet-deep/50 via-surface-container-high to-surface-container-high border border-primary-container/25"><span class="material-symbols-outlined text-primary-container text-[28px] shrink-0" style="font-variation-settings:'FILL' 1;">workspace_premium</span><div class="min-w-0 flex flex-col gap-0.5"><h4 class="font-label-md text-label-md text-primary-fixed font-semibold">${oscar.best?"Оскар · Лучший фильм":"Лауреат премии «Оскар»"}</h4>${oscar.best?`<p class="font-label-sm text-label-sm text-primary-container font-semibold">${oscar.n}-я церемония · ${oscar.year} год</p><p class="font-body-sm text-body-sm text-text-muted">Главная награда Американской киноакадемии. Статуэтку получает лучший фильм года; эта картина вышла в ${oscar.film} году.</p>`:`<p class="font-body-sm text-body-sm text-text-muted">Картина входит в список лауреатов Американской киноакадемии${oscar.film?` · фильм ${oscar.film} года`:""}.</p>`}${awardsHtml}</div></div>`:"";
   const tagline=f.tagline&&f.taglineLang===f.overviewLang?`<p class="font-body-sm text-body-sm text-primary-fixed italic">${esc(f.tagline)}</p>`:"";
   const shell=embedded?"div":"section",shellClass=embedded?"flex flex-col gap-space-sm pt-3 border-t border-surface-border-subtle scroll-mt-20":"flex flex-col gap-space-sm p-3.5 rounded-2xl bg-surface-panel border border-primary-container/30 shadow-xl scroll-mt-20";
   const header=embedded
@@ -531,7 +539,7 @@ function selectedFilmHtml(f,embedded=false){
 ${header}
 <div class="relative w-full kg-detail-trailer rounded-xl overflow-hidden bg-black border border-primary-container/30" id="cl-inline-trailer">${trailerContent}</div>
 ${activeVideo?`<a href="${watchUrl(activeVideo)}" target="_blank" rel="noopener noreferrer" class="font-micro-caption text-micro-caption text-primary underline">Не воспроизводится? Открыть на ${esc(activeVideo.site)}</a>`:""}
-${tagline}<div class="flex flex-col gap-1"><h4 class="font-label-md text-label-md text-primary-fixed font-semibold">О фильме</h4><p class="font-body-sm text-body-sm text-text-muted leading-relaxed">${esc(f.overview||"Загружаем описание…")}</p></div>
+${tagline}${oscarBlock}<div class="flex flex-col gap-1"><h4 class="font-label-md text-label-md text-primary-fixed font-semibold">О фильме</h4><p class="font-body-sm text-body-sm text-text-muted leading-relaxed">${esc(f.overview||"Загружаем описание…")}</p></div>
 ${director}${boxOffice}
 <div class="flex flex-col gap-2"><h4 class="font-label-md text-label-md text-primary-fixed font-semibold">Актёры</h4>${cast?`<div class="flex gap-2.5 overflow-x-auto py-1" style="-webkit-overflow-scrolling:touch">${cast}</div>`:`<p class="font-body-sm text-body-sm text-text-muted">${f._detailsLoaded?"Сведения об актёрах недоступны.":"Загружаем актёров…"}</p>`}</div></${shell}>`;
 }
@@ -626,7 +634,8 @@ function renderSelectedPanel(){
   const selected=D.selected;if(!selected)return;
   if(selected._placement==="list"){renderFilms();return;}
   const inMoodList=selected._placement==="mood"&&String(selected._detailTarget||"").startsWith("mood-film-detail-");
-  const html=selectedFilmHtml(selected,inMoodList);
+  const inOscarList=selected._placement==="oscar"&&/^oscar-(list|feature)-detail-/.test(String(selected._detailTarget||""));
+  const html=selectedFilmHtml(selected,inMoodList||inOscarList);
   if(selected._placement==="mood"||selected._placement==="oscar"){
     const target=$(selected._detailTarget)||(selected._placement==="mood"?$("mood-film-detail"):$("oscar-film-detail"));
     if(target)target.innerHTML=html;
@@ -706,6 +715,10 @@ function openFilm(f,placement="list",detailTarget=null){
     renderSelectedPanel();
     console.error("[Kinoglobus] Не удалось загрузить трейлер:",e);
   });
+  if(placement==="oscar"&&window.KGOscarPage&&window.KGOscarPage.awards){
+    window.KGOscarPage.awards(f).then(list=>{selected._oscarAwards=list;if(D.selected===selected)renderSelectedPanel();})
+      .catch(e=>{selected._oscarAwards=[];if(D.selected===selected)renderSelectedPanel();console.warn("[Kinoglobus] Награды Wikidata недоступны:",e);});
+  }
 }
 
 /* ---------- рулетка с плёнкой прямо в подборке ---------- */

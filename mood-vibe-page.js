@@ -112,7 +112,7 @@
 <div class="flex flex-col justify-between flex-1 min-w-0 py-0.5"><div class="flex flex-col"><div class="flex items-start justify-between gap-1"><h4 class="font-headline-sm text-headline-sm text-on-surface truncate">${esc(f.title||f.original_title||"Фильм")}</h4><button type="button" data-vibe-bm="${f.id}" aria-label="В закладки" class="text-text-muted hover:text-primary transition-colors"><span class="material-symbols-outlined text-[20px]">${booked?"bookmark_added":"bookmark_border"}</span></button></div>
 <p class="font-micro-caption text-micro-caption text-text-muted truncate">${orig}${year}${country}</p>
 <p class="font-body-sm text-body-sm text-tertiary-fixed-dim mt-1 truncate">${dir?`Реж. ${esc(dir)}`:"&nbsp;"}${d.runtime?` · ${d.runtime} мин`:""}</p></div>
-<div class="flex items-center justify-between pt-1"><span class="px-2 py-0.5 rounded-full bg-surface-container-highest text-secondary font-label-sm text-label-sm truncate">${esc(genre||"Фильм")}</span><div class="flex items-center gap-1 text-primary-container font-label-sm text-label-sm"><span class="material-symbols-outlined text-[16px]">play_circle</span> Трейлер</div></div></div>
+<div class="flex items-center justify-between pt-1"><span class="px-2 py-0.5 rounded-full bg-surface-container-highest text-secondary font-label-sm text-label-sm truncate">${esc(genre||"Фильм")}</span><div class="flex items-center gap-1 text-primary-container font-label-sm text-label-sm"><span class="material-symbols-outlined text-[16px]">play_circle</span></div></div></div>
 </article><div id="${target}"></div></div>`;
   }
   function jewelHtml(f,deps){
@@ -129,7 +129,7 @@
 <p class="font-body-sm text-body-sm text-tertiary mt-0.5">${dir?`Реж. ${esc(dir)}`:""}${dir&&d.runtime?" · ":""}${d.runtime?`${d.runtime} мин`:""}</p>
 <div class="flex flex-wrap gap-1 mt-1.5">${genres.map((g,i)=>`<span class="px-2 py-0.5 rounded ${i?"bg-secondary-container/30 text-secondary-fixed":"bg-surface-container-highest text-tertiary"} font-label-sm text-label-sm">${esc(g)}</span>`).join("")}</div></div>
 <p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 mt-2">${esc(d.overview||f.overview||"Описание пока недоступно.")}</p></div></div>
-<div class="flex flex-col gap-2 mt-3 pt-3 bg-surface-container-lowest/40 rounded-xl p-2.5"><div class="flex items-center gap-2"><button type="button" data-vibe-film="${f.id}" data-detail-target="${target}" class="flex-1 h-10 rounded-lg bg-primary text-on-primary font-label-md text-label-md flex items-center justify-center gap-1.5 active:scale-95 transition-transform shadow-md"><span class="material-symbols-outlined text-[18px]">play_arrow</span> Смотреть трейлер</button><button type="button" data-vibe-bm="${f.id}" aria-label="В закладки" class="h-10 px-3.5 rounded-lg bg-surface-bright text-on-surface font-label-md text-label-md flex items-center gap-1 active:scale-95 transition-transform"><span class="material-symbols-outlined text-[18px]">${booked?"bookmark_added":"bookmark_add"}</span></button></div></div>
+<div class="flex flex-col gap-2 mt-3 pt-3 bg-surface-container-lowest/40 rounded-xl p-2.5"><div class="flex items-center gap-2"><button type="button" data-vibe-film="${f.id}" data-detail-target="${target}" class="flex-1 h-10 rounded-lg bg-primary text-on-primary font-label-md text-label-md flex items-center justify-center gap-1.5 active:scale-95 transition-transform shadow-md"><span class="material-symbols-outlined text-[18px]">play_arrow</span></button><button type="button" data-vibe-bm="${f.id}" aria-label="В закладки" class="h-10 px-3.5 rounded-lg bg-surface-bright text-on-surface font-label-md text-label-md flex items-center gap-1 active:scale-95 transition-transform"><span class="material-symbols-outlined text-[18px]">${booked?"bookmark_added":"bookmark_add"}</span></button></div></div>
 <div id="${target}"></div>`;
   }
   function renderFilms(root,deps){
@@ -368,7 +368,12 @@
     const film=e.target.closest("[data-vibe-film]");
     if(film){
       const item=state.films.find(f=>String(f.id)===film.dataset.vibeFilm);
-      if(item)deps.openFilm(item,"mood",film.dataset.detailTarget);
+      if(item){
+        const top=film.getBoundingClientRect().top;
+        deps.openFilm(item,"mood",film.dataset.detailTarget);
+        const fix=()=>{if(film.isConnected){const d=film.getBoundingClientRect().top-top;if(Math.abs(d)>1)window.scrollBy(0,d);}};
+        fix();requestAnimationFrame(fix);
+      }
     }
   }
   function stop(){if(host)stopSpin(host);}

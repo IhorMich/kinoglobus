@@ -192,7 +192,15 @@ const vm=document.createElement("div");vm.id="view-mood";
 vm.className="flex flex-col w-full px-gutter-mobile select-none";vm.style.display="none";
 const vo=document.createElement("div");vo.id="view-oscar";
 vo.className="flex flex-col w-full select-none";vo.style.display="none";
-home.after(vc);vc.after(vd);vd.after(vm);vm.after(vo);
+const sectionNav=document.createElement("nav");
+sectionNav.setAttribute("aria-label","Разделы подборок");
+sectionNav.className="w-full px-gutter-mobile pt-2";
+sectionNav.style.display="none";
+sectionNav.innerHTML='<div class="grid grid-cols-3 gap-1.5 rounded-xl bg-surface-panel p-1.5">'+
+[["collections","Коллекции"],["mood","Коллекция по настроению"],["oscar","Оскар"]]
+.map(([route,label])=>`<button type="button" data-collection-route="${route}" aria-current="false" class="min-w-0 px-1.5 py-2 rounded-lg text-text-muted hover:text-primary font-micro-caption text-micro-caption leading-tight">${label}</button>`).join("")+
+"</div>";
+home.after(sectionNav);sectionNav.after(vc);vc.after(vd);vd.after(vm);vm.after(vo);
 
 const NB="flex flex-col items-center justify-center gap-1 min-w-[64px] h-12 transition-all active:scale-95 ";
 const NON="text-primary-container font-bold drop-shadow-[0_0_12px_rgba(255,184,48,0.45)]",NOFF="text-text-muted";
@@ -214,12 +222,19 @@ function showView(v){
     D.selected=null;
   }
   home.style.display=v==="home"?"":"none";
+  sectionNav.style.display=["collections","collection","mood","oscar"].includes(v)?"":"none";
   vc.style.display=v==="collections"?"":"none";
   vd.style.display=v==="collection"?"":"none";
   vm.style.display=v==="mood"?"":"none";
   vo.style.display=v==="oscar"?"":"none";
   const act=["collection","mood","oscar"].includes(v)?"collections":v;
   nav.querySelectorAll("[data-view]").forEach(a=>{a.className=NB+(a.dataset.view===act&&a.dataset.view!=="journey"?NON:NOFF);});
+  const section=v==="collection"?"collections":v;
+  sectionNav.querySelectorAll("[data-collection-route]").forEach(button=>{
+    const active=button.dataset.collectionRoute===section;
+    button.className=`min-w-0 px-1.5 py-2 rounded-lg font-micro-caption text-micro-caption leading-tight ${active?"bg-primary-container text-on-primary-container font-semibold":"text-text-muted hover:text-primary"}`;
+    button.setAttribute("aria-current",String(active));
+  });
   const sub=document.querySelector("header .flex-col > p");
   if(sub) sub.textContent=v==="home"?"Случайная страна · Лучшие фильмы":v==="mood"?"Подборки · По настроению":v==="oscar"?"Подборки · Зал славы Оскара":"Киноглобус — Тематическая Подборка";
   scrollTo({top:0});
@@ -231,6 +246,10 @@ nav.addEventListener("click",e=>{
   const a=e.target.closest("[data-view]");if(!a)return;e.preventDefault();
   if(a.dataset.view==="journey"){$("mapBtn").click();return;}
   showView(a.dataset.view);
+});
+sectionNav.addEventListener("click",e=>{
+  const button=e.target.closest("[data-collection-route]");
+  if(button)showView(button.dataset.collectionRoute);
 });
 
 /* ================= КАТАЛОГ ================= */
@@ -287,11 +306,7 @@ function buildCatalog(){
 <div class="relative w-full mt-2"><div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-text-muted"><span class="material-symbols-outlined text-[20px]">search</span></div>
 <input id="cat-search" type="search" placeholder="Найти подборку, страну или жанр..." class="w-full h-12 pl-11 pr-10 rounded-xl bg-surface-container-low text-on-surface placeholder:text-text-muted font-body-sm text-body-sm focus:outline-none focus:bg-surface-container transition-all shadow-[0_4px_16px_rgba(0,0,0,0.4)]">
 <div id="cat-clear" data-act="clear" style="display:none" class="absolute inset-y-0 right-0 pr-3 items-center cursor-pointer text-text-muted hover:text-primary"><span class="material-symbols-outlined text-[18px]">cancel</span></div></div>
-<div class="grid grid-cols-3 gap-1.5 mt-2 rounded-xl bg-surface-panel p-1.5" role="tablist" aria-label="Разделы подборок">
-<button type="button" data-collection-route="collections" class="px-2 py-2 rounded-lg bg-primary-container text-on-primary-container font-label-sm text-label-sm font-semibold">Коллекции</button>
-<button type="button" data-collection-route="mood" class="px-2 py-2 rounded-lg text-text-muted hover:text-primary font-label-sm text-label-sm">По настроению</button>
-<button type="button" data-collection-route="oscar" class="px-2 py-2 rounded-lg text-text-muted hover:text-primary font-label-sm text-label-sm">Оскар</button>
-</div></section>
+</section>
 <section id="cat-chips" class="flex gap-2 overflow-x-auto pb-1 -mx-gutter-mobile px-gutter-mobile">
 <button type="button" data-f="all" class="${chipCls(true)}"><span>Все ${THEMES.length}</span></button>
 ${Object.keys(CAT).filter(k=>counts[k]).map(k=>`<button type="button" data-f="${k}" class="${chipCls(false)}"><span>${CAT[k][0]} (${counts[k]})</span></button>`).join("")}</section>

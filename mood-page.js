@@ -19,8 +19,7 @@
   ];
   const esc=s=>String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const poster=(path,size="w185")=>path?`https://image.tmdb.org/t/p/${size}${path}`:"";
-  const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:"",token:0,spinToken:0,spinFrame:0,spinning:false,skipSpin:false,page:0,totalPages:0};
-  const reelStep=90,reelPadding=8,reelCellWidth=80;
+const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:"",token:0,spinToken:0,spinFrame:0,spinning:false,skipSpin:false,page:0,totalPages:0,jobs:null};  const reelStep=90,reelPadding=8,reelCellWidth=80;
   const prefersReducedMotion=()=>window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches||false;
   let boundRoot=null;
   const currentMood=()=>moods.find(m=>m.id===state.mood)||moods[0];
@@ -86,7 +85,7 @@
 <p class="font-body-sm text-body-sm text-feedback-error" data-mood-error role="status" hidden></p><button class="self-start px-3 py-2 rounded-lg bg-surface-container-high text-primary font-label-sm text-label-sm" data-mood-retry type="button" hidden>Повторить загрузку</button>
 <div data-mood-result></div><section class="flex flex-col gap-2"><button class="flex items-center justify-between gap-2 text-left" data-mood-films-toggle type="button" aria-expanded="false"><span class="font-label-md text-label-md text-on-surface">Фильмы в этом вайбе</span><span class="material-symbols-outlined text-primary-container" data-mood-films-icon>expand_more</span></button><div data-mood-films-panel hidden><div data-mood-films></div><button class="w-full py-2.5 rounded-xl bg-surface-container-high text-primary font-label-sm text-label-sm" data-mood-more type="button" hidden>Показать ещё фильмы</button></div></section></div></article>`).join("")}</div></section>
 <button class="self-start mb-3 flex items-center gap-1 text-on-surface-variant hover:text-primary" id="mood-surprise" type="button"><span class="material-symbols-outlined text-[15px]">shuffle</span><span class="font-micro-caption text-micro-caption underline">Удиви меня</span></button></div>`;
-    state.mood="wine";state.runtime="any";state.shown=4;state.films=[];state.loadedKey="";state.page=0;state.totalPages=0;
+    state.mood="wine";state.runtime="any";state.shown=4;state.films=[];state.loadedKey="";state.page=0;state.totalPages=0;state.jobs=null;
     updateLaunchLabel(root);
     collapseMoodFilms(root);
     if(boundRoot!==root){
@@ -130,23 +129,40 @@
     collapseMoodFilms(root);
     if(id===state.mood)return;
     stopSpin(root);deps.closeFilm("mood");activeElement(root,"[data-mood-result]")?.replaceChildren();
-    state.mood=id;state.films=[];state.shown=4;state.loadedKey="";state.page=0;state.totalPages=0;
+    state.mood=id;state.films=[];state.shown=4;state.loadedKey="";state.page=0;state.totalPages=0;state.jobs=null;
     paintSelection(root);loadMood(root,deps);renderFilms(root,deps);updateLaunchLabel(root);
   }
-  async function loadMood(root,deps,targetCount=5){
+    async function loadMood(root,deps,targetCount=20){
     const token=++state.token,key=state.mood;
     state.loading=true;renderFilms(root,deps);
     const error=activeElement(root,"[data-mood-error]"),retry=activeElement(root,"[data-mood-retry]");if(error){error.hidden=true;error.textContent="";}if(retry)retry.hidden=true;
     if(!deps.hasKey()){state.loading=false;renderFilms(root,deps);if(error){error.textContent="Добавьте ключ TMDB на экране «Глобус», чтобы загружать подборки.";error.hidden=false;}return;}
+    const mix=a=>{const r=[...a];for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]];}return r;};
     try{
       const mood=currentMood();
-      const params={with_origin_country:mood.countries.join("|"),with_genres:mood.genres.join("|"),"vote_count.gte":30,"vote_average.gte":5.5,sort_by:"popularity.desc",include_adult:"false"};
-      let detailFailures=0,attempted=0;
-      while(state.page<Math.min(state.totalPages||3,3)&&filtered().length<targetCount){
-        const page=state.page+1;
-        const result=await deps.api({...params,page});
+      const base=cc=>({with_origin_country:cc,with_genres:mood.genres.join("|"),"vote_count.gte":30,"vote_average.gte":5.5,sort_by:"popularity.desc",include_adult:"false"});
+      if(!state.jobs){
+        const firsts=await Promise.allSettled(mood.countries.map(cc=>deps.api({...base(cc),page:1})));
         if(token!==state.token||key!==state.mood)return;
-        state.totalPages=Math.min(result.total_pages||1,3);
+        const jobs=[];
+        firsts.forEach((r,i)=>{
+          if(r.status!=="fulfilled")return;
+          const cc=mood.countries[i],pages=Math.min(r.value.total_pages||1,4);
+          jobs.push({cc,page:1,data:r.value});
+          for(let p=2;p<=pages;p++)jobs.push({cc,page:p,data:null});
+        });
+        if(!jobs.length){
+          const bad=firsts.find(r=>r.status==="rejected");
+          throw bad?bad.reason:new Error("Для этого настроения фильмов не нашлось.");
+        }
+        state.jobs=mix(jobs);state.totalPages=state.jobs.length;state.page=0;
+      }
+      let detailFailures=0,attempted=0;
+      while(state.page<state.jobs.length&&filtered().length<targetCount){
+        const job=state.jobs[state.page];
+        const result=job.data||await deps.api({...base(job.cc),page:job.page});
+        if(token!==state.token||key!==state.mood)return;
+        job.data=null;
         const candidates=(result.results||[]).filter(f=>f.poster_path&&!state.films.some(item=>item.id===f.id));
         const details=[];
         await mapLimit(candidates,4,async f=>{
@@ -156,11 +172,11 @@
         attempted+=candidates.length;
         const byId=new Map(details);
         state.films.push(...candidates.map(f=>{
-        const d=byId.get(f.id)||null;
-        const cc=(d&&d.countries||[]).find(c=>mood.countries.includes(c))||(d&&d.countries||[])[0]||mood.countries[0];
-        return {...f,_cc:cc,runtime:(d||{}).runtime||0,detail:d};
-      }).filter(f=>f.runtime>0));
-        state.page=page;
+          const d=byId.get(f.id)||null;
+          const cc=(d&&d.countries||[]).find(c=>mood.countries.includes(c))||(d&&d.countries||[])[0]||job.cc;
+          return {...f,_cc:cc,runtime:(d||{}).runtime||0,detail:d};
+        }).filter(f=>f.runtime>0));
+        state.page++;
         renderFilms(root,deps);
       }
       state.loadedKey=key;

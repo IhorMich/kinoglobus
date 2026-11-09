@@ -567,6 +567,13 @@ function renderFilms(){
   const box=$("cl-films");if(!box)return;
   const {best,rest}=derived();
   const selectedInList=D.selected&&D.selected._placement==="list";
+  let anchorId=null,anchorTop=0;
+  {const els=[...box.querySelectorAll('[data-act="open"]')];
+   const el=(selectedInList&&els.find(e=>String(e.dataset.id)===String(D.selected.id)))||els.find(e=>e.getBoundingClientRect().bottom>0);
+   if(el){anchorId=el.dataset.id;anchorTop=el.getBoundingClientRect().top;}}
+  const keepScroll=()=>{if(anchorId==null)return;
+    const el=[...box.querySelectorAll('[data-act="open"]')].find(e=>String(e.dataset.id)===String(anchorId));
+    if(el){const d=el.getBoundingClientRect().top-anchorTop;if(d)window.scrollBy(0,d);}};
   if(!best){box.innerHTML=(selectedInList?selectedFilmHtml(D.selected):"")+'<p class="font-body-sm text-body-sm text-text-muted px-1">Подходящих фильмов не нашлось.</p>';return;}
   const list=rest.slice(0,D.shown);
   const pearl=pearlHtml(best,selectedInList&&String(D.selected.id)===String(best.id)?D.selected:null);
@@ -574,6 +581,7 @@ function renderFilms(){
   `<div class="flex flex-col gap-space-sm"><div class="flex items-center justify-between px-1"><h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">Отобранные шедевры</h3><span class="font-micro-caption text-micro-caption text-text-muted">${list.length} из ${nf(Math.max(totalFor(),list.length+1))}</span></div>
   <div class="flex flex-col gap-space-sm">${list.map(f=>filmItem(f)).join("")}</div>
   ${rest.length>D.shown?`<button type="button" data-act="more" class="w-full py-3 rounded-xl bg-surface-panel hover:bg-surface-container-low text-primary text-center font-label-md text-label-md font-semibold flex items-center justify-center gap-2 transition-colors shadow-sm"><span class="material-symbols-outlined text-[18px]">expand_more</span><span>Показать ещё</span></button>`:""}</div>`;
+  keepScroll();
   [best,...list].forEach(f=>filmDetails(f.id).then(d=>{
     const rt=vd.querySelectorAll(`[data-rt="${f.id}"]`),dr=vd.querySelectorAll(`[data-dir="${f.id}"]`);
     rt.forEach(e=>e.textContent=d.runtime?d.runtime+" мин":"");

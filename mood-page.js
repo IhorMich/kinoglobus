@@ -317,9 +317,5 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
     scrollToMoodResult(panel,moodId);
   }
   function stop(root){stopSpin(root);}
-  function getCurrentMood(){
-    const mood=moods.find(m=>m.id===state.mood)||moods[0];
-    return {id:state.mood,title:mood.title};
-  }
-  window.KGMoodPage={render,stop,getCurrentMood};
+  window.KGMoodPage={render,stop};
 })();

@@ -278,6 +278,7 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
     const start=offsetFor(0),finish=offsetFor(winnerIndex),total=pool.length;
     const complete=()=>{
       if(token!==state.spinToken||!panel.isConnected)return;
+      window.KGCinemaReel?.updateIMAX(panel.querySelector(".kg-imax-stage"),film,{country:film._cc||"КИНОПОИСК",state:"ФИЛЬМ В КАДРЕ"});
       state.spinning=false;state.skipSpin=false;
       cells.forEach((cell,index)=>{cell.classList.remove("spin");cell.classList.toggle("chosen",index===winnerIndex);});
       run.style.transform=`translateX(${-finish}px)`;

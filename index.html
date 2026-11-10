@@ -3518,7 +3518,7 @@ const veil=on=>{
 
 async function spinReel(pool,film,cc){
   const others=shuffle((pool.films||[]).filter(f=>f.id!==film.id));
-  if(!others.length||RM){renderStatic(pool,film,cc);reveal(film,pool);return;}
+  if(!others.length||RM||!filmSpin){renderStatic(pool,film,cc);reveal(film,pool);return;}
   const NEED=26,T=4600,TAIL=6;
   const seq=[];
   for(let i=0;i<NEED;i++)seq.push(others[i%others.length]);
@@ -3822,6 +3822,6 @@ console.info("[Kinoglobus] Bridge v6 ready");
 <script src="oscar-design.js?v=11"></script>
 <script src="collections.js?v=47"></script>
 <script src="film-interactions.js?v=8"></script>
-<script src="settings-page.js?v=3"></script>
+<script src="settings-page.js?v=4"></script>
 
 </body></html>

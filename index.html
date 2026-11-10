@@ -159,7 +159,7 @@
 <div class="z-20 mb-1 flex items-center justify-center pointer-events-none gap-2">
 <div class="hint-float flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-lowest/85 backdrop-blur-md border border-primary-container/30 shadow-[0_0_14px_rgba(255,184,48,0.2)]">
 <span class="text-[13px]">✨</span>
-<span class="font-micro-caption text-[11px] font-semibold text-primary tracking-wide">Вниз — листай страницу · 3–4 свайпа вбок по глобусу — поиск страны</span>
+<span class="font-micro-caption text-[11px] font-semibold text-primary tracking-wide">Вниз — листай страницу · 5 быстрых свайпов по глобусу — поиск фильма</span>
 </div>
 </div>
 <!-- Photorealistic Earth Space Viewport Card -->
@@ -1210,9 +1210,10 @@ rotatingGroup.add(flagPinGroup);
       hideAllBeacons();
       hideFlagPost();
 
-      // Vertical touch gestures scroll the page. A quick horizontal swipe spins the globe;
-      // three swipes in a short sequence launch the country search.
+      // Vertical gestures scroll the page; horizontal gestures rotate the globe.
+      // Only five quick horizontal swipes in sequence launch film search.
       let horizontalSwipeCount = 0, lastHorizontalSwipeAt = 0;
+      const QUICK_SWIPE_MAX_MS = 450, SEARCH_SWIPES_REQUIRED = 5, SWIPE_SEQUENCE_WINDOW_MS = 3500;
       container.style.touchAction = 'pan-y';
       canvas.style.touchAction = 'pan-y';
       canvas.addEventListener('mousedown', (e) => {
@@ -1224,7 +1225,7 @@ rotatingGroup.add(flagPinGroup);
         if (e.touches.length !== 1 || isSpinning) { touchGesture = null; return; }
         const t = e.touches[0];
         isDragging = false;
-        touchGesture = { startX: t.clientX, startY: t.clientY, lastX: t.clientX, lastY: t.clientY, axis: null };
+        touchGesture = { startX: t.clientX, startY: t.clientY, lastX: t.clientX, lastY: t.clientY, startAt: performance.now(), axis: null };
       }, { passive: true });
 
       window.addEventListener('mousemove', (e) => {
@@ -1262,17 +1263,24 @@ rotatingGroup.add(flagPinGroup);
         isDragging = false;
         touchGesture = null;
         if (!gesture || gesture.axis !== 'x' || !e.changedTouches?.[0]) return;
-        const swipeDistance = Math.abs(e.changedTouches[0].clientX - gesture.startX);
-        if (swipeDistance < 42 || isSpinning) return;
+        if (e.type === 'touchcancel' || isSpinning) return;
         const now = performance.now();
-        if (now - lastHorizontalSwipeAt > 2800) horizontalSwipeCount = 0;
+        const swipeDistance = Math.abs(e.changedTouches[0].clientX - gesture.startX);
+        const swipeDuration = now - gesture.startAt;
+        // Slow horizontal drags still rotate the globe, but never count toward film search.
+        if (swipeDistance < 42 || swipeDuration > QUICK_SWIPE_MAX_MS) {
+          horizontalSwipeCount = 0;
+          lastHorizontalSwipeAt = 0;
+          return;
+        }
+        if (now - lastHorizontalSwipeAt > SWIPE_SEQUENCE_WINDOW_MS) horizontalSwipeCount = 0;
         lastHorizontalSwipeAt = now;
         horizontalSwipeCount++;
         if (typeof window.buzz === 'function') {
-          const pulse = horizontalSwipeCount === 1 ? 8 : horizontalSwipeCount === 2 ? 15 : [18, 24, 36];
+          const pulse = horizontalSwipeCount === 1 ? 8 : horizontalSwipeCount === 2 ? 12 : horizontalSwipeCount < SEARCH_SWIPES_REQUIRED ? 16 : [18, 24, 36];
           window.buzz(pulse);
         }
-        if (horizontalSwipeCount >= 3) {
+        if (horizontalSwipeCount >= SEARCH_SWIPES_REQUIRED) {
           horizontalSwipeCount = 0;
           lastHorizontalSwipeAt = 0;
           document.getElementById('btn-spin-roulette')?.click();
@@ -3842,8 +3850,8 @@ console.info("[Kinoglobus] Bridge v6 ready");
 <script src="mood-vibe-page.js?v=7"></script>
 <script src="oscar-page.js?v=22"></script>
 <script src="oscar-design.js?v=11"></script>
-<script src="collections.js?v=39"></script>
-<script src="film-interactions.js?v=2"></script>
+<script src="collections.js?v=40"></script>
+<script src="film-interactions.js?v=3"></script>
 <script src="settings-page.js?v=2"></script>
 
 </body></html>

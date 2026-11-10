@@ -1,6 +1,7 @@
 /* Shared TMDB person profiles and related-film carousels. */
 (function(){
   const pools=new Map(),relatedCache=new Map(),personCache=new Map();
+  let scrollFrame=0;
   const image=(path,size="w342")=>path?`https://image.tmdb.org/t/p/${size}${path}`:"";
   const esc=value=>String(value||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   async function tmdb(path,params={}){
@@ -18,6 +19,15 @@
     document.head.appendChild(style);
   }
   function registerPool(key,films){if(key&&Array.isArray(films))pools.set(key,films);}
+  function scrollToDescription(element){
+    if(!element?.isConnected)return;
+    if(scrollFrame)cancelAnimationFrame(scrollFrame);
+    const start=window.scrollY,target=Math.max(0,element.getBoundingClientRect().top+start-132),distance=target-start;
+    if(matchMedia("(prefers-reduced-motion: reduce)").matches||Math.abs(distance)<8){window.scrollTo({top:target,behavior:"auto"});return;}
+    const duration=1150,begin=performance.now();
+    const step=now=>{const p=Math.min(1,(now-begin)/duration),eased=p<.5?4*p*p*p:1-Math.pow(-2*p+2,3)/2;window.scrollTo({top:start+distance*eased,behavior:"auto"});if(p<1)scrollFrame=requestAnimationFrame(step);else scrollFrame=0;};
+    scrollFrame=requestAnimationFrame(step);
+  }
   function filmButton(f){const title=f.title||f.name||"Фильм",year=(f.release_date||"").slice(0,4);return `<button class="kgpi-film" type="button" data-kg-related-open="${f.id}"><img loading="lazy" src="${image(f.poster_path)}" alt="Постер «${esc(title)}'" onerror="this.style.visibility='hidden'"><span class="block mt-1 text-xs font-semibold leading-tight">${esc(title)}</span><span class="block text-[10px] text-[#b3a79a]">${year}</span></button>`;}
   function modal(){return document.getElementById("kg-person-modal");}
   function closePerson(){modal()?.remove();}
@@ -61,4 +71,5 @@
   },true);
   document.addEventListener("keydown",e=>{if(e.key==="Escape")closePerson();});
   window.KGFilmInteractions={registerPool};
+  window.KGScrollToFilmDescription=scrollToDescription;
 })();

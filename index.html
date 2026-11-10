@@ -159,7 +159,7 @@
 <div class="z-20 mb-1 flex items-center justify-center pointer-events-none gap-2">
 <div class="hint-float flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-lowest/85 backdrop-blur-md border border-primary-container/30 shadow-[0_0_14px_rgba(255,184,48,0.2)]">
 <span class="text-[13px]">✨</span>
-<span class="font-micro-caption text-[11px] font-semibold text-primary tracking-wide">Вращай глобус для поиска фильмов со всего мира</span>
+<span class="font-micro-caption text-[11px] font-semibold text-primary tracking-wide">Проведи по глобусу, чтобы осмотреть мир · поиск — кнопкой ниже</span>
 </div>
 </div>
 <!-- Photorealistic Earth Space Viewport Card -->
@@ -187,7 +187,7 @@
 <!-- 4. Collapsible Modern Expandable Filter Accordions -->
 <section class="w-full flex flex-col space-y-2.5">
 <!-- Accordion 1: Категории & Жанры -->
-<details class="group rounded-xl bg-surface-panel shadow-sm overflow-hidden" open="">
+<details class="group rounded-xl bg-surface-panel shadow-sm overflow-hidden">
 <summary class="flex items-center justify-between p-3.5 cursor-pointer list-none select-none bg-surface-panel hover:bg-surface-container transition-colors">
 <div class="flex items-center gap-2">
 <span class="material-symbols-outlined text-primary-container text-[20px]">movie_creation</span>
@@ -1211,7 +1211,8 @@ rotatingGroup.add(flagPinGroup);
       hideFlagPost();
 
       // Mouse can rotate freely. Touch rotates horizontally only; vertical gestures remain page scroll.
-      canvas.style.touchAction = 'pan-y';
+      container.style.touchAction = 'none';
+      canvas.style.touchAction = 'none';
       canvas.addEventListener('mousedown', (e) => {
         if (isSpinning) return;
         isDragging = true;
@@ -1221,7 +1222,7 @@ rotatingGroup.add(flagPinGroup);
         if (e.touches.length !== 1 || isSpinning) { touchGesture = null; return; }
         const t = e.touches[0];
         isDragging = false;
-        touchGesture = { startX: t.clientX, startY: t.clientY, lastX: t.clientX, lastY: t.clientY, axis: null };
+        touchGesture = { lastX: t.clientX, lastY: t.clientY, started: false };
       }, { passive: true });
 
       window.addEventListener('mousemove', (e) => {
@@ -1235,18 +1236,14 @@ rotatingGroup.add(flagPinGroup);
       window.addEventListener('touchmove', (e) => {
         if (!touchGesture || !e.touches[0] || !rotatingGroup || isSpinning) return;
         const t = e.touches[0];
-        const totalX = t.clientX - touchGesture.startX;
-        const totalY = t.clientY - touchGesture.startY;
-        if (!touchGesture.axis) {
-          if (Math.max(Math.abs(totalX), Math.abs(totalY)) < 7) return;
-          if (Math.abs(totalX) <= Math.abs(totalY)) { touchGesture.axis = 'y'; return; }
-          touchGesture.axis = 'x';
-          isDragging = true;
-        }
-        if (touchGesture.axis !== 'x') return;
+        const totalX = t.clientX - touchGesture.lastX;
+        const totalY = t.clientY - touchGesture.lastY;
+        if (!touchGesture.started && Math.max(Math.abs(totalX), Math.abs(totalY)) < 4) return;
+        touchGesture.started = true;
+        isDragging = true;
         if (e.cancelable) e.preventDefault();
-        const deltaX = t.clientX - touchGesture.lastX;
-        targetRotY += deltaX * 0.008;
+        targetRotY += totalX * 0.008;
+        targetRotX = Math.max(-1.2, Math.min(1.2, targetRotX + totalY * 0.008));
         touchGesture.lastX = t.clientX;
         touchGesture.lastY = t.clientY;
       }, { passive: false });
@@ -1966,7 +1963,13 @@ function restoreFold(el,key,forceOpen){
   el.open=saved==null?!!forceOpen:!!saved;
   el.addEventListener("toggle",()=>store.set(key,el.open));
 }
-restoreFold($("filterCard"),"foldCats",sel.size>0);
+// New installs and the first load after this update start with genre filters collapsed.
+// After that, the visitor's own open/closed choice is preserved.
+if(!store.get("foldCatsDefaultApplied",false)){
+  store.set("foldCats",false);
+  store.set("foldCatsDefaultApplied",true);
+}
+restoreFold($("filterCard"),"foldCats",false);
 restoreFold($("extraCard"),"foldExtra",!!($("year").value||$("yearTo").value||$("rmin").value!=="6"||$("rmax").value));
 restoreFold($("themeCard"),"foldTheme",!!themeId);
 $("extraCard").addEventListener("toggle",()=>{
@@ -3808,7 +3811,7 @@ console.info("[Kinoglobus] Bridge v6 ready");
 </script>
 
 <script src="mood-page.js?v=22"></script>
-<script src="mood-vibe-page.js?v=6"></script>
+<script src="mood-vibe-page.js?v=7"></script>
 <script src="oscar-page.js?v=22"></script>
 <script src="oscar-design.js?v=11"></script>
 <script src="collections.js?v=39"></script>

@@ -103,15 +103,15 @@
 <div class="relative w-full px-gutter-mobile pt-space-md"><div class="relative overflow-hidden rounded-2xl bg-gradient-to-b from-surface-container-high via-surface-panel to-surface-container-lowest p-space-lg shadow-xl shadow-canvas-obsidian/80">
 <div class="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-cinema-amber-glow blur-3xl pointer-events-none"></div><div class="absolute -bottom-16 -left-12 w-44 h-44 rounded-full bg-cinema-velvet-glow blur-3xl pointer-events-none"></div>
 <div class="relative flex flex-col items-center text-center">
-<div class="relative w-full h-44 rounded-2xl overflow-hidden mb-space-md shadow-xl">
+<div class="relative h-56 rounded-2xl overflow-hidden mb-space-md shadow-xl" style="width:calc(100% + 2.5rem);margin-left:-1.25rem;margin-right:-1.25rem">
 <img src="/kinoglobus/assets/oscar/oscar-hero.jpg" alt="Статуэтка Оскара" class="w-full h-full object-cover object-center">
 <div class="absolute inset-0 bg-gradient-to-t from-canvas-obsidian/90 via-canvas-obsidian/40 to-transparent"></div>
-<div class="absolute bottom-3 left-0 right-0 flex flex-col items-center">
+<div class="absolute bottom-3 left-0 right-0 flex flex-col items-center px-4">
 <span class="px-2.5 py-0.5 rounded-full bg-surface-panel/90 text-primary font-micro-caption text-micro-caption font-semibold tracking-wider mb-1" id="oscar-age">ОСКАР</span>
 <h1 class="font-headline-lg text-headline-lg text-primary tracking-tight drop-shadow">Зал славы Оскара</h1>
+<p class="font-body-sm text-body-sm text-primary-fixed/90 text-center leading-snug mt-1 max-w-sm">История премии, легендарные лауреаты и фильмы, которые стали частью истории кино</p>
 </div>
 </div>
-<p class="font-body-sm text-body-sm text-text-muted max-w-xs mb-space-md">История премии, легендарные лауреаты и фильмы, которые стали частью истории кино</p>
 <div class="w-full mb-space-sm text-left"><div class="flex items-center justify-between mb-1.5"><span class="font-label-sm text-label-sm text-text-muted uppercase tracking-wider">Эпоха для рулетки</span><span class="font-micro-caption text-micro-caption text-primary" id="oscar-range">История премии</span></div><div class="flex items-center gap-2 overflow-x-auto py-1 no-scrollbar scroll-smooth" id="oscar-decades"></div><p class="font-micro-caption text-micro-caption text-text-muted mt-1">Выбранная эпоха работает для рулетки и для списка ниже</p></div>
 <button class="w-full flex items-center justify-between gap-space-sm bg-gradient-to-r from-primary-container via-primary-fixed-dim to-primary px-space-md py-3.5 rounded-xl text-on-primary-fixed shadow-lg shadow-cinema-amber-glow active:scale-[0.98] transition-all duration-200" id="oscar-roulette">
 <span class="flex items-center gap-2 min-w-0"><span class="material-symbols-outlined text-[22px]" id="oscar-roulette-icon">casino</span><span class="font-label-lg text-label-lg tracking-tight truncate" id="oscar-roulette-label">Случайный лауреат</span></span><span class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-canvas-obsidian/20 shrink-0"><span class="font-micro-caption text-micro-caption font-bold" id="oscar-total">Загружаем…</span><span class="material-symbols-outlined text-[16px]">arrow_forward</span></span></button>

@@ -45,7 +45,7 @@
       0% { transform: translateX(-100%); }
       100% { transform: translateX(200%); }
     }
-  </style></head><body class="bg-canvas-obsidian font-body-md text-on-surface flex flex-col min-h-screen relative">
+  </style><script src="cinema-reel.js?v=1"></script></head><body class="bg-canvas-obsidian font-body-md text-on-surface flex flex-col min-h-screen relative">
 <!-- Atmospheric Living Theater Background Layer with Floating Posters -->
 <div class="fixed inset-0 pointer-events-none overflow-hidden -z-10 select-none">
 <!-- Ambient Projector Velvet & Amber Glow Orbs -->
@@ -3164,8 +3164,6 @@ st.textContent=`
 document.head.appendChild(st);
 
 // ---------- Новая секция «Кинолента 35-мм» (подменяет старую карточку) ----------
-const HOLE='<span class="w-2.5 h-1.5 rounded-sm bg-neutral-800 border border-neutral-600 shadow-inner inline-block"></span>';
-const HOLES=HOLE.repeat(12);
 const CARD_HTML=`
 <section class="w-full rounded-2xl bg-surface-panel/95 p-3.5 shadow-2xl relative overflow-hidden border border-primary-container/25 backdrop-blur-xl" id="cinema-35mm-reel-section">
 <div class="flex items-center justify-between mb-2.5 px-0.5">
@@ -3177,11 +3175,7 @@ const CARD_HTML=`
 </div></div>
 <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-high/90 border border-primary-container/25 shadow-sm flex-shrink-0"><span class="material-symbols-outlined text-primary-container text-[14px]">confirmation_number</span><span class="font-mono text-micro-caption text-primary-fixed font-semibold tracking-wide" id="reel-frame-counter">Кадр 00 / 00</span></div>
 </div>
-<div class="relative w-full rounded-xl bg-canvas-obsidian border border-primary-container/30 overflow-hidden shadow-[inset_0_2px_12px_rgba(0,0,0,0.95)] my-2 p-1">
-<div class="w-full flex items-center justify-between px-2 py-1 bg-black/60 border-b border-white/10 select-none overflow-hidden"><div class="flex items-center gap-2.5 opacity-75">${HOLES}</div><span class="font-mono text-[9px] text-primary/40 uppercase tracking-widest">KODAK 35MM</span></div>
-<div id="film-reel-window" class="select-none"><div id="film-reel-track"></div><div id="film-center-frame" aria-hidden="true"></div></div>
-<div class="w-full flex items-center justify-between px-2 py-1 bg-black/60 border-t border-white/10 select-none overflow-hidden"><div class="flex items-center gap-2.5 opacity-75">${HOLES}</div><span class="font-mono text-[9px] text-primary/40 uppercase tracking-widest">35MM NITRATE</span></div>
-</div>
+${window.KGCinemaReel.render({shellClass:"relative w-full rounded-xl bg-canvas-obsidian border border-primary-container/30 overflow-hidden shadow-[inset_0_2px_12px_rgba(0,0,0,0.95)] my-2 p-1",windowId:"film-reel-window",windowClass:"select-none",trackId:"film-reel-track",runClass:"run",frameId:"film-center-frame",includeRun:false})}
 <div class="veiled flex flex-col mt-2.5 pt-2 border-t border-surface-border-subtle/80" id="film-details">
 <div class="flex items-start justify-between gap-2">
 <div class="relative w-24 sm:w-28 flex-shrink-0 aspect-[2/3] rounded-lg overflow-hidden bg-surface-container-high shadow-md border border-primary-container/20">
@@ -3847,12 +3841,12 @@ console.info("[Kinoglobus] Bridge v6 ready");
 })();
 </script>
 
-<script src="mood-page.js?v=22"></script>
-<script src="mood-vibe-page.js?v=7"></script>
-<script src="oscar-page.js?v=24"></script>
+<script src="mood-page.js?v=23"></script>
+<script src="mood-vibe-page.js?v=8"></script>
+<script src="oscar-page.js?v=25"></script>
 <script src="oscar-design.js?v=11"></script>
-<script src="collections.js?v=45"></script>
-<script src="film-interactions.js?v=7"></script>
-<script src="settings-page.js?v=2"></script>
+<script src="collections.js?v=47"></script>
+<script src="film-interactions.js?v=8"></script>
+<script src="settings-page.js?v=3"></script>
 
 </body></html>

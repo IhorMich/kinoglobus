@@ -1,5 +1,5 @@
 // Оформление страницы «Оскар» по макету. Подключать ПОСЛЕ oscar-page.js и ДО collections.js.
-// oscar-page.js не меняется: этот файл оборачивает KGOscarPage.render и достраивает шапку, героя, пилюли и секции.
+// oscar-page.js не меняется: этот файл оборачивает KGOscarPage.render и достраивает шапку, героя, пилюли и секции..
 (function(){
   const KG=window.KGOscarPage;
   if(!KG||KG.__design)return;

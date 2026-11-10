@@ -6,7 +6,6 @@
   KG.__design=true;
   const $=id=>document.getElementById(id);
   const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-  const HERO_IMG="/kinoglobus/assets/oscar/oscar-hero.jpg";
 
   // 98-я церемония (2026): «One Battle After Another». В списке BEST_PICTURE из oscar-page.js её нет.
   const baseInfo=KG.info;
@@ -155,18 +154,15 @@
   function decorate(root,deps){
     root._kgoDeps=deps;window.__kgoDeps=deps;
     const wrap=root.firstElementChild;if(!wrap)return;
-    const back=wrap.firstElementChild,roulette=back&&back.nextElementSibling;
-    if(!back||!roulette)return;
-    const title=roulette.querySelector("h1"),sub=title&&title.nextElementSibling;
-    if(title)title.textContent="Случайный шедевр вечера";
-    if(sub)sub.textContent="Выберите эпоху и запустите рулетку: плёнка выберет случайного лауреата «Оскара».";
+    const back=wrap.firstElementChild,hero=back&&back.nextElementSibling;
+    if(!back||!hero)return;
     back.remove();wrap.classList.remove("overflow-hidden");
     const tmp=document.createElement("div");
     tmp.innerHTML=HEAD+foreign+big5+anim+dirs+club;
-    while(tmp.firstChild)wrap.insertBefore(tmp.firstChild,roulette);
-    // Ставим рулетку сразу под шапкой: это главный интерактивный блок страницы.
+    while(tmp.firstChild)wrap.insertBefore(tmp.firstChild,hero);
+    // Оставляем постер и название зала славы сразу под навигацией страницы.
     const pills=root.querySelector("#kgo-pills");
-    if(pills&&roulette)wrap.insertBefore(roulette,pills.nextSibling);
+    if(pills&&hero)wrap.insertBefore(hero,pills.nextSibling);
     const list=$("oscar-list");const ls=list&&list.closest("section");if(ls)ls.id="kgo-list";
     if(!root._kgoBound){
       root._kgoBound=true;
@@ -303,4 +299,3 @@ ${people}${where}${facts?`<div class="grid grid-cols-2 gap-2.5">${facts}</div>`:
     decorate(root,deps);
   };
 })();
-

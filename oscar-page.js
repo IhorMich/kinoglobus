@@ -449,3 +449,4 @@ ${info.best?`<span class="block font-micro-caption text-micro-caption text-prima
   }
   window.KGOscarPage={render,stop:stopSpin,info:oscarInfo,awards:awardsFor};
 })();
+ 

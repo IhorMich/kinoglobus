@@ -122,14 +122,13 @@
     const genres=(d.genres||[]).slice(0,2);
     const booked=deps.isBooked?.(f.id);
     return `<div class="flex items-center gap-1.5 text-secondary"><span class="material-symbols-outlined text-[18px]">verified</span><span class="font-label-sm text-label-sm uppercase tracking-wider font-semibold">${esc(currentMood().x.jewel||"Жемчужина вайба · Выбор куратора")}</span></div>
-<div data-vibe-film="${f.id}" data-detail-target="${target}" class="grid grid-cols-[108px_1fr] gap-space-md mt-1 cursor-pointer">
+<div data-vibe-film="${f.id}" data-detail-target="${target}" class="grid grid-cols-[108px_1fr] gap-space-md mt-1 cursor-pointer active:bg-surface-container-high transition-colors">
 <div class="relative w-full aspect-[2/3] rounded-xl overflow-hidden bg-surface-container-high shadow-lg">${f.poster_path?`<img class="w-full h-full object-cover" alt="Постер «${esc(f.title||f.original_title)}»" src="${poster(f.poster_path,"w342")}">`:""}<div class="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-md bg-black/75 backdrop-blur-md flex items-center gap-0.5 text-primary-container"><span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">star</span><span class="font-label-sm text-label-sm font-bold">${Number(f.vote_average||0).toFixed(1)}</span></div></div>
 <div class="flex flex-col justify-between min-w-0"><div class="flex flex-col gap-1"><div class="flex items-start justify-between gap-1"><h3 class="font-headline-md text-headline-md text-primary truncate leading-tight">${esc(f.title||f.original_title||"Фильм")}</h3><div class="flex items-center gap-1 shrink-0"><button type="button" data-vibe-bm="${f.id}" aria-label="${booked?"Убрать из закладок":"Сохранить в закладки"}" class="w-6 h-6 rounded-full text-primary-container flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">${booked?"bookmark_added":"bookmark_border"}</span></button><span class="px-2 py-0.5 rounded-full bg-secondary-container/60 text-secondary font-label-sm text-label-sm shrink-0">${year}${f._cc?` · ${flag(f._cc)}`:""}</span></div></div>
 <p class="font-micro-caption text-micro-caption text-text-muted">${orig}</p>
 <p class="font-body-sm text-body-sm text-tertiary mt-0.5">${dir?`Реж. ${dir}`:""}${dir&&d.runtime?" · ":""}${d.runtime?`${d.runtime} мин`:""}</p>
 <div class="flex flex-wrap gap-1 mt-1.5">${genres.map((g,i)=>`<span class="px-2 py-0.5 rounded ${i?"bg-secondary-container/30 text-secondary-fixed":"bg-surface-container-highest text-tertiary"} font-label-sm text-label-sm">${esc(g)}</span>`).join("")}</div></div>
 <p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 mt-2">${esc(d.overview||f.overview||"Описание пока недоступно.")}</p></div></div>
-<div class="flex flex-col gap-2 mt-3 pt-3 bg-surface-container-lowest/40 rounded-xl p-2.5"><div class="flex items-center gap-2"><button type="button" data-vibe-film="${f.id}" data-detail-target="${target}" class="flex-1 h-10 rounded-lg bg-primary text-on-primary font-label-md text-label-md flex items-center justify-center gap-1.5 active:scale-95 transition-transform shadow-md"><span class="material-symbols-outlined text-[18px]">play_arrow</span></button></div></div>
 <div id="${target}"></div>`;
   }
   function renderFilms(root,deps){
@@ -391,4 +390,3 @@
   function reset(root,deps){if(host&&host.isConnected)closeVibe(root,deps);}
   window.KGMoodVibePage={init,reset,stop};
 })();
- 

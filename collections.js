@@ -925,6 +925,7 @@ function rStop(){
 function finishPick(film,token){
   if(token!==R.token)return;
   R.busy=false;D.picked=film;setBtn(false);
+  window.KGCinemaReel?.updateIMAX(document.getElementById("kg-imax-stage"),film,{country:cname(film._cc||D.cc||D.t.cc[0]),state:"ФИЛЬМ В КАДРЕ"});
   openFilm(film,"roulette");
 }
 async function inPageRoulette(){

@@ -683,6 +683,7 @@
     let currentRotY = 0;
     let currentRotX = 0;
     let isDragging = false;
+    let touchGesture = null;
     let previousMousePosition = { x: 0, y: 0 };
     let lerpSpeed = 0.045;
 
@@ -1209,20 +1210,22 @@ rotatingGroup.add(flagPinGroup);
       hideAllBeacons();
       hideFlagPost();
 
-      // Drag & Touch gestures
+      // Mouse can rotate freely. Touch rotates horizontally only; vertical gestures remain page scroll.
+      canvas.style.touchAction = 'pan-y';
       canvas.addEventListener('mousedown', (e) => {
+        if (isSpinning) return;
         isDragging = true;
         previousMousePosition = { x: e.clientX, y: e.clientY };
       });
       canvas.addEventListener('touchstart', (e) => {
-        if (e.touches.length === 1) {
-          isDragging = true;
-          previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-        }
+        if (e.touches.length !== 1 || isSpinning) { touchGesture = null; return; }
+        const t = e.touches[0];
+        isDragging = false;
+        touchGesture = { startX: t.clientX, startY: t.clientY, lastX: t.clientX, lastY: t.clientY, axis: null };
       }, { passive: true });
 
       window.addEventListener('mousemove', (e) => {
-        if (!isDragging || !rotatingGroup) return;
+        if (!isDragging || isSpinning || !rotatingGroup) return;
         const deltaX = e.clientX - previousMousePosition.x;
         const deltaY = e.clientY - previousMousePosition.y;
         targetRotY += deltaX * 0.008;
@@ -1230,16 +1233,28 @@ rotatingGroup.add(flagPinGroup);
         previousMousePosition = { x: e.clientX, y: e.clientY };
       });
       window.addEventListener('touchmove', (e) => {
-        if (!isDragging || !e.touches[0] || !rotatingGroup) return;
-        const deltaX = e.touches[0].clientX - previousMousePosition.x;
-        const deltaY = e.touches[0].clientY - previousMousePosition.y;
+        if (!touchGesture || !e.touches[0] || !rotatingGroup || isSpinning) return;
+        const t = e.touches[0];
+        const totalX = t.clientX - touchGesture.startX;
+        const totalY = t.clientY - touchGesture.startY;
+        if (!touchGesture.axis) {
+          if (Math.max(Math.abs(totalX), Math.abs(totalY)) < 7) return;
+          if (Math.abs(totalX) <= Math.abs(totalY)) { touchGesture.axis = 'y'; return; }
+          touchGesture.axis = 'x';
+          isDragging = true;
+        }
+        if (touchGesture.axis !== 'x') return;
+        if (e.cancelable) e.preventDefault();
+        const deltaX = t.clientX - touchGesture.lastX;
         targetRotY += deltaX * 0.008;
-        targetRotX = Math.max(-1.2, Math.min(1.2, targetRotX + deltaY * 0.008));
-        previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-      }, { passive: true });
+        touchGesture.lastX = t.clientX;
+        touchGesture.lastY = t.clientY;
+      }, { passive: false });
 
       window.addEventListener('mouseup', () => { isDragging = false; });
-      window.addEventListener('touchend', () => { isDragging = false; });
+      const endTouchGesture = () => { isDragging = false; touchGesture = null; };
+      window.addEventListener('touchend', endTouchGesture, { passive: true });
+      window.addEventListener('touchcancel', endTouchGesture, { passive: true });
 
       // Animation Loop
       const clock = new THREE.Clock();
@@ -1563,6 +1578,8 @@ if (areaRing) {
     // Helpers below repeat exactly what the design's runCountryRoulette does around the spin.
     function beginScan() {
       if (zoomResetTimeout) { clearTimeout(zoomResetTimeout); zoomResetTimeout = null; }
+      isDragging = false;
+      touchGesture = null;
       hideAllBeacons();
       hideFlagPost();
       targetCameraZ = defaultDist;
@@ -3146,7 +3163,7 @@ const CARD_HTML=`
 <div class="relative w-full rounded-xl overflow-hidden bg-black border border-primary-container/30 shadow-md" style="aspect-ratio:16/10;min-height:220px;max-height:min(65vh,520px)" id="film-trailer-stage">
 <div class="absolute inset-0" id="film-trailer-preview"><img class="w-full h-full object-cover opacity-80" id="film-trailer-thumbnail" alt="" loading="lazy"><div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-black/20"></div><button type="button" id="film-trailer-play" class="absolute inset-0 flex items-center justify-center text-white disabled:opacity-40" aria-label="Воспроизвести трейлер" disabled><span class="w-16 h-16 rounded-full bg-primary-container/95 text-on-primary shadow-[0_0_32px_rgba(255,184,48,.45)] flex items-center justify-center transition-transform hover:scale-110"><span class="material-symbols-outlined text-[40px]">play_arrow</span></span></button><span class="absolute bottom-3 left-3 right-3 text-center font-label-sm text-label-sm text-white drop-shadow-lg" id="film-trailer-status">Ищем трейлер…</span></div>
 <div class="absolute inset-0" id="film-trailer-player" hidden></div>
-<button type="button" id="film-trailer-close" class="absolute top-3 right-3 z-10 w-10 h-10 rounded-full bg-black/70 text-white flex items-center justify-center hover:bg-black/90" aria-label="Закрыть трейлер" title="Закрыть трейлер" hidden><span class="material-symbols-outlined">close</span></button>
+<button type="button" id="film-trailer-close" class="absolute top-3 right-3 z-10 w-10 h-10 rounded-full bg-black/70 text-white flex items-center justify-center hover:bg-black/90" style="position:absolute;top:12px;right:12px;z-index:30;pointer-events:auto;touch-action:manipulation" aria-label="Закрыть трейлер" title="Закрыть трейлер" hidden><span class="material-symbols-outlined">close</span></button>
 </div>
 <div class="font-micro-caption text-[11px] text-text-muted mt-1.5" id="film-trailer-note" hidden><span>Не воспроизводится? <a id="film-trailer-link" target="_blank" rel="noopener noreferrer" class="text-primary underline">Открыть на YouTube</a></span></div>
 </div>
@@ -3420,12 +3437,31 @@ function loadPoster(f){
   });
 }
 const warmPosters=pool=>Promise.all((pool.films||[]).map(loadPoster));
-let runRaf=0,spinTimer=0;
+let runRaf=0,spinTimer=0,reelScrollFrame=0,finishReelScroll=null;
 function stopReel(){
   clearTimeout(spinTimer);
   cancelAnimationFrame(runRaf);
+  if(reelScrollFrame){cancelAnimationFrame(reelScrollFrame);reelScrollFrame=0;finishReelScroll?.();finishReelScroll=null;}
   strip.busy=false;
   stopFilmReelSound();
+}
+function scrollToFilmReel(element){
+  if(!element?.isConnected)return Promise.resolve();
+  if(reelScrollFrame){cancelAnimationFrame(reelScrollFrame);reelScrollFrame=0;finishReelScroll?.();finishReelScroll=null;}
+  const header=document.querySelector("header"),offset=(header?.getBoundingClientRect().height||80)+8;
+  const start=window.scrollY,target=Math.max(0,element.getBoundingClientRect().top+start-offset),distance=target-start;
+  if(RM||Math.abs(distance)<8){window.scrollTo({top:target,behavior:"auto"});return Promise.resolve();}
+  const duration=950,started=performance.now();
+  return new Promise(resolve=>{
+    finishReelScroll=resolve;
+    const step=now=>{
+      const p=Math.min(1,(now-started)/duration),e=p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2;
+      window.scrollTo({top:start+distance*e,behavior:"auto"});
+      if(p<1){reelScrollFrame=requestAnimationFrame(step);return;}
+      reelScrollFrame=0;finishReelScroll=null;resolve();
+    };
+    reelScrollFrame=requestAnimationFrame(step);
+  });
 }
 const detailsEl=$("film-details");
 const veil=on=>{
@@ -3454,7 +3490,6 @@ async function spinReel(pool,film,cc){
   for(let i=0;i<NEED;i++)seq.push(others[i%others.length]);
   seq.push(film);
   for(let i=0;i<TAIL;i++)seq.push(others[(i+2)%others.length]);
-  await Promise.race([warmPosters(pool),sleep(2500)]);
   if(!cur||cur.film.id!==film.id)return;
   strip={list:seq,pool,cc,idx:NEED,busy:true};
   mountRun(seq,NEED,"");
@@ -3656,10 +3691,11 @@ function playFilmTrailer(){
   $("film-trailer-link").textContent=ftKey.site==="Vimeo"?"Открыть на Vimeo":"Открыть на YouTube";
 }
 $("film-trailer-play").addEventListener("click",playFilmTrailer);
-$("film-trailer-close").addEventListener("click",closeFilmTrailer);
+$("film-trailer-close").addEventListener("click",event=>{event.preventDefault();event.stopPropagation();closeFilmTrailer();});
 
 const _show=window.show;
 window.show=function(cc,pool,film){
+  const fromSpin=G.isSpinning;
   _show(cc,pool,film);
   if(window.KGFilmInteractions)window.KGFilmInteractions.registerPool("discovery-current",pool.films||[]);
   window.KGShowRelatedDiscoveryFilm=related=>window.show(cc,pool,related);
@@ -3702,7 +3738,7 @@ window.show=function(cc,pool,film){
     set("discovery-genres","· "+[g,d.runtime?d.runtime+" мин":""].filter(Boolean).join(" · "));
     if(d.votes){set("discovery-rating",Number(d.average).toFixed(1));setVotes(d.votes);}
     renderExtra(film,d);
-    requestAnimationFrame(()=>{const trailer=$("film-trailer-box");if(window.KGScrollToFilmDescription)window.KGScrollToFilmDescription(trailer);});
+    if(!fromSpin)requestAnimationFrame(()=>{const trailer=$("film-trailer-box");if(window.KGScrollToFilmDescription)window.KGScrollToFilmDescription(trailer);});
   }).catch(()=>{
     if(!cur||cur.film.id!==film.id)return;
     set("discovery-desc",russianCopy(film.overview)||"Не удалось загрузить описание.");
@@ -3725,11 +3761,14 @@ window.show=function(cc,pool,film){
   });
   showProviders(film);
   stopReel();warmPosters(pool);
-  const fromSpin=G.isSpinning;
-  spinTimer=setTimeout(()=>{      // плёнка запускается сразу после того, как планета выбрала страну
-    card.scrollIntoView({behavior:"smooth",block:"center"});
-    spinTimer=setTimeout(()=>spinReel(pool,film,cc).catch(e=>{console.warn('[Kinoglobus] reel',e);renderStatic(pool,film,cc);reveal(film,pool);}),500);
-  },fromSpin?1200:0);
+  spinTimer=setTimeout(async()=>{
+    try{
+      if(fromSpin)await scrollToFilmReel(card);
+      else{card.scrollIntoView({behavior:"smooth",block:"center"});await sleep(500);}
+      if(!cur||cur.film.id!==film.id)return;
+      await spinReel(pool,film,cc);
+    }catch(e){console.warn('[Kinoglobus] reel',e);if(cur&&cur.film.id===film.id){renderStatic(pool,film,cc);reveal(film,pool);}}
+  },0);
 };
 bw.addEventListener("click",()=>{
   if(!cur)return;$("seen").click();

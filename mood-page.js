@@ -319,3 +319,4 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
   function stop(root){stopSpin(root);}
   window.KGMoodPage={render,stop};
 })();
+

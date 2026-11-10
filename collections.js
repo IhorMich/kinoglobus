@@ -625,11 +625,13 @@ function selectedFilmHtml(f,embedded=false){
     :activeVideo
       ?`<button type="button" data-trailer-action="play" data-id="${f.id}" aria-label="Воспроизвести трейлер" class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-surface-container-high to-canvas-obsidian text-primary-container transition-colors hover:text-primary">${trailerThumb(activeVideo,f)}<span class="relative flex items-center justify-center w-16 h-16 rounded-full bg-black/55 border border-primary-container/60 backdrop-blur-sm"><span class="material-symbols-outlined text-[44px]">play_arrow</span></span></button>`
       :`<div class="absolute inset-0 flex items-center justify-center text-text-muted font-body-sm text-body-sm">${f._trailerStatus==="missing"?"Трейлер не найден":"Ищем трейлер…"}</div>`;
-  const oscar=f._placement==="oscar"&&window.KGOscarPage&&window.KGOscarPage.info?window.KGOscarPage.info(f):null;
+  const oscar=(f._placement==="oscar"||f._placement==="oscar-related")&&window.KGOscarPage&&window.KGOscarPage.info?window.KGOscarPage.info(f):null;
+  const awardRows=Array.isArray(f._oscarAwards)?f._oscarAwards:[];
+  const awardWins=awardRows.filter(a=>a.won).length,awardNominations=awardRows.length-awardWins;
   const awardsHtml=oscar?(f._oscarAwards===undefined
-    ?'<p class="font-micro-caption text-micro-caption text-text-muted pt-1">Загружаем награды и номинации…</p>'
-    :f._oscarAwards.length
-      ?`<div class="flex flex-col gap-1 pt-2 mt-1 border-t border-primary-container/20"><span class="font-micro-caption text-micro-caption text-text-muted uppercase tracking-wider">Награды и номинации</span>${f._oscarAwards.map(a=>`<div class="flex items-start gap-1.5"><span class="material-symbols-outlined text-[16px] shrink-0 ${a.won?"text-primary-container":"text-text-muted"}" style="font-variation-settings:'FILL' ${a.won?1:0};">${a.won?"emoji_events":"circle"}</span><span class="font-body-sm text-body-sm ${a.won?"text-on-surface font-semibold":"text-text-muted"}">${esc(a.label)}${a.year?" · "+a.year:""}${a.won?"":" (номинация)"}</span></div>`).join("")}</div>`
+    ?'<div class="pt-2 mt-1 border-t border-primary-container/20"><span class="font-micro-caption text-micro-caption text-text-muted">Загружаем награды и номинации…</span></div>'
+    :awardRows.length
+      ?'<div class="pt-2 mt-1 border-t border-primary-container/20"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary-container text-[18px]">emoji_events</span><span class="font-label-sm text-label-sm text-primary-fixed font-semibold">'+awardWins+' '+(awardWins===1?'победа':awardWins>1&&awardWins<5?'победы':'побед')+' · '+awardNominations+' '+(awardNominations===1?'номинация':awardNominations>1&&awardNominations<5?'номинации':'номинаций')+'</span></div><details class="mt-2"><summary class="flex items-center justify-between gap-2 cursor-pointer list-none rounded-lg bg-surface-container px-3 py-2 font-micro-caption text-micro-caption text-primary hover:bg-surface-container-high"><span>Полный список наград</span><span class="material-symbols-outlined text-[16px]">expand_more</span></summary><div class="flex flex-col gap-1 pt-2">'+awardRows.map(a=>'<div class="flex items-start gap-1.5"><span class="material-symbols-outlined text-[16px] shrink-0 '+(a.won?'text-primary-container':'text-text-muted')+'" style="font-variation-settings:\'FILL\' '+(a.won?1:0)+';">'+(a.won?'emoji_events':'circle')+'</span><span class="font-body-sm text-body-sm '+(a.won?'text-on-surface font-semibold':'text-text-muted')+'">'+esc(a.label)+(a.year?' · '+a.year:'')+(a.won?'':' (номинация)')+'</span></div>').join('')+'</div></details></div>'
       :""):"";
   const oscarBlock=oscar?`<div class="flex items-start gap-3 p-3 rounded-xl bg-gradient-to-br from-cinema-velvet-deep/50 via-surface-container-high to-surface-container-high border border-primary-container/25"><span class="material-symbols-outlined text-primary-container text-[28px] shrink-0" style="font-variation-settings:'FILL' 1;">workspace_premium</span><div class="min-w-0 flex flex-col gap-0.5"><h4 class="font-label-md text-label-md text-primary-fixed font-semibold">${oscar.best?"Оскар · Лучший фильм":"Лауреат премии «Оскар»"}</h4>${oscar.best?`<p class="font-label-sm text-label-sm text-primary-container font-semibold">${oscar.n}-я церемония · ${oscar.year} год</p><p class="font-body-sm text-body-sm text-text-muted">Главная награда Американской киноакадемии. Статуэтку получает лучший фильм года; эта картина вышла в ${oscar.film} году.</p>`:`<p class="font-body-sm text-body-sm text-text-muted">Картина входит в список лауреатов Американской киноакадемии${oscar.film?` · фильм ${oscar.film} года`:""}.</p>`}${awardsHtml}</div></div>`:"";
   const tagline=f.tagline&&f.taglineLang===f.overviewLang?`<p class="font-body-sm text-body-sm text-primary-fixed italic">${esc(f.tagline)}</p>`:"";
@@ -789,8 +791,8 @@ function renderSelectedPanel(){
   }
   const inMoodList=selected._placement==="mood"&&String(selected._detailTarget||"").startsWith("mood-film-detail-");
   const inOscarList=selected._placement==="oscar"&&/^oscar-(list|feature|grid)-detail-/.test(String(selected._detailTarget||""));
-  const html=selectedFilmHtml(selected,inMoodList||inOscarList);
-  if(selected._placement==="mood"||selected._placement==="oscar"||selected._placement==="related"){
+  const html=selectedFilmHtml(selected,inMoodList||inOscarList||selected._placement==="oscar-related");
+  if(selected._placement==="mood"||selected._placement==="oscar"||selected._placement==="related"||selected._placement==="oscar-related"){
     const target=$(selected._detailTarget)||(selected._placement==="mood"?$("mood-film-detail"):$("oscar-film-detail"));
     if(target)target.innerHTML=html;
     return;
@@ -817,7 +819,7 @@ function renderSelectedPanel(){
 function openFilm(f,placement="list",detailTarget=null){
   if(D.selected&&D.selected._placement===placement&&String(D.selected.id)===String(f.id)&&D.selected._detailTarget===detailTarget){
     if(placement==="mood"||placement==="oscar")closePageFilm(placement);
-    else if(placement==="related"){ $(detailTarget)?.replaceChildren();D.selected=null; }
+    else if(placement==="related"||placement==="oscar-related"){ $(detailTarget)?.replaceChildren();D.selected=null; }
     else{D.selected=null;if(placement==="list"&&!placeListPanel())renderFilms();}
     return;
   }
@@ -836,10 +838,10 @@ function openFilm(f,placement="list",detailTarget=null){
   if(relatedContext&&window.KGFilmInteractions)window.KGFilmInteractions.registerPool(relatedContext,relatedPool);
   D.selected={...f,_cc:f._cc||(f.origin_country||[])[0]||"",_placement:placement,_detailTarget:detailTarget,_kgRelatedContext:relatedContext,overview:russianText(f.overview)||"Загружаем описание…",_trailerStatus:"loading"};
   const selected=D.selected;
-  if(placement==="roulette"||placement==="home"||placement==="home-europe"||placement==="mood"||placement==="oscar"||placement==="related")renderSelectedPanel();else if(!placeListPanel())renderFilms();
+  if(placement==="roulette"||placement==="home"||placement==="home-europe"||placement==="mood"||placement==="oscar"||placement==="related"||placement==="oscar-related")renderSelectedPanel();else if(!placeListPanel())renderFilms();
   const panel=detailTarget?$(detailTarget):placement==="roulette"?$("cl-result")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="home"?$("kg-home-feature")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="home-europe"?$("kg-home-europe-detail")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="mood"?$("mood-film-detail")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="oscar"?$("oscar-film-detail")?.querySelector(`[data-selected-film="${f.id}"]`):vd.querySelector(`[data-selected-film="${f.id}"]`);
   if(placement!=="related")requestAnimationFrame(()=>requestAnimationFrame(()=>{
-    const trailer=document.querySelector(`[data-selected-film="${f.id}"] [data-kg-film-trailer]`);
+    const trailer=panel?.querySelector("[data-kg-film-trailer]");
     const target=trailer||panel;
     if(target&&window.KGScrollToFilmDescription)window.KGScrollToFilmDescription(target);
     else target?.scrollIntoView({behavior:"smooth",block:"start"});
@@ -881,13 +883,13 @@ function openFilm(f,placement="list",detailTarget=null){
     renderSelectedPanel();
     console.error("[Kinoglobus] Не удалось загрузить трейлер:",e);
   });
-  if(placement==="oscar"&&window.KGOscarPage&&window.KGOscarPage.awards){
+  if((placement==="oscar"||placement==="oscar-related")&&window.KGOscarPage&&window.KGOscarPage.awards){
     window.KGOscarPage.awards(f).then(list=>{selected._oscarAwards=list;if(D.selected===selected)renderSelectedPanel();})
       .catch(e=>{selected._oscarAwards=[];if(D.selected===selected)renderSelectedPanel();console.warn("[Kinoglobus] Награды Wikidata недоступны:",e);});
   }
 }
 window.KGOpenFilmFromRelated=(film,placement,detailTarget)=>openFilm(film,placement||"home-europe",detailTarget||null);
-window.KGCloseFilmFromRelated=detailTarget=>{if(D.selected&&D.selected._placement==="related"&&D.selected._detailTarget===detailTarget)D.selected=null;$(detailTarget)?.replaceChildren();};
+window.KGCloseFilmFromRelated=detailTarget=>{if(D.selected&&["related","oscar-related"].includes(D.selected._placement)&&D.selected._detailTarget===detailTarget)D.selected=null;$(detailTarget)?.replaceChildren();};
 
 /* ---------- рулетка с плёнкой прямо в подборке ---------- */
 const R={busy:false,token:0,raf:0,skip:false};

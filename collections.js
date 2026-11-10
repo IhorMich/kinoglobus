@@ -790,7 +790,7 @@ function renderSelectedPanel(){
   const inMoodList=selected._placement==="mood"&&String(selected._detailTarget||"").startsWith("mood-film-detail-");
   const inOscarList=selected._placement==="oscar"&&/^oscar-(list|feature|grid)-detail-/.test(String(selected._detailTarget||""));
   const html=selectedFilmHtml(selected,inMoodList||inOscarList);
-  if(selected._placement==="mood"||selected._placement==="oscar"){
+  if(selected._placement==="mood"||selected._placement==="oscar"||selected._placement==="related"){
     const target=$(selected._detailTarget)||(selected._placement==="mood"?$("mood-film-detail"):$("oscar-film-detail"));
     if(target)target.innerHTML=html;
     return;
@@ -817,6 +817,7 @@ function renderSelectedPanel(){
 function openFilm(f,placement="list",detailTarget=null){
   if(D.selected&&D.selected._placement===placement&&String(D.selected.id)===String(f.id)&&D.selected._detailTarget===detailTarget){
     if(placement==="mood"||placement==="oscar")closePageFilm(placement);
+    else if(placement==="related"){ $(detailTarget)?.replaceChildren();D.selected=null; }
     else{D.selected=null;if(placement==="list"&&!placeListPanel())renderFilms();}
     return;
   }
@@ -835,9 +836,9 @@ function openFilm(f,placement="list",detailTarget=null){
   if(relatedContext&&window.KGFilmInteractions)window.KGFilmInteractions.registerPool(relatedContext,relatedPool);
   D.selected={...f,_cc:f._cc||(f.origin_country||[])[0]||"",_placement:placement,_detailTarget:detailTarget,_kgRelatedContext:relatedContext,overview:russianText(f.overview)||"Загружаем описание…",_trailerStatus:"loading"};
   const selected=D.selected;
-  if(placement==="roulette"||placement==="home"||placement==="home-europe"||placement==="mood"||placement==="oscar")renderSelectedPanel();else if(!placeListPanel())renderFilms();
+  if(placement==="roulette"||placement==="home"||placement==="home-europe"||placement==="mood"||placement==="oscar"||placement==="related")renderSelectedPanel();else if(!placeListPanel())renderFilms();
   const panel=detailTarget?$(detailTarget):placement==="roulette"?$("cl-result")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="home"?$("kg-home-feature")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="home-europe"?$("kg-home-europe-detail")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="mood"?$("mood-film-detail")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="oscar"?$("oscar-film-detail")?.querySelector(`[data-selected-film="${f.id}"]`):vd.querySelector(`[data-selected-film="${f.id}"]`);
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+  if(placement!=="related")requestAnimationFrame(()=>requestAnimationFrame(()=>{
     const trailer=document.querySelector(`[data-selected-film="${f.id}"] [data-kg-film-trailer]`);
     const target=trailer||panel;
     if(target&&window.KGScrollToFilmDescription)window.KGScrollToFilmDescription(target);

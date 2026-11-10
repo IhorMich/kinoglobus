@@ -23,7 +23,7 @@ st2.textContent=`.kgr-win{position:relative;height:150px;overflow:hidden;-webkit
 .kgr-frame{position:absolute;left:50%;top:50%;width:94px;height:128px;transform:translate(-50%,-50%);z-index:5;pointer-events:none;border:2px solid #ffb830;border-radius:10px;box-shadow:0 0 18px rgba(255,184,48,.5),inset 0 0 14px rgba(255,184,48,.22)}
 .kgr-frame.hit{animation:kgrHit 1s cubic-bezier(.2,.8,.25,1)}
 @keyframes kgrHit{0%{box-shadow:0 0 0 0 rgba(255,184,48,.8),inset 0 0 14px rgba(255,184,48,.22)}45%{box-shadow:0 0 38px 8px rgba(255,184,48,.75),inset 0 0 22px rgba(255,184,48,.4)}100%{box-shadow:0 0 18px rgba(255,184,48,.5),inset 0 0 14px rgba(255,184,48,.22)}}
-.kgr-perf{display:flex;align-items:center;justify-content:space-between;padding:4px 8px;background:rgba(0,0,0,.6);overflow:hidden;user-select:none}
+.kgr-perf{display:flex;align-items:center;justify-content:center;padding:4px 8px;background:rgba(0,0,0,.6);overflow:hidden;user-select:none}
 .kgr-perf div{display:flex;overflow:hidden}
 .kgr-perf i{display:inline-block;width:10px;height:6px;border-radius:2px;background:#262626;border:1px solid #525252;margin-right:10px;flex:none}
 .kgr-perf span{font:9px ui-monospace,monospace;letter-spacing:.1em;color:rgba(255,220,168,.4);text-transform:uppercase;white-space:nowrap;padding-left:8px}
@@ -711,9 +711,9 @@ function renderCollection(){
 <button type="button" id="cl-spin" data-act="spin" class="relative group w-full py-3.5 px-4 rounded-xl bg-primary-container text-on-primary font-label-lg text-label-lg font-bold flex items-center justify-center gap-2 shadow-[0_0_24px_rgba(255,184,48,0.28)] transition-all active:scale-[0.98] overflow-hidden"><span id="cl-ricon" class="material-symbols-outlined text-[22px]">casino</span><span id="cl-rtext">Крутить рулетку</span><div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div></button>
 <div id="cl-reel" style="display:none" class="flex flex-col gap-space-sm">
 <div class="relative w-full rounded-xl bg-canvas-obsidian border border-primary-container/30 overflow-hidden shadow-[inset_0_2px_12px_rgba(0,0,0,0.95)] p-1">
-<div class="kgr-perf"><div><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><span>Kodak 35mm</span></div>
+<div class="kgr-perf"><div><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
 <div class="kgr-win select-none"><div id="cl-track" class="kgr-track"></div><div id="cl-frame" class="kgr-frame" aria-hidden="true"></div></div>
-<div class="kgr-perf"><div><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><span>35mm nitrate</span></div></div>
+<div class="kgr-perf"><div><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div></div>
 <div class="flex items-center justify-between px-1"><span id="cl-fc" class="font-mono text-micro-caption text-primary-fixed font-semibold tracking-wide">Кадр 00 / 00</span><button type="button" id="cl-skip" data-act="skip" style="display:none" class="font-micro-caption text-micro-caption text-text-muted hover:text-primary underline">Пропустить</button></div>
 <div id="cl-result"></div></div>
 ${t.cc.length>1?`<div class="flex flex-col gap-1.5 pt-1"><span class="font-micro-caption text-micro-caption text-text-muted">Фильтр по стране:</span><div id="cl-cc" class="flex items-center gap-1.5 overflow-x-auto pb-1"><button type="button" data-act="cc" data-cc="" class="${ccCls(true)}">Все страны</button>${t.cc.map(cc=>`<button type="button" data-act="cc" data-cc="${cc}" class="${ccCls(false)}">${fl(cc)} ${esc(cname(cc))}</button>`).join("")}</div></div>`:""}
@@ -831,7 +831,9 @@ function openFilm(f,placement="list",detailTarget=null){
   if(placement==="list")$("cl-result").innerHTML="";
   if(placement==="home-europe")$("kg-home-europe-detail").hidden=false;
   if(D.selected&&D.selected._placement===placement&&D.selected._detailTarget&&D.selected._detailTarget!==detailTarget){
-    $(D.selected._detailTarget)?.replaceChildren();
+    const previousTarget=$(D.selected._detailTarget),nextTarget=detailTarget?$(detailTarget):null;
+    // Keep the selected film card when opening one of its nested recommendations.
+    if(previousTarget&&(!nextTarget||!previousTarget.contains(nextTarget)))previousTarget.replaceChildren();
   }
   const relatedPool=Array.isArray(f._kgRelatedPool)?f._kgRelatedPool:(placement==="list"||placement==="roulette"?D.all:placement.startsWith("home")?homeEditorial.films:null);
   const relatedContext=relatedPool&&relatedPool.length?`${placement}:${D.t&&D.t.id||"all"}:${detailTarget||""}`:"";

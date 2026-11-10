@@ -1,7 +1,7 @@
 /* Shared TMDB person profiles and related-film carousels. */
 (function(){
   const pools=new Map(),relatedCache=new Map(),personCache=new Map(),personFilmPools=new Map();
-  let scrollFrame=0;
+  let scrollFrame=0,personScrollFrame=0;
   const image=(path,size="w342")=>path?`https://image.tmdb.org/t/p/${size}${path}`:"";
   const esc=value=>String(value||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   async function tmdb(path,params={}){
@@ -27,6 +27,15 @@
     const duration=1150,begin=performance.now();
     const step=now=>{const p=Math.min(1,(now-begin)/duration),eased=p<.5?4*p*p*p:1-Math.pow(-2*p+2,3)/2;window.scrollTo({top:start+distance*eased,behavior:"auto"});if(p<1)scrollFrame=requestAnimationFrame(step);else scrollFrame=0;};
     scrollFrame=requestAnimationFrame(step);
+  }
+  function scrollPersonModalToFilm(element){
+    const dialog=modal()?.querySelector(".kgpi-modal");if(!dialog||!element?.isConnected)return;
+    if(personScrollFrame)cancelAnimationFrame(personScrollFrame);
+    const start=dialog.scrollTop,target=Math.max(0,start+element.getBoundingClientRect().top-dialog.getBoundingClientRect().top-76),distance=target-start;
+    if(matchMedia("(prefers-reduced-motion: reduce)").matches||Math.abs(distance)<8){dialog.scrollTop=target;return;}
+    const duration=900,begin=performance.now();
+    const step=now=>{const p=Math.min(1,(now-begin)/duration),eased=p<.5?4*p*p*p:1-Math.pow(-2*p+2,3)/2;dialog.scrollTop=start+distance*eased;if(p<1)personScrollFrame=requestAnimationFrame(step);else personScrollFrame=0;};
+    personScrollFrame=requestAnimationFrame(step);
   }
   function filmButton(f){const title=f.title||f.name||"Фильм",year=(f.release_date||"").slice(0,4);return `<button class="kgpi-film" type="button" data-kg-related-open="${f.id}"><span class="kgpi-poster">${image(f.poster_path)?`<img loading="lazy" src="${image(f.poster_path)}" alt="Постер «${esc(title)}»" onerror="this.style.visibility='hidden'">`:`<span class="flex h-full w-full items-center justify-center text-xs text-[#b3a79a]">Нет постера</span>`}</span><span class="block mt-1 text-xs font-semibold leading-tight">${esc(title)}</span><span class="block text-[10px] text-[#b3a79a]">${year}</span></button>`;}
   function modal(){return document.getElementById("kg-person-modal");}
@@ -56,8 +65,7 @@
       const filmButton=e.target.closest("[data-kg-person-film-open]");if(filmButton){
         const filmPool=personFilmPools.get(String(id))||[];const film=filmPool.find(item=>String(item.id)===filmButton.dataset.kgPersonFilmOpen);if(!film||!window.KGOpenFilmFromRelated)return;
         const panel=filmButton.closest("[data-kg-person-credit]")?.querySelector("[data-kg-person-detail]");if(!panel)return;if(!panel.id)panel.id=`kg-person-film-detail-${id}-${film.id}`;
-        window.KGOpenFilmFromRelated({...film,_kgRelatedPool:filmPool},"related",panel.id);
-        requestAnimationFrame(()=>dialog.scrollTo({top:dialog.scrollTop+panel.getBoundingClientRect().top-dialog.getBoundingClientRect().top-16,behavior:"smooth"}));
+        window.KGOpenFilmFromRelated({...film,_kgRelatedPool:filmPool},"person-related",panel.id);
       }
     });
     try{
@@ -105,12 +113,13 @@
   observer.observe(document.documentElement,{childList:true,subtree:true});
   document.querySelectorAll("[data-kg-related-films]").forEach(related);
   document.addEventListener("click",e=>{
-    const closeDetail=e.target.closest("#kg-person-modal [data-act='close-film']");if(closeDetail){e.preventDefault();e.stopImmediatePropagation();const panel=closeDetail.closest("[data-kg-person-credit]")?.querySelector("[data-kg-person-detail]");if(panel)window.KGCloseFilmFromRelated?.(panel.id);return;}
+    const closeDetail=e.target.closest("#kg-person-modal [data-act='close-film']");if(closeDetail){e.preventDefault();e.stopImmediatePropagation();const panel=closeDetail.closest("[data-kg-related-detail], [data-kg-person-detail]");if(panel)window.KGCloseFilmFromRelated?.(panel.id);return;}
     const person=e.target.closest("[data-kg-person-id]");if(person){e.preventDefault();e.stopImmediatePropagation();showPerson(person.dataset.kgPersonId,person.dataset.kgPersonName||person.textContent,person.dataset.kgPersonRole);return;}
-    const film=e.target.closest("[data-kg-related-open]");if(film){const section=film.closest("[data-kg-related-films]"),filmId=film.dataset.kgRelatedOpen;let pool=pools.get(section?.dataset.contextKey||"")||[];if(!pool.some(f=>String(f.id)===filmId))pool=[...relatedCache.values()].find(list=>list.some(f=>String(f.id)===filmId))||pool;const item=pool.find(f=>String(f.id)===filmId);if(item&&window.KGOpenFilmFromRelated){let panel=section.querySelector("[data-kg-related-detail]");if(!panel){panel=document.createElement("div");panel.dataset.kgRelatedDetail="";panel.id=`kg-related-detail-${Date.now()}-${Math.random().toString(36).slice(2,7)}`;section.appendChild(panel);}const placement=section.dataset.placement?.startsWith("oscar")?"oscar-related":"related";window.KGOpenFilmFromRelated({...item,_kgRelatedPool:pool},placement,panel.id);}else if(item&&section?.dataset.placement==="discovery"&&window.KGShowRelatedDiscoveryFilm){window.KGShowRelatedDiscoveryFilm(item,pool);}else if(item&&window.openFilm){window.openFilm(item,"home-europe");}return;}
+    const film=e.target.closest("[data-kg-related-open]");if(film){const section=film.closest("[data-kg-related-films]"),filmId=film.dataset.kgRelatedOpen;let pool=pools.get(section?.dataset.contextKey||"")||[];if(!pool.some(f=>String(f.id)===filmId))pool=[...relatedCache.values()].find(list=>list.some(f=>String(f.id)===filmId))||pool;const item=pool.find(f=>String(f.id)===filmId);if(item&&window.KGOpenFilmFromRelated){let panel=section.querySelector("[data-kg-related-detail]");if(!panel){panel=document.createElement("div");panel.dataset.kgRelatedDetail="";panel.id=`kg-related-detail-${Date.now()}-${Math.random().toString(36).slice(2,7)}`;section.appendChild(panel);}const placement=section.dataset.placement?.startsWith("oscar")?"oscar-related":film.closest("#kg-person-modal")?"person-related":"related";window.KGOpenFilmFromRelated({...item,_kgRelatedPool:pool},placement,panel.id);}else if(item&&section?.dataset.placement==="discovery"&&window.KGShowRelatedDiscoveryFilm){window.KGShowRelatedDiscoveryFilm(item,pool);}else if(item&&window.openFilm){window.openFilm(item,"home-europe");}return;}
     if(e.target===modal())closePerson();
   },true);
   document.addEventListener("keydown",e=>{if(e.key==="Escape")closePerson();});
   window.KGFilmInteractions={registerPool};
   window.KGScrollToFilmDescription=scrollToDescription;
+  window.KGScrollPersonModalToFilm=scrollPersonModalToFilm;
 })();

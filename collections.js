@@ -321,8 +321,26 @@ sectionNav.addEventListener("click",e=>{
 
 /* ================= КАТАЛОГ ================= */
 let catBuilt=false,activeCat="all",sortMode="curated";
-function spotlightTheme(){return THEMES[Math.floor(Date.now()/6048e5)%THEMES.length];}
 
+function dailySeed(){
+  const d=new Date();
+  return d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate();
+}
+function seededShuffle(arr,seed){
+  const a=[...arr];
+  let s=(seed>>>0)||1;
+  const rnd=()=>{
+    s=Math.imul(s^s>>>15,1|s)+(s|0)^(s>>>7);
+    return ((s^s>>>14)>>>0)/4294967296;
+  };
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(rnd()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function spotlightTheme(){return THEMES[Math.floor(Date.now()/6048e5)%THEMES.length];}
 function cardHtml(t,i){
   const m=TM[t.id]||["noir","","",""],special=t.id==="suwar";
   const g0=gnames(t)[0]||"";
@@ -382,7 +400,7 @@ ${spotlightHtml(spotlightTheme())}
 <select id="cat-sort" class="bg-transparent text-text-muted font-label-sm text-label-sm focus:outline-none focus:text-primary cursor-pointer"><option class="bg-surface-panel text-on-surface" value="curated">По кураторскому списку</option><option class="bg-surface-panel text-on-surface" value="rating">По рейтингу (высокий)</option><option class="bg-surface-panel text-on-surface" value="count">По числу фильмов</option><option class="bg-surface-panel text-on-surface" value="title">По алфавиту</option></select></div>
 <button type="button" data-act="random" class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-secondary-container text-on-secondary-container font-label-sm text-label-sm shadow-[0_0_14px_rgba(134,26,69,0.25)] transition-all active:scale-95"><span class="material-symbols-outlined text-[18px]">casino</span><span>Случайная</span></button></section>
 <p id="cat-note" class="font-micro-caption text-micro-caption text-text-muted px-1" style="display:none"></p>
-<section id="cat-grid" class="flex flex-col gap-3">${THEMES.map(cardHtml).join("")}</section>
+<section id="cat-grid" class="flex flex-col gap-3">${seededShuffle(THEMES,dailySeed()).map((t,i)=>cardHtml(t,i)).join("")}</section>
 <div id="cat-empty" style="display:none" class="flex-col items-center justify-center py-12 px-4 text-center rounded-2xl bg-surface-panel/50"><div class="w-14 h-14 rounded-full bg-surface-container-high flex items-center justify-center text-primary-container mb-3 shadow-[0_0_18px_rgba(255,184,48,0.2)]"><span class="material-symbols-outlined text-[28px]">movie_edit</span></div><h3 class="font-headline-sm text-headline-sm text-primary font-bold">Подборка не найдена</h3><p class="font-body-sm text-body-sm text-text-muted mt-1 max-w-xs">Попробуйте другое ключевое слово или выберите «Все ${THEMES.length}», чтобы сбросить фильтр.</p><button type="button" data-act="reset" class="mt-4 px-4 py-2 rounded-xl bg-primary-container text-on-primary-container font-label-sm text-label-sm font-bold shadow-[0_0_12px_rgba(255,184,48,0.25)]">Сбросить поиск</button></div>`;
   catBuilt=true;
 }

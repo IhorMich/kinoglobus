@@ -114,10 +114,13 @@
 
   const soundSelect = document.getElementById("snd");
   const labels = {roulette:"Трещотка бобины",bells:"Колокольчики",arcade:"Аркада",casino:"Казино",marimba:"Маримба",space:"Космос",film:"Киноплёнка",orchestra:"Оркестр",jazz:"Джаз",synth:"Синтезатор",chimes:"Звон",off:"Без звука"};
-  [...soundSelect.options].forEach((option) => { option.textContent = labels[option.value] || option.textContent; });
-  soundSelect.className = "kgs-select";
-  soundSelect.setAttribute("aria-label", "Звук вращения КиноГлобуса");
-  $("[data-kgs-sound]").appendChild(soundSelect);
+  if (soundSelect) {
+    [...soundSelect.options].forEach((option) => { option.textContent = labels[option.value] || option.textContent; });
+    soundSelect.className = "kgs-select";
+    soundSelect.setAttribute("aria-label", "Звук вращения КиноГлобуса");
+    const soundHost = $("[data-kgs-sound]");
+    if (soundHost) soundHost.appendChild(soundSelect);
+  }
 
   $("[data-kgs-visibility]").addEventListener("click", () => {
     const input = $("#kgs-token"); input.type = input.type === "password" ? "text" : "password";
@@ -162,6 +165,6 @@
   $("[data-kgs-tab=collections]").addEventListener("click", () => { close(); const link=document.querySelector('[data-path="podborki-i-zhanry"]'); if(link)link.click(); });
   $("[data-kgs-tab=journey]").addEventListener("click", () => { close(); document.getElementById("mapBtn").click(); });
   $("[data-kgs-tab=history]").addEventListener("click", () => { close(); document.getElementById("mapBtn").click(); });
-  soundSelect.addEventListener("change", sync);
+  soundSelect?.addEventListener("change", sync);
   sync();
 })();

@@ -104,32 +104,32 @@
     const d=f.detail||{},year=(f.release_date||"").slice(0,4),target=`mood-film-detail-v${f.id}`;
     const orig=f.original_title&&f.original_title!==f.title?`${esc(f.original_title)} · `:"";
     const country=f._cc?` · ${esc(deps.countryName(f._cc)||f._cc)}`:"";
-    const dir=(d.dirs||[]).slice(0,2).join(", ");
+    const dir=(d.dirsFull||[]).slice(0,2).map(p=>`<button type="button" data-kg-person-id="${p.id}" data-kg-person-name="${esc(p.name)}" data-kg-person-role="Режиссёр" class="kg-person-link">${esc(p.name)}</button>`).join(", ")||esc((d.dirs||[]).slice(0,2).join(", "));
     const genre=(d.genres||[])[0]||"";
     const booked=deps.isBooked?.(f.id);
     return `<div class="flex flex-col"><article data-vibe-film="${f.id}" data-detail-target="${target}" class="p-space-sm rounded-xl bg-surface-panel shadow-[0_6px_20px_rgba(7,6,10,0.5)] flex gap-space-sm active:bg-surface-container-high transition-colors cursor-pointer">
 <div class="relative w-20 h-28 rounded-lg overflow-hidden bg-surface-container-high shrink-0">${f.poster_path?`<img class="w-full h-full object-cover" loading="lazy" alt="Постер «${esc(f.title||f.original_title)}»" src="${poster(f.poster_path)}">`:'<span class="material-symbols-outlined w-full h-full flex items-center justify-center text-primary-container">movie</span>'}<div class="absolute bottom-1 left-1 px-1 py-0.2 rounded bg-black/80 flex items-center gap-0.5 text-primary-container"><span class="material-symbols-outlined text-[10px]" style="font-variation-settings: 'FILL' 1;">star</span><span class="font-micro-caption text-micro-caption font-bold">${Number(f.vote_average||0).toFixed(1)}</span></div></div>
 <div class="flex flex-col justify-between flex-1 min-w-0 py-0.5"><div class="flex flex-col"><div class="flex items-start justify-between gap-1"><h4 class="font-headline-sm text-headline-sm text-on-surface truncate">${esc(f.title||f.original_title||"Фильм")}</h4><button type="button" data-vibe-bm="${f.id}" aria-label="В закладки" class="text-text-muted hover:text-primary transition-colors"><span class="material-symbols-outlined text-[20px]">${booked?"bookmark_added":"bookmark_border"}</span></button></div>
 <p class="font-micro-caption text-micro-caption text-text-muted truncate">${orig}${year}${country}</p>
-<p class="font-body-sm text-body-sm text-tertiary-fixed-dim mt-1 truncate">${dir?`Реж. ${esc(dir)}`:"&nbsp;"}${d.runtime?` · ${d.runtime} мин`:""}</p></div>
+<p class="font-body-sm text-body-sm text-tertiary-fixed-dim mt-1 truncate">${dir?`Реж. ${dir}`:"&nbsp;"}${d.runtime?` · ${d.runtime} мин`:""}</p></div>
 <div class="flex items-center justify-between pt-1"><span class="px-2 py-0.5 rounded-full bg-surface-container-highest text-secondary font-label-sm text-label-sm truncate">${esc(genre||"Фильм")}</span><div class="flex items-center gap-1 text-primary-container font-label-sm text-label-sm"><span class="material-symbols-outlined text-[16px]">play_circle</span></div></div></div>
 </article><div id="${target}"></div></div>`;
   }
   function jewelHtml(f,deps){
     const d=f.detail||{},year=(f.release_date||"").slice(0,4),target=`mood-film-detail-v${f.id}`;
-    const dir=(d.dirs||[]).slice(0,2).join(", ");
+    const dir=(d.dirsFull||[]).slice(0,2).map(p=>`<button type="button" data-kg-person-id="${p.id}" data-kg-person-name="${esc(p.name)}" data-kg-person-role="Режиссёр" class="kg-person-link">${esc(p.name)}</button>`).join(", ")||esc((d.dirs||[]).slice(0,2).join(", "));
     const orig=f.original_title&&f.original_title!==f.title?esc(f.original_title):"&nbsp;";
     const genres=(d.genres||[]).slice(0,2);
     const booked=deps.isBooked?.(f.id);
     return `<div class="flex items-center gap-1.5 text-secondary"><span class="material-symbols-outlined text-[18px]">verified</span><span class="font-label-sm text-label-sm uppercase tracking-wider font-semibold">${esc(currentMood().x.jewel||"Жемчужина вайба · Выбор куратора")}</span></div>
 <div data-vibe-film="${f.id}" data-detail-target="${target}" class="grid grid-cols-[108px_1fr] gap-space-md mt-1 cursor-pointer">
 <div class="relative w-full aspect-[2/3] rounded-xl overflow-hidden bg-surface-container-high shadow-lg">${f.poster_path?`<img class="w-full h-full object-cover" alt="Постер «${esc(f.title||f.original_title)}»" src="${poster(f.poster_path,"w342")}">`:""}<div class="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-md bg-black/75 backdrop-blur-md flex items-center gap-0.5 text-primary-container"><span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">star</span><span class="font-label-sm text-label-sm font-bold">${Number(f.vote_average||0).toFixed(1)}</span></div></div>
-<div class="flex flex-col justify-between min-w-0"><div class="flex flex-col gap-1"><div class="flex items-start justify-between gap-1"><h3 class="font-headline-md text-headline-md text-primary truncate leading-tight">${esc(f.title||f.original_title||"Фильм")}</h3><span class="px-2 py-0.5 rounded-full bg-secondary-container/60 text-secondary font-label-sm text-label-sm shrink-0">${year}${f._cc?` · ${flag(f._cc)}`:""}</span></div>
+<div class="flex flex-col justify-between min-w-0"><div class="flex flex-col gap-1"><div class="flex items-start justify-between gap-1"><h3 class="font-headline-md text-headline-md text-primary truncate leading-tight">${esc(f.title||f.original_title||"Фильм")}</h3><div class="flex items-center gap-1 shrink-0"><button type="button" data-vibe-bm="${f.id}" aria-label="${booked?"Убрать из закладок":"Сохранить в закладки"}" class="w-6 h-6 rounded-full text-primary-container flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">${booked?"bookmark_added":"bookmark_border"}</span></button><span class="px-2 py-0.5 rounded-full bg-secondary-container/60 text-secondary font-label-sm text-label-sm shrink-0">${year}${f._cc?` · ${flag(f._cc)}`:""}</span></div></div>
 <p class="font-micro-caption text-micro-caption text-text-muted">${orig}</p>
-<p class="font-body-sm text-body-sm text-tertiary mt-0.5">${dir?`Реж. ${esc(dir)}`:""}${dir&&d.runtime?" · ":""}${d.runtime?`${d.runtime} мин`:""}</p>
+<p class="font-body-sm text-body-sm text-tertiary mt-0.5">${dir?`Реж. ${dir}`:""}${dir&&d.runtime?" · ":""}${d.runtime?`${d.runtime} мин`:""}</p>
 <div class="flex flex-wrap gap-1 mt-1.5">${genres.map((g,i)=>`<span class="px-2 py-0.5 rounded ${i?"bg-secondary-container/30 text-secondary-fixed":"bg-surface-container-highest text-tertiary"} font-label-sm text-label-sm">${esc(g)}</span>`).join("")}</div></div>
 <p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 mt-2">${esc(d.overview||f.overview||"Описание пока недоступно.")}</p></div></div>
-<div class="flex flex-col gap-2 mt-3 pt-3 bg-surface-container-lowest/40 rounded-xl p-2.5"><div class="flex items-center gap-2"><button type="button" data-vibe-film="${f.id}" data-detail-target="${target}" class="flex-1 h-10 rounded-lg bg-primary text-on-primary font-label-md text-label-md flex items-center justify-center gap-1.5 active:scale-95 transition-transform shadow-md"><span class="material-symbols-outlined text-[18px]">play_arrow</span></button><button type="button" data-vibe-bm="${f.id}" aria-label="В закладки" class="h-10 px-3.5 rounded-lg bg-surface-bright text-on-surface font-label-md text-label-md flex items-center gap-1 active:scale-95 transition-transform"><span class="material-symbols-outlined text-[18px]">${booked?"bookmark_added":"bookmark_add"}</span></button></div></div>
+<div class="flex flex-col gap-2 mt-3 pt-3 bg-surface-container-lowest/40 rounded-xl p-2.5"><div class="flex items-center gap-2"><button type="button" data-vibe-film="${f.id}" data-detail-target="${target}" class="flex-1 h-10 rounded-lg bg-primary text-on-primary font-label-md text-label-md flex items-center justify-center gap-1.5 active:scale-95 transition-transform shadow-md"><span class="material-symbols-outlined text-[18px]">play_arrow</span></button></div></div>
 <div id="${target}"></div>`;
   }
   function renderFilms(root,deps){
@@ -286,7 +286,7 @@
       if(launchLabel)launchLabel.textContent=`Крутить ещё раз`;
       if(skip)skip.hidden=true;
       frame.classList.remove("hit");void frame.offsetWidth;frame.classList.add("hit");
-      deps.openFilm(film,"mood",winnerDetailId);
+      deps.openFilm({...film,_kgRelatedPool:pool},"mood",winnerDetailId);
       requestAnimationFrame(()=>{
         const d=document.getElementById(winnerDetailId);
         if(d&&moodId===state.mood)window.scrollTo({top:Math.max(0,window.scrollY+d.getBoundingClientRect().top-96),behavior:"smooth"});
@@ -370,7 +370,7 @@
       const item=state.films.find(f=>String(f.id)===film.dataset.vibeFilm);
       if(item){
         const top=film.getBoundingClientRect().top;
-        deps.openFilm(item,"mood",film.dataset.detailTarget);
+        deps.openFilm({...item,_kgRelatedPool:filtered()},"mood",film.dataset.detailTarget);
         const fix=()=>{if(film.isConnected){const d=film.getBoundingClientRect().top-top;if(Math.abs(d)>1)window.scrollBy(0,d);}};
         fix();requestAnimationFrame(fix);
       }

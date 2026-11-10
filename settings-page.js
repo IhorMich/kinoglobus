@@ -53,11 +53,11 @@
           <div class="kgs-choice kgs-disabled"><span class="kgs-reel">▰</span><div class="kgs-rowcopy"><div class="kgs-rowtitle">Золотой ретро-билет</div><div class="kgs-meta">Коллекционный маркер кинопохода</div></div><span class="kgs-badge pink">Премиум</span><i class="kgs-radio"></i></div>
         </div></section>
 
-        <section class="kgs-section"><h2 class="kgs-h"><span class="i">♫</span> Звуковой режиссёрский пульт <span class="kgs-badge gray">24 FPS</span></h2><div class="kgs-card">
+        <section class="kgs-section"><h2 class="kgs-h"><span class="i">♫</span> Звуковой режиссёрский пульт </h2><div class="kgs-card">
           <div class="kgs-audio"><div><div class="kgs-label">Звук вращения КиноГлобуса</div><div class="kgs-sub">Сопровождение выбора страны</div></div><span class="kgs-badge gray">Активно</span><div data-kgs-sound></div></div>
-          <div class="kgs-audio"><div><div class="kgs-label">Звук плёнки и проектора</div><div class="kgs-sub">Отдельная звуковая дорожка появится позже</div></div><span class="kgs-badge gray">В планах</span><select class="kgs-select" disabled aria-label="Звуковое сопровождение фильма"><option>Стрекот проектора 24 fps · скоро</option></select></div>
+          <div class="kgs-audio"><div><div class="kgs-label">Звук плёнки и проектора</div><div class="kgs-sub">Отдельная звуковая дорожка появится позже</div></div><span class="kgs-badge gray">В планах</span><select class="kgs-select" disabled aria-label="Звуковое сопровождение фильма"><option>Стрекот проектора · скоро</option></select></div>
           <div class="kgs-row"><div class="kgs-rowcopy"><div class="kgs-rowtitle">Тактильный отклик</div><div class="kgs-meta">Вибрация при запуске рулетки</div></div><button class="kgs-switch" type="button" role="switch" data-kgs-fx aria-label="Тактильный отклик"></button></div>
-          <div class="kgs-inline" style="justify-content:space-between;margin-top:4px"><button class="kgs-play" type="button" data-kgs-preview>▶ Тест кинозвука 24 fps</button><label class="kgs-inline"><span class="kgs-sub">Громкость</span><input class="kgs-range" type="range" min="0" max="100" disabled aria-label="Регулятор громкости появится позже"></label></div>
+          <div class="kgs-inline" style="justify-content:space-between;margin-top:4px"><button class="kgs-play" type="button" data-kgs-preview>▶ Тест кинозвука</button><label class="kgs-inline"><span class="kgs-sub">Громкость</span><input class="kgs-range" type="range" min="0" max="100" disabled aria-label="Регулятор громкости появится позже"></label></div>
         </div></section>
 
         <section class="kgs-section"><h2 class="kgs-h"><span class="i">✧</span> Атмосфера кинозала и оптика</h2><div class="kgs-card">

@@ -6,7 +6,7 @@
   KG.__design=true;
   const $=id=>document.getElementById(id);
   const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-  const HERO_IMG="assets/oscar-hero.jpg";
+  const HERO_IMG="/kinoglobus/assets/oscar/oscar-hero.jpg";
 
   // 98-я церемония (2026): «One Battle After Another». В списке BEST_PICTURE из oscar-page.js её нет.
   const baseInfo=KG.info;

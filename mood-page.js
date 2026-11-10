@@ -251,7 +251,7 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
     const film=e.target.closest("[data-mood-film]");
     if(film){
       const item=state.films.find(f=>String(f.id)===film.dataset.moodFilm);
-      if(item)deps.openFilm(item,"mood",film.dataset.detailTarget||"mood-roulette-detail");
+      if(item)deps.openFilm({...item,_kgRelatedPool:filtered()},"mood",film.dataset.detailTarget||"mood-roulette-detail");
     }
   }
   function launch(root,deps){
@@ -286,7 +286,7 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
       if(launchLabel)launchLabel.textContent=`Крутить ещё раз (${currentRuntime().button})`;
       if(skip)skip.hidden=true;
       frame.classList.remove("hit");void frame.offsetWidth;frame.classList.add("hit");
-      deps.openFilm(film,"mood",winnerDetailId);
+      deps.openFilm({...film,_kgRelatedPool:pool},"mood",winnerDetailId);
       requestAnimationFrame(()=>{
         const d=document.getElementById(winnerDetailId);
         if(d&&moodId===state.mood)window.scrollTo({top:Math.max(0,window.scrollY+d.getBoundingClientRect().top-96),behavior:"smooth"});

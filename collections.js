@@ -887,6 +887,7 @@ function openFilm(f,placement="list",detailTarget=null){
   }
 }
 window.KGOpenFilmFromRelated=(film,placement,detailTarget)=>openFilm(film,placement||"home-europe",detailTarget||null);
+window.KGCloseFilmFromRelated=detailTarget=>{if(D.selected&&D.selected._placement==="related"&&D.selected._detailTarget===detailTarget)D.selected=null;$(detailTarget)?.replaceChildren();};
 
 /* ---------- рулетка с плёнкой прямо в подборке ---------- */
 const R={busy:false,token:0,raf:0,skip:false};

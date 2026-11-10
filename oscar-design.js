@@ -166,14 +166,6 @@
     const list=$("oscar-list");const ls=list&&list.closest("section");if(ls)ls.id="kgo-list";
     if(!root._kgoBound){
       root._kgoBound=true;
-      root.addEventListener("click",e=>{
-        const el=e.target.closest("[data-kgo-open],[data-oscar-open]");if(!el||el.matches("[data-oscar-open]"))return;
-        const top=el.getBoundingClientRect().top,t0=performance.now();let stop=false;
-        const halt=()=>{stop=true;};
-        ["wheel","touchstart","keydown"].forEach(n=>window.addEventListener(n,halt,{once:true,passive:true}));
-        const tick=()=>{if(stop||!el.isConnected)return;const d=el.getBoundingClientRect().top-top;if(d)window.scrollBy(0,d);if(performance.now()-t0<1500)requestAnimationFrame(tick);};
-        requestAnimationFrame(tick);
-      },true);
       root.addEventListener("click",async e=>{
         const d=root._kgoDeps;
         const p=e.target.closest("[data-kgo-pill]");

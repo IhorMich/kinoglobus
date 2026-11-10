@@ -1,5 +1,5 @@
 // Оформление страницы «Оскар» по макету. Подключать ПОСЛЕ oscar-page.js и ДО collections.js.
-// oscar-page.js не меняется: этот файл оборачивает KGOscarPage.render и достраивает шапку, героя, пилюли и секции..
+// oscar-page.js не меняется: этот файл оборачивает KGOscarPage.render и достраивает шапку, героя, пилюли и секции.
 (function(){
   const KG=window.KGOscarPage;
   if(!KG||KG.__design)return;
@@ -20,7 +20,7 @@
   };
 
   // ---------- TMDB: поиск фильмов и людей (кэш в localStorage) ----------
-  const LS="kgoDesignCache1",reg={};
+  const LS="kgoDesignCache2",reg={};
   let disk={};try{disk=JSON.parse(localStorage.getItem(LS)||"{}");}catch(e){}
   const save=()=>{try{localStorage.setItem(LS,JSON.stringify(disk));}catch(e){}};
   if(!document.getElementById("kgo-design-style")){const st=document.createElement("style");st.id="kgo-design-style";st.textContent='[id^="oscar-kgo-detail-"]:not(:empty){margin-top:.5rem}';document.head.appendChild(st);}
@@ -42,8 +42,8 @@
   }
   async function findPerson(k){
     if(disk["p"+k]!==undefined)return disk["p"+k];
-    const r=((await tmdb("search/person",{query:PEOPLE[k]})).results||[]).find(x=>x.profile_path);
-    disk["p"+k]=r?r.profile_path:"";save();return disk["p"+k];
+    const r=((await tmdb("search/person",{query:PEOPLE[k]})).results||[])[0];
+    disk["p"+k]=r?{id:r.id,profile_path:r.profile_path||"",name:r.name||PEOPLE[k]}:null;save();return disk["p"+k];
   }
   async function hydrate(root){
     if(!hasKey())return;
@@ -65,8 +65,9 @@
       try{
         const p=await findPerson(el.dataset.kgoPerson);
         if(p&&el.isConnected){
+          const card=el.closest("[data-kgo-person-card]");if(card){card.dataset.kgPersonId=p.id;card.dataset.kgPersonName=p.name;card.dataset.kgPersonRole="Режиссёр";}
           const ph=el.querySelector("[data-kgo-ph]");if(ph)ph.remove();
-          el.insertAdjacentHTML("afterbegin",`<img class="w-full h-full object-cover" loading="lazy" alt="" src="https://image.tmdb.org/t/p/w185${p}">`);
+          if(p.profile_path)el.insertAdjacentHTML("afterbegin",`<img class="w-full h-full object-cover" loading="lazy" alt="" src="https://image.tmdb.org/t/p/w185${p.profile_path}">`);
         }
       }catch(e){}
     }));
@@ -131,7 +132,7 @@
     `</div>`);
 
   function person(k,name,badge,films){
-    return `<div class="bg-surface-panel rounded-xl p-2.5 flex flex-col items-center text-center shadow-md w-[108px] shrink-0"><div data-kgo-person="${k}" class="w-14 h-14 rounded-full overflow-hidden bg-surface-container-highest mb-2 flex items-center justify-center text-text-muted"><span data-kgo-ph class="material-symbols-outlined">person</span></div><h5 class="font-label-sm text-label-sm text-on-surface font-bold leading-tight">${name}</h5><span class="font-micro-caption text-micro-caption text-primary mt-1 font-bold">${badge}</span><span class="font-micro-caption text-micro-caption text-text-muted">${films}</span></div>`;
+    return `<div data-kgo-person-card role="button" tabindex="0" class="bg-surface-panel rounded-xl p-2.5 flex flex-col items-center text-center shadow-md w-[108px] shrink-0 cursor-pointer"><div data-kgo-person="${k}" class="w-14 h-14 rounded-full overflow-hidden bg-surface-container-highest mb-2 flex items-center justify-center text-text-muted"><span data-kgo-ph class="material-symbols-outlined">person</span></div><h5 class="font-label-sm text-label-sm text-on-surface font-bold leading-tight">${name}</h5><span class="font-micro-caption text-micro-caption text-primary mt-1 font-bold">${badge}</span><span class="font-micro-caption text-micro-caption text-text-muted">${films}</span></div>`;
   }
   const dirs=sec("dir",
     head("movie_edit","Режиссёры-триумфаторы","Рекорд по «Оскарам» за режиссуру у Джона Форда: четыре статуэтки")+
@@ -170,7 +171,7 @@
     if(!root._kgoBound){
       root._kgoBound=true;
       root.addEventListener("click",e=>{
-        const el=e.target.closest("[data-kgo-open],[data-oscar-open]");if(!el)return;
+        const el=e.target.closest("[data-kgo-open],[data-oscar-open]");if(!el||el.matches("[data-oscar-open]"))return;
         const top=el.getBoundingClientRect().top,t0=performance.now();let stop=false;
         const halt=()=>{stop=true;};
         ["wheel","touchstart","keydown"].forEach(n=>window.addEventListener(n,halt,{once:true,passive:true}));
@@ -285,7 +286,7 @@
 <div class="relative w-full aspect-[16/11] bg-surface-container-lowest">${bg?`<div class="absolute inset-0 bg-cover bg-center" style="background-image:url('https://image.tmdb.org/t/p/w780${bg}')"></div>`:""}<div class="absolute inset-0 bg-gradient-to-t from-surface via-surface/60 to-transparent"></div>
 <button type="button" data-act="close-film" aria-label="Свернуть карточку" class="absolute top-3 right-3 w-9 h-9 rounded-full bg-surface-panel/90 backdrop-blur-md text-text-muted hover:text-primary flex items-center justify-center z-10"><span class="material-symbols-outlined">close</span></button>
 <div class="absolute bottom-4 left-4 right-4 flex items-end justify-between gap-space-sm z-10"><div class="flex flex-col gap-1 min-w-0"><div class="flex items-center gap-1.5 flex-wrap">${wins.length?badge("bg-primary-container text-on-primary-container",`<span class="material-symbols-outlined text-[15px]" style="font-variation-settings:'FILL' 1;">military_tech</span>${wins.length} ${plural(wins.length,"ОСКАР","ОСКАРА","ОСКАРОВ")}`):""}${rate?badge("bg-surface-panel/90 backdrop-blur-md text-primary",`<span class="material-symbols-outlined text-[14px]" style="font-variation-settings:'FILL' 1;">star</span>${rate.toFixed(1)} TMDB`):""}${f.cert?badge("bg-secondary-container text-on-secondary-container",esc(f.cert)):""}</div>${meta?`<p class="font-micro-caption text-micro-caption text-on-surface-variant uppercase tracking-widest pt-1">${esc(meta)}</p>`:""}</div>
-<button type="button" data-act="bm" data-id="${f.id}" aria-label="${booked?"Убрать из закладок":"Сохранить в закладки"}" class="w-11 h-11 rounded-full bg-surface-panel/90 backdrop-blur-md text-on-surface flex items-center justify-center shrink-0 shadow-lg active:scale-95 transition-transform"><span class="material-symbols-outlined text-[22px]" style="font-variation-settings:'FILL' ${booked?1:0};">${booked?"bookmark_added":"bookmark_add"}</span></button></div></div>
+<button type="button" data-act="bm" data-id="${f.id}" aria-label="${booked?"Убрать из закладок":"Сохранить в закладки"}" class="w-6 h-6 rounded-full bg-surface-panel/90 backdrop-blur-md text-on-surface flex items-center justify-center shrink-0 shadow active:scale-95 transition-transform"><span class="material-symbols-outlined text-[15px]" style="font-variation-settings:'FILL' ${booked?1:0};">${booked?"bookmark_added":"bookmark_add"}</span></button></div></div>
 <div class="px-margin-mobile flex flex-col gap-space-md">
 <div class="flex flex-col gap-1"><div class="flex items-baseline justify-between gap-2"><h3 class="font-display-hero-mobile text-display-hero-mobile text-on-surface font-bold tracking-tight">${title}</h3>${f.originalTitle&&f.originalTitle!==f.title?`<span class="font-body-sm text-body-sm text-text-muted text-right">${esc(f.originalTitle)}</span>`:""}</div>${tag}</div>
 ${oscar}

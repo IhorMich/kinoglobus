@@ -391,3 +391,4 @@
   function reset(root,deps){if(host&&host.isConnected)closeVibe(root,deps);}
   window.KGMoodVibePage={init,reset,stop};
 })();
+ 

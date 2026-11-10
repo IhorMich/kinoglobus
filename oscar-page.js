@@ -56,7 +56,7 @@
       const key=r.won+"|"+label;if(seen.has(key))return;seen.add(key);
       list.push({won:r.won,label,year:r.year});
     });
-    return list.sort((a,b)=>(b.won-a.won)||a.label.localeCompare(b.label,"ru")).slice(0,14);
+    return list.sort((a,b)=>(b.won-a.won)||a.label.localeCompare(b.label,"ru"));
   }
   function awardsFor(film){
     if(!awardCache.has(film.id)){

@@ -925,6 +925,7 @@ function rStop(){
 function finishPick(film,token){
   if(token!==R.token)return;
   R.busy=false;D.picked=film;setBtn(false);
+  window.KGCinemaReel?.presentTicket($("cl-reel"),film,{country:cname(film._cc||D.cc||D.t.cc[0])});
   window.KGCinemaReel?.updateIMAX(document.getElementById("kg-imax-stage"),film,{country:cname(film._cc||D.cc||D.t.cc[0]),state:"ФИЛЬМ В КАДРЕ"});
   openFilm(film,"roulette");
 }
@@ -939,6 +940,7 @@ async function inPageRoulette(){
   const token=++R.token;R.busy=true;R.skip=false;D.picked=null;D.selected=null;
   renderFilms();
   $("cl-reel").style.display="";$("cl-result").innerHTML="";
+  window.KGCinemaReel?.prepareTicket($("cl-reel"));
   setBtn(true);
   try{audio();}catch(e){}
   $("cl-reel").scrollIntoView({behavior:"smooth",block:"center"});

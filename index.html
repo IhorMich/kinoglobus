@@ -159,7 +159,7 @@
 <div class="z-20 mb-1 flex items-center justify-center pointer-events-none gap-2">
 <div class="hint-float flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-lowest/85 backdrop-blur-md border border-primary-container/30 shadow-[0_0_14px_rgba(255,184,48,0.2)]">
 <span class="text-[13px]">✨</span>
-<span class="font-micro-caption text-[11px] font-semibold text-primary tracking-wide">Проведи по глобусу, чтобы осмотреть мир · поиск — кнопкой ниже</span>
+<span class="font-micro-caption text-[11px] font-semibold text-primary tracking-wide">Вниз — листай страницу · 3–4 свайпа вбок по глобусу — поиск страны</span>
 </div>
 </div>
 <!-- Photorealistic Earth Space Viewport Card -->
@@ -1210,9 +1210,11 @@ rotatingGroup.add(flagPinGroup);
       hideAllBeacons();
       hideFlagPost();
 
-      // Mouse can rotate freely. Touch rotates horizontally only; vertical gestures remain page scroll.
-      container.style.touchAction = 'none';
-      canvas.style.touchAction = 'none';
+      // Vertical touch gestures scroll the page. A quick horizontal swipe spins the globe;
+      // three swipes in a short sequence launch the country search.
+      let horizontalSwipeCount = 0, lastHorizontalSwipeAt = 0;
+      container.style.touchAction = 'pan-y';
+      canvas.style.touchAction = 'pan-y';
       canvas.addEventListener('mousedown', (e) => {
         if (isSpinning) return;
         isDragging = true;
@@ -1222,7 +1224,7 @@ rotatingGroup.add(flagPinGroup);
         if (e.touches.length !== 1 || isSpinning) { touchGesture = null; return; }
         const t = e.touches[0];
         isDragging = false;
-        touchGesture = { lastX: t.clientX, lastY: t.clientY, started: false };
+        touchGesture = { startX: t.clientX, startY: t.clientY, lastX: t.clientX, lastY: t.clientY, axis: null };
       }, { passive: true });
 
       window.addEventListener('mousemove', (e) => {
@@ -1236,20 +1238,46 @@ rotatingGroup.add(flagPinGroup);
       window.addEventListener('touchmove', (e) => {
         if (!touchGesture || !e.touches[0] || !rotatingGroup || isSpinning) return;
         const t = e.touches[0];
-        const totalX = t.clientX - touchGesture.lastX;
-        const totalY = t.clientY - touchGesture.lastY;
-        if (!touchGesture.started && Math.max(Math.abs(totalX), Math.abs(totalY)) < 4) return;
-        touchGesture.started = true;
+        const movedX = t.clientX - touchGesture.startX;
+        const movedY = t.clientY - touchGesture.startY;
+        if (!touchGesture.axis) {
+          if (Math.max(Math.abs(movedX), Math.abs(movedY)) < 8) return;
+          if (Math.abs(movedY) > Math.abs(movedX) * 1.15) { touchGesture.axis = 'y'; return; }
+          if (Math.abs(movedX) <= Math.abs(movedY) * 1.15) return;
+          touchGesture.axis = 'x';
+          isDragging = true;
+        }
+        if (touchGesture.axis !== 'x') return;
         isDragging = true;
         if (e.cancelable) e.preventDefault();
+        const totalX = t.clientX - touchGesture.lastX;
         targetRotY += totalX * 0.008;
-        targetRotX = Math.max(-1.2, Math.min(1.2, targetRotX + totalY * 0.008));
         touchGesture.lastX = t.clientX;
         touchGesture.lastY = t.clientY;
       }, { passive: false });
 
       window.addEventListener('mouseup', () => { isDragging = false; });
-      const endTouchGesture = () => { isDragging = false; touchGesture = null; };
+      const endTouchGesture = (e) => {
+        const gesture = touchGesture;
+        isDragging = false;
+        touchGesture = null;
+        if (!gesture || gesture.axis !== 'x' || !e.changedTouches?.[0]) return;
+        const swipeDistance = Math.abs(e.changedTouches[0].clientX - gesture.startX);
+        if (swipeDistance < 42 || isSpinning) return;
+        const now = performance.now();
+        if (now - lastHorizontalSwipeAt > 2800) horizontalSwipeCount = 0;
+        lastHorizontalSwipeAt = now;
+        horizontalSwipeCount++;
+        if (typeof window.buzz === 'function') {
+          const pulse = horizontalSwipeCount === 1 ? 8 : horizontalSwipeCount === 2 ? 15 : [18, 24, 36];
+          window.buzz(pulse);
+        }
+        if (horizontalSwipeCount >= 3) {
+          horizontalSwipeCount = 0;
+          lastHorizontalSwipeAt = 0;
+          document.getElementById('btn-spin-roulette')?.click();
+        }
+      };
       window.addEventListener('touchend', endTouchGesture, { passive: true });
       window.addEventListener('touchcancel', endTouchGesture, { passive: true });
 

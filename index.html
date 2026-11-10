@@ -3444,7 +3444,6 @@ const veil=on=>{
   void el.offsetHeight;                            // reflow, чтобы запустить переход
   el.style.height=h+"px";
   el._t=setTimeout(()=>{el.classList.remove("opening");el.style.height="";},900);
-  setTimeout(()=>card.scrollIntoView({behavior:"smooth",block:"nearest"}),750);
 };
 
 async function spinReel(pool,film,cc){
@@ -3703,7 +3702,7 @@ window.show=function(cc,pool,film){
     set("discovery-genres","· "+[g,d.runtime?d.runtime+" мин":""].filter(Boolean).join(" · "));
     if(d.votes){set("discovery-rating",Number(d.average).toFixed(1));setVotes(d.votes);}
     renderExtra(film,d);
-    requestAnimationFrame(()=>{const description=$("discovery-desc");if(window.KGScrollToFilmDescription)window.KGScrollToFilmDescription(description);});
+    requestAnimationFrame(()=>{const trailer=$("film-trailer-box");if(window.KGScrollToFilmDescription)window.KGScrollToFilmDescription(trailer);});
   }).catch(()=>{
     if(!cur||cur.film.id!==film.id)return;
     set("discovery-desc",russianCopy(film.overview)||"Не удалось загрузить описание.");
@@ -3771,9 +3770,9 @@ console.info("[Kinoglobus] Bridge v6 ready");
 
 <script src="mood-page.js?v=22"></script>
 <script src="mood-vibe-page.js?v=6"></script>
-<script src="oscar-page.js?v=19"></script>
+<script src="oscar-page.js?v=20"></script>
 <script src="oscar-design.js?v=9"></script>
-<script src="collections.js?v=38"></script>
+<script src="collections.js?v=39"></script>
 <script src="film-interactions.js?v=2"></script>
 
 </body></html>

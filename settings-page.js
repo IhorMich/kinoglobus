@@ -1,4 +1,4 @@
-/* Kinoglobus settings screen. This file enhances the existing settings dialog. */
+/* Settings screen styled after the supplied Stitch design. */
 (() => {
   const dialog = document.getElementById("settings");
   if (!dialog) return;
@@ -6,104 +6,163 @@
   const style = document.createElement("style");
   style.id = "kg-settings-style";
   style.textContent = `
-    #settings.kgs-dialog{--kgs-gold:#f5b942;--kgs-cream:#f4e4bd;--kgs-muted:#aaa0b2;--kgs-panel:#211c27;--kgs-panel2:#2a2431;position:fixed;inset:0;margin:0 auto;width:min(100%,520px);height:100dvh;max-height:100dvh;padding:0;border:0;border-radius:0;background:#100e13;color:var(--kgs-cream);overflow:hidden;box-shadow:0 0 50px #0009;font-family:inherit}
-    #settings.kgs-dialog::backdrop{background:#050407eF}
-    .kgs-shell{height:100%;display:flex;flex-direction:column;background:radial-gradient(ellipse at 50% -15%,#65451d35,transparent 46%),#100e13}
-    .kgs-head{display:flex;align-items:center;gap:14px;padding:calc(env(safe-area-inset-top) + 16px) 18px 14px;border-bottom:1px solid #ffffff0c;background:#19151eeF;flex-shrink:0}
-    .kgs-back{border:0;background:transparent;color:var(--kgs-cream);font-size:26px;width:34px;height:38px;cursor:pointer}
-    .kgs-title{font-size:20px;font-weight:800;letter-spacing:.01em}.kgs-kicker{font-size:11px;color:var(--kgs-muted);margin-top:2px}
-    .kgs-scroll{overflow:auto;overscroll-behavior:contain;padding:16px 16px calc(28px + env(safe-area-inset-bottom));scrollbar-width:thin}
-    .kgs-hero{position:relative;overflow:hidden;border:1px solid #f5b94230;border-radius:22px;padding:19px;background:linear-gradient(135deg,#332313,#211a23 62%,#201b27);box-shadow:0 9px 32px #0004;margin-bottom:18px}
-    .kgs-hero:after{content:'✦';position:absolute;right:17px;top:12px;color:#f5b94277;font-size:32px}
-    .kgs-eyebrow{color:var(--kgs-gold);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.15em}.kgs-hero h2{margin:8px 0 5px;font-size:22px}.kgs-hero p{margin:0;color:#c7b99e;font-size:13px;line-height:1.5}
-    .kgs-status{display:inline-flex;align-items:center;gap:7px;margin-top:14px;padding:7px 10px;border-radius:99px;background:#130f17aa;font-size:12px;color:#ded1b7}.kgs-dot{width:8px;height:8px;border-radius:50%;background:#85808b}.kgs-dot.on{background:#74d69b;box-shadow:0 0 10px #74d69b77}
-    .kgs-section{margin:20px 0}.kgs-section h3{display:flex;align-items:center;gap:9px;margin:0 2px 10px;font-size:15px}.kgs-icon{color:var(--kgs-gold);font-size:18px}.kgs-card{padding:14px;border:1px solid #ffffff0c;border-radius:18px;background:var(--kgs-panel);box-shadow:0 7px 20px #0002}
-    .kgs-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 2px}.kgs-row+.kgs-row{border-top:1px solid #ffffff0c}.kgs-label{font-size:13px}.kgs-help{font-size:11px;color:var(--kgs-muted);line-height:1.45;margin-top:4px}
-    .kgs-input{box-sizing:border-box;width:100%;margin:10px 0 8px;padding:12px 13px;border:1px solid #ffffff19;border-radius:12px;background:#151219;color:#fff;font:inherit;font-size:13px;outline:none}.kgs-input:focus{border-color:#f5b94288}
-    .kgs-actions{display:flex;gap:8px;flex-wrap:wrap}.kgs-btn{border:1px solid #f5b94243;border-radius:12px;padding:10px 13px;background:#382b1b;color:#ffe0a0;font:inherit;font-size:12px;font-weight:700;cursor:pointer}.kgs-btn.secondary{border-color:#ffffff16;background:#302a35;color:#e4d9c9}.kgs-btn:active{transform:scale(.98)}
-    .kgs-select{width:100%;padding:11px 12px;border:1px solid #ffffff18;border-radius:12px;background:#17131b;color:#f3e7d2;font:inherit;font-size:13px}
-    .kgs-switch{position:relative;flex:none;width:43px;height:25px;border:0;border-radius:99px;background:#514b57;padding:3px;cursor:pointer;transition:background .2s}.kgs-switch:after{content:'';display:block;width:19px;height:19px;border-radius:50%;background:#ddd4c7;transition:transform .2s}.kgs-switch[aria-checked="true"]{background:#a97016}.kgs-switch[aria-checked="true"]:after{transform:translateX(18px);background:#fff2c9}
-    .kgs-artifact{display:flex;align-items:center;gap:12px;padding:12px;border-radius:14px;background:#ffffff06}.kgs-reel{display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:#37291d;color:var(--kgs-gold);font-size:20px}.kgs-soon{margin-left:auto;border:1px solid #ffffff12;border-radius:99px;padding:4px 7px;color:#a9a0ae;font-size:9px;white-space:nowrap}
-    .kgs-progress{height:7px;border-radius:99px;background:#ffffff12;overflow:hidden;margin-top:11px}.kgs-progress i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#e89d23,#ffe0a0)}
-    .kgs-foot{color:#8d8492;font-size:10px;line-height:1.5;text-align:center;padding:14px 10px 0}
-    @media(min-width:520px){#settings.kgs-dialog{height:min(900px,94dvh);top:3dvh;border:1px solid #f5b94228;border-radius:24px}.kgs-head{border-radius:24px 24px 0 0}}
-    @media(prefers-reduced-motion:reduce){.kgs-switch,.kgs-switch:after{transition:none}}
+    #settings.kgs-dialog{--gold:#ffb830;--gold2:#ffdca8;--ink:#09070d;--panel:#18141e;--panel2:#211b29;--muted:#a79bad;position:fixed;inset:0;margin:0 auto;width:min(100%,520px);height:100dvh;max-height:100dvh;padding:0;border:0;border-radius:0;background:var(--ink);color:#f0e7f1;overflow:hidden;box-shadow:0 0 55px #000b;font-family:inherit}
+    #settings.kgs-dialog::backdrop{background:#030205ed}
+    .kgs-shell{height:100%;display:flex;flex-direction:column;background:radial-gradient(ellipse at 50% -10%,#3e263f42,transparent 43%),var(--ink)}
+    .kgs-head{height:58px;box-sizing:border-box;display:flex;align-items:center;gap:9px;padding:0 16px;flex:none;background:#17131c;border-bottom:1px solid #ffffff0b;box-shadow:0 5px 18px #0005}
+    .kgs-back{display:grid;place-items:center;width:28px;height:34px;border:0;background:none;color:#f3eaf5;font-family:inherit;font-size:24px;line-height:1;cursor:pointer}.kgs-title{font-family:inherit;font-size:14px;line-height:1.2;font-weight:700}.kgs-title small{display:block;margin-top:3px;color:var(--muted);font-size:10px;font-weight:500}
+    .kgs-scroll{min-height:0;flex:1;overflow:auto;overscroll-behavior:contain;padding:12px 13px 18px;scrollbar-width:thin;scrollbar-color:#50445b transparent}
+    .kgs-summary{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}.kgs-stat{min-width:0;padding:9px 10px;border:1px solid #ffffff0c;border-radius:12px;background:linear-gradient(135deg,#1d1923,#211a29)}.kgs-stat-top{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:9px}.kgs-stat strong{display:block;margin-top:5px;color:#e9deed;font-size:11px;font-weight:700}.kgs-state{color:#68d49b!important}.kgs-state:before{content:'●';color:#5bdd9b;margin-right:5px}
+    .kgs-section{margin:14px 0}.kgs-h{display:flex;align-items:center;gap:7px;margin:0 2px 7px;color:#f1e9f3;font-size:10px;font-weight:800;letter-spacing:.045em;text-transform:uppercase}.kgs-h .i{font-size:14px;color:var(--gold)}.kgs-card{padding:10px;border:1px solid #ffffff0c;border-radius:14px;background:linear-gradient(145deg,#1d1923,#1b1721);box-shadow:0 6px 17px #0003}
+    .kgs-note{margin:6px 2px 0;color:#9c91a2;font-size:9px;line-height:1.45}.kgs-label{font-size:10px;color:#d8ccdc}.kgs-sub{font-size:9px;line-height:1.4;color:#9f94a6;margin-top:3px}.kgs-row{display:flex;align-items:center;gap:8px;min-height:39px;padding:6px 2px}.kgs-row+.kgs-row{border-top:1px solid #ffffff09}.kgs-rowcopy{min-width:0;flex:1}.kgs-rowtitle{font-size:10px;font-weight:650;line-height:1.3}.kgs-meta{color:#96899e;font-size:8px;margin-top:2px;line-height:1.3}.kgs-badge{margin-left:auto;padding:3px 6px;border-radius:99px;background:#49341b;color:#ffc45b;font-size:8px;white-space:nowrap}.kgs-badge.gray{background:#302a38;color:#a89db0}.kgs-badge.pink{background:#452137;color:#ffb1c5}
+    .kgs-apihead{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}.kgs-lamp{font-size:8px;color:#ffbe50}.kgs-lamp.on{color:#73dda4}.kgs-keywrap{display:flex;align-items:center;gap:5px}.kgs-input{box-sizing:border-box;min-width:0;flex:1;height:34px;padding:0 10px;border:1px solid #413649;border-radius:9px;background:#100d14;color:#eee6f2;font-family:inherit;font-size:10px;outline:none}.kgs-input:focus{border-color:#d9912a}.kgs-iconbtn,.kgs-ok{height:31px;display:grid;place-items:center;border:0;border-radius:8px;cursor:pointer}.kgs-iconbtn{width:31px;background:#302a37;color:#ddd0e5}.kgs-ok{width:36px;background:#c58a27;color:#171016;font-size:10px;font-weight:800}.kgs-actions{display:flex;gap:6px;margin-top:8px}.kgs-btn{min-height:30px;flex:1;padding:6px 8px;border:1px solid #ffffff10;border-radius:9px;background:#2a2332;color:#e7deeb;font-family:inherit;font-size:9px;font-weight:600;cursor:pointer}.kgs-btn.primary{border-color:#ffba3040;background:linear-gradient(100deg,#d98f12,#ffc35a);color:#21150b}.kgs-btn.danger{border-color:#a3495866;background:#40222e;color:#ffc1c6}.kgs-btn:disabled{opacity:.42;cursor:not-allowed}
+    .kgs-choice{position:relative;display:grid;grid-template-columns:28px minmax(0,1fr) auto 12px;align-items:center;gap:7px;min-height:39px;margin:4px 0;padding:5px 7px;border:1px solid #ffffff0b;border-radius:10px;background:#ffffff04}.kgs-choice.selected{border-color:#d29a493d;background:#29221e}.kgs-reel{display:grid;place-items:center;width:27px;height:27px;border-radius:7px;background:#332a37;color:#e6c68a;font-size:14px}.kgs-choice.selected .kgs-reel{background:#49331c;color:#ffd372}.kgs-radio{width:10px;height:10px;border:1px solid #776b7f;border-radius:50%}.kgs-choice.selected .kgs-radio{border:3px solid var(--gold);background:#fff1c6}.kgs-sel{padding:2px 5px;border-radius:4px;background:#684721;color:#ffd58a;font-size:7px}.kgs-disabled{opacity:.64}
+    .kgs-select{width:100%;height:33px;padding:0 9px;border:1px solid #3b3242;border-radius:8px;background:#120f16;color:#eee5f2;font-family:inherit;font-size:10px}.kgs-audio{display:grid;grid-template-columns:1fr auto;align-items:center;gap:8px;padding:6px 2px}.kgs-audio+.kgs-audio{border-top:1px solid #ffffff09}.kgs-audio .kgs-select{grid-column:1/3}.kgs-play{height:28px;padding:0 8px;border:1px solid #59452b;border-radius:8px;background:#30251b;color:#ffcf74;font-size:9px;cursor:pointer}.kgs-range{width:72px;accent-color:#ffb830}.kgs-inline{display:flex;align-items:center;gap:5px}
+    .kgs-switch{position:relative;flex:none;width:34px;height:19px;padding:2px;border:0;border-radius:99px;background:#49434e;cursor:pointer}.kgs-switch:after{content:'';display:block;width:15px;height:15px;border-radius:50%;background:#d9d1dd;transition:transform .18s}.kgs-switch[aria-checked="true"]{background:#d98e11}.kgs-switch[aria-checked="true"]:after{transform:translateX(15px);background:#fff0c2}.kgs-switch:disabled{opacity:.35;cursor:not-allowed}
+    .kgs-mode{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border-radius:9px;background:#141018}.kgs-mode button{min-height:28px;border:0;border-radius:7px;background:transparent;color:#a89caf;font-size:9px;cursor:pointer}.kgs-mode button.active{background:#d89015;color:#1d140a;font-weight:800;box-shadow:0 2px 9px #d8901530}.kgs-chips{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:7px}.kgs-chip{padding:5px 2px;border:1px solid #ffffff0d;border-radius:6px;background:#201b27;color:#a99eaf;font-size:8px}.kgs-chip:disabled{opacity:.58}
+    .kgs-progresshead{display:flex;justify-content:space-between;align-items:center;font-size:9px;color:#d9ccdf}.kgs-track{height:5px;margin:7px 0;border-radius:9px;background:#342c39;overflow:hidden}.kgs-track i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#e18b12,#ffd06e)}.kgs-progressmeta{display:flex;justify-content:space-between;color:#92879b;font-size:8px}.kgs-map{display:flex;align-items:center;gap:9px;width:100%;margin-top:9px;padding:8px;border:1px solid #4c3d2c;border-radius:9px;background:#29221d;color:#f1d9aa;text-align:left;cursor:pointer}.kgs-map .i{color:#ffc24e;font-size:16px}.kgs-map span:nth-child(2){flex:1}.kgs-warning{padding:7px;border-radius:8px;background:#38222a;color:#d6aab1;font-size:8px;line-height:1.4;margin:7px 0}.kgs-foot{padding:9px 5px 2px;text-align:center;color:#7e7487;font-size:8px;line-height:1.6}.kgs-github{color:#d0bfdf;text-decoration:underline;text-underline-offset:2px}
+    .kgs-bottom{display:grid;grid-template-columns:repeat(4,1fr);flex:none;padding:7px 8px calc(7px + env(safe-area-inset-bottom));background:#19151e;border-top:1px solid #ffffff0b;box-shadow:0 -5px 16px #0005}.kgs-tab{display:grid;justify-items:center;gap:3px;border:0;background:transparent;color:#958b9c;font-size:8px;cursor:pointer}.kgs-tab .i{font-size:16px}.kgs-tab.active{color:#ffc044}
+    @media(min-width:520px){#settings.kgs-dialog{height:min(930px,96dvh);top:2dvh;border:1px solid #40364a;border-radius:20px}.kgs-head{border-radius:20px 20px 0 0}.kgs-bottom{border-radius:0 0 20px 20px}}
+    @media(prefers-reduced-motion:reduce){.kgs-switch:after{transition:none}}
   `;
   document.head.appendChild(style);
 
   dialog.className = "kgs-dialog";
   dialog.innerHTML = `
     <div class="kgs-shell">
-      <header class="kgs-head"><button class="kgs-back" type="button" data-kgs-close aria-label="Назад">‹</button><div><div class="kgs-title">Настройки</div><div class="kgs-kicker">Персональная кинопроекция</div></div></header>
+      <header class="kgs-head"><button class="kgs-back" type="button" data-kgs-close aria-label="Назад">←</button><div class="kgs-title">К глобусу <small>Настройки</small></div><span style="margin-left:auto;color:#d7a43e">⚙</span></header>
       <div class="kgs-scroll">
-        <section class="kgs-hero"><div class="kgs-eyebrow">КиноГлобус · система</div><h2>Ваша киноэкспедиция</h2><p>Управляйте подключением, звуком и тем, как приложение открывает для вас фильмы.</p><div class="kgs-status"><i class="kgs-dot" data-kgs-dot></i><span data-kgs-status></span></div></section>
-        <section class="kgs-section"><h3><span class="kgs-icon">◉</span> Подключение TMDB</h3><div class="kgs-card"><div class="kgs-label" data-kgs-key-status></div><div class="kgs-help">Ключ хранится в этом браузере и нужен для загрузки фильмов.</div><input class="kgs-input" data-kgs-key type="password" autocomplete="off" placeholder="Вставьте новый ключ TMDB" aria-label="Новый ключ TMDB"><div class="kgs-actions"><button class="kgs-btn" type="button" data-kgs-save>Сохранить ключ</button><button class="kgs-btn secondary" type="button" data-kgs-check>Проверить связь</button></div><div class="kgs-help" data-kgs-message aria-live="polite"></div></div></section>
-        <section class="kgs-section"><h3><span class="kgs-icon">▧</span> Звуковая дорожка</h3><div class="kgs-card"><div class="kgs-label">Звук рулетки</div><div style="height:9px"></div><div data-kgs-sound></div><div class="kgs-help">Выбор сохраняется и используется при запуске рулетки.</div></div></section>
-        <section class="kgs-section"><h3><span class="kgs-icon">✧</span> Эффекты и режим</h3><div class="kgs-card"><div class="kgs-row"><div><div class="kgs-label">Вибрация</div><div class="kgs-help">Тактильный отклик при запуске</div></div><button class="kgs-switch" type="button" role="switch" data-kgs-fx aria-label="Вибрация"></button></div><div class="kgs-row"><div><div class="kgs-label">Показывать жанр 18+</div><div class="kgs-help">Управляет видимостью соответствующего фильтра</div></div><button class="kgs-switch" type="button" role="switch" data-kgs-adult aria-label="Жанр 18+"></button></div><div class="kgs-row"><div><div class="kgs-label">Режим выбора</div><div class="kgs-help" data-kgs-mode-label></div></div><div class="kgs-actions"><button class="kgs-btn secondary" type="button" data-kgs-mode="filters">Фильтры</button><button class="kgs-btn secondary" type="button" data-kgs-mode="surprise">Сюрприз</button></div></div></div></section>
-        <section class="kgs-section"><h3><span class="kgs-icon">▤</span> Артефакты рулетки</h3><div class="kgs-card"><div class="kgs-artifact"><div class="kgs-reel">▥</div><div><div class="kgs-label">35-мм кинолента</div><div class="kgs-help">Текущий стиль рулетки</div></div><span class="kgs-soon">АКТИВЕН</span></div><div style="height:8px"></div><div class="kgs-artifact"><div class="kgs-reel">✦</div><div><div class="kgs-label">Другие оформления</div><div class="kgs-help">Дополнительные визуальные темы появятся позже</div></div><span class="kgs-soon">СКОРО</span></div></div></section>
-        <section class="kgs-section"><h3><span class="kgs-icon">◎</span> Путешествие</h3><div class="kgs-card"><div class="kgs-row"><div><div class="kgs-label">Исследовано стран</div><div class="kgs-help" data-kgs-progress-label></div></div><strong data-kgs-progress-count></strong></div><div class="kgs-progress"><i data-kgs-progress></i></div></div></section>
-        <section class="kgs-section"><h3><span class="kgs-icon">⚙</span> Данные приложения</h3><div class="kgs-card"><div class="kgs-actions"><button class="kgs-btn secondary" type="button" data-kgs-history>Сбросить историю</button><button class="kgs-btn secondary" type="button" data-kgs-reset>Сбросить настройки</button></div><div class="kgs-help">Сбросы удаляют сохранённые данные этого приложения.</div></div></section>
-        <div class="kgs-foot">КиноГлобус · настройки сохраняются на этом устройстве</div>
+        <div class="kgs-summary">
+          <div class="kgs-stat"><div class="kgs-stat-top">◉ TMDB v3</div><strong class="kgs-state" data-kgs-status></strong></div>
+          <div class="kgs-stat"><div class="kgs-stat-top">▤ Архив открытий</div><strong data-kgs-count></strong></div>
+        </div>
+
+        <section class="kgs-section"><h2 class="kgs-h"><span class="i">◉</span> Связь с фильмографией TMDB <span class="kgs-badge gray" data-kgs-api-badge></span></h2><div class="kgs-card">
+          <div class="kgs-apihead"><label class="kgs-label" for="kgs-token">Bearer Token / v3 Auth</label><span class="kgs-lamp" data-kgs-lamp>● нет ключа</span></div>
+          <div class="kgs-keywrap"><input id="kgs-token" class="kgs-input" type="password" autocomplete="new-password" placeholder="Введите ключ TMDB" aria-label="Ключ TMDB"><button class="kgs-iconbtn" type="button" data-kgs-visibility aria-label="Показать введённый ключ">◉</button><button class="kgs-ok" type="button" data-kgs-save aria-label="Сохранить ключ">OK</button></div>
+          <p class="kgs-note">API-ключ TMDB нужен для загрузки фильмов, постеров, трейлеров и метаданных стран. Ключ не отображается в этом поле после сохранения.</p>
+          <div class="kgs-actions"><button class="kgs-btn" type="button" data-kgs-change>Изменить ключ</button><button class="kgs-btn primary" type="button" data-kgs-check>Проверить связь</button></div><p class="kgs-note" data-kgs-message aria-live="polite"></p>
+        </div></section>
+
+        <section class="kgs-section"><h2 class="kgs-h"><span class="i">▥</span> Артефакты и маркеры рулетки <span class="kgs-badge gray">смена плёнки</span></h2><div class="kgs-card">
+          <p class="kgs-note" style="margin:0 1px 7px">Выберите визуальный артефакт рулетки. Дополнительные варианты пока готовятся.</p>
+          <div class="kgs-choice selected"><span class="kgs-reel">▥</span><div class="kgs-rowcopy"><div class="kgs-rowtitle">35мм киноплёнка</div><div class="kgs-meta">Классическая проекция · используется сейчас</div></div><span class="kgs-sel">ВЫБРАНО</span><i class="kgs-radio"></i></div>
+          <div class="kgs-choice kgs-disabled"><span class="kgs-reel">🎬</span><div class="kgs-rowcopy"><div class="kgs-rowtitle">Режиссёрская хлопушка</div><div class="kgs-meta">Винтажная хлопушка с эффектом зерна</div></div><span class="kgs-badge gray">Скоро</span><i class="kgs-radio"></i></div>
+          <div class="kgs-choice kgs-disabled"><span class="kgs-reel">▣</span><div class="kgs-rowcopy"><div class="kgs-rowtitle">Магнитная кассета VHS</div><div class="kgs-meta">Ретро-80-е с хроматическими помехами</div></div><span class="kgs-badge gray">В планах</span><i class="kgs-radio"></i></div>
+          <div class="kgs-choice kgs-disabled"><span class="kgs-reel">◉</span><div class="kgs-rowcopy"><div class="kgs-rowtitle">Катушка 70мм IMAX</div><div class="kgs-meta">Масштабная проекция и широкая рамка</div></div><span class="kgs-badge gray">Скоро</span><i class="kgs-radio"></i></div>
+          <div class="kgs-choice kgs-disabled"><span class="kgs-reel">▰</span><div class="kgs-rowcopy"><div class="kgs-rowtitle">Золотой ретро-билет</div><div class="kgs-meta">Коллекционный маркер кинопохода</div></div><span class="kgs-badge pink">Премиум</span><i class="kgs-radio"></i></div>
+        </div></section>
+
+        <section class="kgs-section"><h2 class="kgs-h"><span class="i">♫</span> Звуковой режиссёрский пульт <span class="kgs-badge gray">24 FPS</span></h2><div class="kgs-card">
+          <div class="kgs-audio"><div><div class="kgs-label">Звук вращения КиноГлобуса</div><div class="kgs-sub">Сопровождение выбора страны</div></div><span class="kgs-badge gray">Активно</span><div data-kgs-sound></div></div>
+          <div class="kgs-audio"><div><div class="kgs-label">Звук плёнки и проектора</div><div class="kgs-sub">Отдельная звуковая дорожка появится позже</div></div><span class="kgs-badge gray">В планах</span><select class="kgs-select" disabled aria-label="Звуковое сопровождение фильма"><option>Стрекот проектора 24 fps · скоро</option></select></div>
+          <div class="kgs-row"><div class="kgs-rowcopy"><div class="kgs-rowtitle">Тактильный отклик</div><div class="kgs-meta">Вибрация при запуске рулетки</div></div><button class="kgs-switch" type="button" role="switch" data-kgs-fx aria-label="Тактильный отклик"></button></div>
+          <div class="kgs-inline" style="justify-content:space-between;margin-top:4px"><button class="kgs-play" type="button" data-kgs-preview>▶ Тест кинозвука 24 fps</button><label class="kgs-inline"><span class="kgs-sub">Громкость</span><input class="kgs-range" type="range" min="0" max="100" disabled aria-label="Регулятор громкости появится позже"></label></div>
+        </div></section>
+
+        <section class="kgs-section"><h2 class="kgs-h"><span class="i">✧</span> Атмосфера кинозала и оптика</h2><div class="kgs-card">
+          <div class="kgs-row"><div class="kgs-rowcopy"><div class="kgs-rowtitle">Световой конус проектора</div><div class="kgs-meta">Динамический луч на фоне глобуса · готовится</div></div><span class="kgs-badge gray">Скоро</span><button class="kgs-switch" type="button" disabled aria-label="Световой конус пока недоступен"></button></div>
+          <div class="kgs-row"><div class="kgs-rowcopy"><div class="kgs-rowtitle">Плёночное зерно Kodak 64</div><div class="kgs-meta">Тонкая текстура киноплёнки · готовится</div></div><span class="kgs-badge gray">Скоро</span><button class="kgs-switch" type="button" disabled aria-label="Плёночное зерно пока недоступно"></button></div>
+          <div class="kgs-row"><div class="kgs-rowcopy"><div class="kgs-rowtitle">Анаморфотные блики Panavision</div><div class="kgs-meta">Кинематографические блики интерфейса · готовятся</div></div><span class="kgs-badge gray">Скоро</span><button class="kgs-switch" type="button" disabled aria-label="Блики пока недоступны"></button></div>
+          <div class="kgs-row"><div class="kgs-rowcopy"><div class="kgs-rowtitle">Анимация киноплёнки</div><div class="kgs-meta">Плавное проявление результата рулетки</div></div><button class="kgs-switch" type="button" role="switch" data-kgs-film aria-label="Анимация киноплёнки"></button></div>
+          <div class="kgs-row"><div class="kgs-rowcopy"><div class="kgs-rowtitle">Контент для взрослых (18+)</div><div class="kgs-meta">Показывать жанр 18+ в фильтрах</div></div><button class="kgs-switch" type="button" role="switch" data-kgs-adult aria-label="Жанр 18+"></button></div>
+          <div class="kgs-row" style="display:block"><div class="kgs-rowtitle" style="margin:0 0 6px">Режим рулетки по умолчанию</div><div class="kgs-mode"><button type="button" data-kgs-mode="filters">⌕ Свои фильтры</button><button type="button" data-kgs-mode="surprise">⚄ Удиви меня</button></div><div class="kgs-chips"><button class="kgs-chip" type="button" disabled>Лёгкое</button><button class="kgs-chip" type="button" disabled>Открытие</button><button class="kgs-chip" type="button" disabled>Случайность</button><button class="kgs-chip" type="button" disabled>Хардкор</button></div><p class="kgs-note">Дополнительные сценарии рулетки будут добавлены позже.</p></div>
+        </div></section>
+
+        <section class="kgs-section"><h2 class="kgs-h"><span class="i">◎</span> Атлас экспедиции и журнал</h2><div class="kgs-card">
+          <div class="kgs-progresshead"><span>Прогресс исследователя</span><strong data-kgs-count></strong></div><div class="kgs-track"><i data-kgs-progress></i></div><div class="kgs-progressmeta"><span data-kgs-progress-label></span><span data-kgs-left></span></div>
+          <button class="kgs-map" type="button" data-kgs-atlas><span class="i">▣</span><span><strong>Карта открытий и просмотренных лент</strong><small class="kgs-sub" style="display:block">Открыть атлас</small></span><span>›</span></button>
+          <div class="kgs-warning" data-kgs-warning></div>
+          <button class="kgs-btn danger" type="button" style="width:100%" data-kgs-history>◷ &nbsp;Сбросить историю открытых стран и фильмов</button>
+        </div></section>
+
+        <section class="kgs-section"><h2 class="kgs-h"><span class="i">⚙</span> Система и администрирование</h2><div class="kgs-card">
+          <div class="kgs-row"><div class="kgs-rowcopy"><div class="kgs-rowtitle">КиноГлобус</div><div class="kgs-meta">Веб-приложение · данные TMDB</div></div><span class="kgs-badge gray">Активно</span></div>
+          <a class="kgs-row" style="text-decoration:none;color:inherit" href="https://github.com/IhorMich/kinoglobus" target="_blank" rel="noopener noreferrer"><span class="kgs-reel">⌘</span><div class="kgs-rowcopy"><div class="kgs-rowtitle">Исходный код на GitHub</div><div class="kgs-meta">Репозиторий проекта</div></div><span>↗</span></a>
+          <button class="kgs-btn" type="button" style="width:100%;margin-top:6px" data-kgs-reset>↻ &nbsp;Сбросить все настройки по умолчанию</button>
+        </div></section>
+        <div class="kgs-foot">КиноГлобус · информация о фильмах предоставляется <a class="kgs-github" href="https://www.themoviedb.org/" target="_blank" rel="noopener noreferrer">TMDB</a></div>
       </div>
+      <nav class="kgs-bottom" aria-label="Навигация"><button class="kgs-tab" type="button" data-kgs-tab="globe"><span class="i">◎</span>Глобус</button><button class="kgs-tab" type="button" data-kgs-tab="collections"><span class="i">▣</span>Подборки</button><button class="kgs-tab" type="button" data-kgs-tab="journey"><span class="i">◉</span>Путешествие</button><button class="kgs-tab" type="button" data-kgs-tab="history"><span class="i">◷</span>История</button></nav>
     </div>`;
 
-  const $ = (s) => dialog.querySelector(s);
+  const $ = (selector) => dialog.querySelector(selector);
   const close = () => { if (dialog.open) dialog.close(); else dialog.removeAttribute("open"); };
-  const switchState = (el, on) => el.setAttribute("aria-checked", String(!!on));
+  const switchState = (el, value) => el.setAttribute("aria-checked", String(!!value));
   const sync = () => {
     const hasKey = !!apiKey;
-    $("[data-kgs-status]").textContent = hasKey ? "Подключение настроено" : "Нужно добавить ключ TMDB";
-    $("[data-kgs-dot]").classList.toggle("on", hasKey);
-    $("[data-kgs-key-status]").textContent = hasKey ? "Ключ сохранён" : "Ключ пока не добавлен";
+    $("[data-kgs-status]").textContent = hasKey ? "Ключ сохранён" : "Ключ не добавлен";
+    $("[data-kgs-api-badge]").textContent = hasKey ? "КЛЮЧ СОХРАНЁН" : "НУЖЕН КЛЮЧ";
+    $("[data-kgs-lamp]").textContent = hasKey ? "● ключ сохранён" : "● нет ключа";
+    $("[data-kgs-lamp]").classList.toggle("on", hasKey);
+    const opened = Object.keys(visited || {}).length, total = COUNTRIES.length;
+    const count = `${opened} / ${total} стран`;
+    dialog.querySelectorAll("[data-kgs-count]").forEach((node) => { node.textContent = count; });
+    $("[data-kgs-progress-label]").textContent = `Открыто ${opened} стран`;
+    $("[data-kgs-left]").textContent = `Осталось ${Math.max(0,total-opened)}`;
+    $("[data-kgs-progress]").style.width = `${Math.round(opened/total*100)}%`;
+    $("[data-kgs-warning]").textContent = `Очистка истории снимет отметки со всех ${opened} открытых стран и просмотренных фильмов.`;
     switchState($("[data-kgs-fx]"), fx);
+    switchState($("[data-kgs-film]"), filmSpin);
     switchState($("[data-kgs-adult]"), showAdult);
-    $("[data-kgs-mode-label]").textContent = playMode === "surprise" ? "Случайная подборка" : "Подбор фильмов";
-    const n = Object.keys(visited || {}).length, all = COUNTRIES.length;
-    $("[data-kgs-progress-count]").textContent = `${n} / ${all}`;
-    $("[data-kgs-progress-label]").textContent = `Открыто ${n} из ${all} стран`;
-    $("[data-kgs-progress]").style.width = `${Math.round(n / all * 100)}%`;
+    $("[data-kgs-mode=filters]").classList.toggle("active", playMode !== "surprise");
+    $("[data-kgs-mode=surprise]").classList.toggle("active", playMode === "surprise");
   };
 
   $("[data-kgs-close]").addEventListener("click", close);
-  dialog.addEventListener("click", (e) => { if (e.target === dialog) close(); });
+  dialog.addEventListener("click", (event) => { if (event.target === dialog) close(); });
   document.getElementById("gear").onclick = () => { sync(); if (dialog.showModal) dialog.showModal(); else dialog.setAttribute("open", ""); };
 
-  const soundSlot = $("[data-kgs-sound]");
   const soundSelect = document.getElementById("snd");
+  const labels = {roulette:"Трещотка бобины",bells:"Колокольчики",arcade:"Аркада",casino:"Казино",marimba:"Маримба",space:"Космос",film:"Киноплёнка",orchestra:"Оркестр",jazz:"Джаз",synth:"Синтезатор",chimes:"Звон",off:"Без звука"};
+  [...soundSelect.options].forEach((option) => { option.textContent = labels[option.value] || option.textContent; });
   soundSelect.className = "kgs-select";
-  soundSelect.setAttribute("aria-label", "Звук рулетки");
-  soundSlot.appendChild(soundSelect);
+  soundSelect.setAttribute("aria-label", "Звук вращения КиноГлобуса");
+  $("[data-kgs-sound]").appendChild(soundSelect);
 
-  $("[data-kgs-fx]").addEventListener("click", () => { document.getElementById("fx").click(); sync(); });
-  $("[data-kgs-adult]").addEventListener("click", () => { document.getElementById("adultVis").click(); sync(); });
-  $("[data-kgs-mode=filters]").addEventListener("click", () => { document.getElementById("modeFilters").click(); sync(); });
-  $("[data-kgs-mode=surprise]").addEventListener("click", () => { document.getElementById("modeSurprise").click(); sync(); });
-
+  $("[data-kgs-visibility]").addEventListener("click", () => {
+    const input = $("#kgs-token"); input.type = input.type === "password" ? "text" : "password";
+    $("[data-kgs-visibility]").setAttribute("aria-label", input.type === "password" ? "Показать введённый ключ" : "Скрыть введённый ключ");
+  });
+  $("[data-kgs-change]").addEventListener("click", () => { $("#kgs-token").focus(); $("[data-kgs-message]").textContent = "Введите новый ключ и нажмите OK. Сохранённый ключ пока остаётся активным."; });
   $("[data-kgs-save]").addEventListener("click", () => {
-    const value = $("[data-kgs-key]").value.trim(), message = $("[data-kgs-message]");
-    if (!value) { message.textContent = "Введите ключ, чтобы сохранить его."; return; }
+    const value = $("#kgs-token").value.trim();
+    if (!value) { $("[data-kgs-message]").textContent = "Введите новый ключ TMDB перед сохранением."; return; }
     document.getElementById("tmdb-key-input").value = value;
     document.getElementById("tmdb-key-save").click();
-    $("[data-kgs-key]").value = "";
-    message.textContent = "Ключ сохранён.";
+    $("#kgs-token").value = "";
+    $("[data-kgs-message]").textContent = "Ключ сохранён. При желании проверьте соединение.";
     sync();
   });
   $("[data-kgs-check]").addEventListener("click", async () => {
     const message = $("[data-kgs-message]");
-    if (!apiKey) { message.textContent = "Сначала сохраните ключ TMDB."; return; }
+    if (!apiKey) { message.textContent = "Сначала добавьте ключ TMDB."; return; }
     message.textContent = "Проверяем соединение…";
     try {
       const response = await fetch(`https://api.themoviedb.org/3/configuration?api_key=${encodeURIComponent(apiKey)}`);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      message.textContent = "Соединение с TMDB работает.";
-    } catch (error) { message.textContent = `Не удалось подключиться: ${error.message}`; }
+      message.textContent = "TMDB ответил успешно — соединение работает.";
+    } catch (error) { message.textContent = `Не удалось проверить соединение: ${error.message}`; }
   });
+
+  $("[data-kgs-fx]").addEventListener("click", () => { document.getElementById("fx").click(); sync(); });
+  $("[data-kgs-film]").addEventListener("click", () => { document.getElementById("filmTog").click(); sync(); });
+  $("[data-kgs-adult]").addEventListener("click", () => { document.getElementById("adultVis").click(); sync(); });
+  $("[data-kgs-mode=filters]").addEventListener("click", () => { document.getElementById("modeFilters").click(); sync(); });
+  $("[data-kgs-mode=surprise]").addEventListener("click", () => { document.getElementById("modeSurprise").click(); sync(); });
+  $("[data-kgs-preview]").addEventListener("click", () => { try { preview(); } catch (_) {} });
+
+  $("[data-kgs-atlas]").addEventListener("click", () => { close(); document.getElementById("mapBtn").click(); });
   $("[data-kgs-history]").addEventListener("click", () => {
-    if (confirm("Сбросить историю просмотров и путешествия?")) { document.getElementById("resetHist").click(); sync(); }
+    if (confirm("Сбросить историю открытых стран и просмотренных фильмов?")) { document.getElementById("resetHist").click(); sync(); }
   });
   $("[data-kgs-reset]").addEventListener("click", () => {
-    if (confirm("Вернуть настройки приложения к исходным?")) { document.getElementById("resetSettings").click(); sync(); }
+    if (confirm("Сбросить все настройки приложения к значениям по умолчанию?")) { document.getElementById("resetSettings").click(); sync(); }
   });
+  $("[data-kgs-tab=globe]").addEventListener("click", () => { close(); window.scrollTo({top:0,behavior:"smooth"}); });
+  $("[data-kgs-tab=collections]").addEventListener("click", () => { close(); const link=document.querySelector('[data-path="podborki-i-zhanry"]'); if(link)link.click(); });
+  $("[data-kgs-tab=journey]").addEventListener("click", () => { close(); document.getElementById("mapBtn").click(); });
+  $("[data-kgs-tab=history]").addEventListener("click", () => { close(); document.getElementById("mapBtn").click(); });
   soundSelect.addEventListener("change", sync);
   sync();
 })();

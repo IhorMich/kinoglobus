@@ -645,7 +645,7 @@ function selectedFilmHtml(f,embedded=false){
   const dirName=f.dirs&&f.dirs.length?(f.dirsFull&&f.dirsFull.length?f.dirsFull.map(d=>personLink(d,"Режиссёр")).join(", "):esc(f.dirs.join(", "))):loading;
   const releaseText=f.release?new Date(f.release+"T00:00:00").toLocaleDateString("ru-RU",{day:"numeric",month:"long",year:"numeric"}):loading;
   const shell=embedded?"div":"section",shellClass=embedded?"flex flex-col gap-3 pt-3 border-t border-surface-border-subtle scroll-mt-20":"flex flex-col gap-3 p-3.5 rounded-2xl bg-surface-panel border border-primary-container/30 shadow-xl scroll-mt-20";
-  const trailerBox=`<div class="relative w-full kg-detail-trailer rounded-xl overflow-hidden bg-black border border-primary-container/30" id="cl-inline-trailer">${trailerContent}${certBadge}</div>`;
+  const trailerBox=`<div data-kg-film-trailer class="relative w-full kg-detail-trailer rounded-xl overflow-hidden bg-black border border-primary-container/30" id="cl-inline-trailer">${trailerContent}${certBadge}</div>`;
   return `<${shell} class="${shellClass}" data-selected-film="${f.id}">
 <div class="flex items-start justify-between gap-2"><div class="flex flex-col min-w-0"><h3 class="font-headline-md text-headline-md text-primary font-bold tracking-tight">${title}</h3>${orig?`<span class="font-body-sm text-body-sm text-text-muted mt-0.5">${orig}</span>`:""}</div>
 <div class="flex items-center gap-1.5 shrink-0">${f.runtime?`<div class="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-surface-container-high"><span class="material-symbols-outlined text-primary-container text-[18px]" style="font-variation-settings:'FILL' 1;">timer</span><span class="font-label-sm text-label-sm text-on-surface">${f.runtime} мин</span></div>`:""}<button type="button" data-act="bm" data-id="${f.id}" aria-label="${booked?"Убрать из закладок":"Сохранить в закладки"}" aria-pressed="${booked}" class="w-7 h-7 rounded-full text-primary-container hover:bg-surface-container-high flex items-center justify-center"><span class="material-symbols-outlined text-[18px]">${booked?"bookmark_added":"bookmark_border"}</span></button><button type="button" data-act="close-film" aria-label="Свернуть карточку" class="w-9 h-9 rounded-full bg-surface-container-high text-text-muted hover:text-primary flex items-center justify-center"><span class="material-symbols-outlined">${embedded?"expand_less":"close"}</span></button></div></div>
@@ -838,8 +838,8 @@ function openFilm(f,placement="list",detailTarget=null){
   if(placement==="roulette"||placement==="home"||placement==="home-europe"||placement==="mood"||placement==="oscar")renderSelectedPanel();else if(!placeListPanel())renderFilms();
   const panel=detailTarget?$(detailTarget):placement==="roulette"?$("cl-result")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="home"?$("kg-home-feature")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="home-europe"?$("kg-home-europe-detail")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="mood"?$("mood-film-detail")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="oscar"?$("oscar-film-detail")?.querySelector(`[data-selected-film="${f.id}"]`):vd.querySelector(`[data-selected-film="${f.id}"]`);
   requestAnimationFrame(()=>requestAnimationFrame(()=>{
-    const description=document.querySelector(`[data-selected-film="${f.id}"] [data-kg-film-description]`);
-    const target=description||panel;
+    const trailer=document.querySelector(`[data-selected-film="${f.id}"] [data-kg-film-trailer]`);
+    const target=trailer||panel;
     if(target&&window.KGScrollToFilmDescription)window.KGScrollToFilmDescription(target);
     else target?.scrollIntoView({behavior:"smooth",block:"start"});
   }));

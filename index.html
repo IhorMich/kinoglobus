@@ -45,7 +45,7 @@
       0% { transform: translateX(-100%); }
       100% { transform: translateX(200%); }
     }
-  </style><script src="cinema-reel.js?v=1"></script></head><body class="bg-canvas-obsidian font-body-md text-on-surface flex flex-col min-h-screen relative">
+  </style><script src="cinema-reel.js?v=2"></script></head><body class="bg-canvas-obsidian font-body-md text-on-surface flex flex-col min-h-screen relative">
 <!-- Atmospheric Living Theater Background Layer with Floating Posters -->
 <div class="fixed inset-0 pointer-events-none overflow-hidden -z-10 select-none">
 <!-- Ambient Projector Velvet & Amber Glow Orbs -->
@@ -3471,10 +3471,10 @@ function loadPoster(f){
   });
 }
 const warmPosters=pool=>Promise.all((pool.films||[]).map(loadPoster));
-let runRaf=0,spinTimer=0,reelScrollFrame=0,finishReelScroll=null;
+let spinCancel=null,spinTimer=0,reelScrollFrame=0,finishReelScroll=null;
 function stopReel(){
   clearTimeout(spinTimer);
-  cancelAnimationFrame(runRaf);
+  spinCancel?.();spinCancel=null;
   if(reelScrollFrame){cancelAnimationFrame(reelScrollFrame);reelScrollFrame=0;finishReelScroll?.();finishReelScroll=null;}
   strip.busy=false;
   stopFilmReelSound();
@@ -3531,56 +3531,31 @@ async function spinReel(pool,film,cc){
   set("reel-frame-counter","Кадр -- / "+pad(pool.films.length));
   startFilmReelSound();
   const x0=centerX(0),x1=centerX(NEED);
-  runEl.style.transform=`translateX(${-x0}px)`;
-  runEl.classList.add("fast");
-  const t0=performance.now();
-  let last=-1;
-  const step = now => {
-    if (!cur || cur.film.id !== film.id) {
-      strip.busy = false;
-      stopFilmReelSound();
-      return;
-    }
-    const t = Math.min(1, (now - t0) / T);
-    const e = 1 - Math.pow(1 - t, 4);
-    const x = x0 + (x1 - x0) * e;
-    // Хвост easeOutQuart: последние ~0.6 с лента движется меньше пикселя, глазом это уже остановка.
-    // Считаем остановкой момент, когда до цели < 0.75px, и в этот же момент гасим плёнку и играем финал.
-    const left = x1 - x;
-    const stopped = t >= 1 || left < 0.75;
-    runEl.style.transform = `translateX(${-x}px)`;
-    if (t > .4) runEl.classList.remove("fast");
-    const row = Math.round((x - x0) / STEP);
-    if (row !== last) {
-      last = row;
-
-      if (t > .6) buzz(7);
-    }
-    if (!stopped) {
-      if (left < 200) setFilmReelLevel(left / 200);   // звук затихает вместе с лентой
-      runRaf = requestAnimationFrame(step);
-      return;
-    }
-    strip.busy = false;
-    stopFilmReelSound();
-    runEl.style.transform = `translateX(${-centerX(NEED)}px)`;
-    [...runEl.children].forEach((c, i) => {
-      c.classList.remove("spinning");
-      c.classList.toggle("chosen", i === NEED);
+  const completed=await new Promise(resolve=>{
+    spinCancel=window.KGCinemaReel.spin({
+      run:runEl,frame:frameEl,startX:x0,endX:x1,duration:T,stepWidth:STEP,
+      chosenIndex:NEED,reducedMotion:RM,
+      onStep:(_row,progress)=>{if(progress>.6)buzz(7);},
+      onProgress:(_progress,_x,remaining)=>{
+        if(!cur||cur.film.id!==film.id){spinCancel?.();return;}
+        if(remaining<200)setFilmReelLevel(remaining/200);
+      },
+      onFinish:()=>resolve(true),
+      onCancel:()=>resolve(false)
     });
-    frameEl.classList.remove("hit");
-    void frameEl.offsetWidth;
-    frameEl.classList.add("hit");
-    const k = pool.films.findIndex(f => f.id === film.id);
-    set("reel-frame-counter", `Кадр ${pad((k < 0 ? 0 : k) + 1)} / ${pad(pool.films.length)}`);
-    sWin();
-    buzz([25, 50, 60]);
-    card.classList.remove("card-discovery-win");
-    void card.offsetWidth;
-    card.classList.add("card-discovery-win");
-    reveal(film, pool);
-  };
-  runRaf = requestAnimationFrame(step);
+  });
+  spinCancel=null;
+  if(!completed||!cur||cur.film.id!==film.id){strip.busy=false;stopFilmReelSound();return;}
+  strip.busy=false;
+  stopFilmReelSound();
+  const k=pool.films.findIndex(f=>f.id===film.id);
+  set("reel-frame-counter",`Кадр ${pad((k<0?0:k)+1)} / ${pad(pool.films.length)}`);
+  sWin();
+  buzz([25,50,60]);
+  card.classList.remove("card-discovery-win");
+  void card.offsetWidth;
+  card.classList.add("card-discovery-win");
+  reveal(film,pool);
 }
 
 function reveal(film,pool){

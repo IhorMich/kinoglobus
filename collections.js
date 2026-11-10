@@ -159,6 +159,7 @@ const P=(p,s)=>p?`https://image.tmdb.org/t/p/${s||"w185"}${p}`:"";
 const nf=n=>new Intl.NumberFormat("ru-RU").format(n);
 const moneyFmt=new Intl.NumberFormat("ru-RU",{style:"currency",currency:"USD",maximumFractionDigits:0});
 const moneyText=n=>Number(n)>0?moneyFmt.format(Number(n)):"Нет данных";
+const kgPersonLink=(p,role)=>p&&p.id?`<button type="button" data-kg-person-id="${p.id}" data-kg-person-name="${esc(p.name)}" data-kg-person-role="${role||"Кинематографист"}" class="kg-person-link">${esc(p.name)}</button>`:esc(p&&p.name||"");
 function fw(n){const m=n%100,k=n%10;return (k===1&&m!==11)?"фильм":(k>1&&k<5&&(m<12||m>14))?"фильма":"фильмов";}
 const gnames=t=>t.g.split("|").map(x=>GENRES[x]).filter(Boolean);
 const codeOf=t=>REG[t.id]?REG[t.id][1]:(t.cc[0]==="SU"?"СССР":t.cc[0]);
@@ -560,14 +561,12 @@ function filmItem(f){
   return `<article class="flex flex-col gap-space-sm p-3 rounded-xl bg-surface-panel shadow-md hover:bg-surface-container-low transition-colors">
 <div class="flex gap-space-sm cursor-pointer" data-act="open" data-id="${f.id}">
 <div class="relative w-20 h-28 flex-shrink-0 rounded-lg overflow-hidden bg-surface-container-high">${f.poster_path?`<img class="w-full h-full object-cover" loading="lazy" alt="" src="${P(f.poster_path,"w185")}">`:`<div class="w-full h-full flex items-center justify-center text-text-muted"><span class="material-symbols-outlined">movie</span></div>`}
-<span class="absolute top-1 left-1 px-1 py-0.5 rounded bg-surface-panel/90 text-primary-container font-micro-caption text-micro-caption font-bold">${Number(f.vote_average).toFixed(1)} ★</span></div>
+<span class="absolute top-1 left-1 px-1 py-0.5 rounded bg-surface-panel/90 text-primary-container font-micro-caption text-micro-caption font-bold">${Number(f.vote_average).toFixed(1)} ★</span><button type="button" data-act="bm" data-id="${f.id}" aria-label="${bm?"Убрать из закладок":"Сохранить в закладки"}" class="absolute top-1 right-1 w-6 h-6 rounded-full bg-surface-panel/85 text-primary-container flex items-center justify-center shadow"><span class="material-symbols-outlined text-[16px]">${bm?"bookmark_added":"bookmark_border"}</span></button></div>
 <div class="flex flex-col justify-between flex-1 min-w-0"><div class="flex flex-col gap-0.5">
 <div class="flex items-center justify-between"><span class="font-micro-caption text-micro-caption text-text-muted">${fl(f._cc)} ${esc(cname(f._cc))}${y?" • "+y:""}</span><span data-rt="${f.id}" class="font-micro-caption text-micro-caption px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant">— мин</span></div>
 <h4 class="font-label-lg text-label-lg text-on-surface font-bold truncate">${esc(f.title)}</h4>
 <p data-dir="${f.id}" class="font-micro-caption text-micro-caption text-text-muted truncate">&nbsp;</p>
 <div class="flex items-center gap-1.5 pt-1">${gs.map(g=>`<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-micro-caption text-micro-caption">${esc(g)}</span>`).join("")}</div></div></div></div>
-<div class="flex items-center justify-end gap-2 pt-2">
-<button type="button" data-act="bm" data-id="${f.id}" title="В закладки" class="text-primary-container hover:text-primary transition-colors p-1"><span class="material-symbols-outlined text-[18px]">${bm?"bookmark_added":"bookmark_border"}</span></button></div>
 ${selected?selectedFilmHtml(selected,true):""}</article>`;
 }
 function pearlHtml(f,selected=null){
@@ -575,14 +574,13 @@ function pearlHtml(f,selected=null){
   return `<div class="flex flex-col gap-space-xs"><div class="flex items-center gap-1.5 px-1"><span class="material-symbols-outlined text-[18px] text-primary-container">stars</span><h3 class="font-headline-sm text-headline-sm text-primary font-bold">Жемчужина коллекции</h3></div>
 <div class="relative overflow-hidden rounded-xl bg-surface-panel p-space-md shadow-xl flex flex-col gap-space-md"><div class="flex gap-space-md cursor-pointer" data-act="open" data-id="${f.id}">
 <div class="relative flex-shrink-0 w-28 h-40 rounded-lg overflow-hidden bg-surface-container-high shadow-md">${f.poster_path?`<img class="w-full h-full object-cover" alt="" src="${P(f.poster_path,"w342")}">`:""}
-<div class="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded bg-surface-panel/90 backdrop-blur-md text-primary-container font-label-sm text-label-sm font-bold flex items-center gap-0.5"><span class="material-symbols-outlined text-[13px]" style="font-variation-settings:'FILL' 1;">star</span>${Number(f.vote_average).toFixed(1)}</div></div>
+<div class="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded bg-surface-panel/90 backdrop-blur-md text-primary-container font-label-sm text-label-sm font-bold flex items-center gap-0.5"><span class="material-symbols-outlined text-[13px]" style="font-variation-settings:'FILL' 1;">star</span>${Number(f.vote_average).toFixed(1)}</div><button type="button" data-act="bm" data-id="${f.id}" aria-label="${bm?"Убрать из закладок":"Сохранить в закладки"}" class="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-surface-panel/85 text-primary-container flex items-center justify-center shadow"><span class="material-symbols-outlined text-[16px]">${bm?"bookmark_added":"bookmark_border"}</span></button></div>
 <div class="flex flex-col justify-between flex-1 min-w-0"><div class="flex flex-col gap-1">
 <div class="flex items-center gap-1.5"><span class="font-micro-caption text-micro-caption px-1.5 rounded bg-surface-container text-on-surface-variant">${fl(f._cc)} ${y}</span><span data-rt="${f.id}" class="font-micro-caption text-micro-caption text-text-muted">— мин</span></div>
 <h4 class="font-headline-sm text-headline-sm text-on-surface font-bold leading-snug kg-clip2">${esc(f.title)}</h4>
 <p class="font-micro-caption text-micro-caption text-text-muted italic truncate">${f.original_title&&f.original_title!==f.title?esc(f.original_title):"&nbsp;"}</p>
 <p data-dir="${f.id}" class="font-micro-caption text-micro-caption text-on-surface-variant">&nbsp;</p></div>
 <p class="font-body-sm text-body-sm text-text-muted kg-clip2 pt-1">${esc(f.overview||"Описания на русском пока нет.")}</p></div></div>
-<div class="flex items-center justify-end pt-1"><button type="button" data-act="bm" data-id="${f.id}" aria-label="Сохранить" class="w-11 h-11 flex-shrink-0 rounded-lg bg-surface-container-high text-primary-container flex items-center justify-center transition-transform active:scale-95 shadow-sm"><span class="material-symbols-outlined text-[20px]" style="font-variation-settings:'FILL' 1;">${bm?"bookmark_added":"bookmark_border"}</span></button></div>
 ${selected?selectedFilmHtml(selected,true):""}</div></div>`;
 }
 function renderFilms(){
@@ -607,7 +605,7 @@ function renderFilms(){
   [best,...list].forEach(f=>filmDetails(f.id).then(d=>{
     const rt=vd.querySelectorAll(`[data-rt="${f.id}"]`),dr=vd.querySelectorAll(`[data-dir="${f.id}"]`);
     rt.forEach(e=>e.textContent=d.runtime?d.runtime+" мин":"");
-    dr.forEach(e=>e.textContent=d.dirs.length?"Реж. "+d.dirs.slice(0,2).join(", "):"");
+    dr.forEach(e=>e.innerHTML=(d.dirsFull||[]).length?"Реж. "+d.dirsFull.slice(0,2).map(p=>kgPersonLink(p,"Режиссёр")).join(", "):"");
   }).catch(()=>{}));
 }
 function trailerThumb(v,f){
@@ -616,10 +614,11 @@ function trailerThumb(v,f){
 }
 function selectedFilmHtml(f,embedded=false){
   const year=(f.release_date||"").slice(0,4);
+  const personLink=(p,role)=>p&&p.id?`<button type="button" data-kg-person-id="${p.id}" data-kg-person-name="${esc(p.name)}" data-kg-person-role="${role}" class="kg-person-link">${esc(p.name)}</button>`:esc(p&&p.name||"");
   const poster=f.poster_path?`<img class="w-full h-full object-cover" loading="lazy" alt="Постер фильма «${esc(f.title||"Фильм")}»" src="${P(f.poster_path,"w185")}">`:`<span class="material-symbols-outlined text-text-muted">movie</span>`;
-  const cast=(f.castFull||[]).map(c=>`<div class="flex-shrink-0 w-28 flex flex-col items-center text-center p-2 rounded-xl bg-surface-container-high">
+  const cast=(f.castFull||[]).map(c=>`<button type="button" data-kg-person-id="${c.id||""}" data-kg-person-name="${esc(c.name)}" data-kg-person-role="Актёр" class="kg-person-card flex-shrink-0 w-28 flex flex-col items-center text-center p-2 rounded-xl bg-surface-container-high" ${c.id?"":"disabled"}>
 <div class="w-14 h-14 rounded-full overflow-hidden mb-2 bg-surface-variant shadow-md flex items-center justify-center">${c.photo?`<img class="w-full h-full object-cover" loading="lazy" alt="" src="${P(c.photo,"w185")}">`:'<span class="material-symbols-outlined text-text-muted">person</span>'}</div>
-<span class="font-label-sm text-label-sm text-on-surface font-semibold truncate w-full">${esc(c.name)}</span><span class="font-micro-caption text-micro-caption text-text-muted truncate w-full">${esc(c.role)}</span></div>`).join("");
+<span class="font-label-sm text-label-sm text-on-surface font-semibold truncate w-full">${esc(c.name)}</span><span class="font-micro-caption text-micro-caption text-text-muted truncate w-full">${esc(c.role)}</span></button>`).join("");
   const activeVideo=f._trailer||null;
   const trailerContent=f._trailerPlaying&&activeVideo
     ?`<iframe src="${embedSrc(activeVideo,true)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" title="Трейлер ${esc(f.title)}" style="position:absolute;inset:0;width:100%;height:100%;border:0"></iframe>`
@@ -643,29 +642,28 @@ function selectedFilmHtml(f,embedded=false){
   const certBadge=f.cert&&!f._trailerPlaying?`<span class="absolute top-3 right-3 px-2 py-0.5 rounded bg-cinema-velvet-deep/90 text-secondary font-label-sm text-label-sm">${esc(f.cert)}</span>`:"";
   const fact=(label,value,sub)=>`<div class="p-3.5 rounded-xl bg-surface-container flex flex-col gap-1"><span class="font-micro-caption text-micro-caption uppercase text-text-muted">${label}</span>${value}${sub?`<span class="font-body-sm text-body-sm text-text-muted">${sub}</span>`:""}</div>`;
   const loading=f._detailsLoaded?"—":"Загружаем…";
-  const dirName=f.dirs&&f.dirs.length?esc(f.dirs.join(", ")):loading;
+  const dirName=f.dirs&&f.dirs.length?(f.dirsFull&&f.dirsFull.length?f.dirsFull.map(d=>personLink(d,"Режиссёр")).join(", "):esc(f.dirs.join(", "))):loading;
   const releaseText=f.release?new Date(f.release+"T00:00:00").toLocaleDateString("ru-RU",{day:"numeric",month:"long",year:"numeric"}):loading;
   const shell=embedded?"div":"section",shellClass=embedded?"flex flex-col gap-3 pt-3 border-t border-surface-border-subtle scroll-mt-20":"flex flex-col gap-3 p-3.5 rounded-2xl bg-surface-panel border border-primary-container/30 shadow-xl scroll-mt-20";
   const trailerBox=`<div class="relative w-full kg-detail-trailer rounded-xl overflow-hidden bg-black border border-primary-container/30" id="cl-inline-trailer">${trailerContent}${certBadge}</div>`;
   return `<${shell} class="${shellClass}" data-selected-film="${f.id}">
 <div class="flex items-start justify-between gap-2"><div class="flex flex-col min-w-0"><h3 class="font-headline-md text-headline-md text-primary font-bold tracking-tight">${title}</h3>${orig?`<span class="font-body-sm text-body-sm text-text-muted mt-0.5">${orig}</span>`:""}</div>
-<div class="flex items-center gap-2 shrink-0">${f.runtime?`<div class="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-surface-container-high"><span class="material-symbols-outlined text-primary-container text-[18px]" style="font-variation-settings:'FILL' 1;">timer</span><span class="font-label-sm text-label-sm text-on-surface">${f.runtime} мин</span></div>`:""}<button type="button" data-act="close-film" aria-label="Свернуть карточку" class="w-9 h-9 rounded-full bg-surface-container-high text-text-muted hover:text-primary flex items-center justify-center"><span class="material-symbols-outlined">${embedded?"expand_less":"close"}</span></button></div></div>
+<div class="flex items-center gap-1.5 shrink-0">${f.runtime?`<div class="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-surface-container-high"><span class="material-symbols-outlined text-primary-container text-[18px]" style="font-variation-settings:'FILL' 1;">timer</span><span class="font-label-sm text-label-sm text-on-surface">${f.runtime} мин</span></div>`:""}<button type="button" data-act="bm" data-id="${f.id}" aria-label="${booked?"Убрать из закладок":"Сохранить в закладки"}" aria-pressed="${booked}" class="w-7 h-7 rounded-full text-primary-container hover:bg-surface-container-high flex items-center justify-center"><span class="material-symbols-outlined text-[18px]">${booked?"bookmark_added":"bookmark_border"}</span></button><button type="button" data-act="close-film" aria-label="Свернуть карточку" class="w-9 h-9 rounded-full bg-surface-container-high text-text-muted hover:text-primary flex items-center justify-center"><span class="material-symbols-outlined">${embedded?"expand_less":"close"}</span></button></div></div>
 ${trailerBox}
 ${activeVideo?`<a href="${watchUrl(activeVideo)}" target="_blank" rel="noopener noreferrer" class="font-micro-caption text-micro-caption text-primary underline">Не воспроизводится? Открыть на ${esc(activeVideo.site)}</a>`:""}
 ${rating?`<div class="flex items-center gap-2 overflow-x-auto py-0.5">${rating}</div>`:""}
 ${countries||genres?`<div class="flex flex-wrap items-center gap-x-2.5 gap-y-1 font-body-sm text-body-sm text-text-muted">${countries?`<span class="text-on-surface">${countries}</span>`:""}${countries&&genres?"<span>•</span>":""}${genres?`<span class="text-on-surface-variant">${esc(genres)}</span>`:""}</div>`:""}
 ${f.tagline&&f.taglineLang===f.overviewLang?`<blockquote class="italic font-headline-sm text-[15px] leading-tight text-primary-fixed-dim/90">«${esc(f.tagline)}»</blockquote>`:""}
-<div class="grid grid-cols-12 gap-2.5">
-<button type="button" data-act="bm" data-id="${f.id}" aria-label="${booked?"Убрать из закладок":"Сохранить в закладки"}" class="col-span-12 h-12 rounded-xl bg-surface-container-high text-on-surface flex items-center justify-center gap-1.5 px-2 active:scale-95 transition-transform"><span class="material-symbols-outlined text-primary-container text-[20px]">${booked?"bookmark_added":"bookmark_border"}</span><span class="font-label-sm text-label-sm truncate">${booked?"В закладках":"В закладки"}</span></button></div>
 ${oscarBlock}
-<div class="p-4 rounded-xl bg-surface-container flex flex-col gap-2"><span class="font-label-md text-label-md text-primary-fixed tracking-wide uppercase">О фильме</span><p class="font-body-md text-body-md text-on-surface leading-relaxed">${esc(f.overview||"Загружаем описание…")}</p></div>
+<div data-kg-film-description class="p-4 rounded-xl bg-surface-container flex flex-col gap-2"><span class="font-label-md text-label-md text-primary-fixed tracking-wide uppercase">О фильме</span><p class="font-body-md text-body-md text-on-surface leading-relaxed">${esc(f.overview||"Загружаем описание…")}</p></div>
 <div class="flex flex-col gap-2"><span class="font-label-md text-label-md text-primary-fixed tracking-wide uppercase px-0.5">Факты производства</span><div class="grid grid-cols-2 gap-2.5">
 ${fact("Режиссёр",`<span class="font-label-md text-label-md text-on-surface">${dirName}</span>`)}
 ${fact("Выход",`<span class="font-label-md text-label-md text-on-surface">${releaseText}</span>`)}
 ${fact("Бюджет",`<span class="font-headline-sm text-headline-sm text-primary">${f._detailsLoaded?moneyText(f.budget):"Загружаем…"}</span>`)}
 ${fact("Мировые сборы",`<span class="font-headline-sm text-headline-sm text-primary-container">${f._detailsLoaded?moneyText(f.revenue):"Загружаем…"}</span>`)}
 </div></div>
-<div class="flex flex-col gap-2"><div class="flex items-center justify-between"><span class="font-label-md text-label-md text-primary-fixed tracking-wide uppercase">В главных ролях</span>${(f.castFull||[]).length?`<span class="font-micro-caption text-micro-caption text-text-muted">${f.castFull.length} ${f.castFull.length%10===1&&f.castFull.length!==11?"актёр":f.castFull.length%10>1&&f.castFull.length%10<5&&(f.castFull.length<10||f.castFull.length>20)?"актёра":"актёров"}</span>`:""}</div>${cast?`<div class="flex gap-2.5 overflow-x-auto py-1" style="-webkit-overflow-scrolling:touch">${cast}</div>`:`<p class="font-body-sm text-body-sm text-text-muted">${f._detailsLoaded?"Сведения об актёрах недоступны.":"Загружаем актёров…"}</p>`}</div></${shell}>`;
+<div class="flex flex-col gap-2"><div class="flex items-center justify-between"><span class="font-label-md text-label-md text-primary-fixed tracking-wide uppercase">В главных ролях</span>${(f.castFull||[]).length?`<span class="font-micro-caption text-micro-caption text-text-muted">${f.castFull.length} ${f.castFull.length%10===1&&f.castFull.length!==11?"актёр":f.castFull.length%10>1&&f.castFull.length%10<5&&(f.castFull.length<10||f.castFull.length>20)?"актёра":"актёров"}</span>`:""}</div>${cast?`<div class="flex gap-2.5 overflow-x-auto py-1" style="-webkit-overflow-scrolling:touch">${cast}</div>`:`<p class="font-body-sm text-body-sm text-text-muted">${f._detailsLoaded?"Сведения об актёрах недоступны.":"Загружаем актёров…"}</p>`}</div>
+<section data-kg-related-films data-film-id="${f.id}" data-context-key="${esc(f._kgRelatedContext||"")}" data-placement="${esc(f._placement||"")}" data-detail-target="${esc(f._detailTarget||"")}" class="flex flex-col gap-space-sm"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary-container text-[20px]">movie_filter</span><h3 class="font-headline-sm text-headline-sm text-on-surface">Похожие фильмы</h3></div><div data-kg-related-list class="flex gap-space-sm overflow-x-auto pb-1"><span class="font-micro-caption text-micro-caption text-text-muted">Подбираем фильмы…</span></div></section></${shell}>`;
 }
 document.addEventListener("click",e=>{
   const bookmark=e.target.closest('[data-act="bm"]');
@@ -832,17 +830,25 @@ function openFilm(f,placement="list",detailTarget=null){
   if(D.selected&&D.selected._placement===placement&&D.selected._detailTarget&&D.selected._detailTarget!==detailTarget){
     $(D.selected._detailTarget)?.replaceChildren();
   }
-  D.selected={...f,_cc:f._cc||(f.origin_country||[])[0]||"",_placement:placement,_detailTarget:detailTarget,overview:russianText(f.overview)||"Загружаем описание…",_trailerStatus:"loading"};;
+  const relatedPool=Array.isArray(f._kgRelatedPool)?f._kgRelatedPool:(placement==="list"||placement==="roulette"?D.all:placement.startsWith("home")?homeEditorial.films:null);
+  const relatedContext=relatedPool&&relatedPool.length?`${placement}:${D.t&&D.t.id||"all"}:${detailTarget||""}`:"";
+  if(relatedContext&&window.KGFilmInteractions)window.KGFilmInteractions.registerPool(relatedContext,relatedPool);
+  D.selected={...f,_cc:f._cc||(f.origin_country||[])[0]||"",_placement:placement,_detailTarget:detailTarget,_kgRelatedContext:relatedContext,overview:russianText(f.overview)||"Загружаем описание…",_trailerStatus:"loading"};
   const selected=D.selected;
   if(placement==="roulette"||placement==="home"||placement==="home-europe"||placement==="mood"||placement==="oscar")renderSelectedPanel();else if(!placeListPanel())renderFilms();
   const panel=detailTarget?$(detailTarget):placement==="roulette"?$("cl-result")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="home"?$("kg-home-feature")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="home-europe"?$("kg-home-europe-detail")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="mood"?$("mood-film-detail")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="oscar"?$("oscar-film-detail")?.querySelector(`[data-selected-film="${f.id}"]`):vd.querySelector(`[data-selected-film="${f.id}"]`);
-  if(placement!=="list"&&placement!=="mood")panel?.scrollIntoView({behavior:"smooth",block:"nearest"});
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    const description=document.querySelector(`[data-selected-film="${f.id}"] [data-kg-film-description]`);
+    const target=description||panel;
+    if(target&&window.KGScrollToFilmDescription)window.KGScrollToFilmDescription(target);
+    else target?.scrollIntoView({behavior:"smooth",block:"start"});
+  }));
   filmDetails(f.id).then(details=>{
     if(D.selected!==selected)return;
     selected.overview=details.overview||russianText(f.overview)||"Описания на русском и английском пока нет.";
     selected.overviewLang=details.overview?details.overviewLang:(russianText(f.overview)?"ru":"");
     selected.runtime=details.runtime;
-    selected.dirs=details.dirs;
+    selected.dirs=details.dirs;selected.dirsFull=details.dirsFull;
     selected.castFull=details.castFull;
     selected.budget=details.budget;
     selected.revenue=details.revenue;
@@ -879,6 +885,7 @@ function openFilm(f,placement="list",detailTarget=null){
       .catch(e=>{selected._oscarAwards=[];if(D.selected===selected)renderSelectedPanel();console.warn("[Kinoglobus] Награды Wikidata недоступны:",e);});
   }
 }
+window.KGOpenFilmFromRelated=(film,placement,detailTarget)=>openFilm(film,placement||"home-europe",detailTarget||null);
 
 /* ---------- рулетка с плёнкой прямо в подборке ---------- */
 const R={busy:false,token:0,raf:0,skip:false};
@@ -1104,7 +1111,7 @@ function renderHomeEditorial(){
       const selected=D.selected&&D.selected._placement==="home"&&String(D.selected.id)===String(featured.id)?D.selected:null;
       feature.innerHTML=homeFeatureMarkup(featured,d,selected);
       const credit=document.querySelector(`[data-home-director="${featured.id}"]`);
-      if(credit&&d.dirs.length)credit.textContent=[d.dirs[0],homeFilmYear(featured)].filter(Boolean).join(" · ");
+      if(credit&&d.dirs.length)credit.innerHTML=[d.dirsFull&&d.dirsFull[0]?kgPersonLink(d.dirsFull[0],"Режиссёр"):esc(d.dirs[0]),homeFilmYear(featured)].filter(Boolean).join(" · ");
     }).catch(e=>{homeEditorial.details.delete(featured.id);console.warn("[Kinoglobus] Не удалось загрузить данные фильма дня:",e);});
   }
 }
@@ -1116,7 +1123,7 @@ async function loadHomeDirector(id){
   try{
     const d=await filmDetails(f.id),target=document.querySelector(`[data-home-director="${f.id}"]`);
     homeEditorial.directorData.set(f.id,d);
-    if(target)target.textContent=[d.dirs[0],homeFilmYear(f)].filter(Boolean).join(" · ")||cname(f._cc);
+    if(target)target.innerHTML=[d.dirsFull&&d.dirsFull[0]?kgPersonLink(d.dirsFull[0],"Режиссёр"):esc(d.dirs[0]||cname(f._cc)),homeFilmYear(f)].filter(Boolean).join(" · ");
     const featureIndex=(homeDayNumber()-1)%homeEditorial.films.length;
     if(homeEditorial.films[featureIndex]?.id===f.id){
       homeEditorial.featureDetails=d;

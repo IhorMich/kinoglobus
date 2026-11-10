@@ -155,13 +155,6 @@
 <span class="font-micro-caption text-micro-caption px-2.5 py-0.5 rounded-full bg-surface-container-high/90 text-primary-fixed border border-primary-container/20 shadow-[0_0_10px_rgba(255,184,48,0.15)]" id="roulette-status-badge">104 страны онлайн</span>
 </div>
 </div>
-<!-- Interactive Swipe Gesture Floating Micro-Badge -->
-<div class="z-20 mb-1 flex items-center justify-center pointer-events-none gap-2">
-<div class="hint-float flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-lowest/85 backdrop-blur-md border border-primary-container/30 shadow-[0_0_14px_rgba(255,184,48,0.2)]">
-<span class="text-[13px]">✨</span>
-<span class="font-micro-caption text-[11px] font-semibold text-primary tracking-wide">Вниз — листай страницу · 5 быстрых свайпов по глобусу — поиск фильма</span>
-</div>
-</div>
 <!-- Photorealistic Earth Space Viewport Card -->
 <div class="relative w-full mx-auto rounded-2xl bg-black overflow-hidden flex flex-col items-center justify-between group h-[440px] select-none" id="globe-container">
 <!-- 1. STATIC DEEP SPACE BACKGROUND LAYER -->
@@ -1211,9 +1204,10 @@ rotatingGroup.add(flagPinGroup);
       hideFlagPost();
 
       // Vertical gestures scroll the page; horizontal gestures rotate the globe.
-      // Only five quick horizontal swipes in sequence launch film search.
-      let horizontalSwipeCount = 0, lastHorizontalSwipeAt = 0;
-      const QUICK_SWIPE_MAX_MS = 450, SEARCH_SWIPES_REQUIRED = 5, SWIPE_SEQUENCE_WINDOW_MS = 3500;
+      // Search needs five fast, consecutive swipes in the same direction.
+      let horizontalSwipeCount = 0, lastHorizontalSwipeAt = 0, horizontalSwipeDirection = 0, firstHorizontalSwipeAt = 0;
+      const QUICK_SWIPE_MAX_MS = 280, QUICK_SWIPE_MIN_DISTANCE = 70;
+      const SEARCH_SWIPES_REQUIRED = 5, SWIPE_GAP_MAX_MS = 850, SWIPE_SEQUENCE_WINDOW_MS = 2600;
       container.style.touchAction = 'pan-y';
       canvas.style.touchAction = 'pan-y';
       canvas.addEventListener('mousedown', (e) => {
@@ -1222,7 +1216,7 @@ rotatingGroup.add(flagPinGroup);
         previousMousePosition = { x: e.clientX, y: e.clientY };
       });
       canvas.addEventListener('touchstart', (e) => {
-        if (e.touches.length !== 1 || isSpinning) { touchGesture = null; return; }
+        if (e.touches.length !== 1 || isSpinning) { touchGesture = null; horizontalSwipeCount = 0; horizontalSwipeDirection = 0; firstHorizontalSwipeAt = 0; return; }
         const t = e.touches[0];
         isDragging = false;
         touchGesture = { startX: t.clientX, startY: t.clientY, lastX: t.clientX, lastY: t.clientY, startAt: performance.now(), axis: null };
@@ -1262,18 +1256,26 @@ rotatingGroup.add(flagPinGroup);
         const gesture = touchGesture;
         isDragging = false;
         touchGesture = null;
-        if (!gesture || gesture.axis !== 'x' || !e.changedTouches?.[0]) return;
-        if (e.type === 'touchcancel' || isSpinning) return;
-        const now = performance.now();
-        const swipeDistance = Math.abs(e.changedTouches[0].clientX - gesture.startX);
-        const swipeDuration = now - gesture.startAt;
-        // Slow horizontal drags still rotate the globe, but never count toward film search.
-        if (swipeDistance < 42 || swipeDuration > QUICK_SWIPE_MAX_MS) {
-          horizontalSwipeCount = 0;
-          lastHorizontalSwipeAt = 0;
+        if (!gesture || !e.changedTouches?.[0]) return;
+        if (gesture.axis !== 'x' || e.type === 'touchcancel' || isSpinning) {
+          horizontalSwipeCount = 0; horizontalSwipeDirection = 0; firstHorizontalSwipeAt = 0; lastHorizontalSwipeAt = 0;
           return;
         }
-        if (now - lastHorizontalSwipeAt > SWIPE_SEQUENCE_WINDOW_MS) horizontalSwipeCount = 0;
+        const now = performance.now();
+        const deltaX = e.changedTouches[0].clientX - gesture.startX;
+        const swipeDistance = Math.abs(deltaX), swipeDirection = Math.sign(deltaX);
+        const swipeDuration = now - gesture.startAt;
+        // Slow/short drags still rotate the globe, but never count toward search.
+        if (swipeDistance < QUICK_SWIPE_MIN_DISTANCE || swipeDuration > QUICK_SWIPE_MAX_MS) {
+          horizontalSwipeCount = 0; horizontalSwipeDirection = 0; firstHorizontalSwipeAt = 0; lastHorizontalSwipeAt = 0;
+          return;
+        }
+        const gapTooLong = lastHorizontalSwipeAt && now - lastHorizontalSwipeAt > SWIPE_GAP_MAX_MS;
+        const sequenceTooLong = firstHorizontalSwipeAt && now - firstHorizontalSwipeAt > SWIPE_SEQUENCE_WINDOW_MS;
+        if (gapTooLong || sequenceTooLong || (horizontalSwipeDirection && horizontalSwipeDirection !== swipeDirection)) {
+          horizontalSwipeCount = 0; horizontalSwipeDirection = 0; firstHorizontalSwipeAt = 0;
+        }
+        if (!horizontalSwipeCount) { horizontalSwipeDirection = swipeDirection; firstHorizontalSwipeAt = now; }
         lastHorizontalSwipeAt = now;
         horizontalSwipeCount++;
         if (typeof window.buzz === 'function') {
@@ -1281,8 +1283,7 @@ rotatingGroup.add(flagPinGroup);
           window.buzz(pulse);
         }
         if (horizontalSwipeCount >= SEARCH_SWIPES_REQUIRED) {
-          horizontalSwipeCount = 0;
-          lastHorizontalSwipeAt = 0;
+          horizontalSwipeCount = 0; horizontalSwipeDirection = 0; firstHorizontalSwipeAt = 0; lastHorizontalSwipeAt = 0;
           document.getElementById('btn-spin-roulette')?.click();
         }
       };
@@ -3171,7 +3172,7 @@ const CARD_HTML=`
 <div class="flex items-center gap-2 min-w-0">
 <div class="w-7 h-7 rounded-lg bg-surface-container flex items-center justify-center border border-primary-container/30 text-primary shadow-[0_0_8px_rgba(255,184,48,0.25)] flex-shrink-0"><span class="material-symbols-outlined text-[17px]">movie</span></div>
 <div class="flex flex-col min-w-0">
-<div class="flex items-center gap-1.5"><span class="font-label-sm text-label-sm font-bold text-on-surface uppercase tracking-wider">Кинолента 35-мм</span><span class="px-1.5 rounded-full bg-cinema-velvet-deep/70 text-secondary font-mono text-[10px] tracking-widest border border-secondary/25">24FPS</span></div>
+<div class="flex items-center gap-1.5"><span class="font-label-sm text-label-sm font-bold text-on-surface uppercase tracking-wider">Кинолента 35-мм</span></div>
 <span class="font-micro-caption text-[11px] text-text-muted truncate" id="discovery-timestamp">Крутите глобус, и здесь появится находка</span>
 </div></div>
 <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-high/90 border border-primary-container/25 shadow-sm flex-shrink-0"><span class="material-symbols-outlined text-primary-container text-[14px]">confirmation_number</span><span class="font-mono text-micro-caption text-primary-fixed font-semibold tracking-wide" id="reel-frame-counter">Кадр 00 / 00</span></div>
@@ -3848,10 +3849,10 @@ console.info("[Kinoglobus] Bridge v6 ready");
 
 <script src="mood-page.js?v=22"></script>
 <script src="mood-vibe-page.js?v=7"></script>
-<script src="oscar-page.js?v=22"></script>
+<script src="oscar-page.js?v=24"></script>
 <script src="oscar-design.js?v=11"></script>
-<script src="collections.js?v=41"></script>
-<script src="film-interactions.js?v=4"></script>
+<script src="collections.js?v=45"></script>
+<script src="film-interactions.js?v=7"></script>
 <script src="settings-page.js?v=2"></script>
 
 </body></html>

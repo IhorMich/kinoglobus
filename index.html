@@ -104,7 +104,7 @@
   </div>
 </section>
 
-<!-- 2. 'Удиви меня' Pill Matrix (Collapsible by mode) =-->
+<!-- 2. 'Удиви меня' Pill Matrix (Collapsible by mode) -->
 <section class="hidden flex flex-col space-y-2" id="surprise-levels-panel">
 <div class="flex items-center justify-between px-1">
 <span class="font-label-sm text-label-sm text-text-muted uppercase tracking-wider">Градус неожиданности</span>
@@ -2685,7 +2685,8 @@ async function filmDetails(id){
   if(!r.ok) throw new Error("details");
   const j=await r.json();
   const crew=j.credits&&j.credits.crew||[];
-  const dirs=crew.filter(c=>c.job==="Director"||c.job==="Режиссёр").map(c=>c.name);
+  const dirsFull=[...new Map(crew.filter(c=>c.job==="Director"||c.job==="Режиссёр").map(c=>[c.id,{id:c.id,name:c.name,job:c.job}])).values()];
+  const dirs=dirsFull.map(c=>c.name);
   const writers=[];
   crew.filter(c=>/screenplay|writer|сценари/i.test(c.job)).forEach(c=>{if(!writers.includes(c.name))writers.push(c.name);});
   const cast=(j.credits&&j.credits.cast||[]).slice(0,8).map(c=>c.name);
@@ -2707,7 +2708,7 @@ async function filmDetails(id){
   const rel=(j.release_dates&&j.release_dates.results)||[];
   const certOf=cc=>{const c=rel.find(x=>x.iso_3166_1===cc);const d=c&&(c.release_dates||[]).find(x=>String(x.certification||"").trim());return d?String(d.certification).trim():"";};
   const cert=certOf("RU")||certOf("US")||(rel.map(x=>certOf(x.iso_3166_1)).find(Boolean)||"");
-  return detailCache[id]={cert,runtime:j.runtime||0,dirs,writers:writers.slice(0,3),cast,castFull:(j.credits&&j.credits.cast||[]).slice(0,10).map(c=>({name:c.name,role:c.character||"",photo:c.profile_path||""})),genres,budget:j.budget||0,revenue:j.revenue||0,
+  return detailCache[id]={cert,runtime:j.runtime||0,dirs,dirsFull,writers:writers.slice(0,3),cast,castFull:(j.credits&&j.credits.cast||[]).slice(0,10).map(c=>({id:c.id,name:c.name,role:c.character||"",photo:c.profile_path||""})),genres,budget:j.budget||0,revenue:j.revenue||0,
     tagline:tg.text,taglineLang:tg.lang,overview:ov.text,overviewLang:ov.lang,
     release:j.release_date||"",originalTitle:j.original_title||"",originalLang:j.original_language||"",
     companies:(j.production_companies||[]).map(c=>c.name).filter(Boolean).slice(0,3),
@@ -2745,9 +2746,10 @@ function paintCrew(film){
     $("tagline").hidden=!matchingTagline;
     $("tagline").textContent=matchingTagline?d.tagline:"";
     const lines=[];
-    if(d.dirs.length) lines.push(`<div><b>${d.dirs.length>1?"Режиссёры":"Режиссёр"}:</b> ${esc(d.dirs.join(", "))}</div>`);
+    const personLink=p=>p&&p.id?`<button type="button" data-kg-person-id="${p.id}" data-kg-person-name="${esc(p.name)}" class="kg-person-link">${esc(p.name)}</button>`:esc(p&&p.name||"");
+    if(d.dirs.length) lines.push(`<div><b>${d.dirs.length>1?"Режиссёры":"Режиссёр"}:</b> ${(d.dirsFull||[]).length?d.dirsFull.map(personLink).join(", "):esc(d.dirs.join(", "))}</div>`);
     if(d.writers.length) lines.push(`<div><b>Сценарий:</b> ${esc(d.writers.join(", "))}</div>`);
-    if(d.cast.length) lines.push(`<div><b>В ролях:</b> ${esc(d.cast.join(", "))}</div>`);
+    if(d.cast.length) lines.push(`<div><b>В ролях:</b> ${(d.castFull||[]).length?d.castFull.slice(0,8).map(personLink).join(", "):esc(d.cast.join(", "))}</div>`);
     lines.push(`<div><b>Бюджет:</b> ${money(d.budget)}</div>`);
     lines.push(`<div><b>Сборы:</b> ${money(d.revenue)}</div>`);
     $("crew").innerHTML=lines.join("");
@@ -3151,6 +3153,7 @@ const CARD_HTML=`
 <div class="mt-2.5 pt-2 border-t border-surface-border/50" id="film-more">
 <div class="grid gap-1 font-body-sm text-body-sm mt-1" id="film-facts"></div>
 </div>
+<div id="discovery-related"></div>
 <div class="flex items-center justify-between mt-2.5 pt-2 border-t border-surface-border/50 gap-2">
 <div class="flex items-center gap-1.5 flex-wrap min-w-0"><span class="font-micro-caption text-[11px] text-text-muted" id="where-label" title="Данные: JustWatch через TMDB">Где смотреть:</span><span class="flex items-center gap-1.5 flex-wrap" id="where-list"></span></div>
 <button class="flex items-center gap-1 text-primary hover:text-primary-fixed font-micro-caption text-[11px] font-bold transition-colors cursor-pointer flex-shrink-0" id="btn-spin-another-film" title="Следующий фильм из этой страны" type="button"><span class="material-symbols-outlined text-[14px]">shuffle</span><span>Другой фильм</span></button>
@@ -3577,15 +3580,17 @@ function renderExtra(film,d){
   const card=(label,val,main)=>val?`<div class="p-2.5 rounded-xl bg-surface-container-high flex flex-col min-w-0">
     <span class="font-micro-caption text-micro-caption text-text-muted">${label}</span>
     <span class="font-label-md text-label-md ${main?"text-primary":"text-on-surface"} mt-0.5" style="overflow-wrap:anywhere">${esc(val)}</span></div>`:"";
-  const crew=[card(d.dirs.length>1?"Режиссёры":"Режиссёр",d.dirs.join(", "),true),card("Сценарий",d.writers.join(", "),false)].filter(Boolean);
+  const dirsHtml=(d.dirsFull||[]).length?d.dirsFull.map(p=>`<button type="button" data-kg-person-id="${p.id}" data-kg-person-name="${esc(p.name)}" data-kg-person-role="Режиссёр" class="kg-person-link">${esc(p.name)}</button>`).join(", "):esc((d.dirs||[]).join(", "));
+  const directorCard=dirsHtml?`<div class="p-2.5 rounded-xl bg-surface-container-high flex flex-col min-w-0"><span class="font-micro-caption text-micro-caption text-text-muted">${d.dirs.length>1?"Режиссёры":"Режиссёр"}</span><span class="font-label-md text-label-md text-primary mt-0.5" style="overflow-wrap:anywhere">${dirsHtml}</span></div>`:"";
+  const crew=[directorCard,card("Сценарий",d.writers.join(", "),false)].filter(Boolean);
 
   // актёры
-  const cast=(d.castFull||[]).map(c=>`<div class="flex-shrink-0 w-28 flex flex-col items-center text-center p-2 rounded-xl bg-surface-container-high">
+  const cast=(d.castFull||[]).map(c=>`<button type="button" data-kg-person-id="${c.id||""}" data-kg-person-name="${esc(c.name)}" data-kg-person-role="Актёр" class="kg-person-card flex-shrink-0 w-28 flex flex-col items-center text-center p-2 rounded-xl bg-surface-container-high" ${c.id?"":"disabled"}>
     <div class="w-14 h-14 rounded-full overflow-hidden mb-2 bg-surface-variant shadow-md flex items-center justify-center">
       ${c.photo?`<img class="w-full h-full object-cover" loading="lazy" alt="" src="https://image.tmdb.org/t/p/w185${c.photo}">`:'<span class="material-symbols-outlined text-text-muted">person</span>'}
     </div>
     <span class="font-label-sm text-label-sm text-on-surface font-semibold truncate w-full">${esc(c.name)}</span>
-    <span class="font-micro-caption text-micro-caption text-text-muted truncate w-full">${esc(c.role)}</span></div>`).join("");
+    <span class="font-micro-caption text-micro-caption text-text-muted truncate w-full">${esc(c.role)}</span></button>`).join("");
 
   const people=(crew.length||cast)?`<div class="flex flex-col gap-2">
     <div class="flex items-center justify-between"><h3 class="font-headline-sm text-headline-sm text-on-surface">Создатели и актёры</h3>
@@ -3593,6 +3598,8 @@ function renderExtra(film,d){
     ${crew.length?`<div class="grid ${crew.length>1?"grid-cols-2":"grid-cols-1"} gap-2">${crew.join("")}</div>`:""}
     ${cast?`<div class="flex gap-2.5 overflow-x-auto py-1" style="-webkit-overflow-scrolling:touch">${cast}</div>`:""}
   </div>`:"";
+  const related=document.getElementById("discovery-related");
+  if(related)related.innerHTML=`<section data-kg-related-films data-film-id="${film.id}" data-context-key="discovery-current" data-placement="discovery" class="flex flex-col gap-2 mt-3 pt-3 border-t border-surface-border-subtle"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary-container text-[20px]">movie_filter</span><h3 class="font-headline-sm text-headline-sm text-primary">Похожие фильмы</h3></div><div data-kg-related-list class="flex gap-2 overflow-x-auto pb-1"><span class="text-xs text-text-muted">Подбираем фильмы…</span></div></section>`;
 
   // остальные факты
   let when="";
@@ -3655,6 +3662,8 @@ $("film-trailer-close").addEventListener("click",closeFilmTrailer);
 const _show=window.show;
 window.show=function(cc,pool,film){
   _show(cc,pool,film);
+  if(window.KGFilmInteractions)window.KGFilmInteractions.registerPool("discovery-current",pool.films||[]);
+  window.KGShowRelatedDiscoveryFilm=related=>window.show(cc,pool,related);
   const w=gc(cc);
   set("hero-country-films",pool.oscar?"Оскар":pool.top1?"Топ-1":(pool.films.length+" в выборке"));
   set("hero-country-master","Ищем фильм…");
@@ -3694,6 +3703,7 @@ window.show=function(cc,pool,film){
     set("discovery-genres","· "+[g,d.runtime?d.runtime+" мин":""].filter(Boolean).join(" · "));
     if(d.votes){set("discovery-rating",Number(d.average).toFixed(1));setVotes(d.votes);}
     renderExtra(film,d);
+    requestAnimationFrame(()=>{const description=$("discovery-desc");if(window.KGScrollToFilmDescription)window.KGScrollToFilmDescription(description);});
   }).catch(()=>{
     if(!cur||cur.film.id!==film.id)return;
     set("discovery-desc",russianCopy(film.overview)||"Не удалось загрузить описание.");
@@ -3759,10 +3769,11 @@ console.info("[Kinoglobus] Bridge v6 ready");
 })();
 </script>
 
-<script src="mood-page.js?v=21"></script>
-<script src="mood-vibe-page.js?v=4"></script>
-<script src="oscar-page.js?v=16"></script>
-<script src="oscar-design.js?v=6"></script>
-<script src="collections.js?v=35"></script>
+<script src="mood-page.js?v=22"></script>
+<script src="mood-vibe-page.js?v=6"></script>
+<script src="oscar-page.js?v=19"></script>
+<script src="oscar-design.js?v=9"></script>
+<script src="collections.js?v=38"></script>
+<script src="film-interactions.js?v=2"></script>
 
 </body></html>

@@ -410,6 +410,7 @@ ${window.KGCinemaReel.render({shellClass:"kgo-reel relative w-full rounded-xl bg
     panel.scrollIntoView({behavior:"smooth",block:"center"});
     const complete=()=>{
       if(token!==state.spinToken||!panel.isConnected)return;
+      window.KGCinemaReel?.presentTicket(panel,film,{country:(film.origin_country||[]).map(cc=>deps.countryName?deps.countryName(cc):cc).filter(Boolean).join(" · ")||"Оскар"});
       window.KGCinemaReel?.updateIMAX(panel.querySelector(".kg-imax-stage"),film,{country:(film.origin_country||[]).map(cc=>deps.countryName?deps.countryName(cc):cc).filter(Boolean).join(" · ")||"Оскар",state:"ФИЛЬМ В КАДРЕ"});
       state.spinning=false;state.skipSpin=false;
       cells.forEach((cell,index)=>{cell.classList.remove("spin");cell.classList.toggle("chosen",index===winnerIndex);});

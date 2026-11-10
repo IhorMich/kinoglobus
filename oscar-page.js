@@ -104,7 +104,7 @@
 <div class="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-cinema-amber-glow blur-3xl pointer-events-none"></div><div class="absolute -bottom-16 -left-12 w-44 h-44 rounded-full bg-cinema-velvet-glow blur-3xl pointer-events-none"></div>
 <div class="relative flex flex-col items-center text-center">
 <div class="relative w-full h-44 rounded-2xl overflow-hidden mb-space-md shadow-xl">
-<img src="assets/oscar/oscar-hero.jpg" alt="Статуэтка Оскара" class="w-full h-full object-cover object-center">
+src="/kinoglobus/assets/oscar/oscar-hero.jpg" alt="Статуэтка Оскара" class="w-full h-full object-cover object-center">
 <div class="absolute inset-0 bg-gradient-to-t from-canvas-obsidian/90 via-canvas-obsidian/40 to-transparent"></div>
 <div class="absolute bottom-3 left-0 right-0 flex flex-col items-center">
 <span class="px-2.5 py-0.5 rounded-full bg-surface-panel/90 text-primary font-micro-caption text-micro-caption font-semibold tracking-wider mb-1" id="oscar-age">ОСКАР</span>

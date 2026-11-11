@@ -273,6 +273,38 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
     if(launchLabel)launchLabel.textContent="Плёнка крутится…";
     if(!panel){state.spinning=false;return;}
     panel.innerHTML=`<div class="relative overflow-hidden rounded-2xl bg-surface-panel p-4 shadow-xl"><div class="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-cinema-amber-glow blur-3xl pointer-events-none"></div><h2 class="relative font-headline-sm text-headline-sm text-primary mb-3">Кинорулетка настроения</h2>${window.KGCinemaReel.render({content:sequence.map(item=>`<div class="kgr-cell">${item.poster_path?`<img alt="${esc(item.title||item.original_title)}" draggable="false" src="${poster(item.poster_path)}">`:`<div class="nop">${esc(item.title||item.original_title)}</div>`}<span class="yr">${(item.release_date||"").slice(0,4)}</span></div>`).join(""),frameAttr:"data-mood-reel-frame"})}<div class="flex items-center justify-between px-1"><span data-mood-frame-counter class="font-mono text-micro-caption text-primary-fixed font-semibold tracking-wide">Кадр -- / ${String(pool.length).padStart(2,"0")}</span><button type="button" data-mood-skip class="font-micro-caption text-micro-caption text-text-muted hover:text-primary underline">Пропустить</button></div><div id="${winnerDetailId}"></div></div>`;
+    if(window.KGCinemaReel?.isProjectionMode?.()){
+      panel.scrollIntoView({behavior:"smooth",block:"center"});if(typeof window.startFilmReelSound==="function")window.startFilmReelSound();
+      const landed=await window.KGCinemaReel.spinProjectionTrack(panel,sequence,film,{duration:4600,reducedMotion:prefersReducedMotion()||!others.length,cancelled:()=>token!==state.spinToken||!panel.isConnected,shouldSkip:()=>state.skipSpin,meta:{country:film._cc||"КИНОПОИСК"},onFrame:(_f,index)=>{const c=activeElement(root,"[data-mood-frame-counter]");if(c)c.textContent="Кадр "+String(index+1).padStart(2,"0")+" / "+String(sequence.length).padStart(2,"0");}});
+      if(typeof window.stopFilmReelSound==="function")window.stopFilmReelSound();if(!landed||token!==state.spinToken||!panel.isConnected){state.spinning=false;if(launchButton)launchButton.disabled=false;return;}
+      state.spinning=false;state.skipSpin=false;const c=activeElement(root,"[data-mood-frame-counter]");if(c)c.textContent="Фильм "+String(pool.indexOf(film)+1).padStart(2,"0")+" / "+String(pool.length).padStart(2,"0");
+      if(launchButton)launchButton.disabled=false;if(launchLabel)launchLabel.textContent="Крутить ещё раз";
+      const skip=activeElement(root,"[data-mood-skip]");if(skip)skip.hidden=true;deps.openFilm({...film,_kgRelatedPool:pool},"mood",winnerDetailId);
+      requestAnimationFrame(()=>{const d=document.getElementById(winnerDetailId);if(d&&moodId===state.mood)window.scrollTo({top:Math.max(0,window.scrollY+d.getBoundingClientRect().top-96),behavior:"smooth"});});return;
+    }
+    if(window.KGCinemaReel?.isCassetteMode?.()){
+      panel.scrollIntoView({behavior:"smooth",block:"center"});if(typeof window.startFilmReelSound==="function")window.startFilmReelSound();
+      const onOpen=f=>deps.openFilm({...f,_kgRelatedPool:pool},"mood",winnerDetailId);
+      const landed=await window.KGCinemaReel.spinCassetteDeck(panel,pool,sequence,film,{duration:4600,reducedMotion:prefersReducedMotion()||!others.length,cancelled:()=>token!==state.spinToken||!panel.isConnected,shouldSkip:()=>state.skipSpin,onOpen,onFrame:(_f,index)=>{const c=activeElement(root,"[data-mood-frame-counter]");if(c)c.textContent="Фильм "+String(index+1).padStart(2,"0")+" / "+String(sequence.length).padStart(2,"0");}});
+      if(typeof window.stopFilmReelSound==="function")window.stopFilmReelSound();if(!landed||token!==state.spinToken||!panel.isConnected){state.spinning=false;if(launchButton)launchButton.disabled=false;return;}
+      state.spinning=false;state.skipSpin=false;const c=activeElement(root,"[data-mood-frame-counter]");if(c)c.textContent="Фильм "+String(pool.indexOf(film)+1).padStart(2,"0")+" / "+String(pool.length).padStart(2,"0");
+      if(launchButton)launchButton.disabled=false;if(launchLabel)launchLabel.textContent=`Крутить ещё раз (${currentRuntime().button})`;
+      const skip=activeElement(root,"[data-mood-skip]");if(skip)skip.hidden=true;onOpen(film);
+      requestAnimationFrame(()=>{const d=document.getElementById(winnerDetailId);if(d&&moodId===state.mood)window.scrollTo({top:Math.max(0,window.scrollY+d.getBoundingClientRect().top-96),behavior:"smooth"});});return;
+    }
+    if(window.KGCinemaReel?.isTicketMode?.()){
+      panel.scrollIntoView({behavior:"smooth",block:"center"});
+      if(typeof window.startFilmReelSound==="function")window.startFilmReelSound();
+      const landed=await window.KGCinemaReel.animateTicketDeck(panel,sequence,film,{duration:4600,reducedMotion:prefersReducedMotion()||!others.length,meta:{country:film._cc||"КИНОПОИСК"},cancelled:()=>token!==state.spinToken||!panel.isConnected,shouldSkip:()=>state.skipSpin,onFrame:(_candidate,index)=>{const c=activeElement(root,"[data-mood-frame-counter]");if(c)c.textContent="Билет "+String(index+1).padStart(2,"0")+" / "+String(sequence.length).padStart(2,"0");}});
+      if(typeof window.stopFilmReelSound==="function")window.stopFilmReelSound();
+      if(!landed||token!==state.spinToken||!panel.isConnected){state.spinning=false;if(launchButton)launchButton.disabled=false;return;}
+      window.KGCinemaReel.presentTicket(panel,film,{country:film._cc||"КИНОПОИСК"});state.spinning=false;state.skipSpin=false;
+      const c=activeElement(root,"[data-mood-frame-counter]");if(c)c.textContent="Билет "+String(pool.indexOf(film)+1).padStart(2,"0")+" / "+String(pool.length).padStart(2,"0");
+      if(launchButton)launchButton.disabled=false;if(launchLabel)launchLabel.textContent=`Крутить ещё раз (${currentRuntime().button})`;
+      const skip=activeElement(root,"[data-mood-skip]");if(skip)skip.hidden=true;
+      deps.openFilm({...film,_kgRelatedPool:pool},"mood",winnerDetailId);
+      requestAnimationFrame(()=>{const d=document.getElementById(winnerDetailId);if(d&&moodId===state.mood)window.scrollTo({top:Math.max(0,window.scrollY+d.getBoundingClientRect().top-96),behavior:"smooth"});});return;
+    }
     const run=panel.querySelector(".kgr-run"),cells=[...run.children],viewport=panel.querySelector(".kgr-win"),frame=panel.querySelector("[data-mood-reel-frame]"),skip=panel.querySelector("[data-mood-skip]");
     const offsetFor=index=>reelPadding+index*reelStep+reelCellWidth/2-viewport.clientWidth/2;
     const start=offsetFor(0),finish=offsetFor(winnerIndex),total=pool.length;

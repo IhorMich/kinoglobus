@@ -45,7 +45,7 @@
       0% { transform: translateX(-100%); }
       100% { transform: translateX(200%); }
     }
-  .kg-cassette-active #film-details{display:none!important}</style><script src="cinema-reel.js?v=20"></script></head><body class="bg-canvas-obsidian font-body-md text-on-surface flex flex-col min-h-screen relative">
+  .kg-cassette-active #film-details{display:none!important}</style><script src="cinema-reel.js?v=22"></script></head><body class="bg-canvas-obsidian font-body-md text-on-surface flex flex-col min-h-screen relative">
 <!-- Atmospheric Living Theater Background Layer with Floating Posters -->
 <div class="fixed inset-0 pointer-events-none overflow-hidden -z-10 select-none">
 <!-- Ambient Projector Velvet & Amber Glow Orbs -->
@@ -350,7 +350,7 @@
     <div id="crew" hidden></div><p id="tagline" hidden></p><p id="over"></p>
     <div id="player" hidden></div><p id="ytnote" hidden><a id="ytlink"></a></p>
   </div>
-  <dialog id="settings"><select id="snd"><option value="roulette">roulette</option><option value="bells">bells</option><option value="arcade">arcade</option><option value="casino">casino</option><option value="marimba">marimba</option><option value="space">space</option><option value="film">film</option><option value="orchestra">orchestra</option><option value="jazz">jazz</option><option value="synth">synth</option><option value="chimes">chimes</option><option value="off">off</option></select></dialog>
+  <dialog id="settings"><select id="snd"><option value="roulette">roulette</option><option value="bells">bells</option><option value="arcade">arcade</option><option value="casino">casino</option><option value="marimba">marimba</option><option value="space">space</option><option value="film">film</option><option value="orchestra">orchestra</option><option value="jazz">jazz</option><option value="synth">synth</option><option value="chimes">chimes</option><option value="off">off</option></select><select id="reel-snd"><option value="projector">35 мм · проектор</option><option value="imax">IMAX · низкий гул</option><option value="camera">Кинокамера · механика</option><option value="tape">Магнитная плёнка</option><option value="premiere">Премьерный зал</option><option value="off">Без звука</option></select></dialog>
   <dialog id="journey"><div id="jhead"></div><i id="jfill"></i><div id="mapbox"></div><div id="jstats"></div><div id="jopen"></div><div id="jclosed"></div><span id="jclosedsum"></span><div id="jfilms"></div><span id="jopenT"></span><span id="jfilmsT"></span><span id="minfo"></span><span id="jtitle"></span></dialog>
   <span id="brand"></span>
   <span id="topNote" hidden></span><span id="oscarNote" hidden></span>
@@ -1764,7 +1764,8 @@ let fx=store.get("fx",true);
 let showAdult=store.get("showAdult",true);
 let filmSpin=store.get("filmSpin",true);
 const savedReelStyle=store.get("reelStyle","35mm");
-let reelStyle=["70mm","ticket","cassette","projection"].includes(savedReelStyle)?savedReelStyle:"35mm";
+let reelStyle=["70mm","cassette","projection"].includes(savedReelStyle)?savedReelStyle:"35mm";
+if(savedReelStyle!==reelStyle)store.set("reelStyle",reelStyle);
 let playMode=store.get("playMode","filters")==="surprise"?"surprise":"filters";
 let surprise=store.get("surprise","light");
 if(!SURPRISE_NOTE[surprise]) surprise="light";
@@ -2243,6 +2244,15 @@ async function certCandidates(cc){
 let ac=null;
 function audio(){try{if(!ac)ac=new(window.AudioContext||window.webkitAudioContext)();if(ac.state==="suspended")ac.resume();}catch(e){}}
 let snd=store.get("snd","roulette");
+let reelSnd=["projector","imax","camera","tape","premiere","off"].includes(store.get("reelSnd","projector"))?store.get("reelSnd","projector"):"projector";
+window.getCinemaReelSound=()=>reelSnd;
+window.setCinemaReelSound=value=>{
+  const wasPlaying=!!filmReelNodes||reelMotionLevel>.005,wasPreviewing=!!reelSoundPreviewTimer;
+  if(reelSoundPreviewTimer){clearTimeout(reelSoundPreviewTimer);reelSoundPreviewTimer=0;}
+  reelSnd=["projector","imax","camera","tape","premiere","off"].includes(value)?value:"projector";
+  store.set("reelSnd",reelSnd);
+  if(wasPlaying){startFilmReelSound();if(wasPreviewing&&filmReelNodes)reelSoundPreviewTimer=setTimeout(()=>{reelSoundPreviewTimer=0;stopFilmReelSound();},1800);}
+};
 const PENTA=[523.25,587.33,659.25,783.99,880,1046.5,1174.66,1318.5];
 function tone(f,d,v,type,delay){
   if(!ac)return;
@@ -2310,28 +2320,31 @@ function sWin(){
   notes.forEach((f,i)=>{tone(f,len,0.1,"sine",i*gap);tone(f*2,len*0.6,0.03,"sine",i*gap);});
 }
     // ---- 35mm film projector loop (для плёнки) ----
-let filmReelNodes = null;   // { sources, gains, hum, humG, noiseG, level, timer }
+let filmReelNodes = null;   // { sources, gains, hum, profile, level, timer }
+let reelMotionLevel=0;
 // s: 0..1 — «скорость» ленты. Гул, шипение и щелчки затихают и замедляются вместе с ней.
 function setFilmReelLevel(s) {
-  if (!filmReelNodes || !ac) return;
   s = Math.max(0, Math.min(1, s));
+  reelMotionLevel=s;
+  if (!filmReelNodes || !ac) return;
   filmReelNodes.level = s;
   try {
     const t = ac.currentTime;
-    filmReelNodes.humG.gain.setTargetAtTime(Math.max(0.0001, 0.045 * s), t, 0.05);
-    filmReelNodes.noiseG.gain.setTargetAtTime(Math.max(0.0001, 0.028 * s), t, 0.05);
-    filmReelNodes.hum.frequency.setTargetAtTime(30 + 18 * s, t, 0.05);
+    filmReelNodes.gains.forEach(({node,base})=>node.gain.setTargetAtTime(Math.max(0.0001,base*s),t,0.07));
+    if(filmReelNodes.hum)filmReelNodes.hum.frequency.setTargetAtTime(filmReelNodes.profile.motorHz*(0.84+0.16*s),t,0.08);
   } catch (e) {}
 }
+document.addEventListener("kg:reel-motion",event=>setFilmReelLevel(event.detail?.level??1));
 function stopFilmReelSound() {
+  reelMotionLevel=0;
   if (!filmReelNodes) return;
   try {
     const t = (ac && ac.currentTime) || 0;
-    filmReelNodes.gains.forEach(g => {
+    filmReelNodes.gains.forEach(({node}) => {
       try {
-        g.gain.cancelScheduledValues(t);
-        g.gain.setValueAtTime(g.gain.value, t);
-        g.gain.linearRampToValueAtTime(0.0001, t + 0.18);
+        node.gain.cancelScheduledValues(t);
+        node.gain.setValueAtTime(node.gain.value, t);
+        node.gain.linearRampToValueAtTime(0.0001, t + 0.18);
       } catch (e) {}
     });
     const nodes = filmReelNodes;
@@ -2342,74 +2355,51 @@ function stopFilmReelSound() {
   if (filmReelNodes.timer) clearTimeout(filmReelNodes.timer);
   filmReelNodes = null;
 }
+let reelSoundPreviewTimer=0;
 function startFilmReelSound() {
-  if (snd === "off") return;
+  if(reelSoundPreviewTimer){clearTimeout(reelSoundPreviewTimer);reelSoundPreviewTimer=0;}
+  stopFilmReelSound();
+  if (reelSnd === "off") return;
   audio();
   if (!ac) return;
-  stopFilmReelSound();
   try {
     const t0 = ac.currentTime;
     const sources = [];
     const gains = [];
-
-    // 1) Низкий гул мотора проектора
-    const hum = ac.createOscillator();
-    const humG = ac.createGain();
-    hum.type = "sawtooth";
-    hum.frequency.value = 48;
-    humG.gain.setValueAtTime(0.0001, t0);
-    humG.gain.linearRampToValueAtTime(0.045, t0 + 0.12);
-    const humF = ac.createBiquadFilter();
-    humF.type = "lowpass";
-    humF.frequency.value = 180;
-    hum.connect(humF);
-    humF.connect(humG);
-    humG.connect(ac.destination);
-    hum.start(t0);
-    sources.push(hum);
-    gains.push(humG);
-
-    // 2) Шипение плёнки (петля шума)
-    const nLen = Math.floor(ac.sampleRate * 0.5);
-    const nBuf = ac.createBuffer(1, nLen, ac.sampleRate);
-    const nd = nBuf.getChannelData(0);
-    for (let i = 0; i < nLen; i++) nd[i] = (Math.random() * 2 - 1) * 0.6;
-    const noise = ac.createBufferSource();
-    noise.buffer = nBuf;
-    noise.loop = true;
-    const noiseF = ac.createBiquadFilter();
-    noiseF.type = "bandpass";
-    noiseF.frequency.value = 2200;
-    noiseF.Q.value = 0.7;
-    const noiseG = ac.createGain();
-    noiseG.gain.setValueAtTime(0.0001, t0);
-    noiseG.gain.linearRampToValueAtTime(0.028, t0 + 0.15);
-    noise.connect(noiseF);
-    noiseF.connect(noiseG);
-    noiseG.connect(ac.destination);
-    noise.start(t0);
-    sources.push(noise);
-    gains.push(noiseG);
-
-    // 3) Перфорация / зубья — ритмичные щелчки (~12 в сек в начале, реже и тише по мере замедления ленты)
-    const nodes = { sources, gains, hum, humG, noiseG, level: 1, timer: 0 };
+    const profiles={
+      projector:{motorHz:51,motor:"sawtooth",motorGain:.028,noiseHz:1850,noiseGain:.014,noiseType:"bandpass",tick:86,tickTone:72,tickShape:"triangle"},
+      imax:{motorHz:35,motor:"sine",motorGain:.042,noiseHz:420,noiseGain:.012,noiseType:"lowpass",tick:145,tickTone:45,tickShape:"sine"},
+      camera:{motorHz:68,motor:"square",motorGain:.013,noiseHz:2600,noiseGain:.012,noiseType:"highpass",tick:105,tickTone:112,tickShape:"triangle",wow:3.1},
+      tape:{motorHz:58,motor:"triangle",motorGain:.025,noiseHz:720,noiseGain:.02,noiseType:"lowpass",tick:160,tickTone:60,tickShape:"triangle",wow:1.7},
+      premiere:{motorHz:42,motor:"sine",motorGain:.016,noiseHz:1500,noiseGain:.008,noiseType:"bandpass",tick:195,tickTone:82,tickShape:"sine",chord:[55,82.41,110]}
+    };
+    const profile=profiles[reelSnd]||profiles.projector;
+    const addGain=(node,base)=>{const gain=ac.createGain();gain.gain.setValueAtTime(.0001,t0);gain.gain.linearRampToValueAtTime(base*.78,t0+.16);node.connect(gain);gain.connect(ac.destination);gains.push({node:gain,base});return gain;};
+    const hum=ac.createOscillator(),humFilter=ac.createBiquadFilter();hum.type=profile.motor;hum.frequency.value=profile.motorHz;humFilter.type="lowpass";humFilter.frequency.value=profile.noiseType==="lowpass"?850:profile.motorGain<.02?260:190;hum.connect(humFilter);addGain(humFilter,profile.motorGain);hum.start(t0);sources.push(hum);
+    const nLen=Math.floor(ac.sampleRate*.6),nBuf=ac.createBuffer(1,nLen,ac.sampleRate),nd=nBuf.getChannelData(0);for(let i=0;i<nLen;i++)nd[i]=(Math.random()*2-1)*.48;
+    const noise=ac.createBufferSource(),noiseFilter=ac.createBiquadFilter();noise.buffer=nBuf;noise.loop=true;noiseFilter.type=profile.noiseType;noiseFilter.frequency.value=profile.noiseHz;noiseFilter.Q.value=profile.noiseType==="bandpass"?1.1:.7;noise.connect(noiseFilter);addGain(noiseFilter,profile.noiseGain);noise.start(t0);sources.push(noise);
+    if(profile.wow){const lfo=ac.createOscillator(),depth=ac.createGain();lfo.frequency.value=profile.wow;depth.gain.value=profile.wow===3.1?3.5:1.8;lfo.connect(depth);depth.connect(hum.detune);lfo.start(t0);sources.push(lfo);}
+    (profile.chord||[]).forEach((frequency,index)=>{const pad=ac.createOscillator(),padFilter=ac.createBiquadFilter();pad.type="sine";pad.frequency.value=frequency;padFilter.type="lowpass";padFilter.frequency.value=240;pad.connect(padFilter);addGain(padFilter,.009-index*.0015);pad.start(t0);sources.push(pad);});
+    const nodes = { sources, gains, hum, profile, level: 0, timer: 0 };
     const tick = () => {
       if (filmReelNodes !== nodes || !ac) return;
       const s = nodes.level;
-      try {
-        click((0.22 + Math.random() * 0.12) * s, 700 + Math.random() * 500);
-        // лёгкий «тук» механизма
-        tone(70 + Math.random() * 20, 0.03, Math.max(0.0001, 0.035 * s), "triangle");
-      } catch (e) {}
-      nodes.timer = setTimeout(tick, 80 / Math.max(0.25, s));
+      if(s>.035){
+        const clickLevel=s*(reelSnd==="camera" ? .34 : reelSnd==="imax" ? .12 : .22);
+        click(clickLevel,profile.noiseHz*.7+Math.random()*profile.noiseHz*.35);
+        tone(profile.tickTone+Math.random()*8,.035,Math.max(.0001,s*(reelSnd==="premiere" ? .018 : .026)),profile.tickShape);
+      }
+      nodes.timer = setTimeout(tick, profile.tick / Math.max(.28,.35+.65*s));
     };
-    nodes.timer = setTimeout(tick, 80);
-
     filmReelNodes = nodes;
+    setFilmReelLevel(reelMotionLevel);
+    nodes.timer = setTimeout(tick, profile.tick);
   } catch (e) {
     filmReelNodes = null;
   }
 }
+function previewFilmReelSound(){startFilmReelSound();if(filmReelNodes){setFilmReelLevel(.82);reelSoundPreviewTimer=setTimeout(()=>{reelSoundPreviewTimer=0;stopFilmReelSound();},1800);}}
+window.previewFilmReelSound=previewFilmReelSound;
 function preview(){audio();let i=0;const id=setInterval(()=>{sTick(i/10);if(++i>5){clearInterval(id);setTimeout(sWin,150);}},120);}
 function buzz(p){if(fx&&navigator.vibrate){try{navigator.vibrate(p)}catch(e){}}}
 function fxLabel(){$("fx").textContent=fx?"Вкл":"Выкл";}
@@ -2618,7 +2608,6 @@ async function filmReel70mm(pool,film,cc,warm){
   startFilmReelSound();
   await new Promise(resolve=>window.KGCinemaReel.spin({run,root:stage,frame,startX,endX:targetLeft,duration:T,stepWidth:STEP,chosenIndex:NEED,spinningClass:"spinning",mapProgress:p=>skipRequested?1:p,
     onStep:row=>{const candidate=sequence[Math.max(0,Math.min(NEED,row))]||film;window.KGCinemaReel.updateIMAX(stage,candidate,{country,state:"ПРОЕКЦИЯ ИДЁТ"});if(counter)counter.textContent="КАДР "+String(Math.max(1,row+1)).padStart(2,"0")+" / "+String(pool.films.length).padStart(2,"0");buzz(6);},
-    onProgress:(_p,_x,left)=>{if(left<200)setFilmReelLevel(left/200);},
     onFinish:resolve,onCancel:resolve
   }));
   stopFilmReelSound();
@@ -3230,7 +3219,7 @@ document.head.appendChild(st);
 // ---------- Визуальный режим киноленты: обычная 35-мм или двойная бобина 70-мм IMAX ----------
 function mainReelMarkup(){
   const common={shellClass:"relative w-full rounded-xl bg-canvas-obsidian border border-primary-container/30 overflow-hidden shadow-[inset_0_2px_12px_rgba(0,0,0,0.95)] my-2 p-1",prefix:"film-reel",windowId:"film-reel-window",trackId:"film-reel-track",runClass:"run",frameId:"film-center-frame",includeRun:false};
-  return window.KGCinemaReel.render(reelStyle==="70mm"?{...common,mode:"70mm",rootId:"kg-imax-stage-card",state:"ГОТОВ К ПРОЕКЦИИ"}:reelStyle==="ticket"?{...common,mode:"ticket"}:reelStyle==="cassette"?{...common,mode:"cassette"}:reelStyle==="projection"?{...common,mode:"projection"}:common);
+  return window.KGCinemaReel.render(reelStyle==="70mm"?{...common,mode:"70mm",rootId:"kg-imax-stage-card",state:"ГОТОВ К ПРОЕКЦИИ"}:reelStyle==="cassette"?{...common,mode:"cassette"}:reelStyle==="projection"?{...common,mode:"projection"}:common);
 }
 // ---------- Новая секция «Кинолента» (подменяет старую карточку) ----------
 const CARD_HTML=`
@@ -3239,7 +3228,7 @@ const CARD_HTML=`
 <div class="flex items-center gap-2 min-w-0">
 <div class="w-7 h-7 rounded-lg bg-surface-container flex items-center justify-center border border-primary-container/30 text-primary shadow-[0_0_8px_rgba(255,184,48,0.25)] flex-shrink-0"><span class="material-symbols-outlined text-[17px]">movie</span></div>
 <div class="flex flex-col min-w-0">
-<div class="flex items-center gap-1.5"><span class="font-label-sm text-label-sm font-bold text-on-surface uppercase tracking-wider" id="reel-format-title">${reelStyle==="70mm"?"Кинолента 70-мм IMAX":reelStyle==="ticket"?"Золотой билет":reelStyle==="cassette"?"Кассетная дека · 3D Cover Flow":reelStyle==="projection"?"Проекционный тракт · 35 мм":"Кинолента 35-мм"}</span></div>
+<div class="flex items-center gap-1.5"><span class="font-label-sm text-label-sm font-bold text-on-surface uppercase tracking-wider" id="reel-format-title">${reelStyle==="70mm"?"Кинолента 70-мм IMAX":reelStyle==="cassette"?"Кассетная дека · 3D Cover Flow":reelStyle==="projection"?"Проекционный тракт · 35 мм":"Кинолента 35-мм"}</span></div>
 <span class="font-micro-caption text-[11px] text-text-muted truncate" id="discovery-timestamp">Крутите глобус, и здесь появится находка</span>
 </div></div>
 <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-high/90 border border-primary-container/25 shadow-sm flex-shrink-0"><span class="material-symbols-outlined text-primary-container text-[14px]">confirmation_number</span><span class="font-mono text-micro-caption text-primary-fixed font-semibold tracking-wide" id="reel-frame-counter">Кадр 00 / 00</span></div>
@@ -3516,7 +3505,6 @@ function mountRun(list,idx,cls){
 // Пустая плёнка: рамка по центру видна сразу, ещё до первого поиска
 function renderBlank(){
   document.body.classList.toggle("kg-cassette-active",reelStyle==="cassette");
-  window.KGCinemaReel.prepareTicket($("film-reel-host"));
   strip={list:[],pool:null,cc:"",idx:-1,busy:false};
   if(!["ticket","cassette","projection"].includes(reelStyle))mountRun(new Array(9).fill(null),4,"");
   if(reelStyle==="cassette")window.KGCinemaReel.mountCassetteDeck($("film-reel-host"),[],null,{onOpen:f=>openFilm(f,"home")});
@@ -3528,21 +3516,18 @@ function renderStatic(pool,film,cc){      // готовая лента без п
   let i=list.findIndex(f=>f.id===film.id);
   if(i<0){list=[film];i=0;}
   strip={list,pool,cc,idx:i,busy:false};
-  if(reelStyle==="ticket")window.KGCinemaReel.prepareTicket($("film-reel-host"));
-  else if(reelStyle==="cassette")window.KGCinemaReel.mountCassetteDeck($("film-reel-host"),list,film,{onOpen:f=>openFilm(f,"home"),onRandom:f=>openFilm(f,"home")});
+  if(reelStyle==="cassette")window.KGCinemaReel.mountCassetteDeck($("film-reel-host"),list,film,{onOpen:f=>openFilm(f,"home"),onRandom:f=>openFilm(f,"home")});
   else if(reelStyle==="projection")window.KGCinemaReel.mountProjectionTrack($("film-reel-host"),film,{country:cname(cc)});
   else mountRun(list,i,"chosen");
   set("reel-frame-counter",`Кадр ${pad(i+1)} / ${list.length}`);
-  if(reelStyle==="ticket")window.KGCinemaReel.presentTicket($("film-reel-host"),film,{country:cname(cc)});
-  else window.KGCinemaReel.prepareTicket($("film-reel-host"));
 }
 window.setCinemaReelStyle=function(style){
-  const next=["70mm","ticket","cassette","projection"].includes(style)?style:"35mm";
+  const next=["70mm","cassette","projection"].includes(style)?style:"35mm";
   if(next===reelStyle)return;
   stopReel();
   reelStyle=next;store.set("reelStyle",next);
   filmSpin=true;store.set("filmSpin",true);filmLabel();
-  const title=$("reel-format-title");if(title)title.textContent=next==="70mm"?"Кинолента 70-мм IMAX":next==="ticket"?"Золотой билет":next==="cassette"?"Кассетная дека · 3D Cover Flow":next==="projection"?"Проекционный тракт · 35 мм":"Кинолента 35-мм";
+  const title=$("reel-format-title");if(title)title.textContent=next==="70mm"?"Кинолента 70-мм IMAX":next==="cassette"?"Кассетная дека · 3D Cover Flow":next==="projection"?"Проекционный тракт · 35 мм":"Кинолента 35-мм";
   const host=$("film-reel-host");if(!host)return;
   host.innerHTML=mainReelMarkup();
   trackEl=$("film-reel-track");frameEl=$("film-center-frame");runEl=null;
@@ -3664,10 +3649,7 @@ async function spinReel(pool,film,cc){
         if(progress>.6)buzz(7);
         if(imaxStage&&seq.length){const candidate=seq[Math.min(NEED,Math.max(0,row))]||film;window.KGCinemaReel.updateIMAX(imaxStage,candidate,{country:cname(cc),state:"ПРОЕКЦИЯ ИДЁТ"});}
       },
-      onProgress:(_progress,_x,remaining)=>{
-        if(!cur||cur.film.id!==film.id){spinCancel?.();return;}
-        if(remaining<200)setFilmReelLevel(remaining/200);
-      },
+      onProgress:()=>{if(!cur||cur.film.id!==film.id)spinCancel?.();},
       onFinish:()=>resolve(true),
       onCancel:()=>resolve(false)
     });
@@ -3929,12 +3911,12 @@ console.info("[Kinoglobus] Bridge v6 ready");
 
 <script src="mood-page.js?v=30"></script>
 <script src="mood-vibe-page.js?v=15"></script>
-<script src="oscar-page.js?v=30"></script>
+<script src="oscar-page.js?v=31"></script>
 <script src="oscar-design.js?v=12"></script>
-<script src="collections.js?v=57"></script>
+<script src="collections.js?v=58"></script>
 <script src="film-interactions.js?v=12"></script>
 <script src="legal-watch.js?v=2"></script>
 <script src="global-search.js?v=2"></script>
-<script src="settings-page.js?v=15"></script>
+<script src="settings-page.js?v=17"></script>
 
 </body></html>

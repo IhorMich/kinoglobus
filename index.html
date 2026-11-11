@@ -690,7 +690,7 @@
     let watchedCountryIds = new Set();
     let countryOutlineGroup = null;
     const countryOutlineByCode = new Map();
-    let countryOutlineMaterial = null;
+    let countryHaloMaterial = null;
 
     function normalizeNear(lon, reference) {
       return reference + ((((lon - reference) % 360) + 540) % 360 - 180);
@@ -715,28 +715,25 @@
       }
       return "";
     }
-    function addCountryOutline(feature) {
+    function addCountryHalo(feature) {
       if (!countryOutlineGroup || !window.THREE) return;
       const code=feature.properties.iso_a2, group=new THREE.Group();
-      group.name="watched-country-"+code;
-      const geometry=feature.geometry;
-      const polygons=geometry.type==="Polygon"?[geometry.coordinates]:geometry.coordinates;
-      polygons.forEach(rings=>rings.forEach(ring=>{
-        if (!ring || ring.length<3) return;
-        const coords=ring.slice();
-        if (coords.length>3 && coords[0][0]===coords[coords.length-1][0] && coords[0][1]===coords[coords.length-1][1]) coords.pop();
-        let previous=null;
-        const points=coords.map(pair=>{
-          let lon=Number(pair[0]);
-          if(previous!==null) lon=normalizeNear(lon,previous);
-          previous=lon;
-          return latLonToVector3(Number(pair[1]),lon,1.287);
-        });
-        const lineGeometry=new THREE.BufferGeometry().setFromPoints(points);
-        const line=new THREE.LineLoop(lineGeometry,countryOutlineMaterial);
-        line.frustumCulled=false;
-        group.add(line);
-      }));
+      group.name="watched-country-halo-"+code;
+      const geometry=feature.geometry,polygons=geometry.type==="Polygon"?[geometry.coordinates]:geometry.coordinates;
+      const points=[];let reference=null;
+      polygons.forEach(rings=>(rings||[]).forEach(ring=>(ring||[]).forEach(pair=>{
+        const rawLon=Number(pair[0]),lon=reference===null?(reference=rawLon):normalizeNear(rawLon,reference);
+        const lat=Number(pair[1]);if(Number.isFinite(lon)&&Number.isFinite(lat))points.push([lon,lat]);
+      })));
+      if(!points.length)return;
+      const centerLon=points.reduce((sum,p)=>sum+p[0],0)/points.length;
+      const centerLat=points.reduce((sum,p)=>sum+p[1],0)/points.length;
+      const extent=points.reduce((max,p)=>Math.max(max,Math.abs(p[1]-centerLat),Math.abs(p[0]-centerLon)*Math.cos(centerLat*Math.PI/180)),0);
+      const size=Math.max(.16,Math.min(.86,2*extent*Math.PI/180*1.28*1.45));
+      const halo=new THREE.Sprite(countryHaloMaterial);
+      halo.position.copy(latLonToVector3(centerLat,((centerLon+540)%360)-180,1.296));
+      halo.scale.set(size,size,1);halo.renderOrder=3;halo.frustumCulled=false;
+      group.add(halo);
       countryOutlineGroup.add(group);
       countryOutlineByCode.set(code,group);
     }
@@ -746,12 +743,12 @@
       for (const [code,group] of countryOutlineByCode) {
         if (watchedCountryIds.has(code)) continue;
         countryOutlineGroup.remove(group);
-        group.traverse(object=>{if(object.geometry)object.geometry.dispose();});
+        group.traverse(object=>{if(object.geometry)object.geometry.dispose();if(object.material&&object.material!==countryHaloMaterial)object.material.dispose();});
         countryOutlineByCode.delete(code);
       }
       for (const feature of countryBoundaryFeatures) {
         const code=feature.properties.iso_a2;
-        if (watchedCountryIds.has(code) && !countryOutlineByCode.has(code)) addCountryOutline(feature);
+        if (watchedCountryIds.has(code) && !countryOutlineByCode.has(code)) addCountryHalo(feature);
       }
     }
     async function loadCountryBoundaries() {
@@ -1277,9 +1274,14 @@ rotatingGroup.add(flagPinGroup);
       // Build beacon dots structure (all hidden initially for pristine look)
       createCountryBeacons();
       countryOutlineGroup=new THREE.Group();
-      countryOutlineGroup.name="watched-country-outlines";
+      countryOutlineGroup.name="watched-country-halos";
       rotatingGroup.add(countryOutlineGroup);
-      countryOutlineMaterial=new THREE.LineBasicMaterial({color:0xffc451,transparent:true,opacity:0.96,depthTest:true,depthWrite:false});
+      const haloCanvas=document.createElement("canvas");haloCanvas.width=haloCanvas.height=128;
+      const haloContext=haloCanvas.getContext("2d"),haloGradient=haloContext.createRadialGradient(64,64,2,64,64,64);
+      haloGradient.addColorStop(0,"rgba(255,198,78,.48)");haloGradient.addColorStop(.32,"rgba(255,184,48,.24)");haloGradient.addColorStop(.68,"rgba(255,184,48,.07)");haloGradient.addColorStop(1,"rgba(255,184,48,0)");
+      haloContext.fillStyle=haloGradient;haloContext.fillRect(0,0,128,128);
+      const haloTexture=new THREE.CanvasTexture(haloCanvas);
+      countryHaloMaterial=new THREE.SpriteMaterial({map:haloTexture,color:0xffd178,transparent:true,opacity:.9,blending:THREE.AdditiveBlending,depthTest:true,depthWrite:false,toneMapped:false});
       loadCountryBoundaries();
 
       const countryTapRaycaster=new THREE.Raycaster();

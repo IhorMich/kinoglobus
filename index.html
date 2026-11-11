@@ -686,6 +686,85 @@
     // Вспышки во время поиска: точка загорается у проходимой страны и плавно гаснет
     const FLASH_MS = 850;
     let flashing = {};   // id страны -> момент вспышки (performance.now())
+    let countryBoundaryFeatures = [];
+    let watchedCountryIds = new Set();
+    let countryOutlineGroup = null;
+    const countryOutlineByCode = new Map();
+    let countryOutlineMaterial = null;
+
+    function normalizeNear(lon, reference) {
+      return reference + ((((lon - reference) % 360) + 540) % 360 - 180);
+    }
+    function pointInRing(lon, lat, ring) {
+      let inside = false;
+      for (let i=0,j=ring.length-1;i<ring.length;j=i++) {
+        const ax=normalizeNear(Number(ring[i][0]),lon), ay=Number(ring[i][1]);
+        const bx=normalizeNear(Number(ring[j][0]),lon), by=Number(ring[j][1]);
+        if ((ay>lat)!==(by>lat) && lon < (bx-ax)*(lat-ay)/(by-ay)+ax) inside=!inside;
+      }
+      return inside;
+    }
+    function pointInCountry(lon, lat, feature) {
+      const geometry=feature.geometry;
+      const polygons=geometry.type==="Polygon"?[geometry.coordinates]:geometry.coordinates;
+      return polygons.some(rings=>pointInRing(lon,lat,rings[0])&&!rings.slice(1).some(r=>pointInRing(lon,lat,r)));
+    }
+    function countryAtCoordinates(lon, lat) {
+      for (const feature of countryBoundaryFeatures) {
+        if (pointInCountry(lon,lat,feature)) return feature.properties.iso_a2;
+      }
+      return "";
+    }
+    function addCountryOutline(feature) {
+      if (!countryOutlineGroup || !window.THREE) return;
+      const code=feature.properties.iso_a2, group=new THREE.Group();
+      group.name="watched-country-"+code;
+      const geometry=feature.geometry;
+      const polygons=geometry.type==="Polygon"?[geometry.coordinates]:geometry.coordinates;
+      polygons.forEach(rings=>rings.forEach(ring=>{
+        if (!ring || ring.length<3) return;
+        const coords=ring.slice();
+        if (coords.length>3 && coords[0][0]===coords[coords.length-1][0] && coords[0][1]===coords[coords.length-1][1]) coords.pop();
+        let previous=null;
+        const points=coords.map(pair=>{
+          let lon=Number(pair[0]);
+          if(previous!==null) lon=normalizeNear(lon,previous);
+          previous=lon;
+          return latLonToVector3(Number(pair[1]),lon,1.287);
+        });
+        const lineGeometry=new THREE.BufferGeometry().setFromPoints(points);
+        const line=new THREE.LineLoop(lineGeometry,countryOutlineMaterial);
+        line.frustumCulled=false;
+        group.add(line);
+      }));
+      countryOutlineGroup.add(group);
+      countryOutlineByCode.set(code,group);
+    }
+    function updateWatchedCountryOutlines(codes) {
+      watchedCountryIds=new Set((Array.isArray(codes)?codes:[]).filter(code=>/^[A-Z]{2}$/.test(code)));
+      if (!countryOutlineGroup) return;
+      for (const [code,group] of countryOutlineByCode) {
+        if (watchedCountryIds.has(code)) continue;
+        countryOutlineGroup.remove(group);
+        group.traverse(object=>{if(object.geometry)object.geometry.dispose();});
+        countryOutlineByCode.delete(code);
+      }
+      for (const feature of countryBoundaryFeatures) {
+        const code=feature.properties.iso_a2;
+        if (watchedCountryIds.has(code) && !countryOutlineByCode.has(code)) addCountryOutline(feature);
+      }
+    }
+    async function loadCountryBoundaries() {
+      try {
+        const response=await fetch("assets/geo/countries-110m.json",{cache:"force-cache"});
+        if(!response.ok) throw new Error("HTTP "+response.status);
+        const data=await response.json();
+        countryBoundaryFeatures=Array.isArray(data.features)?data.features:[];
+        updateWatchedCountryOutlines([...watchedCountryIds]);
+      } catch(error) {
+        console.warn("[Kinoglobus] Не удалось загрузить границы стран",error);
+      }
+    }
 
     // Authentic Earth axial tilt: 23.4 degrees = 0.4084 radians
     const axialTilt = 23.4 * (Math.PI / 180);
@@ -1197,6 +1276,37 @@ rotatingGroup.add(flagPinGroup);
 
       // Build beacon dots structure (all hidden initially for pristine look)
       createCountryBeacons();
+      countryOutlineGroup=new THREE.Group();
+      countryOutlineGroup.name="watched-country-outlines";
+      rotatingGroup.add(countryOutlineGroup);
+      countryOutlineMaterial=new THREE.LineBasicMaterial({color:0xffc451,transparent:true,opacity:0.96,depthTest:true,depthWrite:false});
+      loadCountryBoundaries();
+
+      const countryTapRaycaster=new THREE.Raycaster();
+      const countryTapPointer=new THREE.Vector2();
+      let countryTapStart=null;
+      canvas.addEventListener("pointerdown",event=>{countryTapStart={x:event.clientX,y:event.clientY};},{passive:true});
+      canvas.addEventListener("click",event=>{
+        if(isSpinning||!countryBoundaryFeatures.length||!countryTapStart)return;
+        const moved=Math.hypot(event.clientX-countryTapStart.x,event.clientY-countryTapStart.y);
+        countryTapStart=null;
+        if(moved>8)return;
+        const rect=canvas.getBoundingClientRect();
+        countryTapPointer.x=((event.clientX-rect.left)/rect.width)*2-1;
+        countryTapPointer.y=-((event.clientY-rect.top)/rect.height)*2+1;
+        countryTapRaycaster.setFromCamera(countryTapPointer,camera);
+        const hit=countryTapRaycaster.intersectObject(earthMesh,false)[0];
+        if(!hit)return;
+        const local=rotatingGroup.worldToLocal(hit.point.clone()).normalize();
+        const lat=Math.asin(Math.max(-1,Math.min(1,local.y)))*180/Math.PI;
+        let lon=(Math.atan2(local.z,-local.x)*180/Math.PI)-180;
+        lon=((lon+540)%360)-180;
+        const code=countryAtCoordinates(lon,lat);
+        if(!code||!watchedCountryIds.has(code))return;
+        const journey=document.getElementById("journey");
+        if(journey&&!journey.open)document.getElementById("mapBtn")?.click();
+        window.KGSelectWatchedCountry?.(code);
+      });
 
       // Initial clean idle orientation to Spain (no dots, no flag)
       orientGlobeToCountry(currentCountry, true, 0.08, defaultDist, false);
@@ -1640,6 +1750,7 @@ if (areaRing) {
       showSingleBeacon,
       flashBeacon,
       hideMarks,
+      setWatchedCountryOutlines: updateWatchedCountryOutlines,
       beginScan,
       dollyBack,
       get isSpinning() { return isSpinning; },
@@ -1869,43 +1980,49 @@ dlg.addEventListener("click",e=>{if(e.target===dlg)closeSettings();});
 // ---- journey: stats of opened countries
 let zoomI=0;const ZOOMS=[100,200,320];
 function renderMap(){
-  const v=c=>visited[c]?" v":"", last=c=>c===lastCC?" last":"";
-  const op=c=>visited[c]?` style="opacity:${Math.min(1,0.65+0.07*visited[c]).toFixed(2)}"`:"";
+  const watchedCounts=window.KGWatchedCountryCounts?window.KGWatchedCountryCounts():{};
+  const v=c=>"", w=c=>watchedCounts[c]?" w":"", last=c=>c===lastCC&&watchedCounts[c]?" last":"";
+  const op=c=>watchedCounts[c]?' style="opacity:1"':"";
   $("mapbox").innerHTML=`<svg viewBox="0 0 ${MAP.w} ${MAP.h}" style="width:${ZOOMS[zoomI]}%" role="img" aria-label="Карта открытых стран">`
     +`<path class="mo" d="${MAP.o}"/>`
-    +Object.entries(MAP.c).map(([c,d])=>`<path class="mc${v(c)}${last(c)}" data-c="${c}"${op(c)} d="${d}"/>`).join("")
-    +Object.entries(MAP.m).map(([c,[x,y]])=>`<circle class="mc${v(c)}${last(c)}" data-c="${c}"${op(c)} cx="${x}" cy="${y}" r="7"/>`).join("")
+    +Object.entries(MAP.c).map(([c,d])=>`<path class="mc${v(c)}${w(c)}${last(c)}" data-c="${c}"${op(c)} d="${d}"/>`).join("")
+    +Object.entries(MAP.m).map(([c,[x,y]])=>`<circle class="mc${v(c)}${w(c)}${last(c)}" data-c="${c}"${op(c)} cx="${x}" cy="${y}" r="7"/>`).join("")
     +`</svg>`;
 }
 $("mapbox").onclick=e=>{
   const t=e.target.closest("[data-c]");if(!t)return;const c=t.dataset.c;
-  $("minfo").innerHTML=`${flag(c)} ${cname(c)}: `+(visited[c]?`просмотрено фильмов ${visited[c]}`:"пока не открыта");
+  if(window.KGSelectWatchedCountry){window.KGSelectWatchedCountry(c);return;}
+  const count=window.KGWatchedCountryCounts?window.KGWatchedCountryCounts()[c]||0:0;
+  $("minfo").innerHTML=(typeof flag==="function"?flag(c):"🌍")+" "+cname(c)+": "+(count?"просмотрено фильмов "+count:"пока нет отмеченных фильмов");
 };
 $("mzin").onclick=()=>{zoomI=Math.min(ZOOMS.length-1,zoomI+1);const s=$("mapbox").querySelector("svg");if(s)s.style.width=ZOOMS[zoomI]+"%";};
 $("mzout").onclick=()=>{zoomI=Math.max(0,zoomI-1);const s=$("mapbox").querySelector("svg");if(s)s.style.width=ZOOMS[zoomI]+"%";};
 
 function renderJourney(){
   renderMap();$("minfo").textContent="Нажми на страну на карте";
-  const open=COUNTRIES.filter(c=>visited[c]).sort((a,b)=>visited[b]-visited[a]);
+  const counts=window.KGWatchedCountryCounts?window.KGWatchedCountryCounts():{};
+  const open=COUNTRIES.filter(c=>counts[c]).sort((a,b)=>counts[b]-counts[a]);
   const all=COUNTRIES.length,n=open.length,pct=Math.round(n/all*100);
-  const films=open.reduce((sum,c)=>sum+visited[c],0);
-  $("jhead").textContent=`Открыто ${n} из ${all} стран (${pct}%)`;
+  const films=watched.filter(item=>(item.countries||[]).length).length;
+  $("jhead").textContent="Страны просмотренных фильмов: "+n+" из "+all+" ("+pct+"%)";
   $("jfill").style.width=pct+"%";
   if(!n){
-    $("jstats").innerHTML="<div>Пока пусто. Отмечай просмотренные фильмы кнопкой «✓ Посмотрел», и страны начнут открываться.</div>";
+    $("jstats").innerHTML="<div>Отмечайте просмотренные фильмы кнопкой «Посмотрел» — и страна производства появится на карте.</div>";
     $("jopenT").hidden=true;$("jopen").innerHTML="";
   }else{
     const top=open[0];
-    $("jstats").innerHTML=`<div>🎬 Фильмов просмотрено: <b>${films}</b></div>`
-      +`<div>🏆 Самая исследованная: <b>${flag(top,false)} ${cname(top)}</b> (${visited[top]})</div>`
-      +(lastCC&&visited[lastCC]?`<div>📍 Последняя открытая: <b>${flag(lastCC,false)} ${cname(lastCC)}</b></div>`:"");
-    $("jopenT").hidden=false;
-    $("jopen").innerHTML=open.map(c=>`<span class="pill">${flag(c,false)} ${cname(c)} · ${visited[c]}</span>`).join("");
+    $("jstats").innerHTML="<div>🎬 Фильмов отмечено: <b>"+films+"</b></div>"
+      +"<div>🌍 Стран производства: <b>"+n+"</b></div>"
+      +"<div>🏆 Чаще всего: <b>"+flag(top,false)+" "+cname(top)+"</b> ("+counts[top]+")</div>"
+      +(lastCC&&counts[lastCC]?"<div>📍 Последняя страна: <b>"+flag(lastCC,false)+" "+cname(lastCC)+"</b></div>":"");
+    $("jopenT").hidden=false;$("jopenT").textContent="Страны просмотренных фильмов";
+    $("jopen").innerHTML=open.map(c=>'<button type="button" class="pill" data-c="'+c+'">'+flag(c,false)+" "+cname(c)+" · "+counts[c]+"</button>").join("");
   }
-  const closed=COUNTRIES.filter(c=>!visited[c]);
-  $("jclosedsum").textContent=`Ещё не открыто: ${closed.length}`;
-  $("jclosed").innerHTML=closed.map(c=>`<span class="pill off">${flag(c,false)} ${cname(c)}</span>`).join("");
+  const closed=COUNTRIES.filter(c=>!counts[c]);
+  $("jclosedsum").textContent="Ещё не отмечено: "+closed.length;
+  $("jclosed").innerHTML=closed.map(c=>'<span class="pill off">'+flag(c,false)+" "+cname(c)+"</span>").join("");
   renderWatched();
+  if(window.KGRenderWatchedByCountry)window.KGRenderWatchedByCountry("");
 }
 function filmRecord(cc,film){
   return {
@@ -2023,7 +2140,7 @@ showKeyUi();updHist();
 
 $("saveKey").onclick=()=>{const v=$("key").value.trim(); if(!v)return; apiKey=v; store.set("tmdbKey",v); showKeyUi();};
 $("changeKey").onclick=()=>{apiKey="";store.set("tmdbKey","");showKeyUi();closeSettings();};
-$("resetHist").onclick=()=>{seen=new Set();store.set("seen",[]);watched=[];store.set("watched",watched);visited={};lastCC="";store.set("visited",visited);store.set("lastCC","");updHist();};
+$("resetHist").onclick=()=>{seen=new Set();store.set("seen",[]);watched=[];store.set("watched",watched);visited={};lastCC="";store.set("visited",visited);store.set("lastCC","");if(window.KGRefreshWatchedMap)window.KGRefreshWatchedMap();if(window.KGResetWatchedButton)window.KGResetWatchedButton();updHist();};
 
 async function api(params,options={}){
   const adult=playMode!=="surprise" && (sel.has("adult") || sel.has("erotic"));
@@ -2361,7 +2478,10 @@ function startFilmReelSound() {
       editbench:{tick:160,frequency:1320,q:1.5,gain:.021},
       sixteenmm:{tick:118,frequency:2420,q:.95,gain:.016}
     };
-    const profile=profiles[reelSnd]||profiles.projector,nLen=Math.floor(ac.sampleRate*.03),nBuf=ac.createBuffer(1,nLen,ac.sampleRate),nd=nBuf.getChannelData(0);
+    // Match the reel's perceived loudness to the globe selection sound.
+    // Keep the relative balance between sound profiles while raising the whole reel bus.
+    const REEL_SOUND_GAIN=2.5;
+    const profile={...(profiles[reelSnd]||profiles.projector),gain:(profiles[reelSnd]||profiles.projector).gain*REEL_SOUND_GAIN},nLen=Math.floor(ac.sampleRate*.03),nBuf=ac.createBuffer(1,nLen,ac.sampleRate),nd=nBuf.getChannelData(0);
     for(let i=0;i<nLen;i++)nd[i]=(Math.random()*2-1)*(1-i/nLen);
     const nodes={profile,level:0,timer:0,transients:new Set(),tick:null};
     const tick = () => {
@@ -3046,23 +3166,12 @@ $("again").onclick=async()=>{
   finally{$("again").disabled=false;$("freel").hidden=true;}
 };
 $("seen").onclick=()=>{
-  if(!cur) return;
-  const known=seen.has(cur.film.id);
-  let msg=known?"✓ Уже отмечено":"✓ Отмечено";
-  if(!known){
-    seen.add(cur.film.id);store.set("seen",[...seen]);
-    const isNew=!visited[cur.cc];
-    visited[cur.cc]=(visited[cur.cc]||0)+1;lastCC=cur.cc;
-    store.set("visited",visited);store.set("lastCC",lastCC);
-    msg=isNew?"🌍 Страна открыта!":"✓ Отмечено";
-  }
-  if(!watched.some(w=>w.id===cur.film.id)){
-    watched.unshift(filmRecord(cur.cc,cur.film));
-    store.set("watched",watched);
-    if(known) msg="✓ Фильм сохранён";
-  }
-  updHist();
-  $("seen").textContent=msg;setTimeout(()=>$("seen").textContent="✓ Посмотрел",1500);
+  if(!cur||!window.KGMarkWatched)return;
+  window.KGMarkWatched(cur.film).then(ok=>{
+    if(!ok)return;
+    $("seen").textContent="✓ Просмотрено";updHist();
+    setTimeout(()=>$("seen").textContent="✓ Посмотрел",1500);
+  });
 };
 
 </script>
@@ -3089,7 +3198,7 @@ st.textContent=`
 .kg-bar{height:8px;background:#2c2830;border-radius:99px;overflow:hidden}
 #jfill{display:block;height:100%;width:0;background:linear-gradient(90deg,#ff4e20,#ffc107)}
 #mapbox{overflow:auto;border-radius:12px;background:#100d14}#mapbox svg{display:block}
-.mo{fill:#1d1a22}.mc{fill:#2c2830;stroke:#07060a;stroke-width:.6;cursor:pointer}.mc.v{fill:#ffb830}.mc.last{fill:#ff4e20}
+.mo{fill:#1d1a22}.mc{fill:#2c2830;stroke:#07060a;stroke-width:.6;cursor:pointer;transition:fill .2s,stroke .2s}.mc.v{fill:#ffb830}.mc.w{fill:#d89120;stroke:#ffe1a1;stroke-width:1.6;filter:drop-shadow(0 0 2px rgba(255,184,48,.7))}.mc.last{fill:#ff4e20}.mc.w.last{fill:#d89120;stroke:#fff0c3}
 .pill{display:inline-block;padding:4px 10px;margin:2px;border-radius:99px;background:#2c2830;font-size:12px}.pill.off{opacity:.45}
 #jfilms{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .jfilm{display:flex;flex-direction:column;gap:3px;text-align:left;font-size:11px;color:#e8e0ea}
@@ -3214,7 +3323,7 @@ const CARD_HTML=`
 <button class="flex items-center gap-1 text-primary hover:text-primary-fixed font-micro-caption text-[11px] font-bold transition-colors cursor-pointer flex-shrink-0" id="btn-spin-another-film" title="Следующий фильм из этой страны" type="button"><span class="material-symbols-outlined text-[14px]">shuffle</span><span>Другой фильм</span></button>
 </div>
 <div class="flex items-center gap-2 mt-2.5">
-<button class="py-2 px-3 rounded-xl bg-surface-container-high text-on-surface font-label-sm text-label-sm flex items-center justify-center gap-1 hover:text-primary border border-surface-border-subtle transition-all active:scale-95 cursor-pointer" id="btn-watched" title="Отметить как просмотренный" type="button"><span class="material-symbols-outlined text-[16px] text-primary-container">bookmark_added</span><span>В Паспорт</span></button>
+<button class="py-2 px-3 rounded-xl bg-surface-container-high text-on-surface font-label-sm text-label-sm flex items-center justify-center gap-1 hover:text-primary border border-surface-border-subtle transition-all active:scale-95 cursor-pointer" id="btn-watched" title="Отметить как просмотренный" type="button"><span class="material-symbols-outlined text-[16px] text-primary-container">task_alt</span><span>Посмотрел</span></button>
 </div>
 </div>
 </section>`;
@@ -3306,7 +3415,7 @@ function syncDesign(){
   if(document.activeElement!==yi[0])yi[0].value=$("year").value||"1920";
   if(document.activeElement!==yi[1])yi[1].value=$("yearTo").value||"2026";
   const cnt=document.querySelector('header a[data-path="moe-puteshestvie"] span:last-child');
-  if(cnt)cnt.textContent=Object.keys(visited).length+"/"+COUNTRIES.length;
+  if(cnt){const wc=window.KGWatchedCountryCounts?window.KGWatchedCountryCounts():{};cnt.textContent=Object.keys(wc).length+"/"+COUNTRIES.length;}
   const sb=$("btn-spin-roulette");if(sb&&!sb.disabled){const t=sb.querySelector("#btn-spin-text span:last-child");if(t)t.textContent=spinLabel();}
 }
 ["paintChips","paintThemes","paintSurprise","paintExtraSum","paintGo","updHist"].forEach(n=>{
@@ -3609,7 +3718,7 @@ async function spinReel(pool,film,cc){
 function reveal(film,pool){
   veil(false);
   set("hero-country-master",film.title||"");
-  if(reelStyle==="cassette")requestAnimationFrame(()=>{const poster=$("discovery-poster"),target=poster&&!poster.classList.contains("hidden")?poster:detailsEl;if(target)scrollToFilmReel(target);});
+  requestAnimationFrame(()=>{const poster=$("discovery-poster"),target=poster&&!poster.classList.contains("hidden")?poster:detailsEl;if(target)scrollToFilmReel(target);});
 }
 
 // Единый блок легального просмотра используется во всех карточках фильма.
@@ -3687,14 +3796,14 @@ function renderExtra(film,d){
     <span class="font-label-md text-label-md text-on-surface mt-0.5" style="overflow-wrap:anywhere">${esc(v)}</span></div>`).join("");
 
   // страна и прогресс
-  const n=visited[cc]||0,open=Object.keys(visited).length,all=COUNTRIES.length,pct=Math.round(open/all*100);
+  const countryCounts=window.KGWatchedCountryCounts?window.KGWatchedCountryCounts():{};const n=countryCounts[cc]||0,open=Object.keys(countryCounts).length,all=COUNTRIES.length,pct=Math.round(open/all*100);
   const tag=cur&&cur.pool.oscar?"ОСКАР":cur&&cur.pool.top1?"ТОП-1":"НАХОДКА";
   const country=cc?`<div class="p-3.5 rounded-xl bg-surface-container-high flex flex-col gap-2.5">
     <div class="flex items-center justify-between gap-2">
       <div class="flex items-center gap-2 min-w-0"><div class="w-7 h-7 rounded-full bg-cinema-velvet-deep flex items-center justify-center text-secondary flex-shrink-0"><span class="material-symbols-outlined text-[16px]">travel_explore</span></div>
         <span class="font-label-md text-label-md text-primary font-bold truncate">Кинематограф: ${esc(cname(cc))}</span></div>
       <span class="px-2 py-0.5 rounded-full bg-surface-panel text-primary-fixed font-micro-caption text-micro-caption font-bold flex-shrink-0">${tag}</span></div>
-    <p class="font-body-sm text-body-sm text-on-surface-variant">Фильмов из этой страны в паспорте: <strong class="text-primary font-bold">${n}</strong>. Открыто стран: <strong class="text-primary font-bold">${open} из ${all}</strong>.</p>
+    <p class="font-body-sm text-body-sm text-on-surface-variant">Отмечено фильмов из этой страны: <strong class="text-primary font-bold">${n}</strong>. Открыто стран: <strong class="text-primary font-bold">${open} из ${all}</strong>.</p>
     <div class="w-full bg-surface-variant/70 rounded-full h-2 overflow-hidden"><div class="bg-primary-container h-full rounded-full transition-all duration-500" style="width:${pct}%"></div></div>
     <div class="flex items-center justify-between text-text-muted"><span class="font-micro-caption text-micro-caption">Прогресс: ${pct}%</span>
       <button type="button" data-kg="passport" class="inline-flex items-center gap-1 font-micro-caption text-micro-caption text-primary hover:underline"><span>Смотреть паспорт</span><span class="material-symbols-outlined text-[12px]">chevron_right</span></button></div>
@@ -3808,10 +3917,13 @@ window.show=function(cc,pool,film){
     }catch(e){console.warn('[Kinoglobus] reel',e);if(cur&&cur.film.id===film.id){renderStatic(pool,film,cc);reveal(film,pool);}}
   },0);
 };
-bw.addEventListener("click",()=>{
-  if(!cur)return;$("seen").click();
-  bw.innerHTML='<span class="material-symbols-outlined text-[16px] text-primary-fixed">task_alt</span><span>В паспорте</span>';
-  syncDesign();
+bw.addEventListener("click",async()=>{
+  if(!cur||!window.KGMarkWatched)return;
+  const film=cur.film;
+  if(await window.KGMarkWatched(film)){
+    bw.innerHTML='<span class="material-symbols-outlined text-[16px] text-primary-fixed">task_alt</span><span>Просмотрено</span>';
+    syncDesign();
+  }
 });
 ag.addEventListener("click",()=>$("again").click());
 
@@ -3845,11 +3957,12 @@ console.info("[Kinoglobus] Bridge v6 ready");
 })();
 </script>
 
+<script src="watch-history.js?v=2"></script>
 <script src="mood-page.js?v=31"></script>
 <script src="mood-vibe-page.js?v=16"></script>
 <script src="oscar-page.js?v=31"></script>
 <script src="oscar-design.js?v=12"></script>
-<script src="collections.js?v=59"></script>
+<script src="collections.js?v=60"></script>
 <script src="film-interactions.js?v=12"></script>
 <script src="legal-watch.js?v=3"></script>
 <script src="global-search.js?v=2"></script>

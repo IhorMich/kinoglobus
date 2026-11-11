@@ -500,19 +500,14 @@ vc.addEventListener("keydown",e=>{
 /* ================= СТРАНИЦА ПОДБОРКИ ================= */
 let D={t:null,all:[],total:0,totals:{},cc:"",sort:"rating",shown:5,selected:null,picked:null};
 async function markPageWatched(film){
+  if(window.KGMarkWatched) return window.KGMarkWatched(film);
   const details=await filmDetails(film.id).catch(()=>null);
   const cc=(film.origin_country||[])[0]||(details&&details.countries||[])[0]||"";
-  if(!seen.has(film.id)){
-    seen.add(film.id);store.set("seen",[...seen]);
-    if(cc){
-      visited[cc]=(visited[cc]||0)+1;lastCC=cc;
-      store.set("visited",visited);store.set("lastCC",lastCC);
-    }
+  if(!watched.some(item=>Number(item.id)===Number(film.id))){
+    const record=filmRecord(cc,film);record.countries=cc?[cc]:[];record.productionCountries=(film.origin_country||details?.countries||[]);record.watchedAt=new Date().toISOString();
+    watched.unshift(record);store.set("watched",watched);
   }
-  if(!watched.some(item=>item.id===film.id)){
-    watched.unshift(filmRecord(cc,film));store.set("watched",watched);
-  }
-  updHist();
+  seen.add(Number(film.id));store.set("seen",[...seen]);updHist();return true;
 }
 function closePageFilm(placement){
   const selected=D.selected&&D.selected._placement===placement?D.selected:null;

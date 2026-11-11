@@ -1156,9 +1156,9 @@ rotatingGroup.add(flagPinGroup);
 
         // Natural ocean colors for the offline fallback texture.
         const oceanGrad = ctx.createLinearGradient(0, 0, 0, 1024);
-        oceanGrad.addColorStop(0, '#102b3b');
-        oceanGrad.addColorStop(0.5, '#17617a');
-        oceanGrad.addColorStop(1, '#102b3b');
+        oceanGrad.addColorStop(0, '#081a36');
+        oceanGrad.addColorStop(0.5, '#15559a');
+        oceanGrad.addColorStop(1, '#081a36');
         ctx.fillStyle = oceanGrad;
         ctx.fillRect(0, 0, 2048, 1024);
 
@@ -1206,8 +1206,13 @@ rotatingGroup.add(flagPinGroup);
         shader.fragmentShader = shader.fragmentShader.replace(
           '#include <map_fragment>',
           `#include <map_fragment>
-           float earthLuminance = dot(diffuseColor.rgb, vec3(0.2126, 0.7152, 0.0722));
-           diffuseColor.rgb = clamp(mix(vec3(earthLuminance), diffuseColor.rgb, 1.04) * 1.01, 0.0, 1.0);`
+           vec3 earthColor = diffuseColor.rgb;
+           float earthLuminance = dot(earthColor, vec3(0.2126, 0.7152, 0.0722));
+           float oceanSignal = earthColor.b - max(earthColor.r, earthColor.g) * 0.82;
+           float oceanMask = smoothstep(0.015, 0.12, oceanSignal);
+           vec3 blueOcean = vec3(earthColor.r * 0.82, earthColor.g * 0.90, min(1.0, earthColor.b * 1.22 + 0.025));
+           earthColor = mix(earthColor, blueOcean, oceanMask * 0.9);
+           diffuseColor.rgb = clamp(mix(vec3(earthLuminance), earthColor, 1.12) * 1.02, 0.0, 1.0);`
         );
       };
 

@@ -1315,11 +1315,8 @@ rotatingGroup.add(flagPinGroup);
       hideAllBeacons();
       hideFlagPost();
 
-      // Vertical gestures scroll the page; horizontal gestures rotate the globe.
-      // Search needs five fast, consecutive swipes in the same direction.
-      let horizontalSwipeCount = 0, lastHorizontalSwipeAt = 0, horizontalSwipeDirection = 0, firstHorizontalSwipeAt = 0;
-      const QUICK_SWIPE_MAX_MS = 280, QUICK_SWIPE_MIN_DISTANCE = 70;
-      const SEARCH_SWIPES_REQUIRED = 5, SWIPE_GAP_MAX_MS = 850, SWIPE_SEQUENCE_WINDOW_MS = 2600;
+      // One finger: vertical page scroll or horizontal globe rotation.
+      // Two fingers: tilt the globe vertically and pinch to zoom.
       container.style.touchAction = 'pan-y';
       canvas.style.touchAction = 'pan-y';
       canvas.addEventListener('mousedown', (e) => {
@@ -1328,10 +1325,17 @@ rotatingGroup.add(flagPinGroup);
         previousMousePosition = { x: e.clientX, y: e.clientY };
       });
       canvas.addEventListener('touchstart', (e) => {
-        if (e.touches.length !== 1 || isSpinning) { touchGesture = null; horizontalSwipeCount = 0; horizontalSwipeDirection = 0; firstHorizontalSwipeAt = 0; return; }
+        if (isSpinning) { touchGesture = null; return; }
+        if (e.touches.length >= 2) {
+          const a=e.touches[0],b=e.touches[1],dx=b.clientX-a.clientX,dy=b.clientY-a.clientY;
+          touchGesture={mode:'multi',lastDistance:Math.max(1,Math.hypot(dx,dy)),lastMidY:(a.clientY+b.clientY)/2};
+          isDragging=false;
+          return;
+        }
+        if (e.touches.length !== 1) { touchGesture = null; return; }
         const t = e.touches[0];
         isDragging = false;
-        touchGesture = { startX: t.clientX, startY: t.clientY, lastX: t.clientX, lastY: t.clientY, startAt: performance.now(), axis: null };
+        touchGesture = { mode:'single',startX: t.clientX, startY: t.clientY, lastX: t.clientX, lastY: t.clientY, axis: null };
       }, { passive: true });
 
       window.addEventListener('mousemove', (e) => {
@@ -1344,6 +1348,17 @@ rotatingGroup.add(flagPinGroup);
       });
       window.addEventListener('touchmove', (e) => {
         if (!touchGesture || !e.touches[0] || !rotatingGroup || isSpinning) return;
+        if(touchGesture.mode==='multi'){
+          if(e.touches.length<2){touchGesture=null;return;}
+          const a=e.touches[0],b=e.touches[1],dx=b.clientX-a.clientX,dy=b.clientY-a.clientY;
+          const distance=Math.max(1,Math.hypot(dx,dy)),midY=(a.clientY+b.clientY)/2;
+          if(e.cancelable)e.preventDefault();
+          targetRotX=Math.max(-1.45,Math.min(1.45,targetRotX+(midY-touchGesture.lastMidY)*.006));
+          targetCameraZ=Math.max(3.15,Math.min(8.5,targetCameraZ*touchGesture.lastDistance/distance));
+          touchGesture.lastDistance=distance;touchGesture.lastMidY=midY;
+          return;
+        }
+        if(e.touches.length!==1)return;
         const t = e.touches[0];
         const movedX = t.clientX - touchGesture.startX;
         const movedY = t.clientY - touchGesture.startY;
@@ -1368,36 +1383,7 @@ rotatingGroup.add(flagPinGroup);
         const gesture = touchGesture;
         isDragging = false;
         touchGesture = null;
-        if (!gesture || !e.changedTouches?.[0]) return;
-        if (gesture.axis !== 'x' || e.type === 'touchcancel' || isSpinning) {
-          horizontalSwipeCount = 0; horizontalSwipeDirection = 0; firstHorizontalSwipeAt = 0; lastHorizontalSwipeAt = 0;
-          return;
-        }
-        const now = performance.now();
-        const deltaX = e.changedTouches[0].clientX - gesture.startX;
-        const swipeDistance = Math.abs(deltaX), swipeDirection = Math.sign(deltaX);
-        const swipeDuration = now - gesture.startAt;
-        // Slow/short drags still rotate the globe, but never count toward search.
-        if (swipeDistance < QUICK_SWIPE_MIN_DISTANCE || swipeDuration > QUICK_SWIPE_MAX_MS) {
-          horizontalSwipeCount = 0; horizontalSwipeDirection = 0; firstHorizontalSwipeAt = 0; lastHorizontalSwipeAt = 0;
-          return;
-        }
-        const gapTooLong = lastHorizontalSwipeAt && now - lastHorizontalSwipeAt > SWIPE_GAP_MAX_MS;
-        const sequenceTooLong = firstHorizontalSwipeAt && now - firstHorizontalSwipeAt > SWIPE_SEQUENCE_WINDOW_MS;
-        if (gapTooLong || sequenceTooLong || (horizontalSwipeDirection && horizontalSwipeDirection !== swipeDirection)) {
-          horizontalSwipeCount = 0; horizontalSwipeDirection = 0; firstHorizontalSwipeAt = 0;
-        }
-        if (!horizontalSwipeCount) { horizontalSwipeDirection = swipeDirection; firstHorizontalSwipeAt = now; }
-        lastHorizontalSwipeAt = now;
-        horizontalSwipeCount++;
-        if (typeof window.buzz === 'function') {
-          const pulse = horizontalSwipeCount === 1 ? 8 : horizontalSwipeCount === 2 ? 12 : horizontalSwipeCount < SEARCH_SWIPES_REQUIRED ? 16 : [18, 24, 36];
-          window.buzz(pulse);
-        }
-        if (horizontalSwipeCount >= SEARCH_SWIPES_REQUIRED) {
-          horizontalSwipeCount = 0; horizontalSwipeDirection = 0; firstHorizontalSwipeAt = 0; lastHorizontalSwipeAt = 0;
-          document.getElementById('btn-spin-roulette')?.click();
-        }
+        if (!gesture || gesture.mode!=='single' || gesture.axis!=='x' || e.type==='touchcancel' || isSpinning) return;
       };
       window.addEventListener('touchend', endTouchGesture, { passive: true });
       window.addEventListener('touchcancel', endTouchGesture, { passive: true });

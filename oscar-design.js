@@ -184,7 +184,7 @@
           const t=$("oscar-toolbar")||$("kgo-list");
           if(t)t.scrollIntoView({behavior:"smooth",block:"center"});return;
         }
-        if(e.target.closest("[data-kgo-avatar]")){const m=$("mapBtn");if(m)m.click();return;}
+        if(e.target.closest("[data-kgo-avatar]")){window.KGOpenAccountPage?.("register");return;}
         const w=e.target.closest("[data-kgo-watch]");
         if(w&&d){const f=cardFilm[w.dataset.kgoWatch];if(f){try{await d.markWatched(f);}catch(err){}d.refreshFilm();}return;}
         const sh=e.target.closest("[data-kgo-share]");

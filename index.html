@@ -3175,14 +3175,7 @@ $("again").onclick=async()=>{
   }catch(e){$("err").textContent=e.message}
   finally{$("again").disabled=false;$("freel").hidden=true;}
 };
-$("seen").onclick=()=>{
-  if(!cur||!window.KGMarkWatched)return;
-  window.KGMarkWatched({...cur.film,_cc:cur.cc}).then(ok=>{
-    if(!ok)return;
-    $("seen").textContent="✓ Просмотрено";updHist();
-    setTimeout(()=>$("seen").textContent="✓ Посмотрел",1500);
-  });
-};
+$("seen").onclick=()=>markCurrentFilm($("seen"));
 
 </script>
 <script>
@@ -3543,6 +3536,7 @@ window.filmReel=async function(){};   // в дизайне барабана по
 const card=$("cinema-35mm-reel-section");
 const watchedOld=$("btn-watched");const watchedHTML=watchedOld.innerHTML;
 const bw=watchedOld.cloneNode(true);watchedOld.replaceWith(bw);
+function paintWatchedButton(button,done,label){if(!button)return;button.setAttribute("aria-pressed",String(done));button.title=done?"Фильм отмечен как просмотренный":"Отметить как просмотренный";button.classList.toggle("bg-cinema-velvet-deep",done);button.classList.toggle("text-secondary-fixed",done);button.classList.toggle("bg-surface-container-high",!done);button.classList.toggle("text-on-surface",!done);button.innerHTML=`<span class="material-symbols-outlined text-[16px] ${done?"text-secondary-fixed":"text-primary-container"}">${done?"task_alt":"check_circle"}</span><span>${done?"Просмотрено ✓":label||"Посмотрел"}</span>`;button.disabled=done;}
 const ag=$("btn-spin-another-film");
 const set=(id,t)=>{const e=$(id);if(e)e.textContent=t;};
 const pad=n=>(n<10?"0":"")+n;
@@ -3904,8 +3898,9 @@ window.show=function(cc,pool,film){
     $("film-facts").innerHTML='<span class="text-text-muted">Подробности сейчас недоступны.</span>';
   });
   const alreadyWatched=!!window.KGIsFilmWatched?.(film.id);
-  bw.innerHTML=alreadyWatched?'<span class="material-symbols-outlined text-[16px] text-primary-fixed">task_alt</span><span>Просмотрено</span>':watchedHTML;
-  bw.disabled=alreadyWatched;bw.setAttribute("aria-pressed",String(alreadyWatched));
+  bw.dataset.saving="false";if($("btn-watched-recent"))$("btn-watched-recent").dataset.saving="false";
+  paintWatchedButton(bw,alreadyWatched,"Посмотрел");
+  paintWatchedButton($("btn-watched-recent"),alreadyWatched,"Посмотрел");
   ag.style.display=$("again").hidden?"none":"";
   ftKey=null;closeFilmTrailer();
   trailerFor(film).then(k=>{
@@ -3930,15 +3925,15 @@ window.show=function(cc,pool,film){
     }catch(e){console.warn('[Kinoglobus] reel',e);if(cur&&cur.film.id===film.id){renderStatic(pool,film,cc);reveal(film,pool);}}
   },0);
 };
-bw.addEventListener("click",async()=>{
-  if(!cur||!window.KGMarkWatched)return;
-  const film=cur.film;
-  if(await window.KGMarkWatched({...film,_cc:cur.cc})){
-    bw.innerHTML='<span class="material-symbols-outlined text-[16px] text-primary-fixed">task_alt</span><span>Просмотрено</span>';
-    bw.disabled=true;bw.setAttribute("aria-pressed","true");
-    syncDesign();
-  }
-});
+async function markCurrentFilm(button){
+  if(!cur||!window.KGMarkWatched||button?.dataset.saving==="true")return;
+  const film=cur.film;if(window.KGIsFilmWatched?.(film.id)){paintWatchedButton(button,true,"Посмотрел");return;}
+  if(button){button.dataset.saving="true";paintWatchedButton(button,true,"Посмотрел");}
+  try{const ok=await window.KGMarkWatched({...film,_cc:cur.cc});if(!ok)throw new Error("Не удалось сохранить просмотр");paintWatchedButton(bw,true,"Посмотрел");paintWatchedButton($("btn-watched-recent"),true,"Посмотрел");syncDesign();}
+  catch(error){if(button){button.dataset.saving="false";paintWatchedButton(button,false,"Посмотрел");}console.warn("[Kinoglobus] Не удалось отметить просмотр:",error);}
+}
+bw.addEventListener("click",()=>markCurrentFilm(bw));
+$("btn-watched-recent")?.addEventListener("click",()=>markCurrentFilm($("btn-watched-recent")));
 ag.addEventListener("click",()=>$("again").click());
 
 // ---------- Кнопки глобуса ----------
@@ -3984,15 +3979,15 @@ console.info("[Kinoglobus] Bridge v6 ready");
 })();
 </script>
 
-<script src="watch-history.js?v=4"></script>
-<script src="country-pages.js?v=2"></script>
+<script src="watch-history.js?v=5"></script>
+<script src="country-pages.js?v=3"></script>
 <script src="account-page.js?v=1"></script>
 <script src="mood-page.js?v=31"></script>
 <script src="mood-vibe-page.js?v=16"></script>
-<script src="oscar-page.js?v=32"></script>
-<script src="oscar-design.js?v=12"></script>
-<script src="collections.js?v=62"></script>
-<script src="film-interactions.js?v=13"></script>
+<script src="oscar-page.js?v=33"></script>
+<script src="oscar-design.js?v=13"></script>
+<script src="collections.js?v=63"></script>
+<script src="film-interactions.js?v=14"></script>
 <script src="legal-watch.js?v=3"></script>
 <script src="global-search.js?v=2"></script>
 <script src="settings-page.js?v=21"></script>

@@ -45,7 +45,7 @@
       0% { transform: translateX(-100%); }
       100% { transform: translateX(200%); }
     }
-  </style><script src="cinema-reel.js?v=31"></script></head><body class="bg-canvas-obsidian font-body-md text-on-surface flex flex-col min-h-screen relative">
+  </style><script src="cinema-reel.js?v=32"></script></head><body class="bg-canvas-obsidian font-body-md text-on-surface flex flex-col min-h-screen relative">
 <!-- Atmospheric Living Theater Background Layer with Floating Posters -->
 <div class="fixed inset-0 pointer-events-none overflow-hidden -z-10 select-none">
 <!-- Ambient Projector Velvet & Amber Glow Orbs -->
@@ -2484,8 +2484,9 @@ function startFilmReelSound() {
     };
     // Match the reel's perceived loudness to the globe selection sound.
     // Keep the relative balance between sound profiles while raising the whole reel bus.
-    const REEL_SOUND_GAIN=4;
-    const profile={...(profiles[reelSnd]||profiles.projector),gain:(profiles[reelSnd]||profiles.projector).gain*REEL_SOUND_GAIN},nLen=Math.floor(ac.sampleRate*.03),nBuf=ac.createBuffer(1,nLen,ac.sampleRate),nd=nBuf.getChannelData(0);
+    const REEL_SOUND_GAIN=12;
+    if(ac.state!=="running")ac.resume().catch(()=>{});
+    const profile=profiles[reelSnd]||profiles.projector,nLen=Math.floor(ac.sampleRate*.03),nBuf=ac.createBuffer(1,nLen,ac.sampleRate),nd=nBuf.getChannelData(0);
     for(let i=0;i<nLen;i++)nd[i]=(Math.random()*2-1)*(1-i/nLen);
     const nodes={profile,level:0,timer:0,transients:new Set(),tick:null};
     const tick = () => {
@@ -2495,7 +2496,8 @@ function startFilmReelSound() {
       if(s<=.015)return;
       const t=ac.currentTime,source=ac.createBufferSource(),filter=ac.createBiquadFilter(),gain=ac.createGain();
       source.buffer=nBuf;filter.type="bandpass";filter.frequency.value=profile.frequency;filter.Q.value=profile.q;source.connect(filter);filter.connect(gain);gain.connect(ac.destination);
-      gain.gain.setValueAtTime(.0001,t);gain.gain.linearRampToValueAtTime(profile.gain*s,t+.002);gain.gain.exponentialRampToValueAtTime(.0001,t+.019);
+      const audibleLevel=profile.gain*REEL_SOUND_GAIN*Math.max(.45,s);
+      gain.gain.setValueAtTime(.0001,t);gain.gain.linearRampToValueAtTime(audibleLevel,t+.002);gain.gain.exponentialRampToValueAtTime(.0001,t+.024);
       const transient={source,gain};nodes.transients.add(transient);source.onended=()=>nodes.transients.delete(transient);source.start(t);source.stop(t+.022);
       nodes.timer=setTimeout(tick,profile.tick/Math.max(.35,.35+.65*s));
     };
@@ -2507,6 +2509,8 @@ function startFilmReelSound() {
   }
 }
 function previewFilmReelSound(){if(reelSnd==="off")return;startFilmReelSound();if(filmReelNodes){setFilmReelLevel(.82);reelSoundPreviewTimer=setTimeout(()=>{reelSoundPreviewTimer=0;stopFilmReelSound();},1800);}}
+window.startFilmReelSound=startFilmReelSound;
+window.stopFilmReelSound=stopFilmReelSound;
 window.previewFilmReelSound=previewFilmReelSound;
 function preview(){audio();let i=0;const id=setInterval(()=>{sTick(i/10);if(++i>5){clearInterval(id);setTimeout(sWin,150);}},120);}
 function buzz(p){if(fx&&navigator.vibrate){try{navigator.vibrate(p)}catch(e){}}}
@@ -3323,13 +3327,14 @@ const CARD_HTML=`
 </div>
 <div class="mt-2.5 pt-2 border-t border-surface-border/50" id="film-more">
 <div class="grid gap-1 font-body-sm text-body-sm mt-1" id="film-facts"></div>
+<div class="flex flex-wrap items-center gap-2 mt-2" id="film-actions">
+<button class="py-2 px-3 rounded-xl bg-surface-container-high text-on-surface font-label-sm text-label-sm flex items-center justify-center gap-1 hover:text-primary border border-surface-border-subtle transition-all active:scale-95 cursor-pointer" id="btn-watched" title="Отметить как просмотренный" type="button"><span class="material-symbols-outlined text-[16px] text-primary-container">task_alt</span><span>Посмотрел</span></button>
+<button class="py-2 px-3 rounded-xl bg-surface-container-high text-on-surface font-label-sm text-label-sm flex items-center justify-center gap-1 hover:text-primary border border-surface-border-subtle transition-all active:scale-95 cursor-pointer" id="btn-browse-related" type="button"><span class="material-symbols-outlined text-[16px] text-primary-container">movie_filter</span><span>Похожие из страны</span></button>
+</div>
 </div>
 <div id="discovery-related"></div>
 <div class="flex justify-end mt-2.5 pt-2 border-t border-surface-border/50">
 <button class="flex items-center gap-1 text-primary hover:text-primary-fixed font-micro-caption text-[11px] font-bold transition-colors cursor-pointer flex-shrink-0" id="btn-spin-another-film" title="Следующий фильм из этой страны" type="button"><span class="material-symbols-outlined text-[14px]">shuffle</span><span>Другой фильм</span></button>
-</div>
-<div class="flex items-center gap-2 mt-2.5">
-<button class="py-2 px-3 rounded-xl bg-surface-container-high text-on-surface font-label-sm text-label-sm flex items-center justify-center gap-1 hover:text-primary border border-surface-border-subtle transition-all active:scale-95 cursor-pointer" id="btn-watched" title="Отметить как просмотренный" type="button"><span class="material-symbols-outlined text-[16px] text-primary-container">task_alt</span><span>Посмотрел</span></button>
 </div>
 </div>
 </section>`;
@@ -3542,6 +3547,7 @@ const card=$("cinema-35mm-reel-section");
 const watchedOld=$("btn-watched");const watchedHTML=watchedOld.innerHTML;
 const bw=watchedOld.cloneNode(true);watchedOld.replaceWith(bw);
 const ag=$("btn-spin-another-film");
+const relatedJump=$("btn-browse-related");
 const set=(id,t)=>{const e=$(id);if(e)e.textContent=t;};
 const pad=n=>(n<10?"0":"")+n;
 const STEP=90,PAD=8,CELL=80;     // шаг ячейки, левый отступ, ширина постера
@@ -3667,8 +3673,7 @@ async function spinReel(pool,film,cc){
   if(reelStyle==="cassette"){
     if(!cur||cur.film.id!==film.id)return;
     const host=$("film-reel-host"),all=pool.films||[],seq=[];for(let i=0;i<20;i++)seq.push(others.length?others[i%others.length]:film);seq.push(film);
-    window.KGCinemaReel.mountCassetteDeck(host,all,seq[0],{onOpen:f=>openFilm(f,"home"),onRandom:f=>openFilm(f,"home")});
-    startFilmReelSound();const landed=await window.KGCinemaReel.spinCassetteDeck(host,all,seq,film,{duration:3900,reducedMotion:RM,cancelled:()=>!cur||cur.film.id!==film.id,onFrame:(_f,i)=>set("reel-frame-counter","Кассета "+pad(i+1)+" / "+pad(seq.length))});stopFilmReelSound();
+    startFilmReelSound();const landed=await window.KGCinemaReel.spinCassetteDeck(host,seq,seq,film,{duration:3900,reducedMotion:RM,cancelled:()=>!cur||cur.film.id!==film.id,onOpen:f=>openFilm(f,"home"),onRandom:f=>openFilm(f,"home"),onFrame:(_f,i)=>set("reel-frame-counter","Кассета "+pad(i+1)+" / "+pad(seq.length))});stopFilmReelSound();
     if(!landed||!cur||cur.film.id!==film.id)return;const k=all.findIndex(f=>f.id===film.id);set("reel-frame-counter","Фильм "+pad((k<0?0:k)+1)+" / "+pad(all.length));buzz([25,50,60]);reveal(film,pool);return;
   }
   if(reelStyle==="ticket"){
@@ -3798,8 +3803,8 @@ function renderExtra(film,d){
     ["Длительность",d.runtime?fmtRuntime(d.runtime):"",0],["Дата выхода",when,0],
     ["Бюджет",moneyOrNo(d.budget),0],["Сборы",moneyOrNo(d.revenue),0],
     ["Студии",d.companies.join(", "),1],["Страны",d.countries.map(cname).filter(Boolean).join(", "),1],
-    ["Язык оригинала",langName(d.originalLang),0],
-    ["Оригинальное название",d.originalTitle&&d.originalTitle!==film.title?d.originalTitle:"",1]
+    ["Оригинальное название",d.originalTitle&&d.originalTitle!==film.title?d.originalTitle:"",1],
+    ["Язык оригинала",langName(d.originalLang),0]
   ].filter(f=>f[1]).map(([k,v,wide])=>`<div class="p-2.5 rounded-xl bg-surface-container-high flex flex-col min-w-0 ${wide?"col-span-2":""}">
     <span class="font-micro-caption text-micro-caption text-text-muted">${k}</span>
     <span class="font-label-md text-label-md text-on-surface mt-0.5" style="overflow-wrap:anywhere">${esc(v)}</span></div>`).join("");
@@ -3901,7 +3906,9 @@ window.show=function(cc,pool,film){
     $("film-people").innerHTML='<span class="text-text-muted">Сведения о режиссёре и актёрах сейчас недоступны.</span>';
     $("film-facts").innerHTML='<span class="text-text-muted">Подробности сейчас недоступны.</span>';
   });
-  bw.innerHTML=watchedHTML;
+  const alreadyWatched=!!window.KGIsFilmWatched?.(film.id);
+  bw.innerHTML=alreadyWatched?'<span class="material-symbols-outlined text-[16px] text-primary-fixed">task_alt</span><span>Просмотрено</span>':watchedHTML;
+  bw.disabled=alreadyWatched;bw.setAttribute("aria-pressed",String(alreadyWatched));
   ag.style.display=$("again").hidden?"none":"";
   ftKey=null;closeFilmTrailer();
   trailerFor(film).then(k=>{
@@ -3931,8 +3938,13 @@ bw.addEventListener("click",async()=>{
   const film=cur.film;
   if(await window.KGMarkWatched(film)){
     bw.innerHTML='<span class="material-symbols-outlined text-[16px] text-primary-fixed">task_alt</span><span>Просмотрено</span>';
+    bw.disabled=true;bw.setAttribute("aria-pressed","true");
     syncDesign();
   }
+});
+relatedJump.addEventListener("click",()=>{
+  const section=$("discovery-related");
+  if(section?.firstElementChild)section.scrollIntoView({behavior:"smooth",block:"center"});
 });
 ag.addEventListener("click",()=>$("again").click());
 
@@ -3966,7 +3978,7 @@ console.info("[Kinoglobus] Bridge v6 ready");
 })();
 </script>
 
-<script src="watch-history.js?v=2"></script>
+<script src="watch-history.js?v=3"></script>
 <script src="mood-page.js?v=31"></script>
 <script src="mood-vibe-page.js?v=16"></script>
 <script src="oscar-page.js?v=31"></script>

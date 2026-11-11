@@ -832,7 +832,9 @@ function openFilm(f,placement="list",detailTarget=null){
   const relatedPool=f._kgGlobalRelated?null:Array.isArray(f._kgRelatedPool)?f._kgRelatedPool:(placement==="list"||placement==="roulette"?D.all:placement==="home-europe"?null:placement.startsWith("home")?homeEditorial.films:null);
   const relatedContext=relatedPool&&relatedPool.length?`${placement}:${D.t&&D.t.id||"all"}:${detailTarget||""}`:"";
   if(relatedContext&&window.KGFilmInteractions)window.KGFilmInteractions.registerPool(relatedContext,relatedPool);
-  D.selected={...f,_cc:f._cc||(f.origin_country||[])[0]||"",_placement:placement,_detailTarget:detailTarget,_kgRelatedContext:relatedContext,overview:russianText(f.overview)||"Загружаем описание…",_trailerStatus:"loading"};
+  // Every newly opened item starts in the same poster-first state. A related
+  // recommendation must never inherit an already playing YouTube iframe.
+  D.selected={...f,_cc:f._cc||(f.origin_country||[])[0]||"",_placement:placement,_detailTarget:detailTarget,_kgRelatedContext:relatedContext,overview:russianText(f.overview)||"Загружаем описание…",_trailerPlaying:false,_trailerStatus:"loading"};
   const selected=D.selected;
   if(placement==="roulette"||placement==="home"||placement==="home-europe"||placement==="mood"||placement==="oscar"||placement==="related"||placement==="oscar-related"||placement==="person-related"||placement==="search")renderSelectedPanel();else if(!placeListPanel())renderFilms();
   if(personModalScrollRestore!==null){const dialog=document.querySelector("#kg-person-modal .kgpi-modal");requestAnimationFrame(()=>{if(dialog?.isConnected)dialog.scrollTop=personModalScrollRestore;});}
@@ -928,6 +930,7 @@ function rStop(){
 function finishPick(film,token){
   if(token!==R.token)return;
   R.busy=false;D.picked=film;setBtn(false);
+  window.playFilmFoundSound?.();
   window.KGCinemaReel?.presentTicket($("cl-reel"),film,{country:cname(film._cc||D.cc||D.t.cc[0])});
   window.KGCinemaReel?.updateIMAX(document.getElementById("kg-imax-stage"),film,{country:cname(film._cc||D.cc||D.t.cc[0]),state:"ФИЛЬМ В КАДРЕ"});
   openFilm(film,"roulette");

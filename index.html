@@ -45,7 +45,7 @@
       0% { transform: translateX(-100%); }
       100% { transform: translateX(200%); }
     }
-  .kg-cassette-active #film-details{display:none!important}</style><script src="cinema-reel.js?v=19"></script></head><body class="bg-canvas-obsidian font-body-md text-on-surface flex flex-col min-h-screen relative">
+  .kg-cassette-active #film-details{display:none!important}</style><script src="cinema-reel.js?v=20"></script></head><body class="bg-canvas-obsidian font-body-md text-on-surface flex flex-col min-h-screen relative">
 <!-- Atmospheric Living Theater Background Layer with Floating Posters -->
 <div class="fixed inset-0 pointer-events-none overflow-hidden -z-10 select-none">
 <!-- Ambient Projector Velvet & Amber Glow Orbs -->
@@ -3630,7 +3630,7 @@ async function spinReel(pool,film,cc){
     window.KGCinemaReel.prepareTicket($("film-reel-host"));
     set("reel-frame-counter","Билеты перемешиваются…");
     startFilmReelSound();
-    const landed=await window.KGCinemaReel.animateTicketDeck($("film-reel-host"),seq,film,{duration:T,reducedMotion:RM,meta:{country:cname(cc),runtime:film.runtime?fmtRuntime(film.runtime):""},cancelled:()=>!cur||cur.film.id!==film.id,shouldSkip:()=>fSkip,onFrame:(_candidate,index)=>set("reel-frame-counter",`Билет ${pad(index+1)} / ${pad(seq.length)}`)});
+    const landed=await window.KGCinemaReel.animateTicketDeck($("film-reel-host"),seq,film,{duration:T,reducedMotion:RM,meta:{country:cname(cc),runtime:film.runtime?fmtRuntime(film.runtime):""},cancelled:()=>!cur||cur.film.id!==film.id,shouldSkip:()=>fSkip,onFrame:(_candidate,index,total)=>set("reel-frame-counter",`Билет ${pad(index+1)} / ${pad(total)}`)});
     stopFilmReelSound();
     if(!landed||!cur||cur.film.id!==film.id)return;
     window.KGCinemaReel.presentTicket($("film-reel-host"),film,{country:cname(cc),runtime:film.runtime?fmtRuntime(film.runtime):""});
@@ -3927,11 +3927,11 @@ console.info("[Kinoglobus] Bridge v6 ready");
 })();
 </script>
 
-<script src="mood-page.js?v=29"></script>
-<script src="mood-vibe-page.js?v=14"></script>
+<script src="mood-page.js?v=30"></script>
+<script src="mood-vibe-page.js?v=15"></script>
 <script src="oscar-page.js?v=30"></script>
 <script src="oscar-design.js?v=12"></script>
-<script src="collections.js?v=56"></script>
+<script src="collections.js?v=57"></script>
 <script src="film-interactions.js?v=12"></script>
 <script src="legal-watch.js?v=2"></script>
 <script src="global-search.js?v=2"></script>

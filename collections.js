@@ -987,7 +987,7 @@ async function inPageRoulette(){
   if(window.KGCinemaReel?.isTicketMode?.()){
     const total=D.all.filter(inCc).length;$(`cl-fc`).textContent="Билеты перемешиваются…";
     snd(()=>startFilmReelSound());
-    const landed=await window.KGCinemaReel.animateTicketDeck($("cl-reel"),seq,film,{duration:T,meta:{country:cname(film._cc||D.cc||D.t.cc[0])},cancelled:()=>token!==R.token,shouldSkip:()=>R.skip,onFrame:(_candidate,index)=>{if(token===R.token)$(`cl-fc`).textContent=`Билет ${p2(index+1)} / ${p2(seq.length)}`;}});
+    const landed=await window.KGCinemaReel.animateTicketDeck($("cl-reel"),seq,film,{duration:T,meta:{country:cname(film._cc||D.cc||D.t.cc[0])},cancelled:()=>token!==R.token,shouldSkip:()=>R.skip,onFrame:(_candidate,index,total)=>{if(token===R.token)$(`cl-fc`).textContent=`Билет ${p2(index+1)} / ${p2(total)}`;}});
     snd(()=>stopFilmReelSound());if(!landed||token!==R.token)return;
     const all=D.all.filter(inCc),k=all.findIndex(f=>f.id===film.id);$("cl-fc").textContent=`Билет ${p2((k<0?0:k)+1)} / ${p2(all.length||total)}`;
     snd(()=>sWin());snd(()=>buzz([25,50,60]));finishPick(film,token);return;

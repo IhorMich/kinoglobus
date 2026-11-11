@@ -53,14 +53,13 @@
           <div class="kgs-choice" data-kgs-reel-style="35mm" role="radio" aria-checked="false" tabindex="0"><span class="kgs-reel">▥</span><div class="kgs-rowcopy"><div class="kgs-rowtitle">35мм киноплёнка</div><div class="kgs-meta">Привычная лента постеров в рамке</div></div><span class="kgs-sel" data-choice-selected hidden>ВЫБРАНО</span><i class="kgs-radio"></i></div>
           <div class="kgs-choice kgs-disabled"><span class="kgs-reel">🎬</span><div class="kgs-rowcopy"><div class="kgs-rowtitle">Режиссёрская хлопушка</div><div class="kgs-meta">Винтажная хлопушка с эффектом зерна</div></div><span class="kgs-badge gray">Скоро</span><i class="kgs-radio"></i></div>
           <div class="kgs-choice kgs-disabled"><span class="kgs-reel">▣</span><div class="kgs-rowcopy"><div class="kgs-rowtitle">Магнитная кассета VHS</div><div class="kgs-meta">Ретро-80-е с хроматическими помехами</div></div><span class="kgs-badge gray">В планах</span><i class="kgs-radio"></i></div>
-          <div class="kgs-choice" data-kgs-reel-style="ticket" role="radio" aria-checked="false" tabindex="0"><span class="kgs-reel">🎟</span><div class="kgs-rowcopy"><div class="kgs-rowtitle">Золотой ретро-билет</div><div class="kgs-meta">Коллекционный билет с постером, данными сеанса и отрывным корешком</div></div><span class="kgs-sel" data-choice-selected hidden>ВЫБРАНО</span><i class="kgs-radio"></i></div>
           <div class="kgs-choice" data-kgs-reel-style="projection" role="radio" aria-checked="false" tabindex="0"><span class="kgs-reel">▤</span><div class="kgs-rowcopy"><div class="kgs-rowtitle">Проекционный тракт · 35 мм</div><div class="kgs-meta">Кадры вертикальной киноплёнки прокручиваются при поиске и останавливаются на найденном фильме</div></div><span class="kgs-sel" data-choice-selected hidden>ВЫБРАНО</span><i class="kgs-radio"></i></div>
           <div class="kgs-choice" data-kgs-reel-style="cassette" role="radio" aria-checked="false" tabindex="0"><span class="kgs-reel">▰</span><div class="kgs-rowcopy"><div class="kgs-rowtitle">Кассетная дека · 3D Cover Flow</div><div class="kgs-meta">Карусель постеров со свайпом, перемоткой и случайным выбором</div></div><span class="kgs-sel" data-choice-selected hidden>ВЫБРАНО</span><i class="kgs-radio"></i></div>
         </div></section>
 
         <section class="kgs-section"><h2 class="kgs-h"><span class="i">♫</span> Звуковой режиссёрский пульт </h2><div class="kgs-card">
           <div class="kgs-audio"><div><div class="kgs-label">Звук вращения КиноГлобуса</div><div class="kgs-sub">Сопровождение выбора страны</div></div><span class="kgs-badge gray">Активно</span><div data-kgs-sound></div></div>
-          <div class="kgs-audio"><div><div class="kgs-label">Звук плёнки и проектора</div><div class="kgs-sub">Отдельная звуковая дорожка появится позже</div></div><span class="kgs-badge gray">В планах</span><select class="kgs-select" disabled aria-label="Звуковое сопровождение фильма"><option>Стрекот проектора · скоро</option></select></div>
+          <div class="kgs-audio"><div><div class="kgs-label">Звук поиска фильма</div><div class="kgs-sub">Пять кинематографичных дорожек на выбор</div></div><span class="kgs-badge">Активно</span><div data-kgs-reel-sound style="grid-column:1/3"></div><button class="kgs-play" type="button" data-kgs-reel-preview style="grid-column:1/3">▶ Прослушать звук ленты</button></div>
           <div class="kgs-row"><div class="kgs-rowcopy"><div class="kgs-rowtitle">Тактильный отклик</div><div class="kgs-meta">Вибрация при запуске рулетки</div></div><button class="kgs-switch" type="button" role="switch" data-kgs-fx aria-label="Тактильный отклик"></button></div>
           <div class="kgs-inline" style="justify-content:space-between;margin-top:4px"><button class="kgs-play" type="button" data-kgs-preview>▶ Тест кинозвука</button><label class="kgs-inline"><span class="kgs-sub">Громкость</span><input class="kgs-range" type="range" min="0" max="100" disabled aria-label="Регулятор громкости появится позже"></label></div>
         </div></section>
@@ -114,6 +113,7 @@
       choice.setAttribute("aria-checked",String(selected));
       const badge=choice.querySelector("[data-choice-selected]");if(badge)badge.hidden=!selected;
     });
+    if(reelSoundSelect)reelSoundSelect.value=window.getCinemaReelSound?.()||"projector";
     $("[data-kgs-mode=filters]").classList.toggle("active", playMode !== "surprise");
     $("[data-kgs-mode=surprise]").classList.toggle("active", playMode === "surprise");
   };
@@ -131,6 +131,15 @@
     const soundHost = $("[data-kgs-sound]");
     if (soundHost) soundHost.appendChild(soundSelect);
   }
+  const reelSoundSelect=document.getElementById("reel-snd");
+  if(reelSoundSelect){
+    reelSoundSelect.className="kgs-select";
+    reelSoundSelect.setAttribute("aria-label","Звук вращения при поиске фильма");
+    const soundHost=$("[data-kgs-reel-sound]");if(soundHost)soundHost.appendChild(reelSoundSelect);
+    reelSoundSelect.value=window.getCinemaReelSound?.()||"projector";
+    reelSoundSelect.addEventListener("change",()=>window.setCinemaReelSound?.(reelSoundSelect.value));
+  }
+  $(`[data-kgs-reel-preview]`).addEventListener("click",()=>window.previewFilmReelSound?.());
 
   $("[data-kgs-visibility]").addEventListener("click", () => {
     const input = $("#kgs-token"); input.type = input.type === "password" ? "text" : "password";

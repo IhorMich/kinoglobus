@@ -327,7 +327,14 @@ ${info.best?`<span class="block font-micro-caption text-micro-caption text-prima
     if(viewBtn){if(state.view!==viewBtn.dataset.oscarView){state.view=viewBtn.dataset.oscarView;relist(root,deps);}return;}
     if(e.target.closest("[data-oscar-reset]")){state.onlyBest=false;state.onlyUnseen=false;relist(root,deps);return;}
     if(e.target.closest("[data-oscar-reel-close]")){closeReel(root,deps);return;}
-    if(e.target.closest("#oscar-roulette")){spinReel(root,deps);return;}
+    if(e.target.closest("#oscar-roulette")){
+      spinReel(root,deps).catch(error=>{
+        console.error("[Kinoglobus] Случайный поиск Оскара завершился ошибкой:",error);
+        state.spinning=false;state.skipSpin=false;sound("stopFilmReelSound");setLaunch(root,false);
+        const status=root.querySelector("#oscar-error");if(status){status.textContent="Не удалось завершить поиск. Нажмите ещё раз.";status.hidden=false;}
+      });
+      return;
+    }
     const open=e.target.closest("[data-oscar-open]");
     if(open){
       if(state.spinning)return;   // пока плёнка крутится, постеры не открываем
@@ -342,7 +349,17 @@ ${info.best?`<span class="block font-micro-caption text-micro-caption text-prima
     const watched=e.target.closest("[data-oscar-watched]");
     if(watched){
       const f=state.films.find(item=>String(item.id)===watched.dataset.oscarWatched);
-      if(f)deps.markWatched(f).then(()=>{renderFeature(root,deps);renderList(root,deps);renderProgress(root,deps);});
+      if(!f||watched.disabled||deps.isWatched(f.id))return;
+      watched.disabled=true;watched.setAttribute("aria-pressed","true");
+      watched.classList.remove("text-text-muted","text-on-surface");watched.classList.add("text-primary","bg-primary-container/20");
+      const icon=watched.querySelector(".material-symbols-outlined");if(icon)icon.textContent="task_alt";
+      deps.markWatched(f).then(ok=>{
+        if(!ok)throw new Error("Не удалось сохранить просмотренный фильм");
+        renderFeature(root,deps);renderList(root,deps);renderProgress(root,deps);
+      }).catch(error=>{
+        console.warn("[Kinoglobus] Не удалось отметить фильм просмотренным:",error);
+        renderFeature(root,deps);renderList(root,deps);
+      });
     }
   }
   const reelStep=90,reelPadding=8,reelCellWidth=80;
@@ -405,8 +422,8 @@ ${window.KGCinemaReel.render({shellClass:"kgo-reel relative w-full rounded-xl bg
 <div class="flex items-center justify-end px-1"><button type="button" data-oscar-skip class="font-micro-caption text-micro-caption text-text-muted hover:text-primary underline"${animate?"":" hidden"}>Пропустить</button></div>
 <div id="oscar-reel-detail" class="mt-2"></div></section>`;
     const run=panel.querySelector(".kgr-run"),cells=run?[...run.children]:[],viewport=panel.querySelector(".kgr-win"),frame=panel.querySelector("[data-oscar-reel-frame]"),skip=panel.querySelector("[data-oscar-skip]"),counter=panel.querySelector("[data-oscar-frame-counter]");
-    const offsetFor=index=>reelPadding+index*reelStep+reelCellWidth/2-viewport.clientWidth/2;
-    const start=offsetFor(0),finish=offsetFor(winnerIndex);
+    const offsetFor=index=>reelPadding+index*reelStep+reelCellWidth/2-(viewport?.clientWidth||0)/2;
+    let start=0,finish=0;
     panel.scrollIntoView({behavior:"smooth",block:"center"});
     const complete=()=>{
       if(token!==state.spinToken||!panel.isConnected)return;
@@ -456,6 +473,12 @@ ${window.KGCinemaReel.render({shellClass:"kgo-reel relative w-full rounded-xl bg
       const sub=panel.querySelector("[data-oscar-reel-sub]");if(sub)sub.textContent=(film.title||film.original_title||"Фильм")+" · "+yearOf(film);
       setLaunch(root,false);if(skip)skip.hidden=true;deps.openFilm({...film,_kgRelatedPool:pool},"oscar","oscar-reel-detail");
       requestAnimationFrame(()=>{const d=document.getElementById("oscar-reel-detail");if(d&&token===state.spinToken)window.scrollTo({top:Math.max(0,window.scrollY+d.getBoundingClientRect().top-96),behavior:"smooth"});});return;
+    }
+    start=offsetFor(0);finish=offsetFor(winnerIndex);
+    if(!run||!frame||!counter){
+      state.spinning=false;state.skipSpin=false;setLaunch(root,false);
+      const error=root.querySelector("#oscar-error");if(error){error.textContent="Не удалось запустить кинопоиск. Попробуйте ещё раз.";error.hidden=false;}
+      return;
     }
     if(!animate){run.style.transform=`translateX(${-finish}px)`;complete();return;}
     cells.forEach(cell=>cell.classList.add("spin"));

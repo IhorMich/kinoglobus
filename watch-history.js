@@ -54,7 +54,9 @@
 
   window.KGResetWatchedButton = () => {
     const button = document.getElementById('btn-watched');
-    if (button) { button.innerHTML = '<span class="material-symbols-outlined text-[16px] text-primary-container">task_alt</span><span>Посмотрел</span>'; button.disabled = false; button.setAttribute('aria-pressed', 'false'); }
+    if (button) { if (window.KGPaintWatchedButton) window.KGPaintWatchedButton(button, false, 'Посмотрел'); else { button.innerHTML = '<span class="material-symbols-outlined text-[18px] text-primary-container">check_circle</span><span>Посмотрел</span>'; button.disabled = false; button.setAttribute('aria-pressed', 'false'); } }
+    const recent = document.getElementById('btn-watched-recent');
+    if (recent && window.KGPaintWatchedButton) window.KGPaintWatchedButton(recent, false, 'Посмотрел');
   };
 
   document.addEventListener('click', event => {

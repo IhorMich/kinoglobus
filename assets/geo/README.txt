@@ -1,0 +1,1 @@
+Country boundary geometry: Natural Earth 1:110m Admin 0 – Countries, converted to compact GeoJSON (ISO alpha-2 code and country name retained). Natural Earth data is public domain. Source: https://www.naturalearthdata.com/downloads/110m-cultural-vectors/

@@ -67,20 +67,18 @@
     if (heading) { heading.style.cursor = 'pointer'; heading.title = 'Показать все просмотренные фильмы'; heading.addEventListener('click', () => window.KGRenderWatchedByCountry('')); }
   });
 
-  window.KGMarkWatched = async film => {
+  window.KGMarkWatched = film => {
     if (!film || !film.id) return false;
-    let details = null;
-    try { if (typeof filmDetails === 'function') details = await filmDetails(film.id); } catch (_) {}
-    const countries = productionCountries(film, details);
     const id = Number(film.id);
     const prior = watched.find(item => Number(item.id) === id);
-    if (prior && Array.isArray(prior.countries) && prior.countries.length) return true;
+    if (prior && Array.isArray(prior.countries) && prior.countries.length) return Promise.resolve(true);
+    const countries = productionCountries(film, null);
     // Prefer the country whose search produced this result; for global or
     // collection results, credit only the first production country from TMDB.
     const requestedCountry = String(film._cc || film.cc || '').toUpperCase();
     const creditedCountry = countries.includes(requestedCountry)
       ? requestedCountry
-      : (countries[0] || ( /^[A-Z]{2}$/.test(requestedCountry) ? requestedCountry : ''));
+      : (countries[0] || (/^[A-Z]{2}$/.test(requestedCountry) ? requestedCountry : ''));
     const record = typeof filmRecord === 'function' ? filmRecord(creditedCountry, film) : { id, title: film.title || '', poster: film.poster_path || '' };
     record.id = id;
     record.cc = creditedCountry;
@@ -98,9 +96,40 @@
     store.set('watched', watched);
     seen.add(id);
     store.set('seen', [...seen]);
-    if (typeof updHist === 'function') updHist();
-    window.KGRefreshWatchedMap();
-    return true;
+    setTimeout(() => {
+      if (typeof updHist === 'function') updHist();
+      window.KGRefreshWatchedMap();
+    }, 0);
+    // Save the watch action immediately; enrich country metadata in the background
+    // so a slow TMDB request never makes the button feel like it needs a second tap.
+    if ((!countries.length || !record.overview) && typeof filmDetails === 'function') {
+      Promise.resolve().then(() => filmDetails(id)).then(details => {
+        const current = watched.find(item => Number(item.id) === id);
+        if (!current) return;
+        const allCountries = productionCountries(film, details);
+        const requested = String(film._cc || film.cc || '').toUpperCase();
+        const nextCountry = allCountries.includes(requested) ? requested : (allCountries[0] || current.cc || '');
+        const enriched = typeof filmRecord === 'function' ? filmRecord(nextCountry, {...film,...details, id}) : current;
+        enriched.id = id;
+        enriched.cc = nextCountry;
+        enriched.countries = nextCountry ? [nextCountry] : [];
+        enriched.productionCountries = allCountries;
+        enriched.watchedAt = current.watchedAt;
+        watched = watched.map(item => Number(item.id) === id ? enriched : item);
+        const previousCountry = (current.countries || [])[0] || current.cc || '';
+        if (nextCountry && previousCountry !== nextCountry) {
+          if (previousCountry) visited[previousCountry] = Math.max(0, (visited[previousCountry] || 0) - 1);
+          visited[nextCountry] = (visited[nextCountry] || 0) + 1;
+          lastCC = nextCountry;
+          store.set('visited', visited);
+          store.set('lastCC', lastCC);
+        }
+        store.set('watched', watched);
+        if (typeof updHist === 'function') updHist();
+        window.KGRefreshWatchedMap();
+      }).catch(() => {});
+    }
+    return Promise.resolve(true);
   };
 
   window.KGRefreshWatchedMap();

@@ -2260,6 +2260,7 @@ async function buildPool(cc,o){
   return null;
 }
 
+let forcedCountryQuery="";
 function currentQuery(){
   if(playMode==="surprise"){
     if(surprise==="find") return {g:pick(GENRE_IDS),find:true,adult:false,worst:false,rmin:"",rmax:"",y:"",yto:"",theme:"",themeName:""};
@@ -2275,7 +2276,7 @@ function currentQuery(){
     rmin:sel.has("worst")?"":$("rmin").value,rmax:sel.has("worst")?"":$("rmax").value,
     y:years.y,yto:years.yto,
     theme:theme?theme.id:"",themeName:theme?theme.name:"",
-    countries:theme?theme.cc:null
+    countries:forcedCountryQuery?[forcedCountryQuery]:(theme?theme.cc:null)
   };
 }
 function yearQuery(){
@@ -3127,6 +3128,7 @@ async function spin(){
   reelStart();
   try{
     const q=currentQuery();
+    if(forcedCountryQuery)q.countries=[forcedCountryQuery];
     const order=shuffle(q.countries||COUNTRIES);
     const cap=q.countries?order.length:Math.min(order.length,18);
     for(let i=0;i<cap;i+=3){   // проверяем небольшими параллельными партиями, чтобы поиск оставался отзывчивым
@@ -3965,11 +3967,24 @@ go("podborki-i-zhanry",()=>{DET[2].open=true;DET[2].scrollIntoView({behavior:"sm
 G.orientGlobeToCountry(G.currentCountry,true,0.08,G.CAMERA_DIST_DEFAULT,false);G.hideMarks();
 playMode="filters";store.set("playMode","filters");applyMode();
 syncDesign();setSpinUi(false);
+window.KGCountryApp={
+  countries:()=>COUNTRIES.slice(),
+  watched:()=>watched.slice(),
+  counts:()=>window.KGWatchedCountryCounts?window.KGWatchedCountryCounts():{},
+  countryName:cname,
+  countryFlag:code=>flag(code,false),
+  key:()=>apiKey,
+  getCountryFilms:async(code,page=1)=>api({with_origin_country:code,sort_by:"popularity.desc","vote_count.gte":10,include_adult:"false",page}),
+  getFilmDetails:filmDetails,
+  openMovie:(code,film)=>{closeJ();window.show(code,{films:[film],saved:true},film);},
+  searchCountry:async code=>{if(!apiKey){closeJ();showKeyUi();$("tmdb-key-banner").scrollIntoView({behavior:"smooth",block:"center"});return;}forcedCountryQuery=code;G.currentCountry=gc(code);focusedCC=code;closeJ();try{await spin();}finally{forcedCountryQuery="";}}
+};
 console.info("[Kinoglobus] Bridge v6 ready");
 })();
 </script>
 
 <script src="watch-history.js?v=4"></script>
+<script src="country-pages.js?v=1"></script>
 <script src="mood-page.js?v=31"></script>
 <script src="mood-vibe-page.js?v=16"></script>
 <script src="oscar-page.js?v=32"></script>

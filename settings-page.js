@@ -29,6 +29,15 @@
     .kgs-bottom{display:grid;grid-template-columns:repeat(4,1fr);flex:none;padding:7px 8px calc(7px + env(safe-area-inset-bottom));background:#19151e;border-top:1px solid #ffffff0b;box-shadow:0 -5px 16px #0005}.kgs-tab{display:grid;justify-items:center;gap:3px;border:0;background:transparent;color:#958b9c;font-size:8px;cursor:pointer}.kgs-tab .i{font-size:16px}.kgs-tab.active{color:#ffc044}
     @media(min-width:520px){#settings.kgs-dialog[open]{height:min(930px,96dvh);top:2dvh;border:1px solid #40364a;border-radius:20px}.kgs-head{border-radius:20px 20px 0 0}.kgs-bottom{border-radius:0 0 20px 20px}}
     @media(prefers-reduced-motion:reduce){.kgs-switch:after{transition:none}}
+    /* Match the app's normal 14px body text and serif section headings. */
+    .kgs-title{font-size:16px}.kgs-title small{font-size:12px}
+    .kgs-hero{margin:8px 0 14px}.kgs-kicker{font-size:10px}.kgs-hero h1{font-family:'Noto Serif',Georgia,serif;font-size:25px;line-height:1.2}.kgs-hero p{font-size:13px;line-height:1.5}
+    .kgs-account-title{font-size:14px}.kgs-account-sub{font-size:12px;line-height:1.45}.kgs-account-actions .kgs-btn{font-size:13px}
+    .kgs-stat-top{font-size:12px}.kgs-stat strong{font-size:14px}.kgs-h{font-family:'Noto Serif',Georgia,serif;font-size:17px;letter-spacing:0;text-transform:none}.kgs-card{padding:12px}
+    .kgs-note{font-size:12px;line-height:1.5}.kgs-label{font-size:13px}.kgs-sub{font-size:12px;line-height:1.45}.kgs-row{min-height:46px}.kgs-rowtitle{font-size:14px;line-height:1.4}.kgs-meta{font-size:11px;line-height:1.4}.kgs-badge{font-size:10px;padding:4px 7px}
+    .kgs-input,.kgs-select{height:40px;font-size:14px}.kgs-ok{font-size:13px}.kgs-btn{min-height:38px;font-size:13px}.kgs-choice{min-height:50px;gap:9px;padding:7px 9px}.kgs-choice .kgs-rowtitle{font-size:14px}.kgs-choice .kgs-meta{font-size:11px}.kgs-sel{font-size:9px}.kgs-reel{width:32px;height:32px;font-size:17px}
+    .kgs-play{height:36px;font-size:12px}.kgs-mode button{min-height:36px;font-size:12px}.kgs-chip{padding:7px 3px;font-size:10px}.kgs-progresshead{font-size:12px}.kgs-progressmeta{font-size:10px}.kgs-map{padding:11px}.kgs-warning{padding:9px;font-size:11px}.kgs-foot{font-size:10px}
+    .kgs-theme{min-height:78px}.kgs-theme b{font-size:10px}.kgs-theme small{font-size:9px}.kgs-soon{font-size:9px}.kgs-tab{font-size:10px}.kgs-tab .i{font-size:18px}
   `;
   document.head.appendChild(style);
 

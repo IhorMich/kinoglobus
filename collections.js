@@ -626,7 +626,7 @@ function selectedFilmHtml(f,embedded=false){
       :""):"";
   const oscarBlock=oscar?`<div class="flex items-start gap-3 p-3 rounded-xl bg-gradient-to-br from-cinema-velvet-deep/50 via-surface-container-high to-surface-container-high border border-primary-container/25"><span class="material-symbols-outlined text-primary-container text-[28px] shrink-0" style="font-variation-settings:'FILL' 1;">workspace_premium</span><div class="min-w-0 flex flex-col gap-0.5"><h4 class="font-label-md text-label-md text-primary-fixed font-semibold">${oscar.best?"Оскар · Лучший фильм":"Лауреат премии «Оскар»"}</h4>${oscar.best?`<p class="font-label-sm text-label-sm text-primary-container font-semibold">${oscar.n}-я церемония · ${oscar.year} год</p><p class="font-body-sm text-body-sm text-text-muted">Главная награда Американской киноакадемии. Статуэтку получает лучший фильм года; эта картина вышла в ${oscar.film} году.</p>`:`<p class="font-body-sm text-body-sm text-text-muted">Картина входит в список лауреатов Американской киноакадемии${oscar.film?` · фильм ${oscar.film} года`:""}.</p>`}${awardsHtml}</div></div>`:"";
   const tagline=f.tagline&&f.taglineLang===f.overviewLang?`<p class="font-body-sm text-body-sm text-primary-fixed italic">${esc(f.tagline)}</p>`:"";
-  const booked=BOOK.has(f.id),title=esc(f.title||"Фильм");
+  const booked=BOOK.has(f.id),watched=!!window.KGIsFilmWatched?.(f.id),title=esc(f.title||"Фильм");
   const orig=[f.originalTitle&&f.originalTitle!==f.title?esc(f.originalTitle):"",year?`(${year})`:""].filter(Boolean).join(" ");
   const countries=(f.countries&&f.countries.length?f.countries:(f._cc?[f._cc]:[])).map(cc=>`${esc(cname(cc))} ${fl(cc)}`).join(" · ");
   const genres=(f.genres||[]).join(" · ");
@@ -647,6 +647,8 @@ ${window.KGLegalWatch?.markup(f.id)||""}
 ${activeVideo?`<a href="${watchUrl(activeVideo)}" target="_blank" rel="noopener noreferrer" class="font-micro-caption text-micro-caption text-primary underline">Не воспроизводится? Открыть на ${esc(activeVideo.site)}</a>`:""}
 ${rating?`<div class="flex items-center gap-2 overflow-x-auto py-0.5">${rating}</div>`:""}
 ${countries||genres?`<div class="flex flex-wrap items-center gap-x-2.5 gap-y-1 font-body-sm text-body-sm text-text-muted">${countries?`<span class="text-on-surface">${countries}</span>`:""}${countries&&genres?"<span>•</span>":""}${genres?`<span class="text-on-surface-variant">${esc(genres)}</span>`:""}</div>`:""}
+<div class="flex items-center gap-2 font-body-sm text-body-sm"><span class="text-text-muted">Язык оригинала</span><span class="text-on-surface-variant">${f.originalLang?esc(typeof langName==="function"?langName(f.originalLang):f.originalLang):f._detailsLoaded?"—":"Загружаем…"}</span></div>
+<button type="button" data-film-watched="${f.id}" aria-pressed="${watched}" class="w-full min-h-11 px-4 rounded-xl flex items-center justify-center gap-2 font-label-md text-label-md font-semibold transition-all ${watched?"bg-cinema-velvet-deep text-secondary-fixed":"bg-surface-container-high text-on-surface hover:text-primary"}"><span class="material-symbols-outlined text-[18px]">${watched?"task_alt":"check_circle"}</span><span>${watched?"Просмотрено ✓":"Посмотрел"}</span></button>
 ${f.tagline&&f.taglineLang===f.overviewLang?`<blockquote class="italic font-headline-sm text-[15px] leading-tight text-primary-fixed-dim/90">«${esc(f.tagline)}»</blockquote>`:""}
 ${oscarBlock}
 <div data-kg-film-description class="p-4 rounded-xl bg-surface-container flex flex-col gap-2"><span class="font-label-md text-label-md text-primary-fixed tracking-wide uppercase">О фильме</span><p class="font-body-md text-body-md text-on-surface leading-relaxed">${esc(f.overview||"Загружаем описание…")}</p></div>
@@ -660,6 +662,18 @@ ${fact("Мировые сборы",`<span class="font-headline-sm text-headline-
 <section data-kg-related-films data-film-id="${f.id}" data-context-key="${esc(f._kgRelatedContext||"")}" data-placement="${esc(f._placement||"")}" data-detail-target="${esc(f._detailTarget||"")}" data-global-related="${f._kgGlobalRelated||f._placement==="home-europe"?"true":"false"}" class="flex flex-col gap-space-sm"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary-container text-[20px]">movie_filter</span><h3 class="font-headline-sm text-headline-sm text-on-surface">Похожие фильмы</h3></div><div data-kg-related-list class="flex gap-space-sm overflow-x-auto pb-1"><span class="font-micro-caption text-micro-caption text-text-muted">Подбираем фильмы…</span></div></section></${shell}>`;
 }
 document.addEventListener("click",e=>{
+  const watchedButton=e.target.closest("[data-film-watched]");
+  if(watchedButton){
+    e.preventDefault();e.stopPropagation();
+    const film=D.selected&&String(D.selected.id)===watchedButton.dataset.filmWatched?D.selected:null;
+    if(!film||watchedButton.dataset.saving==="true"||window.KGIsFilmWatched?.(film.id))return;
+    watchedButton.dataset.saving="true";watchedButton.setAttribute("aria-pressed","true");
+    watchedButton.classList.remove("bg-surface-container-high","text-on-surface","hover:text-primary");
+    watchedButton.classList.add("bg-cinema-velvet-deep","text-secondary-fixed");
+    watchedButton.innerHTML='<span class="material-symbols-outlined text-[18px]">task_alt</span><span>Просмотрено ✓</span>';
+    Promise.resolve(window.KGMarkWatched?.({...film,_cc:film._cc||film.cc||""})).then(ok=>{if(!ok)throw new Error("Не удалось сохранить просмотр");if(D.selected===film)renderSelectedPanel();}).catch(error=>{console.warn("[Kinoglobus] Не удалось отметить фильм просмотренным:",error);watchedButton.dataset.saving="false";});
+    return;
+  }
   const bookmark=e.target.closest('[data-act="bm"]');
   if(bookmark&&D.selected&&["mood","oscar"].includes(D.selected._placement)&&String(D.selected.id)===bookmark.dataset.id){
     e.preventDefault();e.stopPropagation();
@@ -860,7 +874,7 @@ function openFilm(f,placement="list",detailTarget=null){
     selected.tagline=details.tagline;
     selected.taglineLang=details.taglineLang;
     selected.cert=details.cert;selected.genres=details.genres;selected.countries=details.countries;
-    selected.originalTitle=details.originalTitle;selected.release=details.release;
+    selected.originalTitle=details.originalTitle;selected.originalLang=details.originalLang;selected.release=details.release;
     selected.votes=details.votes;selected.average=details.average;
     selected._detailsLoaded=true;
     if(placement==="home")homeEditorial.featureDetails={...homeEditorial.featureDetails,...selected};

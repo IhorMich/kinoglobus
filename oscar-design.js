@@ -266,8 +266,9 @@
 ${oscar}
 <div class="flex flex-col gap-space-xs">${watchBtn}${shareBtn}</div>
 <div class="flex flex-col gap-space-xs"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-[20px]">smart_display</span><h3 class="font-headline-sm text-headline-sm text-on-surface">Официальный трейлер</h3></div><div id="cl-inline-trailer" class="relative w-full kg-detail-trailer rounded-xl overflow-hidden bg-black shadow-md">${trailer}</div>${v?`<a href="${watchUrl(v)}" target="_blank" rel="noopener noreferrer" class="font-micro-caption text-micro-caption text-primary underline">Не воспроизводится? Открыть на ${esc(v.site)}</a>`:""}</div>
+${where}
 <div class="flex flex-col gap-2 rounded-xl bg-surface-panel p-space-md shadow-sm"><h3 class="font-headline-sm text-headline-sm text-primary">Сюжет картины</h3><p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">${esc(f.overview||"Загружаем описание…")}</p></div>
-${people}${where}${facts?`<div class="grid grid-cols-2 gap-2.5">${facts}</div>`:""}
+${people}${facts?`<div class="grid grid-cols-2 gap-2.5">${facts}</div>`:""}
 </div></section>`;
   };
 

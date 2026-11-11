@@ -6,7 +6,11 @@
   const style = document.createElement("style");
   style.id = "kg-settings-style";
   style.textContent = `
-    #settings.kgs-dialog{--gold:#ffb830;--gold2:#ffdca8;--ink:#09070d;--panel:#18141e;--panel2:#211b29;--muted:#a79bad;position:fixed;inset:0;margin:0 auto;width:min(100%,520px);height:100dvh;max-height:100dvh;padding:0;border:0;border-radius:0;background:var(--ink);color:#f0e7f1;overflow:hidden;box-shadow:0 0 55px #000b;font-family:inherit}
+    /* A dialog is hidden by the browser until it is opened. The explicit display
+       on the component must preserve that behavior, otherwise settings cover
+       the home screen on every first visit. */
+    #settings.kgs-dialog:not([open]){display:none!important}
+    #settings.kgs-dialog[open]{--gold:#ffb830;--gold2:#ffdca8;--ink:#09070d;--panel:#18141e;--panel2:#211b29;--muted:#a79bad;display:flex;position:fixed;inset:0;margin:0 auto;width:min(100%,520px);height:100dvh;max-height:100dvh;padding:0;border:0;border-radius:0;background:var(--ink);color:#f0e7f1;overflow:hidden;box-shadow:0 0 55px #000b;font-family:inherit}
     #settings.kgs-dialog::backdrop{background:#030205ed}
     .kgs-shell{height:100%;display:flex;flex-direction:column;background:radial-gradient(ellipse at 50% -10%,#3e263f42,transparent 43%),var(--ink)}
     .kgs-head{height:58px;box-sizing:border-box;display:flex;align-items:center;gap:9px;padding:0 16px;flex:none;background:#17131c;border-bottom:1px solid #ffffff0b;box-shadow:0 5px 18px #0005}
@@ -22,7 +26,7 @@
     .kgs-mode{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border-radius:9px;background:#141018}.kgs-mode button{min-height:28px;border:0;border-radius:7px;background:transparent;color:#a89caf;font-size:9px;cursor:pointer}.kgs-mode button.active{background:#d89015;color:#1d140a;font-weight:800;box-shadow:0 2px 9px #d8901530}.kgs-chips{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:7px}.kgs-chip{padding:5px 2px;border:1px solid #ffffff0d;border-radius:6px;background:#201b27;color:#a99eaf;font-size:8px}.kgs-chip:disabled{opacity:.58}
     .kgs-progresshead{display:flex;justify-content:space-between;align-items:center;font-size:9px;color:#d9ccdf}.kgs-track{height:5px;margin:7px 0;border-radius:9px;background:#342c39;overflow:hidden}.kgs-track i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#e18b12,#ffd06e)}.kgs-progressmeta{display:flex;justify-content:space-between;color:#92879b;font-size:8px}.kgs-map{display:flex;align-items:center;gap:9px;width:100%;margin-top:9px;padding:8px;border:1px solid #4c3d2c;border-radius:9px;background:#29221d;color:#f1d9aa;text-align:left;cursor:pointer}.kgs-map .i{color:#ffc24e;font-size:16px}.kgs-map span:nth-child(2){flex:1}.kgs-warning{padding:7px;border-radius:8px;background:#38222a;color:#d6aab1;font-size:8px;line-height:1.4;margin:7px 0}.kgs-foot{padding:9px 5px 2px;text-align:center;color:#7e7487;font-size:8px;line-height:1.6}.kgs-github{color:#d0bfdf;text-decoration:underline;text-underline-offset:2px}
     .kgs-bottom{display:grid;grid-template-columns:repeat(4,1fr);flex:none;padding:7px 8px calc(7px + env(safe-area-inset-bottom));background:#19151e;border-top:1px solid #ffffff0b;box-shadow:0 -5px 16px #0005}.kgs-tab{display:grid;justify-items:center;gap:3px;border:0;background:transparent;color:#958b9c;font-size:8px;cursor:pointer}.kgs-tab .i{font-size:16px}.kgs-tab.active{color:#ffc044}
-    @media(min-width:520px){#settings.kgs-dialog{height:min(930px,96dvh);top:2dvh;border:1px solid #40364a;border-radius:20px}.kgs-head{border-radius:20px 20px 0 0}.kgs-bottom{border-radius:0 0 20px 20px}}
+    @media(min-width:520px){#settings.kgs-dialog[open]{height:min(930px,96dvh);top:2dvh;border:1px solid #40364a;border-radius:20px}.kgs-head{border-radius:20px 20px 0 0}.kgs-bottom{border-radius:0 0 20px 20px}}
     @media(prefers-reduced-motion:reduce){.kgs-switch:after{transition:none}}
   `;
   document.head.appendChild(style);

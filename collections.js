@@ -977,12 +977,12 @@ async function inPageRoulette(){
   if(window.KGCinemaReel?.isProjectionMode?.()){
     const total=D.all.filter(inCc).length;$("cl-fc").textContent="Проектор запускается…";snd(()=>startFilmReelSound());
     const landed=await window.KGCinemaReel.spinProjectionTrack($("cl-reel"),seq,film,{duration:T,meta:{country:cname(film._cc||D.cc||D.t.cc[0])},cancelled:()=>token!==R.token,shouldSkip:()=>R.skip,onFrame:(_candidate,index)=>{if(token===R.token)$("cl-fc").textContent=`Кадр ${p2(index+1)} / ${p2(seq.length)}`;}});
-    snd(()=>stopFilmReelSound());if(!landed||token!==R.token)return;const all=D.all.filter(inCc),k=all.findIndex(f=>f.id===film.id);$("cl-fc").textContent=`Фильм ${p2((k<0?0:k)+1)} / ${p2(all.length||total)}`;snd(()=>sWin());snd(()=>buzz([25,50,60]));finishPick(film,token);return;
+    snd(()=>stopFilmReelSound());if(!landed||token!==R.token)return;const all=D.all.filter(inCc),k=all.findIndex(f=>f.id===film.id);$("cl-fc").textContent=`Фильм ${p2((k<0?0:k)+1)} / ${p2(all.length||total)}`;snd(()=>buzz([25,50,60]));finishPick(film,token);return;
   }
   if(window.KGCinemaReel?.isCassetteMode?.()){
     const eligible=D.all.filter(inCc);$("cl-fc").textContent="Кассета перематывается…";snd(()=>startFilmReelSound());
     const landed=await window.KGCinemaReel.spinCassetteDeck($("cl-reel"),eligible,seq,film,{duration:T,cancelled:()=>token!==R.token,shouldSkip:()=>R.skip,onOpen:f=>openFilm(f,"roulette"),onFrame:(_f,index)=>{if(token===R.token)$("cl-fc").textContent=`Фильм ${p2(index+1)} / ${p2(seq.length)}`;}});
-    snd(()=>stopFilmReelSound());if(!landed||token!==R.token)return;const all=D.all.filter(inCc),k=all.findIndex(f=>f.id===film.id);$("cl-fc").textContent=`Фильм ${p2((k<0?0:k)+1)} / ${p2(all.length)}`;snd(()=>sWin());snd(()=>buzz([25,50,60]));finishPick(film,token);return;
+    snd(()=>stopFilmReelSound());if(!landed||token!==R.token)return;const all=D.all.filter(inCc),k=all.findIndex(f=>f.id===film.id);$("cl-fc").textContent=`Фильм ${p2((k<0?0:k)+1)} / ${p2(all.length)}`;snd(()=>buzz([25,50,60]));finishPick(film,token);return;
   }
   if(window.KGCinemaReel?.isTicketMode?.()){
     const total=D.all.filter(inCc).length;$(`cl-fc`).textContent="Билеты перемешиваются…";
@@ -990,7 +990,7 @@ async function inPageRoulette(){
     const landed=await window.KGCinemaReel.animateTicketDeck($("cl-reel"),seq,film,{duration:T,meta:{country:cname(film._cc||D.cc||D.t.cc[0])},cancelled:()=>token!==R.token,shouldSkip:()=>R.skip,onFrame:(_candidate,index,total)=>{if(token===R.token)$(`cl-fc`).textContent=`Билет ${p2(index+1)} / ${p2(total)}`;}});
     snd(()=>stopFilmReelSound());if(!landed||token!==R.token)return;
     const all=D.all.filter(inCc),k=all.findIndex(f=>f.id===film.id);$("cl-fc").textContent=`Билет ${p2((k<0?0:k)+1)} / ${p2(all.length||total)}`;
-    snd(()=>sWin());snd(()=>buzz([25,50,60]));finishPick(film,token);return;
+    snd(()=>buzz([25,50,60]));finishPick(film,token);return;
   }
   const run=rMount(seq,NEED,"");
   if(!run){R.busy=false;return;}
@@ -1017,7 +1017,7 @@ async function inPageRoulette(){
     const fr=$("cl-frame");fr.classList.remove("hit");void fr.offsetWidth;fr.classList.add("hit");
     const all=D.all.filter(inCc),k=all.findIndex(f=>f.id===film.id);
     $("cl-fc").textContent=`Кадр ${p2((k<0?0:k)+1)} / ${p2(all.length)}`;
-    snd(()=>sWin());snd(()=>buzz([25,50,60]));
+    snd(()=>buzz([25,50,60]));
     finishPick(film,token);
   };
   R.raf=requestAnimationFrame(step);

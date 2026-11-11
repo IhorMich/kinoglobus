@@ -1209,10 +1209,15 @@ rotatingGroup.add(flagPinGroup);
            vec3 earthColor = diffuseColor.rgb;
            float earthLuminance = dot(earthColor, vec3(0.2126, 0.7152, 0.0722));
            float oceanSignal = earthColor.b - max(earthColor.r, earthColor.g) * 0.82;
-           float oceanMask = smoothstep(0.015, 0.12, oceanSignal);
+           float earthOceanMask = smoothstep(0.015, 0.12, oceanSignal);
            vec3 blueOcean = vec3(earthColor.r * 0.82, earthColor.g * 0.90, min(1.0, earthColor.b * 1.22 + 0.025));
-           earthColor = mix(earthColor, blueOcean, oceanMask * 0.9);
+           earthColor = mix(earthColor, blueOcean, earthOceanMask * 0.9);
            diffuseColor.rgb = clamp(mix(vec3(earthLuminance), earthColor, 1.12) * 1.02, 0.0, 1.0);`
+        );
+        shader.fragmentShader = shader.fragmentShader.replace(
+          '#include <emissivemap_fragment>',
+          `#include <emissivemap_fragment>
+           totalEmissiveRadiance += vec3(0.012, 0.045, 0.14) * earthOceanMask;`
         );
       };
 

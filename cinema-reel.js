@@ -23,7 +23,7 @@
       <div class="kg-imax-controls"><span class="kg-imax-led"></span><span data-imax-status aria-live="polite"></span><button type="button" data-imax-skip hidden>К выбранному фильму</button></div>
     </section>`;
   }
-  const reelMode=()=>{try{const mode=JSON.parse(localStorage.getItem("reelStyle")||'"35mm"');return mode==="ticket"?"35mm":mode;}catch{return"35mm";}};
+  const reelMode=()=>{try{const mode=JSON.parse(localStorage.getItem("reelStyle")||'"35mm"');return ["cassette","projection"].includes(mode)?mode:"35mm";}catch{return"35mm";}};
   const ticketEscape=html;
   function ticketMarkup(film={},meta={}){
     const title=film.title||film.original_title||"Фильм из КиноГлобуса",original=film.original_title&&film.original_title!==title?film.original_title:"ПРЕМЬЕРНЫЙ СЕАНС";
@@ -100,12 +100,10 @@
   const cassetteImage=path=>path?`https://image.tmdb.org/t/p/w500${path}`:"";
   function renderCassetteDeck(){
     return `<section class="kg-cassette-deck" data-kg-cassette-deck>
-      <div class="kg-cassette-telemetry"><div><span class="kg-cassette-live"><i></i> КИНОГЛОБУС · HI-FI DECK</span><small>STUDIO MASTER TAPE RECORDER</small></div><div class="kg-cassette-counter"><small>TAPE</small><b data-kg-cassette-counter>01 / 01</b></div></div>
-      <div class="kg-cassette-vumeters"><div><span>CH-L <b data-kg-vu-left-db>+0.0 dB</b></span><i data-kg-vu-left>${"<b></b>".repeat(10)}</i></div><div><span>CH-R <b data-kg-vu-right-db>+0.0 dB</b></span><i data-kg-vu-right>${"<b></b>".repeat(10)}</i></div></div>
-      <div class="kg-cassette-mechanism"><div class="kg-cassette-hub-wrap"><div class="kg-cassette-hub" data-kg-cassette-hub="left"><i></i></div></div><div class="kg-cassette-head"><div><b>DOLBY B-NR</b><span data-kg-cassette-percent>54%</span></div><i><b data-kg-cassette-progress></b></i><div class="kg-cassette-head-state"><i></i><span data-kg-cassette-head>HEAD READY</span><i></i></div></div><div class="kg-cassette-hub-wrap"><div class="kg-cassette-hub" data-kg-cassette-hub="right"><i></i></div></div></div>
-      <div class="kg-cassette-stage"><div class="kg-cassette-collection-label"><span>▣ 3D КОЛЛЕКЦИЯ ШЕДЕВРОВ</span><small>◄ ТАП / СВАЙП ►</small></div><div class="kg-cassette-coverflow" data-kg-cassette-track aria-label="Карусель фильмов"><div class="kg-cassette-ambient"></div></div><div class="kg-cassette-swipe-hint" aria-hidden="true"></div><button type="button" data-kg-cassette-prev aria-label="Предыдущий фильм">‹</button><button type="button" data-kg-cassette-next aria-label="Следующий фильм">›</button></div>
-      <article class="kg-cassette-info"><div class="kg-cassette-info-head"><span data-kg-cassette-director>КИНОГЛОБУС · ПРЕМЬЕРНЫЙ АРХИВ</span><span data-kg-cassette-format>Hi-Fi Stereo</span></div><h2 data-kg-cassette-title>Выберите фильм</h2><div class="kg-cassette-info-original" data-kg-cassette-original></div><div class="kg-cassette-tags"><span data-kg-cassette-rating>★ — TMDB</span><span data-kg-cassette-country>КИНОГЛОБУС</span><span data-kg-cassette-runtime></span><span data-kg-cassette-genre>ФИЛЬМ</span></div><p data-kg-cassette-overview>Запустите кинематографический поиск фильма.</p><div class="kg-cassette-actions"><button type="button" data-kg-cassette-watch>▶ Открыть фильм</button><button type="button" class="kg-cassette-icon" data-kg-cassette-settings aria-label="Открыть настройки звука">♫</button></div></article>
-      <div class="kg-cassette-transport"><button type="button" data-kg-cassette-prev aria-label="Предыдущий фильм">◀◀<small>REW · НАЗАД</small></button><button type="button" data-kg-cassette-random><span data-kg-cassette-roll-icon>⏵</span> СЛУЧАЙНЫЙ ФИЛЬМ<small>ROLL · RANDOM</small></button><button type="button" data-kg-cassette-next aria-label="Следующий фильм">▶▶<small>FFWD · ВПЕРЁД</small></button></div>
+      <div class="kg-cassette-counter"><b data-kg-cassette-counter>01 / 01</b></div>
+      <div class="kg-cassette-stage"><div class="kg-cassette-coverflow" data-kg-cassette-track aria-label="Карусель фильмов"><div class="kg-cassette-ambient"></div></div><button type="button" data-kg-cassette-prev aria-label="Предыдущий фильм">‹</button><button type="button" data-kg-cassette-next aria-label="Следующий фильм">›</button></div>
+      <article class="kg-cassette-info"><h2 data-kg-cassette-title>Выберите фильм</h2><div class="kg-cassette-info-original" data-kg-cassette-original></div><div class="kg-cassette-tags"><span data-kg-cassette-rating>★ — TMDB</span><span data-kg-cassette-country>КИНОГЛОБУС</span><span data-kg-cassette-runtime></span><span data-kg-cassette-genre>ФИЛЬМ</span></div><p data-kg-cassette-overview>Запустите кинематографический поиск фильма.</p><div class="kg-cassette-actions"><button type="button" data-kg-cassette-watch>▶ Открыть фильм</button><button type="button" class="kg-cassette-icon" data-kg-cassette-settings aria-label="Открыть настройки звука">♫</button></div></article>
+      <div class="kg-cassette-transport"><button type="button" data-kg-cassette-prev aria-label="Предыдущий фильм">◀◀<small>НАЗАД</small></button><button type="button" data-kg-cassette-random><span data-kg-cassette-roll-icon>⏵</span> СЛУЧАЙНЫЙ ФИЛЬМ<small>ПОИСК</small></button><button type="button" data-kg-cassette-next aria-label="Следующий фильм">▶▶<small>ВПЕРЁД</small></button></div>
       <div class="kg-cassette-footer"><span><i data-kg-cassette-status-dot></i><b data-kg-cassette-status>КАССЕТА ГОТОВА К ПОИСКУ</b></span><button type="button" data-kg-cassette-sound>♫ ЗВУК ПОИСКА: ВКЛ</button></div>
     </section>`;
   }
@@ -236,13 +234,8 @@
   function isCassetteMode(){return reelMode()==="cassette";}
   function render(options={}){
     const mode=options.mode||reelMode();
-    if(mode==="70mm")return renderImax({...options,mode:"70mm"});
     if(mode==="cassette")return renderCassetteDeck(options);
     if(mode==="projection")return renderProjectionTrack(options);
-    // The main screen stores one visual choice for all roulette routes.
-    if(options.mode!=="35mm"){
-      try{if(JSON.parse(localStorage.getItem("reelStyle")||'"35mm"')==="70mm")return renderImax({...options,mode:"70mm"});}catch{}
-    }
     const shellClass=options.shellClass||"relative w-full rounded-xl bg-canvas-obsidian border border-primary-container/30 overflow-hidden shadow-[inset_0_2px_12px_rgba(0,0,0,0.95)] p-1";
     const windowClass=["kg-reel-window","kgr-win","select-none",options.windowClass||""].filter(Boolean).join(" ");
     const trackClass=["kg-reel-track","kgr-track",options.trackClass||""].filter(Boolean).join(" ");

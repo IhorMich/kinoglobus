@@ -1,5 +1,8 @@
 /* Shared visual markup for every film reel in Kinoglobus. */
 (function(){
+  // The ticket, projection and cassette searches share one slower pacing across
+  // the globe, collections, mood and Oscar screens.
+  const searchPaceFactor=1.35;
   const hole=()=>'<i aria-hidden="true"></i>'.repeat(12);
   const perf=()=>`<div class="kg-reel-perf" aria-hidden="true"><div>${hole()}</div></div>`;
   const attr=(name,value)=>value?` ${name}="${String(value).replace(/[&"<>]/g,c=>({"&":"&amp;",'"':"&quot;","<":"&lt;",">":"&gt;"}[c]))}"`:"";
@@ -61,7 +64,7 @@
     if(typeof container==="string")container=document.querySelector(container);
     const stage=container?.querySelector("[data-kg-ticket-shuffle]"),face=container?.querySelector("[data-kg-ticket-face]"),status=container?.querySelector("[data-kg-ticket-shuffle-status]");
     if(!stage||!face)return Promise.resolve(false);
-    const items=(sequence||[]).filter(Boolean),frames=items.length?items:[winner].filter(Boolean),duration=Math.max(0,Number(options.duration)||4200);
+    const items=(sequence||[]).filter(Boolean),frames=items.length?items:[winner].filter(Boolean),duration=Math.max(0,Number(options.duration)||4200)*searchPaceFactor;
     stage.classList.add("is-shuffling");stage.classList.remove("is-landed");
     const layers=[...stage.querySelectorAll("[data-kg-ticket-layer]")];
     const fillLayers=index=>layers.forEach((layer,depth)=>{const item=frames[Math.max(0,index-depth-1)]||frames[0];layer.innerHTML=ticketMarkup(item,options.meta||{});});
@@ -149,7 +152,7 @@
     const inherited=existing?cassetteStates.get(existing)?.options||{}:{};
     const merged={...inherited,...options};
     const mounted=mountCassetteDeck(container,films,winner,merged);if(!mounted)return Promise.resolve(false);
-    const state=mounted.state,items=(sequence||[]).filter(Boolean),duration=Math.max(350,Number(options.duration)||2600);
+    const state=mounted.state,items=(sequence||[]).filter(Boolean),duration=Math.max(350,Number(options.duration)||2600)*searchPaceFactor;
     const status=mounted.root.querySelector("[data-kg-cassette-status]");
     const land=()=>{const idx=state.films.findIndex(f=>String(f.id)===String(winner?.id));if(idx>=0)mounted.update(idx,0);state.rolling=false;mounted.root.classList.remove("is-rolling");if(status)status.textContent="ФИЛЬМ НАЙДЕН · ГОТОВ К ПРОСМОТРУ";options.onFrame?.(winner,steps);options.onFinish?.(winner);return true;};
     const steps=Math.max(8,Math.min(24,items.length||12));
@@ -189,7 +192,7 @@
   }
   function spinProjectionTrack(container,sequence,winner,options={}){
     const mounted=mountProjectionTrack(container,sequence?.[0]||winner,options.meta||{});if(!mounted)return Promise.resolve(false);
-    const {root,state}=mounted,frames=(sequence||[]).filter(Boolean),winnerIndex=frames.findIndex(f=>String(f?.id)===String(winner?.id)),items=(winnerIndex>=0?frames.slice(0,winnerIndex+1):frames).filter(Boolean),duration=Math.max(350,Number(options.duration)||3000),counter=root.querySelector("[data-kg-projection-counter]"),status=root.querySelector("[data-kg-projection-state]"),img=root.querySelector("[data-kg-projection-image]");
+    const {root,state}=mounted,frames=(sequence||[]).filter(Boolean),winnerIndex=frames.findIndex(f=>String(f?.id)===String(winner?.id)),items=(winnerIndex>=0?frames.slice(0,winnerIndex+1):frames).filter(Boolean),duration=Math.max(350,Number(options.duration)||3000)*searchPaceFactor,counter=root.querySelector("[data-kg-projection-counter]"),status=root.querySelector("[data-kg-projection-state]"),img=root.querySelector("[data-kg-projection-image]");
     const land=()=>{mountProjectionTrack(root,winner,options.meta||{});root.classList.remove("is-running");state.rolling=false;if(status)status.textContent="ФИЛЬМ НАЙДЕН · КАДР ЗАФИКСИРОВАН";options.onFrame?.(winner,items.length);return true;};
     if(options.reducedMotion||items.length<2)return Promise.resolve(land());
     state.rolling=true;root.classList.add("is-running");if(status)status.textContent="ПРОЕКЦИЯ ИДЁТ…";

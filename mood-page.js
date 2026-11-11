@@ -295,7 +295,7 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
     if(window.KGCinemaReel?.isTicketMode?.()){
       panel.scrollIntoView({behavior:"smooth",block:"center"});
       if(typeof window.startFilmReelSound==="function")window.startFilmReelSound();
-      const landed=await window.KGCinemaReel.animateTicketDeck(panel,sequence,film,{duration:4600,reducedMotion:prefersReducedMotion()||!others.length,meta:{country:film._cc||"КИНОПОИСК"},cancelled:()=>token!==state.spinToken||!panel.isConnected,shouldSkip:()=>state.skipSpin,onFrame:(_candidate,index)=>{const c=activeElement(root,"[data-mood-frame-counter]");if(c)c.textContent="Билет "+String(index+1).padStart(2,"0")+" / "+String(sequence.length).padStart(2,"0");}});
+      const landed=await window.KGCinemaReel.animateTicketDeck(panel,sequence,film,{duration:4600,reducedMotion:prefersReducedMotion()||!others.length,meta:{country:film._cc||"КИНОПОИСК"},cancelled:()=>token!==state.spinToken||!panel.isConnected,shouldSkip:()=>state.skipSpin,onFrame:(_candidate,index,total)=>{const c=activeElement(root,"[data-mood-frame-counter]");if(c)c.textContent="Билет "+String(index+1).padStart(2,"0")+" / "+String(total).padStart(2,"0");}});
       if(typeof window.stopFilmReelSound==="function")window.stopFilmReelSound();
       if(!landed||token!==state.spinToken||!panel.isConnected){state.spinning=false;if(launchButton)launchButton.disabled=false;return;}
       window.KGCinemaReel.presentTicket(panel,film,{country:film._cc||"КИНОПОИСК"});state.spinning=false;state.skipSpin=false;

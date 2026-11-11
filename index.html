@@ -45,7 +45,7 @@
       0% { transform: translateX(-100%); }
       100% { transform: translateX(200%); }
     }
-  .kg-cassette-active #film-details{display:none!important}</style><script src="cinema-reel.js?v=24"></script></head><body class="bg-canvas-obsidian font-body-md text-on-surface flex flex-col min-h-screen relative">
+  .kg-cassette-active #film-details{display:none!important}</style><script src="cinema-reel.js?v=25"></script></head><body class="bg-canvas-obsidian font-body-md text-on-surface flex flex-col min-h-screen relative">
 <!-- Atmospheric Living Theater Background Layer with Floating Posters -->
 <div class="fixed inset-0 pointer-events-none overflow-hidden -z-10 select-none">
 <!-- Ambient Projector Velvet & Amber Glow Orbs -->
@@ -350,7 +350,7 @@
     <div id="crew" hidden></div><p id="tagline" hidden></p><p id="over"></p>
     <div id="player" hidden></div><p id="ytnote" hidden><a id="ytlink"></a></p>
   </div>
-  <dialog id="settings"><select id="snd"><option value="roulette">roulette</option><option value="bells">bells</option><option value="arcade">arcade</option><option value="casino">casino</option><option value="marimba">marimba</option><option value="space">space</option><option value="film">film</option><option value="orchestra">orchestra</option><option value="jazz">jazz</option><option value="synth">synth</option><option value="chimes">chimes</option><option value="off">off</option></select><select id="reel-snd"><option value="projector">35 мм · проектор</option><option value="imax">IMAX · низкий гул</option><option value="camera">Кинокамера · механика</option><option value="tape">Магнитная плёнка</option><option value="premiere">Премьерный зал</option><option value="off">Без звука</option></select></dialog>
+  <dialog id="settings"><select id="snd"><option value="roulette">roulette</option><option value="bells">bells</option><option value="arcade">arcade</option><option value="casino">casino</option><option value="marimba">marimba</option><option value="space">space</option><option value="film">film</option><option value="orchestra">orchestra</option><option value="jazz">jazz</option><option value="synth">synth</option><option value="chimes">chimes</option><option value="off">off</option></select><select id="reel-snd"><option value="projector">35 мм · проектор</option><option value="imax">Кинозал · низкий гул</option><option value="camera">Кинокамера · механика</option><option value="tape">Магнитная плёнка</option><option value="premiere">Премьерный зал</option><option value="off">Без звука</option></select></dialog>
   <dialog id="journey"><div id="jhead"></div><i id="jfill"></i><div id="mapbox"></div><div id="jstats"></div><div id="jopen"></div><div id="jclosed"></div><span id="jclosedsum"></span><div id="jfilms"></div><span id="jopenT"></span><span id="jfilmsT"></span><span id="minfo"></span><span id="jtitle"></span></dialog>
   <span id="brand"></span>
   <span id="topNote" hidden></span><span id="oscarNote" hidden></span>
@@ -1764,7 +1764,7 @@ let fx=store.get("fx",true);
 let showAdult=store.get("showAdult",true);
 let filmSpin=store.get("filmSpin",true);
 const savedReelStyle=store.get("reelStyle","35mm");
-let reelStyle=["70mm","cassette","projection"].includes(savedReelStyle)?savedReelStyle:"35mm";
+let reelStyle=["cassette","projection"].includes(savedReelStyle)?savedReelStyle:"35mm";
 if(savedReelStyle!==reelStyle)store.set("reelStyle",reelStyle);
 let playMode=store.get("playMode","filters")==="surprise"?"surprise":"filters";
 let surprise=store.get("surprise","light");
@@ -2581,42 +2581,6 @@ function preloadPosters(pool){
 }
 const FILM_REEL_DEFAULT_HTML=$("freel").innerHTML;
 function resetFilmReelSearchView(box=$("freel")){if(box)box.innerHTML=FILM_REEL_DEFAULT_HTML;}
-function imaxSearchCell(f,i){
-  const title=esc(f.title||f.original_title||"Фильм"),year=(f.release_date||"").slice(0,4);
-  const image=f.poster_path?'<img src="https://image.tmdb.org/t/p/w185'+f.poster_path+'" alt="'+title+'" draggable="false">':'<div class="nop">'+title+'</div>';
-  return '<div class="film-cell" data-imax-cell="'+i+'">'+image+(year?'<span class="yr">'+year+'</span>':"")+'</div>';
-}
-async function filmReel70mm(pool,film,cc,warm){
-  const box=$("freel"),others=shuffle((pool.films||[]).filter(f=>f.id!==film.id&&f.poster_path));
-  const NEED=others.length?18:0,T=4200,TAIL=5,sequence=[];
-  if(NEED){for(let i=0;i<NEED;i++)sequence.push(others[i%others.length]);sequence.push(film);for(let i=0;i<TAIL;i++)sequence.push(others[(i+2)%others.length]);}
-  else sequence.push(film);
-  await Promise.race([warm||Promise.resolve(),sleep(700)]);
-  const country=cname(cc)+" · "+cc;
-  box.innerHTML=window.KGCinemaReel.render({mode:"70mm",prefix:"imax-search",rootId:"kg-imax-stage-search",windowId:"imax-search-window",trackId:"imax-search-track",frameId:"imax-search-frame",runId:"imax-search-run",content:sequence.map(imaxSearchCell).join(""),title:"Поиск фильма",subtitle:"TMDB · прокрутка постеров",description:"Плёнка движется между подающей и приёмной бобинами.",country,rating:"—",state:"ПОИСК ЗАПУЩЕН",counter:pool.films.length+" ФИЛЬМОВ"});
-  box.hidden=false;box.classList.remove("out");
-  const stage=$("kg-imax-stage-search"),run=$("imax-search-run"),frame=$("imax-search-frame"),windowEl=$("imax-search-window");
-  if(!stage||!run||!windowEl){resetFilmReelSearchView(box);return;}
-  window.KGCinemaReel.updateIMAX(stage,film,{country,state:NEED?"ПРОЕКЦИЯ ИДЁТ":"ФИЛЬМ В КАДРЕ"});
-  const skip=stage.querySelector("[data-imax-skip]");let skipRequested=false;
-  if(skip){skip.hidden=!!RM;skip.onclick=()=>{skipRequested=true;stage.querySelector("[data-imax-status]").textContent="Останавливаем плёнку…";};}
-  stage.scrollIntoView({behavior:"smooth",block:"nearest"});
-  if(!NEED){await sleep(700);box.hidden=true;resetFilmReelSearchView(box);return;}
-  const PAD=8,STEP=90,CELL=80,center=i=>PAD+i*STEP+CELL/2-windowEl.clientWidth/2;
-  const targetLeft=center(NEED),startX=center(0),counter=stage.querySelector("[data-imax-counter]");
-  if(counter)counter.textContent="КАДР -- / "+pad(pool.films.length);
-  startFilmReelSound();
-  await new Promise(resolve=>window.KGCinemaReel.spin({run,root:stage,frame,startX,endX:targetLeft,duration:T,stepWidth:STEP,chosenIndex:NEED,spinningClass:"spinning",mapProgress:p=>skipRequested?1:p,
-    onStep:row=>{const candidate=sequence[Math.max(0,Math.min(NEED,row))]||film;window.KGCinemaReel.updateIMAX(stage,candidate,{country,state:"ПРОЕКЦИЯ ИДЁТ"});if(counter)counter.textContent="КАДР "+String(Math.max(1,row+1)).padStart(2,"0")+" / "+String(pool.films.length).padStart(2,"0");buzz(6);},
-    onFinish:resolve,onCancel:resolve
-  }));
-  stopFilmReelSound();
-  window.KGCinemaReel.updateIMAX(stage,film,{country,state:"ФИЛЬМ В КАДРЕ"});
-  if(counter){const index=(pool.films||[]).findIndex(f=>f.id===film.id);counter.textContent="КАДР "+String(Math.max(0,index)+1).padStart(2,"0")+" / "+String(pool.films.length).padStart(2,"0");}
-  sWin();buzz([25,50,60]);
-  await sleep(650);
-  box.hidden=true;resetFilmReelSearchView(box);
-}
 $("fskip").onclick=()=>{fSkip=true;};
 async function filmReel(pool,film,cc,warm){
   if(RM) return;
@@ -2640,7 +2604,6 @@ async function filmReel(pool,film,cc,warm){
     await window.KGCinemaReel.animateTicketDeck(box,sequence,film,{duration:1800,reducedMotion:RM,meta:{country:cname(cc)},shouldSkip:()=>fSkip});
     stopFilmReelSound();window.KGCinemaReel.presentTicket(box,film,{country:cname(cc)});await sleep(900);box.hidden=true;resetFilmReelSearchView(box);return;
   }
-  if(reelStyle==="70mm"){await filmReel70mm(pool,film,cc,warm);return;}
   const pics=posterStrip(pool.films);
   if(!pics) return;
   const box=$("freel");
@@ -2725,7 +2688,6 @@ function oscarCaption(cc,film){
 }
 function show(cc,pool,film){
   cur={cc,pool,film};
-  if(reelStyle==="70mm")window.KGCinemaReel.updateIMAX($("kg-imax-stage-card"),film,{country:cname(cc),runtime:film.runtime?fmtRuntime(film.runtime):"",state:"ФИЛЬМ В КАДРЕ"});
   $("flag").innerHTML=flag(cc);
   $("cname").textContent=cname(cc);
   $("cmeta").textContent=pool.oscar?oscarCaption(cc,film):pool.top1?topCaption(cc,pool,film):poolLine(pool);
@@ -3216,10 +3178,10 @@ st.textContent=`
 `;
 document.head.appendChild(st);
 
-// ---------- Визуальный режим киноленты: обычная 35-мм или двойная бобина 70-мм IMAX ----------
+// ---------- Единый визуальный режим киноленты для всех экранов ----------
 function mainReelMarkup(){
   const common={shellClass:"relative w-full rounded-xl bg-canvas-obsidian border border-primary-container/30 overflow-hidden shadow-[inset_0_2px_12px_rgba(0,0,0,0.95)] my-2 p-1",prefix:"film-reel",windowId:"film-reel-window",trackId:"film-reel-track",runClass:"run",frameId:"film-center-frame",includeRun:false};
-  return window.KGCinemaReel.render(reelStyle==="70mm"?{...common,mode:"70mm",rootId:"kg-imax-stage-card",state:"ГОТОВ К ПРОЕКЦИИ"}:reelStyle==="cassette"?{...common,mode:"cassette"}:reelStyle==="projection"?{...common,mode:"projection"}:common);
+  return window.KGCinemaReel.render(reelStyle==="cassette"?{...common,mode:"cassette"}:reelStyle==="projection"?{...common,mode:"projection"}:common);
 }
 // ---------- Новая секция «Кинолента» (подменяет старую карточку) ----------
 const CARD_HTML=`
@@ -3228,7 +3190,7 @@ const CARD_HTML=`
 <div class="flex items-center gap-2 min-w-0">
 <div class="w-7 h-7 rounded-lg bg-surface-container flex items-center justify-center border border-primary-container/30 text-primary shadow-[0_0_8px_rgba(255,184,48,0.25)] flex-shrink-0"><span class="material-symbols-outlined text-[17px]">movie</span></div>
 <div class="flex flex-col min-w-0">
-<div class="flex items-center gap-1.5"><span class="font-label-sm text-label-sm font-bold text-on-surface uppercase tracking-wider" id="reel-format-title">${reelStyle==="70mm"?"Кинолента 70-мм IMAX":reelStyle==="cassette"?"Кассетная дека · 3D Cover Flow":reelStyle==="projection"?"Проекционный тракт · 35 мм":"Кинолента 35-мм"}</span></div>
+<div class="flex items-center gap-1.5"><span class="font-label-sm text-label-sm font-bold text-on-surface uppercase tracking-wider" id="reel-format-title">${reelStyle==="cassette"?"Кассетная дека · 3D Cover Flow":reelStyle==="projection"?"Проекционный тракт · 35 мм":"Кинолента 35-мм"}</span></div>
 <span class="font-micro-caption text-[11px] text-text-muted truncate" id="discovery-timestamp">Крутите глобус, и здесь появится находка</span>
 </div></div>
 <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-high/90 border border-primary-container/25 shadow-sm flex-shrink-0"><span class="material-symbols-outlined text-primary-container text-[14px]">confirmation_number</span><span class="font-mono text-micro-caption text-primary-fixed font-semibold tracking-wide" id="reel-frame-counter">Кадр 00 / 00</span></div>
@@ -3522,18 +3484,17 @@ function renderStatic(pool,film,cc){      // готовая лента без п
   set("reel-frame-counter",`Кадр ${pad(i+1)} / ${list.length}`);
 }
 window.setCinemaReelStyle=function(style){
-  const next=["70mm","cassette","projection"].includes(style)?style:"35mm";
+  const next=["cassette","projection"].includes(style)?style:"35mm";
   if(next===reelStyle)return;
   stopReel();
   reelStyle=next;store.set("reelStyle",next);
   filmSpin=true;store.set("filmSpin",true);filmLabel();
-  const title=$("reel-format-title");if(title)title.textContent=next==="70mm"?"Кинолента 70-мм IMAX":next==="cassette"?"Кассетная дека · 3D Cover Flow":next==="projection"?"Проекционный тракт · 35 мм":"Кинолента 35-мм";
+  const title=$("reel-format-title");if(title)title.textContent=next==="cassette"?"Кассетная дека · 3D Cover Flow":next==="projection"?"Проекционный тракт · 35 мм":"Кинолента 35-мм";
   const host=$("film-reel-host");if(!host)return;
   host.innerHTML=mainReelMarkup();
   trackEl=$("film-reel-track");frameEl=$("film-center-frame");runEl=null;
   document.body.classList.toggle("kg-cassette-active",next==="cassette");
   if(cur&&strip.pool)renderStatic(strip.pool,cur.film,strip.cc);else renderBlank();
-  if(cur&&reelStyle==="70mm")window.KGCinemaReel.updateIMAX($("kg-imax-stage-card"),cur.film,{country:cname(cur.cc),runtime:cur.film.runtime?fmtRuntime(cur.film.runtime):""});
 };
 function recenter(){if(runEl&&strip.idx>=0)runEl.style.transform=`translateX(${-centerX(strip.idx)}px)`;}
 window.addEventListener("resize",recenter);
@@ -3634,20 +3595,14 @@ async function spinReel(pool,film,cc){
   mountRun(seq,NEED,"");
   [...runEl.children].forEach(c=>c.classList.add("spinning"));
   set("reel-frame-counter","Кадр -- / "+pad(pool.films.length));
-  const imaxStage=reelStyle==="70mm"?$("kg-imax-stage-card"):null;
-  if(imaxStage){window.KGCinemaReel.updateIMAX(imaxStage,film,{country:cname(cc),runtime:film.runtime?fmtRuntime(film.runtime):"",state:"ПРОЕКЦИЯ ИДЁТ"});}
-  let imaxSkipRequested=false;
-  const imaxSkip=imaxStage?.querySelector("[data-imax-skip]");
-  if(imaxSkip){imaxSkip.hidden=false;imaxSkip.textContent="К выбранному фильму";imaxSkip.onclick=()=>{imaxSkipRequested=true;const status=imaxStage.querySelector("[data-imax-status]");if(status)status.textContent="Останавливаем плёнку…";};}
   startFilmReelSound();
   const x0=centerX(0),x1=centerX(NEED);
   const completed=await new Promise(resolve=>{
     spinCancel=window.KGCinemaReel.spin({
-      run:runEl,root:imaxStage,frame:frameEl,startX:x0,endX:x1,duration:T,stepWidth:STEP,mapProgress:p=>imaxSkipRequested?1:p,
+      run:runEl,root:null,frame:frameEl,startX:x0,endX:x1,duration:T,stepWidth:STEP,
       chosenIndex:NEED,reducedMotion:RM,
       onStep:(row,progress)=>{
         if(progress>.6)buzz(7);
-        if(imaxStage&&seq.length){const candidate=seq[Math.min(NEED,Math.max(0,row))]||film;window.KGCinemaReel.updateIMAX(imaxStage,candidate,{country:cname(cc),state:"ПРОЕКЦИЯ ИДЁТ"});}
       },
       onProgress:()=>{if(!cur||cur.film.id!==film.id)spinCancel?.();},
       onFinish:()=>resolve(true),
@@ -3658,8 +3613,6 @@ async function spinReel(pool,film,cc){
   if(!completed||!cur||cur.film.id!==film.id){strip.busy=false;stopFilmReelSound();return;}
   strip.busy=false;
   stopFilmReelSound();
-  if(imaxSkip)imaxSkip.hidden=true;
-  if(imaxStage)window.KGCinemaReel.updateIMAX(imaxStage,film,{country:cname(cc),runtime:film.runtime?fmtRuntime(film.runtime):"",state:"НАЙДЕН ФИЛЬМ"});
   if(reelStyle==="ticket")window.KGCinemaReel.presentTicket($("film-reel-host"),film,{country:cname(cc),runtime:film.runtime?fmtRuntime(film.runtime):""});
   const k=pool.films.findIndex(f=>f.id===film.id);
   set("reel-frame-counter",`Кадр ${pad((k<0?0:k)+1)} / ${pad(pool.films.length)}`);
@@ -3917,6 +3870,6 @@ console.info("[Kinoglobus] Bridge v6 ready");
 <script src="film-interactions.js?v=12"></script>
 <script src="legal-watch.js?v=2"></script>
 <script src="global-search.js?v=2"></script>
-<script src="settings-page.js?v=17"></script>
+<script src="settings-page.js?v=18"></script>
 
 </body></html>

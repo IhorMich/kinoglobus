@@ -198,6 +198,7 @@
     ${renderMetadata(state.currentFilm)}
     ${renderSynopsis(state.currentFilm)}
     ${renderTrailerSection(deps)}
+    ${window.KGLegalWatch?.markup(state.currentFilm.id)||""}
     ${renderActionButtons()}
     ${renderBackButton()}
   </div>

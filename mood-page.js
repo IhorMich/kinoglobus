@@ -63,7 +63,7 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
   function ensureStyle(){
     if(document.getElementById("kg-mood-style"))return;
     const s=document.createElement("style");s.id="kg-mood-style";
-    s.textContent="#view-mood [hidden]{display:none !important}";
+    s.textContent="#view-mood [hidden]{display:none !important}#view-mood{box-sizing:border-box;width:min(calc(100vw - 12px),1100px);max-width:none;margin-left:50%;transform:translateX(-50%);padding-left:8px;padding-right:8px}@media(max-width:360px){#view-mood{width:calc(100vw - 8px);padding-left:5px;padding-right:5px}}";
     document.head.appendChild(s);
   }
   function render(root,deps){
@@ -254,7 +254,7 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
       if(item)deps.openFilm({...item,_kgRelatedPool:filtered()},"mood",film.dataset.detailTarget||"mood-roulette-detail");
     }
   }
-  function launch(root,deps){
+  async function launch(root,deps){
     if(state.spinning)return;
     deps.closeFilm("mood");
     const error=activeElement(root,"[data-mood-error]"),pool=filtered();

@@ -182,7 +182,7 @@
 <div class="absolute top-2.5 right-2.5 px-2.5 py-1 rounded-md bg-cinema-velvet-deep/90 text-secondary font-label-sm text-label-sm font-semibold shadow-md"><span class="material-symbols-outlined text-[15px] align-middle mr-1">military_tech</span>Лауреат</div>
 <div class="absolute bottom-2.5 left-3 right-3 flex items-end justify-between gap-2"><div class="min-w-0"><div class="font-label-sm text-label-sm text-on-surface-variant mb-0.5">${countries.join(" / ")||"Кинематограф мира"} · ${year}</div><h2 class="font-headline-md text-headline-md text-on-surface font-bold drop-shadow truncate">${title}</h2></div>${director?`<button type="button" data-kg-person-id="${director.id}" data-kg-person-name="${esc(director.name)}" data-kg-person-role="Режиссёр" class="kg-person-link text-sm shrink-0">${esc(director.name)}</button>`:""}</div></div>
 <div class="flex flex-wrap gap-1.5 mt-3"><span class="px-2.5 py-1 rounded-lg bg-surface-container-high text-primary font-micro-caption text-micro-caption font-semibold flex items-center gap-1"><span class="material-symbols-outlined text-[13px] text-primary-container">trophy</span>${info.best?`Оскар · Лучший фильм · ${info.n}-я церемония, ${info.year}`:"Фильм — лауреат «Оскара»"}</span><span class="px-2.5 py-1 rounded-lg bg-surface-container text-on-surface-variant font-micro-caption text-micro-caption">${year}</span></div>
-<div id="oscar-feature-detail-${f.id}" data-oscar-detail-host></div></article>`;    
+<div id="oscar-feature-detail-${f.id}" data-oscar-detail-host></div></article>`;
     if(deps.refreshFilm)deps.refreshFilm();
   }
   async function loadFeatureDetails(root,deps){

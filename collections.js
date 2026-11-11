@@ -661,7 +661,7 @@ ${fact("Бюджет",`<span class="font-headline-sm text-headline-sm text-prima
 ${fact("Мировые сборы",`<span class="font-headline-sm text-headline-sm text-primary-container">${f._detailsLoaded?moneyText(f.revenue):"Загружаем…"}</span>`)}
 </div></div>
 <div class="flex flex-col gap-2"><div class="flex items-center justify-between"><span class="font-label-md text-label-md text-primary-fixed tracking-wide uppercase">В главных ролях</span>${(f.castFull||[]).length?`<span class="font-micro-caption text-micro-caption text-text-muted">${f.castFull.length} ${f.castFull.length%10===1&&f.castFull.length!==11?"актёр":f.castFull.length%10>1&&f.castFull.length%10<5&&(f.castFull.length<10||f.castFull.length>20)?"актёра":"актёров"}</span>`:""}</div>${cast?`<div class="flex gap-2.5 overflow-x-auto py-1" style="-webkit-overflow-scrolling:touch">${cast}</div>`:`<p class="font-body-sm text-body-sm text-text-muted">${f._detailsLoaded?"Сведения об актёрах недоступны.":"Загружаем актёров…"}</p>`}</div>
-<section data-kg-related-films data-film-id="${f.id}" data-context-key="${esc(f._kgRelatedContext||"")}" data-placement="${esc(f._placement||"")}" data-detail-target="${esc(f._detailTarget||"")}" class="flex flex-col gap-space-sm"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary-container text-[20px]">movie_filter</span><h3 class="font-headline-sm text-headline-sm text-on-surface">Похожие фильмы</h3></div><div data-kg-related-list class="flex gap-space-sm overflow-x-auto pb-1"><span class="font-micro-caption text-micro-caption text-text-muted">Подбираем фильмы…</span></div></section></${shell}>`;
+<section data-kg-related-films data-film-id="${f.id}" data-context-key="${esc(f._kgRelatedContext||"")}" data-placement="${esc(f._placement||"")}" data-detail-target="${esc(f._detailTarget||"")}" data-global-related="${f._kgGlobalRelated||f._placement==="home-europe"?"true":"false"}" class="flex flex-col gap-space-sm"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary-container text-[20px]">movie_filter</span><h3 class="font-headline-sm text-headline-sm text-on-surface">Похожие фильмы</h3></div><div data-kg-related-list class="flex gap-space-sm overflow-x-auto pb-1"><span class="font-micro-caption text-micro-caption text-text-muted">Подбираем фильмы…</span></div></section></${shell}>`;
 }
 document.addEventListener("click",e=>{
   const bookmark=e.target.closest('[data-act="bm"]');
@@ -828,7 +828,7 @@ function openFilm(f,placement="list",detailTarget=null){
     // Keep the selected film card when opening one of its nested recommendations.
     if(previousTarget&&(!nextTarget||!previousTarget.contains(nextTarget)))previousTarget.replaceChildren();
   }
-  const relatedPool=Array.isArray(f._kgRelatedPool)?f._kgRelatedPool:(placement==="list"||placement==="roulette"?D.all:placement.startsWith("home")?homeEditorial.films:null);
+  const relatedPool=f._kgGlobalRelated?null:Array.isArray(f._kgRelatedPool)?f._kgRelatedPool:(placement==="list"||placement==="roulette"?D.all:placement==="home-europe"?null:placement.startsWith("home")?homeEditorial.films:null);
   const relatedContext=relatedPool&&relatedPool.length?`${placement}:${D.t&&D.t.id||"all"}:${detailTarget||""}`:"";
   if(relatedContext&&window.KGFilmInteractions)window.KGFilmInteractions.registerPool(relatedContext,relatedPool);
   D.selected={...f,_cc:f._cc||(f.origin_country||[])[0]||"",_placement:placement,_detailTarget:detailTarget,_kgRelatedContext:relatedContext,overview:russianText(f.overview)||"Загружаем описание…",_trailerStatus:"loading"};
@@ -944,7 +944,19 @@ async function inPageRoulette(){
   setBtn(true);
   try{audio();}catch(e){}
   $("cl-reel").scrollIntoView({behavior:"smooth",block:"center"});
-  if(!others.length||RM){                      // мало постеров или отключена анимация: сразу показываем кадр
+  if(!others.length||RM){                      // мало постеров или отключена анимация: сразу показываем выбор
+    if(window.KGCinemaReel?.isProjectionMode?.()){
+      const landed=await window.KGCinemaReel.spinProjectionTrack($("cl-reel"),[film],film,{duration:350,reducedMotion:true,cancelled:()=>token!==R.token,meta:{country:cname(film._cc||D.cc||D.t.cc[0])}});
+      if(landed&&token===R.token){$("cl-fc").textContent="Фильм найден";finishPick(film,token);}return;
+    }
+  if(window.KGCinemaReel?.isCassetteMode?.()){
+      const eligible=D.all.filter(inCc),landed=await window.KGCinemaReel.spinCassetteDeck($("cl-reel"),eligible,[film],film,{duration:350,reducedMotion:true,cancelled:()=>token!==R.token,onOpen:f=>openFilm(f,"roulette")});
+      if(landed&&token===R.token){$("cl-fc").textContent="Фильм выбран";finishPick(film,token);}return;
+    }
+    if(window.KGCinemaReel?.isTicketMode?.()){
+      const landed=await window.KGCinemaReel.animateTicketDeck($("cl-reel"),[film],film,{reducedMotion:true,meta:{country:cname(film._cc||D.cc||D.t.cc[0])},cancelled:()=>token!==R.token});
+      if(landed&&token===R.token){$("cl-fc").textContent="Билет найден";finishPick(film,token);}return;
+    }
     rMount([film],0,"chosen");$("cl-fc").textContent="Кадр 01 / 01";
     finishPick(film,token);return;
   }
@@ -954,6 +966,24 @@ async function inPageRoulette(){
   for(let i=0;i<TAIL;i++)seq.push(others[(i+2)%others.length]);
   await Promise.race([Promise.all(seq.filter(f=>f.poster_path).map(f=>new Promise(r=>{const im=new Image();im.onload=im.onerror=r;im.src=P(f.poster_path,"w185");}))),wait(2500)]);
   if(token!==R.token)return;
+  if(window.KGCinemaReel?.isProjectionMode?.()){
+    const total=D.all.filter(inCc).length;$("cl-fc").textContent="Проектор запускается…";snd(()=>startFilmReelSound());
+    const landed=await window.KGCinemaReel.spinProjectionTrack($("cl-reel"),seq,film,{duration:T,meta:{country:cname(film._cc||D.cc||D.t.cc[0])},cancelled:()=>token!==R.token,shouldSkip:()=>R.skip,onFrame:(_candidate,index)=>{if(token===R.token)$("cl-fc").textContent=`Кадр ${p2(index+1)} / ${p2(seq.length)}`;}});
+    snd(()=>stopFilmReelSound());if(!landed||token!==R.token)return;const all=D.all.filter(inCc),k=all.findIndex(f=>f.id===film.id);$("cl-fc").textContent=`Фильм ${p2((k<0?0:k)+1)} / ${p2(all.length||total)}`;snd(()=>sWin());snd(()=>buzz([25,50,60]));finishPick(film,token);return;
+  }
+  if(window.KGCinemaReel?.isCassetteMode?.()){
+    const eligible=D.all.filter(inCc);$("cl-fc").textContent="Кассета перематывается…";snd(()=>startFilmReelSound());
+    const landed=await window.KGCinemaReel.spinCassetteDeck($("cl-reel"),eligible,seq,film,{duration:T,cancelled:()=>token!==R.token,shouldSkip:()=>R.skip,onOpen:f=>openFilm(f,"roulette"),onFrame:(_f,index)=>{if(token===R.token)$("cl-fc").textContent=`Фильм ${p2(index+1)} / ${p2(seq.length)}`;}});
+    snd(()=>stopFilmReelSound());if(!landed||token!==R.token)return;const all=D.all.filter(inCc),k=all.findIndex(f=>f.id===film.id);$("cl-fc").textContent=`Фильм ${p2((k<0?0:k)+1)} / ${p2(all.length)}`;snd(()=>sWin());snd(()=>buzz([25,50,60]));finishPick(film,token);return;
+  }
+  if(window.KGCinemaReel?.isTicketMode?.()){
+    const total=D.all.filter(inCc).length;$(`cl-fc`).textContent="Билеты перемешиваются…";
+    snd(()=>startFilmReelSound());
+    const landed=await window.KGCinemaReel.animateTicketDeck($("cl-reel"),seq,film,{duration:T,meta:{country:cname(film._cc||D.cc||D.t.cc[0])},cancelled:()=>token!==R.token,shouldSkip:()=>R.skip,onFrame:(_candidate,index)=>{if(token===R.token)$(`cl-fc`).textContent=`Билет ${p2(index+1)} / ${p2(seq.length)}`;}});
+    snd(()=>stopFilmReelSound());if(!landed||token!==R.token)return;
+    const all=D.all.filter(inCc),k=all.findIndex(f=>f.id===film.id);$("cl-fc").textContent=`Билет ${p2((k<0?0:k)+1)} / ${p2(all.length||total)}`;
+    snd(()=>sWin());snd(()=>buzz([25,50,60]));finishPick(film,token);return;
+  }
   const run=rMount(seq,NEED,"");
   if(!run){R.busy=false;return;}
   [...run.children].forEach(c=>c.classList.add("spin"));

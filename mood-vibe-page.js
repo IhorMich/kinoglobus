@@ -253,7 +253,7 @@
       while(next<items.length){const index=next++;await fn(items[index],index);}
     }));
   }
-  function launch(root,deps){
+  async function launch(root,deps){
     if(state.spinning)return;
     deps.closeFilm("mood");
     const error=activeElement(root,"[data-vibe-error]"),pool=filtered();

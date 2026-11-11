@@ -186,7 +186,7 @@
         }
         if(e.target.closest("[data-kgo-avatar]")){window.KGOpenAccountPage?.("register");return;}
         const w=e.target.closest("[data-kgo-watch]");
-        if(w&&d){const f=cardFilm[w.dataset.kgoWatch];if(f){try{await d.markWatched(f);}catch(err){}d.refreshFilm();}return;}
+        if(w&&d){const f=cardFilm[w.dataset.kgoWatch];if(f){if(w.dataset.saving==="true"||d.isWatched?.(f.id))return;w.dataset.saving="true";w.disabled=true;w.setAttribute("aria-pressed","true");w.classList.remove("bg-primary-container","text-on-primary-container");w.classList.add("bg-cinema-velvet-deep","text-secondary-fixed");w.innerHTML='<span class="material-symbols-outlined text-[22px]">task_alt</span><span>В вашем Зале славы ✓</span>';try{const ok=await d.markWatched(f);if(!ok)throw new Error("Не удалось сохранить просмотр");d.refreshFilm();}catch(err){w.disabled=false;w.dataset.saving="false";w.setAttribute("aria-pressed","false");d.refreshFilm();}}return;}
         const sh=e.target.closest("[data-kgo-share]");
         if(sh){
           const url="https://www.themoviedb.org/movie/"+sh.dataset.kgoShare,lab=sh.querySelector("span:last-child"),old=lab.textContent;

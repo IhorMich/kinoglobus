@@ -51,7 +51,6 @@
         <section class="kgs-section"><h2 class="kgs-h"><span class="i">▥</span> Артефакты и маркеры рулетки <span class="kgs-badge gray">смена плёнки</span></h2><div class="kgs-card">
           <p class="kgs-note" style="margin:0 1px 7px">Выберите визуальный стиль рулетки и настройте показ киноленты.</p>
           <div class="kgs-choice" data-kgs-reel-style="35mm" role="radio" aria-checked="false" tabindex="0"><span class="kgs-reel">▥</span><div class="kgs-rowcopy"><div class="kgs-rowtitle">35мм киноплёнка</div><div class="kgs-meta">Привычная лента постеров в рамке</div></div><span class="kgs-sel" data-choice-selected hidden>ВЫБРАНО</span><i class="kgs-radio"></i></div>
-          <div class="kgs-choice" data-kgs-reel-style="70mm" role="radio" aria-checked="false" tabindex="0"><span class="kgs-reel">◉</span><div class="kgs-rowcopy"><div class="kgs-rowtitle">70 мм IMAX</div><div class="kgs-meta">Широкий формат с вращающимися бобинами</div></div><span class="kgs-sel" data-choice-selected hidden>ВЫБРАНО</span><i class="kgs-radio"></i></div>
           <div class="kgs-choice" data-kgs-reel-style="projection" role="radio" aria-checked="false" tabindex="0"><span class="kgs-reel">▤</span><div class="kgs-rowcopy"><div class="kgs-rowtitle">Проекционный тракт · 35 мм</div><div class="kgs-meta">Кадры вертикальной киноплёнки прокручиваются при поиске и останавливаются на найденном фильме</div></div><span class="kgs-sel" data-choice-selected hidden>ВЫБРАНО</span><i class="kgs-radio"></i></div>
           <div class="kgs-choice" data-kgs-reel-style="cassette" role="radio" aria-checked="false" tabindex="0"><span class="kgs-reel">▰</span><div class="kgs-rowcopy"><div class="kgs-rowtitle">Кассетная дека · 3D Cover Flow</div><div class="kgs-meta">Карусель постеров со свайпом, перемоткой и случайным выбором</div></div><span class="kgs-sel" data-choice-selected hidden>ВЫБРАНО</span><i class="kgs-radio"></i></div>
         </div></section>
@@ -122,7 +121,7 @@
   document.getElementById("gear").onclick = () => { sync(); if (dialog.showModal) dialog.showModal(); else dialog.setAttribute("open", ""); };
 
   const soundSelect = document.getElementById("snd");
-  const labels = {roulette:"Трещотка бобины",bells:"Колокольчики",arcade:"Аркада",casino:"Казино",marimba:"Маримба",space:"Космос",film:"Киноплёнка",orchestra:"Оркестр",jazz:"Джаз",synth:"Синтезатор",chimes:"Звон",off:"Без звука"};
+  const labels = {roulette:"Трещотка бобины",bells:"Колокольчики",arcade:"Аркада",casino:"Казино",marimba:"Маримба",space:"Космос",film:"Киноплёнка",orchestra:"Оркестр",jazz:"Джаз",synth:"Синтезатор",chimes:"Звон",off:"Без звука",imax:"Кинозал · низкий гул"};
   if (soundSelect) {
     [...soundSelect.options].forEach((option) => { option.textContent = labels[option.value] || option.textContent; });
     soundSelect.className = "kgs-select";

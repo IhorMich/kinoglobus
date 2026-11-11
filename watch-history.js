@@ -1,41 +1,6 @@
 /* Единая история просмотра и страна, которую пользователь решил отметить на карте. */
 (() => {
-  const picker = document.createElement('dialog');
-  picker.className = 'kg-dlg';
-  picker.setAttribute('aria-labelledby', 'kg-country-title');
-  picker.innerHTML = '<div class="kg-in"><div class="kg-h" id="kg-country-title">Страна фильма</div><p class="kg-note">Фильм снят совместно несколькими странами. Выберите одну страну, которую добавить в ваше путешествие.</p><div id="kg-country-options" class="flex flex-col gap-2"></div><button type="button" class="kg-btn" data-cancel>Отмена</button></div>';
-  document.body.appendChild(picker);
-  const optionBox = picker.querySelector('#kg-country-options');
   const escHtml = value => String(value || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-
-  function chooseCountry(codes, film) {
-    return new Promise(resolve => {
-      optionBox.replaceChildren();
-      const title = picker.querySelector('#kg-country-title');
-      title.textContent = film.title ? `К какой стране отнести «${film.title}»?` : 'Выберите страну фильма';
-      codes.forEach(code => {
-        const button = document.createElement('button');
-        button.type = 'button';
-        button.className = 'kg-btn text-left';
-        button.innerHTML = `${typeof flag === 'function' ? flag(code, false) : '🌍'} ${escHtml(typeof cname === 'function' ? cname(code) : code)} <span class="opacity-60">· ${escHtml(code)}</span>`;
-        button.addEventListener('click', () => finish(code));
-        optionBox.appendChild(button);
-      });
-      const cancel = picker.querySelector('[data-cancel]');
-      const onCancel = event => { event?.preventDefault(); finish(null); };
-      let settled = false;
-      const finish = value => {
-        if (settled) return;
-        settled = true;
-        picker.close();
-        picker.removeEventListener('cancel', onCancel);
-        resolve(value);
-      };
-      cancel.onclick = onCancel;
-      picker.addEventListener('cancel', onCancel, { once: true });
-      picker.showModal();
-    });
-  }
 
   function productionCountries(film, details) {
     const fromFilm = Array.isArray(film.origin_country) ? film.origin_country : [];
@@ -110,11 +75,12 @@
     const id = Number(film.id);
     const prior = watched.find(item => Number(item.id) === id);
     if (prior && Array.isArray(prior.countries) && prior.countries.length) return true;
-    let creditedCountry = countries.length === 1 ? countries[0] : '';
-    if (countries.length > 1) {
-      creditedCountry = await chooseCountry(countries, film);
-      if (!creditedCountry) return false;
-    }
+    // Prefer the country whose search produced this result; for global or
+    // collection results, credit only the first production country from TMDB.
+    const requestedCountry = String(film._cc || film.cc || '').toUpperCase();
+    const creditedCountry = countries.includes(requestedCountry)
+      ? requestedCountry
+      : (countries[0] || ( /^[A-Z]{2}$/.test(requestedCountry) ? requestedCountry : ''));
     const record = typeof filmRecord === 'function' ? filmRecord(creditedCountry, film) : { id, title: film.title || '', poster: film.poster_path || '' };
     record.id = id;
     record.cc = creditedCountry;

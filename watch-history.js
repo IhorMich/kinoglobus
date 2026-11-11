@@ -47,6 +47,7 @@
     (item.countries || []).forEach(code => { counts[code] = (counts[code] || 0) + 1; });
     return counts;
   }, {});
+  window.KGIsFilmWatched = id => watched.some(item => Number(item.id) === Number(id));
 
   window.KGRenderWatchedByCountry = country => {
     const box = document.getElementById('jfilms');
@@ -88,7 +89,7 @@
 
   window.KGResetWatchedButton = () => {
     const button = document.getElementById('btn-watched');
-    if (button) button.innerHTML = '<span class="material-symbols-outlined text-[16px] text-primary-container">task_alt</span><span>Посмотрел</span>';
+    if (button) { button.innerHTML = '<span class="material-symbols-outlined text-[16px] text-primary-container">task_alt</span><span>Посмотрел</span>'; button.disabled = false; button.setAttribute('aria-pressed', 'false'); }
   };
 
   document.addEventListener('click', event => {

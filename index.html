@@ -7,7 +7,7 @@
       0% { transform: translateY(0px) rotate(-3deg); }
       50% { transform: translateY(-10px) rotate(-1.5deg); }
       100% { transform: translateY(6px) rotate(-4deg); }
-    } 
+    }
     @keyframes floatPostersB {
       0% { transform: translateY(0px) rotate(2deg); }
       50% { transform: translateY(8px) rotate(3.5deg); }
@@ -665,7 +665,7 @@
 
     // 3D PLANET EARTH ENGINE WITH AUTHENTIC AXIAL TILT & TRUE POLAR ROTATION
     let tiltGroup, rotatingGroup;
-    let earthMesh, cloudsMesh, atmosphereMesh;
+    let earthMesh, cloudsMesh;
     let flagPinGroup = null;      // теперь это группа маркера (луч + пульс)
     let flagBannerMesh = null;    // больше не используем
     let targetFlagScale = 0.001;
@@ -690,7 +690,6 @@
     let watchedCountryIds = new Set();
     let countryOutlineGroup = null;
     const countryOutlineByCode = new Map();
-    let countryHaloMaterial = null;
 
     function normalizeNear(lon, reference) {
       return reference + ((((lon - reference) % 360) + 540) % 360 - 180);
@@ -716,24 +715,10 @@
       return "";
     }
     function addCountryHalo(feature) {
-      if (!countryOutlineGroup || !window.THREE) return;
-      const code=feature.properties.iso_a2, group=new THREE.Group();
-      group.name="watched-country-halo-"+code;
-      const geometry=feature.geometry,polygons=geometry.type==="Polygon"?[geometry.coordinates]:geometry.coordinates;
-      const points=[];let reference=null;
-      polygons.forEach(rings=>(rings||[]).forEach(ring=>(ring||[]).forEach(pair=>{
-        const rawLon=Number(pair[0]),lon=reference===null?(reference=rawLon):normalizeNear(rawLon,reference);
-        const lat=Number(pair[1]);if(Number.isFinite(lon)&&Number.isFinite(lat))points.push([lon,lat]);
-      })));
-      if(!points.length)return;
-      const centerLon=points.reduce((sum,p)=>sum+p[0],0)/points.length;
-      const centerLat=points.reduce((sum,p)=>sum+p[1],0)/points.length;
-      const extent=points.reduce((max,p)=>Math.max(max,Math.abs(p[1]-centerLat),Math.abs(p[0]-centerLon)*Math.cos(centerLat*Math.PI/180)),0);
-      const size=Math.max(.16,Math.min(.86,2*extent*Math.PI/180*1.28*1.45));
-      const halo=new THREE.Sprite(countryHaloMaterial);
-      halo.position.copy(latLonToVector3(centerLat,((centerLon+540)%360)-180,1.296));
-      halo.scale.set(size,size,1);halo.renderOrder=3;halo.frustumCulled=false;
-      group.add(halo);
+      if (!countryOutlineGroup || !window.THREE || !window.KGGlobeVisuals) return;
+      const code=feature.properties.iso_a2;
+      const group=window.KGGlobeVisuals.createCountryOutline(THREE,feature,latLonToVector3,{radius:1.289,glowColor:0xffbd62,coreColor:0xffe6b5,glowRadius:.0048,coreRadius:.00135});
+      group.name="watched-country-outline-"+code;
       countryOutlineGroup.add(group);
       countryOutlineByCode.set(code,group);
     }
@@ -743,7 +728,8 @@
       for (const [code,group] of countryOutlineByCode) {
         if (watchedCountryIds.has(code)) continue;
         countryOutlineGroup.remove(group);
-        group.traverse(object=>{if(object.geometry)object.geometry.dispose();if(object.material&&object.material!==countryHaloMaterial)object.material.dispose();});
+        group.traverse(object=>{if(object.geometry)object.geometry.dispose();});
+        (group.userData.visualMaterials||[]).forEach(material=>material.dispose());
         countryOutlineByCode.delete(code);
       }
       for (const feature of countryBoundaryFeatures) {
@@ -1138,14 +1124,14 @@ rotatingGroup.add(flagPinGroup);
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
       // Cinema Lighting: Soft ambient & directional space lighting without blinding specular hotspot
-      const dirLight = new THREE.DirectionalLight(0xfff6eb, 0.85);
+      const dirLight = new THREE.DirectionalLight(0xffedd4, 1.15);
       dirLight.position.set(4, 2, 4);
       scene.add(dirLight);
 
-      const ambLight = new THREE.AmbientLight(0x7687a2, 0.55);
+      const ambLight = new THREE.AmbientLight(0x687d9c, 0.24);
       scene.add(ambLight);
 
-      const hemiLight = new THREE.HemisphereLight(0xdce6ff, 0x121622, 0.45);
+      const hemiLight = new THREE.HemisphereLight(0xdce6ff, 0x121622, 0.22);
       scene.add(hemiLight);
 
       // Hierarchical Setup for True 3D Axial Tilt (23.4°) & Rotation:
@@ -1258,30 +1244,11 @@ rotatingGroup.add(flagPinGroup);
       cloudsMesh = new THREE.Mesh(cloudsGeo, cloudsMat);
       rotatingGroup.add(cloudsMesh);
 
-      // Luminous blue ozone layer: SphereGeometry(1.465)
-      const glowGeo = new THREE.SphereGeometry(earthRadius * 1.045, 48, 48);
-      const glowMat = new THREE.MeshBasicMaterial({
-        color: 0x5aa8ff,
-        transparent: true,
-        opacity: 0.11,
-        blending: THREE.AdditiveBlending,
-        side: THREE.BackSide,
-        depthWrite: false
-      });
-      atmosphereMesh = new THREE.Mesh(glowGeo, glowMat);
-      tiltGroup.add(atmosphereMesh);
-
       // Build beacon dots structure (all hidden initially for pristine look)
       createCountryBeacons();
       countryOutlineGroup=new THREE.Group();
-      countryOutlineGroup.name="watched-country-halos";
+      countryOutlineGroup.name="watched-country-outlines";
       rotatingGroup.add(countryOutlineGroup);
-      const haloCanvas=document.createElement("canvas");haloCanvas.width=haloCanvas.height=128;
-      const haloContext=haloCanvas.getContext("2d"),haloGradient=haloContext.createRadialGradient(64,64,2,64,64,64);
-      haloGradient.addColorStop(0,"rgba(255,198,78,.48)");haloGradient.addColorStop(.32,"rgba(255,184,48,.24)");haloGradient.addColorStop(.68,"rgba(255,184,48,.07)");haloGradient.addColorStop(1,"rgba(255,184,48,0)");
-      haloContext.fillStyle=haloGradient;haloContext.fillRect(0,0,128,128);
-      const haloTexture=new THREE.CanvasTexture(haloCanvas);
-      countryHaloMaterial=new THREE.SpriteMaterial({map:haloTexture,color:0xffd178,transparent:true,opacity:.9,blending:THREE.AdditiveBlending,depthTest:true,depthWrite:false,toneMapped:false});
       loadCountryBoundaries();
 
       const countryTapRaycaster=new THREE.Raycaster();
@@ -3982,6 +3949,7 @@ console.info("[Kinoglobus] Bridge v6 ready");
 })();
 </script>
 
+<script src="globe-visuals.js?v=3"></script>
 <script src="watch-history.js?v=6"></script>
 <script src="country-pages.js?v=3"></script>
 <script src="account-page.js?v=1"></script>

@@ -2892,7 +2892,7 @@ async function filmDetails(id){
   const rel=(j.release_dates&&j.release_dates.results)||[];
   const certOf=cc=>{const c=rel.find(x=>x.iso_3166_1===cc);const d=c&&(c.release_dates||[]).find(x=>String(x.certification||"").trim());return d?String(d.certification).trim():"";};
   const cert=certOf("RU")||certOf("US")||(rel.map(x=>certOf(x.iso_3166_1)).find(Boolean)||"");
-  return detailCache[id]={cert,runtime:j.runtime||0,dirs,dirsFull,writers:writers.slice(0,3),cast,castFull:(j.credits&&j.credits.cast||[]).slice(0,10).map(c=>({id:c.id,name:c.name,role:c.character||"",photo:c.profile_path||""})),genres,budget:j.budget||0,revenue:j.revenue||0,
+  return detailCache[id]={cert,runtime:j.runtime||0,dirs,dirsFull:dirsFull.map(d=>({...d,photo:(crew.find(c=>c.id===d.id)||{}).profile_path||""})),writers:writers.slice(0,3),cast,castFull:(j.credits&&j.credits.cast||[]).slice(0,10).map(c=>({id:c.id,name:c.name,role:c.character||"",photo:c.profile_path||""})),genres,budget:j.budget||0,revenue:j.revenue||0,
     tagline:tg.text,taglineLang:tg.lang,overview:ov.text,overviewLang:ov.lang,
     release:j.release_date||"",originalTitle:j.original_title||"",originalLang:j.original_language||"",
     companies:(j.production_companies||[]).map(c=>c.name).filter(Boolean).slice(0,3),
@@ -3976,6 +3976,7 @@ window.KGCountryApp={
   key:()=>apiKey,
   getCountryFilms:async(code,page=1)=>api({with_origin_country:code,sort_by:"popularity.desc","vote_count.gte":10,include_adult:"false",page}),
   getFilmDetails:filmDetails,
+  showCountryOnGlobe:code=>{closeJ();const country=gc(code);G.currentCountry=country;focusedCC=code;G.showSingleBeacon(country);G.orientGlobeToCountry(country,false,0.055,G.CAMERA_DIST_FOCUS,true);hero(country,false);setTimeout(()=>G.dollyBack(country),1800);window.scrollTo({top:0,behavior:"smooth"});},
   openMovie:(code,film)=>{closeJ();window.show(code,{films:[film],saved:true},film);},
   searchCountry:async code=>{if(!apiKey){closeJ();showKeyUi();$("tmdb-key-banner").scrollIntoView({behavior:"smooth",block:"center"});return;}forcedCountryQuery=code;G.currentCountry=gc(code);focusedCC=code;closeJ();try{await spin();}finally{forcedCountryQuery="";}}
 };
@@ -3984,7 +3985,7 @@ console.info("[Kinoglobus] Bridge v6 ready");
 </script>
 
 <script src="watch-history.js?v=4"></script>
-<script src="country-pages.js?v=1"></script>
+<script src="country-pages.js?v=2"></script>
 <script src="account-page.js?v=1"></script>
 <script src="mood-page.js?v=31"></script>
 <script src="mood-vibe-page.js?v=16"></script>

@@ -122,6 +122,7 @@
   },true);
   document.addEventListener("keydown",e=>{if(e.key==="Escape")closePerson();});
   window.KGFilmInteractions={registerPool};
+  window.KGOpenPersonProfile=(id,name,role)=>showPerson(id,name,role);
   window.KGScrollToFilmDescription=scrollToDescription;
   window.KGScrollPersonModalToFilm=scrollPersonModalToFilm;
 })();

@@ -3274,8 +3274,8 @@ const CARD_HTML=`
 <div class="grid gap-1 font-body-sm text-body-sm mt-1" id="film-facts"></div>
 </div>
 <div id="discovery-related"></div>
-<div class="flex items-center justify-between mt-2.5 pt-2 border-t border-surface-border/50 gap-2">
-<div class="flex items-center gap-1.5 flex-wrap min-w-0"><span class="font-micro-caption text-[11px] text-text-muted" id="where-label" title="Данные: JustWatch через TMDB">Где смотреть:</span><span class="flex items-center gap-1.5 flex-wrap" id="where-list"></span></div>
+<div id="discovery-legal-watch" class="mt-2.5"></div>
+<div class="flex justify-end mt-2.5 pt-2 border-t border-surface-border/50">
 <button class="flex items-center gap-1 text-primary hover:text-primary-fixed font-micro-caption text-[11px] font-bold transition-colors cursor-pointer flex-shrink-0" id="btn-spin-another-film" title="Следующий фильм из этой страны" type="button"><span class="material-symbols-outlined text-[14px]">shuffle</span><span>Другой фильм</span></button>
 </div>
 <div class="flex items-center gap-2 mt-2.5">
@@ -3694,30 +3694,10 @@ function reveal(film,pool){
   set("hero-country-master",film.title||"");
 }
 
-// «Где смотреть»: TMDB watch/providers (данные JustWatch), регион по языку браузера, запасной US
-const provCache={};
-window.invalidateFilmDataCaches=function(){
-  [detailCache,vcache,provCache].forEach(cache=>Object.keys(cache).forEach(key=>delete cache[key]));
-};
-async function showProviders(film){
-  const box=$("where-list"),lab=$("where-label");
-  box.innerHTML='<span class="text-text-muted text-[11px]">…</span>';
-  try{
-    let d=provCache[film.id];
-    if(!d){
-      const r=await fetch(`https://api.themoviedb.org/3/movie/${film.id}/watch/providers?api_key=${apiKey}`,{cache:"no-store"});
-      d=(await r.json()).results||{};provCache[film.id]=d;
-    }
-    if(!cur||cur.film.id!==film.id)return;
-    let reg=((navigator.language||"en-US").split("-")[1]||"US").toUpperCase();
-    let x=d[reg];if(!x){x=d.US;reg="US";}
-    const names=[];
-    if(x)[].concat(x.flatrate||[],x.free||[],x.rent||[],x.buy||[]).forEach(p=>{if(!names.includes(p.provider_name))names.push(p.provider_name);});
-    lab.textContent=`Где смотреть (${reg}):`;
-    box.innerHTML=names.length
-      ?names.slice(0,3).map(n=>`<span class="px-2 py-0.5 rounded bg-surface-container text-on-surface font-label-sm text-[11px] font-semibold border border-surface-border">${esc(n)}</span>`).join("")
-      :'<span class="text-text-muted text-[11px]">нет данных</span>';
-  }catch(e){box.innerHTML='<span class="text-text-muted text-[11px]">нет данных</span>';}
+// Единый блок легального просмотра используется во всех карточках фильма.
+function showProviders(film){
+  const box=$("discovery-legal-watch");if(!box)return;
+  box.innerHTML=window.KGLegalWatch?.markup(film.id)||"";
 }
 function setVotes(votes){
   const vl=$("discovery-rating").nextElementSibling;
@@ -3950,9 +3930,10 @@ console.info("[Kinoglobus] Bridge v6 ready");
 <script src="mood-page.js?v=28"></script>
 <script src="mood-vibe-page.js?v=13"></script>
 <script src="oscar-page.js?v=30"></script>
-<script src="oscar-design.js?v=11"></script>
-<script src="collections.js?v=54"></script>
+<script src="oscar-design.js?v=12"></script>
+<script src="collections.js?v=55"></script>
 <script src="film-interactions.js?v=11"></script>
+<script src="legal-watch.js?v=1"></script>
 <script src="settings-page.js?v=13"></script>
 
 </body></html>

@@ -45,7 +45,7 @@
       0% { transform: translateX(-100%); }
       100% { transform: translateX(200%); }
     }
-  .kg-cassette-active #film-details{display:none!important}</style><script src="cinema-reel.js?v=30"></script></head><body class="bg-canvas-obsidian font-body-md text-on-surface flex flex-col min-h-screen relative">
+  </style><script src="cinema-reel.js?v=30"></script></head><body class="bg-canvas-obsidian font-body-md text-on-surface flex flex-col min-h-screen relative">
 <!-- Atmospheric Living Theater Background Layer with Floating Posters -->
 <div class="fixed inset-0 pointer-events-none overflow-hidden -z-10 select-none">
 <!-- Ambient Projector Velvet & Amber Glow Orbs -->
@@ -350,7 +350,7 @@
     <div id="crew" hidden></div><p id="tagline" hidden></p><p id="over"></p>
     <div id="player" hidden></div><p id="ytnote" hidden><a id="ytlink"></a></p>
   </div>
-  <dialog id="settings"><select id="snd"><option value="roulette">roulette</option><option value="bells">bells</option><option value="arcade">arcade</option><option value="casino">casino</option><option value="marimba">marimba</option><option value="space">space</option><option value="film">film</option><option value="orchestra">orchestra</option><option value="jazz">jazz</option><option value="synth">synth</option><option value="chimes">chimes</option><option value="off">off</option></select><select id="reel-snd"><option value="projector">35 мм · проектор</option><option value="imax">Кинозал · низкий гул</option><option value="camera">Кинокамера · механика</option><option value="tape">Магнитная плёнка</option><option value="premiere">Премьерный зал</option><option value="off">Без звука</option></select></dialog>
+  <dialog id="settings"><select id="snd"><option value="roulette">roulette</option><option value="bells">bells</option><option value="arcade">arcade</option><option value="casino">casino</option><option value="marimba">marimba</option><option value="space">space</option><option value="film">film</option><option value="orchestra">orchestra</option><option value="jazz">jazz</option><option value="synth">synth</option><option value="chimes">chimes</option><option value="off">off</option></select><select id="reel-snd"><option value="projector">35 мм · проектор</option><option value="imax">Кинозал · мягкий импульс</option><option value="camera">Кинокамера · механика</option><option value="tape">Магнитная плёнка</option><option value="premiere">Премьерный зал</option><option value="shutter">Кинокамера · затвор</option><option value="editbench">Монтажный стол · шаг кадра</option><option value="sixteenmm">16 мм · мягкая трещотка</option><option value="off">Без звука</option></select></dialog>
   <dialog id="journey"><div id="jhead"></div><i id="jfill"></i><div id="mapbox"></div><div id="jstats"></div><div id="jopen"></div><div id="jclosed"></div><span id="jclosedsum"></span><div id="jfilms"></div><span id="jopenT"></span><span id="jfilmsT"></span><span id="minfo"></span><span id="jtitle"></span></dialog>
   <span id="brand"></span>
   <span id="topNote" hidden></span><span id="oscarNote" hidden></span>
@@ -2244,12 +2244,12 @@ async function certCandidates(cc){
 let ac=null;
 function audio(){try{if(!ac)ac=new(window.AudioContext||window.webkitAudioContext)();if(ac.state==="suspended")ac.resume();}catch(e){}}
 let snd=store.get("snd","roulette");
-let reelSnd=["projector","imax","camera","tape","premiere","off"].includes(store.get("reelSnd","projector"))?store.get("reelSnd","projector"):"projector";
+let reelSnd=["projector","imax","camera","tape","premiere","shutter","editbench","sixteenmm","off"].includes(store.get("reelSnd","projector"))?store.get("reelSnd","projector"):"projector";
 window.getCinemaReelSound=()=>reelSnd;
 window.setCinemaReelSound=value=>{
   const wasPlaying=!!filmReelNodes||reelMotionLevel>.005,wasPreviewing=!!reelSoundPreviewTimer,level=reelMotionLevel;
   if(reelSoundPreviewTimer){clearTimeout(reelSoundPreviewTimer);reelSoundPreviewTimer=0;}
-  reelSnd=["projector","imax","camera","tape","premiere","off"].includes(value)?value:"projector";
+  reelSnd=["projector","imax","camera","tape","premiere","shutter","editbench","sixteenmm","off"].includes(value)?value:"projector";
   store.set("reelSnd",reelSnd);
   if(wasPlaying){stopFilmReelSound();startFilmReelSound();if(wasPreviewing&&filmReelNodes){setFilmReelLevel(.82);reelSoundPreviewTimer=setTimeout(()=>{reelSoundPreviewTimer=0;stopFilmReelSound();},1800);}else setFilmReelLevel(level);}
 };
@@ -2356,7 +2356,10 @@ function startFilmReelSound() {
       imax:{tick:145,frequency:680,q:.9,gain:.018},
       camera:{tick:78,frequency:2850,q:1.7,gain:.022},
       tape:{tick:132,frequency:1050,q:.8,gain:.018},
-      premiere:{tick:172,frequency:1550,q:1.1,gain:.014}
+      premiere:{tick:172,frequency:1550,q:1.1,gain:.014},
+      shutter:{tick:66,frequency:3200,q:2,gain:.018},
+      editbench:{tick:160,frequency:1320,q:1.5,gain:.021},
+      sixteenmm:{tick:118,frequency:2420,q:.95,gain:.016}
     };
     const profile=profiles[reelSnd]||profiles.projector,nLen=Math.floor(ac.sampleRate*.03),nBuf=ac.createBuffer(1,nLen,ac.sampleRate),nd=nBuf.getChannelData(0);
     for(let i=0;i<nLen;i++)nd[i]=(Math.random()*2-1)*(1-i/nLen);
@@ -3447,7 +3450,6 @@ function mountRun(list,idx,cls){
 }
 // Пустая плёнка: рамка по центру видна сразу, ещё до первого поиска
 function renderBlank(){
-  document.body.classList.toggle("kg-cassette-active",reelStyle==="cassette");
   strip={list:[],pool:null,cc:"",idx:-1,busy:false};
   if(!["ticket","cassette","projection"].includes(reelStyle))mountRun(new Array(9).fill(null),4,"");
   if(reelStyle==="cassette")window.KGCinemaReel.mountCassetteDeck($("film-reel-host"),[],null,{onOpen:f=>openFilm(f,"home")});
@@ -3467,6 +3469,7 @@ function renderStatic(pool,film,cc){      // готовая лента без п
 window.setCinemaReelStyle=function(style){
   const next=["cassette","projection"].includes(style)?style:"35mm";
   if(next===reelStyle)return;
+  const selectedFilm=cur?.film||(strip.idx>=0?strip.list?.[strip.idx]:null),selectedPool=cur?.pool||strip.pool,selectedCountry=cur?.cc||strip.cc;
   stopReel();
   reelStyle=next;store.set("reelStyle",next);
   filmSpin=true;store.set("filmSpin",true);filmLabel();
@@ -3474,8 +3477,7 @@ window.setCinemaReelStyle=function(style){
   const host=$("film-reel-host");if(!host)return;
   host.innerHTML=mainReelMarkup();
   trackEl=$("film-reel-track");frameEl=$("film-center-frame");runEl=null;
-  document.body.classList.toggle("kg-cassette-active",next==="cassette");
-  if(cur&&strip.pool)renderStatic(strip.pool,cur.film,strip.cc);else renderBlank();
+  if(selectedFilm)renderStatic(selectedPool||{films:[selectedFilm]},selectedFilm,selectedCountry||"");else renderBlank();
 };
 function recenter(){if(runEl&&strip.idx>=0)runEl.style.transform=`translateX(${-centerX(strip.idx)}px)`;}
 window.addEventListener("resize",recenter);
@@ -3607,6 +3609,7 @@ async function spinReel(pool,film,cc){
 function reveal(film,pool){
   veil(false);
   set("hero-country-master",film.title||"");
+  if(reelStyle==="cassette")requestAnimationFrame(()=>{const poster=$("discovery-poster"),target=poster&&!poster.classList.contains("hidden")?poster:detailsEl;if(target)scrollToFilmReel(target);});
 }
 
 // Единый блок легального просмотра используется во всех карточках фильма.
@@ -3773,7 +3776,7 @@ window.show=function(cc,pool,film){
     set("discovery-genres","· "+[g,d.runtime?d.runtime+" мин":""].filter(Boolean).join(" · "));
     if(d.votes){set("discovery-rating",Number(d.average).toFixed(1));setVotes(d.votes);}
     renderExtra(film,d);
-    if(!fromSpin)requestAnimationFrame(()=>{const trailer=$("film-trailer-box");if(window.KGScrollToFilmDescription)window.KGScrollToFilmDescription(trailer);});
+    if(!fromSpin&&reelStyle!=="cassette")requestAnimationFrame(()=>{const trailer=$("film-trailer-box");if(window.KGScrollToFilmDescription)window.KGScrollToFilmDescription(trailer);});
   }).catch(()=>{
     if(!cur||cur.film.id!==film.id)return;
     set("discovery-desc",russianCopy(film.overview)||"Не удалось загрузить описание.");
@@ -3850,6 +3853,6 @@ console.info("[Kinoglobus] Bridge v6 ready");
 <script src="film-interactions.js?v=12"></script>
 <script src="legal-watch.js?v=3"></script>
 <script src="global-search.js?v=2"></script>
-<script src="settings-page.js?v=20"></script>
+<script src="settings-page.js?v=21"></script>
 
 </body></html>

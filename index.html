@@ -2393,6 +2393,16 @@ function click(v,freq){          // short filtered noise burst: a wooden/ratchet
     src.connect(f);f.connect(g);g.connect(ac.destination);src.start();
   }catch(e){}
 }
+// The reel's landing cue: a tiny projector frame-lock click followed by a
+// restrained, warm two-note resolution. Keep it short and honor reel mute.
+function playFilmFoundSound(){
+  if(reelSnd==="off")return;
+  audio();if(!ac)return;
+  click(.12,1850);
+  tone(659.25,.18,.055,"triangle",.025);
+  tone(880,.42,.045,"sine",.105);
+}
+window.playFilmFoundSound=playFilmFoundSound;
 const MARIMBA=[261.63,293.66,329.63,392,440,523.25,587.33,659.25];
 const THROTTLE={roulette:0,bells:110,arcade:55,casino:70,marimba:90,space:60,film:45,orchestra:95,jazz:80,synth:70,chimes:100};let lastT=0;
 function sTick(e){               // e = progress 0..1 (controls pitch)
@@ -3177,7 +3187,7 @@ $("again").onclick=async()=>{
 };
 $("seen").onclick=()=>{
   if(!cur||!window.KGMarkWatched)return;
-  window.KGMarkWatched(cur.film).then(ok=>{
+  window.KGMarkWatched({...cur.film,_cc:cur.cc}).then(ok=>{
     if(!ok)return;
     $("seen").textContent="✓ Просмотрено";updHist();
     setTimeout(()=>$("seen").textContent="✓ Посмотрел",1500);
@@ -3329,13 +3339,10 @@ const CARD_HTML=`
 <div class="grid gap-1 font-body-sm text-body-sm mt-1" id="film-facts"></div>
 <div class="flex flex-wrap items-center gap-2 mt-2" id="film-actions">
 <button class="py-2 px-3 rounded-xl bg-surface-container-high text-on-surface font-label-sm text-label-sm flex items-center justify-center gap-1 hover:text-primary border border-surface-border-subtle transition-all active:scale-95 cursor-pointer" id="btn-watched" title="Отметить как просмотренный" type="button"><span class="material-symbols-outlined text-[16px] text-primary-container">task_alt</span><span>Посмотрел</span></button>
-<button class="py-2 px-3 rounded-xl bg-surface-container-high text-on-surface font-label-sm text-label-sm flex items-center justify-center gap-1 hover:text-primary border border-surface-border-subtle transition-all active:scale-95 cursor-pointer" id="btn-browse-related" type="button"><span class="material-symbols-outlined text-[16px] text-primary-container">movie_filter</span><span>Похожие из страны</span></button>
+<button class="py-2 px-3 rounded-xl bg-primary-container text-on-primary-container font-label-sm text-label-sm font-semibold flex items-center justify-center gap-1 hover:brightness-110 transition-all active:scale-95 cursor-pointer" id="btn-spin-another-film" title="Найти другой фильм из этой страны" type="button"><span class="material-symbols-outlined text-[16px]">autorenew</span><span>Крутить ещё раз</span></button>
 </div>
 </div>
 <div id="discovery-related"></div>
-<div class="flex justify-end mt-2.5 pt-2 border-t border-surface-border/50">
-<button class="flex items-center gap-1 text-primary hover:text-primary-fixed font-micro-caption text-[11px] font-bold transition-colors cursor-pointer flex-shrink-0" id="btn-spin-another-film" title="Следующий фильм из этой страны" type="button"><span class="material-symbols-outlined text-[14px]">shuffle</span><span>Другой фильм</span></button>
-</div>
 </div>
 </section>`;
 {const old=$("cinema-35mm-reel-section")||$("recent-discovery-card");if(old)old.outerHTML=CARD_HTML;}
@@ -3547,7 +3554,6 @@ const card=$("cinema-35mm-reel-section");
 const watchedOld=$("btn-watched");const watchedHTML=watchedOld.innerHTML;
 const bw=watchedOld.cloneNode(true);watchedOld.replaceWith(bw);
 const ag=$("btn-spin-another-film");
-const relatedJump=$("btn-browse-related");
 const set=(id,t)=>{const e=$(id);if(e)e.textContent=t;};
 const pad=n=>(n<10?"0":"")+n;
 const STEP=90,PAD=8,CELL=80;     // шаг ячейки, левый отступ, ширина постера
@@ -3731,6 +3737,7 @@ async function spinReel(pool,film,cc){
 
 function reveal(film,pool){
   veil(false);
+  window.playFilmFoundSound?.();
   set("hero-country-master",film.title||"");
   requestAnimationFrame(()=>{const poster=$("discovery-poster"),target=poster&&!poster.classList.contains("hidden")?poster:detailsEl;if(target)scrollToFilmReel(target);});
 }
@@ -3936,15 +3943,11 @@ window.show=function(cc,pool,film){
 bw.addEventListener("click",async()=>{
   if(!cur||!window.KGMarkWatched)return;
   const film=cur.film;
-  if(await window.KGMarkWatched(film)){
+  if(await window.KGMarkWatched({...film,_cc:cur.cc})){
     bw.innerHTML='<span class="material-symbols-outlined text-[16px] text-primary-fixed">task_alt</span><span>Просмотрено</span>';
     bw.disabled=true;bw.setAttribute("aria-pressed","true");
     syncDesign();
   }
-});
-relatedJump.addEventListener("click",()=>{
-  const section=$("discovery-related");
-  if(section?.firstElementChild)section.scrollIntoView({behavior:"smooth",block:"center"});
 });
 ag.addEventListener("click",()=>$("again").click());
 
@@ -3978,13 +3981,13 @@ console.info("[Kinoglobus] Bridge v6 ready");
 })();
 </script>
 
-<script src="watch-history.js?v=3"></script>
+<script src="watch-history.js?v=4"></script>
 <script src="mood-page.js?v=31"></script>
 <script src="mood-vibe-page.js?v=16"></script>
 <script src="oscar-page.js?v=31"></script>
 <script src="oscar-design.js?v=12"></script>
-<script src="collections.js?v=60"></script>
-<script src="film-interactions.js?v=12"></script>
+<script src="collections.js?v=62"></script>
+<script src="film-interactions.js?v=13"></script>
 <script src="legal-watch.js?v=3"></script>
 <script src="global-search.js?v=2"></script>
 <script src="settings-page.js?v=21"></script>

@@ -1,4 +1,4 @@
-/* Global movie, actor and director search backed by TMDB. */
+/* Global movie, actor and director search backed by TMDB.  */
 (function(){
   "use strict";
   const esc=value=>String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));

@@ -171,14 +171,15 @@
     let last=-1;
     return new Promise(resolve=>{
       const start=performance.now();const frame=now=>{
-        if(options.cancelled?.()){resolve(finish(false));return;}
-        if(options.shouldSkip?.()){resolve(finish(true));return;}
-        const p=Math.min(1,(now-start)/duration),ease=1-Math.pow(1-p,4),n=Math.min(steps,Math.floor(ease*steps));emitReelMotion(Math.pow(1-p,3));
-        const position=startIndex-steps*ease;mounted.layout(position);
-        if(progressBar)progressBar.style.width=`${Math.max(4,Math.round(ease*100))}%`;
-        if(n!==last){last=n;const index=((Math.round(position)%state.films.length)+state.films.length)%state.films.length,film=state.films[index]||winner;state.index=index;const counter=mounted.root.querySelector("[data-kg-cassette-counter]");if(counter)counter.textContent=`${String(index+1).padStart(2,"0")} / ${String(state.films.length).padStart(2,"0")}`;options.onFrame?.(film,n);}
-        if(p>=1){resolve(finish(true));return;}
-        requestAnimationFrame(frame);
+        try{
+          if(options.cancelled?.()){resolve(finish(false));return;}
+          if(options.shouldSkip?.()){resolve(finish(true));return;}
+          const p=Math.min(1,(now-start)/duration),ease=1-Math.pow(1-p,4),n=Math.min(steps,Math.floor(ease*steps));emitReelMotion(Math.pow(1-p,3));
+          const position=startIndex-steps*ease;mounted.layout(position);
+          if(n!==last){last=n;const index=((Math.round(position)%state.films.length)+state.films.length)%state.films.length,film=state.films[index]||winner;state.index=index;const counter=mounted.root.querySelector("[data-kg-cassette-counter]");if(counter)counter.textContent=`${String(index+1).padStart(2,"0")} / ${String(state.films.length).padStart(2,"0")}`;options.onFrame?.(film,n);}
+          if(p>=1){resolve(finish(true));return;}
+          requestAnimationFrame(frame);
+        }catch(error){console.error("[Kinoglobus] Cassette animation failed",error);resolve(finish(false));}
       };requestAnimationFrame(frame);
     });
   }

@@ -823,10 +823,15 @@ function openFilm(f,placement="list",detailTarget=null){
   }
   if(placement==="list")$("cl-result").innerHTML="";
   if(placement==="home-europe")$("kg-home-europe-detail").hidden=false;
+  let personModalScrollRestore=null;
   if(D.selected&&D.selected._placement===placement&&D.selected._detailTarget&&D.selected._detailTarget!==detailTarget){
     const previousTarget=$(D.selected._detailTarget),nextTarget=detailTarget?$(detailTarget):null;
     // Keep the selected film card when opening one of its nested recommendations.
-    if(previousTarget&&(!nextTarget||!previousTarget.contains(nextTarget)))previousTarget.replaceChildren();
+    if(previousTarget&&(!nextTarget||!previousTarget.contains(nextTarget))){
+      const personDialog=placement==="person-related"?document.querySelector("#kg-person-modal .kgpi-modal"):null;
+      if(personDialog)personModalScrollRestore=personDialog.scrollTop;
+      previousTarget.replaceChildren();
+    }
   }
   const relatedPool=f._kgGlobalRelated?null:Array.isArray(f._kgRelatedPool)?f._kgRelatedPool:(placement==="list"||placement==="roulette"?D.all:placement==="home-europe"?null:placement.startsWith("home")?homeEditorial.films:null);
   const relatedContext=relatedPool&&relatedPool.length?`${placement}:${D.t&&D.t.id||"all"}:${detailTarget||""}`:"";
@@ -834,6 +839,7 @@ function openFilm(f,placement="list",detailTarget=null){
   D.selected={...f,_cc:f._cc||(f.origin_country||[])[0]||"",_placement:placement,_detailTarget:detailTarget,_kgRelatedContext:relatedContext,overview:russianText(f.overview)||"Загружаем описание…",_trailerStatus:"loading"};
   const selected=D.selected;
   if(placement==="roulette"||placement==="home"||placement==="home-europe"||placement==="mood"||placement==="oscar"||placement==="related"||placement==="oscar-related"||placement==="person-related")renderSelectedPanel();else if(!placeListPanel())renderFilms();
+  if(personModalScrollRestore!==null){const dialog=document.querySelector("#kg-person-modal .kgpi-modal");requestAnimationFrame(()=>{if(dialog?.isConnected)dialog.scrollTop=personModalScrollRestore;});}
   const panel=detailTarget?$(detailTarget):placement==="roulette"?$("cl-result")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="home"?$("kg-home-feature")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="home-europe"?$("kg-home-europe-detail")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="mood"?$("mood-film-detail")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="oscar"?$("oscar-film-detail")?.querySelector(`[data-selected-film="${f.id}"]`):vd.querySelector(`[data-selected-film="${f.id}"]`);
   if(placement!=="related")requestAnimationFrame(()=>requestAnimationFrame(()=>{
     const trailer=panel?.querySelector("[data-kg-film-trailer]");

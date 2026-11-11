@@ -68,13 +68,14 @@
     const layers=[...stage.querySelectorAll("[data-kg-ticket-layer]")];
     const fillLayers=index=>layers.forEach((layer,depth)=>{const item=frames[Math.max(0,index-depth-1)]||frames[0];layer.innerHTML=ticketMarkup(item,options.meta||{});});
     const show=(film,index)=>{fillLayers(index);face.innerHTML=ticketMarkup(film,options.meta||{});if(status)status.textContent=`Билет ${String(index+1).padStart(2,"0")} · ${String(frames.length).padStart(2,"0")}`;options.onFrame?.(film,index,frames.length);};
-    const land=()=>{fillLayers(Math.max(0,frames.length-1));if(winner)face.innerHTML=ticketMarkup(winner,options.meta||{});stage.classList.remove("is-shuffling");stage.classList.add("is-landed");if(status)status.textContent="Ваш фильм найден";return true;};
+    const land=()=>{emitReelMotion(0);fillLayers(Math.max(0,frames.length-1));if(winner)face.innerHTML=ticketMarkup(winner,options.meta||{});stage.classList.remove("is-shuffling");stage.classList.add("is-landed");if(status)status.textContent="Ваш фильм найден";return true;};
     if(options.reducedMotion||frames.length<2)return Promise.resolve(land());
     return new Promise(resolve=>{
       let done=false,raf=0,index=0;
-      const finish=ok=>{if(done)return;done=true;if(raf)cancelAnimationFrame(raf);face.classList.remove("ticket-fly-out","ticket-land-in");if(ok)land();else stage.classList.remove("is-shuffling");resolve(ok);};
+      const finish=ok=>{if(done)return;done=true;emitReelMotion(0);if(raf)cancelAnimationFrame(raf);face.classList.remove("ticket-fly-out","ticket-land-in");if(ok)land();else stage.classList.remove("is-shuffling");resolve(ok);};
       const interrupt=()=>options.cancelled?.()?"cancel":(stage.dataset.skip==="true"||options.shouldSkip?.())?"skip":null;
-      const wait=ms=>new Promise(doneWait=>{const start=performance.now(),tick=now=>{const reason=interrupt();if(reason){doneWait(reason);return;}if(now-start>=ms){doneWait("elapsed");return;}raf=requestAnimationFrame(tick);};raf=requestAnimationFrame(tick);});
+      const motionStart=performance.now();
+      const wait=ms=>new Promise(doneWait=>{const start=performance.now(),tick=now=>{const reason=interrupt();if(reason){doneWait(reason);return;}const p=Math.min(1,(now-motionStart)/duration);emitReelMotion(Math.pow(1-p,3));if(now-start>=ms){doneWait("elapsed");return;}raf=requestAnimationFrame(tick);};raf=requestAnimationFrame(tick);});
       const weights=frames.slice(1).map((_,i)=>.68+1.15*Math.pow((i+1)/Math.max(1,frames.length-1),2)),weightTotal=weights.reduce((sum,value)=>sum+value,0);
       const run=async()=>{
         show(frames[0],0);

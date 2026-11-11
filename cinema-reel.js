@@ -118,17 +118,13 @@
     const track=root.querySelector("[data-kg-cassette-track]");if(!track)return null;
     const ambient=track.querySelector(".kg-cassette-ambient");track.replaceChildren(...(ambient?[ambient]:[]));
     const filmTitle=f=>f?.title||f?.original_title||"Фильм";
-    const card=(f,i)=>`<div class="kg-cassette-card" data-cassette-index="${i}" aria-hidden="true"><span class="kg-cassette-card-poster">${f.poster_path?`<img loading="lazy" alt="" data-poster-src="${cassetteImage(f.poster_path)}">`:`<b>${html(filmTitle(f))}</b>`}<span class="kg-cassette-card-caption"><b>${html(filmTitle(f))}</b><i>${html((f.release_date||"").slice(0,4))}</i></span></span></div>`;
+    const card=(f,i)=>`<div class="kg-cassette-card" data-cassette-index="${i}" aria-hidden="true"><span class="kg-cassette-card-poster">${f.poster_path?`<img loading="eager" alt="" src="${cassetteImage(f.poster_path)}">`:`<b>${html(filmTitle(f))}</b>`}<span class="kg-cassette-card-caption"><b>${html(filmTitle(f))}</b><i>${html((f.release_date||"").slice(0,4))}</i></span></span></div>`;
     track.insertAdjacentHTML("beforeend",list.map(card).join(""));
     const cards=[...track.querySelectorAll("[data-cassette-index]")];
-    cards.forEach(el=>{el.style.opacity="0";el.style.pointerEvents="none";});
-    let visibleCards=new Set();
     const layout=position=>{
       if(!list.length)return;
-      const total=list.length,nextVisible=new Set();
-      for(let delta=-3;delta<=3;delta++)nextVisible.add(cards[((Math.round(position)+delta)%total+total)%total]);
-      visibleCards.forEach(el=>{if(!nextVisible.has(el)){el.style.opacity="0";el.style.pointerEvents="none";el.setAttribute("aria-hidden","true");}});
-      nextVisible.forEach(el=>{
+      const total=list.length;
+      cards.forEach(el=>{
         const itemIndex=Number(el.dataset.cassetteIndex);
         const offset=total===1?0:((itemIndex-position+total/2)%total+total)%total-total/2;
         const distance=Math.abs(offset),side=offset<0?-1:1;
@@ -142,13 +138,10 @@
         el.style.opacity=String(opacity);
         el.style.filter=`brightness(${brightness})${distance>1.6?" blur(.5px)":""}`;
         el.style.pointerEvents="none";
-        el.setAttribute("aria-hidden","false");
+        el.setAttribute("aria-hidden",String(distance>3));
         el.setAttribute("aria-current",String(distance<.5));
         el.classList.toggle("active",distance<.5);
-        const poster=el.querySelector("img[data-poster-src]");
-        if(poster&&!poster.src)poster.src=poster.dataset.posterSrc;
       });
-      visibleCards=nextVisible;
     };
     const update=index=>{
       if(!list.length)return null;

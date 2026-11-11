@@ -17,6 +17,7 @@
     .kgs-back{display:grid;place-items:center;width:28px;height:34px;border:0;background:none;color:#f3eaf5;font-family:inherit;font-size:24px;line-height:1;cursor:pointer}.kgs-title{font-family:inherit;font-size:14px;line-height:1.2;font-weight:700}.kgs-title small{display:block;margin-top:3px;color:var(--muted);font-size:10px;font-weight:500}
     .kgs-scroll{min-height:0;flex:1;overflow:auto;overscroll-behavior:contain;padding:12px 13px 18px;scrollbar-width:thin;scrollbar-color:#50445b transparent}
     .kgs-summary{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}.kgs-stat{min-width:0;padding:9px 10px;border:1px solid #ffffff0c;border-radius:12px;background:linear-gradient(135deg,#1d1923,#211a29)}.kgs-stat-top{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:9px}.kgs-stat strong{display:block;margin-top:5px;color:#e9deed;font-size:11px;font-weight:700}.kgs-state{color:#68d49b!important}.kgs-state:before{content:'●';color:#5bdd9b;margin-right:5px}
+    .kgs-hero{margin:4px 0 12px}.kgs-kicker{color:#e0a633;font-size:8px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}.kgs-hero h1{margin:5px 0 2px;font-family:Georgia,serif;font-size:24px;line-height:1.12;color:#f2e8f3}.kgs-hero p{margin:0;color:#a99eae;font-size:10px;line-height:1.45}.kgs-account{display:grid;grid-template-columns:38px 1fr;gap:8px;padding:10px;border:1px solid #78551e66;border-radius:12px;background:linear-gradient(125deg,#28211f,#241b27);margin:10px 0 12px}.kgs-account-icon{display:grid;place-items:center;width:34px;height:34px;border:1px solid #b67a2866;border-radius:10px;background:#4a341b;color:#ffc14b;font-size:17px}.kgs-account-copy{min-width:0}.kgs-account-title{font-size:11px;font-weight:750}.kgs-account-sub{margin-top:3px;color:#a99eae;font-size:8px;line-height:1.4}.kgs-account-actions{grid-column:1/3;display:grid;grid-template-columns:1fr 1fr;gap:6px}.kgs-account-actions .kgs-btn{min-height:29px}.kgs-placeholder{opacity:.82}.kgs-themes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.kgs-theme{min-height:66px;padding:7px 5px;border:1px solid #ffffff10;border-radius:9px;background:#17131c;text-align:center;color:#d8cede}.kgs-theme b{display:block;margin:3px 0;font-size:8px}.kgs-theme small{display:block;color:#a095a7;font-size:7px;line-height:1.3}.kgs-theme.current{border-color:#d89a3d88;background:#30271f}.kgs-soon{display:inline-block;margin-top:4px;color:#e3ad50;font-size:7px}
     .kgs-section{margin:14px 0}.kgs-h{display:flex;align-items:center;gap:7px;margin:0 2px 7px;color:#f1e9f3;font-size:10px;font-weight:800;letter-spacing:.045em;text-transform:uppercase}.kgs-h .i{font-size:14px;color:var(--gold)}.kgs-card{padding:10px;border:1px solid #ffffff0c;border-radius:14px;background:linear-gradient(145deg,#1d1923,#1b1721);box-shadow:0 6px 17px #0003}
     .kgs-note{margin:6px 2px 0;color:#9c91a2;font-size:9px;line-height:1.45}.kgs-label{font-size:10px;color:#d8ccdc}.kgs-sub{font-size:9px;line-height:1.4;color:#9f94a6;margin-top:3px}.kgs-row{display:flex;align-items:center;gap:8px;min-height:39px;padding:6px 2px}.kgs-row+.kgs-row{border-top:1px solid #ffffff09}.kgs-rowcopy{min-width:0;flex:1}.kgs-rowtitle{font-size:10px;font-weight:650;line-height:1.3}.kgs-meta{color:#96899e;font-size:8px;margin-top:2px;line-height:1.3}.kgs-badge{margin-left:auto;padding:3px 6px;border-radius:99px;background:#49341b;color:#ffc45b;font-size:8px;white-space:nowrap}.kgs-badge.gray{background:#302a38;color:#a89db0}.kgs-badge.pink{background:#452137;color:#ffb1c5}
     .kgs-apihead{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}.kgs-lamp{font-size:8px;color:#ffbe50}.kgs-lamp.on{color:#73dda4}.kgs-keywrap{display:flex;align-items:center;gap:5px}.kgs-input{box-sizing:border-box;min-width:0;flex:1;height:34px;padding:0 10px;border:1px solid #413649;border-radius:9px;background:#100d14;color:#eee6f2;font-family:inherit;font-size:10px;outline:none}.kgs-input:focus{border-color:#d9912a}.kgs-iconbtn,.kgs-ok{height:31px;display:grid;place-items:center;border:0;border-radius:8px;cursor:pointer}.kgs-iconbtn{width:31px;background:#302a37;color:#ddd0e5}.kgs-ok{width:36px;background:#c58a27;color:#171016;font-size:10px;font-weight:800}.kgs-actions{display:flex;gap:6px;margin-top:8px}.kgs-btn{min-height:30px;flex:1;padding:6px 8px;border:1px solid #ffffff10;border-radius:9px;background:#2a2332;color:#e7deeb;font-family:inherit;font-size:9px;font-weight:600;cursor:pointer}.kgs-btn.primary{border-color:#ffba3040;background:linear-gradient(100deg,#d98f12,#ffc35a);color:#21150b}.kgs-btn.danger{border-color:#a3495866;background:#40222e;color:#ffc1c6}.kgs-btn:disabled{opacity:.42;cursor:not-allowed}
@@ -34,12 +35,16 @@
   dialog.className = "kgs-dialog";
   dialog.innerHTML = `
     <div class="kgs-shell">
-      <header class="kgs-head"><button class="kgs-back" type="button" data-kgs-close aria-label="Назад">←</button><div class="kgs-title">К глобусу <small>Настройки</small></div><span style="margin-left:auto;color:#d7a43e">⚙</span></header>
+      <header class="kgs-head"><button class="kgs-back" type="button" data-kgs-close aria-label="Назад">←</button><div class="kgs-title">Настройки приложения <small>Настройки КиноГлобуса</small></div><span class="kgs-badge" style="margin-left:auto">✦ VIP</span><span style="color:#ffcf7a;font-size:17px">◉</span></header>
       <div class="kgs-scroll">
+        <div class="kgs-hero"><div class="kgs-kicker">Конфигурация ядра <span class="kgs-badge gray" style="margin-left:6px">● v2.4.2 Production</span></div><h1>Настройки приложения</h1><p>КиноГлобус v2.4.2 · Движок кинематографической рулетки</p></div>
+        <section class="kgs-account"><div class="kgs-account-icon">▣</div><div class="kgs-account-copy"><div class="kgs-account-title">Кино-аккаунт синефила <span class="kgs-badge gray">SYNC</span></div><div class="kgs-account-sub">Синхронизация истории, закладок и наград между экранами</div></div><div class="kgs-account-actions"><button class="kgs-btn primary" type="button" disabled>♙ Регистрация <small>Скоро</small></button><button class="kgs-btn" type="button" disabled>⇥ Войти <small>Скоро</small></button></div></section>
         <div class="kgs-summary">
           <div class="kgs-stat"><div class="kgs-stat-top">◉ TMDB v3</div><strong class="kgs-state" data-kgs-status></strong></div>
           <div class="kgs-stat"><div class="kgs-stat-top">▤ Архив открытий</div><strong data-kgs-count></strong></div>
         </div>
+
+        <section class="kgs-section"><h2 class="kgs-h"><span class="i">文</span> Язык и региональные стандарты <span class="kgs-badge gray">Скоро</span></h2><div class="kgs-card"><label class="kgs-label" for="kgs-language">Язык интерфейса</label><select id="kgs-language" class="kgs-select" disabled aria-label="Язык интерфейса появится позже"><option>Русский (Russian)</option></select><p class="kgs-note">Настройки языка оригинала, региона и субтитров будут доступны позже.</p><div class="kgs-row kgs-placeholder"><div class="kgs-rowcopy"><div class="kgs-rowtitle">Язык названий и синопсисов TMDB</div></div><span class="kgs-badge gray">Скоро</span></div><div class="kgs-row kgs-placeholder"><div class="kgs-rowcopy"><div class="kgs-rowtitle">Язык субтитров трейлеров</div></div><span class="kgs-badge gray">Скоро</span></div></div></section>
 
         <section class="kgs-section"><h2 class="kgs-h"><span class="i">◉</span> Связь с фильмографией TMDB <span class="kgs-badge gray" data-kgs-api-badge></span></h2><div class="kgs-card">
           <div class="kgs-apihead"><label class="kgs-label" for="kgs-token">Bearer Token / v3 Auth</label><span class="kgs-lamp" data-kgs-lamp>● нет ключа</span></div>
@@ -47,6 +52,8 @@
           <p class="kgs-note">API-ключ TMDB нужен для загрузки фильмов, постеров, трейлеров и метаданных стран. Ключ не отображается в этом поле после сохранения.</p>
           <div class="kgs-actions"><button class="kgs-btn" type="button" data-kgs-change>Изменить ключ</button><button class="kgs-btn primary" type="button" data-kgs-check>Проверить связь</button></div><p class="kgs-note" data-kgs-message aria-live="polite"></p>
         </div></section>
+
+        <section class="kgs-section"><h2 class="kgs-h"><span class="i">✧</span> Тема и визуальный стиль <span class="kgs-badge gray">Скоро</span></h2><div class="kgs-card"><div class="kgs-themes"><div class="kgs-theme current"><span>🎞️</span><b>Кинематографичная</b><small>Текущий стиль</small></div><div class="kgs-theme"><span>◼</span><b>OLED Black</b><small>Глубокий чёрный</small><span class="kgs-soon">Скоро</span></div><div class="kgs-theme"><span>🏆</span><b>Золотой век</b><small>Классический зал</small><span class="kgs-soon">Скоро</span></div></div><div class="kgs-row" style="margin-top:6px"><div class="kgs-rowcopy"><div class="kgs-rowtitle">Кинематографические переходы</div><div class="kgs-meta">Плавная анимация экранов и карточек</div></div><span class="kgs-badge gray">Активно</span></div></div></section>
 
         <section class="kgs-section"><h2 class="kgs-h"><span class="i">▥</span> Артефакты и маркеры рулетки <span class="kgs-badge gray">смена плёнки</span></h2><div class="kgs-card">
           <p class="kgs-note" style="margin:0 1px 7px">Выберите визуальный стиль рулетки и настройте показ киноленты.</p>
@@ -57,7 +64,7 @@
 
         <section class="kgs-section"><h2 class="kgs-h"><span class="i">♫</span> Звуковой режиссёрский пульт </h2><div class="kgs-card">
           <div class="kgs-audio"><div><div class="kgs-label">Звук вращения КиноГлобуса</div><div class="kgs-sub">Сопровождение выбора страны</div></div><span class="kgs-badge gray">Активно</span><div data-kgs-sound></div></div>
-          <div class="kgs-audio"><div><div class="kgs-label">Звук поиска фильма</div><div class="kgs-sub">Пять кинематографичных дорожек на выбор</div></div><span class="kgs-badge">Активно</span><div data-kgs-reel-sound style="grid-column:1/3"></div><button class="kgs-play" type="button" data-kgs-reel-preview style="grid-column:1/3">▶ Прослушать звук ленты</button></div>
+          <div class="kgs-audio"><div><div class="kgs-label">Звук поиска фильма</div><div class="kgs-sub">Пять кинематографичных профилей на выбор</div></div><span class="kgs-badge">Активно</span><select class="kgs-select" data-kgs-reel-sound-select aria-label="Выбрать звук поиска фильма"><option value="projector">Проектор · щелчки</option><option value="imax">Кинозал · низкий гул</option><option value="camera">Кинокамера · механика</option><option value="tape">Магнитная плёнка</option><option value="premiere">Премьерный зал</option><option value="off">Без звука</option></select><button class="kgs-play" type="button" data-kgs-reel-preview style="grid-column:1/3">▶ Прослушать выбранный звук</button></div>
           <div class="kgs-row"><div class="kgs-rowcopy"><div class="kgs-rowtitle">Тактильный отклик</div><div class="kgs-meta">Вибрация при запуске рулетки</div></div><button class="kgs-switch" type="button" role="switch" data-kgs-fx aria-label="Тактильный отклик"></button></div>
           <div class="kgs-inline" style="justify-content:space-between;margin-top:4px"><button class="kgs-play" type="button" data-kgs-preview>▶ Тест кинозвука</button><label class="kgs-inline"><span class="kgs-sub">Громкость</span><input class="kgs-range" type="range" min="0" max="100" disabled aria-label="Регулятор громкости появится позже"></label></div>
         </div></section>
@@ -111,6 +118,7 @@
       choice.setAttribute("aria-checked",String(selected));
       const badge=choice.querySelector("[data-choice-selected]");if(badge)badge.hidden=!selected;
     });
+    const reelSoundSelect=$("[data-kgs-reel-sound-select]");
     if(reelSoundSelect)reelSoundSelect.value=window.getCinemaReelSound?.()||"projector";
     $("[data-kgs-mode=filters]").classList.toggle("active", playMode !== "surprise");
     $("[data-kgs-mode=surprise]").classList.toggle("active", playMode === "surprise");
@@ -129,11 +137,8 @@
     const soundHost = $("[data-kgs-sound]");
     if (soundHost) soundHost.appendChild(soundSelect);
   }
-  const reelSoundSelect=document.getElementById("reel-snd");
+  const reelSoundSelect=$("[data-kgs-reel-sound-select]");
   if(reelSoundSelect){
-    reelSoundSelect.className="kgs-select";
-    reelSoundSelect.setAttribute("aria-label","Звук вращения при поиске фильма");
-    const soundHost=$("[data-kgs-reel-sound]");if(soundHost)soundHost.appendChild(reelSoundSelect);
     reelSoundSelect.value=window.getCinemaReelSound?.()||"projector";
     reelSoundSelect.addEventListener("change",()=>window.setCinemaReelSound?.(reelSoundSelect.value));
   }

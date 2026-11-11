@@ -75,7 +75,7 @@
       const finish=ok=>{if(done)return;done=true;emitReelMotion(0);if(raf)cancelAnimationFrame(raf);face.classList.remove("ticket-fly-out","ticket-land-in");if(ok)land();else stage.classList.remove("is-shuffling");resolve(ok);};
       const interrupt=()=>options.cancelled?.()?"cancel":(stage.dataset.skip==="true"||options.shouldSkip?.())?"skip":null;
       const motionStart=performance.now();
-      const wait=ms=>new Promise(doneWait=>{const start=performance.now(),tick=now=>{const reason=interrupt();if(reason){doneWait(reason);return;}const p=Math.min(1,(now-motionStart)/duration);emitReelMotion(Math.pow(1-p,3));if(now-start>=ms){doneWait("elapsed");return;}raf=requestAnimationFrame(tick);};raf=requestAnimationFrame(tick);});
+      const wait=ms=>new Promise(doneWait=>{const start=performance.now(),tick=now=>{const reason=interrupt();if(reason){doneWait(reason);return;}const p=Math.min(1,(now-motionStart)/duration);emitReelMotion(Math.pow(1-p,.9));if(now-start>=ms){doneWait("elapsed");return;}raf=requestAnimationFrame(tick);};raf=requestAnimationFrame(tick);});
       const weights=frames.slice(1).map((_,i)=>.68+1.15*Math.pow((i+1)/Math.max(1,frames.length-1),2)),weightTotal=weights.reduce((sum,value)=>sum+value,0);
       const run=async()=>{
         show(frames[0],0);
@@ -118,15 +118,19 @@
     const track=root.querySelector("[data-kg-cassette-track]");if(!track)return null;
     const ambient=track.querySelector(".kg-cassette-ambient");track.replaceChildren(...(ambient?[ambient]:[]));
     const filmTitle=f=>f?.title||f?.original_title||"Фильм";
-    const card=(f,i)=>`<div class="kg-cassette-card" data-cassette-index="${i}" aria-hidden="true"><span class="kg-cassette-card-poster">${f.poster_path?`<img loading="lazy" alt="" src="${cassetteImage(f.poster_path)}">`:`<b>${html(filmTitle(f))}</b>`}<span class="kg-cassette-card-caption"><b>${html(filmTitle(f))}</b><i>${html((f.release_date||"").slice(0,4))}</i></span></span></div>`;
+    const card=(f,i)=>`<div class="kg-cassette-card" data-cassette-index="${i}" aria-hidden="true"><span class="kg-cassette-card-poster">${f.poster_path?`<img loading="lazy" alt="" data-poster-src="${cassetteImage(f.poster_path)}">`:`<b>${html(filmTitle(f))}</b>`}<span class="kg-cassette-card-caption"><b>${html(filmTitle(f))}</b><i>${html((f.release_date||"").slice(0,4))}</i></span></span></div>`;
     track.insertAdjacentHTML("beforeend",list.map(card).join(""));
     const cards=[...track.querySelectorAll("[data-cassette-index]")];
+    cards.forEach(el=>{el.style.opacity="0";el.style.pointerEvents="none";});
+    let visibleCards=new Set();
     const layout=position=>{
       if(!list.length)return;
-      const total=list.length;
-      cards.forEach(el=>{
+      const total=list.length,nextVisible=new Set();
+      for(let delta=-3;delta<=3;delta++)nextVisible.add(cards[((Math.round(position)+delta)%total+total)%total]);
+      visibleCards.forEach(el=>{if(!nextVisible.has(el)){el.style.opacity="0";el.style.pointerEvents="none";el.setAttribute("aria-hidden","true");}});
+      nextVisible.forEach(el=>{
         const itemIndex=Number(el.dataset.cassetteIndex);
-        let offset=total===1?0:((itemIndex-position+total/2)%total+total)%total-total/2;
+        const offset=total===1?0:((itemIndex-position+total/2)%total+total)%total-total/2;
         const distance=Math.abs(offset),side=offset<0?-1:1;
         const spread=distance<=1?115*distance:distance<=2?115+(distance-1)*55:170+(distance-2)*28;
         const x=side*spread,z=60-distance*82,rotate=-side*Math.min(52,distance*44);
@@ -135,12 +139,16 @@
         const brightness=Math.max(.34,1-distance*.18);
         el.style.transform=`translate(-50%,-50%) translateX(${x}px) translateZ(${z}px) rotateY(${rotate}deg) scale(${scale})`;
         el.style.zIndex=String(40-Math.round(distance*10));
-        el.style.opacity=String(distance>3?0:opacity);
+        el.style.opacity=String(opacity);
         el.style.filter=`brightness(${brightness})${distance>1.6?" blur(.5px)":""}`;
         el.style.pointerEvents="none";
+        el.setAttribute("aria-hidden","false");
         el.setAttribute("aria-current",String(distance<.5));
         el.classList.toggle("active",distance<.5);
+        const poster=el.querySelector("img[data-poster-src]");
+        if(poster&&!poster.src)poster.src=poster.dataset.posterSrc;
       });
+      visibleCards=nextVisible;
     };
     const update=index=>{
       if(!list.length)return null;
@@ -175,7 +183,7 @@
         try{
           if(options.cancelled?.()){resolve(finish(false));return;}
           if(options.shouldSkip?.()){resolve(finish(true));return;}
-          const p=Math.min(1,(now-start)/duration),ease=1-Math.pow(1-p,4),n=Math.min(steps,Math.floor(ease*steps));emitReelMotion(Math.pow(1-p,3));
+          const p=Math.min(1,(now-start)/duration),ease=1-Math.pow(1-p,4),n=Math.min(steps,Math.floor(ease*steps));emitReelMotion(Math.pow(1-p,.9));
           const position=startIndex-steps*ease;mounted.layout(position);
           if(n!==last){last=n;const index=((Math.round(position)%state.films.length)+state.films.length)%state.films.length,film=state.films[index]||winner;state.index=index;const counter=mounted.root.querySelector("[data-kg-cassette-counter]");if(counter)counter.textContent=`${String(index+1).padStart(2,"0")} / ${String(state.films.length).padStart(2,"0")}`;options.onFrame?.(film,n);}
           if(p>=1){resolve(finish(true));return;}
@@ -216,8 +224,8 @@
     const startIndex=loops*items.length+items.length-1,targetIndex=items.length-1-targetItemIndex;
     if(img){img.innerHTML=`<div class="kg-projection-strip" data-kg-projection-strip style="height:${total*100}%">${stripItems.map(film=>{const title=film?.title||film?.original_title||"Фильм";return `<div class="kg-projection-strip-frame" style="height:${100/total}%"><img src="${projectionPoster(film?.poster_path)}" alt="Постер фильма «${html(title)}»"><span class="kg-projection-image-shade"></span></div>`;}).join("")}</div>`;}
     const strip=img?.querySelector("[data-kg-projection-strip]");if(strip)strip.style.transform=`translate3d(0,${-(startIndex/total)*100}%,0)`;let lastFrame=-1;
-    return new Promise(resolve=>{const start=performance.now(),step=now=>{if(options.cancelled?.()){emitReelMotion(0);root.classList.remove("is-running");state.rolling=false;resolve(false);return;}if(options.shouldSkip?.()){resolve(land());return;}const progress=Math.min(1,(now-start)/duration),ease=1-Math.pow(1-progress,4),offset=startIndex+(targetIndex-startIndex)*ease;emitReelMotion(Math.pow(1-progress,3));
-        if(strip){strip.style.transform=`translate3d(0,${-(offset/total)*100}%,0)`;const speed=(startIndex-targetIndex)*4*Math.pow(1-progress,3)*1000/duration;strip.style.filter=`blur(${Math.min(1.15,Math.max(.08,speed*.055))}px)`;}
+    return new Promise(resolve=>{const start=performance.now(),step=now=>{if(options.cancelled?.()){emitReelMotion(0);root.classList.remove("is-running");state.rolling=false;resolve(false);return;}if(options.shouldSkip?.()){resolve(land());return;}const progress=Math.min(1,(now-start)/duration),ease=1-Math.pow(1-progress,4),offset=startIndex+(targetIndex-startIndex)*ease;emitReelMotion(Math.pow(1-progress,.9));
+        if(strip){strip.style.transform=`translate3d(0,${-(offset/total)*100}%,0)`;const speed=(startIndex-targetIndex)*4*Math.pow(1-progress,.9)*1000/duration;strip.style.filter=`blur(${Math.min(1.15,Math.max(.08,speed*.055))}px)`;}
         const traveled=Math.max(0,Math.floor(startIndex-offset)),frameIndex=Math.min(items.length-1,traveled%items.length);
         if(frameIndex!==lastFrame){lastFrame=frameIndex;const film=items[frameIndex];if(counter)counter.textContent=`КАДР ${String(frameIndex+1).padStart(2,"0")} / ${String(items.length).padStart(2,"0")}`;const title=root.querySelector("[data-kg-projection-title]"),year=root.querySelector("[data-kg-projection-year]"),rating=root.querySelector("[data-kg-projection-rating]"),subtitle=root.querySelector("[data-kg-projection-subtitle]");if(title)title.textContent=film.title||film.original_title||"Фильм";if(year)year.textContent=`${(film.release_date||"").slice(0,4)||"35 MM"} · KODAK`;if(rating)rating.textContent=Number(film.vote_average)>0?`★ ${Number(film.vote_average).toFixed(1)}`:"● TMDB";if(subtitle)subtitle.textContent=film.original_title&&film.original_title!==film.title?film.original_title:"Оптическая рамка 35 мм";options.onFrame?.(film,frameIndex);}
         if(progress>=1){resolve(land());return;}requestAnimationFrame(step);};requestAnimationFrame(step);});
@@ -368,7 +376,7 @@
       if(done)return;
       const rawProgress=Math.min(1,(now-started)/duration);
       const progress=Math.max(0,Math.min(1,options.mapProgress?options.mapProgress(rawProgress):rawProgress));
-      emitReelMotion(Math.pow(1-progress,3));
+      emitReelMotion(Math.pow(1-progress,.9));
       const eased=1-Math.pow(1-progress,4);
       const x=startX+(endX-startX)*eased;
       const remaining=endX-x;

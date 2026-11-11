@@ -1005,10 +1005,10 @@ async function inPageRoulette(){
     if(token!==R.token){snd(()=>stopFilmReelSound());return;}
     const t=R.skip?1:Math.min(1,(now-t0)/T);
     const x=x0+(x1-x0)*(1-Math.pow(1-t,4)),left=x1-x;
+    snd(()=>setFilmReelLevel(Math.pow(1-t,3)));
     run.style.transform=`translateX(${-x}px)`;
     if(t>.4)run.classList.remove("fast");
     if(!(t>=1||left<.75)){
-      if(left<200)snd(()=>setFilmReelLevel(left/200));
       R.raf=requestAnimationFrame(step);return;
     }
     snd(()=>stopFilmReelSound());

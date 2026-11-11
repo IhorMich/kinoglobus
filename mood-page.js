@@ -337,10 +337,10 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
         if(token!==state.spinToken||!panel.isConnected)return;
         const progress=state.skipSpin?1:Math.min(1,(now-startTime)/duration);
         const position=start+(finish-start)*(1-Math.pow(1-progress,4)),remaining=finish-position;
+        if(typeof window.setFilmReelLevel==="function")window.setFilmReelLevel(Math.pow(1-progress,3));
         run.style.transform=`translateX(${-position}px)`;
         if(progress>.4)run.classList.remove("fast");
         if(progress<1&&remaining>=.75){
-          if(remaining<200&&typeof window.setFilmReelLevel==="function")window.setFilmReelLevel(remaining/200);
           state.spinFrame=requestAnimationFrame(step);return;
         }
         if(typeof window.stopFilmReelSound==="function")window.stopFilmReelSound();

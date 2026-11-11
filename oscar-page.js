@@ -467,10 +467,10 @@ ${window.KGCinemaReel.render({shellClass:"kgo-reel relative w-full rounded-xl bg
       if(!root.offsetParent){stopSpin(root);return;}   // ушли с экрана «Оскар»
       const progress=state.skipSpin?1:Math.min(1,(now-startTime)/duration);
       const position=start+(finish-start)*(1-Math.pow(1-progress,4)),remaining=finish-position;
+      sound("setFilmReelLevel",Math.pow(1-progress,3));
       run.style.transform=`translateX(${-position}px)`;
       if(progress>.4)run.classList.remove("fast");
       if(progress<1&&remaining>=.75){
-        if(remaining<200)sound("setFilmReelLevel",remaining/200);
         state.spinFrame=requestAnimationFrame(step);return;
       }
       sound("stopFilmReelSound");

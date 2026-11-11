@@ -62,11 +62,11 @@
     if(typeof container==="string")container=document.querySelector(container);
     const stage=container?.querySelector("[data-kg-ticket-shuffle]"),face=container?.querySelector("[data-kg-ticket-face]"),status=container?.querySelector("[data-kg-ticket-shuffle-status]");
     if(!stage||!face)return Promise.resolve(false);
-    const items=(sequence||[]).filter(Boolean),frames=winner?[...items.filter(f=>String(f?.id)!==String(winner.id)),winner]:(items.length?items:[]),duration=Math.max(6800,Number(options.duration)||6800)*searchPaceFactor;
+    const items=(sequence||[]).filter(Boolean),ordered=winner?[...items.filter(f=>String(f?.id)!==String(winner.id)),winner]:(items.length?items:[]),ticketLimit=15,frames=ordered.length>ticketLimit?(()=>{const reel=ordered.slice(0,-1),slots=ticketLimit-1,sampled=Array.from({length:slots},(_,i)=>reel[Math.round(i*(reel.length-1)/Math.max(1,slots-1))]);return [...sampled,ordered[ordered.length-1]];})():ordered,baseDuration=Math.max(6800,Number(options.duration)||6800)*searchPaceFactor,duration=baseDuration*Math.max(1,frames.length-1)/Math.max(1,ordered.length-1)*2;
     stage.classList.add("is-shuffling");stage.classList.remove("is-landed");
     const layers=[...stage.querySelectorAll("[data-kg-ticket-layer]")];
     const fillLayers=index=>layers.forEach((layer,depth)=>{const item=frames[Math.max(0,index-depth-1)]||frames[0];layer.innerHTML=ticketMarkup(item,options.meta||{});});
-    const show=(film,index)=>{fillLayers(index);face.innerHTML=ticketMarkup(film,options.meta||{});if(status)status.textContent=`Билет ${String(index+1).padStart(2,"0")} · ${String(frames.length).padStart(2,"0")}`;options.onFrame?.(film,index);};
+    const show=(film,index)=>{fillLayers(index);face.innerHTML=ticketMarkup(film,options.meta||{});if(status)status.textContent=`Билет ${String(index+1).padStart(2,"0")} · ${String(frames.length).padStart(2,"0")}`;options.onFrame?.(film,index,frames.length);};
     const land=()=>{fillLayers(Math.max(0,frames.length-1));if(winner)face.innerHTML=ticketMarkup(winner,options.meta||{});stage.classList.remove("is-shuffling");stage.classList.add("is-landed");if(status)status.textContent="Ваш фильм найден";return true;};
     if(options.reducedMotion||frames.length<2)return Promise.resolve(land());
     return new Promise(resolve=>{

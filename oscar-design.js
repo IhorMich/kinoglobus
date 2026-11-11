@@ -207,23 +207,10 @@
   }
 
   // ---------- карточка фильма для страницы «Оскар» (подключается одной строкой в collections.js) ----------
-  const cardFilm={},prov={};
+  const cardFilm={};
   const money=new Intl.NumberFormat("ru-RU",{style:"currency",currency:"USD",maximumFractionDigits:0});
   const plural=(n,a,b,c)=>{const m=n%100,k=n%10;return k===1&&m!==11?a:(k>1&&k<5&&(m<12||m>14))?b:c;};
   const isBP=a=>/(best picture|лучший фильм)\s*$/i.test(String(a.label).trim());
-  function providers(f){
-    if(prov[f.id]!==undefined)return prov[f.id];
-    prov[f.id]=null;
-    fetch(`https://api.themoviedb.org/3/movie/${f.id}/watch/providers?api_key=${apiKey}`).then(r=>r.json()).then(j=>{
-      const all=j.results||{};let reg=((navigator.language||"en-US").split("-")[1]||"US").toUpperCase();
-      let x=all[reg];
-      if(!x||!(x.flatrate||x.rent||x.buy||x.free)){x=all.US;reg="US";}
-      const rows=[],ids=new Set();
-      [["flatrate","Подписка"],["free","Бесплатно"],["rent","Аренда"],["buy","Покупка"]].forEach(([k,l])=>((x&&x[k])||[]).forEach(p=>{if(ids.has(p.provider_id))return;ids.add(p.provider_id);rows.push({n:p.provider_name,l:p.logo_path,t:l});}));
-      prov[f.id]={reg,rows:rows.slice(0,6)};
-    }).catch(()=>{prov[f.id]={reg:"",rows:[]};}).finally(()=>{const d=window.__kgoDeps;if(d&&d.refreshFilm)d.refreshFilm();});
-    return null;
-  }
   window.KGOscarCard=function(f){
     const deps=window.__kgoDeps||{};
     cardFilm[f.id]=f;
@@ -264,8 +251,7 @@
     const cast=(f.castFull||[]).map(c=>`<div class="flex flex-col items-center text-center w-24 shrink-0 gap-1.5"><div class="w-16 h-16 rounded-full overflow-hidden bg-surface-container shadow-md flex items-center justify-center">${c.photo?`<img class="w-full h-full object-cover" loading="lazy" alt="" src="https://image.tmdb.org/t/p/w185${c.photo}">`:'<span class="material-symbols-outlined text-text-muted">person</span>'}</div><span class="font-label-sm text-label-sm text-on-surface font-semibold line-clamp-1 w-full">${esc(c.name)}</span><span class="font-micro-caption text-micro-caption text-text-muted line-clamp-1 w-full">${esc(c.role)}</span></div>`).join("");
     const people=dirs||cast?`<div class="flex flex-col gap-space-sm"><h3 class="font-headline-sm text-headline-sm text-on-surface">Создатели и актёры</h3>${dirs}${cast?`<div class="flex gap-space-sm overflow-x-auto pb-1" style="-webkit-overflow-scrolling:touch">${cast}</div>`:""}</div>`:"";
     // где смотреть
-    const pv=providers(f);
-    const where=`<div class="flex flex-col gap-space-sm rounded-xl bg-surface-panel p-space-md"><div class="flex items-center justify-between"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-[20px]">live_tv</span><h3 class="font-headline-sm text-headline-sm text-on-surface">Где смотреть онлайн</h3></div>${pv&&pv.reg?`<span class="font-micro-caption text-micro-caption text-text-muted">${pv.reg} · JustWatch</span>`:""}</div>${pv===null?'<span class="font-micro-caption text-micro-caption text-text-muted">Загружаем…</span>':pv.rows.length?`<div class="grid grid-cols-2 gap-space-xs">${pv.rows.map(r=>`<div class="flex items-center gap-2.5 p-2.5 rounded-lg bg-surface-container-high">${r.l?`<img class="w-7 h-7 rounded shadow-sm" alt="" src="https://image.tmdb.org/t/p/w92${r.l}">`:'<span class="w-7 h-7 rounded bg-surface-container"></span>'}<div class="flex flex-col min-w-0"><span class="font-label-sm text-label-sm text-on-surface font-semibold truncate">${esc(r.n)}</span><span class="font-micro-caption text-micro-caption text-primary">${r.t}</span></div></div>`).join("")}</div>`:'<span class="font-micro-caption text-micro-caption text-text-muted">Нет данных для вашего региона.</span>'}</div>`;
+    const where=window.KGLegalWatch?.markup(f.id)||"";
     // факты
     const when=f.release?new Date(f.release+"T00:00:00").toLocaleDateString("ru-RU",{day:"numeric",month:"long",year:"numeric"}):"";
     const fact=(l,v2)=>v2?`<div class="p-3 rounded-xl bg-surface-container flex flex-col gap-0.5"><span class="font-micro-caption text-micro-caption uppercase text-text-muted">${l}</span><span class="font-label-md text-label-md text-on-surface">${esc(v2)}</span></div>`:"";

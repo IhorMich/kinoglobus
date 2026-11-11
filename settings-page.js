@@ -73,7 +73,7 @@
 
         <section class="kgs-section"><h2 class="kgs-h"><span class="i">♫</span> Звуковой режиссёрский пульт </h2><div class="kgs-card">
           <div class="kgs-audio"><div><div class="kgs-label">Звук вращения КиноГлобуса</div><div class="kgs-sub">Сопровождение выбора страны</div></div><span class="kgs-badge gray">Активно</span><div data-kgs-sound></div></div>
-          <div class="kgs-audio"><div><div class="kgs-label">Звук поиска фильма</div><div class="kgs-sub">Пять кинематографичных профилей на выбор</div></div><span class="kgs-badge">Активно</span><select class="kgs-select" data-kgs-reel-sound-select aria-label="Выбрать звук поиска фильма"><option value="projector">Проектор · щелчки</option><option value="imax">Кинозал · низкий гул</option><option value="camera">Кинокамера · механика</option><option value="tape">Магнитная плёнка</option><option value="premiere">Премьерный зал</option><option value="off">Без звука</option></select><button class="kgs-play" type="button" data-kgs-reel-preview style="grid-column:1/3">▶ Прослушать выбранный звук</button></div>
+          <div class="kgs-audio"><div><div class="kgs-label">Звук поиска фильма</div><div class="kgs-sub">Восемь кинематографичных профилей на выбор</div></div><span class="kgs-badge">Активно</span><select class="kgs-select" data-kgs-reel-sound-select aria-label="Выбрать звук поиска фильма"><option value="projector">Проектор · щелчки</option><option value="imax">Кинозал · мягкий импульс</option><option value="camera">Кинокамера · механика</option><option value="tape">Магнитная плёнка</option><option value="premiere">Премьерный зал</option><option value="shutter">Кинокамера · затвор</option><option value="editbench">Монтажный стол · шаг кадра</option><option value="sixteenmm">16 мм · мягкая трещотка</option><option value="off">Без звука</option></select><button class="kgs-play" type="button" data-kgs-reel-preview style="grid-column:1/3">▶ Прослушать выбранный звук</button></div>
           <div class="kgs-row"><div class="kgs-rowcopy"><div class="kgs-rowtitle">Тактильный отклик</div><div class="kgs-meta">Вибрация при запуске рулетки</div></div><button class="kgs-switch" type="button" role="switch" data-kgs-fx aria-label="Тактильный отклик"></button></div>
           <div class="kgs-inline" style="justify-content:space-between;margin-top:4px"><button class="kgs-play" type="button" data-kgs-preview>▶ Тест кинозвука</button><label class="kgs-inline"><span class="kgs-sub">Громкость</span><input class="kgs-range" type="range" min="0" max="100" disabled aria-label="Регулятор громкости появится позже"></label></div>
         </div></section>
@@ -135,7 +135,11 @@
 
   $("[data-kgs-close]").addEventListener("click", close);
   dialog.addEventListener("click", (event) => { if (event.target === dialog) close(); });
-  document.getElementById("gear").onclick = () => { sync(); if (dialog.showModal) dialog.showModal(); else dialog.setAttribute("open", ""); };
+  document.getElementById("gear").onclick = () => {
+    const scroll=$(".kgs-scroll");if(scroll)scroll.scrollTop=0;
+    if(!dialog.open){if(dialog.showModal)dialog.showModal();else dialog.setAttribute("open","");}
+    sync();
+  };
 
   const soundSelect = document.getElementById("snd");
   const labels = {roulette:"Трещотка бобины",bells:"Колокольчики",arcade:"Аркада",casino:"Казино",marimba:"Маримба",space:"Космос",film:"Киноплёнка",orchestra:"Оркестр",jazz:"Джаз",synth:"Синтезатор",chimes:"Звон",off:"Без звука",imax:"Кинозал · низкий гул"};

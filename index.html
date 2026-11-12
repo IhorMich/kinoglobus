@@ -1825,6 +1825,7 @@ const cname = c => HIST[c] || names.of(c);
 const emojiFlag = c =>
   [...c].map(x => String.fromCodePoint(127397 + x.charCodeAt(0))).join("");
 
+const LOCAL_FLAG_CODES = new Set(COUNTRIES);
 const flag = (c, wave = true) => {
   let body;
 
@@ -1833,7 +1834,9 @@ const flag = (c, wave = true) => {
   } else if (HIST_SVG[c]) {
     body = HIST_SVG[c];
   } else {
-    body = `<img class="flag-img" src="https://flagcdn.com/${c.toLowerCase()}.svg" alt="" onerror="this.onerror=null;this.replaceWith(document.createTextNode('${emojiFlag(c)}'))">`;
+    const file = `${c.toLowerCase()}.svg`;
+    const src = LOCAL_FLAG_CODES.has(c) ? `assets/flags/${file}` : `https://flagcdn.com/${file}`;
+    body = `<img class="flag-img" src="${src}" alt="" onerror="this.onerror=null;this.replaceWith(document.createTextNode('${emojiFlag(c)}'))">`;
   }
 
   return wave ? `<span class="wave">${body}</span>` : body;
@@ -4001,7 +4004,7 @@ console.info("[Kinoglobus] Bridge v6 ready");
 
 <script src="globe-visuals.js?v=3"></script>
 <script src="watch-history.js?v=7"></script>
-<script src="country-pages.js?v=8"></script>
+<script src="country-pages.js?v=10"></script>
 <script src="account-page.js?v=1"></script>
 <script src="mood-page.js?v=31"></script>
 <script src="mood-vibe-page.js?v=16"></script>

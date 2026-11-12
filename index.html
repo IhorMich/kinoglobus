@@ -45,7 +45,7 @@
       0% { transform: translateX(-100%); }
       100% { transform: translateX(200%); }
     }
-  </style><script src="cinema-reel.js?v=32"></script><link rel="stylesheet" href="watched-button.css?v=1">
+  </style><script src="cinema-reel.js?v=33"></script><link rel="stylesheet" href="watched-button.css?v=1">
 <script src="watched-button.js?v=1"></script>
 </head><body class="bg-canvas-obsidian font-body-md text-on-surface flex flex-col min-h-screen relative">
 <!-- Atmospheric Living Theater Background Layer with Floating Posters -->
@@ -2400,12 +2400,17 @@ function audio(){try{if(!ac)ac=new(window.AudioContext||window.webkitAudioContex
 let snd=store.get("snd","roulette");
 let reelSnd=["projector","imax","camera","tape","premiere","shutter","editbench","sixteenmm","off"].includes(store.get("reelSnd","projector"))?store.get("reelSnd","projector"):"projector";
 window.getCinemaReelSound=()=>reelSnd;
-window.setCinemaReelSound=value=>{
-  const wasPlaying=!!filmReelNodes||reelMotionLevel>.005,wasPreviewing=!!reelSoundPreviewTimer,level=reelMotionLevel;
-  if(reelSoundPreviewTimer){clearTimeout(reelSoundPreviewTimer);reelSoundPreviewTimer=0;}
-  reelSnd=["projector","imax","camera","tape","premiere","shutter","editbench","sixteenmm","off"].includes(value)?value:"projector";
+window.setCinemaReelSound = value => {
+  const playing = !!filmReelNodes, previewing = !!reelSoundPreviewTimer;
+  reelSnd = Object.hasOwn(reelProfiles,value) || value === "off" ? value : "projector";
   store.set("reelSnd",reelSnd);
-  if(wasPlaying){stopFilmReelSound();startFilmReelSound();if(wasPreviewing&&filmReelNodes){setFilmReelLevel(.82);reelSoundPreviewTimer=setTimeout(()=>{reelSoundPreviewTimer=0;stopFilmReelSound();},1800);}else setFilmReelLevel(level);}
+  if (previewing) previewFilmReelSound();
+  else if (playing) {
+    const frame = filmReelNodes.frame;
+    stopFilmReelSound();
+    startFilmReelSound();
+    if (filmReelNodes) filmReelNodes.frame = frame;
+  }
 };
 const PENTA=[523.25,587.33,659.25,783.99,880,1046.5,1174.66,1318.5];
 function tone(f,d,v,type,delay){
@@ -2426,16 +2431,16 @@ function click(v,freq){          // short filtered noise burst: a wooden/ratchet
     src.connect(f);f.connect(g);g.connect(ac.destination);src.start();
   }catch(e){}
 }
-// The reel's landing cue: a tiny projector frame-lock click followed by a
-// restrained, warm two-note resolution. Keep it short and honor reel mute.
-function playFilmFoundSound(){
-  if(reelSnd==="off")return;
-  audio();if(!ac)return;
+// Separate confirmation cue for the selected film.
+function playFilmFoundSound() {
+  if (reelSnd === "off") return;
+  audio();
+  if (!ac) return;
   click(.12,1850);
   tone(659.25,.18,.055,"triangle",.025);
   tone(880,.42,.045,"sine",.105);
 }
-window.playFilmFoundSound=playFilmFoundSound;
+window.playFilmFoundSound = playFilmFoundSound;
 const MARIMBA=[261.63,293.66,329.63,392,440,523.25,587.33,659.25];
 const THROTTLE={roulette:0,bells:110,arcade:55,casino:70,marimba:90,space:60,film:45,orchestra:95,jazz:80,synth:70,chimes:100};let lastT=0;
 function sTick(e){               // e = progress 0..1 (controls pitch)
@@ -2483,78 +2488,114 @@ function sWin(){
   const gap=snd==="bells"?0.1:0.06,len=snd==="bells"?0.8:1.4;
   notes.forEach((f,i)=>{tone(f,len,0.1,"sine",i*gap);tone(f*2,len*0.6,0.03,"sine",i*gap);});
 }
-    // ---- 35mm film projector loop (для плёнки) ----
-let filmReelNodes = null;   // { sources, gains, hum, profile, level, timer }
-let reelMotionLevel=0;
-// s: 0..1 — «скорость» ленты. Гул, шипение и щелчки затихают и замедляются вместе с ней.
-function setFilmReelLevel(s) {
-  s = Math.max(0, Math.min(1, s));
-  reelMotionLevel=s;
-  if (!filmReelNodes || !ac) return;
-  filmReelNodes.level = s;
-  if(s<=.015){
-    if(filmReelNodes.timer){clearTimeout(filmReelNodes.timer);filmReelNodes.timer=0;}
-    filmReelNodes.transients.forEach(({source,gain})=>{try{const t=ac.currentTime;gain.gain.cancelScheduledValues(t);gain.gain.setValueAtTime(gain.gain.value,t);gain.gain.linearRampToValueAtTime(.0001,t+.003);source.stop(t+.004);}catch(_){}});
-    return;
-  }
-  if(!filmReelNodes.timer)filmReelNodes.tick();
-}
-document.addEventListener("kg:reel-motion",event=>setFilmReelLevel(event.detail?.level??1));
+// The animation reports the distance traveled in frames. Only a frame
+// crossing can trigger a click during a spin.
+let filmReelNodes = null;
+let reelSoundPreviewTimer = 0;
+let reelSoundPreviewInterval = 0;
+const reelProfiles = {
+  projector:{tick:92,frequency:2050,q:1.3,gain:.025},
+  imax:{tick:145,frequency:680,q:.9,gain:.018},
+  camera:{tick:78,frequency:2850,q:1.7,gain:.022},
+  tape:{tick:132,frequency:1050,q:.8,gain:.018},
+  premiere:{tick:172,frequency:1550,q:1.1,gain:.014},
+  shutter:{tick:66,frequency:3200,q:2,gain:.018},
+  editbench:{tick:160,frequency:1320,q:1.5,gain:.021},
+  sixteenmm:{tick:118,frequency:2420,q:.95,gain:.016}
+};
 function stopFilmReelSound() {
-  reelMotionLevel=0;
+  clearInterval(reelSoundPreviewInterval);
+  clearTimeout(reelSoundPreviewTimer);
+  reelSoundPreviewInterval = reelSoundPreviewTimer = 0;
   if (!filmReelNodes) return;
-  if (filmReelNodes.timer) clearTimeout(filmReelNodes.timer);
-  filmReelNodes.transients.forEach(({source,gain})=>{try{const t=(ac&&ac.currentTime)||0;gain.gain.cancelScheduledValues(t);gain.gain.setValueAtTime(gain.gain.value,t);gain.gain.linearRampToValueAtTime(.0001,t+.003);source.stop(t+.004);}catch(_){}});
+  const { output, filter, sources, motor } = filmReelNodes;
   filmReelNodes = null;
+  output.gain.value = 0;
+  output.disconnect();
+  filter.disconnect();
+  if (motor) motor.stop();
+  for (const source of sources) source.stop();
 }
-let reelSoundPreviewTimer=0;
+
 function startFilmReelSound() {
-  if(reelSoundPreviewTimer){clearTimeout(reelSoundPreviewTimer);reelSoundPreviewTimer=0;}
-  if (reelSnd === "off"){stopFilmReelSound();return;}
-  if(filmReelNodes)return;
+  if (reelSoundPreviewTimer) stopFilmReelSound();
+  if (reelSnd === "off" || filmReelNodes) return;
   audio();
   if (!ac) return;
-  try {
-    const profiles={
-      projector:{tick:92,frequency:2050,q:1.3,gain:.025},
-      imax:{tick:145,frequency:680,q:.9,gain:.018},
-      camera:{tick:78,frequency:2850,q:1.7,gain:.022},
-      tape:{tick:132,frequency:1050,q:.8,gain:.018},
-      premiere:{tick:172,frequency:1550,q:1.1,gain:.014},
-      shutter:{tick:66,frequency:3200,q:2,gain:.018},
-      editbench:{tick:160,frequency:1320,q:1.5,gain:.021},
-      sixteenmm:{tick:118,frequency:2420,q:.95,gain:.016}
-    };
-    // Match the reel's perceived loudness to the globe selection sound.
-    // Keep the relative balance between sound profiles while raising the whole reel bus.
-    const REEL_SOUND_GAIN=12;
-    if(ac.state!=="running")ac.resume().catch(()=>{});
-    const profile=profiles[reelSnd]||profiles.projector,nLen=Math.floor(ac.sampleRate*.03),nBuf=ac.createBuffer(1,nLen,ac.sampleRate),nd=nBuf.getChannelData(0);
-    for(let i=0;i<nLen;i++)nd[i]=(Math.random()*2-1)*(1-i/nLen);
-    const nodes={profile,level:0,timer:0,transients:new Set(),tick:null};
-    const tick = () => {
-      nodes.timer=0;
-      if(filmReelNodes!==nodes||!ac)return;
-      const s = nodes.level;
-      if(s<=.015)return;
-      const t=ac.currentTime,source=ac.createBufferSource(),filter=ac.createBiquadFilter(),gain=ac.createGain();
-      source.buffer=nBuf;filter.type="bandpass";filter.frequency.value=profile.frequency;filter.Q.value=profile.q;source.connect(filter);filter.connect(gain);gain.connect(ac.destination);
-      const audibleLevel=profile.gain*REEL_SOUND_GAIN*Math.max(.45,s);
-      gain.gain.setValueAtTime(.0001,t);gain.gain.linearRampToValueAtTime(audibleLevel,t+.002);gain.gain.exponentialRampToValueAtTime(.0001,t+.024);
-      const transient={source,gain};nodes.transients.add(transient);source.onended=()=>nodes.transients.delete(transient);source.start(t);source.stop(t+.022);
-      nodes.timer=setTimeout(tick,profile.tick/Math.max(.35,.35+.65*s));
-    };
-    nodes.tick=tick;
-    filmReelNodes = nodes;
-    setFilmReelLevel(reelMotionLevel);
-  } catch (e) {
-    filmReelNodes = null;
-  }
+  const profile = reelProfiles[reelSnd];
+  const buffer = ac.createBuffer(1, Math.floor(ac.sampleRate * .024), ac.sampleRate);
+  const samples = buffer.getChannelData(0);
+  for (let i = 0; i < samples.length; i++) samples[i] = (Math.random()*2-1)*(1-i/samples.length);
+  const filter = ac.createBiquadFilter();
+  filter.type = "bandpass";
+  filter.frequency.value = profile.frequency;
+  filter.Q.value = profile.q;
+  const output = ac.createGain();
+  filter.connect(output);
+  output.connect(ac.destination);
+  filmReelNodes = {profile, buffer, filter, output, sources:new Set(), frame:-1};
 }
-function previewFilmReelSound(){if(reelSnd==="off")return;startFilmReelSound();if(filmReelNodes){setFilmReelLevel(.82);reelSoundPreviewTimer=setTimeout(()=>{reelSoundPreviewTimer=0;stopFilmReelSound();},1800);}}
-window.startFilmReelSound=startFilmReelSound;
-window.stopFilmReelSound=stopFilmReelSound;
-window.previewFilmReelSound=previewFilmReelSound;
+
+function playReelClick(level) {
+  const nodes = filmReelNodes;
+  if (!nodes || ac.state !== "running") return;
+  const source = ac.createBufferSource(), envelope = ac.createGain();
+  const now = ac.currentTime;
+  source.buffer = nodes.buffer;
+  source.connect(envelope);
+  envelope.connect(nodes.filter);
+  envelope.gain.setValueAtTime(.0001,now);
+  envelope.gain.linearRampToValueAtTime(nodes.profile.gain * 12 * Math.max(.45,level),now+.002);
+  envelope.gain.exponentialRampToValueAtTime(.0001,now+.023);
+  nodes.sources.add(source);
+  source.onended = () => {
+    nodes.sources.delete(source);
+    source.disconnect();
+    envelope.disconnect();
+  };
+  source.start(now);
+}
+
+function setFilmReelLevel(level, position) {
+  if (level <= 0) {
+    stopFilmReelSound();
+    return;
+  }
+  if (!filmReelNodes || !Number.isFinite(position) || position <= 0) return;
+  const nodes = filmReelNodes;
+  if (ac.state !== "running") return;
+  if (!nodes.motor) {
+    const noise = ac.createBuffer(1,Math.floor(ac.sampleRate * .4),ac.sampleRate);
+    const samples = noise.getChannelData(0);
+    for (let i = 0; i < samples.length; i++) samples[i] = Math.random()*2-1;
+    nodes.motor = ac.createBufferSource();
+    nodes.motorGain = ac.createGain();
+    nodes.motor.buffer = noise;
+    nodes.motor.loop = true;
+    nodes.motorGain.gain.value = 0;
+    nodes.motor.connect(nodes.motorGain);
+    nodes.motorGain.connect(nodes.filter);
+    nodes.motor.start();
+  }
+  nodes.motorGain.gain.setTargetAtTime(nodes.profile.gain * (.6 + .7 * level),ac.currentTime,.01);
+  const frame = Math.floor(position);
+  if (frame === nodes.frame) return;
+  nodes.frame = frame;
+  playReelClick(level);
+}
+document.addEventListener("kg:reel-motion", ({detail}) => setFilmReelLevel(detail.level,detail.position));
+
+function previewFilmReelSound() {
+  stopFilmReelSound();
+  startFilmReelSound();
+  if (!filmReelNodes) return;
+  playReelClick(.82);
+  reelSoundPreviewInterval = setInterval(() => playReelClick(.82),filmReelNodes.profile.tick);
+  reelSoundPreviewTimer = setTimeout(stopFilmReelSound,1800);
+}
+window.startFilmReelSound = startFilmReelSound;
+window.stopFilmReelSound = stopFilmReelSound;
+window.previewFilmReelSound = previewFilmReelSound;
 function preview(){audio();let i=0;const id=setInterval(()=>{sTick(i/10);if(++i>5){clearInterval(id);setTimeout(sWin,150);}},120);}
 function buzz(p){if(fx&&navigator.vibrate){try{navigator.vibrate(p)}catch(e){}}}
 function fxLabel(){$("fx").textContent=fx?"Вкл":"Выкл";}
@@ -3308,6 +3349,7 @@ st.textContent=`
 #film-center-frame::after{bottom:-9px;border-bottom:7px solid #ffb830;border-top:0}
 #film-center-frame.hit{animation:kgFrameHit 1s cubic-bezier(.2,.8,.25,1)}
 @keyframes kgFrameHit{0%{box-shadow:0 0 0 0 rgba(255,184,48,.8),inset 0 0 14px rgba(255,184,48,.22)}45%{box-shadow:0 0 38px 8px rgba(255,184,48,.75),inset 0 0 22px rgba(255,184,48,.4)}100%{box-shadow:0 0 18px rgba(255,184,48,.5),inset 0 0 14px rgba(255,184,48,.22)}}
+#cinema-35mm-reel-section,#cl-result,#oscar-reel-detail,[id^="mood-roulette-winner-detail-"]{overflow-anchor:none}
 #film-details.veiled{display:none}
 #film-details.opening{overflow:hidden;transition:height .8s cubic-bezier(.2,.8,.2,1)}
 #film-details.opening>*{animation:kgRise .7s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(.12s + var(--i,0)*.09s)}
@@ -3648,7 +3690,7 @@ window.setCinemaReelStyle=function(style){
   trackEl=$("film-reel-track");frameEl=$("film-center-frame");runEl=null;
   if(selectedFilm)renderStatic(selectedPool||{films:[selectedFilm]},selectedFilm,selectedCountry||"");else renderBlank();
 };
-function recenter(){if(runEl&&strip.idx>=0)runEl.style.transform=`translateX(${-centerX(strip.idx)}px)`;}
+function recenter(){if(runEl&&!strip.busy&&strip.idx>=0)runEl.style.transform=`translateX(${-centerX(strip.idx)}px)`;}
 window.addEventListener("resize",recenter);
 renderBlank();
 
@@ -3672,24 +3714,44 @@ function stopReel(){
   strip.busy=false;
   stopFilmReelSound();
 }
-function scrollToFilmReel(element){
-  if(!element?.isConnected)return Promise.resolve();
-  if(reelScrollFrame){cancelAnimationFrame(reelScrollFrame);reelScrollFrame=0;finishReelScroll?.();finishReelScroll=null;}
-  const header=document.querySelector("header"),offset=(header?.getBoundingClientRect().height||80)+8;
-  const start=window.scrollY,target=Math.max(0,element.getBoundingClientRect().top+start-offset),distance=target-start;
-  if(RM||Math.abs(distance)<8){window.scrollTo({top:target,behavior:"auto"});return Promise.resolve();}
-  const duration=950,started=performance.now();
-  return new Promise(resolve=>{
-    finishReelScroll=resolve;
-    const step=now=>{
-      const p=Math.min(1,(now-started)/duration),e=p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2;
-      window.scrollTo({top:start+distance*e,behavior:"auto"});
-      if(p<1){reelScrollFrame=requestAnimationFrame(step);return;}
-      reelScrollFrame=0;finishReelScroll=null;resolve();
+function scrollToFilmReel(element, duration = 620) {
+  if (!element?.getClientRects().length) return Promise.resolve();
+  if (reelScrollFrame) {
+    cancelAnimationFrame(reelScrollFrame);
+    reelScrollFrame = 0;
+    finishReelScroll?.();
+    finishReelScroll = null;
+  }
+  const header = document.querySelector("header.fixed");
+  const targetTop = () => {
+    const visibleTop = Math.max(0,header?.getBoundingClientRect().bottom || 0);
+    return Math.max(0,window.scrollY + element.getBoundingClientRect().top - visibleTop - 8);
+  };
+  const start = window.scrollY;
+  if (RM || Math.abs(targetTop()-start) < 2) {
+    window.scrollTo({top:targetTop(),behavior:"instant"});
+    return Promise.resolve();
+  }
+  const started = performance.now();
+  return new Promise(resolve => {
+    finishReelScroll = resolve;
+    const step = now => {
+      const progress = Math.min(1,(now-started)/duration);
+      const easing = progress * progress * (3-2*progress);
+      const visible = element.getClientRects().length > 0;
+      if (visible) window.scrollTo({top:start+(targetTop()-start)*easing,behavior:"instant"});
+      if (progress < 1 && visible) {
+        reelScrollFrame = requestAnimationFrame(step);
+        return;
+      }
+      reelScrollFrame = 0;
+      finishReelScroll = null;
+      resolve();
     };
-    reelScrollFrame=requestAnimationFrame(step);
+    reelScrollFrame = requestAnimationFrame(step);
   });
 }
+window.KGScrollToFilmStart = scrollToFilmReel;
 window.KGScrollBeforeAgain=()=>scrollToFilmReel($("film-reel-host")||card);
 const detailsEl=$("film-details");
 const veil=on=>{
@@ -3780,9 +3842,9 @@ async function spinReel(pool,film,cc){
 
 function reveal(film,pool){
   veil(false);
-  window.playFilmFoundSound?.();
+  playFilmFoundSound();
   set("hero-country-master",film.title||"");
-  requestAnimationFrame(()=>{const poster=$("discovery-poster"),target=poster&&!poster.classList.contains("hidden")?poster:detailsEl;if(target)scrollToFilmReel(target);});
+  scrollToFilmReel(detailsEl);
 }
 
 // Единый блок легального просмотра используется во всех карточках фильма.
@@ -3906,6 +3968,7 @@ $("film-trailer-close").addEventListener("click",event=>{event.preventDefault();
 
 const _show=window.show;
 window.show=function(cc,pool,film){
+  if (reelSnd !== "off") audio();
   const fromSpin=G.isSpinning;
   _show(cc,pool,film);
   if(window.KGFilmInteractions)window.KGFilmInteractions.registerPool("discovery-current",pool.films||[]);
@@ -3949,7 +4012,6 @@ window.show=function(cc,pool,film){
     set("discovery-genres","· "+[g,d.runtime?d.runtime+" мин":""].filter(Boolean).join(" · "));
     if(d.votes){set("discovery-rating",Number(d.average).toFixed(1));setVotes(d.votes);}
     renderExtra(film,d);
-    if(!fromSpin&&reelStyle!=="cassette")requestAnimationFrame(()=>{const trailer=$("film-trailer-box");if(window.KGScrollToFilmDescription)window.KGScrollToFilmDescription(trailer);});
   }).catch(()=>{
     if(!cur||cur.film.id!==film.id)return;
     set("discovery-desc",russianCopy(film.overview)||"Не удалось загрузить описание.");
@@ -3974,13 +4036,13 @@ window.show=function(cc,pool,film){
   });
   showProviders(film);
   stopReel();warmPosters(pool,film);
+  const selection = cur;
   spinTimer=setTimeout(async()=>{
     try{
-      if(fromSpin)await scrollToFilmReel(card);
-      else{card.scrollIntoView({behavior:"smooth",block:"center"});await sleep(500);}
-      if(!cur||cur.film.id!==film.id)return;
+      await scrollToFilmReel(card, fromSpin ? 620 : 500);
+      if(cur!==selection)return;
       await spinReel(pool,film,cc);
-    }catch(e){console.warn('[Kinoglobus] reel',e);if(cur&&cur.film.id===film.id){renderStatic(pool,film,cc);reveal(film,pool);}}
+    }catch(e){console.warn('[Kinoglobus] reel',e);if(cur===selection){renderStatic(pool,film,cc);reveal(film,pool);}}
   },0);
 };
 async function markCurrentFilm(button){
@@ -4040,11 +4102,11 @@ console.info("[Kinoglobus] Bridge v6 ready");
 <script src="watch-history.js?v=8"></script>
 <script src="country-pages.js?v=12"></script>
 <script src="account-page.js?v=1"></script>
-<script src="mood-page.js?v=31"></script>
-<script src="mood-vibe-page.js?v=16"></script>
-<script src="oscar-page.js?v=34"></script>
+<script src="mood-page.js?v=32"></script>
+<script src="mood-vibe-page.js?v=17"></script>
+<script src="oscar-page.js?v=35"></script>
 <script src="oscar-design.js?v=15"></script>
-<script src="collections.js?v=68"></script>
+<script src="collections.js?v=70"></script>
 <script src="film-interactions.js?v=14"></script>
 <script src="legal-watch.js?v=3"></script>
 <script src="global-search.js?v=2"></script>

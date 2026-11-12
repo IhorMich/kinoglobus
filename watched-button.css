@@ -1,0 +1,48 @@
+button.kg-watched-button {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  flex: 0 0 auto;
+  width: fit-content;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid #3a3140;
+  border-radius: 12px;
+  background: #2c2830;
+  color: #e8e0ea;
+  font: 600 12px/16px "Plus Jakarta Sans", system-ui, sans-serif;
+  cursor: pointer;
+  transition: color .15s, background-color .15s, box-shadow .15s, transform .15s;
+}
+
+button.kg-watched-button[aria-pressed="true"] {
+  border-color: #ffdeadb3;
+  background: linear-gradient(110deg, #ffb830, #ffdda0);
+  box-shadow: 0 5px 18px #ffb8303d, inset 0 1px #ffffff38;
+  color: #432c00;
+}
+
+.kg-watched-button[aria-pressed="false"]:hover,
+.kg-watched-button[aria-pressed="false"] .kg-watched-icon {
+  color: #ffb830;
+}
+
+.kg-watched-button .kg-watched-icon {
+  flex: none;
+  width: 16px;
+  height: 16px;
+}
+
+.kg-watched-button:focus-visible {
+  outline: 2px solid #ffb830;
+  outline-offset: 2px;
+}
+
+.kg-watched-button:active {
+  transform: scale(.95);
+}

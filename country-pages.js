@@ -105,6 +105,10 @@
       content:'';width:clamp(20px,8vw,43px);height:1px;background:linear-gradient(90deg,transparent,#f9d389,transparent)
     }
     .kgc-hero-full .kgc-blurb{font-family:'Noto Serif',serif;font-style:italic}
+    #kg-watch-history .kgc-head h1{margin:0;font:700 19px 'Noto Serif',serif;color:#ffdca8}
+    #kg-watch-history .note{grid-column:1/-1;color:#d5c4ad;font-size:13px}
+    #kg-watch-history .jfilm{min-width:0;overflow-wrap:anywhere;cursor:pointer}
+    #kg-watch-history .jfilm:focus-visible{outline:2px solid #ffdca8;outline-offset:2px}
     .kgc-catalog-link{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;margin:10px 0;padding:9px 10px;border:1px solid #ffdca832;border-radius:10px;background:#2c2830;color:#ffdca8;text-align:left;font-weight:600;cursor:pointer}
     .kgc-catalog-link:hover{border-color:#ffdca8}
     .kgc-catalog-head{display:grid;grid-template-columns:76px 1fr 76px;gap:4px;background:#151219f5}
@@ -564,7 +568,38 @@
     if(films.length<state.total&&films.length>0)box.insertAdjacentHTML('beforeend',`<button class="kgc-btn secondary kgc-load-more" type="button" data-load-more>${state.loadingMore?'Загружаем…':'Показать ещё фильмы'}</button>`);
   }
 
-  function showAtlas(){atlas();}
+  const historyView = document.createElement('div');
+  historyView.id = 'kg-watch-history';
+  historyView.hidden = true;
+  historyView.innerHTML = `
+    <header class="kgc-head">
+      <button type="button" class="kgc-icon" data-atlas-close aria-label="Закрыть историю">←</button>
+      <div class="kgc-head-title"><h1>История просмотра</h1></div>
+    </header>
+    <div class="kgc-pad" data-kg-history-list></div>`;
+  shell.append(historyView);
+  const historyList = document.getElementById('jfilms');
+  historyList.classList.remove('kg-country-legacy');
+  historyView.querySelector('[data-kg-history-list]').append(historyList);
+
+  window.KGOpenWatchHistory = () => {
+    parkAtlasMap();
+    root.dataset.page = 'history';
+    delete root.dataset.code;
+    root.hidden = true;
+    historyView.hidden = false;
+    window.KGRenderWatchedByCountry('');
+    if (!dialog.open) dialog.showModal();
+    shell.scrollTo({top:0,behavior:'instant'});
+    historyView.querySelector('button').focus({preventScroll:true});
+  };
+
+  function showAtlas() {
+    root.hidden = false;
+    historyView.hidden = true;
+    atlas();
+    shell.scrollTo({top:0,behavior:'instant'});
+  }
   window.KGSelectWatchedCountry=country;
   const mapButton=document.getElementById('mapBtn');
   const originalMapClick=mapButton?.onclick;
@@ -611,7 +646,12 @@
     const originalRender=window.renderJourney;
     window.renderJourney=function(){originalRender();showAtlas();};
   }
-  dialog.addEventListener('close',()=>{root.dataset.page='';});
+  dialog.addEventListener('close', () => {
+    if (dialog.open) return;
+    root.dataset.page = '';
+    root.hidden = false;
+    historyView.hidden = true;
+  });
   // Movie IDs in the country grid are handled by the profile-local film list.
   // Keep the currently fetched film objects available for card actions.
   const originalRenderCountry=renderCountry;

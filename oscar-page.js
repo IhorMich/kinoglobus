@@ -424,7 +424,7 @@ ${window.KGCinemaReel.render({shellClass:"kgo-reel relative w-full rounded-xl bg
       setLaunch(root,false);
       if(skip)skip.hidden=true;
       frame.classList.remove("hit");void frame.offsetWidth;frame.classList.add("hit");
-      try{if(navigator.vibrate)navigator.vibrate([25,50,60]);}catch(_){}
+      sound("buzz",[25,50,60]);
       deps.openFilm({...film,_kgRelatedPool:pool},"oscar","oscar-reel-detail");
     };
     if(window.KGCinemaReel?.isProjectionMode?.()){

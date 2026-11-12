@@ -2177,16 +2177,19 @@ $("resetHist").onclick=()=>{if(window.KGClearWatchHistory)window.KGClearWatchHis
 
 async function api(params,options={}){
   const adult=playMode!=="surprise" && (sel.has("adult") || sel.has("erotic"));
-  const q=new URLSearchParams({
-  api_key: apiKey,
-  language: "ru-RU",
-  include_adult: adult ? "true" : "false",
-  sort_by: "vote_average.desc",
-  ...params
-});
+  return requestTmdb("discover/movie", {
+    language: "ru-RU",
+    include_adult: adult ? "true" : "false",
+    sort_by: "vote_average.desc",
+    ...params
+  }, options);
+}
+
+async function requestTmdb(endpoint, params, options={}) {
+  const q = new URLSearchParams({api_key: apiKey, ...params});
   const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),10000);
   let r;
-  try{r=await fetch("https://api.themoviedb.org/3/discover/movie?"+q,{cache:options.fresh?"no-store":"default",signal:controller.signal});}
+  try{r=await fetch("https://api.themoviedb.org/3/"+endpoint+"?"+q,{cache:options.fresh?"no-store":"default",signal:controller.signal});}
   catch(error){if(error.name==="AbortError")throw new Error("TMDB отвечает слишком долго. Повторите поиск.");throw error;}
   finally{clearTimeout(timeout);}
   if(r.status===401) throw new Error("Ключ не подошёл. Проверьте его и введите заново.");
@@ -4211,11 +4214,12 @@ console.info("[Kinoglobus] Bridge v6 ready");
 <script src="watch-history.js?v=8"></script>
 <script src="country-pages.js?v=13"></script>
 <script src="account-page.js?v=1"></script>
-<script src="mood-page.js?v=32"></script>
-<script src="mood-vibe-page.js?v=17"></script>
+<script src="mood-vibe-additions.js?v=1"></script>
+<script src="mood-page.js?v=33"></script>
+<script src="mood-vibe-page.js?v=18"></script>
 <script src="oscar-page.js?v=36"></script>
 <script src="oscar-design.js?v=15"></script>
-<script src="collections.js?v=72"></script>
+<script src="collections.js?v=73"></script>
 <script src="film-interactions.js?v=14"></script>
 <script src="legal-watch.js?v=3"></script>
 <script src="global-search.js?v=2"></script>

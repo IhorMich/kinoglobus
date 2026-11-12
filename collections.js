@@ -649,7 +649,7 @@ ${activeVideo?`<a href="${watchUrl(activeVideo)}" target="_blank" rel="noopener 
 ${rating?`<div class="flex items-center gap-2 overflow-x-auto py-0.5">${rating}</div>`:""}
 ${countries||genres?`<div class="flex flex-wrap items-center gap-x-2.5 gap-y-1 font-body-sm text-body-sm text-text-muted">${countries?`<span class="text-on-surface">${countries}</span>`:""}${countries&&genres?"<span>•</span>":""}${genres?`<span class="text-on-surface-variant">${esc(genres)}</span>`:""}</div>`:""}
 <div class="flex items-center gap-2 font-body-sm text-body-sm"><span class="text-text-muted">Язык оригинала</span><span class="text-on-surface-variant">${f.originalLang?esc(typeof langName==="function"?langName(f.originalLang):f.originalLang):f._detailsLoaded?"—":"Загружаем…"}</span></div>
-<button type="button" data-film-watched="${f.id}" aria-pressed="${watched}" class="inline-flex w-auto min-h-10 px-3 py-2 rounded-xl items-center justify-center gap-1 font-label-sm text-label-sm font-semibold transition-all active:scale-95 border ${watched?"border-primary-fixed/70 text-on-primary":"border-surface-border-subtle text-on-surface hover:text-primary"}" style="background:${watched?"linear-gradient(110deg,#ffb830,#ffdda0)":"#2c2830"};box-shadow:${watched?"0 5px 18px rgba(255,184,48,.24),inset 0 1px rgba(255,255,255,.22)":"none"}"><span class="material-symbols-outlined text-[16px] ${watched?"text-on-primary":"text-primary-container"}">${watched?"task_alt":"check_circle"}</span><span>${watched?"Просмотрено ✓":"Посмотрел"}</span></button>
+${window.KGWatchedButtonHtml(watched, `data-film-watched="${Number(f.id)}"`)}
 ${f.tagline&&f.taglineLang===f.overviewLang?`<blockquote class="italic font-headline-sm text-[15px] leading-tight text-primary-fixed-dim/90">«${esc(f.tagline)}»</blockquote>`:""}
 ${oscarBlock}
 <div data-kg-film-description class="p-4 rounded-xl bg-surface-container flex flex-col gap-2"><span class="font-label-md text-label-md text-primary-fixed tracking-wide uppercase">О фильме</span><p class="font-body-md text-body-md text-on-surface leading-relaxed">${esc(f.overview||"Загружаем описание…")}</p></div>
@@ -669,8 +669,8 @@ document.addEventListener("click",e=>{
     const film=D.selected&&String(D.selected.id)===watchedButton.dataset.filmWatched?D.selected:null;
     if(!film||watchedButton.dataset.saving==="true"||!window.KGToggleWatched)return;
     const next=!window.KGIsFilmWatched?.(film.id);watchedButton.dataset.saving="true";
-    window.KGPaintWatchedButton?.(watchedButton,next,"Посмотрел");
-    Promise.resolve(window.KGToggleWatched({...film,_cc:film._cc||film.cc||""})).then(result=>{if(result!==next)throw new Error("Не удалось обновить отметку просмотра");if(D.selected&&String(D.selected.id)===String(film.id))renderSelectedPanel();}).catch(error=>{console.warn("[Kinoglobus] Не удалось обновить просмотр:",error);watchedButton.dataset.saving="false";window.KGPaintWatchedButton?.(watchedButton,!!window.KGIsFilmWatched?.(film.id),"Посмотрел");});
+    window.KGPaintWatchedButton?.(watchedButton,next);
+    Promise.resolve(window.KGToggleWatched({...film,_cc:film._cc||film.cc||""})).then(result=>{if(result!==next)throw new Error("Не удалось обновить отметку просмотра");if(D.selected&&String(D.selected.id)===String(film.id))renderSelectedPanel();}).catch(error=>{console.warn("[Kinoglobus] Не удалось обновить просмотр:",error);watchedButton.dataset.saving="false";window.KGPaintWatchedButton?.(watchedButton,!!window.KGIsFilmWatched?.(film.id));});
     return;
   }
   const bookmark=e.target.closest('[data-act="bm"]');
@@ -785,7 +785,7 @@ function placeInner(box,sel){
   open.parentElement.insertAdjacentHTML("beforeend",html);
   return true;
 }
-function paintWatchedButtons(container){container?.querySelectorAll("[data-film-watched]").forEach(button=>{const id=button.dataset.filmWatched;window.KGPaintWatchedButton?.(button,!!window.KGIsFilmWatched?.(id),"Посмотрел");});}
+function paintWatchedButtons(container){container?.querySelectorAll("[data-film-watched]").forEach(button=>{const id=button.dataset.filmWatched;window.KGPaintWatchedButton?.(button,!!window.KGIsFilmWatched?.(id));});}
 function renderSelectedPanel(){
   const selected=D.selected;if(!selected)return;
   if(selected._trailerPlaying&&document.querySelector(`[data-selected-film="${selected.id}"] #cl-inline-trailer iframe`))return;

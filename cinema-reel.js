@@ -3,7 +3,11 @@
   // The ticket, projection and cassette searches share one slower pacing across
   // the globe, collections, mood and Oscar screens.
   const searchPaceFactor=1.35;
-  const emitReelMotion=level=>document.dispatchEvent(new CustomEvent("kg:reel-motion",{detail:{level:Math.max(0,Math.min(1,Number(level)||0))}}));
+  function emitReelMotion(level, position, frame, continuous = true) {
+    document.dispatchEvent(new CustomEvent("kg:reel-motion", {
+      detail: {level, position, frame, continuous}
+    }));
+  }
   const hole=()=>'<i aria-hidden="true"></i>'.repeat(12);
   const perf=()=>`<div class="kg-reel-perf" aria-hidden="true"><div>${hole()}</div></div>`;
   const attr=(name,value)=>value?` ${name}="${String(value).replace(/[&"<>]/g,c=>({"&":"&amp;",'"':"&quot;","<":"&lt;",">":"&gt;"}[c]))}"`:"";
@@ -71,11 +75,22 @@
     const land=()=>{emitReelMotion(0);fillLayers(Math.max(0,frames.length-1));if(winner)face.innerHTML=ticketMarkup(winner,options.meta||{});stage.classList.remove("is-shuffling");stage.classList.add("is-landed");if(status)status.textContent="Ваш фильм найден";return true;};
     if(options.reducedMotion||frames.length<2)return Promise.resolve(land());
     return new Promise(resolve=>{
-      let done=false,raf=0,index=0;
-      const finish=ok=>{if(done)return;done=true;emitReelMotion(0);if(raf)cancelAnimationFrame(raf);face.classList.remove("ticket-fly-out","ticket-land-in");if(ok)land();else stage.classList.remove("is-shuffling");resolve(ok);};
+      let done=false,raf=0;
+      const finish = ok => {
+        if (done) return;
+        done = true;
+        if (raf) cancelAnimationFrame(raf);
+        face.classList.remove("ticket-fly-out", "ticket-land-in");
+        if (ok) {
+          land();
+        } else {
+          emitReelMotion(0);
+          stage.classList.remove("is-shuffling");
+        }
+        resolve(ok);
+      };
       const interrupt=()=>options.cancelled?.()?"cancel":(stage.dataset.skip==="true"||options.shouldSkip?.())?"skip":null;
-      const motionStart=performance.now();
-      const wait=ms=>new Promise(doneWait=>{const start=performance.now(),tick=now=>{const reason=interrupt();if(reason){doneWait(reason);return;}const p=Math.min(1,(now-motionStart)/duration);emitReelMotion(Math.pow(1-p,.9));if(now-start>=ms){doneWait("elapsed");return;}raf=requestAnimationFrame(tick);};raf=requestAnimationFrame(tick);});
+      const wait=ms=>new Promise(doneWait=>{const start=performance.now(),tick=now=>{const reason=interrupt();if(reason){doneWait(reason);return;}if(now-start>=ms){doneWait("elapsed");return;}raf=requestAnimationFrame(tick);};raf=requestAnimationFrame(tick);});
       const weights=frames.slice(1).map((_,i)=>.68+1.15*Math.pow((i+1)/Math.max(1,frames.length-1),2)),weightTotal=weights.reduce((sum,value)=>sum+value,0);
       const run=async()=>{
         show(frames[0],0);
@@ -84,10 +99,16 @@
           const stepMs=duration*(weights[next-1]/weightTotal),outMs=stepMs*.43,inMs=stepMs*.51;
           stage.style.setProperty("--kg-ticket-out-ms",`${outMs}ms`);stage.style.setProperty("--kg-ticket-in-ms",`${inMs}ms`);
           face.classList.remove("ticket-land-in","ticket-fly-out");void face.offsetWidth;face.classList.add("ticket-fly-out");
+          const level = 1 - (next - 1) / frames.length;
+          emitReelMotion(level, next, next * 2 - 1, false);
           const outResult=await wait(outMs);if(outResult!=="elapsed"){finish(outResult==="skip");return;}
-          index=next;show(frames[index],index);face.classList.remove("ticket-fly-out");face.classList.add("ticket-land-in");
+          show(frames[next], next);
+          face.classList.remove("ticket-fly-out");
+          face.classList.add("ticket-land-in");
+          emitReelMotion(level * .55, next, next * 2, false);
           const landResult=await wait(inMs);if(landResult!=="elapsed"){finish(landResult==="skip");return;}
           face.classList.remove("ticket-land-in");
+          if (next === frames.length - 1) break;
           const holdResult=await wait(Math.max(0,stepMs-outMs-inMs));if(holdResult!=="elapsed"){finish(holdResult==="skip");return;}
         }
         finish(true);
@@ -167,19 +188,27 @@
     // while the Cover Flow animation keeps the same cinematic duration.
     const state=mounted.state,duration=4600*searchPaceFactor;
     const finish=(landed)=>{emitReelMotion(0);state.rolling=false;mounted.root.classList.remove("is-rolling");if(landed){mounted.update(endIndex);mounted.root.classList.add("is-landed");setTimeout(()=>mounted.root.classList.remove("is-landed"),700);options.onFrame?.(winner,steps);options.onFinish?.(winner);}window.stopFilmReelSound?.();return landed;};
-    if(options.reducedMotion){mounted.update(endIndex,0);return Promise.resolve(finish(true));}
+    if(options.reducedMotion||state.films.length<2){return Promise.resolve(finish(true));}
     state.rolling=true;mounted.root.classList.add("is-rolling");
     window.startFilmReelSound?.();
-    let last=-1;
+    let last=0;
     return new Promise(resolve=>{
       const start=performance.now();const frame=now=>{
         try{
           if(options.cancelled?.()){resolve(finish(false));return;}
           if(options.shouldSkip?.()){resolve(finish(true));return;}
-          const p=Math.min(1,(now-start)/duration),ease=1-Math.pow(1-p,4),n=Math.min(steps,Math.floor(ease*steps));emitReelMotion(Math.pow(1-p,.9));
-          const position=startIndex-steps*ease;mounted.layout(position);
+          const p = Math.min(1, (now - start) / duration);
+          const distance = steps * (1 - (1 - p) ** 4);
+          // At this point the remaining movement is below one pixel.
+          if (steps - distance < .006) {
+            resolve(finish(true));
+            return;
+          }
+          const position = startIndex - distance;
+          const n = startIndex - Math.round(position);
+          mounted.layout(position);
+          emitReelMotion((1 - p) ** 3, distance, n);
           if(n!==last){last=n;const index=((Math.round(position)%state.films.length)+state.films.length)%state.films.length,film=state.films[index]||winner;state.index=index;const counter=mounted.root.querySelector("[data-kg-cassette-counter]");if(counter)counter.textContent=`${String(index+1).padStart(2,"0")} / ${String(state.films.length).padStart(2,"0")}`;options.onFrame?.(film,n);}
-          if(p>=1){resolve(finish(true));return;}
           requestAnimationFrame(frame);
         }catch(error){console.error("[Kinoglobus] Cassette animation failed",error);resolve(finish(false));}
       };requestAnimationFrame(frame);
@@ -217,11 +246,18 @@
     const startIndex=loops*items.length+items.length-1,targetIndex=items.length-1-targetItemIndex;
     if(img){img.innerHTML=`<div class="kg-projection-strip" data-kg-projection-strip style="height:${total*100}%">${stripItems.map(film=>{const title=film?.title||film?.original_title||"Фильм";return `<div class="kg-projection-strip-frame" style="height:${100/total}%"><img src="${projectionPoster(film?.poster_path)}" alt="Постер фильма «${html(title)}»"><span class="kg-projection-image-shade"></span></div>`;}).join("")}</div>`;}
     const strip=img?.querySelector("[data-kg-projection-strip]");if(strip)strip.style.transform=`translate3d(0,${-(startIndex/total)*100}%,0)`;let lastFrame=-1;
-    return new Promise(resolve=>{const start=performance.now(),step=now=>{if(options.cancelled?.()){emitReelMotion(0);root.classList.remove("is-running");state.rolling=false;resolve(false);return;}if(options.shouldSkip?.()){resolve(land());return;}const progress=Math.min(1,(now-start)/duration),ease=1-Math.pow(1-progress,4),offset=startIndex+(targetIndex-startIndex)*ease;emitReelMotion(Math.pow(1-progress,.9));
+    return new Promise(resolve=>{const start=performance.now(),step=now=>{if(options.cancelled?.()){emitReelMotion(0);root.classList.remove("is-running");state.rolling=false;resolve(false);return;}if(options.shouldSkip?.()){resolve(land());return;}const progress=Math.min(1,(now-start)/duration),ease=1-Math.pow(1-progress,4),offset=startIndex+(targetIndex-startIndex)*ease;
         if(strip){strip.style.transform=`translate3d(0,${-(offset/total)*100}%,0)`;const speed=(startIndex-targetIndex)*4*Math.pow(1-progress,.9)*1000/duration;strip.style.filter=`blur(${Math.min(1.15,Math.max(.08,speed*.055))}px)`;}
-        const traveled=Math.max(0,Math.floor(startIndex-offset)),frameIndex=Math.min(items.length-1,traveled%items.length);
+        if (offset - targetIndex < .002) {
+          resolve(land());
+          return;
+        }
+        const distance = startIndex - offset;
+        const traveled = Math.max(0, Math.floor(distance));
+        const frameIndex = traveled % items.length;
+        emitReelMotion((1 - progress) ** 3, distance, traveled);
         if(frameIndex!==lastFrame){lastFrame=frameIndex;const film=items[frameIndex];if(counter)counter.textContent=`КАДР ${String(frameIndex+1).padStart(2,"0")} / ${String(items.length).padStart(2,"0")}`;const title=root.querySelector("[data-kg-projection-title]"),year=root.querySelector("[data-kg-projection-year]"),rating=root.querySelector("[data-kg-projection-rating]"),subtitle=root.querySelector("[data-kg-projection-subtitle]");if(title)title.textContent=film.title||film.original_title||"Фильм";if(year)year.textContent=`${(film.release_date||"").slice(0,4)||"35 MM"} · KODAK`;if(rating)rating.textContent=Number(film.vote_average)>0?`★ ${Number(film.vote_average).toFixed(1)}`:"● TMDB";if(subtitle)subtitle.textContent=film.original_title&&film.original_title!==film.title?film.original_title:"Оптическая рамка 35 мм";options.onFrame?.(film,frameIndex);}
-        if(progress>=1){resolve(land());return;}requestAnimationFrame(step);};requestAnimationFrame(step);});
+        requestAnimationFrame(step);};requestAnimationFrame(step);});
   }
   function isProjectionMode(){return reelMode()==="projection";}
   function isCassetteMode(){return reelMode()==="cassette";}
@@ -369,7 +405,6 @@
       if(done)return;
       const rawProgress=Math.min(1,(now-started)/duration);
       const progress=Math.max(0,Math.min(1,options.mapProgress?options.mapProgress(rawProgress):rawProgress));
-      emitReelMotion(Math.pow(1-progress,.9));
       const eased=1-Math.pow(1-progress,4);
       const x=startX+(endX-startX)*eased;
       const remaining=endX-x;
@@ -378,7 +413,10 @@
       const currentStep=Math.round((x-startX)/stepWidth);
       if(currentStep!==lastStep){lastStep=currentStep;options.onStep?.(currentStep,progress,x,remaining);}
       options.onProgress?.(progress,x,remaining);
-      if(progress<1&&remaining>=.75){raf=requestAnimationFrame(step);return;}
+      if(progress<1&&remaining>=.75){
+        emitReelMotion((1 - progress) ** 3, Math.abs(x - startX) / stepWidth, Math.abs(currentStep));
+        raf=requestAnimationFrame(step);return;
+      }
       run.style.transform=`translateX(${-endX}px)`;
       finish(false);
     };

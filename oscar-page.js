@@ -129,6 +129,7 @@
     if(boundRoot!==root){
       root.addEventListener("click",e=>handleClick(e,root,deps));
       root.addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&e.target.matches&&e.target.matches("[role=button][data-oscar-open]")){e.preventDefault();e.target.click();}});
+      document.addEventListener("kg:watched-change",()=>{if(root.isConnected)renderProgress(root,deps);});
       boundRoot=root;
     }
     load(root,deps);
@@ -253,7 +254,7 @@
 <span class="relative block w-[68px] h-[100px] rounded-lg overflow-hidden shrink-0 bg-surface-container-high shadow-md">${f.poster_path?`<img class="w-full h-full object-cover" loading="lazy" alt="Постер «${title}»" src="${image(f.poster_path,"w185")}">`:'<span class="material-symbols-outlined w-full h-full flex items-center justify-center text-text-muted">movie</span>'}<span class="absolute bottom-1 left-1 px-1 py-0.5 rounded bg-canvas-obsidian/85 text-primary font-micro-caption text-micro-caption font-bold">★ ${Number(f.vote_average||0).toFixed(1)}</span></span>
 <span class="flex flex-col gap-1 min-w-0 flex-1"><span class="flex items-center gap-1.5 min-w-0"><span class="shrink-0 px-2 py-1 rounded-full bg-primary-container text-on-primary-container font-micro-caption text-micro-caption font-bold">${info.best?`Оскар ${info.year}`:"Лауреат «Оскара»"}</span><span class="font-micro-caption text-micro-caption text-text-muted truncate">${esc(studio)}</span></span><span class="block font-headline-sm text-headline-sm text-on-surface font-bold leading-tight" style="display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden">${title}</span><span class="block font-body-sm text-body-sm text-text-muted" style="display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden">${esc(f.overview||"Фильм входит в коллекцию лауреатов премии «Оскар».")}</span><span class="font-micro-caption text-micro-caption text-primary-container">${y?`Фильм ${y} года`:""}${info.best?` · ${info.n}-я церемония`:""}</span></span>
 <span class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-primary-container shrink-0"><span class="material-symbols-outlined">play_circle</span></span></button>
-<button type="button" data-oscar-watched="${f.id}" aria-label="${deps.isWatched(f.id)?"Уже просмотрено":"Отметить просмотренным"}" aria-pressed="${deps.isWatched(f.id)}" class="w-6 h-6 rounded-full ${deps.isWatched(f.id)?"text-secondary-fixed bg-secondary-container/70":"text-text-muted"} flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[15px]">${deps.isWatched(f.id)?"task_alt":"bookmark_add"}</span></button></div>
+</div>
 <div class="font-micro-caption text-micro-caption text-on-surface-variant truncate" data-oscar-director="${f.id}">${directors?`Реж. ${directors}`:""}</div><div id="oscar-list-detail-${f.id}" data-oscar-detail-host></div></article>`;
       }
       return `<article class="flex flex-col gap-2 p-3 rounded-xl bg-surface-panel shadow-md hover:bg-surface-container-low transition-colors">
@@ -264,12 +265,12 @@
 ${info.best?`<span class="block font-micro-caption text-micro-caption text-primary-container mt-0.5">Оскар ${info.year} · ${info.n}-я церемония</span>`:""}
 <span class="block font-body-sm text-body-sm text-text-muted line-clamp-1 mt-0.5">${esc(f.overview||"Фильм из коллекции лауреатов премии Американской киноакадемии.")}</span></span>
 <span class="block font-micro-caption text-micro-caption text-primary-container mt-1">Трейлер и подробности</span></span></button>
-<div class="flex items-center justify-between"><span class="font-micro-caption text-micro-caption text-on-surface-variant font-medium truncate" data-oscar-director="${f.id}">${directors?`Реж. ${directors}`:"Лауреат «Оскара»"}</span><button type="button" data-oscar-watched="${f.id}" aria-label="${deps.isWatched(f.id)?"Уже просмотрено":"Отметить просмотренным"}" aria-pressed="${deps.isWatched(f.id)}" class="w-6 h-6 rounded-full ${deps.isWatched(f.id)?"text-secondary-fixed bg-secondary-container/70":"text-text-muted"} flex items-center justify-center transition-colors"><span class="material-symbols-outlined text-[15px]">${deps.isWatched(f.id)?"task_alt":"bookmark_add"}</span></button></div>
+<div class="flex items-center justify-between"><span class="font-micro-caption text-micro-caption text-on-surface-variant font-medium truncate" data-oscar-director="${f.id}">${directors?`Реж. ${directors}`:"Лауреат «Оскара»"}</span></div>
 <div id="oscar-list-detail-${f.id}" data-oscar-detail-host></div></article>`;
   }
   function gridCellHtml(f,deps,hostId){
     const title=esc(f.title||f.original_title||"Фильм"),y=yearOf(f),info=oscarInfo(f),seen=deps.isWatched(f.id);
-    return `<div class="relative flex flex-col"><button type="button" class="flex flex-col gap-1 text-left" data-oscar-open="${f.id}" data-oscar-host="${hostId}" aria-label="Трейлер и подробности: ${title}"><span class="relative block w-full aspect-[2/3] rounded-lg overflow-hidden bg-surface-container-high shadow-md">${f.poster_path?`<img class="w-full h-full object-cover" loading="lazy" alt="Постер «${title}»" src="${image(f.poster_path,"w342")}">`:'<span class="material-symbols-outlined w-full h-full flex items-center justify-center text-text-muted">movie</span>'}<span class="absolute bottom-1 left-1 px-1.5 py-0.5 rounded bg-canvas-obsidian/85 text-primary font-micro-caption text-micro-caption font-bold">★ ${Number(f.vote_average||0).toFixed(1)}</span>${info.best?'<span class="absolute top-1 left-1 w-6 h-6 rounded-full bg-cinema-velvet-deep/90 text-secondary flex items-center justify-center" title="Лучший фильм"><span class="material-symbols-outlined text-[14px]" style="font-variation-settings:\'FILL\' 1;">workspace_premium</span></span>':""}</span><span class="block font-label-sm text-label-sm text-on-surface font-semibold leading-tight kg-clip2">${title}</span><span class="block font-micro-caption text-micro-caption text-text-muted">${y||""}</span></button><button type="button" data-oscar-watched="${f.id}" aria-label="${seen?"Уже просмотрено":"Отметить просмотренным"}" class="absolute top-1 right-1 w-5 h-5 rounded-full ${seen?"text-primary":"text-on-surface"} flex items-center justify-center"><span class="material-symbols-outlined text-[14px]">${seen?"task_alt":"bookmark_add"}</span></button></div>`;
+    return `<div class="relative flex flex-col"><button type="button" class="flex flex-col gap-1 text-left" data-oscar-open="${f.id}" data-oscar-host="${hostId}" aria-label="Трейлер и подробности: ${title}"><span class="relative block w-full aspect-[2/3] rounded-lg overflow-hidden bg-surface-container-high shadow-md">${f.poster_path?`<img class="w-full h-full object-cover" loading="lazy" alt="Постер «${title}»" src="${image(f.poster_path,"w342")}">`:'<span class="material-symbols-outlined w-full h-full flex items-center justify-center text-text-muted">movie</span>'}<span class="absolute bottom-1 left-1 px-1.5 py-0.5 rounded bg-canvas-obsidian/85 text-primary font-micro-caption text-micro-caption font-bold">★ ${Number(f.vote_average||0).toFixed(1)}</span>${info.best?'<span class="absolute top-1 left-1 w-6 h-6 rounded-full bg-cinema-velvet-deep/90 text-secondary flex items-center justify-center" title="Лучший фильм"><span class="material-symbols-outlined text-[14px]" style="font-variation-settings:\'FILL\' 1;">workspace_premium</span></span>':""}</span><span class="block font-label-sm text-label-sm text-on-surface font-semibold leading-tight kg-clip2">${title}</span><span class="block font-micro-caption text-micro-caption text-text-muted">${y||""}</span></button></div>`;
   }
   function renderList(root,deps){
     const box=root.querySelector("#oscar-list");
@@ -345,21 +346,6 @@ ${info.best?`<span class="block font-micro-caption text-micro-caption text-prima
         deps.openFilm({...f,_kgRelatedPool:state.films},"oscar",target);
       }
       return;
-    }
-    const watched=e.target.closest("[data-oscar-watched]");
-    if(watched){
-      const f=state.films.find(item=>String(item.id)===watched.dataset.oscarWatched);
-      if(!f||watched.disabled||deps.isWatched(f.id))return;
-      watched.disabled=true;watched.setAttribute("aria-pressed","true");watched.setAttribute("aria-label","Просмотрено");
-      watched.classList.remove("text-text-muted","text-on-surface");watched.classList.add("text-secondary-fixed","bg-secondary-container/70");
-      const icon=watched.querySelector(".material-symbols-outlined");if(icon)icon.textContent="task_alt";
-      deps.markWatched(f).then(ok=>{
-        if(!ok)throw new Error("Не удалось сохранить просмотренный фильм");
-        renderFeature(root,deps);renderList(root,deps);renderProgress(root,deps);
-      }).catch(error=>{
-        console.warn("[Kinoglobus] Не удалось отметить фильм просмотренным:",error);
-        renderFeature(root,deps);renderList(root,deps);
-      });
     }
   }
   const reelStep=90,reelPadding=8,reelCellWidth=80;

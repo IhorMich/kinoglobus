@@ -87,7 +87,7 @@
 <header class="fixed top-0 w-full z-50 pt-safe bg-surface-panel/85 backdrop-blur-xl shadow-[0_4px_24px_rgba(7,6,10,0.85)]"><div class="h-20 px-gutter-mobile flex items-center justify-between gap-space-sm max-w-[520px] mx-auto"><div class="flex items-center gap-space-sm min-w-0 flex-1"><div class="relative flex-shrink-0"><div class="w-11 h-11 rounded-full p-[2px] bg-gradient-to-tr from-cinema-velvet-deep via-primary-container to-primary flex items-center justify-center shadow-[0_0_12px_rgba(255,184,48,0.28)]"><span class="material-symbols-outlined text-primary-fixed text-[24px]">public</span></div></div><div class="flex flex-col min-w-0"><div class="flex items-center gap-space-xs"><h1 class="font-headline-sm text-headline-sm font-bold tracking-tight text-primary drop-shadow-[0_0_14px_rgba(255,184,48,0.35)] truncate">Киноглобус</h1><span class="px-1.5 py-0.5 rounded-full bg-cinema-velvet-deep/70 text-secondary font-micro-caption text-micro-caption tracking-wider border-none">PRO</span></div><p class="font-micro-caption text-micro-caption text-text-muted truncate">Случайная страна · Лучшие фильмы</p></div></div><div class="flex items-center gap-space-xs flex-shrink-0"><button type="button" data-kg-search-open aria-label="Поиск фильмов, актёров и режиссёров" title="Поиск" class="w-9 h-9 flex items-center justify-center rounded-full text-primary-fixed hover:bg-surface-container-high border border-primary-container/20"><span class="material-symbols-outlined text-[20px]">search</span></button><a class="flex items-center gap-1.5 h-9 px-3 rounded-full bg-surface-container-high/90 text-primary-fixed border border-primary-container/20 transition-all active:scale-95 shadow-[0_0_10px_rgba(255,184,48,0.15)] hover:border-primary-container/50" data-path="moe-puteshestvie" href="#" title="Моё путешествие"><span class="material-symbols-outlined text-[16px] text-primary-container">explore</span><span class="font-label-sm text-label-sm font-bold text-primary-fixed tracking-wide">42/104</span></a><a aria-label="Настройки" class="w-9 h-9 flex items-center justify-center rounded-full text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all active:scale-95" data-path="nastrojki" href="#"><span class="material-symbols-outlined text-[20px]">settings</span></a><button id="kg-account-open" type="button" aria-label="Открыть профиль и регистрацию" title="Профиль" class="kg-account-avatar ml-0.5"><img alt="" class="w-8 h-8 rounded-full object-cover border border-primary-container/30 shadow-[0_0_8px_rgba(255,184,48,0.25)]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCdLg3sLBvV5C2sZ07bWRzHNAJmJaRmEX2Goq4C0MdemCoCPam7pZebU2QLXvbPIGiROKivIg5-BQrwLFBR1jND7Mm3QCBX2sm4c6mKTZKsJ7cM956ZwqniQ_ajzjh6Qt_hjTIbhqP2tu4tuNyBCe34OM_6Ei49zUEcke8sVmNKfalQmBXxvFY3w6gj0wjWsHNoh97ZLOMjX3FT4nK7mMo6yYR__VDDQb7D8fbOucu4"></button></div></div></header><main class="flex flex-col relative w-full pt-20 pb-28 bg-transparent min-h-screen max-w-[520px] mx-auto"><div class="flex flex-col w-full px-margin-mobile space-y-space-lg select-none">
 <!-- 1. Mode Switcher Segmented Control -->
 <section class="w-full">
-<div class="p-1 rounded-full bg-surface-container-low shadow-inner flex items-center gap-1"><button class="flex-1 py-2.5 px-4 rounded-full font-label-md text-label-md transition-all duration-300 flex items-center justify-center gap-2 text-white font-bold cursor-pointer border border-white/20" id="btn-mode-filters" style="background: linear-gradient(135deg, rgb(255, 78, 32) 0%, rgb(255, 140, 0) 100%); box-shadow: rgba(255, 94, 58, 0.4) 0px 4px 18px, rgba(255, 255, 255, 0.3) 0px 1px 0px inset;" type="button"><span class="material-symbols-outlined text-[18px]">tune</span><span class="">Свои фильтры</span></button><button class="flex-1 py-2.5 px-4 rounded-full font-label-md text-label-md transition-all duration-300 flex items-center justify-center gap-2 text-text-muted hover:text-on-surface bg-surface-panel/85 border border-surface-border-subtle cursor-pointer backdrop-blur-md" id="btn-mode-surprise" type="button"><span class="material-symbols-outlined text-[18px] text-secondary">auto_awesome</span><span class="">Удиви меня</span></button></div>
+<div class="p-1 rounded-full bg-surface-container-low shadow-inner flex items-center gap-1"><button class="kg-mode-choice flex-1 py-2.5 px-4 rounded-full font-label-md text-label-md transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer" id="btn-mode-filters" aria-pressed="false" type="button"><span class="material-symbols-outlined text-[18px]">tune</span><span class="">Свои фильтры</span></button><button class="kg-mode-choice flex-1 py-2.5 px-4 rounded-full font-label-md text-label-md transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer" id="btn-mode-surprise" aria-pressed="false" type="button"><span class="material-symbols-outlined text-[18px] text-secondary">auto_awesome</span><span class="">Удиви меня</span></button></div>
 </section>
 
 <!-- Visible TMDB key prompt (shown when key missing) -->
@@ -375,35 +375,6 @@
 // ========== Глобус и UI: перенесены 1:1 из дизайна (вращение подключает мост ниже) ==========
 
   (function() {
-    // Mode Switcher Interaction
-    const btnFilters = document.getElementById('btn-mode-filters');
-    const btnSurprise = document.getElementById('btn-mode-surprise');
-    const surprisePanel = document.getElementById('surprise-levels-panel');
-
-    if (btnFilters && btnSurprise && surprisePanel) {
-      btnFilters.addEventListener('click', () => {
-        btnFilters.className = "flex-1 py-2.5 px-4 rounded-full font-label-md text-label-md transition-all duration-300 flex items-center justify-center gap-2 text-white font-bold cursor-pointer border border-white/20";
-        btnFilters.style.background = "linear-gradient(135deg, rgb(255, 78, 32) 0%, rgb(255, 140, 0) 100%)";
-        btnFilters.style.boxShadow = "rgba(255, 94, 58, 0.4) 0px 4px 18px, rgba(255, 255, 255, 0.3) 0px 1px 0px inset";
-
-        btnSurprise.className = "flex-1 py-2.5 px-4 rounded-full font-label-md text-label-md transition-all duration-300 flex items-center justify-center gap-2 text-text-muted hover:text-on-surface bg-surface-panel/85 border border-surface-border-subtle cursor-pointer backdrop-blur-md";
-        btnSurprise.style.background = "";
-        btnSurprise.style.boxShadow = "";
-        surprisePanel.classList.add('hidden');
-      });
-
-      btnSurprise.addEventListener('click', () => {
-        btnSurprise.className = "flex-1 py-2.5 px-4 rounded-full font-label-md text-label-md transition-all duration-300 flex items-center justify-center gap-2 text-white font-bold cursor-pointer border border-white/20";
-        btnSurprise.style.background = "linear-gradient(135deg, rgb(134, 26, 69) 0%, rgb(255, 78, 120) 100%)";
-        btnSurprise.style.boxShadow = "rgba(255, 115, 160, 0.4) 0px 4px 18px, rgba(255, 255, 255, 0.3) 0px 1px 0px inset";
-
-        btnFilters.className = "flex-1 py-2.5 px-4 rounded-full font-label-md text-label-md transition-all duration-300 flex items-center justify-center gap-2 text-text-muted hover:text-on-surface bg-surface-panel/85 border border-surface-border-subtle cursor-pointer backdrop-blur-md";
-        btnFilters.style.background = "";
-        btnFilters.style.boxShadow = "";
-        surprisePanel.classList.remove('hidden');
-      });
-    }
-
     // Full Real-World Countries Cinema Database with exact lat/lon
     const catalog = [
       {
@@ -1973,6 +1944,9 @@ function goLabel(){
 function paintGo(){ if(!$("go").disabled) $("go").textContent=goLabel(); }
 function applyMode(){
   const sur=playMode==="surprise";
+  $("btn-mode-filters").setAttribute("aria-pressed",String(!sur));
+  $("btn-mode-surprise").setAttribute("aria-pressed",String(sur));
+  $("surprise-levels-panel").classList.toggle("hidden",!sur);
   $("modeFilters").setAttribute("aria-pressed", sur?"false":"true");
   $("modeSurprise").setAttribute("aria-pressed", sur?"true":"false");
   $("surpriseCard").hidden=!sur;
@@ -1984,8 +1958,7 @@ function applyMode(){
 $("modeFilters").onclick=()=>{playMode="filters";store.set("playMode",playMode);applyMode();hideHints();};
 $("modeSurprise").onclick=()=>{
   playMode="surprise";
-  surprise="light";
-  store.set("playMode",playMode);store.set("surprise",surprise);applyMode();
+  store.set("playMode",playMode);applyMode();
   showHint("surpriseNote");
 };
 applyMode();
@@ -2080,6 +2053,7 @@ $("jfilms").onclick=e=>{
   const b=e.target.closest(".jfilm");if(!b)return;
   const w=watched.find(x=>String(x.id)===b.dataset.id);if(!w)return;
   closeJ();
+  document.querySelector('nav [data-view="home"]')?.click();
   showSaved(w);
 };
 const jd=$("journey");
@@ -2432,7 +2406,7 @@ let snd=store.get("snd","roulette");
 let reelSnd=["projector","imax","camera","tape","premiere","shutter","editbench","sixteenmm","off"].includes(store.get("reelSnd","projector"))?store.get("reelSnd","projector"):"projector";
 window.getCinemaReelSound=()=>reelSnd;
 window.setCinemaReelSound = value => {
-  const playing = !!filmReelNodes, previewing = !!reelSoundPreviewTimer;
+  const playing = !!filmReelNodes, previewing = !!reelSoundPreviewFrame;
   reelSnd = Object.hasOwn(reelProfiles,value) || value === "off" ? value : "projector";
   store.set("reelSnd",reelSnd);
   if (previewing) previewFilmReelSound();
@@ -2519,72 +2493,94 @@ function sWin(){
   const gap=snd==="bells"?0.1:0.06,len=snd==="bells"?0.8:1.4;
   notes.forEach((f,i)=>{tone(f,len,0.1,"sine",i*gap);tone(f*2,len*0.6,0.03,"sine",i*gap);});
 }
-// The animation reports the distance traveled in frames. Only a frame
-// crossing can trigger a click during a spin.
+// Frame crossings trigger the selected sound. All reel voices share an output
+// so the animation can silence them immediately when it stops.
 let filmReelNodes = null;
-let reelSoundPreviewTimer = 0;
-let reelSoundPreviewInterval = 0;
+let reelSoundPreviewFrame = 0;
 const reelProfiles = {
-  projector:{tick:92,frequency:2050,q:1.3,gain:.025},
-  imax:{tick:145,frequency:680,q:.9,gain:.018},
-  camera:{tick:78,frequency:2850,q:1.7,gain:.022},
-  tape:{tick:132,frequency:1050,q:.8,gain:.018},
-  premiere:{tick:172,frequency:1550,q:1.1,gain:.014},
-  shutter:{tick:66,frequency:3200,q:2,gain:.018},
-  editbench:{tick:160,frequency:1320,q:1.5,gain:.021},
-  sixteenmm:{tick:118,frequency:2420,q:.95,gain:.016}
+  projector: {duration:.035, noise:{frequency:2050,q:1.3,volume:.28}, motor:{volume:.025}},
+  imax:      {duration:.15,  tone:{type:"sine",from:94,to:46,volume:.17}},
+  camera:    {duration:.048, noise:{frequency:2700,q:2.6,volume:.34}, tone:{type:"triangle",from:230,to:105,volume:.085}},
+  tape:      {duration:.12,  tone:{type:"sine",from:155,to:285,volume:.09}, motor:{volume:.045}},
+  premiere:  {duration:.19,  tone:{type:"triangle",from:660,to:660,volume:.065}},
+  shutter:   {duration:.018, noise:{frequency:4600,q:.8,volume:.39}},
+  editbench: {duration:.065, tone:{type:"square",from:330,to:270,volume:.055}},
+  sixteenmm: {duration:.082, noise:{frequency:940,q:1.8,volume:.32}, motor:{volume:.016}}
 };
 function stopFilmReelSound() {
-  clearInterval(reelSoundPreviewInterval);
-  clearTimeout(reelSoundPreviewTimer);
-  reelSoundPreviewInterval = reelSoundPreviewTimer = 0;
+  cancelAnimationFrame(reelSoundPreviewFrame);
+  reelSoundPreviewFrame = 0;
   if (!filmReelNodes) return;
-  const { output, filter, sources, motor } = filmReelNodes;
+  const {output, filter, voices, motor} = filmReelNodes;
   filmReelNodes = null;
   output.gain.value = 0;
   output.disconnect();
-  filter.disconnect();
-  if (motor) motor.stop();
-  for (const source of sources) source.stop();
+  filter?.disconnect();
+  motor?.stop();
+  for (const voice of voices) voice.stop();
+}
+
+function reelNoise(seconds) {
+  const buffer = ac.createBuffer(1, Math.floor(ac.sampleRate * seconds), ac.sampleRate);
+  const samples = buffer.getChannelData(0);
+  for (let i = 0; i < samples.length; i++) samples[i] = Math.random() * 2 - 1;
+  return buffer;
 }
 
 function startFilmReelSound() {
-  if (reelSoundPreviewTimer) stopFilmReelSound();
+  if (reelSoundPreviewFrame) stopFilmReelSound();
   if (reelSnd === "off" || filmReelNodes) return;
   audio();
   if (!ac) return;
   const profile = reelProfiles[reelSnd];
-  const buffer = ac.createBuffer(1, Math.floor(ac.sampleRate * .024), ac.sampleRate);
-  const samples = buffer.getChannelData(0);
-  for (let i = 0; i < samples.length; i++) samples[i] = (Math.random()*2-1)*(1-i/samples.length);
-  const filter = ac.createBiquadFilter();
-  filter.type = "bandpass";
-  filter.frequency.value = profile.frequency;
-  filter.Q.value = profile.q;
   const output = ac.createGain();
-  filter.connect(output);
   output.connect(ac.destination);
-  filmReelNodes = {profile, buffer, filter, output, sources:new Set(), frame:-1};
+  filmReelNodes = {profile, output, voices:new Set(), frame:-1};
+  if (profile.noise) {
+    const filter = ac.createBiquadFilter();
+    filter.type = "bandpass";
+    filter.frequency.value = profile.noise.frequency;
+    filter.Q.value = profile.noise.q;
+    filter.connect(output);
+    filmReelNodes.filter = filter;
+    filmReelNodes.noise = reelNoise(profile.duration);
+  }
 }
 
-function playReelClick(level) {
-  const nodes = filmReelNodes;
-  if (!nodes || ac.state !== "running") return;
-  const source = ac.createBufferSource(), envelope = ac.createGain();
+function playReelFrame(nodes, level) {
+  const {profile, output, filter, noise, voices} = nodes;
   const now = ac.currentTime;
-  source.buffer = nodes.buffer;
-  source.connect(envelope);
-  envelope.connect(nodes.filter);
-  envelope.gain.setValueAtTime(.0001,now);
-  envelope.gain.linearRampToValueAtTime(nodes.profile.gain * 12 * Math.max(.45,level),now+.002);
-  envelope.gain.exponentialRampToValueAtTime(.0001,now+.023);
-  nodes.sources.add(source);
-  source.onended = () => {
-    nodes.sources.delete(source);
-    source.disconnect();
-    envelope.disconnect();
-  };
-  source.start(now);
+  const end = now + profile.duration;
+  const strength = .45 + .55 * level;
+  function play(voice, volume, target) {
+    const envelope = ac.createGain();
+    envelope.gain.setValueAtTime(.0001, now);
+    envelope.gain.linearRampToValueAtTime(volume * strength, now + .003);
+    envelope.gain.exponentialRampToValueAtTime(.0001, end);
+    voice.connect(envelope);
+    envelope.connect(target);
+    voices.add(voice);
+    voice.onended = () => {
+      voices.delete(voice);
+      voice.disconnect();
+      envelope.disconnect();
+    };
+    voice.start(now);
+    voice.stop(end);
+  }
+  if (profile.noise) {
+    const voice = ac.createBufferSource();
+    voice.buffer = noise;
+    play(voice, profile.noise.volume, filter);
+  }
+  if (profile.tone) {
+    const {type, from, to, volume} = profile.tone;
+    const voice = ac.createOscillator();
+    voice.type = type;
+    voice.frequency.setValueAtTime(from, now);
+    voice.frequency.exponentialRampToValueAtTime(to, end);
+    play(voice, volume, output);
+  }
 }
 
 function setFilmReelLevel(level, position) {
@@ -2592,35 +2588,32 @@ function setFilmReelLevel(level, position) {
     stopFilmReelSound();
     return;
   }
-  if (!filmReelNodes || (Number.isFinite(position) && position <= 0)) return;
   const nodes = filmReelNodes;
-  if (ac.state !== "running") return;
-  if (!nodes.motor) {
-    const noise = ac.createBuffer(1,Math.floor(ac.sampleRate * .4),ac.sampleRate);
-    const samples = noise.getChannelData(0);
-    for (let i = 0; i < samples.length; i++) samples[i] = Math.random()*2-1;
-    nodes.motor = ac.createBufferSource();
-    nodes.motorGain = ac.createGain();
-    nodes.motor.buffer = noise;
-    nodes.motor.loop = true;
-    nodes.motorGain.gain.value = 0;
-    nodes.motor.connect(nodes.motorGain);
-    nodes.motorGain.connect(nodes.filter);
-    nodes.motor.start();
+  if (!nodes || ac.state !== "running" || (Number.isFinite(position) && position <= 0)) return;
+  if (nodes.profile.motor) {
+    if (!nodes.motor) {
+      nodes.motor = ac.createBufferSource();
+      nodes.motorGain = ac.createGain();
+      nodes.motor.buffer = reelNoise(.4);
+      nodes.motor.loop = true;
+      nodes.motorGain.gain.value = 0;
+      nodes.motor.connect(nodes.motorGain);
+      nodes.motorGain.connect(nodes.filter || nodes.output);
+      nodes.motor.start();
+    }
+    nodes.motor.playbackRate.setTargetAtTime(.65 + .35 * level, ac.currentTime, .025);
+    nodes.motorGain.gain.setTargetAtTime(nodes.profile.motor.volume * level, ac.currentTime, .015);
   }
-  nodes.motorGain.gain.setTargetAtTime(nodes.profile.gain * (.6 + .7 * level),ac.currentTime,.01);
-  const now = ac.currentTime;
   if (Number.isFinite(position)) {
     const frame = Math.floor(position);
     if (frame === nodes.frame) return;
     nodes.frame = frame;
-  } else {
-    // Older cached reel scripts report speed without a frame position.
-    const interval = nodes.profile.tick / (1000 * (.35 + .65 * level));
-    if (nodes.lastClick !== undefined && now - nodes.lastClick < interval) return;
+  } else if (nodes.lastClick !== undefined && ac.currentTime - nodes.lastClick < .1) {
+    // Compatibility with older reel scripts that only report speed.
+    return;
   }
-  nodes.lastClick = now;
-  playReelClick(level);
+  nodes.lastClick = ac.currentTime;
+  playReelFrame(nodes, level);
 }
 document.addEventListener("kg:reel-motion", ({detail}) => setFilmReelLevel(detail.level,detail.position));
 
@@ -2628,9 +2621,18 @@ function previewFilmReelSound() {
   stopFilmReelSound();
   startFilmReelSound();
   if (!filmReelNodes) return;
-  playReelClick(.82);
-  reelSoundPreviewInterval = setInterval(() => playReelClick(.82),filmReelNodes.profile.tick);
-  reelSoundPreviewTimer = setTimeout(stopFilmReelSound,1800);
+  const start = performance.now();
+  const step = now => {
+    const progress = Math.min(1, (now - start) / 1800);
+    if (progress >= 1) {
+      setFilmReelLevel(0);
+      return;
+    }
+    const speed = 1 - progress;
+    setFilmReelLevel(speed ** 3, 14 * (1 - speed ** 4));
+    reelSoundPreviewFrame = requestAnimationFrame(step);
+  };
+  reelSoundPreviewFrame = requestAnimationFrame(step);
 }
 window.startFilmReelSound = startFilmReelSound;
 window.stopFilmReelSound = stopFilmReelSound;
@@ -3399,6 +3401,11 @@ st.textContent=`
 #film-center-frame.hit{animation:kgFrameHit 1s cubic-bezier(.2,.8,.25,1)}
 @keyframes kgFrameHit{0%{box-shadow:0 0 0 0 rgba(255,184,48,.8),inset 0 0 14px rgba(255,184,48,.22)}45%{box-shadow:0 0 38px 8px rgba(255,184,48,.75),inset 0 0 22px rgba(255,184,48,.4)}100%{box-shadow:0 0 18px rgba(255,184,48,.5),inset 0 0 14px rgba(255,184,48,.22)}}
 #cinema-35mm-reel-section,#cl-result,#oscar-reel-detail,[id^="mood-roulette-winner-detail-"]{overflow-anchor:none}
+#btn-mode-filters,#btn-mode-surprise{border:1px solid #3a3140;color:#b3a7b7;background:#211c26}
+.kg-mode-choice[aria-pressed="false"]:hover{color:#e8e0ea}
+#btn-mode-filters[aria-pressed="true"],#btn-mode-surprise[aria-pressed="true"]{color:#fff;border-color:#ffffff33;box-shadow:0 4px 18px #ff5e5e44,inset 0 1px #ffffff33}
+#btn-mode-filters[aria-pressed="true"]{background:linear-gradient(135deg,#ff4e20,#ff8c00)}
+#btn-mode-surprise[aria-pressed="true"]{background:linear-gradient(135deg,#861a45,#ff4e78)}
 #film-details.veiled{display:none}
 #film-details.opening{overflow:hidden;transition:height .8s cubic-bezier(.2,.8,.2,1)}
 #film-details.opening>*{animation:kgRise .7s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(.12s + var(--i,0)*.09s)}
@@ -4121,14 +4128,14 @@ $("btn-mode-surprise").addEventListener("click",()=>$("modeSurprise").click());
 // ---------- Навигация ----------
 const go=(sel,fn)=>document.querySelectorAll(`[data-path="${sel}"]`).forEach(a=>a.addEventListener("click",e=>{e.preventDefault();fn();}));
 go("moe-puteshestvie",()=>$("mapBtn").click());
-go("istoriya-posmotrel",()=>$("mapBtn").click());
+go("istoriya-posmotrel",()=>window.KGOpenWatchHistory());
 go("nastrojki",()=>$("gear").click());
 go("globus-random",()=>scrollTo({top:0,behavior:"smooth"}));
 go("podborki-i-zhanry",()=>{themeFilter.open=true;themeFilter.scrollIntoView({behavior:"smooth",block:"start"});});
 
 // ---------- Старт ----------
 G.orientGlobeToCountry(G.currentCountry,true,0.08,G.CAMERA_DIST_DEFAULT,false);G.hideMarks();
-playMode="filters";store.set("playMode","filters");applyMode();
+applyMode();
 syncDesign();setSpinUi(false);
 window.KGCountryApp={
   countries:()=>COUNTRIES.slice(),
@@ -4149,16 +4156,16 @@ console.info("[Kinoglobus] Bridge v6 ready");
 
 <script src="globe-visuals.js?v=3"></script>
 <script src="watch-history.js?v=8"></script>
-<script src="country-pages.js?v=12"></script>
+<script src="country-pages.js?v=13"></script>
 <script src="account-page.js?v=1"></script>
 <script src="mood-page.js?v=32"></script>
 <script src="mood-vibe-page.js?v=17"></script>
 <script src="oscar-page.js?v=36"></script>
 <script src="oscar-design.js?v=15"></script>
-<script src="collections.js?v=70"></script>
+<script src="collections.js?v=71"></script>
 <script src="film-interactions.js?v=14"></script>
 <script src="legal-watch.js?v=3"></script>
 <script src="global-search.js?v=2"></script>
-<script src="settings-page.js?v=23"></script>
+<script src="settings-page.js?v=25"></script>
 
 </body></html>

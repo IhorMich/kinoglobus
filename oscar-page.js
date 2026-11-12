@@ -350,7 +350,7 @@ ${info.best?`<span class="block font-micro-caption text-micro-caption text-prima
   }
   const reelStep=90,reelPadding=8,reelCellWidth=80;
   const reducedMotion=()=>!!(window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches);
-  const sound=(name,arg)=>{try{if(typeof window[name]==="function")window[name](arg);}catch(_){}};
+  const sound=(name,...args)=>{try{if(typeof window[name]==="function")window[name](...args);}catch(_){}};
   function shuffled(list){const a=list.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
   function setLaunch(root,spinning){
     const button=root.querySelector("#oscar-roulette"),label=root.querySelector("#oscar-roulette-label"),icon=root.querySelector("#oscar-roulette-icon");
@@ -426,10 +426,6 @@ ${window.KGCinemaReel.render({shellClass:"kgo-reel relative w-full rounded-xl bg
       frame.classList.remove("hit");void frame.offsetWidth;frame.classList.add("hit");
       try{if(navigator.vibrate)navigator.vibrate([25,50,60]);}catch(_){}
       deps.openFilm({...film,_kgRelatedPool:pool},"oscar","oscar-reel-detail");
-      requestAnimationFrame(()=>{
-        const d=document.getElementById("oscar-reel-detail");
-        if(d&&token===state.spinToken)window.scrollTo({top:Math.max(0,window.scrollY+d.getBoundingClientRect().top-96),behavior:"smooth"});
-      });
     };
     if(window.KGCinemaReel?.isProjectionMode?.()){
       panel.scrollIntoView({behavior:"smooth",block:"center"});sound("startFilmReelSound");
@@ -438,7 +434,7 @@ ${window.KGCinemaReel.render({shellClass:"kgo-reel relative w-full rounded-xl bg
       state.spinning=false;state.skipSpin=false;if(counter)counter.textContent="Фильм "+String(pool.indexOf(film)+1).padStart(2,"0")+" / "+String(pool.length).padStart(2,"0");
       const sub=panel.querySelector("[data-oscar-reel-sub]");if(sub)sub.textContent=(film.title||film.original_title||"Фильм")+" · "+yearOf(film);
       setLaunch(root,false);if(skip)skip.hidden=true;deps.openFilm({...film,_kgRelatedPool:pool},"oscar","oscar-reel-detail");
-      requestAnimationFrame(()=>{const d=document.getElementById("oscar-reel-detail");if(d&&token===state.spinToken)window.scrollTo({top:Math.max(0,window.scrollY+d.getBoundingClientRect().top-96),behavior:"smooth"});});return;
+      return;
     }
     if(window.KGCinemaReel?.isCassetteMode?.()){
       panel.scrollIntoView({behavior:"smooth",block:"center"});sound("startFilmReelSound");
@@ -448,7 +444,7 @@ ${window.KGCinemaReel.render({shellClass:"kgo-reel relative w-full rounded-xl bg
       state.spinning=false;state.skipSpin=false;if(counter)counter.textContent="Фильм "+String(pool.indexOf(film)+1).padStart(2,"0")+" / "+String(pool.length).padStart(2,"0");
       const sub=panel.querySelector("[data-oscar-reel-sub]");if(sub)sub.textContent=(film.title||film.original_title||"Фильм")+" · "+yearOf(film);
       setLaunch(root,false);if(skip)skip.hidden=true;deps.openFilm({...film,_kgRelatedPool:pool},"oscar","oscar-reel-detail");
-      requestAnimationFrame(()=>{const d=document.getElementById("oscar-reel-detail");if(d&&token===state.spinToken)window.scrollTo({top:Math.max(0,window.scrollY+d.getBoundingClientRect().top-96),behavior:"smooth"});});return;
+      return;
     }
     if(window.KGCinemaReel?.isTicketMode?.()){
       panel.scrollIntoView({behavior:"smooth",block:"center"});sound("startFilmReelSound");
@@ -458,7 +454,7 @@ ${window.KGCinemaReel.render({shellClass:"kgo-reel relative w-full rounded-xl bg
       if(counter)counter.textContent="Билет "+String(pool.indexOf(film)+1).padStart(2,"0")+" / "+String(pool.length).padStart(2,"0");
       const sub=panel.querySelector("[data-oscar-reel-sub]");if(sub)sub.textContent=(film.title||film.original_title||"Фильм")+" · "+yearOf(film);
       setLaunch(root,false);if(skip)skip.hidden=true;deps.openFilm({...film,_kgRelatedPool:pool},"oscar","oscar-reel-detail");
-      requestAnimationFrame(()=>{const d=document.getElementById("oscar-reel-detail");if(d&&token===state.spinToken)window.scrollTo({top:Math.max(0,window.scrollY+d.getBoundingClientRect().top-96),behavior:"smooth"});});return;
+      return;
     }
     start=offsetFor(0);finish=offsetFor(winnerIndex);
     if(!run||!frame||!counter){
@@ -476,10 +472,10 @@ ${window.KGCinemaReel.render({shellClass:"kgo-reel relative w-full rounded-xl bg
       if(!root.offsetParent){stopSpin(root);return;}   // ушли с экрана «Оскар»
       const progress=state.skipSpin?1:Math.min(1,(now-startTime)/duration);
       const position=start+(finish-start)*(1-Math.pow(1-progress,4)),remaining=finish-position;
-      sound("setFilmReelLevel",Math.pow(1-progress,3));
       run.style.transform=`translateX(${-position}px)`;
       if(progress>.4)run.classList.remove("fast");
       if(progress<1&&remaining>=.75){
+        sound("setFilmReelLevel",Math.pow(1-progress,3),Math.abs(position-start)/reelStep);
         state.spinFrame=requestAnimationFrame(step);return;
       }
       sound("stopFilmReelSound");

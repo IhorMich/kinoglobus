@@ -518,6 +518,7 @@ function closePageFilm(placement){
 }
 const pageDeps={
   api:(params)=>api(params),
+  searchKeywords:query=>requestTmdb("search/keyword",{query}),
   details:id=>filmDetails(id),
   getFilms:()=>oscarFilms(),
   hasKey:()=>Boolean(apiKey),

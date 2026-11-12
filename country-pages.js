@@ -11,12 +11,13 @@
   const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const fmt = value => new Intl.NumberFormat('ru-RU').format(Number(value) || 0);
   const flag = code => `<span class="kgc-flag-mark" data-flag="${code}" aria-hidden="true">${app.countryFlag(code)}</span>`;
+  const fabricPath = 'assets/flags/flag-fabric.jpg';
   const flagBackdrop = code => `
     <div class="kgc-flag-backdrop" data-flag="${code}" aria-hidden="true">
       <svg class="kgc-flag-filter" width="0" height="0" focusable="false">
         <filter id="kgc-fabric-folds" x="0%" y="0%" width="100%" height="100%" color-interpolation-filters="sRGB">
           <feFlood flood-color="#808080" result="neutral"/>
-          <feImage href="assets/flags/flag-fabric.jpg" preserveAspectRatio="xMidYMid slice" result="fabricPhoto"/>
+          <feImage href="${fabricPath}" preserveAspectRatio="xMidYMid slice" result="fabricPhoto"/>
           <feComposite in="fabricPhoto" in2="neutral" operator="over" result="fabric"/>
           <feGaussianBlur in="fabric" stdDeviation="6" edgeMode="duplicate" result="folds"/>
           <feComponentTransfer in="folds" result="surface">
@@ -40,6 +41,12 @@
   const root = document.createElement('div');
   root.id = 'kg-country-app';
   shell.prepend(root);
+  const fabric = new Image();
+  fabric.onload = () => {
+    // File URLs can restrict SVG filter access to a separate image.
+    root.dataset.flagFabric = location.protocol === 'file:' ? 'overlay' : 'filter';
+  };
+  fabric.src = fabricPath;
   shell.querySelectorAll(':scope > :not(#kg-country-app)').forEach(el => el.classList.add('kg-country-legacy'));
 
   const style = document.createElement('style');
@@ -63,8 +70,15 @@
     .kgc-atlas-countries .kgc-country-pill{display:flex;align-items:center;gap:8px;min-height:44px;text-align:left}
     .kgc-flag-backdrop{position:absolute;inset:0;clip-path:inset(0);isolation:isolate}
     .kgc-flag-filter{position:absolute}
-    .kgc-flag-art{position:absolute;inset:-13% -8% -8%;filter:url(#kgc-fabric-folds)}
-    .kgc-flag-art :is(img,svg){display:block;width:100%;height:100%;object-fit:cover;object-position:center}
+    .kgc-flag-art{position:absolute;inset:-13% -8% -8%;display:grid;place-items:center}
+    [data-flag-fabric="filter"] .kgc-flag-art{filter:url(#kgc-fabric-folds)}
+    [data-flag-fabric="overlay"] .kgc-flag-backdrop::after{
+      content:'';position:absolute;inset:0;pointer-events:none;
+      background:url("${fabricPath}") center / cover;mix-blend-mode:hard-light;opacity:.78
+    }
+    [data-flag-fabric="overlay"] .kgc-flag-backdrop[data-flag="NP"]::after{display:none}
+    .kgc-flag-art .flag-emoji{font-size:clamp(72px,28vw,160px);line-height:1}
+    .kgc-flag-art :is(img,svg){position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;object-position:center}
     .kgc-flag-backdrop[data-flag="AU"] img,.kgc-flag-backdrop[data-flag="NZ"] img{object-fit:fill}
     .kgc-hero-full .kgc-flag-backdrop{
       z-index:-1;bottom:auto;height:auto;aspect-ratio:1.44;

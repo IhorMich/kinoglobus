@@ -133,8 +133,11 @@
     });
     const reelSoundSelect=$("[data-kgs-reel-sound-select]");
     if(reelSoundSelect)reelSoundSelect.value=window.getCinemaReelSound?.()||"projector";
-    $("[data-kgs-mode=filters]").classList.toggle("active", playMode !== "surprise");
-    $("[data-kgs-mode=surprise]").classList.toggle("active", playMode === "surprise");
+    dialog.querySelectorAll("[data-kgs-mode]").forEach(button => {
+      const active = button.dataset.kgsMode === playMode;
+      button.classList.toggle("active",active);
+      button.setAttribute("aria-pressed",String(active));
+    });
   };
 
   $("[data-kgs-close]").addEventListener("click", close);
@@ -212,7 +215,7 @@
   $("[data-kgs-tab=globe]").addEventListener("click", () => { close(); window.scrollTo({top:0,behavior:"smooth"}); });
   $("[data-kgs-tab=collections]").addEventListener("click", () => { close(); const link=document.querySelector('[data-path="podborki-i-zhanry"]'); if(link)link.click(); });
   $("[data-kgs-tab=journey]").addEventListener("click", () => { close(); document.getElementById("mapBtn").click(); });
-  $("[data-kgs-tab=history]").addEventListener("click", () => { close(); document.getElementById("mapBtn").click(); });
+  $("[data-kgs-tab=history]").addEventListener("click", () => { close(); window.KGOpenWatchHistory(); });
   soundSelect?.addEventListener("change", sync);
   sync();
 })();

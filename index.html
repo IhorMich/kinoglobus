@@ -622,10 +622,9 @@
     }
 
     // Audio Engine
-    let soundEnabled = true;
     let audioCtx = null;
     function playRadarChirp(freq = 900) {
-      if (!soundEnabled) return;
+      if (snd === "off") return;
       try {
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -644,7 +643,7 @@
     }
 
     function playHologramLockSound() {
-      if (!soundEnabled) return;
+      if (snd === "off") return;
       try {
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -671,9 +670,7 @@
         void tickSpark.offsetWidth;
         tickSpark.classList.add('bg-primary');
       }
-      if (navigator.vibrate) {
-        try { navigator.vibrate(10); } catch(e) {}
-      }
+      buzz(10);
       playRadarChirp(800 + Math.random() * 300);
     }
 
@@ -1501,9 +1498,7 @@ if (areaRing) {
       }
 
       playHologramLockSound();
-      if (navigator.vibrate) {
-        try { navigator.vibrate([70, 90, 220]); } catch(e) {}
-      }
+      buzz([70, 90, 220]);
 
       // Sync Bottom Discovery Card
       const cardTitle = document.getElementById('discovery-title');
@@ -2105,7 +2100,12 @@ function applyAdultVis(){
   if(!showAdult){sel.delete("adult");store.set("cats",[...sel]);}
   adultVisLabel();paintChips();
 }
-$("adultVis").onclick=()=>{showAdult=!showAdult;store.set("showAdult",showAdult);applyAdultVis();};
+function toggleAdultGenres() {
+  showAdult = !showAdult;
+  store.set("showAdult",showAdult);
+  applyAdultVis();
+}
+$("adultVis").onclick = toggleAdultGenres;
 applyAdultVis();
 let brandN=0, brandT=0;
 $("brand").onclick=()=>{
@@ -2422,7 +2422,12 @@ async function certCandidates(cc){
 
 // ---- sound, vibration, reel animation
 let ac=null;
-function audio(){try{if(!ac)ac=new(window.AudioContext||window.webkitAudioContext)();if(ac.state==="suspended")ac.resume();}catch(e){}}
+function audio() {
+  try {
+    if (!ac || ac.state === "closed") ac = new (window.AudioContext || window.webkitAudioContext)();
+    if (ac.state !== "running") ac.resume().catch(() => {});
+  } catch (_) {}
+}
 let snd=store.get("snd","roulette");
 let reelSnd=["projector","imax","camera","tape","premiere","shutter","editbench","sixteenmm","off"].includes(store.get("reelSnd","projector"))?store.get("reelSnd","projector"):"projector";
 window.getCinemaReelSound=()=>reelSnd;
@@ -2587,7 +2592,7 @@ function setFilmReelLevel(level, position) {
     stopFilmReelSound();
     return;
   }
-  if (!filmReelNodes || !Number.isFinite(position) || position <= 0) return;
+  if (!filmReelNodes || (Number.isFinite(position) && position <= 0)) return;
   const nodes = filmReelNodes;
   if (ac.state !== "running") return;
   if (!nodes.motor) {
@@ -2604,9 +2609,17 @@ function setFilmReelLevel(level, position) {
     nodes.motor.start();
   }
   nodes.motorGain.gain.setTargetAtTime(nodes.profile.gain * (.6 + .7 * level),ac.currentTime,.01);
-  const frame = Math.floor(position);
-  if (frame === nodes.frame) return;
-  nodes.frame = frame;
+  const now = ac.currentTime;
+  if (Number.isFinite(position)) {
+    const frame = Math.floor(position);
+    if (frame === nodes.frame) return;
+    nodes.frame = frame;
+  } else {
+    // Older cached reel scripts report speed without a frame position.
+    const interval = nodes.profile.tick / (1000 * (.35 + .65 * level));
+    if (nodes.lastClick !== undefined && now - nodes.lastClick < interval) return;
+  }
+  nodes.lastClick = now;
   playReelClick(level);
 }
 document.addEventListener("kg:reel-motion", ({detail}) => setFilmReelLevel(detail.level,detail.position));
@@ -2622,13 +2635,20 @@ function previewFilmReelSound() {
 window.startFilmReelSound = startFilmReelSound;
 window.stopFilmReelSound = stopFilmReelSound;
 window.previewFilmReelSound = previewFilmReelSound;
-function preview(){audio();let i=0;const id=setInterval(()=>{sTick(i/10);if(++i>5){clearInterval(id);setTimeout(sWin,150);}},120);}
+function preview(){if(snd==="off")return;audio();let i=0;const id=setInterval(()=>{sTick(i/10);if(++i>5){clearInterval(id);setTimeout(sWin,150);}},120);}
 function buzz(p){if(fx&&navigator.vibrate){try{navigator.vibrate(p)}catch(e){}}}
 function fxLabel() {
   const button = $("fx");
   if (button) button.textContent = fx ? "Вкл" : "Выкл";
 }
-$("fx").onclick=()=>{fx=!fx;store.set("fx",fx);fxLabel();};fxLabel();
+function toggleVibration() {
+  fx = !fx;
+  store.set("fx",fx);
+  fxLabel();
+  if (!fx) navigator.vibrate?.(0);
+}
+$("fx").onclick = toggleVibration;
+fxLabel();
 $("snd").value=snd;$("snd").onchange=()=>{snd=$("snd").value;store.set("snd",snd);preview();};
 
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
@@ -4133,12 +4153,12 @@ console.info("[Kinoglobus] Bridge v6 ready");
 <script src="account-page.js?v=1"></script>
 <script src="mood-page.js?v=32"></script>
 <script src="mood-vibe-page.js?v=17"></script>
-<script src="oscar-page.js?v=35"></script>
+<script src="oscar-page.js?v=36"></script>
 <script src="oscar-design.js?v=15"></script>
 <script src="collections.js?v=70"></script>
 <script src="film-interactions.js?v=14"></script>
 <script src="legal-watch.js?v=3"></script>
 <script src="global-search.js?v=2"></script>
-<script src="settings-page.js?v=22"></script>
+<script src="settings-page.js?v=23"></script>
 
 </body></html>

@@ -74,9 +74,9 @@
 
         <section class="kgs-section"><h2 class="kgs-h"><span class="i">♫</span> Звуковой режиссёрский пульт </h2><div class="kgs-card">
           <div class="kgs-audio"><div><div class="kgs-label">Звук вращения КиноГлобуса</div><div class="kgs-sub">Сопровождение выбора страны</div></div><span class="kgs-badge gray" data-kgs-globe-sound-status></span><div class="kgs-sound-host" data-kgs-sound></div></div>
-          <div class="kgs-audio"><div><div class="kgs-label">Звук поиска фильма</div><div class="kgs-sub">Восемь кинематографичных профилей на выбор</div></div><span class="kgs-badge">Активно</span><select class="kgs-select" data-kgs-reel-sound-select aria-label="Выбрать звук поиска фильма"><option value="projector">Проектор · щелчки</option><option value="imax">Кинозал · мягкий импульс</option><option value="camera">Кинокамера · механика</option><option value="tape">Магнитная плёнка</option><option value="premiere">Премьерный зал</option><option value="shutter">Кинокамера · затвор</option><option value="editbench">Монтажный стол · шаг кадра</option><option value="sixteenmm">16 мм · мягкая трещотка</option><option value="off">Без звука</option></select><button class="kgs-play" type="button" data-kgs-reel-preview style="grid-column:1/3">▶ Прослушать выбранный звук</button></div>
+          <div class="kgs-audio"><div><div class="kgs-label">Звук поиска фильма</div><div class="kgs-sub">Восемь кинематографичных профилей на выбор</div></div><span class="kgs-badge" data-kgs-reel-sound-status></span><select class="kgs-select" data-kgs-reel-sound-select aria-label="Выбрать звук поиска фильма"><option value="projector">Проектор · щелчки</option><option value="imax">Кинозал · мягкий импульс</option><option value="camera">Кинокамера · механика</option><option value="tape">Магнитная плёнка</option><option value="premiere">Премьерный зал</option><option value="shutter">Кинокамера · затвор</option><option value="editbench">Монтажный стол · шаг кадра</option><option value="sixteenmm">16 мм · мягкая трещотка</option><option value="off">Без звука</option></select><button class="kgs-play" type="button" data-kgs-reel-preview style="grid-column:1/3">▶ Прослушать звук плёнки</button></div>
           <div class="kgs-row"><div class="kgs-rowcopy"><div class="kgs-rowtitle">Тактильный отклик</div><div class="kgs-meta">Вибрация при запуске рулетки</div></div><button class="kgs-switch" type="button" role="switch" data-kgs-fx aria-label="Тактильный отклик"></button></div>
-          <div class="kgs-inline" style="justify-content:space-between;margin-top:4px"><button class="kgs-play" type="button" data-kgs-preview>▶ Тест кинозвука</button><label class="kgs-inline"><span class="kgs-sub">Громкость</span><input class="kgs-range" type="range" min="0" max="100" disabled aria-label="Регулятор громкости появится позже"></label></div>
+          <div class="kgs-inline" style="justify-content:space-between;margin-top:4px"><button class="kgs-play" type="button" data-kgs-preview>▶ Прослушать звук глобуса</button><label class="kgs-inline"><span class="kgs-sub">Громкость</span><input class="kgs-range" type="range" min="0" max="100" disabled aria-label="Регулятор громкости появится позже"></label></div>
         </div></section>
 
         <section class="kgs-section"><h2 class="kgs-h"><span class="i">✧</span> Атмосфера кинозала и оптика</h2><div class="kgs-card">
@@ -132,7 +132,10 @@
       const badge=choice.querySelector("[data-choice-selected]");if(badge)badge.hidden=!selected;
     });
     const reelSoundSelect=$("[data-kgs-reel-sound-select]");
-    if(reelSoundSelect)reelSoundSelect.value=window.getCinemaReelSound?.()||"projector";
+    reelSoundSelect.value = window.getCinemaReelSound();
+    const reelMuted = reelSoundSelect.value === "off";
+    $("[data-kgs-reel-sound-status]").textContent = reelMuted ? "Без звука" : "Активно";
+    $("[data-kgs-reel-preview]").disabled = reelMuted;
     dialog.querySelectorAll("[data-kgs-mode]").forEach(button => {
       const active = button.dataset.kgsMode === playMode;
       button.classList.toggle("active",active);
@@ -157,10 +160,10 @@
     if (soundHost) soundHost.appendChild(soundSelect);
   }
   const reelSoundSelect=$("[data-kgs-reel-sound-select]");
-  if(reelSoundSelect){
-    reelSoundSelect.value=window.getCinemaReelSound?.()||"projector";
-    reelSoundSelect.addEventListener("change",()=>window.setCinemaReelSound?.(reelSoundSelect.value));
-  }
+  reelSoundSelect.addEventListener("change", () => {
+    window.setCinemaReelSound(reelSoundSelect.value);
+    sync();
+  });
   $(`[data-kgs-reel-preview]`).addEventListener("click",()=>window.previewFilmReelSound?.());
 
   $("[data-kgs-visibility]").addEventListener("click", () => {

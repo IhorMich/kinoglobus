@@ -218,6 +218,21 @@
 <span class="">🔞 Взрослое кино 18+</span>
 </button>
 </div>
+<!-- Country filter stays with the main genre controls and narrows the roulette search. -->
+<div class="px-3.5 pb-3.5" id="country-filter-block">
+<div class="border-t border-white/10 pt-3">
+<div class="flex items-center justify-between gap-2 mb-2">
+<label for="country-filter-search" class="flex items-center gap-2 font-label-sm text-label-sm text-on-surface font-semibold"><span class="material-symbols-outlined text-primary-container text-[18px]">public</span>Страны производства</label>
+<span id="country-filter-summary" class="font-micro-caption text-micro-caption text-text-muted">Любая страна</span>
+</div>
+<input id="country-filter-search" type="search" autocomplete="off" placeholder="Найти страну…" class="w-full h-10 px-3 mb-2 rounded-lg bg-surface-container-lowest text-label-sm text-on-surface placeholder:text-text-muted/70 outline-none border border-white/10 focus:border-primary-container/60">
+<div class="flex items-center justify-between mb-2">
+<span id="country-filter-hint" class="font-micro-caption text-micro-caption text-text-muted">Без выбора поиск идёт по всем странам</span>
+<button id="country-filter-clear" type="button" class="font-micro-caption text-micro-caption text-primary-container hover:text-primary">Сбросить</button>
+</div>
+<div id="country-filter-chips" class="flex flex-wrap gap-2 max-h-44 overflow-y-auto pr-1" aria-label="Страны производства"></div>
+</div>
+</div>
 </details>
 <!-- Accordion 2: Год и рейтинг -->
 <details class="group rounded-xl bg-surface-panel shadow-sm overflow-hidden">
@@ -1830,6 +1845,31 @@ const flag = (c, wave = true) => {
 // storage (guarded)
 const store={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},
  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const savedCountryFilters=store.get("countryFilters",[]);
+const countryFilters=new Set((Array.isArray(savedCountryFilters)?savedCountryFilters:[]).filter(c=>COUNTRIES.includes(c)));
+function paintCountryFilters(){
+  const box=$("country-filter-chips"), search=$("country-filter-search");
+  if(!box||!search)return;
+  const query=search.value.trim().toLocaleLowerCase("ru");
+  const rows=COUNTRIES.map(code=>({code,name:cname(code)}))
+    .filter(x=>!query||x.name.toLocaleLowerCase("ru").includes(query)||x.code.toLowerCase().includes(query));
+  box.innerHTML=rows.map(({code,name})=>{
+    const active=countryFilters.has(code);
+    return `<button type="button" data-country-code="${code}" aria-pressed="${active}" class="h-8 px-3 rounded-full border text-label-sm transition-colors ${active?"bg-primary-container text-on-primary-container border-primary-container font-bold":"bg-surface-container text-text-muted border-white/10 hover:text-on-surface"}">${name}</button>`;
+  }).join("")||`<span class="font-micro-caption text-text-muted">Страна не найдена</span>`;
+  const summary=$("country-filter-summary"),hint=$("country-filter-hint");
+  if(summary)summary.textContent=countryFilters.size?`Выбрано: ${countryFilters.size}`:"Любая страна";
+  if(hint)hint.textContent=countryFilters.size?"Поиск идёт по выбранным странам":"Без выбора поиск идёт по всем странам";
+}
+$("country-filter-chips").onclick=e=>{
+  const button=e.target.closest("[data-country-code]");if(!button)return;
+  const code=button.dataset.countryCode;
+  countryFilters.has(code)?countryFilters.delete(code):countryFilters.add(code);
+  store.set("countryFilters",[...countryFilters]);paintCountryFilters();if(typeof syncDesign==="function")syncDesign();
+};
+$("country-filter-search").addEventListener("input",paintCountryFilters);
+$("country-filter-clear").onclick=()=>{countryFilters.clear();store.set("countryFilters",[]);$("country-filter-search").value="";paintCountryFilters();if(typeof syncDesign==="function")syncDesign();};
+paintCountryFilters();
 let apiKey=store.get("tmdbKey","");
 let seen=new Set(store.get("seen",[]));
 let watched=store.get("watched",[]);
@@ -2063,6 +2103,9 @@ addEventListener("keydown",e=>{
 $("resetSettings").onclick=()=>{
   if(window.KGClearWatchHistory)window.KGClearWatchHistory();
   sel.clear();store.set("cats",[]);
+  countryFilters.clear();store.set("countryFilters",[]);
+  if($("country-filter-search"))$("country-filter-search").value="";
+  paintCountryFilters();
   $("year").value="";store.set("year","");$("yearTo").value="";store.set("yearTo","");
   $("rmin").value="6";store.set("rmin","6");$("rmax").value="";store.set("rmax","");paintExtraSum();
   snd="roulette";$("snd").value=snd;store.set("snd",snd);
@@ -2071,6 +2114,7 @@ $("resetSettings").onclick=()=>{
   if(reelStyle!=="35mm")window.setCinemaReelStyle("35mm");else store.set("reelStyle","35mm");
   showAdult=true;store.set("showAdult",true);applyAdultVis();
   themeId="";store.set("theme","");paintThemes();paintGo();
+  if(typeof syncDesign==="function")syncDesign();
 };
 const RATE_OPTS=["5","6","6.5","7","7.5","8","9","10"];
 $("year").value=store.get("year","");
@@ -2254,7 +2298,7 @@ function currentQuery(){
     rmin:sel.has("worst")?"":$("rmin").value,rmax:sel.has("worst")?"":$("rmax").value,
     y:years.y,yto:years.yto,
     theme:theme?theme.id:"",themeName:theme?theme.name:"",
-    countries:forcedCountryQuery?[forcedCountryQuery]:(theme?theme.cc:null)
+    countries:forcedCountryQuery?[forcedCountryQuery]:(countryFilters.size?[...countryFilters]:(theme?theme.cc:null))
   };
 }
 function yearQuery(){
@@ -2941,7 +2985,7 @@ function topQuery(){
     rmin:sel.has("worst")?"":$("rmin").value,rmax:sel.has("worst")?"":$("rmax").value,
     y:years.y,yto:years.yto,
     theme:theme?theme.id:"",themeName:theme?theme.name:"",
-    countries:theme?theme.cc:null
+    countries:countryFilters.size?[...countryFilters]:(theme?theme.cc:null)
   };
 }
 function topYear(q){
@@ -3349,7 +3393,7 @@ $("rmax").value=RO.includes(store.get("rmax",""))?store.get("rmax",""):"";
 
 // ---------- Подключение к дизайну: чипы, подборки, оценка, годы ----------
 const DET=[...document.querySelectorAll("details")];
-const gBox=DET[0].lastElementChild, rBox=DET[1].querySelector(".overflow-x-auto"), tBox=DET[2].lastElementChild;
+const gBox=DET[0].children[1], rBox=DET[1].querySelector(".overflow-x-auto"), tBox=DET[2].lastElementChild;
 const BASE="h-[34px] px-3.5 rounded-full font-label-sm text-label-sm flex items-center gap-1 transition-all ";
 function pills(box,sel,attr){
   box.innerHTML="";
@@ -3392,7 +3436,7 @@ function syncDesign(){
     c.style.background=on?"#2c2830":"#1c1822";c.style.color=on?"#ffdca8":"#e8e0ea";c.style.boxShadow=on?"0 0 10px rgba(255,184,48,.25)":"";});
   const d=$("surprise-description-text");if(d)d.textContent=SURPRISE_NOTE[surprise];
   const sums=[sumText("filterSum","Категории"),sumText("extraSum","Год и оценка"),sumText("themeSum","Тематические подборки")];
-  DET.forEach((d,i)=>{const s=d.querySelector("summary > div:last-child > span:first-child");if(s)s.textContent=i===2&&sums[2]==="Любой"?"Готовые сеты":sums[i];});
+  DET.forEach((d,i)=>{const s=d.querySelector("summary > div:last-child > span:first-child");if(s){const label=i===2&&sums[2]==="Любой"?"Готовые сеты":sums[i];s.textContent=i===0&&countryFilters.size?`${label} · ${countryFilters.size} ${plural(countryFilters.size)}`:label;}});
   if(document.activeElement!==yi[0])yi[0].value=$("year").value||"1920";
   if(document.activeElement!==yi[1])yi[1].value=$("yearTo").value||"2026";
   const cnt=document.querySelector('header a[data-path="moe-puteshestvie"] span:last-child');

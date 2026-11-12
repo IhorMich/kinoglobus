@@ -2164,7 +2164,10 @@ $("extraCard").addEventListener("toggle",()=>{
   else $("yearNote").hidden=true;
 });
 function showKeyUi(){ $("keyCard").hidden=!!apiKey; }
-function updHist(){ $("resetHist").textContent=`Сбросить историю (${seen.size})`; }
+function updHist(){
+  const resetButton = $("resetHist");
+  if (resetButton) resetButton.textContent = `Сбросить историю (${seen.size})`;
+}
 showKeyUi();updHist();
 
 $("saveKey").onclick=()=>{const v=$("key").value.trim(); if(!v)return; apiKey=v; store.set("tmdbKey",v); showKeyUi();};
@@ -4035,7 +4038,7 @@ console.info("[Kinoglobus] Bridge v6 ready");
 
 <script src="globe-visuals.js?v=3"></script>
 <script src="watch-history.js?v=8"></script>
-<script src="country-pages.js?v=11"></script>
+<script src="country-pages.js?v=12"></script>
 <script src="account-page.js?v=1"></script>
 <script src="mood-page.js?v=31"></script>
 <script src="mood-vibe-page.js?v=16"></script>

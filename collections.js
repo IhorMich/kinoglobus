@@ -648,7 +648,7 @@ ${activeVideo?`<a href="${watchUrl(activeVideo)}" target="_blank" rel="noopener 
 ${rating?`<div class="flex items-center gap-2 overflow-x-auto py-0.5">${rating}</div>`:""}
 ${countries||genres?`<div class="flex flex-wrap items-center gap-x-2.5 gap-y-1 font-body-sm text-body-sm text-text-muted">${countries?`<span class="text-on-surface">${countries}</span>`:""}${countries&&genres?"<span>•</span>":""}${genres?`<span class="text-on-surface-variant">${esc(genres)}</span>`:""}</div>`:""}
 <div class="flex items-center gap-2 font-body-sm text-body-sm"><span class="text-text-muted">Язык оригинала</span><span class="text-on-surface-variant">${f.originalLang?esc(typeof langName==="function"?langName(f.originalLang):f.originalLang):f._detailsLoaded?"—":"Загружаем…"}</span></div>
-<button type="button" data-film-watched="${f.id}" aria-pressed="${watched}" class="w-full min-h-11 px-4 rounded-xl flex items-center justify-center gap-2 font-label-md text-label-md font-semibold transition-all ${watched?"bg-cinema-velvet-deep text-secondary-fixed":"bg-surface-container-high text-on-surface hover:text-primary"}"><span class="material-symbols-outlined text-[18px]">${watched?"task_alt":"check_circle"}</span><span>${watched?"Просмотрено ✓":"Посмотрел"}</span></button>
+<button type="button" data-film-watched="${f.id}" aria-pressed="${watched}" class="w-full min-h-11 px-4 rounded-xl flex items-center justify-center gap-2 font-label-md text-label-md font-semibold transition-all ${watched?"bg-cinema-velvet-deep text-secondary-fixed":"bg-surface-container-high text-on-surface hover:text-primary"}"><span class="material-symbols-outlined text-[18px] ${watched?"text-secondary-fixed":"text-primary-container"}">${watched?"task_alt":"check_circle"}</span><span>${watched?"Просмотрено ✓":"Посмотрел"}</span></button>
 ${f.tagline&&f.taglineLang===f.overviewLang?`<blockquote class="italic font-headline-sm text-[15px] leading-tight text-primary-fixed-dim/90">«${esc(f.tagline)}»</blockquote>`:""}
 ${oscarBlock}
 <div data-kg-film-description class="p-4 rounded-xl bg-surface-container flex flex-col gap-2"><span class="font-label-md text-label-md text-primary-fixed tracking-wide uppercase">О фильме</span><p class="font-body-md text-body-md text-on-surface leading-relaxed">${esc(f.overview||"Загружаем описание…")}</p></div>
@@ -666,12 +666,10 @@ document.addEventListener("click",e=>{
   if(watchedButton){
     e.preventDefault();e.stopPropagation();
     const film=D.selected&&String(D.selected.id)===watchedButton.dataset.filmWatched?D.selected:null;
-    if(!film||watchedButton.dataset.saving==="true"||window.KGIsFilmWatched?.(film.id))return;
-    watchedButton.dataset.saving="true";watchedButton.setAttribute("aria-pressed","true");
-    watchedButton.classList.remove("bg-surface-container-high","text-on-surface","hover:text-primary");
-    watchedButton.classList.add("bg-cinema-velvet-deep","text-secondary-fixed");
-    watchedButton.innerHTML='<span class="material-symbols-outlined text-[18px]">task_alt</span><span>Просмотрено ✓</span>';
-    Promise.resolve(window.KGMarkWatched?.({...film,_cc:film._cc||film.cc||""})).then(ok=>{if(!ok)throw new Error("Не удалось сохранить просмотр");if(D.selected===film)renderSelectedPanel();}).catch(error=>{console.warn("[Kinoglobus] Не удалось отметить фильм просмотренным:",error);watchedButton.dataset.saving="false";});
+    if(!film||watchedButton.dataset.saving==="true"||!window.KGToggleWatched)return;
+    const next=!window.KGIsFilmWatched?.(film.id);watchedButton.dataset.saving="true";
+    window.KGPaintWatchedButton?.(watchedButton,next,"Посмотрел");
+    Promise.resolve(window.KGToggleWatched({...film,_cc:film._cc||film.cc||""})).then(result=>{if(result!==next)throw new Error("Не удалось обновить отметку просмотра");if(D.selected&&String(D.selected.id)===String(film.id))renderSelectedPanel();}).catch(error=>{console.warn("[Kinoglobus] Не удалось обновить просмотр:",error);watchedButton.dataset.saving="false";window.KGPaintWatchedButton?.(watchedButton,!!window.KGIsFilmWatched?.(film.id),"Посмотрел");});
     return;
   }
   const bookmark=e.target.closest('[data-act="bm"]');
@@ -1387,6 +1385,7 @@ const refreshForNewKey=()=>{
 };
 $("tmdb-key-save").addEventListener("click",refreshForNewKey);
 $("saveKey").addEventListener("click",()=>setTimeout(refreshForNewKey,0));
+document.addEventListener("kg:watched-change",()=>{if(D.selected)renderSelectedPanel();});
 const savedHome=store.get("kgHomeEditorial",null);
 if(savedHome&&Array.isArray(savedHome.films)&&savedHome.films.length){
   homeEditorial.films=savedHome.films;

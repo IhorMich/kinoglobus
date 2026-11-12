@@ -9,7 +9,8 @@
     {id:"mystery",icon:"hotel_class",image:"https://lh3.googleusercontent.com/aida-public/AB6AXuD0er0jYtdzGz61j8Um3CFE-q_pdWehAddrFc5NX-3iUjtjqJxrQ8z-vCwpB8niJYSCgdDJvuqB1aiz7mPsF1HgBRcvWePuh-SsNO-gQDABd83z5czpnUcN1_UqLen3y_6K9hhFV-ywQXo3GUZJyUuC17HhOHrFkI7_lMb47EOHjq12EN1yaPiPhn7Cp6bLSKa5ayxdblXetBdmisGeCuX7ZBv4ylGYgWhnAKbvMEB1",title:"«Тайна до финальных титров»",tag:"#Загадка #Интрига",description:"Улики, подозреваемые и загадка, которую захочется разгадать раньше героев.",countries:["GB","US","KR","FR"],genres:[9648,53,80],labels:["🇬🇧 Великобритания","🇰🇷 Южная Корея","🇺🇸 США"],genreLabel:"Детектив · Триллер"},
     {id:"fantasy",icon:"auto_awesome",image:"https://lh3.googleusercontent.com/aida-public/AB6AXuDEhUTpXNYyH9V1RZhKQKF9_FgK9l2fDx-n3cAwoEnXU9TewodM61SVvL8vvjWCudTcPnY1RGEjtbUi_L5RDxWbcp7_dMLSSm4eq3Vlq5ZMaqNqdVB5qhUZJLYztkLn0iIj-3vQcQ5IUTX6OlJ2s16X6EFXLbsrinadSDBr8pL-FdqEqT__tUYK0oyjGLMfSXo9n4o1dkyHwZe1zukuRRfrHvhVP-8apgPQXTgybo5Q",title:"«В другой мир»",tag:"#Приключение #Магия",description:"Путешествие в необычные миры, где за горизонтом начинаются настоящие приключения.",countries:["NZ","GB","US","JP"],genres:[12,14,10751],labels:["🇳🇿 Новая Зеландия","🇬🇧 Великобритания","🇯🇵 Япония"],genreLabel:"Фэнтези · Приключения"},
     {id:"laughs",icon:"sentiment_satisfied",image:"https://lh3.googleusercontent.com/aida-public/AB6AXuDOVdK3UFCUn-xY7cFngnjIz0nPGELS0cUgRfO7am3EsHL_YhySn3Dme4dJseK-vuejRUKC-J9TF-2mSDvVTblvZZb1afcxRDlw7b1yBOmhd2fvR8uUxTtfJIZw-2KvFDJiIzqg5V7q5OcUrTFbYJVICLjOUyZqPbaNAQ-nshva5VBkPBgGJkL1VWN5zsRpGNT2JtG0d4YH7L3GfSMzcmMlNC7HCKwTo44y0h20myl6",title:"«Вечер без забот»",tag:"#Комедия #Лёгкость",description:"Остроумные диалоги и комичные ситуации, чтобы просто расслабиться и посмеяться.",countries:["FR","IT","US","GB"],genres:[35],labels:["🇫🇷 Франция","🇮🇹 Италия","🇺🇸 США"],genreLabel:"Комедия"},
-    {id:"animation",icon:"palette",image:"https://lh3.googleusercontent.com/aida-public/AB6AXuA7XeKmR4NcdscQ5cY6uHSLGrqpmKK4puQns6A475PweY7SRLBMbpUc-ttlveea6uepgUzA7qfzwyY2ctZVVnM-ksU8ZuVCzILvdRkUg_Dpe1cHo7JuvlHCKS7fehVmYe_FpElITk9FvPJ7w8HGQsp-CLNqrmMoMotkiaHGLd2z0ow80TTqsEaOGKHu0yQVKMnoeRVQNFc-3bDS1OqyBQa0B-YMSjmgtf_10V8BEMuo",title:"«Красивые миры анимации»",tag:"#Анимация #Вдохновение",description:"Визуально яркие истории для любого возраста — от волшебных приключений до трогательных драм.",countries:["JP","US","FR","GB"],genres:[16,14,10751],labels:["🇯🇵 Япония","🇺🇸 США","🇫🇷 Франция"],genreLabel:"Анимация · Фэнтези"}
+    {id:"animation",icon:"palette",image:"https://lh3.googleusercontent.com/aida-public/AB6AXuA7XeKmR4NcdscQ5cY6uHSLGrqpmKK4puQns6A475PweY7SRLBMbpUc-ttlveea6uepgUzA7qfzwyY2ctZVVnM-ksU8ZuVCzILvdRkUg_Dpe1cHo7JuvlHCKS7fehVmYe_FpElITk9FvPJ7w8HGQsp-CLNqrmMoMotkiaHGLd2z0ow80TTqsEaOGKHu0yQVKMnoeRVQNFc-3bDS1OqyBQa0B-YMSjmgtf_10V8BEMuo",title:"«Красивые миры анимации»",tag:"#Анимация #Вдохновение",description:"Визуально яркие истории для любого возраста — от волшебных приключений до трогательных драм.",countries:["JP","US","FR","GB"],genres:[16,14,10751],labels:["🇯🇵 Япония","🇺🇸 США","🇫🇷 Франция"],genreLabel:"Анимация · Фэнтези"},
+    ...window.KGMoodVibeAdditions.cards.map(card => ({...card}))
   ];
   const runtimes=[
     {id:"any",label:"Любой хронометраж",button:"любая длительность",icon:"all_inclusive",test:()=>true},
@@ -147,16 +148,19 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
     const mix=a=>{const r=[...a];for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]];}return r;};
     try{
       const mood=currentMood();
-      const base=cc=>({with_origin_country:cc,with_genres:mood.genres.join("|"),"vote_count.gte":30,"vote_average.gte":5.5,sort_by:"popularity.desc",include_adult:"false"});
       if(!state.jobs){
+        const filters = await window.KGMoodVibeAdditions.discoverFilters(mood, deps.searchKeywords);
+        if(token!==state.token||key!==state.mood)return;
+        const base=cc=>({with_origin_country:cc,...filters,"vote_count.gte":30,"vote_average.gte":5.5,sort_by:"popularity.desc",include_adult:"false"});
         const firsts=await Promise.allSettled(mood.countries.map(cc=>deps.api({...base(cc),page:1})));
         if(token!==state.token||key!==state.mood)return;
         const jobs=[];
         firsts.forEach((r,i)=>{
           if(r.status!=="fulfilled")return;
           const cc=mood.countries[i],pages=Math.min(r.value.total_pages||1,4);
-          jobs.push({cc,page:1,data:r.value});
-          for(let p=2;p<=pages;p++)jobs.push({cc,page:p,data:null});
+          const params = base(cc);
+          jobs.push({cc,params,page:1,data:r.value});
+          for(let p=2;p<=pages;p++)jobs.push({cc,params,page:p,data:null});
         });
         if(!jobs.length){
           const bad=firsts.find(r=>r.status==="rejected");
@@ -167,7 +171,7 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
       let detailFailures=0,attempted=0;
       while(state.page<state.jobs.length&&filtered().length<targetCount){
         const job=state.jobs[state.page];
-        const result=job.data||await deps.api({...base(job.cc),page:job.page});
+        const result=job.data||await deps.api({...job.params,page:job.page});
         if(token!==state.token||key!==state.mood)return;
         job.data=null;
         const candidates=(result.results||[]).filter(f=>f.poster_path&&!state.films.some(item=>item.id===f.id));

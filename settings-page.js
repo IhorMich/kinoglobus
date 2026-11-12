@@ -22,7 +22,7 @@
     .kgs-note{margin:6px 2px 0;color:#9c91a2;font-size:9px;line-height:1.45}.kgs-label{font-size:10px;color:#d8ccdc}.kgs-sub{font-size:9px;line-height:1.4;color:#9f94a6;margin-top:3px}.kgs-row{display:flex;align-items:center;gap:8px;min-height:39px;padding:6px 2px}.kgs-row+.kgs-row{border-top:1px solid #ffffff09}.kgs-rowcopy{min-width:0;flex:1}.kgs-rowtitle{font-size:10px;font-weight:650;line-height:1.3}.kgs-meta{color:#96899e;font-size:8px;margin-top:2px;line-height:1.3}.kgs-badge{margin-left:auto;padding:3px 6px;border-radius:99px;background:#49341b;color:#ffc45b;font-size:8px;white-space:nowrap}.kgs-badge.gray{background:#302a38;color:#a89db0}.kgs-badge.pink{background:#452137;color:#ffb1c5}
     .kgs-apihead{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}.kgs-lamp{font-size:8px;color:#ffbe50}.kgs-lamp.on{color:#73dda4}.kgs-keywrap{display:flex;align-items:center;gap:5px}.kgs-input{box-sizing:border-box;min-width:0;flex:1;height:34px;padding:0 10px;border:1px solid #413649;border-radius:9px;background:#100d14;color:#eee6f2;font-family:inherit;font-size:10px;outline:none}.kgs-input:focus{border-color:#d9912a}.kgs-iconbtn,.kgs-ok{height:31px;display:grid;place-items:center;border:0;border-radius:8px;cursor:pointer}.kgs-iconbtn{width:31px;background:#302a37;color:#ddd0e5}.kgs-ok{width:36px;background:#c58a27;color:#171016;font-size:10px;font-weight:800}.kgs-actions{display:flex;gap:6px;margin-top:8px}.kgs-btn{min-height:30px;flex:1;padding:6px 8px;border:1px solid #ffffff10;border-radius:9px;background:#2a2332;color:#e7deeb;font-family:inherit;font-size:9px;font-weight:600;cursor:pointer}.kgs-btn.primary{border-color:#ffba3040;background:linear-gradient(100deg,#d98f12,#ffc35a);color:#21150b}.kgs-btn.danger{border-color:#a3495866;background:#40222e;color:#ffc1c6}.kgs-btn:disabled{opacity:.42;cursor:not-allowed}
     .kgs-choice{position:relative;display:grid;grid-template-columns:28px minmax(0,1fr) auto 12px;align-items:center;gap:7px;min-height:39px;margin:4px 0;padding:5px 7px;border:1px solid #ffffff0b;border-radius:10px;background:#ffffff04}.kgs-choice[data-kgs-reel-style]{cursor:pointer;transition:border-color .16s,background .16s}.kgs-choice[data-kgs-reel-style]:hover{border-color:#d29a4966;background:#29221e}.kgs-choice[data-kgs-reel-style]:focus-visible{outline:2px solid var(--gold);outline-offset:2px}.kgs-choice.selected{border-color:#d29a493d;background:#29221e}.kgs-reel{display:grid;place-items:center;width:27px;height:27px;border-radius:7px;background:#332a37;color:#e6c68a;font-size:14px}.kgs-choice.selected .kgs-reel{background:#49331c;color:#ffd372}.kgs-radio{width:10px;height:10px;border:1px solid #776b7f;border-radius:50%}.kgs-choice.selected .kgs-radio{border:3px solid var(--gold);background:#fff1c6}.kgs-sel{padding:2px 5px;border-radius:4px;background:#684721;color:#ffd58a;font-size:7px}.kgs-disabled{opacity:.64}
-    .kgs-select{width:100%;height:33px;padding:0 9px;border:1px solid #3b3242;border-radius:8px;background:#120f16;color:#eee5f2;font-family:inherit;font-size:10px}.kgs-audio{display:grid;grid-template-columns:1fr auto;align-items:center;gap:8px;padding:6px 2px}.kgs-audio+.kgs-audio{border-top:1px solid #ffffff09}.kgs-audio .kgs-select{grid-column:1/3}.kgs-play{height:28px;padding:0 8px;border:1px solid #59452b;border-radius:8px;background:#30251b;color:#ffcf74;font-size:9px;cursor:pointer}.kgs-range{width:72px;accent-color:#ffb830}.kgs-inline{display:flex;align-items:center;gap:5px}
+    .kgs-select{width:100%;height:33px;padding:0 9px;border:1px solid #3b3242;border-radius:8px;background:#120f16;color:#eee5f2;font-family:inherit;font-size:10px}.kgs-audio{display:grid;grid-template-columns:1fr auto;align-items:center;gap:8px;padding:6px 2px}.kgs-audio+.kgs-audio{border-top:1px solid #ffffff09}.kgs-audio .kgs-select,.kgs-sound-host{grid-column:1/-1}.kgs-play{height:28px;padding:0 8px;border:1px solid #59452b;border-radius:8px;background:#30251b;color:#ffcf74;font-size:9px;cursor:pointer}.kgs-range{width:72px;accent-color:#ffb830}.kgs-inline{display:flex;align-items:center;gap:5px}
     .kgs-switch{position:relative;flex:none;width:34px;height:19px;padding:2px;border:0;border-radius:99px;background:#49434e;cursor:pointer}.kgs-switch:after{content:'';display:block;width:15px;height:15px;border-radius:50%;background:#d9d1dd;transition:transform .18s}.kgs-switch[aria-checked="true"]{background:#d98e11}.kgs-switch[aria-checked="true"]:after{transform:translateX(15px);background:#fff0c2}.kgs-switch:disabled{opacity:.35;cursor:not-allowed}
     .kgs-mode{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border-radius:9px;background:#141018}.kgs-mode button{min-height:28px;border:0;border-radius:7px;background:transparent;color:#a89caf;font-size:9px;cursor:pointer}.kgs-mode button.active{background:#d89015;color:#1d140a;font-weight:800;box-shadow:0 2px 9px #d8901530}.kgs-chips{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:7px}.kgs-chip{padding:5px 2px;border:1px solid #ffffff0d;border-radius:6px;background:#201b27;color:#a99eaf;font-size:8px}.kgs-chip:disabled{opacity:.58}
     .kgs-progresshead{display:flex;justify-content:space-between;align-items:center;font-size:9px;color:#d9ccdf}.kgs-track{height:5px;margin:7px 0;border-radius:9px;background:#342c39;overflow:hidden}.kgs-track i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#e18b12,#ffd06e)}.kgs-progressmeta{display:flex;justify-content:space-between;color:#92879b;font-size:8px}.kgs-map{display:flex;align-items:center;gap:9px;width:100%;margin-top:9px;padding:8px;border:1px solid #4c3d2c;border-radius:9px;background:#29221d;color:#f1d9aa;text-align:left;cursor:pointer}.kgs-map .i{color:#ffc24e;font-size:16px}.kgs-map span:nth-child(2){flex:1}.kgs-warning{padding:7px;border-radius:8px;background:#38222a;color:#d6aab1;font-size:8px;line-height:1.4;margin:7px 0}.kgs-foot{padding:9px 5px 2px;text-align:center;color:#7e7487;font-size:8px;line-height:1.6}.kgs-github{color:#d0bfdf;text-decoration:underline;text-underline-offset:2px}
@@ -42,6 +42,7 @@
   document.head.appendChild(style);
 
   dialog.className = "kgs-dialog";
+  const soundSelect = document.getElementById("snd");
   dialog.innerHTML = `
     <div class="kgs-shell">
       <header class="kgs-head"><button class="kgs-back" type="button" data-kgs-close aria-label="Назад">←</button><div class="kgs-title">Настройки приложения <small>Настройки КиноГлобуса</small></div><span class="kgs-badge" style="margin-left:auto">✦ VIP</span><span style="color:#ffcf7a;font-size:17px">◉</span></header>
@@ -72,7 +73,7 @@
         </div></section>
 
         <section class="kgs-section"><h2 class="kgs-h"><span class="i">♫</span> Звуковой режиссёрский пульт </h2><div class="kgs-card">
-          <div class="kgs-audio"><div><div class="kgs-label">Звук вращения КиноГлобуса</div><div class="kgs-sub">Сопровождение выбора страны</div></div><span class="kgs-badge gray">Активно</span><div data-kgs-sound></div></div>
+          <div class="kgs-audio"><div><div class="kgs-label">Звук вращения КиноГлобуса</div><div class="kgs-sub">Сопровождение выбора страны</div></div><span class="kgs-badge gray" data-kgs-globe-sound-status></span><div class="kgs-sound-host" data-kgs-sound></div></div>
           <div class="kgs-audio"><div><div class="kgs-label">Звук поиска фильма</div><div class="kgs-sub">Восемь кинематографичных профилей на выбор</div></div><span class="kgs-badge">Активно</span><select class="kgs-select" data-kgs-reel-sound-select aria-label="Выбрать звук поиска фильма"><option value="projector">Проектор · щелчки</option><option value="imax">Кинозал · мягкий импульс</option><option value="camera">Кинокамера · механика</option><option value="tape">Магнитная плёнка</option><option value="premiere">Премьерный зал</option><option value="shutter">Кинокамера · затвор</option><option value="editbench">Монтажный стол · шаг кадра</option><option value="sixteenmm">16 мм · мягкая трещотка</option><option value="off">Без звука</option></select><button class="kgs-play" type="button" data-kgs-reel-preview style="grid-column:1/3">▶ Прослушать выбранный звук</button></div>
           <div class="kgs-row"><div class="kgs-rowcopy"><div class="kgs-rowtitle">Тактильный отклик</div><div class="kgs-meta">Вибрация при запуске рулетки</div></div><button class="kgs-switch" type="button" role="switch" data-kgs-fx aria-label="Тактильный отклик"></button></div>
           <div class="kgs-inline" style="justify-content:space-between;margin-top:4px"><button class="kgs-play" type="button" data-kgs-preview>▶ Тест кинозвука</button><label class="kgs-inline"><span class="kgs-sub">Громкость</span><input class="kgs-range" type="range" min="0" max="100" disabled aria-label="Регулятор громкости появится позже"></label></div>
@@ -119,6 +120,9 @@
     $("[data-kgs-left]").textContent = `Осталось ${Math.max(0,total-opened)}`;
     $("[data-kgs-progress]").style.width = `${Math.round(opened/total*100)}%`;
     $("[data-kgs-warning]").textContent = `Очистка истории снимет отметки со всех ${opened} открытых стран и просмотренных фильмов.`;
+    const globeMuted = snd === "off";
+    $("[data-kgs-globe-sound-status]").textContent = globeMuted ? "Без звука" : "Активно";
+    $("[data-kgs-preview]").disabled = globeMuted;
     switchState($("[data-kgs-fx]"), fx);
     switchState($("[data-kgs-adult]"), showAdult);
     dialog.querySelectorAll("[data-kgs-reel-style]").forEach((choice)=>{
@@ -141,7 +145,6 @@
     sync();
   };
 
-  const soundSelect = document.getElementById("snd");
   const labels = {roulette:"Трещотка бобины",bells:"Колокольчики",arcade:"Аркада",casino:"Казино",marimba:"Маримба",space:"Космос",film:"Киноплёнка",orchestra:"Оркестр",jazz:"Джаз",synth:"Синтезатор",chimes:"Звон",off:"Без звука",imax:"Кинозал · низкий гул"};
   if (soundSelect) {
     [...soundSelect.options].forEach((option) => { option.textContent = labels[option.value] || option.textContent; });
@@ -182,13 +185,13 @@
     } catch (error) { message.textContent = `Не удалось проверить соединение: ${error.message}`; }
   });
 
-  $("[data-kgs-fx]").addEventListener("click", () => { document.getElementById("fx").click(); sync(); });
+  $("[data-kgs-fx]").addEventListener("click", () => { toggleVibration(); sync(); });
   dialog.querySelectorAll("[data-kgs-reel-style]").forEach((choice)=>{
     const select=()=>{window.setCinemaReelStyle(choice.dataset.kgsReelStyle);sync();};
     choice.addEventListener("click",select);
     choice.addEventListener("keydown",event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();select();}});
   });
-  $("[data-kgs-adult]").addEventListener("click", () => { document.getElementById("adultVis").click(); sync(); });
+  $("[data-kgs-adult]").addEventListener("click", () => { toggleAdultGenres(); sync(); });
   $("[data-kgs-mode=filters]").addEventListener("click", () => { document.getElementById("modeFilters").click(); sync(); });
   $("[data-kgs-mode=surprise]").addEventListener("click", () => { document.getElementById("modeSurprise").click(); sync(); });
   $("[data-kgs-preview]").addEventListener("click", () => { try { preview(); } catch (_) {} });

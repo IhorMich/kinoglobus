@@ -27,6 +27,27 @@
       description: "Попутчики, придорожные мотели и пейзажи за окном. Иногда дорога меняет всё.",
       countries: ["US", "FR", "DE", "AU"], genres: [18, 35, 12], keywords: ["road trip"],
       labels: ["🇺🇸 США", "🇫🇷 Франция", "🇩🇪 Германия", "🇦🇺 Австралия"], genreLabel: "Роуд-муви"
+    },
+    {
+      id: "awkward-comedy", icon: "theater_comedy", image: "assets/vibes/awkward-comedy.jpg", imagePosition: "50% 41%",
+      title: "«Неловко, но смешно»", tag: "#Сатира #ЧёрныйЮмор",
+      description: "Неловкие ужины, неуместные реплики и герои, которые сами загоняют себя в угол.",
+      countries: ["GB", "US", "FR", "SE"], genres: [35], keywords: ["dark comedy", "black humor", "satire"],
+      labels: ["🇬🇧 Великобритания", "🇺🇸 США", "🇫🇷 Франция", "🇸🇪 Швеция"], genreLabel: "Чёрная комедия · Сатира"
+    },
+    {
+      id: "deep-space", icon: "rocket_launch", image: "assets/vibes/deep-space.jpg", imagePosition: "50% 53%",
+      title: "«Далеко от Земли»", tag: "#Космос #НаучнаяФантастика",
+      description: "Одиночество на орбите, дальние экспедиции и первый контакт.",
+      countries: ["US", "GB", "CA", "JP"], genres: [878], keywords: ["space travel", "astronaut", "space station", "first contact"],
+      labels: ["🇺🇸 США", "🇬🇧 Великобритания", "🇨🇦 Канада", "🇯🇵 Япония"], genreLabel: "Научная фантастика"
+    },
+    {
+      id: "last-second", icon: "timer", image: "assets/vibes/last-second.jpg", imagePosition: "50% 78%",
+      title: "«До последней секунды»", tag: "#Триллер #ГонкаСоВременем",
+      description: "Срок истекает. Один неверный шаг может всё изменить.",
+      countries: ["US", "GB", "KR", "FR"], genres: [53], keywords: ["race against time", "hostage", "countdown"],
+      labels: ["🇺🇸 США", "🇬🇧 Великобритания", "🇰🇷 Южная Корея", "🇫🇷 Франция"], genreLabel: "Триллер"
     }
   ];
 
@@ -66,6 +87,33 @@
       effect: ["explore", "Свобода"], projector: "Дорожный кинопроектор", spin: "Крутить этот вайб (Случайное роуд-муви)",
       chips: [["route", "text-primary", "Открытая дорога"], ["group", "text-secondary", "Попутчики"], ["landscape", "text-primary-fixed-dim", "Пейзажи"], ["explore", "text-tertiary", "Новые маршруты"]],
       coll: "Фильмы в дороге", sub: "Поездки, которые меняют планы и людей", short: "В дорогу", shortSub: "Роуд-муви"
+    },
+    "awkward-comedy": {
+      crumb: "Сатира и неловкость", pill: "НЕЛОВКО, НО СМЕШНО",
+      badge: ["theater_comedy", "Чёрный юмор"], tags: ["#Сатира", "#ЧёрныйЮмор", "#Неловкость", "#Абсурд"],
+      heading: "Неловко, но смешно",
+      hero: "За парадным столом разговор заходит слишком далеко. Сатира и чёрные комедии о людях, которые сами создают себе проблемы.",
+      effect: ["theater_comedy", "Ирония"], projector: "Кинопроектор сатиры", spin: "Крутить этот вайб (Случайная сатира)",
+      chips: [["restaurant", "text-primary", "Неловкие ужины"], ["chat_bubble", "text-secondary", "Колкие реплики"], ["theater_comedy", "text-primary-fixed-dim", "Чёрный юмор"], ["groups", "text-tertiary", "Социальная сатира"]],
+      coll: "Комедии с неудобными моментами", sub: "Чёрный юмор и сатира", short: "Неловко", shortSub: "Чёрный юмор"
+    },
+    "deep-space": {
+      crumb: "Космос и первый контакт", pill: "ДАЛЕКО ОТ ЗЕМЛИ",
+      badge: ["rocket_launch", "В открытом космосе"], tags: ["#Космос", "#Орбита", "#ПервыйКонтакт", "#Экспедиции"],
+      heading: "Далеко от Земли",
+      hero: "На орбите каждый выход из корабля меняет перспективу. Фильмы о дальних миссиях, одиночестве и встречах с неизвестным.",
+      effect: ["explore", "Удивление"], projector: "Космический кинопроектор", spin: "Крутить этот вайб (Случайная фантастика)",
+      chips: [["rocket_launch", "text-primary", "Дальние миссии"], ["satellite_alt", "text-secondary", "Орбитальные станции"], ["public", "text-primary-fixed-dim", "Другие планеты"], ["sensors", "text-tertiary", "Первый контакт"]],
+      coll: "Фильмы о космосе", sub: "Научная фантастика об орбите и дальних экспедициях", short: "Космос", shortSub: "Фантастика"
+    },
+    "last-second": {
+      crumb: "Гонка со временем", pill: "ДО ПОСЛЕДНЕЙ СЕКУНДЫ",
+      badge: ["timer", "Время на исходе"], tags: ["#Триллер", "#Дедлайн", "#Переговоры", "#Выживание"],
+      heading: "До последней секунды",
+      hero: "Телефон вот-вот замолчит, срок истекает, а правильного решения всё ещё нет. Триллеры, где напряжение держится на выборе героев.",
+      effect: ["timer", "Напряжение"], projector: "Кинопроектор триллеров", spin: "Крутить этот вайб (Случайный триллер)",
+      chips: [["timer", "text-primary", "Обратный отсчёт"], ["forum", "text-secondary", "Переговоры"], ["shield", "text-primary-fixed-dim", "Спасти других"], ["gavel", "text-tertiary", "Трудный выбор"]],
+      coll: "Триллеры против времени", sub: "Фильмы, в которых важна каждая секунда", short: "До секунды", shortSub: "Триллер"
     }
   };
 

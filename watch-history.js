@@ -90,7 +90,7 @@
 
   window.KGResetWatchedButton = () => {
     const button = document.getElementById('btn-watched');
-    if (button) { if (window.KGPaintWatchedButton) window.KGPaintWatchedButton(button, false, 'Посмотрел'); else { button.innerHTML = '<span class="material-symbols-outlined text-[18px] text-primary-container">check_circle</span><span>Посмотрел</span>'; button.disabled = false; button.setAttribute('aria-pressed', 'false'); } }
+    window.KGPaintWatchedButton(button, false);
   };
 
   document.addEventListener('click', event => {

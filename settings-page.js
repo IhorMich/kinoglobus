@@ -195,10 +195,16 @@
 
   $("[data-kgs-atlas]").addEventListener("click", () => { close(); document.getElementById("mapBtn").click(); });
   $("[data-kgs-history]").addEventListener("click", () => {
-    if (confirm("Сбросить историю открытых стран и просмотренных фильмов?")) { document.getElementById("resetHist").click(); sync(); }
+    if (confirm("Очистить историю просмотра и список открытых стран? Закладки сохранятся.")) {
+      window.KGClearWatchHistory();
+      sync();
+    }
   });
   $("[data-kgs-reset]").addEventListener("click", () => {
-    if (confirm("Сбросить все настройки приложения к значениям по умолчанию?")) { document.getElementById("resetSettings").click(); sync(); }
+    if (confirm("Вернуть настройки к значениям по умолчанию? История, закладки и ключ TMDB сохранятся.")) {
+      window.KGResetSettings();
+      sync();
+    }
   });
   $("[data-kgs-tab=globe]").addEventListener("click", () => { close(); window.scrollTo({top:0,behavior:"smooth"}); });
   $("[data-kgs-tab=collections]").addEventListener("click", () => { close(); const link=document.querySelector('[data-path="podborki-i-zhanry"]'); if(link)link.click(); });

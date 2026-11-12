@@ -585,13 +585,14 @@ function renderFilms(){
   const keepScroll=()=>{if(anchorId==null)return;
     const el=[...box.querySelectorAll('[data-act="open"]')].find(e=>String(e.dataset.id)===String(anchorId));
     if(el){const d=el.getBoundingClientRect().top-anchorTop;if(d)window.scrollBy(0,d);}};
-  if(!best){box.innerHTML=(selectedInList?selectedFilmHtml(D.selected):"")+'<p class="font-body-sm text-body-sm text-text-muted px-1">Подходящих фильмов не нашлось.</p>';return;}
+  if(!best){box.innerHTML=(selectedInList?selectedFilmHtml(D.selected):"")+'<p class="font-body-sm text-body-sm text-text-muted px-1">Подходящих фильмов не нашлось.</p>';paintWatchedButtons(box);return;}
   const list=rest.slice(0,D.shown);
   const pearl=pearlHtml(best,selectedInList&&String(D.selected.id)===String(best.id)?D.selected:null);
   box.innerHTML=pearl+
   `<div class="flex flex-col gap-space-sm"><div class="flex items-center justify-between px-1"><h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">Отобранные шедевры</h3><span class="font-micro-caption text-micro-caption text-text-muted">${list.length} из ${nf(Math.max(totalFor(),list.length+1))}</span></div>
   <div class="flex flex-col gap-space-sm">${list.map(f=>filmItem(f)).join("")}</div>
   ${rest.length>D.shown?`<button type="button" data-act="more" class="w-full py-3 rounded-xl bg-surface-panel hover:bg-surface-container-low text-primary text-center font-label-md text-label-md font-semibold flex items-center justify-center gap-2 transition-colors shadow-sm"><span class="material-symbols-outlined text-[18px]">expand_more</span><span>Показать ещё</span></button>`:""}</div>`;
+  paintWatchedButtons(box);
   keepScroll();
   [best,...list].forEach(f=>filmDetails(f.id).then(d=>{
     const rt=vd.querySelectorAll(`[data-rt="${f.id}"]`),dr=vd.querySelectorAll(`[data-dir="${f.id}"]`);
@@ -784,6 +785,7 @@ function placeInner(box,sel){
   open.parentElement.insertAdjacentHTML("beforeend",html);
   return true;
 }
+function paintWatchedButtons(container){container?.querySelectorAll("[data-film-watched]").forEach(button=>{const id=button.dataset.filmWatched;window.KGPaintWatchedButton?.(button,!!window.KGIsFilmWatched?.(id),"Посмотрел");});}
 function renderSelectedPanel(){
   const selected=D.selected;if(!selected)return;
   if(selected._trailerPlaying&&document.querySelector(`[data-selected-film="${selected.id}"] #cl-inline-trailer iframe`))return;
@@ -795,24 +797,24 @@ function renderSelectedPanel(){
   const html=selectedFilmHtml(selected,inMoodList||inOscarList||selected._placement==="oscar-related"||selected._placement==="person-related"||selected._placement==="search");
   if(selected._placement==="mood"||selected._placement==="oscar"||selected._placement==="related"||selected._placement==="oscar-related"||selected._placement==="person-related"||selected._placement==="search"){
     const target=$(selected._detailTarget)||(selected._placement==="mood"?$("mood-film-detail"):$("oscar-film-detail"));
-    if(target)target.innerHTML=html;
+    if(target){target.innerHTML=html;paintWatchedButtons(target);}
     return;
   }
   if(selected._placement==="home"){
     const film=homeEditorial.films.find(f=>String(f.id)===String(selected.id));
     if(film){
       homeEditorial.featureDetails={...homeEditorial.featureDetails,...selected};
-      $("kg-home-feature").innerHTML=homeFeatureMarkup(film,homeEditorial.featureDetails,selected);
+      $("kg-home-feature").innerHTML=homeFeatureMarkup(film,homeEditorial.featureDetails,selected);paintWatchedButtons($("kg-home-feature"));
     }
     return;
   }
   if(selected._placement==="home-europe"){
     const detail=$("kg-home-europe-detail");
-    if(detail){detail.innerHTML=html;detail.hidden=false;}
+    if(detail){detail.innerHTML=html;detail.hidden=false;paintWatchedButtons(detail);}
     return;
   }
   if(selected._placement==="roulette"){
-    const result=$("cl-result");if(result)result.innerHTML=html;
+    const result=$("cl-result");if(result){result.innerHTML=html;paintWatchedButtons(result);}
     return;
   }
   renderFilms();

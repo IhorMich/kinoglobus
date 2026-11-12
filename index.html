@@ -45,7 +45,9 @@
       0% { transform: translateX(-100%); }
       100% { transform: translateX(200%); }
     }
-  </style><script src="cinema-reel.js?v=32"></script></head><body class="bg-canvas-obsidian font-body-md text-on-surface flex flex-col min-h-screen relative">
+  </style><script src="cinema-reel.js?v=32"></script><link rel="stylesheet" href="watched-button.css?v=1">
+<script src="watched-button.js?v=1"></script>
+</head><body class="bg-canvas-obsidian font-body-md text-on-surface flex flex-col min-h-screen relative">
 <!-- Atmospheric Living Theater Background Layer with Floating Posters -->
 <div class="fixed inset-0 pointer-events-none overflow-hidden -z-10 select-none">
 <!-- Ambient Projector Velvet & Amber Glow Orbs -->
@@ -1668,15 +1670,6 @@ if (areaRing) {
       });
     }
 
-    // Watched button
-    const btnWatched = document.getElementById('btn-watched');
-    if (btnWatched) {
-      btnWatched.addEventListener('click', function() {
-        this.innerHTML = `<span class="material-symbols-outlined text-[16px] text-primary-fixed">task_alt</span><span>В архиве!</span>`;
-        this.classList.add('bg-primary-container/20', 'text-primary-fixed');
-      });
-    }
-
     // Filter Chips
     const pills = document.querySelectorAll('.genre-pill');
     pills.forEach(pill => {
@@ -2848,7 +2841,7 @@ function oscarCaption(cc,film){
 }
 function show(cc,pool,film){
   cur={cc,pool,film};
-  if(typeof paintWatchedButton==="function")paintWatchedButton(bw,!!window.KGIsFilmWatched?.(film.id),"Посмотрел");
+  if(typeof paintWatchedButton==="function")paintWatchedButton(bw,!!window.KGIsFilmWatched?.(film.id));
   $("flag").innerHTML=flag(cc);
   $("cname").textContent=cname(cc);
   $("cmeta").textContent=pool.oscar?oscarCaption(cc,film):pool.top1?topCaption(cc,pool,film):poolLine(pool);
@@ -3371,7 +3364,7 @@ const CARD_HTML=`
 <div class="mt-2.5 pt-2 border-t border-surface-border/50" id="film-more">
 <div class="grid gap-1 font-body-sm text-body-sm mt-1" id="film-facts"></div>
 <div class="flex flex-wrap items-center gap-2 mt-2" id="film-actions">
-<button class="py-2 px-3 rounded-xl bg-surface-container-high text-on-surface font-label-sm text-label-sm flex items-center justify-center gap-1 hover:text-primary border border-surface-border-subtle transition-all active:scale-95 cursor-pointer" id="btn-watched" title="Отметить как просмотренный" type="button"><span class="material-symbols-outlined text-[16px] text-primary-container">task_alt</span><span>Посмотрел</span></button>
+${window.KGWatchedButtonHtml(false, 'id="btn-watched"')}
 <button class="py-2 px-3 rounded-xl bg-primary-container text-on-primary-container font-label-sm text-label-sm font-semibold flex items-center justify-center gap-1 hover:brightness-110 transition-all active:scale-95 cursor-pointer" id="btn-spin-another-film" title="Найти другой фильм из этой страны" type="button"><span class="material-symbols-outlined text-[16px]">autorenew</span><span>Крутить ещё раз</span></button>
 </div>
 </div>
@@ -3597,10 +3590,8 @@ window.filmReel=async function(){};   // в дизайне барабана по
 
 // ---------- Карточка «Кинолента 35-мм»: данные ----------
 const card=$("cinema-35mm-reel-section");
-const watchedOld=$("btn-watched");const watchedHTML=watchedOld.innerHTML;
-const bw=watchedOld.cloneNode(true);watchedOld.replaceWith(bw);
-function paintWatchedButton(button,done,label){if(!button)return;button.setAttribute("aria-pressed",String(!!done));button.setAttribute("aria-label",done?"Снять отметку о просмотре":"Отметить как просмотренный");button.title=done?"Нажмите, чтобы снять отметку":"Отметить как просмотренный";button.className="inline-flex self-start w-fit min-h-10 px-3 py-2 rounded-xl items-center justify-center gap-1 font-label-sm text-label-sm font-semibold transition-all active:scale-95 border "+(done?"border-primary-fixed/70 text-on-primary":"border-surface-border-subtle text-on-surface hover:text-primary");button.style.width="fit-content";button.style.maxWidth="100%";button.style.flex="0 0 auto";button.style.background=done?"linear-gradient(110deg,#ffb830,#ffdda0)":"#2c2830";button.style.boxShadow=done?"0 5px 18px rgba(255,184,48,.24),inset 0 1px rgba(255,255,255,.22)":"";button.innerHTML=`<span class="material-symbols-outlined text-[16px] ${done?"text-on-primary":"text-primary-container"}">${done?"task_alt":"check_circle"}</span><span>${done?"Просмотрено ✓":label||"Посмотрел"}</span>`;button.disabled=false;}
-window.KGPaintWatchedButton=paintWatchedButton;
+const bw=$("btn-watched");
+const paintWatchedButton=window.KGPaintWatchedButton;
 const ag=$("btn-spin-another-film");
 const set=(id,t)=>{const e=$(id);if(e)e.textContent=t;};
 const pad=n=>(n<10?"0":"")+n;
@@ -3964,7 +3955,7 @@ window.show=function(cc,pool,film){
   });
   const alreadyWatched=!!window.KGIsFilmWatched?.(film.id);
   bw.dataset.saving="false";
-  paintWatchedButton(bw,alreadyWatched,"Посмотрел");
+  paintWatchedButton(bw,alreadyWatched);
   ag.style.display=$("again").hidden?"none":"";
   ftKey=null;closeFilmTrailer();
   trailerFor(film).then(k=>{
@@ -3992,9 +3983,9 @@ window.show=function(cc,pool,film){
 async function markCurrentFilm(button){
   if(!cur||!window.KGMarkWatched||button?.dataset.saving==="true")return;
   const film={...cur.film,_cc:cur.cc},next=!window.KGIsFilmWatched?.(film.id);
-  if(button){button.dataset.saving="true";paintWatchedButton(button,next,"Посмотрел");}
-  try{const result=await window.KGToggleWatched(film);if(result!==next)throw new Error("Не удалось обновить отметку просмотра");paintWatchedButton(bw,next,"Посмотрел");bw.dataset.saving="false";syncDesign();}
-  catch(error){if(button){button.dataset.saving="false";paintWatchedButton(button,!!window.KGIsFilmWatched?.(film.id),"Посмотрел");}console.warn("[Kinoglobus] Не удалось обновить просмотр:",error);}
+  if(button){button.dataset.saving="true";paintWatchedButton(button,next);}
+  try{const result=await window.KGToggleWatched(film);if(result!==next)throw new Error("Не удалось обновить отметку просмотра");paintWatchedButton(bw,next);bw.dataset.saving="false";syncDesign();}
+  catch(error){if(button){button.dataset.saving="false";paintWatchedButton(button,!!window.KGIsFilmWatched?.(film.id));}console.warn("[Kinoglobus] Не удалось обновить просмотр:",error);}
 }
 bw.addEventListener("click",()=>markCurrentFilm(bw));
 ag.addEventListener("click",()=>$("again").click());
@@ -4043,14 +4034,14 @@ console.info("[Kinoglobus] Bridge v6 ready");
 </script>
 
 <script src="globe-visuals.js?v=3"></script>
-<script src="watch-history.js?v=7"></script>
+<script src="watch-history.js?v=8"></script>
 <script src="country-pages.js?v=11"></script>
 <script src="account-page.js?v=1"></script>
 <script src="mood-page.js?v=31"></script>
 <script src="mood-vibe-page.js?v=16"></script>
 <script src="oscar-page.js?v=34"></script>
-<script src="oscar-design.js?v=14"></script>
-<script src="collections.js?v=67"></script>
+<script src="oscar-design.js?v=15"></script>
+<script src="collections.js?v=68"></script>
 <script src="film-interactions.js?v=14"></script>
 <script src="legal-watch.js?v=3"></script>
 <script src="global-search.js?v=2"></script>

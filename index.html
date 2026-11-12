@@ -2096,7 +2096,10 @@ jd.addEventListener("click",e=>{if(e.target===jd)closeJ();});
 function filmLabel(){$("filmTog").textContent=filmSpin?"Вкл":"Выкл";}
 $("filmTog").onclick=()=>{filmSpin=!filmSpin;store.set("filmSpin",filmSpin);filmLabel();};
 filmLabel();
-function adultVisLabel(){$("adultVis").textContent=showAdult?"Показаны":"Скрыты";}
+function adultVisLabel() {
+  const button = $("adultVis");
+  if (button) button.textContent = showAdult ? "Показаны" : "Скрыты";
+}
 function applyAdultVis(){
   document.querySelectorAll('.chip[data-k="adult"]').forEach(b=>{b.hidden=!showAdult;});
   if(!showAdult){sel.delete("adult");store.set("cats",[...sel]);}
@@ -2119,22 +2122,45 @@ addEventListener("keydown",e=>{
   keyBuf=(keyBuf+e.key.toLowerCase()).slice(-5);
   if(keyBuf==="extra"){sessionStorage.setItem("kgx","1");location.href="extra.html";}
 });
-$("resetSettings").onclick=()=>{
-  if(window.KGClearWatchHistory)window.KGClearWatchHistory();
-  sel.clear();store.set("cats",[]);
-  countryFilters.clear();store.set("countryFilters",[]);
-  if($("country-filter-search"))$("country-filter-search").value="";
+window.KGResetSettings = () => {
+  sel.clear();
+  store.set("cats",[]);
+  countryFilters.clear();
+  store.set("countryFilters",[]);
+  $("country-filter-search").value = "";
   paintCountryFilters();
-  $("year").value="";store.set("year","");$("yearTo").value="";store.set("yearTo","");
-  $("rmin").value="6";store.set("rmin","6");$("rmax").value="";store.set("rmax","");paintExtraSum();
-  snd="roulette";$("snd").value=snd;store.set("snd",snd);
-  fx=true;store.set("fx",true);fxLabel();
-  filmSpin=true;store.set("filmSpin",true);filmLabel();
-  if(reelStyle!=="35mm")window.setCinemaReelStyle("35mm");else store.set("reelStyle","35mm");
-  showAdult=true;store.set("showAdult",true);applyAdultVis();
-  themeId="";store.set("theme","");paintThemes();paintGo();
-  if(typeof syncDesign==="function")syncDesign();
+
+  for (const [id,value] of Object.entries({year:"",yearTo:"",rmin:"6",rmax:""})) {
+    $(id).value = value;
+    store.set(id,value);
+  }
+  paintExtraSum();
+
+  snd = "roulette";
+  store.set("snd",snd);
+  const globeSound = $("snd");
+  if (globeSound) globeSound.value = snd;
+  stopFilmReelSound();
+  window.setCinemaReelSound("projector");
+
+  fx = true;
+  store.set("fx",fx);
+  fxLabel();
+  filmSpin = true;
+  store.set("filmSpin",filmSpin);
+  filmLabel();
+  window.setCinemaReelStyle("35mm");
+
+  showAdult = true;
+  store.set("showAdult",showAdult);
+  applyAdultVis();
+  themeId = "";
+  store.set("theme",themeId);
+  surprise = "light";
+  store.set("surprise",surprise);
+  $("btn-mode-filters").click();
 };
+$("resetSettings").onclick = window.KGResetSettings;
 const RATE_OPTS=["5","6","6.5","7","7.5","8","9","10"];
 $("year").value=store.get("year","");
 $("yearTo").value=store.get("yearTo","");
@@ -2598,7 +2624,10 @@ window.stopFilmReelSound = stopFilmReelSound;
 window.previewFilmReelSound = previewFilmReelSound;
 function preview(){audio();let i=0;const id=setInterval(()=>{sTick(i/10);if(++i>5){clearInterval(id);setTimeout(sWin,150);}},120);}
 function buzz(p){if(fx&&navigator.vibrate){try{navigator.vibrate(p)}catch(e){}}}
-function fxLabel(){$("fx").textContent=fx?"Вкл":"Выкл";}
+function fxLabel() {
+  const button = $("fx");
+  if (button) button.textContent = fx ? "Вкл" : "Выкл";
+}
 $("fx").onclick=()=>{fx=!fx;store.set("fx",fx);fxLabel();};fxLabel();
 $("snd").value=snd;$("snd").onchange=()=>{snd=$("snd").value;store.set("snd",snd);preview();};
 
@@ -4110,6 +4139,6 @@ console.info("[Kinoglobus] Bridge v6 ready");
 <script src="film-interactions.js?v=14"></script>
 <script src="legal-watch.js?v=3"></script>
 <script src="global-search.js?v=2"></script>
-<script src="settings-page.js?v=21"></script>
+<script src="settings-page.js?v=22"></script>
 
 </body></html>

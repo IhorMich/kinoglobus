@@ -1157,7 +1157,7 @@ rotatingGroup.add(flagPinGroup);
         // Natural ocean colors for the offline fallback texture.
         const oceanGrad = ctx.createLinearGradient(0, 0, 0, 1024);
         oceanGrad.addColorStop(0, '#081a36');
-        oceanGrad.addColorStop(0.5, '#15559a');
+        oceanGrad.addColorStop(0.5, '#2f5f9c');
         oceanGrad.addColorStop(1, '#081a36');
         ctx.fillStyle = oceanGrad;
         ctx.fillRect(0, 0, 2048, 1024);
@@ -1210,7 +1210,7 @@ rotatingGroup.add(flagPinGroup);
            float earthLuminance = dot(earthColor, vec3(0.2126, 0.7152, 0.0722));
            float oceanSignal = earthColor.b - max(earthColor.r, earthColor.g) * 0.82;
            float earthOceanMask = smoothstep(-0.008, 0.065, oceanSignal);
-           vec3 blueOcean = vec3(max(earthColor.r * 0.78, 0.035), max(earthColor.g * 0.88, 0.12), max(earthColor.b * 1.28, 0.30));
+           vec3 blueOcean = vec3(max(earthColor.r * 0.78, 0.029), max(earthColor.g * 0.88, 0.116), max(earthColor.b * 1.28, 0.332));
            earthColor = mix(earthColor, blueOcean, earthOceanMask * 0.95);
            diffuseColor.rgb = clamp(mix(vec3(earthLuminance), earthColor, 1.12) * 1.02, 0.0, 1.0);`
         );

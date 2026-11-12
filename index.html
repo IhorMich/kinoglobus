@@ -218,20 +218,16 @@
 <span class="">🔞 Взрослое кино 18+</span>
 </button>
 </div>
-<!-- Country filter stays with the main genre controls and narrows the roulette search. -->
-<div class="px-3.5 pb-3.5" id="country-filter-block">
-<div class="border-t border-white/10 pt-3">
-<div class="flex items-center justify-between gap-2 mb-2">
-<label for="country-filter-search" class="flex items-center gap-2 font-label-sm text-label-sm text-on-surface font-semibold"><span class="material-symbols-outlined text-primary-container text-[18px]">public</span>Страны производства</label>
-<span id="country-filter-summary" class="font-micro-caption text-micro-caption text-text-muted">Любая страна</span>
-</div>
+</details>
+<details class="group rounded-xl bg-surface-panel shadow-sm overflow-hidden" id="country-filter-card">
+<summary class="flex items-center justify-between p-3.5 cursor-pointer list-none select-none bg-surface-panel hover:bg-surface-container transition-colors">
+<div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary-container text-[20px]">public</span><span class="font-headline-sm text-headline-sm text-on-surface font-semibold">Страны</span></div>
+<div class="flex items-center gap-2"><span id="country-filter-summary" class="font-micro-caption text-micro-caption text-text-muted">Любая страна</span><span class="material-symbols-outlined text-text-muted text-[20px] transition-transform duration-200 group-open:rotate-180">expand_more</span></div>
+</summary>
+<div class="p-3.5 pt-1">
 <input id="country-filter-search" type="search" autocomplete="off" placeholder="Найти страну…" class="w-full h-10 px-3 mb-2 rounded-lg bg-surface-container-lowest text-label-sm text-on-surface placeholder:text-text-muted/70 outline-none border border-white/10 focus:border-primary-container/60">
-<div class="flex items-center justify-between mb-2">
-<span id="country-filter-hint" class="font-micro-caption text-micro-caption text-text-muted">Без выбора поиск идёт по всем странам</span>
-<button id="country-filter-clear" type="button" class="font-micro-caption text-micro-caption text-primary-container hover:text-primary">Сбросить</button>
-</div>
+<div class="flex items-center justify-between mb-2"><span id="country-filter-hint" class="font-micro-caption text-micro-caption text-text-muted">Без выбора поиск идёт по всем странам</span><button id="country-filter-clear" type="button" class="font-micro-caption text-micro-caption text-primary-container hover:text-primary">Сбросить</button></div>
 <div id="country-filter-chips" class="flex flex-wrap gap-2 max-h-44 overflow-y-auto pr-1" aria-label="Страны производства"></div>
-</div>
 </div>
 </details>
 <!-- Accordion 2: Год и рейтинг -->
@@ -3393,7 +3389,7 @@ $("rmax").value=RO.includes(store.get("rmax",""))?store.get("rmax",""):"";
 
 // ---------- Подключение к дизайну: чипы, подборки, оценка, годы ----------
 const DET=[...document.querySelectorAll("details")];
-const gBox=DET[0].children[1], rBox=DET[1].querySelector(".overflow-x-auto"), tBox=DET[2].lastElementChild;
+const gBox=DET[0].children[1], rBox=DET[2].querySelector(".overflow-x-auto"), tBox=DET[3].lastElementChild;
 const BASE="h-[34px] px-3.5 rounded-full font-label-sm text-label-sm flex items-center gap-1 transition-all ";
 function pills(box,sel,attr){
   box.innerHTML="";
@@ -3412,7 +3408,7 @@ rBox.innerHTML="";
 const sChips=[...document.querySelectorAll(".surprise-chip")];
 $("surpriseChips").innerHTML=["light","find","wild","hard"].map(s=>`<button class="chip" data-s="${s}"></button>`).join("");
 sChips.forEach((c,i)=>c.addEventListener("click",()=>$("surpriseChips").children[i].click()));
-const yi=[...DET[1].querySelectorAll('input[type="number"]')];
+const yi=[...DET[2].querySelectorAll('input[type="number"]')];
 [[yi[0],"year","1920"],[yi[1],"yearTo","2026"]].forEach(([inp,id,def])=>inp.addEventListener("input",()=>{
   const v=inp.value.trim(),e=$(id);e.value=(v===""||v===def)?"":v;e.dispatchEvent(new Event("input"));}));
 
@@ -3435,8 +3431,8 @@ function syncDesign(){
   sChips.forEach((c,i)=>{const on=["light","find","wild","hard"][i]===surprise;
     c.style.background=on?"#2c2830":"#1c1822";c.style.color=on?"#ffdca8":"#e8e0ea";c.style.boxShadow=on?"0 0 10px rgba(255,184,48,.25)":"";});
   const d=$("surprise-description-text");if(d)d.textContent=SURPRISE_NOTE[surprise];
-  const sums=[sumText("filterSum","Категории"),sumText("extraSum","Год и оценка"),sumText("themeSum","Тематические подборки")];
-  DET.forEach((d,i)=>{const s=d.querySelector("summary > div:last-child > span:first-child");if(s){const label=i===2&&sums[2]==="Любой"?"Готовые сеты":sums[i];s.textContent=i===0&&countryFilters.size?`${label} · ${countryFilters.size} ${plural(countryFilters.size)}`:label;}});
+  const sums=[sumText("filterSum","Категории"),countryFilters.size?`${countryFilters.size} ${plural(countryFilters.size)}`:"Любая страна",sumText("extraSum","Год и оценка"),sumText("themeSum","Тематические подборки")];
+  DET.forEach((d,i)=>{const s=d.querySelector("summary > div:last-child > span:first-child");if(s){const label=i===3&&sums[3]==="Любой"?"Готовые сеты":sums[i];s.textContent=label;}});
   if(document.activeElement!==yi[0])yi[0].value=$("year").value||"1920";
   if(document.activeElement!==yi[1])yi[1].value=$("yearTo").value||"2026";
   const cnt=document.querySelector('header a[data-path="moe-puteshestvie"] span:last-child');
@@ -3560,7 +3556,7 @@ window.filmReel=async function(){};   // в дизайне барабана по
 const card=$("cinema-35mm-reel-section");
 const watchedOld=$("btn-watched");const watchedHTML=watchedOld.innerHTML;
 const bw=watchedOld.cloneNode(true);watchedOld.replaceWith(bw);
-function paintWatchedButton(button,done,label){if(!button)return;button.setAttribute("aria-pressed",String(!!done));button.setAttribute("aria-label",done?"Снять отметку о просмотре":"Отметить как просмотренный");button.title=done?"Нажмите, чтобы снять отметку":"Отметить как просмотренный";button.className="inline-flex w-auto min-h-10 px-3 py-2 rounded-xl items-center justify-center gap-1 font-label-sm text-label-sm font-semibold transition-all active:scale-95 border "+(done?"border-primary-fixed/70 text-on-primary":"border-surface-border-subtle text-on-surface hover:text-primary");button.style.background=done?"linear-gradient(110deg,#ffb830,#ffdda0)":"#2c2830";button.style.boxShadow=done?"0 5px 18px rgba(255,184,48,.24),inset 0 1px rgba(255,255,255,.22)":"";button.innerHTML=`<span class="material-symbols-outlined text-[16px] ${done?"text-on-primary":"text-primary-container"}">${done?"task_alt":"check_circle"}</span><span>${done?"Просмотрено ✓":label||"Посмотрел"}</span>`;button.disabled=false;}
+function paintWatchedButton(button,done,label){if(!button)return;button.setAttribute("aria-pressed",String(!!done));button.setAttribute("aria-label",done?"Снять отметку о просмотре":"Отметить как просмотренный");button.title=done?"Нажмите, чтобы снять отметку":"Отметить как просмотренный";button.className="inline-flex self-start w-fit min-h-10 px-3 py-2 rounded-xl items-center justify-center gap-1 font-label-sm text-label-sm font-semibold transition-all active:scale-95 border "+(done?"border-primary-fixed/70 text-on-primary":"border-surface-border-subtle text-on-surface hover:text-primary");button.style.width="fit-content";button.style.maxWidth="100%";button.style.flex="0 0 auto";button.style.background=done?"linear-gradient(110deg,#ffb830,#ffdda0)":"#2c2830";button.style.boxShadow=done?"0 5px 18px rgba(255,184,48,.24),inset 0 1px rgba(255,255,255,.22)":"";button.innerHTML=`<span class="material-symbols-outlined text-[16px] ${done?"text-on-primary":"text-primary-container"}">${done?"task_alt":"check_circle"}</span><span>${done?"Просмотрено ✓":label||"Посмотрел"}</span>`;button.disabled=false;}
 window.KGPaintWatchedButton=paintWatchedButton;
 const ag=$("btn-spin-another-film");
 const set=(id,t)=>{const e=$(id);if(e)e.textContent=t;};
@@ -3980,7 +3976,7 @@ go("moe-puteshestvie",()=>$("mapBtn").click());
 go("istoriya-posmotrel",()=>$("mapBtn").click());
 go("nastrojki",()=>$("gear").click());
 go("globus-random",()=>scrollTo({top:0,behavior:"smooth"}));
-go("podborki-i-zhanry",()=>{DET[2].open=true;DET[2].scrollIntoView({behavior:"smooth",block:"start"});});
+go("podborki-i-zhanry",()=>{DET[3].open=true;DET[3].scrollIntoView({behavior:"smooth",block:"start"});});
 
 // ---------- Старт ----------
 G.orientGlobeToCountry(G.currentCountry,true,0.08,G.CAMERA_DIST_DEFAULT,false);G.hideMarks();

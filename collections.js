@@ -716,7 +716,7 @@ function renderCollection(){
 <div class="flex flex-col gap-space-sm bg-surface-panel p-space-md rounded-xl shadow-lg"><div class="flex items-center justify-between"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary-container text-[20px]">casino</span><span class="font-headline-sm text-headline-sm text-on-surface font-semibold">Случайный выбор</span></div><span class="font-micro-caption text-micro-caption text-primary-fixed bg-surface-container-high px-2 py-0.5 rounded-full">Рейтинг ≥ 6.5</span></div>
 <button type="button" id="cl-spin" data-act="spin" class="relative group w-full py-3.5 px-4 rounded-xl bg-primary-container text-on-primary font-label-lg text-label-lg font-bold flex items-center justify-center gap-2 shadow-[0_0_24px_rgba(255,184,48,0.28)] transition-all active:scale-[0.98] overflow-hidden"><span id="cl-ricon" class="material-symbols-outlined text-[22px]">casino</span><span id="cl-rtext">Крутить рулетку</span><div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div></button>
 <div id="cl-reel" style="display:none" class="flex flex-col gap-space-sm">
-${window.KGCinemaReel.render({trackId:"cl-track",frameId:"cl-frame"})}
+<div id="cl-reel-host"></div>
 <div class="flex items-center justify-between px-1"><span id="cl-fc" class="font-mono text-micro-caption text-primary-fixed font-semibold tracking-wide">Кадр 00 / 00</span><button type="button" id="cl-skip" data-act="skip" style="display:none" class="font-micro-caption text-micro-caption text-text-muted hover:text-primary underline">Пропустить</button></div>
 <div id="cl-result"></div></div>
 ${t.cc.length>1?`<div class="flex flex-col gap-1.5 pt-1"><span class="font-micro-caption text-micro-caption text-text-muted">Фильтр по стране:</span><div id="cl-cc" class="flex items-center gap-1.5 overflow-x-auto pb-1"><button type="button" data-act="cc" data-cc="" class="${ccCls(true)}">Все страны</button>${t.cc.map(cc=>`<button type="button" data-act="cc" data-cc="${cc}" class="${ccCls(false)}">${fl(cc)} ${esc(cname(cc))}</button>`).join("")}</div></div>`:""}
@@ -968,7 +968,7 @@ async function inPageRoulette(){
   const token=++R.token;R.busy=true;R.skip=false;D.picked=null;D.selected=null;
   renderFilms();
   $("cl-reel").style.display="";$("cl-result").innerHTML="";
-  window.KGCinemaReel?.prepareTicket($("cl-reel"));
+  $("cl-reel-host").innerHTML = window.KGCinemaReel.render({trackId:"cl-track",frameId:"cl-frame"});
   setBtn(true);
   try{audio();}catch(e){}
   $("cl-reel").scrollIntoView({behavior:"smooth",block:"center"});

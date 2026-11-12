@@ -854,6 +854,13 @@ function openFilm(f,placement="list",detailTarget=null){
   if(personModalScrollRestore!==null){const dialog=document.querySelector("#kg-person-modal .kgpi-modal");requestAnimationFrame(()=>{if(dialog?.isConnected)dialog.scrollTop=personModalScrollRestore;});}
   const panel=detailTarget?$(detailTarget):placement==="roulette"?$("cl-result")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="home"?$("kg-home-feature")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="home-europe"?$("kg-home-europe-detail")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="mood"?$("mood-film-detail")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="oscar"?$("oscar-film-detail")?.querySelector(`[data-selected-film="${f.id}"]`):vd.querySelector(`[data-selected-film="${f.id}"]`);
   if(placement!=="related")requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    if (D.selected !== selected) return;
+    const reelResult = placement === "roulette" || detailTarget === "oscar-reel-detail" ||
+      String(detailTarget || "").startsWith("mood-roulette-winner-detail-");
+    if (reelResult && window.KGScrollToFilmStart) {
+      window.KGScrollToFilmStart(placement === "roulette" ? $("cl-result") : panel);
+      return;
+    }
     const trailer=panel?.querySelector("[data-kg-film-trailer]");
     const target=trailer||panel;
     if(placement==="person-related"&&target&&window.KGScrollPersonModalToFilm)window.KGScrollPersonModalToFilm(target);
@@ -1017,10 +1024,10 @@ async function inPageRoulette(){
     if(token!==R.token){snd(()=>stopFilmReelSound());return;}
     const t=R.skip?1:Math.min(1,(now-t0)/T);
     const x=x0+(x1-x0)*(1-Math.pow(1-t,4)),left=x1-x;
-    snd(()=>setFilmReelLevel(Math.pow(1-t,3)));
     run.style.transform=`translateX(${-x}px)`;
     if(t>.4)run.classList.remove("fast");
     if(!(t>=1||left<.75)){
+      snd(()=>setFilmReelLevel(Math.pow(1-t,3),Math.abs(x-x0)/STEP));
       R.raf=requestAnimationFrame(step);return;
     }
     snd(()=>stopFilmReelSound());

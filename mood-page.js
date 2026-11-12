@@ -280,7 +280,7 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
       state.spinning=false;state.skipSpin=false;const c=activeElement(root,"[data-mood-frame-counter]");if(c)c.textContent="Фильм "+String(pool.indexOf(film)+1).padStart(2,"0")+" / "+String(pool.length).padStart(2,"0");
       if(launchButton)launchButton.disabled=false;if(launchLabel)launchLabel.textContent="Крутить ещё раз";
       const skip=activeElement(root,"[data-mood-skip]");if(skip)skip.hidden=true;deps.openFilm({...film,_kgRelatedPool:pool},"mood",winnerDetailId);
-      requestAnimationFrame(()=>{const d=document.getElementById(winnerDetailId);if(d&&moodId===state.mood)window.scrollTo({top:Math.max(0,window.scrollY+d.getBoundingClientRect().top-96),behavior:"smooth"});});return;
+      return;
     }
     if(window.KGCinemaReel?.isCassetteMode?.()){
       panel.scrollIntoView({behavior:"smooth",block:"center"});if(typeof window.startFilmReelSound==="function")window.startFilmReelSound();
@@ -290,7 +290,7 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
       state.spinning=false;state.skipSpin=false;const c=activeElement(root,"[data-mood-frame-counter]");if(c)c.textContent="Фильм "+String(pool.indexOf(film)+1).padStart(2,"0")+" / "+String(pool.length).padStart(2,"0");
       if(launchButton)launchButton.disabled=false;if(launchLabel)launchLabel.textContent=`Крутить ещё раз (${currentRuntime().button})`;
       const skip=activeElement(root,"[data-mood-skip]");if(skip)skip.hidden=true;onOpen(film);
-      requestAnimationFrame(()=>{const d=document.getElementById(winnerDetailId);if(d&&moodId===state.mood)window.scrollTo({top:Math.max(0,window.scrollY+d.getBoundingClientRect().top-96),behavior:"smooth"});});return;
+      return;
     }
     if(window.KGCinemaReel?.isTicketMode?.()){
       panel.scrollIntoView({behavior:"smooth",block:"center"});
@@ -303,7 +303,7 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
       if(launchButton)launchButton.disabled=false;if(launchLabel)launchLabel.textContent=`Крутить ещё раз (${currentRuntime().button})`;
       const skip=activeElement(root,"[data-mood-skip]");if(skip)skip.hidden=true;
       deps.openFilm({...film,_kgRelatedPool:pool},"mood",winnerDetailId);
-      requestAnimationFrame(()=>{const d=document.getElementById(winnerDetailId);if(d&&moodId===state.mood)window.scrollTo({top:Math.max(0,window.scrollY+d.getBoundingClientRect().top-96),behavior:"smooth"});});return;
+      return;
     }
     const run=panel.querySelector(".kgr-run"),cells=[...run.children],viewport=panel.querySelector(".kgr-win"),frame=panel.querySelector("[data-mood-reel-frame]"),skip=panel.querySelector("[data-mood-skip]");
     const offsetFor=index=>reelPadding+index*reelStep+reelCellWidth/2-viewport.clientWidth/2;
@@ -321,10 +321,6 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
       if(skip)skip.hidden=true;
       frame.classList.remove("hit");void frame.offsetWidth;frame.classList.add("hit");
       deps.openFilm({...film,_kgRelatedPool:pool},"mood",winnerDetailId);
-      requestAnimationFrame(()=>{
-        const d=document.getElementById(winnerDetailId);
-        if(d&&moodId===state.mood)window.scrollTo({top:Math.max(0,window.scrollY+d.getBoundingClientRect().top-96),behavior:"smooth"});
-      });
     };
     if(prefersReducedMotion()||!others.length){
       run.style.transform=`translateX(${-finish}px)`;complete();
@@ -337,10 +333,10 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
         if(token!==state.spinToken||!panel.isConnected)return;
         const progress=state.skipSpin?1:Math.min(1,(now-startTime)/duration);
         const position=start+(finish-start)*(1-Math.pow(1-progress,4)),remaining=finish-position;
-        if(typeof window.setFilmReelLevel==="function")window.setFilmReelLevel(Math.pow(1-progress,3));
         run.style.transform=`translateX(${-position}px)`;
         if(progress>.4)run.classList.remove("fast");
         if(progress<1&&remaining>=.75){
+          window.setFilmReelLevel?.(Math.pow(1-progress,3),Math.abs(position-start)/reelStep);
           state.spinFrame=requestAnimationFrame(step);return;
         }
         if(typeof window.stopFilmReelSound==="function")window.stopFilmReelSound();

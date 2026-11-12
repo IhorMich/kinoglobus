@@ -14,6 +14,41 @@
   }, {});
   window.KGIsFilmWatched = id => watched.some(item => Number(item.id) === Number(id));
 
+  window.KGUnmarkWatched = id => {
+    id = Number(id);
+    const record = watched.find(item => Number(item.id) === id);
+    if (!record) return Promise.resolve(false);
+    watched = watched.filter(item => Number(item.id) !== id);
+    const credited = [...new Set(((record.countries && record.countries.length) ? record.countries : [record.cc]).filter(code => /^[A-Z]{2}$/.test(String(code || ''))))];
+    credited.forEach(code => {
+      visited[code] = Math.max(0, (visited[code] || 0) - 1);
+      if (!visited[code]) delete visited[code];
+    });
+    seen.delete(id);
+    lastCC = watched.find(item => item.cc && visited[item.cc])?.cc || '';
+    store.set('watched', watched);
+    store.set('seen', [...seen]);
+    store.set('visited', visited);
+    store.set('lastCC', lastCC);
+    if (typeof updHist === 'function') updHist();
+    window.KGRefreshWatchedMap();
+    return Promise.resolve(false);
+  };
+
+  window.KGToggleWatched = film => {
+    if (!film || !film.id) return Promise.resolve(null);
+    if (window.KGIsFilmWatched(film.id)) return window.KGUnmarkWatched(film.id);
+    return Promise.resolve(window.KGMarkWatched(film)).then(ok => ok ? true : null);
+  };
+
+  window.KGClearWatchHistory = () => {
+    seen = new Set(); watched = []; visited = {}; lastCC = '';
+    store.set('seen', []); store.set('watched', []); store.set('visited', {}); store.set('lastCC', '');
+    if (typeof updHist === 'function') updHist();
+    if (window.KGRefreshWatchedMap) window.KGRefreshWatchedMap();
+    if (window.KGResetWatchedButton) window.KGResetWatchedButton();
+  };
+
   window.KGRenderWatchedByCountry = country => {
     const box = document.getElementById('jfilms');
     const heading = document.getElementById('jfilmsT');
@@ -50,13 +85,12 @@
     if(badge)badge.textContent=countryCount+'/'+COUNTRIES.length;
     const globe=window.KinoglobusGlobe;
     if (globe && globe.setWatchedCountryOutlines) globe.setWatchedCountryOutlines(Object.keys(window.KGWatchedCountryCounts()));
+    document.dispatchEvent(new CustomEvent('kg:watched-change'));
   };
 
   window.KGResetWatchedButton = () => {
     const button = document.getElementById('btn-watched');
     if (button) { if (window.KGPaintWatchedButton) window.KGPaintWatchedButton(button, false, 'Посмотрел'); else { button.innerHTML = '<span class="material-symbols-outlined text-[18px] text-primary-container">check_circle</span><span>Посмотрел</span>'; button.disabled = false; button.setAttribute('aria-pressed', 'false'); } }
-    const recent = document.getElementById('btn-watched-recent');
-    if (recent && window.KGPaintWatchedButton) window.KGPaintWatchedButton(recent, false, 'Посмотрел');
   };
 
   document.addEventListener('click', event => {

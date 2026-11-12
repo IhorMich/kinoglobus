@@ -268,7 +268,7 @@ const NON="text-primary-container font-bold drop-shadow-[0_0_12px_rgba(255,184,4
 const nav=document.createElement("nav");
 nav.className="fixed bottom-0 w-full z-50 pb-safe bg-surface-panel/90 backdrop-blur-xl shadow-[0_-4px_24px_rgba(7,6,10,0.9)]";
 nav.innerHTML='<div class="flex justify-around items-center h-16 max-w-[520px] mx-auto px-gutter-mobile">'+
-[["home","casino","Глобус"],["collections","movie_filter","Подборки"],["journey","travel_explore","Путешествие"],["journey","history_toggle_off","История"]]
+[["home","casino","Глобус"],["collections","movie_filter","Подборки"],["journey","travel_explore","Путешествие"],["history","history_toggle_off","История"]]
 .map(([v,i,l])=>`<a href="#" data-view="${v}" class="${NB}${NOFF}"><span class="material-symbols-outlined text-[22px]">${i}</span><span class="font-micro-caption text-micro-caption tracking-tight">${l}</span></a>`).join("")+"</div>";
 document.body.appendChild(nav);
 
@@ -309,6 +309,7 @@ function showView(v){
 nav.addEventListener("click",e=>{
   const a=e.target.closest("[data-view]");if(!a)return;e.preventDefault();
   if(a.dataset.view==="journey"){$("mapBtn").click();return;}
+  if(a.dataset.view==="history"){window.KGOpenWatchHistory();return;}
   showView(a.dataset.view);
 });
 sectionNav.addEventListener("click",e=>{

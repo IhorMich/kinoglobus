@@ -45,7 +45,7 @@
       0% { transform: translateX(-100%); }
       100% { transform: translateX(200%); }
     }
-  </style><script src="cinema-reel.js?v=34"></script><link rel="stylesheet" href="watched-button.css?v=1">
+  </style><script src="cinema-reel.js?v=35"></script><link rel="stylesheet" href="watched-button.css?v=1">
 <script src="watched-button.js?v=1"></script>
 </head><body class="bg-canvas-obsidian font-body-md text-on-surface flex flex-col min-h-screen relative">
 <!-- Atmospheric Living Theater Background Layer with Floating Posters -->
@@ -1865,7 +1865,7 @@ let fx=store.get("fx",true);
 let showAdult=store.get("showAdult",true);
 let filmSpin=store.get("filmSpin",true);
 const savedReelStyle=store.get("reelStyle","35mm");
-let reelStyle=["cassette","projection"].includes(savedReelStyle)?savedReelStyle:"35mm";
+let reelStyle=["cassette","projection","ticket"].includes(savedReelStyle)?savedReelStyle:"35mm";
 if(savedReelStyle!==reelStyle)store.set("reelStyle",reelStyle);
 let playMode=store.get("playMode","filters")==="surprise"?"surprise":"filters";
 let surprise=store.get("surprise","light");
@@ -2115,7 +2115,7 @@ window.KGResetSettings = () => {
   const globeSound = $("snd");
   if (globeSound) globeSound.value = snd;
   stopFilmReelSound();
-  window.setCinemaReelSound("projector");
+  window.setCinemaReelSound("auto");
 
   fx = true;
   store.set("fx",fx);
@@ -2403,18 +2403,18 @@ function audio() {
   } catch (_) {}
 }
 let snd=store.get("snd","roulette");
-let reelSnd=["projector","imax","camera","tape","premiere","shutter","editbench","sixteenmm","off"].includes(store.get("reelSnd","projector"))?store.get("reelSnd","projector"):"projector";
+let reelSnd = store.get("reelSnd", "auto");
 window.getCinemaReelSound=()=>reelSnd;
 window.setCinemaReelSound = value => {
   const playing = !!filmReelNodes, previewing = !!reelSoundPreviewFrame;
-  reelSnd = Object.hasOwn(reelProfiles,value) || value === "off" ? value : "projector";
+  reelSnd = isReelSound(value) ? value : "auto";
   store.set("reelSnd",reelSnd);
   if (previewing) previewFilmReelSound();
   else if (playing) {
-    const frame = filmReelNodes.frame;
+    const frame = filmReelNodes.frameNumber;
     stopFilmReelSound();
     startFilmReelSound();
-    if (filmReelNodes) filmReelNodes.frame = frame;
+    if (filmReelNodes) filmReelNodes.frameNumber = frame;
   }
 };
 const PENTA=[523.25,587.33,659.25,783.99,880,1046.5,1174.66,1318.5];
@@ -2505,18 +2505,47 @@ const reelProfiles = {
   premiere:  {duration:.065,  tone:{type:"triangle",from:660,to:660,volume:.065}},
   shutter:   {duration:.018, noise:{frequency:4600,q:.8,volume:.39}},
   editbench: {duration:.065, tone:{type:"square",from:330,to:270,volume:.055}},
-  sixteenmm: {duration:.055, noise:{frequency:940,q:1.8,volume:.32}, motor:{volume:.016}}
+  sixteenmm: {duration:.055, noise:{frequency:940,q:1.8,volume:.32}, motor:{volume:.016}},
+  projector35: {
+    duration:.032, noise:{frequency:2350,q:1.1,volume:.31},
+    tone:{type:"triangle",from:560,to:255,volume:.055},
+    motor:{frequency:1450,volume:.055}
+  },
+  cassetteRewind: {
+    duration:.045, noise:{frequency:1100,q:1.6,volume:.32},
+    tone:{type:"triangle",from:205,to:102,volume:.042},
+    motor:{frequency:510,volume:.16}
+  },
+  paperTickets: {
+    duration:.096, attack:.012, noise:{frequency:3400,q:.65,volume:.24},
+    landing:{duration:.037, noise:{frequency:850,q:1.15,volume:.27}}
+  }
 };
+function isReelSound(value) {
+  return value === "auto" || value === "off" || Object.hasOwn(reelProfiles, value);
+}
+if (!isReelSound(reelSnd)) reelSnd = "auto";
+
+function activeReelProfile() {
+  if (reelSnd !== "auto") return reelProfiles[reelSnd];
+  if (reelStyle === "ticket") return reelProfiles.paperTickets;
+  if (reelStyle === "cassette") return reelProfiles.cassetteRewind;
+  return reelProfiles.projector35;
+}
 function stopFilmReelSound() {
   cancelAnimationFrame(reelSoundPreviewFrame);
   reelSoundPreviewFrame = 0;
   if (!filmReelNodes) return;
-  const {output, filter, voices, motor} = filmReelNodes;
+  const {output, frame, landing, voices, motor, motorGain, motorFilter} = filmReelNodes;
   filmReelNodes = null;
   output.gain.value = 0;
   output.disconnect();
-  filter?.disconnect();
+  frame.filter?.disconnect();
+  landing?.filter?.disconnect();
   motor?.stop();
+  motor?.disconnect();
+  motorGain?.disconnect();
+  motorFilter?.disconnect();
   for (const voice of voices) voice.stop();
 }
 
@@ -2532,30 +2561,35 @@ function startFilmReelSound() {
   if (reelSnd === "off" || filmReelNodes) return;
   audio();
   if (!ac) return;
-  const profile = reelProfiles[reelSnd];
+  const profile = activeReelProfile();
   const output = ac.createGain();
   output.connect(ac.destination);
-  filmReelNodes = {profile, output, voices:new Set(), frame:-1};
-  if (profile.noise) {
+  const prepareFrame = config => {
+    if (!config.noise) return {config};
     const filter = ac.createBiquadFilter();
     filter.type = "bandpass";
-    filter.frequency.value = profile.noise.frequency;
-    filter.Q.value = profile.noise.q;
+    filter.frequency.value = config.noise.frequency;
+    filter.Q.value = config.noise.q;
     filter.connect(output);
-    filmReelNodes.filter = filter;
-    filmReelNodes.noise = reelNoise(profile.duration);
-  }
+    return {config, filter, noise:reelNoise(config.duration)};
+  };
+  filmReelNodes = {
+    profile, output, voices:new Set(), frame:prepareFrame(profile), frameNumber:-1,
+    landing:profile.landing ? prepareFrame(profile.landing) : null,
+    motorBuffer:profile.motor ? reelNoise(.65) : null
+  };
 }
 
-function playReelFrame(nodes, level) {
-  const {profile, output, filter, noise, voices} = nodes;
+function playReelFrame(nodes, level, phase) {
+  const {output, voices} = nodes;
+  const {config:profile, filter, noise} = phase === "land" && nodes.landing ? nodes.landing : nodes.frame;
   const now = ac.currentTime;
   const end = now + profile.duration;
   const strength = .45 + .55 * level;
   function play(voice, volume, target) {
     const envelope = ac.createGain();
     envelope.gain.setValueAtTime(.0001, now);
-    envelope.gain.linearRampToValueAtTime(volume * strength, now + .003);
+    envelope.gain.linearRampToValueAtTime(volume * strength, now + (profile.attack || .003));
     envelope.gain.exponentialRampToValueAtTime(.0001, end);
     voice.connect(envelope);
     envelope.connect(target);
@@ -2583,7 +2617,7 @@ function playReelFrame(nodes, level) {
   }
 }
 
-function setFilmReelLevel(level, position, frame = Math.round(position), continuous = true) {
+function setFilmReelLevel(level, position, frame = Math.round(position), continuous = true, phase) {
   if (level <= 0) {
     stopFilmReelSound();
     return;
@@ -2594,29 +2628,37 @@ function setFilmReelLevel(level, position, frame = Math.round(position), continu
     if (!nodes.motor) {
       nodes.motor = ac.createBufferSource();
       nodes.motorGain = ac.createGain();
-      nodes.motor.buffer = reelNoise(.4);
+      nodes.motor.buffer = nodes.motorBuffer;
       nodes.motor.loop = true;
       nodes.motorGain.gain.value = 0;
       nodes.motor.connect(nodes.motorGain);
-      nodes.motorGain.connect(nodes.filter || nodes.output);
+      const {frequency} = nodes.profile.motor;
+      if (frequency) {
+        nodes.motorFilter = ac.createBiquadFilter();
+        nodes.motorFilter.type = "bandpass";
+        nodes.motorFilter.frequency.value = frequency;
+        nodes.motorFilter.Q.value = .7;
+        nodes.motorFilter.connect(nodes.output);
+      }
+      nodes.motorGain.connect(nodes.motorFilter || nodes.frame.filter || nodes.output);
       nodes.motor.start();
     }
     nodes.motor.playbackRate.setTargetAtTime(.65 + .35 * level, ac.currentTime, .025);
     nodes.motorGain.gain.setTargetAtTime(nodes.profile.motor.volume * level, ac.currentTime, .015);
   }
   if (Number.isFinite(frame)) {
-    if (frame === nodes.frame) return;
-    nodes.frame = frame;
+    if (frame === nodes.frameNumber) return;
+    nodes.frameNumber = frame;
   } else if (nodes.lastClick !== undefined && ac.currentTime - nodes.lastClick < .1) {
     // Compatibility with older reel scripts that only report speed.
     return;
   }
   nodes.lastClick = ac.currentTime;
-  playReelFrame(nodes, level);
+  playReelFrame(nodes, level, phase);
 }
 document.addEventListener("kg:reel-motion", ({detail}) => {
-  const {level, position, frame, continuous} = detail;
-  setFilmReelLevel(level, position, frame, continuous);
+  const {level, position, frame, continuous, phase} = detail;
+  setFilmReelLevel(level, position, frame, continuous, phase);
 });
 
 function previewFilmReelSound() {
@@ -2631,7 +2673,13 @@ function previewFilmReelSound() {
       return;
     }
     const speed = 1 - progress;
-    setFilmReelLevel(speed ** 3, 14 * (1 - speed ** 4));
+    if (filmReelNodes.landing) {
+      const frame = Math.min(7, Math.floor(progress * 10));
+      const phase = frame % 2 === 0 ? "fly" : "land";
+      setFilmReelLevel(speed * (phase === "fly" ? 1 : .55), frame + 1, frame, false, phase);
+    } else {
+      setFilmReelLevel(speed ** 3, 14 * (1 - speed ** 4));
+    }
     reelSoundPreviewFrame = requestAnimationFrame(step);
   };
   reelSoundPreviewFrame = requestAnimationFrame(step);
@@ -3423,7 +3471,7 @@ document.head.appendChild(st);
 // ---------- Единый визуальный режим киноленты для всех экранов ----------
 function mainReelMarkup(){
   const common={shellClass:"relative w-full rounded-xl bg-canvas-obsidian border border-primary-container/30 overflow-hidden shadow-[inset_0_2px_12px_rgba(0,0,0,0.95)] my-2 p-1",prefix:"film-reel",windowId:"film-reel-window",trackId:"film-reel-track",runClass:"run",frameId:"film-center-frame",includeRun:false};
-  return window.KGCinemaReel.render(reelStyle==="cassette"?{...common,mode:"cassette"}:reelStyle==="projection"?{...common,mode:"projection"}:common);
+  return window.KGCinemaReel.render({...common,mode:reelStyle});
 }
 // ---------- Новая секция «Кинолента» (подменяет старую карточку) ----------
 const CARD_HTML=`
@@ -3432,7 +3480,7 @@ const CARD_HTML=`
 <div class="flex items-center gap-2 min-w-0">
 <div class="w-7 h-7 rounded-lg bg-surface-container flex items-center justify-center border border-primary-container/30 text-primary shadow-[0_0_8px_rgba(255,184,48,0.25)] flex-shrink-0"><span class="material-symbols-outlined text-[17px]">movie</span></div>
 <div class="flex flex-col min-w-0">
-<div class="flex items-center gap-1.5"><span class="font-label-sm text-label-sm font-bold text-on-surface uppercase tracking-wider" id="reel-format-title">${reelStyle==="cassette"?"Кассетная дека · 3D Cover Flow":reelStyle==="projection"?"Проекционный тракт · 35 мм":"Кинолента 35-мм"}</span></div>
+<div class="flex items-center gap-1.5"><span class="font-label-sm text-label-sm font-bold text-on-surface uppercase tracking-wider" id="reel-format-title">${reelStyle==="cassette"?"Кассетная дека · 3D Cover Flow":reelStyle==="projection"?"Проекционный тракт · 35 мм":reelStyle==="ticket"?"Бумажные билеты":"Кинолента 35-мм"}</span></div>
 <span class="font-micro-caption text-[11px] text-text-muted truncate" id="discovery-timestamp">Крутите глобус, и здесь появится находка</span>
 </div></div>
 <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-high/90 border border-primary-container/25 shadow-sm flex-shrink-0"><span class="material-symbols-outlined text-primary-container text-[14px]">confirmation_number</span><span class="font-mono text-micro-caption text-primary-fixed font-semibold tracking-wide" id="reel-frame-counter">Кадр 00 / 00</span></div>
@@ -3720,6 +3768,7 @@ function mountRun(list,idx,cls){
 // Пустая плёнка: рамка по центру видна сразу, ещё до первого поиска
 function renderBlank(){
   strip={list:[],pool:null,cc:"",idx:-1,busy:false};
+  if (reelStyle === "ticket") $("film-reel-host").innerHTML = mainReelMarkup();
   if(!["ticket","cassette","projection"].includes(reelStyle))mountRun(new Array(9).fill(null),4,"");
   if(reelStyle==="cassette")window.KGCinemaReel.mountCassetteDeck($("film-reel-host"),[],null,{onOpen:f=>openFilm(f,"home")});
   if(reelStyle==="projection")window.KGCinemaReel.mountProjectionTrack($("film-reel-host"),null);
@@ -3732,17 +3781,18 @@ function renderStatic(pool,film,cc){      // готовая лента без п
   strip={list,pool,cc,idx:i,busy:false};
   if(reelStyle==="cassette")window.KGCinemaReel.mountCassetteDeck($("film-reel-host"),list,film,{onOpen:f=>openFilm(f,"home"),onRandom:f=>openFilm(f,"home")});
   else if(reelStyle==="projection")window.KGCinemaReel.mountProjectionTrack($("film-reel-host"),film,{country:cname(cc)});
+  else if(reelStyle==="ticket")window.KGCinemaReel.presentTicket($("film-reel-host"),film,{country:cname(cc)});
   else mountRun(list,i,"chosen");
   set("reel-frame-counter",`Кадр ${pad(i+1)} / ${list.length}`);
 }
 window.setCinemaReelStyle=function(style){
-  const next=["cassette","projection"].includes(style)?style:"35mm";
+  const next=["cassette","projection","ticket"].includes(style)?style:"35mm";
   if(next===reelStyle)return;
   const selectedFilm=cur?.film||(strip.idx>=0?strip.list?.[strip.idx]:null),selectedPool=cur?.pool||strip.pool,selectedCountry=cur?.cc||strip.cc;
   stopReel();
   reelStyle=next;store.set("reelStyle",next);
   filmSpin=true;store.set("filmSpin",true);filmLabel();
-  const title=$("reel-format-title");if(title)title.textContent=next==="cassette"?"Кассетная дека · 3D Cover Flow":next==="projection"?"Проекционный тракт · 35 мм":"Кинолента 35-мм";
+  const title=$("reel-format-title");if(title)title.textContent=next==="cassette"?"Кассетная дека · 3D Cover Flow":next==="projection"?"Проекционный тракт · 35 мм":next==="ticket"?"Бумажные билеты":"Кинолента 35-мм";
   const host=$("film-reel-host");if(!host)return;
   host.innerHTML=mainReelMarkup();
   trackEl=$("film-reel-track");frameEl=$("film-center-frame");runEl=null;
@@ -4164,10 +4214,10 @@ console.info("[Kinoglobus] Bridge v6 ready");
 <script src="mood-vibe-page.js?v=17"></script>
 <script src="oscar-page.js?v=36"></script>
 <script src="oscar-design.js?v=15"></script>
-<script src="collections.js?v=71"></script>
+<script src="collections.js?v=72"></script>
 <script src="film-interactions.js?v=14"></script>
 <script src="legal-watch.js?v=3"></script>
 <script src="global-search.js?v=2"></script>
-<script src="settings-page.js?v=25"></script>
+<script src="settings-page.js?v=26"></script>
 
 </body></html>

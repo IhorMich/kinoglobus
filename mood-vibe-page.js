@@ -9,7 +9,8 @@
     {id:"mystery",icon:"hotel_class",image:"https://lh3.googleusercontent.com/aida-public/AB6AXuD0er0jYtdzGz61j8Um3CFE-q_pdWehAddrFc5NX-3iUjtjqJxrQ8z-vCwpB8niJYSCgdDJvuqB1aiz7mPsF1HgBRcvWePuh-SsNO-gQDABd83z5czpnUcN1_UqLen3y_6K9hhFV-ywQXo3GUZJyUuC17HhOHrFkI7_lMb47EOHjq12EN1yaPiPhn7Cp6bLSKa5ayxdblXetBdmisGeCuX7ZBv4ylGYgWhnAKbvMEB1",title:"«Тайна до финальных титров»",tag:"#Загадка #Интрига",description:"Улики, подозреваемые и загадка, которую захочется разгадать раньше героев.",countries:["GB","US","KR","FR"],genres:[9648,53,80],labels:["🇬🇧 Великобритания","🇰🇷 Южная Корея","🇺🇸 США"],genreLabel:"Детектив · Триллер"},
     {id:"fantasy",icon:"auto_awesome",image:"https://lh3.googleusercontent.com/aida-public/AB6AXuDEhUTpXNYyH9V1RZhKQKF9_FgK9l2fDx-n3cAwoEnXU9TewodM61SVvL8vvjWCudTcPnY1RGEjtbUi_L5RDxWbcp7_dMLSSm4eq3Vlq5ZMaqNqdVB5qhUZJLYztkLn0iIj-3vQcQ5IUTX6OlJ2s16X6EFXLbsrinadSDBr8pL-FdqEqT__tUYK0oyjGLMfSXo9n4o1dkyHwZe1zukuRRfrHvhVP-8apgPQXTgybo5Q",title:"«В другой мир»",tag:"#Приключение #Магия",description:"Путешествие в необычные миры, где за горизонтом начинаются настоящие приключения.",countries:["NZ","GB","US","JP"],genres:[12,14,10751],labels:["🇳🇿 Новая Зеландия","🇬🇧 Великобритания","🇯🇵 Япония"],genreLabel:"Фэнтези · Приключения"},
     {id:"laughs",icon:"sentiment_satisfied",image:"https://lh3.googleusercontent.com/aida-public/AB6AXuDOVdK3UFCUn-xY7cFngnjIz0nPGELS0cUgRfO7am3EsHL_YhySn3Dme4dJseK-vuejRUKC-J9TF-2mSDvVTblvZZb1afcxRDlw7b1yBOmhd2fvR8uUxTtfJIZw-2KvFDJiIzqg5V7q5OcUrTFbYJVICLjOUyZqPbaNAQ-nshva5VBkPBgGJkL1VWN5zsRpGNT2JtG0d4YH7L3GfSMzcmMlNC7HCKwTo44y0h20myl6",title:"«Вечер без забот»",tag:"#Комедия #Лёгкость",description:"Остроумные диалоги и комичные ситуации, чтобы просто расслабиться и посмеяться.",countries:["FR","IT","US","GB"],genres:[35],labels:["🇫🇷 Франция","🇮🇹 Италия","🇺🇸 США"],genreLabel:"Комедия"},
-    {id:"animation",icon:"palette",image:"https://lh3.googleusercontent.com/aida-public/AB6AXuA7XeKmR4NcdscQ5cY6uHSLGrqpmKK4puQns6A475PweY7SRLBMbpUc-ttlveea6uepgUzA7qfzwyY2ctZVVnM-ksU8ZuVCzILvdRkUg_Dpe1cHo7JuvlHCKS7fehVmYe_FpElITk9FvPJ7w8HGQsp-CLNqrmMoMotkiaHGLd2z0ow80TTqsEaOGKHu0yQVKMnoeRVQNFc-3bDS1OqyBQa0B-YMSjmgtf_10V8BEMuo",title:"«Красивые миры анимации»",tag:"#Анимация #Вдохновение",description:"Визуально яркие истории для любого возраста — от волшебных приключений до трогательных драм.",countries:["JP","US","FR","GB"],genres:[16,14,10751],labels:["🇯🇵 Япония","🇺🇸 США","🇫🇷 Франция"],genreLabel:"Анимация · Фэнтези"}
+    {id:"animation",icon:"palette",image:"https://lh3.googleusercontent.com/aida-public/AB6AXuA7XeKmR4NcdscQ5cY6uHSLGrqpmKK4puQns6A475PweY7SRLBMbpUc-ttlveea6uepgUzA7qfzwyY2ctZVVnM-ksU8ZuVCzILvdRkUg_Dpe1cHo7JuvlHCKS7fehVmYe_FpElITk9FvPJ7w8HGQsp-CLNqrmMoMotkiaHGLd2z0ow80TTqsEaOGKHu0yQVKMnoeRVQNFc-3bDS1OqyBQa0B-YMSjmgtf_10V8BEMuo",title:"«Красивые миры анимации»",tag:"#Анимация #Вдохновение",description:"Визуально яркие истории для любого возраста — от волшебных приключений до трогательных драм.",countries:["JP","US","FR","GB"],genres:[16,14,10751],labels:["🇯🇵 Япония","🇺🇸 США","🇫🇷 Франция"],genreLabel:"Анимация · Фэнтези"},
+    ...window.KGMoodVibeAdditions.cards.map(card => ({...card}))
   ];
   const runtimes=[
     {id:"any",label:"Любой хронометраж",button:"любая длительность",icon:"all_inclusive",test:()=>true},
@@ -29,7 +30,7 @@
     laughs:{crumb:"Лёгкость и смех",pill:"ВЕЧЕР БЕЗ ЗАБОТ",badge:["sentiment_very_satisfied","100% смех"],tags:["#Комедия","#Лёгкость","#Остроумие","#Улыбка"],heading:"Вечер без забот",hero:"Остроумные диалоги и комичные ситуации, чтобы просто расслабиться и посмеяться. Фильмы, после которых улыбка не сходит с лица.",effect:["sentiment_satisfied","Улыбка"],projector:"Комедийный кинопроектор",spin:"Крутить этот вайб (Случайная комедия)",chips:[["chat_bubble","text-primary","Остроумные диалоги"],["theater_comedy","text-secondary","Комичные ситуации"],["celebration","text-primary-fixed-dim","Лёгкость"],["hourglass_bottom","text-tertiary","Без напряжения"]],coll:"Коллекция хорошего настроения",sub:"Чтобы просто посмеяться",short:"Без забот",shortSub:"Комедия"},
     animation:{crumb:"Мир анимации",pill:"МИРЫ АНИМАЦИИ",badge:["palette","100% краски"],tags:["#Анимация","#Вдохновение","#Краски","#Сказка"],heading:"Красивые миры анимации",hero:"Визуально яркие истории для любого возраста — от волшебных приключений до трогательных драм. Фильмы, нарисованные с любовью.",effect:["brush","Вдохновение"],projector:"Анимационный кинопроектор",spin:"Крутить этот вайб (Случайный мультфильм)",chips:[["palette","text-primary","Яркая картинка"],["auto_awesome","text-secondary","Волшебство"],["family_restroom","text-primary-fixed-dim","Для всех возрастов"],["favorite","text-tertiary","Трогательные сюжеты"]],coll:"Коллекция анимации",sub:"Нарисованные миры для вечера",short:"Анимация",shortSub:"Красивые миры"}
   };
-  moods.forEach(m=>{m.x=extra[m.id];});
+  moods.forEach(m=>{m.x=extra[m.id] || window.KGMoodVibeAdditions.details[m.id];});
   const esc=s=>String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const poster=(path,size="w185")=>path?`https://image.tmdb.org/t/p/${size}${path}`:"";
   const flag=cc=>/^[A-Za-z]{2}$/.test(cc||"")?String.fromCodePoint(...[...cc.toUpperCase()].map(c=>127397+c.charCodeAt(0))):"";
@@ -66,7 +67,7 @@
     return `<div class="vibe-card flex flex-col w-full gap-space-lg pb-8" data-vibe-card="${m.id}">
 <div class="flex items-center justify-between gap-space-sm"><button type="button" data-vibe-all class="h-11 px-space-xs flex items-center gap-1 text-on-surface-variant hover:text-primary transition-colors active:scale-95"><span class="material-symbols-outlined text-lg leading-none">arrow_back_ios_new</span><span class="font-label-md text-label-md tracking-tight">Все вайбы</span></button><div class="flex-1 min-w-0 flex items-center justify-center"><div class="inline-flex items-center gap-1.5 px-space-sm py-1 rounded-full bg-surface-panel/90 shadow-[inset_0_1px_0_rgba(255,184,48,0.2)] max-w-full"><span class="w-1.5 h-1.5 rounded-full bg-primary-container shadow-[0_0_8px_rgba(255,184,48,0.9)] shrink-0"></span><span class="font-micro-caption text-micro-caption tracking-wider uppercase text-on-surface truncate">ВАЙБ НАСТРОЕНИЯ · ${esc(x.crumb.toUpperCase())}</span></div></div><div class="w-11 shrink-0"></div></div>
 <section class="relative w-full rounded-2xl overflow-hidden bg-surface-container-low shadow-[0_20px_45px_rgba(7,6,10,0.7)]">
-<div class="relative w-full h-[270px] bg-cover bg-center overflow-hidden" style="background-image: url('${m.image}')">
+<div class="relative w-full h-[270px] bg-cover bg-center overflow-hidden" style="background-image: url('${m.image}'); background-position: ${m.imagePosition || "center"}">
 <div class="absolute inset-0 bg-gradient-to-t from-surface-container-low via-surface-container-low/60 to-transparent"></div>
 <div class="absolute inset-0 bg-radial-at-c from-cinema-velvet-glow via-transparent to-black/40 mix-blend-multiply"></div>
 <div class="absolute top-space-md left-space-md flex items-center gap-1.5 px-space-sm py-1 rounded-full bg-surface-panel/90 backdrop-blur-md shadow-[0_4px_16px_rgba(0,0,0,0.6)]"><span class="material-symbols-outlined text-[16px] text-secondary">${m.icon}</span><span class="font-micro-caption text-micro-caption tracking-widest uppercase text-tertiary">${esc(x.pill)}</span></div>
@@ -193,16 +194,19 @@
     const mix=a=>{const r=[...a];for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]];}return r;};
     try{
       const mood=currentMood();
-      const base=cc=>({with_origin_country:cc,with_genres:mood.genres.join("|"),"vote_count.gte":30,"vote_average.gte":5.5,sort_by:"popularity.desc",include_adult:"false"});
       if(!state.jobs){
+        const filters = await window.KGMoodVibeAdditions.discoverFilters(mood, deps.searchKeywords);
+        if(token!==state.token||key!==state.mood)return;
+        const base=cc=>({with_origin_country:cc,...filters,"vote_count.gte":30,"vote_average.gte":5.5,sort_by:"popularity.desc",include_adult:"false"});
         const firsts=await Promise.allSettled(mood.countries.map(cc=>deps.api({...base(cc),page:1})));
         if(token!==state.token||key!==state.mood)return;
         const jobs=[];
         firsts.forEach((r,i)=>{
           if(r.status!=="fulfilled")return;
           const cc=mood.countries[i],pages=Math.min(r.value.total_pages||1,4);
-          jobs.push({cc,page:1,data:r.value});
-          for(let p=2;p<=pages;p++)jobs.push({cc,page:p,data:null});
+          const params = base(cc);
+          jobs.push({cc,params,page:1,data:r.value});
+          for(let p=2;p<=pages;p++)jobs.push({cc,params,page:p,data:null});
         });
         if(!jobs.length){
           const bad=firsts.find(r=>r.status==="rejected");
@@ -213,7 +217,7 @@
       let detailFailures=0,attempted=0;
       while(state.page<state.jobs.length&&filtered().length<targetCount){
         const job=state.jobs[state.page];
-        const result=job.data||await deps.api({...base(job.cc),page:job.page});
+        const result=job.data||await deps.api({...job.params,page:job.page});
         if(token!==state.token||key!==state.mood)return;
         job.data=null;
         const candidates=(result.results||[]).filter(f=>f.poster_path&&!state.films.some(item=>item.id===f.id));

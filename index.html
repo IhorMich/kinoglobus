@@ -177,21 +177,28 @@
 <!-- Secondary Quick-Action Cinema Launchers -->
 <div class="w-full grid grid-cols-2 gap-2 mt-2.5 z-10"><button class="py-2.5 px-3 rounded-xl text-on-surface hover:text-primary font-label-sm text-label-sm flex items-center justify-center gap-2 transition-all duration-200 active:scale-95 cursor-pointer backdrop-blur-md border border-primary-container/25 shadow-[0_4px_16px_rgba(0,0,0,0.4)] hover:border-primary-container/50 hover:shadow-[0_0_14px_rgba(255,184,48,0.25)]" id="btn-top-one" style="background: linear-gradient(rgba(38, 30, 48, 0.85) 0%, rgba(22, 18, 28, 0.95) 100%);" type="button"><span class="material-symbols-outlined text-[18px] text-primary-container">military_tech</span><span class="font-medium">Топ-1 всех времён</span></button><button class="py-2.5 px-3 rounded-xl text-on-surface hover:text-secondary font-label-sm text-label-sm flex items-center justify-center gap-2 transition-all duration-200 active:scale-95 cursor-pointer backdrop-blur-md border border-secondary/25 shadow-[0_4px_16px_rgba(0,0,0,0.4)] hover:border-secondary/50 hover:shadow-[0_0_14px_rgba(255,177,197,0.25)]" id="btn-oscar-laureate" style="background: linear-gradient(rgba(48, 22, 38, 0.85) 0%, rgba(28, 14, 24, 0.95) 100%);" type="button"><span class="material-symbols-outlined text-[18px] text-secondary">hotel_class</span><span class="font-medium">Лауреат Оскар</span></button></div>
 </section>
-<!-- 4. Collapsible Modern Expandable Filter Accordions -->
-<section class="w-full flex flex-col space-y-2.5">
-<!-- Accordion 1: Категории & Жанры -->
-<details class="group rounded-xl bg-surface-panel shadow-sm overflow-hidden">
-<summary class="flex items-center justify-between p-3.5 cursor-pointer list-none select-none bg-surface-panel hover:bg-surface-container transition-colors">
-<div class="flex items-center gap-2">
-<span class="material-symbols-outlined text-primary-container text-[20px]">movie_creation</span>
-<span class="font-headline-sm text-headline-sm text-on-surface font-semibold">Категории &amp; Жанры</span>
+<!-- Главные фильтры -->
+<section class="w-full flex flex-col gap-2.5">
+<div class="grid grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] gap-2" role="group" aria-label="Фильтры кино">
+<button id="genre-filter-button" type="button" aria-expanded="false" aria-controls="genre-filter-panel" class="group flex min-w-0 items-center gap-2 px-2.5 py-2.5 rounded-xl bg-surface-panel shadow-sm hover:bg-surface-container aria-expanded:bg-surface-container transition-colors text-left">
+<span aria-hidden="true" class="material-symbols-outlined shrink-0 text-primary-container text-[18px]">movie_creation</span>
+<span class="min-w-0 flex-1">
+<span class="block font-headline-sm text-[13px] leading-tight text-on-surface font-semibold">Категории и жанры</span>
+<span id="genre-filter-summary" class="block truncate font-micro-caption text-micro-caption text-text-muted">Любой</span>
+</span>
+<span aria-hidden="true" class="material-symbols-outlined shrink-0 text-text-muted text-[16px] transition-transform group-aria-expanded:rotate-180">expand_more</span>
+</button>
+<button id="country-filter-button" type="button" aria-expanded="false" aria-controls="country-filter-panel" class="group flex min-w-0 items-center gap-2 px-2.5 py-2.5 rounded-xl bg-surface-panel shadow-sm hover:bg-surface-container aria-expanded:bg-surface-container transition-colors text-left">
+<span aria-hidden="true" class="material-symbols-outlined shrink-0 text-primary-container text-[18px]">public</span>
+<span class="min-w-0 flex-1">
+<span class="block font-headline-sm text-[13px] leading-tight text-on-surface font-semibold">Страны</span>
+<span id="country-filter-summary" class="block truncate font-micro-caption text-micro-caption text-text-muted">Любая страна</span>
+</span>
+<span aria-hidden="true" class="material-symbols-outlined shrink-0 text-text-muted text-[16px] transition-transform group-aria-expanded:rotate-180">expand_more</span>
+</button>
 </div>
-<div class="flex items-center gap-2">
-<span class="font-micro-caption text-micro-caption text-text-muted">Любой</span>
-<span class="material-symbols-outlined text-text-muted text-[20px] transition-transform duration-200 group-open:rotate-180">expand_more</span>
-</div>
-</summary>
-<div class="p-3.5 pt-1 flex flex-wrap gap-2">
+<div id="genre-filter-panel" class="rounded-xl bg-surface-panel shadow-sm p-3.5" hidden>
+<div id="genre-filter-chips" class="flex flex-wrap gap-2">
 <button class="genre-pill h-[34px] px-4 rounded-full font-label-sm text-label-sm flex items-center gap-1 text-canvas-obsidian font-bold cursor-pointer border border-white/20 transition-all" style="background: linear-gradient(135deg, rgb(255, 78, 32) 0%, rgb(255, 149, 0) 50%, rgb(255, 193, 7) 100%); box-shadow: rgba(255, 115, 0, 0.4) 0px 2px 14px, rgba(255, 255, 255, 0.35) 0px 1px 0px inset;" type="button"><span class="">🌐 Любой жанр</span></button>
 <button class="genre-pill h-[34px] px-3.5 rounded-full font-label-sm text-label-sm flex items-center gap-1 bg-surface-container text-text-muted hover:text-on-surface" type="button">
 <span class="">Боевик</span>
@@ -218,27 +225,21 @@
 <span class="">🔞 Взрослое кино 18+</span>
 </button>
 </div>
-</details>
-<details class="group rounded-xl bg-surface-panel shadow-sm overflow-hidden" id="country-filter-card">
-<summary class="flex items-center justify-between p-3.5 cursor-pointer list-none select-none bg-surface-panel hover:bg-surface-container transition-colors">
-<div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary-container text-[20px]">public</span><span class="font-headline-sm text-headline-sm text-on-surface font-semibold">Страны</span></div>
-<div class="flex items-center gap-2"><span id="country-filter-summary" class="font-micro-caption text-micro-caption text-text-muted">Любая страна</span><span class="material-symbols-outlined text-text-muted text-[20px] transition-transform duration-200 group-open:rotate-180">expand_more</span></div>
-</summary>
-<div class="p-3.5 pt-1">
-<input id="country-filter-search" type="search" autocomplete="off" placeholder="Найти страну…" class="w-full h-10 px-3 mb-2 rounded-lg bg-surface-container-lowest text-label-sm text-on-surface placeholder:text-text-muted/70 outline-none border border-white/10 focus:border-primary-container/60">
+</div>
+<div id="country-filter-panel" class="rounded-xl bg-surface-panel shadow-sm p-3.5" hidden>
+<input id="country-filter-search" type="search" aria-label="Найти страну" autocomplete="off" placeholder="Найти страну…" class="w-full h-10 px-3 mb-2 rounded-lg bg-surface-container-lowest text-label-sm text-on-surface placeholder:text-text-muted/70 outline-none border border-white/10 focus:border-primary-container/60">
 <div class="flex items-center justify-between mb-2"><span id="country-filter-hint" class="font-micro-caption text-micro-caption text-text-muted">Без выбора поиск идёт по всем странам</span><button id="country-filter-clear" type="button" class="font-micro-caption text-micro-caption text-primary-container hover:text-primary">Сбросить</button></div>
 <div id="country-filter-chips" class="flex flex-wrap gap-2 max-h-44 overflow-y-auto pr-1" aria-label="Страны производства"></div>
 </div>
-</details>
-<!-- Accordion 2: Год и рейтинг -->
-<details class="group rounded-xl bg-surface-panel shadow-sm overflow-hidden">
+<!-- Год и рейтинг -->
+<details id="year-rating-filter" class="group rounded-xl bg-surface-panel shadow-sm overflow-hidden">
 <summary class="flex items-center justify-between p-3.5 cursor-pointer list-none select-none bg-surface-panel hover:bg-surface-container transition-colors">
 <div class="flex items-center gap-2">
 <span class="material-symbols-outlined text-primary-container text-[20px]">calendar_month</span>
 <span class="font-headline-sm text-headline-sm text-on-surface font-semibold">Год и рейтинг</span>
 </div>
 <div class="flex items-center gap-2">
-<span class="font-micro-caption text-micro-caption text-text-muted">1920–2026 · 6.0+</span>
+<span class="font-micro-caption text-micro-caption text-text-muted" id="year-rating-filter-summary">1920–2026 · 6.0+</span>
 <span class="material-symbols-outlined text-text-muted text-[20px] transition-transform duration-200 group-open:rotate-180">expand_more</span>
 </div>
 </summary>
@@ -272,15 +273,15 @@
 </div>
 </div>
 </details>
-<!-- Accordion 3: Тематические коллекции -->
-<details class="group rounded-xl bg-surface-panel shadow-sm overflow-hidden">
+<!-- Тематические коллекции -->
+<details id="theme-filter" class="group rounded-xl bg-surface-panel shadow-sm overflow-hidden">
 <summary class="flex items-center justify-between p-3.5 cursor-pointer list-none select-none bg-surface-panel hover:bg-surface-container transition-colors">
 <div class="flex items-center gap-2">
 <span class="material-symbols-outlined text-primary-container text-[20px]">collections_bookmark</span>
 <span class="font-headline-sm text-headline-sm text-on-surface font-semibold">Тематические коллекции</span>
 </div>
 <div class="flex items-center gap-2">
-<span class="font-micro-caption text-micro-caption text-text-muted">Готовые сеты</span>
+<span class="font-micro-caption text-micro-caption text-text-muted" id="theme-filter-summary">Готовые сеты</span>
 <span class="material-symbols-outlined text-text-muted text-[20px] transition-transform duration-200 group-open:rotate-180">expand_more</span>
 </div>
 </summary>
@@ -1826,17 +1827,43 @@ const emojiFlag = c =>
   [...c].map(x => String.fromCodePoint(127397 + x.charCodeAt(0))).join("");
 
 const LOCAL_FLAG_CODES = new Set(COUNTRIES);
-const flag = (c, wave = true) => {
-  let body;
 
-  if (HIST_FLAG_FILES[c]) {
-    body = `<img class="flag-img" src="${HIST_FLAG_FILES[c]}" alt="">`;
-  } else if (HIST_SVG[c]) {
-    body = HIST_SVG[c];
+function recoverCountryFlag(image) {
+  const code = image.dataset.flagCode;
+  const remote = image.dataset.flagFallback;
+  if (remote) {
+    delete image.dataset.flagFallback;
+    image.src = remote;
+    return;
+  }
+
+  if (Object.hasOwn(HIST_SVG, code)) {
+    image.outerHTML = HIST_SVG[code];
+    return;
+  }
+
+  const emoji = document.createElement("span");
+  emoji.className = "flag-emoji";
+  emoji.textContent = emojiFlag(code);
+  image.replaceWith(emoji);
+}
+
+const flag = (c, wave = true) => {
+  const code = String(c).toUpperCase();
+  if (!/^[A-Z]{2}$/.test(code)) return "";
+
+  let body;
+  if (HIST_FLAG_FILES[code]) {
+    body = `<img class="flag-img" src="${HIST_FLAG_FILES[code]}" data-flag-code="${code}" alt="" onerror="recoverCountryFlag(this)">`;
+  } else if (HIST_SVG[code]) {
+    body = HIST_SVG[code];
   } else {
-    const file = `${c.toLowerCase()}.svg`;
-    const src = LOCAL_FLAG_CODES.has(c) ? `assets/flags/${file}` : `https://flagcdn.com/${file}`;
-    body = `<img class="flag-img" src="${src}" alt="" onerror="this.onerror=null;this.replaceWith(document.createTextNode('${emojiFlag(c)}'))">`;
+    const file = `${code.toLowerCase()}.svg`;
+    const remote = `https://flagcdn.com/${file}`;
+    const local = LOCAL_FLAG_CODES.has(code);
+    const src = local ? `assets/flags/${file}` : remote;
+    const fallback = local ? ` data-flag-fallback="${remote}"` : "";
+    body = `<img class="flag-img" src="${src}" data-flag-code="${code}"${fallback} alt="" onerror="recoverCountryFlag(this)">`;
   }
 
   return wave ? `<span class="wave">${body}</span>` : body;
@@ -3391,8 +3418,19 @@ $("rmin").value=RO.includes(store.get("rmin",""))?store.get("rmin",""):"6";
 $("rmax").value=RO.includes(store.get("rmax",""))?store.get("rmax",""):"";
 
 // ---------- Подключение к дизайну: чипы, подборки, оценка, годы ----------
-const DET=[...document.querySelectorAll("details")];
-const gBox=DET[0].children[1], rBox=DET[2].querySelector(".overflow-x-auto"), tBox=DET[3].lastElementChild;
+const filterButtons=[$("genre-filter-button"), $("country-filter-button")];
+filterButtons.forEach(button=>{
+  button.addEventListener("click",()=>{
+    const shouldOpen=button.getAttribute("aria-expanded")==="false";
+    filterButtons.forEach(toggle=>{
+      const open=toggle===button&&shouldOpen;
+      toggle.setAttribute("aria-expanded",String(open));
+      $(toggle.getAttribute("aria-controls")).hidden=!open;
+    });
+  });
+});
+const yearRatingFilter=$("year-rating-filter"), themeFilter=$("theme-filter");
+const gBox=$("genre-filter-chips"), rBox=yearRatingFilter.querySelector(".overflow-x-auto"), tBox=themeFilter.lastElementChild;
 const BASE="h-[34px] px-3.5 rounded-full font-label-sm text-label-sm flex items-center gap-1 transition-all ";
 function pills(box,sel,attr){
   box.innerHTML="";
@@ -3411,7 +3449,7 @@ rBox.innerHTML="";
 const sChips=[...document.querySelectorAll(".surprise-chip")];
 $("surpriseChips").innerHTML=["light","find","wild","hard"].map(s=>`<button class="chip" data-s="${s}"></button>`).join("");
 sChips.forEach((c,i)=>c.addEventListener("click",()=>$("surpriseChips").children[i].click()));
-const yi=[...DET[2].querySelectorAll('input[type="number"]')];
+const yi=[...yearRatingFilter.querySelectorAll('input[type="number"]')];
 [[yi[0],"year","1920"],[yi[1],"yearTo","2026"]].forEach(([inp,id,def])=>inp.addEventListener("input",()=>{
   const v=inp.value.trim(),e=$(id);e.value=(v===""||v===def)?"":v;e.dispatchEvent(new Event("input"));}));
 
@@ -3434,8 +3472,10 @@ function syncDesign(){
   sChips.forEach((c,i)=>{const on=["light","find","wild","hard"][i]===surprise;
     c.style.background=on?"#2c2830":"#1c1822";c.style.color=on?"#ffdca8":"#e8e0ea";c.style.boxShadow=on?"0 0 10px rgba(255,184,48,.25)":"";});
   const d=$("surprise-description-text");if(d)d.textContent=SURPRISE_NOTE[surprise];
-  const sums=[sumText("filterSum","Категории"),countryFilters.size?`${countryFilters.size} ${plural(countryFilters.size)}`:"Любая страна",sumText("extraSum","Год и оценка"),sumText("themeSum","Тематические подборки")];
-  DET.forEach((d,i)=>{const s=d.querySelector("summary > div:last-child > span:first-child");if(s){const label=i===3&&sums[3]==="Любой"?"Готовые сеты":sums[i];s.textContent=label;}});
+  $("genre-filter-summary").textContent=sumText("filterSum","Категории");
+  $("year-rating-filter-summary").textContent=sumText("extraSum","Год и оценка");
+  const themeSummary=sumText("themeSum","Тематические подборки");
+  $("theme-filter-summary").textContent=themeSummary==="Любой"?"Готовые сеты":themeSummary;
   if(document.activeElement!==yi[0])yi[0].value=$("year").value||"1920";
   if(document.activeElement!==yi[1])yi[1].value=$("yearTo").value||"2026";
   const cnt=document.querySelector('header a[data-path="moe-puteshestvie"] span:last-child');
@@ -3979,7 +4019,7 @@ go("moe-puteshestvie",()=>$("mapBtn").click());
 go("istoriya-posmotrel",()=>$("mapBtn").click());
 go("nastrojki",()=>$("gear").click());
 go("globus-random",()=>scrollTo({top:0,behavior:"smooth"}));
-go("podborki-i-zhanry",()=>{DET[3].open=true;DET[3].scrollIntoView({behavior:"smooth",block:"start"});});
+go("podborki-i-zhanry",()=>{themeFilter.open=true;themeFilter.scrollIntoView({behavior:"smooth",block:"start"});});
 
 // ---------- Старт ----------
 G.orientGlobeToCountry(G.currentCountry,true,0.08,G.CAMERA_DIST_DEFAULT,false);G.hideMarks();
@@ -4004,7 +4044,7 @@ console.info("[Kinoglobus] Bridge v6 ready");
 
 <script src="globe-visuals.js?v=3"></script>
 <script src="watch-history.js?v=7"></script>
-<script src="country-pages.js?v=10"></script>
+<script src="country-pages.js?v=11"></script>
 <script src="account-page.js?v=1"></script>
 <script src="mood-page.js?v=31"></script>
 <script src="mood-vibe-page.js?v=16"></script>

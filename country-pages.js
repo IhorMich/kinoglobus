@@ -63,11 +63,9 @@
     .kgc-country-tabs{display:flex;gap:8px;overflow-x:auto;padding:10px 12px 8px;background:#190e1b;scrollbar-width:thin;scrollbar-color:#6a485b transparent}.kgc-country-tab{flex:none;display:flex;align-items:center;justify-content:center;gap:7px;min-height:44px;padding:5px 11px;border:1px solid #523649;border-radius:99px;background:linear-gradient(145deg,#271725,#1a101e);color:#f5e8eb;font:600 13px 'Plus Jakarta Sans',sans-serif;white-space:nowrap;cursor:pointer}.kgc-flag-mark{position:relative;isolation:isolate;display:inline-grid;place-items:center;flex:none;width:32px;height:20px;overflow:hidden;border-radius:5px;background:#211b25;box-shadow:0 1px 5px #0008}.kgc-flag-mark :is(img,svg){display:block;width:100%;height:100%;object-fit:fill}.kgc-flag-mark:after{content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;box-shadow:inset 0 1px 1px #fff6,inset 0 -3px 5px #0004;background:linear-gradient(130deg,#fff3,transparent 42%,#0003 92%)}.kgc-country-tab.active{border-color:#f4d386;background:linear-gradient(155deg,#251323,#443022);color:#ffe29d;box-shadow:inset 0 0 0 1px #f4d38666}.kgc-hero-full{min-height:390px;margin:0 0 18px;display:flex;align-items:flex-end;position:relative;isolation:isolate;clip-path:inset(0);background:#190e1b}.kgc-hero-full:after{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,transparent 12%,#190e1b12 35%,#190e1b85 61%,#190e1b 95%)}.kgc-hero-copy{position:relative;z-index:1;width:100%;padding:20px 18px 18px;text-align:center}.kgc-hero-full .kgc-country-name{font-size:clamp(29px,8vw,45px);line-height:1.06;text-transform:uppercase;overflow-wrap:anywhere;text-shadow:0 3px 18px #000a}.kgc-hero-full .kgc-blurb{margin:9px auto 16px;max-width:34ch;font-size:16px;line-height:1.4;text-shadow:0 2px 12px #000}.kgc-action-row{display:flex;gap:8px}.kgc-action-row .kgc-btn{height:52px;flex:1;font-size:14px;box-shadow:0 10px 28px rgba(255,184,48,.3)}.kgc-icon-action{width:48px;height:48px;border:0;border-radius:50%;background:#302a35;color:#ffdca8;font-size:20px;cursor:pointer}.kgc-passport-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:0 16px}.kgc-passport-tile{position:relative;min-height:112px;overflow:hidden;padding:12px;border-radius:15px;background:#1d1a22;display:flex;flex-direction:column;justify-content:space-between}.kgc-passport-tile:nth-child(4){background:linear-gradient(140deg,#221e26,#302a35)}.kgc-passport-tile:after{content:attr(data-code);position:absolute;right:-3px;bottom:-18px;color:#ffffff09;font:600 54px 'Noto Serif',serif;pointer-events:none}.kgc-passport-label{display:flex;justify-content:space-between;gap:6px;color:#b3a79a;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}.kgc-passport-value{margin-top:13px;color:#ffdca8;font:600 24px/1.15 'Noto Serif',serif}.kgc-passport-foot{margin-top:4px;color:#b3a79a;font-size:11px;line-height:1.4}.kgc-feature-card{margin:0 16px;background:#1d1a22;border-radius:18px;overflow:hidden;border:1px solid rgba(255,220,168,.16);box-shadow:0 15px 35px #0005;cursor:pointer}.kgc-feature-image{height:clamp(185px,52vw,245px);position:relative;background-size:cover;background-position:center;background-color:#302a35}.kgc-feature-image:after{content:'';position:absolute;inset:0;background:linear-gradient(0deg,#1d1a22,transparent 68%)}.kgc-feature-badge{position:absolute;z-index:1;top:11px;left:11px;padding:6px 9px;border-radius:99px;background:#100d14dd;color:#ffdca8;font-size:11px;font-weight:700}.kgc-feature-runtime{position:absolute;z-index:1;top:11px;right:11px;padding:6px 9px;border-radius:99px;background:#100d14dd;color:#e8e0ea;font-size:10px}.kgc-feature-copy{padding:0 14px 15px;margin-top:-18px;position:relative;z-index:2}.kgc-feature-title{font:600 22px/1.25 'Noto Serif',serif;color:#fdfbf7}.kgc-feature-original{font:italic 12px 'Noto Serif',serif;color:#b3a79a;margin-top:3px}.kgc-feature-meta{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:9px 0}.kgc-feature-genre-list{display:flex;gap:6px;flex-wrap:wrap}.kgc-feature-cast{margin-top:8px;color:#d5c4ad;font:12px/1.45 'Plus Jakarta Sans',sans-serif}.kgc-account-icon{width:32px;height:32px!important;min-width:32px;border-radius:50%;background:#ffdfa4;color:#432c00}.kgc-head-title small.kgc-vip{display:inline-block;padding:3px 6px;border-radius:99px;background:#861a454d;color:#ffb1c5;font-size:9px;font-weight:700;letter-spacing:.08em}.kgc-live-dot{display:inline-block;width:6px;height:6px;margin-right:5px;border-radius:50%;background:#ffb1c5;box-shadow:0 0 8px #ffb1c5}.kgc-section-icon{color:#ffdca8;font-size:19px}.kgc-section-icon.rose{color:#ffb1c5}.kgc-person{flex-basis:224px;min-height:190px}.kgc-person .kgc-avatar{width:76px;height:76px;font-size:18px}.kgc-person img.kgc-avatar{object-fit:cover}.kgc-person b{font-size:14px!important}.kgc-person small{line-height:1.45;font-size:11px}.kgc-filmcard{min-width:0}.kgc-film-actions{display:flex;justify-content:space-between;align-items:center;gap:5px}.kgc-film-save{width:30px;height:30px;border:0;border-radius:50%;background:#100d14cc;color:#ffdca8;display:grid;place-items:center;cursor:pointer}.kgc-load-more{grid-column:1/-1;width:100%;margin:4px 0 0}.kgc-location-card{height:222px;position:relative;overflow:hidden;border-radius:18px;background:radial-gradient(ellipse at 50% 42%,#563f30,#211b27 50%,#111018);border:1px solid #ffffff12}.kgc-location-grid{position:absolute;inset:0;background-image:linear-gradient(#ffdca811 1px,transparent 1px),linear-gradient(90deg,#ffdca811 1px,transparent 1px);background-size:32px 32px;opacity:.42;transform:perspective(270px) rotateX(24deg) scale(1.35)}.kgc-location-ping{position:absolute;left:50%;top:40%;width:58px;height:58px;display:grid;place-items:center;border-radius:50%;background:#ffb830;color:#432c00;font:700 13px 'Plus Jakarta Sans',sans-serif;box-shadow:0 0 0 12px #ffb83020,0 0 32px #ffb83088;transform:translate(-50%,-50%)}.kgc-location-copy{position:absolute;inset:auto 12px 12px;padding:12px;border-radius:13px;background:#100d14d9;backdrop-filter:blur(12px)}.kgc-location-copy b{font:600 14px 'Noto Serif',serif;color:#f5e4cb}.kgc-location-copy small{display:block;margin-top:4px;color:#b3a79a;font-size:11px;line-height:1.5}.kgc-back-profile{position:fixed;right:max(16px,calc((100vw - 520px)/2 + 16px));bottom:calc(env(safe-area-inset-bottom,0px) + 18px);z-index:4;border:0;border-radius:99px;padding:11px 15px;background:#302a35;color:#ffdca8;box-shadow:0 8px 22px #0008;font-size:12px;font-weight:700;cursor:pointer}.kgc-icon .material-symbols-outlined,.kgc-icon-action .material-symbols-outlined,.kgc-btn .material-symbols-outlined{font-size:20px;line-height:1}
     .kgc-head-title-row{display:flex;align-items:center;gap:6px;min-width:0}.kgc-head-title-row b{flex:0 1 auto;min-width:0;font-size:15px}.kgc-vip{flex:none;padding:3px 6px;border-radius:99px;background:#861a454d;color:#ffb1c5;font:700 8px 'Plus Jakarta Sans',sans-serif;letter-spacing:.06em}.kgc-section-icon{color:#ffdca8;font-size:20px}.kgc-section-icon.rose{color:#ffb1c5}.kgc-feature-badge .material-symbols-outlined{font-size:13px;vertical-align:-2px}.kgc-cast-label{color:#ffdca8;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}.kgc-inline-person{padding:0;border:0;background:transparent;color:#ffdca8;font:inherit;text-decoration:underline;text-decoration-color:#ffb83066;text-underline-offset:2px;cursor:pointer}.kgc-inline-person:hover{color:#ffb830}.kgc-icon .material-symbols-outlined,.kgc-icon-action .material-symbols-outlined,.kgc-btn .material-symbols-outlined{font-size:20px;line-height:1}.kgc-account-icon{width:32px;height:32px!important;min-width:32px;border-radius:50%;background:#ffdfa4;color:#432c00}.kgc-feature-genre-list{display:flex;gap:6px;flex-wrap:wrap}.kgc-head-title-row .kgc-vip{font-size:8px}.kgc-person{flex:0 0 224px;min-height:225px;padding:16px 13px 12px;display:flex;flex-direction:column;align-items:center;border:1px solid #ffffff0a;box-shadow:0 8px 18px #0002}.kgc-person-role{margin-top:3px;color:#ffb1c5;font-size:9px;letter-spacing:.08em;text-transform:uppercase}.kgc-person-films{display:-webkit-box;min-height:42px;overflow:hidden;-webkit-box-orient:vertical;-webkit-line-clamp:2;margin-top:7px;color:#d5c4ad!important;font:italic 11px/1.45 'Noto Serif',serif!important}.kgc-person-footer{width:100%;margin-top:auto;padding-top:10px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid #ffffff0c;color:#b3a79a;font-size:10px}.kgc-person-footer .material-symbols-outlined{font-size:15px;color:#ffdca8}.kgc-person-name{margin-top:0;font-size:13px!important;text-align:center}
     @media(max-width:390px){.kgc-pad{padding:13px}.kgc-country-name{font-size:27px}.kgc-grid3{gap:6px}.kgc-mini{padding:10px 8px}.kgc-mini b{font-size:18px}.kgc-section h3{font-size:17px}.kgc-feature-image{height:150px}.kgc-passport-tile{min-height:104px;padding:10px}.kgc-vip{font-size:7px}.kgc-head{gap:8px;padding:0 10px}.kgc-head .kgc-icon{width:32px}}
-    .kgc-country-tab:focus-visible,.kgc-atlas-countries button:focus-visible{outline:2px solid #ffe29d;outline-offset:2px}
+    .kgc-country-tab:focus-visible{outline:2px solid #ffe29d;outline-offset:2px}
     .kgc-country-tab .kgc-flag-mark{width:clamp(28px,8.5vw,38px);height:auto;aspect-ratio:1.68;border-radius:5px}
     .kgc-flag-mark[data-flag="NP"] img,.kgc-flag-mark[data-flag="CH"] img{object-fit:contain}
-    .kgc-atlas-countries{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,170px),1fr));gap:8px}
-    .kgc-atlas-countries .kgc-country-pill{display:flex;align-items:center;gap:8px;min-height:44px;text-align:left}
     .kgc-flag-backdrop{position:absolute;inset:0;clip-path:inset(0);isolation:isolate}
     .kgc-flag-filter{position:absolute}
     .kgc-flag-art{position:absolute;inset:-13% -8% -8%;display:grid;place-items:center}
@@ -96,6 +94,78 @@
       content:'';width:clamp(20px,8vw,43px);height:1px;background:linear-gradient(90deg,transparent,#f9d389,transparent)
     }
     .kgc-hero-full .kgc-blurb{font-family:'Noto Serif',serif;font-style:italic}
+    .kgc-catalog-link{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;margin:10px 0;padding:9px 10px;border:1px solid #ffdca832;border-radius:10px;background:#2c2830;color:#ffdca8;text-align:left;font-weight:600;cursor:pointer}
+    .kgc-catalog-link:hover{border-color:#ffdca8}
+    .kgc-catalog-head{display:grid;grid-template-columns:36px 1fr 76px;gap:4px;background:#151219f5}
+    .kgc-catalog-head h1{margin:0;text-align:center;font:700 20px 'Noto Serif',serif;color:#ffdca8}
+    .kgc-catalog-head-actions{display:flex;align-items:center;justify-content:flex-end;gap:4px}
+    .kgc-catalog-head .kgc-icon{display:grid;place-items:center}
+    .kgc-catalog-head .kgc-icon .material-symbols-outlined{font-size:21px}
+    .kgc-catalog-head .kgc-catalog-profile{width:32px;height:32px;border-radius:50%;background:#ffdca8;color:#432c00}
+    .kgc-catalog{padding:14px clamp(12px,4.5vw,20px) 24px;display:grid;gap:20px;color:#d5c4ad;background:radial-gradient(ellipse at 50% 0,#ffb83012,transparent 190px),#151219;font:500 13px/1.4 'Noto Serif',serif}
+    .kgc-catalog-summary,.kgc-catalog-card,.kgc-catalog-bottom{min-width:0;border-radius:13px;background:#221e26;box-shadow:0 10px 20px #100d1480}
+    .kgc-catalog-summary{display:grid;gap:12px;padding:16px}
+    .kgc-catalog-summary-line,.kgc-catalog-metric{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .kgc-catalog-summary-line strong,.kgc-catalog-metric strong{color:#ffdca8}
+    .kgc-catalog-summary-line strong{font-size:11px;letter-spacing:.07em;text-transform:uppercase}
+    .kgc-catalog-summary-line span{border-radius:99px;background:#37333b;color:#ffdca8;padding:4px 8px;font-size:10px;font-weight:700;text-align:center}
+    .kgc-catalog-metric b{font-size:30px;color:#ffdca8}
+    .kgc-catalog-metric small{font-size:10px;text-align:right}
+    .kgc-catalog-progress{height:8px;border-radius:8px;background:#37333b;overflow:hidden}
+    .kgc-catalog-progress span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#ffb830,#ffdca8)}
+    .kgc-catalog-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+    .kgc-catalog-stats div{display:grid;gap:1px;border-radius:8px;background:#2c2830;padding:8px}
+    .kgc-catalog-stats b{color:#ffdca8;font-size:15px}
+    .kgc-catalog-stats div:nth-child(2) b{color:#ffb1c5}
+    .kgc-catalog-stats div:nth-child(3) b{color:#e8e0ea}
+    .kgc-catalog-pills{display:flex;gap:5px;overflow-x:auto;scrollbar-width:thin;padding-block:3px}
+    .kgc-catalog-pill,.kgc-catalog-view button{border:0;background:#2c2830;color:#d5c4ad;cursor:pointer}
+    .kgc-catalog-pill{flex:none;padding:5px 9px;border-radius:8px;font:700 11px/1.4 'Noto Serif',serif;white-space:nowrap}
+    .kgc-catalog-summary .kgc-catalog-pill{border-radius:99px}
+    .kgc-catalog-pill[aria-pressed="true"]{background:#ffdca8;color:#432c00}
+    .kgc-catalog-controls{display:grid;gap:7px;min-width:0}
+    .kgc-catalog-search{display:flex;align-items:center;gap:8px;padding:0 12px;border-radius:12px;background:#1d1a21}
+    .kgc-catalog-search input{flex:1;min-width:0;width:100%;height:44px;padding:0;border:0;background:transparent;color:#e8e0ea;font:inherit;box-shadow:none}
+    .kgc-catalog-search input:focus{box-shadow:none;outline:0}
+    .kgc-catalog-search:focus-within,.kgc-catalog button:focus-visible{outline:2px solid #ffdca8;outline-offset:2px}
+    .kgc-catalog-search .material-symbols-outlined{font-size:19px}
+    .kgc-catalog-toolbar{display:flex;align-items:center;gap:6px}
+    .kgc-catalog-toolbar .kgc-catalog-pills{min-width:0;flex:1}
+    .kgc-catalog-view{display:flex;gap:3px;padding:4px;border-radius:8px;background:#1d1a21}
+    .kgc-catalog-view button{display:grid;place-items:center;padding:5px;border-radius:5px;background:transparent}
+    .kgc-catalog-view button[aria-pressed="true"]{background:#2c2830;color:#ffdca8}
+    .kgc-catalog-view .material-symbols-outlined{font-size:18px}
+    .kgc-catalog-feed{display:grid;gap:16px}
+    .kgc-catalog-feed[data-view="grid"]{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+    .kgc-catalog-card{overflow:hidden}
+    .kgc-catalog-banner{position:relative;isolation:isolate;min-height:142px;display:grid;align-content:space-between;gap:20px;padding:12px}
+    .kgc-catalog-banner .kgc-flag-backdrop{z-index:-2}
+    .kgc-catalog-banner::after{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,#221e2655,#221e269e 45%,#221e26)}
+    .kgc-catalog-country{display:flex;align-items:center;gap:8px;min-width:0}
+    .kgc-catalog-country h2{margin:0;color:#e8e0ea;font:700 17px/1.2 'Noto Serif',serif;overflow-wrap:anywhere}
+    .kgc-catalog-banner h2{font-size:23px}
+    .kgc-catalog-country small{font-size:11px;color:#ffdca8}
+    .kgc-catalog-card-body{display:grid;gap:11px;padding:12px}
+    .kgc-catalog-badges{display:flex;flex-wrap:wrap;gap:5px;justify-content:space-between}
+    .kgc-catalog-badge{padding:3px 7px;border-radius:99px;background:#151219;color:#ffdca8;font-size:10px;font-weight:700}
+    .kgc-catalog-badge.open{background:#6b4c27}
+    .kgc-catalog-banner .kgc-catalog-badge.open{background:#ffb830;color:#432c00}
+    .kgc-catalog-film{display:flex;align-items:center;gap:10px;width:100%;border:0;border-radius:9px;background:#2c2830;padding:8px;text-align:left;color:#d5c4ad;cursor:pointer}
+    .kgc-catalog-film img,.kgc-catalog-poster-placeholder{width:55px;aspect-ratio:2/3;border-radius:5px;background:#1d1a21;object-fit:cover;flex:none}
+    .kgc-catalog-poster-placeholder{display:grid;place-items:center;color:#ffdca8}
+    .kgc-catalog-film b,.kgc-catalog-film small{display:block}
+    .kgc-catalog-film b{color:#e8e0ea;font-size:15px;line-height:1.25}
+    .kgc-catalog-film small{font-size:11px}
+    .kgc-catalog-actions{display:flex;align-items:center;flex-wrap:wrap;gap:6px}
+    .kgc-catalog-action{display:inline-flex;align-items:center;justify-content:center;min-height:36px;gap:5px;padding:7px 10px;border:0;border-radius:8px;background:#2c2830;color:#ffdca8;font:700 12px 'Noto Serif',serif;cursor:pointer}
+    .kgc-catalog-action.primary{background:linear-gradient(110deg,#ffbf43,#f4a633);color:#432c00;box-shadow:0 4px 12px #ffb83040}
+    .kgc-catalog-actions .kg-watched-button{min-height:36px;padding:6px 9px}
+    .kgc-catalog-card p{margin:0}
+    .kgc-catalog-bottom{display:grid;gap:10px;padding:16px;background:linear-gradient(#2c2830,#221e26 70%,#21141e)}
+    .kgc-catalog-bottom h2{margin:0;color:#e8e0ea;font:700 20px/1.2 'Noto Serif',serif}
+    .kgc-catalog-bottom p{margin:0}
+    .kgc-catalog-bottom button{border-radius:99px;min-height:44px}
+    .kgc-catalog-empty{padding:18px 0;text-align:center}
   `;
   document.head.appendChild(style);
 
@@ -121,8 +191,8 @@
       <div class="kgc-pad"><section class="kgc-panel kgc-overview">
         <div style="display:flex;justify-content:space-between;gap:8px"><span class="kgc-kicker">✦ Киноэкспедиция</span><span class="kgc-chip neutral">${opened?`${opened} / ${countries.length} открыто`:'Начало пути'}</span></div>
         <div style="display:flex;align-items:center;gap:14px;margin:9px 0 4px"><div class="kgc-statbig">${opened}<span style="font-size:20px;color:#d5c4ad"> / ${countries.length}</span></div><div style="margin-left:auto;text-align:center"><button class="kgc-btn secondary" data-map-zoom>＋　Карта</button></div></div>
-        <div class="kgc-muted" style="margin-bottom:14px">Страны мирового кинематографа</div>
-        <div class="kgc-progress"><i style="width:${pct}%"></i></div><div style="display:flex;justify-content:space-between;margin-top:7px" class="kgc-muted"><span>${fmt(total)} просмотренных фильмов</span><span>${100-opened} не открыто</span></div>
+        <button type="button" class="kgc-catalog-link" data-open-catalog>Страны мирового кинематографа <span aria-hidden="true">→</span></button>
+        <div class="kgc-progress"><i style="width:${pct}%"></i></div><div style="display:flex;justify-content:space-between;margin-top:7px" class="kgc-muted"><span>${fmt(total)} просмотренных фильмов</span><span>${countries.length-opened} не открыто</span></div>
         <div style="display:flex;align-items:center;gap:8px;margin-top:15px;color:#d5c4ad;font:12px 'Noto Serif',serif"><span>☝</span><span>Выберите страну на карте или в списке ниже</span></div>
       </section></div>
       <div class="kgc-pad" style="padding-top:0"><div class="kgc-grid3">
@@ -137,10 +207,7 @@
       <div class="kgc-section"><h3>🌐 Атлас кинолокаций</h3><span class="kgc-muted">${opened} отмечено</span></div>
       <div class="kgc-pad" style="padding-top:0"><div class="kgc-panel kgc-map"><div id="kg-country-map-host"></div><div class="kgc-map-controls"><span class="kgc-muted" style="flex:1">Нажмите на отмеченную страну</span><button class="kgc-btn secondary" data-open-globe>Развернуть глобус</button></div></div></div>
       ${seenCountries.length?`<div class="kgc-section"><h3>Открытые страны</h3><span class="kgc-muted">${seenCountries.length}</span></div><div class="kgc-pad" style="padding-top:0"><div class="kgc-country-list">${seenCountries.map(c=>`<button class="kgc-country-pill has" data-open-country="${c}">${flag(c)} ${esc(app.countryName(c))} · ${counts[c]}</button>`).join('')}</div></div>`:''}
-      <div class="kgc-section"><h3>Все страны</h3></div>
-      <div class="kgc-pad" style="padding-top:0"><div class="kgc-atlas-countries">${countries.slice()
-        .sort((a,b)=>app.countryName(a).localeCompare(app.countryName(b),'ru'))
-        .map(c=>`<button type="button" class="kgc-country-pill" data-open-country="${c}">${flag(c)}<span>${esc(app.countryName(c))}</span></button>`).join('')}</div></div>
+      <div class="kgc-pad" style="padding-top:0"><button type="button" class="kgc-catalog-link" data-open-catalog>Все страны <span aria-hidden="true">→</span></button></div>
       <div class="kgc-foot"><button class="kgc-btn secondary" data-atlas-close style="width:100%">Закрыть атлас</button></div>`;
     const mapHost=root.querySelector('#kg-country-map-host');
     if(mapHost){mapHost.append(map);if(zin&&zout){const controls=document.createElement('div');controls.className='kgc-map-controls';controls.append(zout,zin);mapHost.append(controls);}}

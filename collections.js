@@ -14,7 +14,7 @@ st2.textContent=`.kgr-win{position:relative;height:150px;overflow:hidden;-webkit
 .kgr-track{position:absolute;inset:0;overflow:hidden}
 .kgr-run{position:absolute;left:0;top:0;height:100%;display:flex;align-items:center;gap:10px;padding-left:8px;will-change:transform}
 .kgr-run.fast{filter:blur(1.4px) brightness(1.08)}
-.kgr-cell{box-sizing:border-box;position:relative;flex:none;width:80px;height:112px;border-radius:6px;overflow:hidden;background:#221e26;border:1px solid #231f2e;opacity:.62;transition:opacity .45s,transform .45s,box-shadow .45s;color:#b3a79a;font-size:10px;line-height:1.2;pointer-events:none;user-select:none}
+.kgr-cell{box-sizing:border-box;position:relative;flex:none;width:80px;height:112px;border-radius:6px;overflow:hidden;background:rgb(var(--kg-surface-container));border:1px solid rgb(var(--kg-surface-border));opacity:.62;transition:opacity .45s,transform .45s,box-shadow .45s;color:#b3a79a;font-size:10px;line-height:1.2;pointer-events:none;user-select:none}
 .kgr-cell img{width:100%;height:100%;object-fit:cover;display:block}
 .kgr-cell .nop{width:100%;height:100%;display:flex;align-items:center;justify-content:center;text-align:center;padding:4px}
 .kgr-cell.spin{opacity:.92}
@@ -176,11 +176,6 @@ function toast(msg,icon){
 /* ---------- загрузка данных TMDB ---------- */
 const floorOf=cc=>BIG.has(cc)?300:60;
 const qs=(t,cc)=>({with_origin_country:cc,with_genres:t.g,"vote_count.gte":floorOf(cc),"vote_average.gte":"6.5"});
-const russianText=text=>{
-  if(!text)return "";
-  const value=String(text),ru=(value.match(/[А-Яа-яЁё]/g)||[]).length,latin=(value.match(/[A-Za-z]/g)||[]).length;
-  return ru>=3&&ru>latin?value:"";
-};
 const DAY_MS=24*60*60*1000;
 const themeDataCache=new Map(),themeRetryAfter=new Map(),themeInflight=new Map(),metaRetryAfter=new Map(),metaInflight=new Map();
 function curatedData(films) {
@@ -190,15 +185,17 @@ function curatedData(films) {
 }
 
 async function loadCuratedTheme(theme, force) {
-  if (!apiKey) return curatedData(theme.films);
+  if (!apiKey) return curatedData(theme.films.map(localizeFilmListItem));
   const results = await Promise.allSettled(theme.films.map(film =>
-    requestTmdb("movie/" + film.id, {language:"ru-RU"}, {fresh:force})
+    requestTmdb("movie/" + film.id, {language:filmLocale, append_to_response:"translations"}, {fresh:force})
   ));
   const films = theme.films.map((film, i) => {
     const result = results[i];
-    if (result.status !== "fulfilled" || result.value.id !== film.id) return film;
+    if (result.status !== "fulfilled" || result.value.id !== film.id) return localizeFilmListItem(film);
     const {poster_path, backdrop_path, vote_average, vote_count, popularity} = result.value;
-    return {...film, poster_path, backdrop_path, vote_average, vote_count, popularity};
+    const title = selectMovieText(result.value, "title").text;
+    const overview = selectMovieText(result.value, "overview").text;
+    return {...film, title:title || film.title, overview:overview || film.overview, poster_path, backdrop_path, vote_average, vote_count, popularity};
   });
   return curatedData(films);
 }
@@ -774,7 +771,7 @@ async function openCollection(id,opt){
   const t=T[id];if(!t)return;
   rStop();
   const cached=themeDataCache.get(themeDataKey(t,2));
-  const initial=cached?.data || (t.films ? curatedData(t.films) : null);
+  const initial=cached?.data || (t.films ? curatedData(t.films.map(localizeFilmListItem)) : null);
   D={t,all:initial?initial.films:[],total:initial?initial.total:0,totals:initial?initial.totals:{},cc:"",sort:"rating",shown:5,selected:null,picked:null};
   renderCollection();showView("collection");
   if(initial){
@@ -887,7 +884,7 @@ function openFilm(f,placement="list",detailTarget=null){
   if(relatedContext&&window.KGFilmInteractions)window.KGFilmInteractions.registerPool(relatedContext,relatedPool);
   // Every newly opened item starts in the same poster-first state. A related
   // recommendation must never inherit an already playing YouTube iframe.
-  D.selected={...f,_cc:f._cc||(f.origin_country||[])[0]||"",_placement:placement,_detailTarget:detailTarget,_kgRelatedContext:relatedContext,overview:russianText(f.overview)||"Загружаем описание…",_trailerPlaying:false,_trailerStatus:apiKey?"loading":"missing",_detailsLoaded:!apiKey};
+  D.selected={...f,_cc:f._cc||(f.origin_country||[])[0]||"",_placement:placement,_detailTarget:detailTarget,_kgRelatedContext:relatedContext,overview:filmSynopsis(f.overview)||"Загружаем описание…",_trailerPlaying:false,_trailerStatus:apiKey?"loading":"missing",_detailsLoaded:!apiKey};
   const selected=D.selected;
   if(placement==="roulette"||placement==="home"||placement==="home-europe"||placement==="mood"||placement==="oscar"||placement==="related"||placement==="oscar-related"||placement==="person-related"||placement==="search")renderSelectedPanel();else if(!placeListPanel())renderFilms();
   if(personModalScrollRestore!==null){const dialog=document.querySelector("#kg-person-modal .kgpi-modal");requestAnimationFrame(()=>{if(dialog?.isConnected)dialog.scrollTop=personModalScrollRestore;});}
@@ -910,8 +907,9 @@ function openFilm(f,placement="list",detailTarget=null){
   if (!apiKey) return;
   filmDetails(f.id).then(details=>{
     if(D.selected!==selected)return;
-    selected.overview=details.overview||russianText(f.overview)||"Описания на русском и английском пока нет.";
-    selected.overviewLang=details.overview?details.overviewLang:(russianText(f.overview)?"ru":"");
+    selected.title=details.title||f.title;
+    selected.overview=details.overview||filmSynopsis(f.overview)||"Описание пока недоступно.";
+    selected.overviewLang=details.overviewLang;
     selected.runtime=details.runtime;
     selected.dirs=details.dirs;selected.dirsFull=details.dirsFull;
     selected.castFull=details.castFull;
@@ -928,8 +926,8 @@ function openFilm(f,placement="list",detailTarget=null){
     renderSelectedPanel();
   }).catch(error=>{
     if(D.selected!==selected)return;
-    selected.overview=russianText(f.overview)||"Не удалось загрузить описание.";
-    selected.overviewLang=russianText(f.overview)?"ru":"";
+    selected.overview=filmSynopsis(f.overview)||"Не удалось загрузить описание.";
+    selected.overviewLang="";
     selected._detailsLoaded=true;
     renderSelectedPanel();
     console.error("[Kinoglobus] Не удалось загрузить сведения о фильме:",error);
@@ -1142,10 +1140,10 @@ const homeEditorial={films:[],details:new Set(),directorData:new Map(),loadedKey
 const homeEditorialRoot=$("kg-home-editorial");
 function homeFilmYear(f){return (f.release_date||"").slice(0,4);}
 function homeFeatureMarkup(f,d,expandedFilm=null){
-  const title=esc(f.title||f.original_title||"Фильм");
+  const title=esc(d?.title||f.title||f.original_title||"Фильм");
   const year=homeFilmYear(f);
   const rating=Number(f.vote_average)||0;
-  const synopsis=(d&&d.overview)||russianText(f.overview)||"Описание на русском и английском пока недоступно.";
+  const synopsis=(d&&d.overview)||filmSynopsis(f.overview)||"Описание пока недоступно.";
   const poster=f.poster_path
     ?`<img class="w-full h-full object-cover" src="${P(f.poster_path,"w342")}" alt="Постер фильма «${title}»" loading="lazy">`
     :`<span class="material-symbols-outlined text-primary-container text-[32px]">movie</span>`;
@@ -1280,7 +1278,7 @@ async function loadHomeEditorial(force=false){
     homeEditorial.films=films;
     homeEditorial.loadedKey=apiKey;
     homeEditorial.details.clear();homeEditorial.directorData.clear();homeEditorial.featureDetails=null;
-    store.set("kgHomeEditorial",{films,ts:Date.now()});
+    store.set("kgHomeEditorial",{films,language:filmLanguage,ts:Date.now()});
     renderHomeEditorial();
     return results.every(result=>result.status==="fulfilled");
   })();
@@ -1364,7 +1362,7 @@ async function settleWithLimit(items,limit,work){
 }
 async function refreshAllCollections(forceAll=false){
   const results=await settleWithLimit(catalogThemes,4,async t=>{
-    if (t.films) return themeDataCache.get(themeDataKey(t,2))?.data || curatedData(t.films);
+    if (t.films) return themeDataCache.get(themeDataKey(t,2))?.data || curatedData(t.films.map(localizeFilmListItem));
     const cached=themeDataCache.get(themeDataKey(t,2));
     if(!forceAll&&cached&&cached.date===localDateKey()&&Date.now()-cached.ts<DAY_MS)return cached.data;
     const data=await loadTheme(t,2,true);
@@ -1437,7 +1435,7 @@ $("tmdb-key-save").addEventListener("click",refreshForNewKey);
 $("saveKey").addEventListener("click",()=>setTimeout(refreshForNewKey,0));
 document.addEventListener("kg:watched-change",()=>{if(D.selected)renderSelectedPanel();});
 const savedHome=store.get("kgHomeEditorial",null);
-if(savedHome&&Array.isArray(savedHome.films)&&savedHome.films.length){
+if(savedHome&&(savedHome.language||"ru")===filmLanguage&&Array.isArray(savedHome.films)&&savedHome.films.length){
   homeEditorial.films=savedHome.films;
   homeEditorial.loadedKey=apiKey;
   renderHomeEditorial();

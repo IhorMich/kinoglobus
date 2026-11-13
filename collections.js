@@ -287,7 +287,7 @@ sectionNav.className="w-full px-gutter-mobile pt-2";
 sectionNav.style.display="none";
 sectionNav.innerHTML='<div class="grid grid-cols-3 gap-1.5 rounded-xl bg-surface-panel p-1.5">'+
 [["collections","Коллекции"],["mood","Коллекция по настроению"],["oscar","Оскар"]]
-.map(([route,label])=>`<button type="button" data-collection-route="${route}" aria-current="false" class="min-w-0 px-1.5 py-2 rounded-lg text-text-muted hover:text-primary font-micro-caption text-micro-caption leading-tight">${label}</button>`).join("")+
+.map(([route,label])=>`<button type="button" data-collection-route="${route}" aria-current="false" class="min-w-0 px-1.5 py-2 rounded-lg text-text-muted hover:text-primary font-micro-caption text-micro-caption leading-tight">${uiText(label)}</button>`).join("")+
 "</div>";
 home.after(sectionNav);sectionNav.after(vc);vc.after(vd);vd.after(vm);vm.after(vo);
 
@@ -297,7 +297,7 @@ const nav=document.createElement("nav");
 nav.className="fixed bottom-0 w-full z-50 pb-safe bg-surface-panel/90 backdrop-blur-xl shadow-[0_-4px_24px_rgba(7,6,10,0.9)]";
 nav.innerHTML='<div class="flex justify-around items-center h-16 max-w-[520px] mx-auto px-gutter-mobile">'+
 [["home","casino","Глобус"],["collections","movie_filter","Подборки"],["journey","travel_explore","Путешествие"],["history","history_toggle_off","История"]]
-.map(([v,i,l])=>`<a href="#" data-view="${v}" class="${NB}${NOFF}"><span class="material-symbols-outlined text-[22px]">${i}</span><span class="font-micro-caption text-micro-caption tracking-tight">${l}</span></a>`).join("")+"</div>";
+.map(([v,i,l])=>`<a href="#" data-view="${v}" class="${NB}${NOFF}"><span class="material-symbols-outlined text-[22px]">${i}</span><span class="font-micro-caption text-micro-caption tracking-tight">${uiText(l)}</span></a>`).join("")+"</div>";
 document.body.appendChild(nav);
 
 let view="home";
@@ -327,7 +327,7 @@ function showView(v){
     button.setAttribute("aria-current",String(active));
   });
   const sub=document.querySelector("header .flex-col > p");
-  if(sub) sub.textContent=v==="home"?"Случайная страна · Лучшие фильмы":v==="mood"?"Подборки · По настроению":v==="oscar"?"Подборки · Зал славы Оскара":"Киноглобус — Тематическая Подборка";
+  if(sub) sub.textContent=uiText(v==="home"?"Случайная страна · Лучшие фильмы":v==="mood"?"Подборки · По настроению":v==="oscar"?"Подборки · Зал славы Оскара":"Киноглобус — Тематическая Подборка");
   scrollTo({top:0});
   if(v==="collections") initCatalog();
   if(v==="mood"&&(!vm.dataset.ready||vm.dataset.key!==apiKey)){window.KGMoodPage.render(vm,pageDeps);vm.dataset.ready="true";vm.dataset.key=apiKey;}
@@ -1140,16 +1140,16 @@ const homeEditorial={films:[],details:new Set(),directorData:new Map(),loadedKey
 const homeEditorialRoot=$("kg-home-editorial");
 function homeFilmYear(f){return (f.release_date||"").slice(0,4);}
 function homeFeatureMarkup(f,d,expandedFilm=null){
-  const title=esc(d?.title||f.title||f.original_title||"Фильм");
+  const title=esc(d?.title||f.title||f.original_title||uiText("Фильм"));
   const year=homeFilmYear(f);
   const rating=Number(f.vote_average)||0;
-  const synopsis=(d&&d.overview)||filmSynopsis(f.overview)||"Описание пока недоступно.";
+  const synopsis=(d&&d.overview)||filmSynopsis(f.overview)||uiText("Описание пока недоступно.");
   const poster=f.poster_path
-    ?`<img class="w-full h-full object-cover" src="${P(f.poster_path,"w342")}" alt="Постер фильма «${title}»" loading="lazy">`
+    ?`<img class="w-full h-full object-cover" src="${P(f.poster_path,"w342")}" alt="${uiText("Постер фильма «{title}»", {title})}" loading="lazy">`
     :`<span class="material-symbols-outlined text-primary-container text-[32px]">movie</span>`;
   const isExpanded=expandedFilm&&String(expandedFilm.id)===String(f.id);
   return `<article data-home-act="open" data-id="${f.id}" class="w-full rounded-xl bg-surface-container-high shadow-xl p-3.5 cursor-pointer">
-<p class="font-micro-caption text-micro-caption uppercase tracking-wider text-primary font-bold mb-2">Выбор дня · Программа № ${homeDayNumber()}</p>
+<p class="font-micro-caption text-micro-caption uppercase tracking-wider text-primary font-bold mb-2">${uiText("Выбор дня · Программа № {number}", {number: homeDayNumber()})}</p>
 <div class="flex gap-3.5 items-start">
 <div class="relative w-28 h-40 shrink-0 rounded-lg overflow-hidden shadow-md bg-surface-container-lowest flex items-center justify-center">${poster}<span class="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded bg-surface-container-lowest/90 text-primary-container font-label-sm text-label-sm font-bold shadow">★ ${rating.toFixed(1)}</span></div>
 <div class="min-w-0 flex-1">
@@ -1164,10 +1164,10 @@ function homeDayNumber(){
   return Math.floor((Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),now.getUTCDate())-Date.UTC(now.getUTCFullYear(),0,0))/86400000);
 }
 function homeFilmCard(f){
-  const title=esc(f.title||f.original_title||"Фильм"),year=homeFilmYear(f);
+  const title=esc(f.title||f.original_title||uiText("Фильм")),year=homeFilmYear(f);
   const details=homeEditorial.directorData.get(f.id);
   const credit=details&&details.dirs&&details.dirs.length?details.dirs[0]:cname(f._cc);
-  const poster=f.poster_path?`<img class="w-full h-full object-cover" src="${P(f.poster_path,"w342")}" alt="Постер фильма «${title}»" loading="lazy">`:'<span class="material-symbols-outlined text-primary-container text-[32px]">movie</span>';
+  const poster=f.poster_path?`<img class="w-full h-full object-cover" src="${P(f.poster_path,"w342")}" alt="${uiText("Постер фильма «{title}»", {title})}" loading="lazy">`:'<span class="material-symbols-outlined text-primary-container text-[32px]">movie</span>';
   return `<button type="button" data-home-act="open" data-home-meta="${f.id}" data-id="${f.id}" class="kg-home-film shrink-0 rounded-xl bg-surface-container-high p-2 shadow-md text-left">
 <span class="relative w-full h-44 rounded-lg overflow-hidden mb-1.5 bg-surface-container-lowest flex items-center justify-center block">${poster}<span class="absolute bottom-1 right-1 px-1.5 py-0.5 rounded bg-surface-container-lowest/90 font-micro-caption text-micro-caption text-primary-container font-bold">★ ${(Number(f.vote_average)||0).toFixed(1)}</span></span>
 <span class="font-label-sm text-label-sm font-bold text-on-surface block truncate">${title}</span>
@@ -1241,8 +1241,8 @@ async function loadHomeDirector(id){
   }
 }
 function renderHomeEditorialMessage(message,action){
-  $("kg-home-feature").innerHTML=`<p class="font-micro-caption text-micro-caption text-primary font-bold uppercase tracking-wider">Выбор дня</p><p role="status" class="font-body-sm text-body-sm text-text-muted mt-2">${esc(message)}</p>${action?`<button type="button" data-home-act="${action}" class="mt-3 px-3 py-2 rounded-lg bg-surface-container-highest text-primary-container font-label-sm text-label-sm font-semibold">${action==="set-key"?"Добавить ключ TMDB":"Повторить загрузку"}</button>`:""}`;
-  $("kg-home-europe").innerHTML=`<p class="font-body-sm text-body-sm text-text-muted py-2">Фильмы появятся после загрузки данных.</p>`;
+  $("kg-home-feature").innerHTML=`<p class="font-micro-caption text-micro-caption text-primary font-bold uppercase tracking-wider">${uiText("Выбор дня")}</p><p role="status" class="font-body-sm text-body-sm text-text-muted mt-2">${esc(uiText(message))}</p>${action?`<button type="button" data-home-act="${action}" class="mt-3 px-3 py-2 rounded-lg bg-surface-container-highest text-primary-container font-label-sm text-label-sm font-semibold">${uiText(action==="set-key"?"Добавить ключ TMDB":"Повторить загрузку")}</button>`:""}`;
+  $("kg-home-europe").innerHTML=`<p class="font-body-sm text-body-sm text-text-muted py-2">${uiText("Фильмы появятся после загрузки данных.")}</p>`;
 }
 async function loadHomeEditorial(force=false){
   if(homeEditorial.loading)return homeEditorial.pending;

@@ -215,8 +215,7 @@
     collections: 'body > nav [data-view="collections"]',
     history: 'body > nav [data-view="history"]',
     settings: "#gear",
-    search: "[data-kg-search-open]",
-    journey: 'body > nav [data-view="journey"]'
+    search: "[data-kg-search-open]"
   };
 
   function selectTab(tab) {
@@ -300,12 +299,9 @@
       dialog.close();
     }
     if (event.target.closest("[data-profile-diary]")) {
-      window.KGOpenCinemaDiary(profile.avatar || artwork[0], (route, closeDiary) => {
-        const target = document.querySelector(routes[route]);
-        if (!target) return;
-        closeDiary();
-        dialog.close();
-        target.click();
+      window.KGOpenCinemaDiary({
+        avatar: profile.avatar || artwork[0],
+        closeParent: () => dialog.close()
       });
       return;
     }

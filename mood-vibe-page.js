@@ -266,6 +266,10 @@
     if(!pool.length){if(error){error.textContent=uiText("В выбранном настроении и хронометраже фильмов не нашлось. Выберите другой хронометраж.");error.hidden=false;}return;}
     const moodId=state.mood,film=pool[Math.floor(Math.random()*pool.length)],winnerDetailId=`mood-roulette-winner-detail-v${moodId}`;
     const token=++state.spinToken,winnerIndex=26,others=pool.filter(item=>item.id!==film.id),sequence=[];
+    const showWinner = () => {
+      window.playFilmFoundSound?.();
+      deps.openFilm({...film,_kgRelatedPool:pool},"mood",winnerDetailId);
+    };
     for(let i=0;i<winnerIndex;i++)sequence.push(others.length?others[Math.floor(Math.random()*others.length)]:film);
     sequence.push(film);
     for(let i=0;i<6;i++)sequence.push(others.length?others[Math.floor(Math.random()*others.length)]:film);
@@ -282,7 +286,7 @@
       if(typeof window.stopFilmReelSound==="function")window.stopFilmReelSound();if(!landed||token!==state.spinToken||!panel.isConnected){state.spinning=false;if(launchButton)launchButton.disabled=false;return;}
       state.spinning=false;state.skipSpin=false;const c=activeElement(root,"[data-vibe-frame-counter]");if(c)c.textContent=uiText("Фильм")+" "+String(pool.indexOf(film)+1).padStart(2,"0")+" / "+String(pool.length).padStart(2,"0");
       if(launchButton)launchButton.disabled=false;if(launchLabel)launchLabel.textContent=uiText("Крутить ещё раз");
-      const skip=activeElement(root,"[data-vibe-skip]");if(skip)skip.hidden=true;deps.openFilm({...film,_kgRelatedPool:pool},"mood",winnerDetailId);
+      const skip=activeElement(root,"[data-vibe-skip]");if(skip)skip.hidden=true;showWinner();
       return;
     }
     if(window.KGCinemaReel?.isCassetteMode?.()){
@@ -292,7 +296,7 @@
       if(typeof window.stopFilmReelSound==="function")window.stopFilmReelSound();if(!landed||token!==state.spinToken||!panel.isConnected){state.spinning=false;if(launchButton)launchButton.disabled=false;return;}
       state.spinning=false;state.skipSpin=false;const c=activeElement(root,"[data-vibe-frame-counter]");if(c)c.textContent=uiText("Фильм")+" "+String(pool.indexOf(film)+1).padStart(2,"0")+" / "+String(pool.length).padStart(2,"0");
       if(launchButton)launchButton.disabled=false;if(launchLabel)launchLabel.textContent=uiText("Крутить ещё раз");
-      const skip=activeElement(root,"[data-vibe-skip]");if(skip)skip.hidden=true;onOpen(film);
+      const skip=activeElement(root,"[data-vibe-skip]");if(skip)skip.hidden=true;showWinner();
       return;
     }
     if(window.KGCinemaReel?.isTicketMode?.()){
@@ -305,7 +309,7 @@
       const c=activeElement(root,"[data-vibe-frame-counter]");if(c)c.textContent="Билет "+String(pool.indexOf(film)+1).padStart(2,"0")+" / "+String(pool.length).padStart(2,"0");
       if(launchButton)launchButton.disabled=false;if(launchLabel)launchLabel.textContent=uiText("Крутить ещё раз");
       const skip=activeElement(root,"[data-vibe-skip]");if(skip)skip.hidden=true;
-      deps.openFilm({...film,_kgRelatedPool:pool},"mood",winnerDetailId);
+      showWinner();
       return;
     }
     const run=panel.querySelector(".kgr-run"),cells=[...run.children],viewport=panel.querySelector(".kgr-win"),frame=panel.querySelector("[data-vibe-reel-frame]"),skip=panel.querySelector("[data-vibe-skip]");
@@ -323,7 +327,7 @@
       if(launchLabel)launchLabel.textContent=`Крутить ещё раз`;
       if(skip)skip.hidden=true;
       frame.classList.remove("hit");void frame.offsetWidth;frame.classList.add("hit");
-      deps.openFilm({...film,_kgRelatedPool:pool},"mood",winnerDetailId);
+      showWinner();
     };
     if(prefersReducedMotion()||!others.length){
       run.style.transform=`translateX(${-finish}px)`;complete();
@@ -383,7 +387,7 @@
       if(!filtered().length&&!state.loading&&state.page<state.totalPages)loadMood(host,deps);
       return;
     }
-    if(e.target.closest("[data-vibe-spin]")){launch(host,deps);return;}
+    if(e.target.closest("[data-vibe-spin]")){audio();launch(host,deps);return;}
     if(e.target.closest("[data-vibe-skip]")){state.skipSpin=true;return;}
     if(e.target.closest("[data-vibe-retry]")){loadMood(host,deps);return;}
     if(e.target.closest("[data-vibe-more]")){

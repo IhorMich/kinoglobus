@@ -37,14 +37,14 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
   }
   function updateLaunchLabel(root){
     const launch=activeElement(root,"[data-mood-launch-label]");
-    if(launch&&!state.spinning)launch.textContent=`Крутить этот вайб (${currentRuntime().button})`;
+    if(launch&&!state.spinning)launch.textContent=uiText("Крутить этот вайб ({runtime})", {runtime: uiText(currentRuntime().button)});
   }
   function renderFilms(root,deps){
     const box=activeElement(root,"[data-mood-films]");if(!box)return;
     const films=filtered();
     if(state.loading){box.replaceChildren();return;}
     if(!films.length){
-      box.innerHTML='<p class="font-body-sm text-body-sm text-text-muted p-3 rounded-xl bg-surface-panel">Нет фильмов для выбранного настроения и хронометража. Выберите другой интервал или настроение.</p>';
+      box.innerHTML=`<p class="font-body-sm text-body-sm text-text-muted p-3 rounded-xl bg-surface-panel">${uiText("Нет фильмов для выбранного настроения и хронометража. Выберите другой интервал или настроение.")}</p>`;
       const emptyMore=activeElement(root,"[data-mood-more]");if(emptyMore)emptyMore.hidden=state.page>=state.totalPages;
       return;
     }
@@ -52,12 +52,12 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
       const target=`mood-film-detail-${f.id}`,detail=f.detail||{},year=(f.release_date||"").slice(0,4);
       return `<article class="flex flex-col gap-2 p-3 rounded-xl bg-surface-panel shadow-md"><button type="button" class="flex items-center gap-3 text-left" data-mood-film="${f.id}" data-detail-target="${target}">
 <span class="relative w-16 h-24 shrink-0 rounded-lg overflow-hidden bg-surface-container-lowest">${f.poster_path?`<img class="w-full h-full object-cover" loading="lazy" alt="Постер «${esc(f.title||f.original_title)}»" src="${poster(f.poster_path)}">`:'<span class="material-symbols-outlined w-full h-full flex items-center justify-center text-primary-container">movie</span>'}<span class="absolute bottom-1 left-1 px-1 rounded bg-canvas-obsidian/85 text-primary font-micro-caption text-micro-caption font-bold">★ ${Number(f.vote_average||0).toFixed(1)}</span></span>
-<span class="min-w-0 flex-1"><span class="block font-micro-caption text-micro-caption text-text-muted">${year}${detail.runtime?` · ${detail.runtime} мин`:""}</span><span class="block font-headline-sm text-headline-sm text-on-surface font-semibold">${esc(f.title||f.original_title||"Фильм")}</span><span class="block font-body-sm text-body-sm text-text-muted line-clamp-2 mt-1">${esc(detail.overview||f.overview||"Описание пока недоступно.")}</span><span class="block font-micro-caption text-micro-caption text-primary-container mt-1">Трейлер и подробности</span></span></button><div id="${target}"></div></article>`;
+<span class="min-w-0 flex-1"><span class="block font-micro-caption text-micro-caption text-text-muted">${year}${detail.runtime?` · ${uiText("{minutes} мин", {minutes: detail.runtime})}`:""}</span><span class="block font-headline-sm text-headline-sm text-on-surface font-semibold">${esc(f.title||f.original_title||"Фильм")}</span><span class="block font-body-sm text-body-sm text-text-muted line-clamp-2 mt-1">${esc(detail.overview||f.overview||"Описание пока недоступно.")}</span><span class="block font-micro-caption text-micro-caption text-primary-container mt-1">Трейлер и подробности</span></span></button><div id="${target}"></div></article>`;
     }).join("");
     const more=activeElement(root,"[data-mood-more]");
     if(more){
       more.hidden=films.length<=state.shown&&state.page>=state.totalPages;
-      more.textContent=films.length>state.shown?"Показать ещё фильмы":state.page<state.totalPages?"Загрузить ещё фильмы":"Больше фильмов нет";
+      more.textContent=films.length>state.shown?uiText("Показать ещё фильмы"):state.page<state.totalPages?uiText("Загрузить ещё фильмы"):uiText("Больше фильмов нет");
     }
     if(deps?.refreshFilm)deps.refreshFilm();
   }
@@ -72,26 +72,26 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
     if(boundRoot===root)stopSpin(root);
     root.innerHTML=`
 <div class="flex flex-col w-full pb-8">
-<div class="flex items-center justify-between pt-2 pb-1"><button type="button" data-mood-back class="flex items-center gap-1.5 text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined text-[20px]">arrow_back</span><span class="font-label-sm text-label-sm">Подборки</span></button><span class="font-micro-caption text-micro-caption text-primary/80 uppercase tracking-widest">Mood &amp; Vibe</span></div>
+<div class="flex items-center justify-between pt-2 pb-1"><button type="button" data-mood-back class="flex items-center gap-1.5 text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined text-[20px]">arrow_back</span><span class="font-label-sm text-label-sm">${uiText("Подборки")}</span></button><span class="font-micro-caption text-micro-caption text-primary/80 uppercase tracking-widest">Mood &amp; Vibe</span></div>
 <div class="relative w-full rounded-2xl overflow-hidden bg-surface-container-low p-3.5 shadow-xl mb-2">
 <div class="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-cinema-amber-glow blur-3xl pointer-events-none"></div><div class="absolute -bottom-10 -left-10 w-44 h-44 rounded-full bg-cinema-velvet-glow blur-2xl pointer-events-none"></div>
-<div class="relative z-10 flex flex-col gap-1.5"><div class="flex items-center gap-1.5 self-start px-2 py-0.5 rounded-full bg-primary-container/15 text-primary-fixed-dim"><span class="material-symbols-outlined text-[14px]">sensors</span><span class="font-micro-caption text-micro-caption tracking-widest uppercase">Эмоциональный навигатор</span></div>
-<h1 class="font-headline-lg text-headline-lg text-primary tracking-tight">Кино под твоё настроение</h1><p class="font-body-sm text-body-sm text-text-muted leading-relaxed">Забудьте сухие жанры. Выбирайте атмосферу вечера, а Киноглобус подберёт шедевры мирового кино.</p></div></div>
-<section class="flex flex-col mb-4"><div class="flex items-center justify-between mb-1 px-1"><div class="flex items-center gap-1.5 text-primary-fixed-dim"><span class="material-symbols-outlined text-[18px]">timelapse</span><span class="font-label-md text-label-md tracking-wide">Хронометраж сеанса</span></div></div>
-<div class="flex items-center gap-2 overflow-x-auto py-1 -mx-gutter-mobile px-gutter-mobile">${runtimes.map((r,i)=>`<button class="mood-runtime shrink-0 flex items-center gap-2 px-3.5 py-2.5 rounded-full ${i===0?"bg-primary-container text-on-primary shadow-[0_0_18px_rgba(255,184,48,0.28)]":"bg-surface-container text-text-muted"} font-label-sm text-label-sm transition-all active:scale-95" data-runtime="${r.id}" type="button"><span class="material-symbols-outlined text-[16px]">${r.icon}</span><span>${r.label.replace("<","&lt;")}</span></button>`).join("")}</div>
-<div class="mt-2 px-3 py-2 rounded-xl bg-surface-container-lowest/80 flex items-start gap-2"><span class="material-symbols-outlined text-primary-container text-[16px] mt-0.5">tips_and_updates</span><p class="font-micro-caption text-micro-caption text-text-muted italic">«Мало времени вечером? Никаких трёхчасовых драм — только кино под ваш ритм»</p></div></section>
-<section class="flex flex-col gap-2 mb-6"><div class="flex items-center justify-between px-1"><div class="flex items-center gap-1.5 text-on-surface"><span class="material-symbols-outlined text-secondary text-[20px]">filter_vintage</span><span class="font-headline-sm text-headline-sm tracking-wide">Палитра вайбов</span></div><span class="font-micro-caption text-micro-caption text-text-muted uppercase tracking-wider">${moods.length} настроений</span></div>
+<div class="relative z-10 flex flex-col gap-1.5"><div class="flex items-center gap-1.5 self-start px-2 py-0.5 rounded-full bg-primary-container/15 text-primary-fixed-dim"><span class="material-symbols-outlined text-[14px]">sensors</span><span class="font-micro-caption text-micro-caption tracking-widest uppercase">${uiText("Эмоциональный навигатор")}</span></div>
+<h1 class="font-headline-lg text-headline-lg text-primary tracking-tight">${uiText("Кино под твоё настроение")}</h1><p class="font-body-sm text-body-sm text-text-muted leading-relaxed">${uiText("Забудьте сухие жанры. Выбирайте атмосферу вечера, а Киноглобус подберёт шедевры мирового кино.")}</p></div></div>
+<section class="flex flex-col mb-4"><div class="flex items-center justify-between mb-1 px-1"><div class="flex items-center gap-1.5 text-primary-fixed-dim"><span class="material-symbols-outlined text-[18px]">timelapse</span><span class="font-label-md text-label-md tracking-wide">${uiText("Хронометраж сеанса")}</span></div></div>
+<div class="flex items-center gap-2 overflow-x-auto py-1 -mx-gutter-mobile px-gutter-mobile">${runtimes.map((r,i)=>`<button class="mood-runtime shrink-0 flex items-center gap-2 px-3.5 py-2.5 rounded-full ${i===0?"bg-primary-container text-on-primary shadow-[0_0_18px_rgba(255,184,48,0.28)]":"bg-surface-container text-text-muted"} font-label-sm text-label-sm transition-all active:scale-95" data-runtime="${r.id}" type="button"><span class="material-symbols-outlined text-[16px]">${r.icon}</span><span>${esc(uiText(r.label))}</span></button>`).join("")}</div>
+<div class="mt-2 px-3 py-2 rounded-xl bg-surface-container-lowest/80 flex items-start gap-2"><span class="material-symbols-outlined text-primary-container text-[16px] mt-0.5">tips_and_updates</span><p class="font-micro-caption text-micro-caption text-text-muted italic">${uiText("«Мало времени вечером? Никаких трёхчасовых драм — только кино под ваш ритм»")}</p></div></section>
+<section class="flex flex-col gap-2 mb-6"><div class="flex items-center justify-between px-1"><div class="flex items-center gap-1.5 text-on-surface"><span class="material-symbols-outlined text-secondary text-[20px]">filter_vintage</span><span class="font-headline-sm text-headline-sm tracking-wide">${uiText("Палитра вайбов")}</span></div><span class="font-micro-caption text-micro-caption text-text-muted uppercase tracking-wider">${uiText("{count} настроений", {count: moods.length})}</span></div>
 <div class="flex flex-col gap-3" id="mood-cards">${moods.map((m,i)=>`<article class="mood-card relative flex flex-col overflow-hidden rounded-2xl ${i===0?"bg-surface-container-high shadow-lg shadow-black/40":"bg-surface-container shadow-md shadow-black/30"} transition-all duration-200" data-mood-card="${m.id}">
 <div data-mood-glow class="absolute inset-0 rounded-2xl bg-gradient-to-r from-cinema-amber-glow to-transparent ${i===0?"opacity-20":"opacity-0"} pointer-events-none"></div>
-<button type="button" data-mood-select data-mood-id="${m.id}" aria-pressed="${i===0}" class="relative z-10 w-full h-40 overflow-hidden text-left"><img class="absolute inset-0 w-full h-full object-cover" src="${m.image}" alt="" style="object-position: ${m.imagePosition || "center"}"><span class="absolute inset-0 bg-gradient-to-t from-surface-container-high via-surface-container-high/35 to-transparent"></span><span class="absolute top-3 left-3 w-9 h-9 rounded-xl bg-surface-container-lowest/80 backdrop-blur-md flex items-center justify-center text-primary-container border border-surface-border-subtle"><span class="material-symbols-outlined text-[20px]">${m.icon}</span></span><span class="absolute bottom-3 left-4 right-12"><span class="mood-title block font-headline-sm text-headline-sm ${i===0?"text-primary":"text-on-surface"} leading-snug">${m.title}</span><span class="block font-micro-caption text-micro-caption text-text-muted mt-1">${m.tag}</span></span><span class="mood-radio absolute right-3 bottom-3 w-6 h-6 rounded-full ${i===0?"bg-primary-container text-on-primary shadow-md":"bg-surface-container-highest text-transparent"} flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">check</span></span></button>
-<p class="relative px-4 font-body-sm text-body-sm text-on-surface-variant mb-3 leading-snug">${m.description}</p>
-<div class="relative px-4 flex flex-wrap items-center gap-1.5 pt-1">${m.labels.map(x=>`<span class="font-label-sm text-label-sm px-2.5 py-1 rounded-full bg-surface-container-low text-text-muted">${x}</span>`).join("")}<span class="font-micro-caption text-micro-caption px-2 py-1 rounded-full bg-surface-container-low text-on-surface-variant ml-auto">${m.genreLabel}</span></div>
+<button type="button" data-mood-select data-mood-id="${m.id}" aria-pressed="${i===0}" class="relative z-10 w-full h-40 overflow-hidden text-left"><img class="absolute inset-0 w-full h-full object-cover" src="${m.image}" alt="" style="object-position: ${m.imagePosition || "center"}"><span class="absolute inset-0 bg-gradient-to-t from-surface-container-high via-surface-container-high/35 to-transparent"></span><span class="absolute top-3 left-3 w-9 h-9 rounded-xl bg-surface-container-lowest/80 backdrop-blur-md flex items-center justify-center text-primary-container border border-surface-border-subtle"><span class="material-symbols-outlined text-[20px]">${m.icon}</span></span><span class="absolute bottom-3 left-4 right-12"><span class="mood-title block font-headline-sm text-headline-sm ${i===0?"text-primary":"text-on-surface"} leading-snug">${uiText(m.title)}</span><span class="block font-micro-caption text-micro-caption text-text-muted mt-1">${uiText(m.tag)}</span></span><span class="mood-radio absolute right-3 bottom-3 w-6 h-6 rounded-full ${i===0?"bg-primary-container text-on-primary shadow-md":"bg-surface-container-highest text-transparent"} flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">check</span></span></button>
+<p class="relative px-4 font-body-sm text-body-sm text-on-surface-variant mb-3 leading-snug">${uiText(m.description)}</p>
+<div class="relative px-4 flex flex-wrap items-center gap-1.5 pt-1">${m.labels.map(x=>`<span class="font-label-sm text-label-sm px-2.5 py-1 rounded-full bg-surface-container-low text-text-muted">${interfaceLanguage==="en"?x.slice(0,4)+" "+interfaceRegionNames.of(Array.from(x.slice(0,4), c=>String.fromCharCode(c.codePointAt(0)-127397)).join("")):x}</span>`).join("")}<span class="font-micro-caption text-micro-caption px-2 py-1 rounded-full bg-surface-container-low text-on-surface-variant ml-auto">${uiText(m.genreLabel)}</span></div>
 <div data-mood-workbench class="relative z-10 mx-4 mt-4 mb-4 flex flex-col gap-3 border-t border-surface-border-subtle pt-3">
-<div class="flex justify-end"><button class="flex items-center gap-1 text-on-surface-variant hover:text-primary" data-mood-surprise type="button"><span class="material-symbols-outlined text-[15px]">shuffle</span><span class="font-micro-caption text-micro-caption underline">Другой вайб</span></button></div>
-<button class="w-full h-12 rounded-xl bg-primary-container text-on-primary font-label-lg text-label-lg flex items-center justify-center gap-2 shadow-[0_0_24px_rgba(255,184,48,0.35)] active:scale-[0.98] transition-all" data-mood-spin type="button"><span class="material-symbols-outlined text-[20px]">casino</span><span data-mood-launch-label>Крутить этот вайб</span></button>
-<p class="font-body-sm text-body-sm text-feedback-error" data-mood-error role="status" hidden></p><button class="self-start px-3 py-2 rounded-lg bg-surface-container-high text-primary font-label-sm text-label-sm" data-mood-retry type="button" hidden>Повторить загрузку</button>
-<div data-mood-result></div><section class="flex flex-col gap-2"><button class="flex items-center justify-between gap-2 text-left" data-mood-films-toggle type="button" aria-expanded="false"><span class="font-label-md text-label-md text-on-surface">Фильмы в этом вайбе</span><span class="material-symbols-outlined text-primary-container" data-mood-films-icon>expand_more</span></button><div data-mood-films-panel hidden><div data-mood-films></div><button class="w-full py-2.5 rounded-xl bg-surface-container-high text-primary font-label-sm text-label-sm" data-mood-more type="button" hidden>Показать ещё фильмы</button></div></section></div></article>`).join("")}</div></section>
-<button class="self-start mb-3 flex items-center gap-1 text-on-surface-variant hover:text-primary" id="mood-surprise" type="button"><span class="material-symbols-outlined text-[15px]">shuffle</span><span class="font-micro-caption text-micro-caption underline">Удиви меня</span></button></div>`;
+<div class="flex justify-end"><button class="flex items-center gap-1 text-on-surface-variant hover:text-primary" data-mood-surprise type="button"><span class="material-symbols-outlined text-[15px]">shuffle</span><span class="font-micro-caption text-micro-caption underline">${uiText("Другой вайб")}</span></button></div>
+<button class="w-full h-12 rounded-xl bg-primary-container text-on-primary font-label-lg text-label-lg flex items-center justify-center gap-2 shadow-[0_0_24px_rgba(255,184,48,0.35)] active:scale-[0.98] transition-all" data-mood-spin type="button"><span class="material-symbols-outlined text-[20px]">casino</span><span data-mood-launch-label>${uiText(uiText("Крутить этот вайб"))}</span></button>
+<p class="font-body-sm text-body-sm text-feedback-error" data-mood-error role="status" hidden></p><button class="self-start px-3 py-2 rounded-lg bg-surface-container-high text-primary font-label-sm text-label-sm" data-mood-retry type="button" hidden>${uiText("Повторить загрузку")}</button>
+<div data-mood-result></div><section class="flex flex-col gap-2"><button class="flex items-center justify-between gap-2 text-left" data-mood-films-toggle type="button" aria-expanded="false"><span class="font-label-md text-label-md text-on-surface">${uiText("Фильмы в этом вайбе")}</span><span class="material-symbols-outlined text-primary-container" data-mood-films-icon>expand_more</span></button><div data-mood-films-panel hidden><div data-mood-films></div><button class="w-full py-2.5 rounded-xl bg-surface-container-high text-primary font-label-sm text-label-sm" data-mood-more type="button" hidden>${uiText(uiText("Показать ещё фильмы"))}</button></div></section></div></article>`).join("")}</div></section>
+<button class="self-start mb-3 flex items-center gap-1 text-on-surface-variant hover:text-primary" id="mood-surprise" type="button"><span class="material-symbols-outlined text-[15px]">shuffle</span><span class="font-micro-caption text-micro-caption underline">${uiText("Удиви меня")}</span></button></div>`;
     state.mood="wine";state.runtime="any";state.shown=4;state.films=[];state.loadedKey="";state.page=0;state.totalPages=0;state.jobs=null;
     updateLaunchLabel(root);
     collapseMoodFilms(root);
@@ -118,7 +118,7 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
     state.spinToken++;cancelAnimationFrame(state.spinFrame);state.spinning=false;state.skipSpin=false;
     const button=activeElement(root,"[data-mood-spin]"),label=activeElement(root,"[data-mood-launch-label]"),skip=activeElement(root,"[data-mood-skip]");
     if(button)button.disabled=false;
-    if(label)label.textContent="Крутить этот вайб";
+    if(label)label.textContent=uiText("Крутить этот вайб");
     if(skip)skip.hidden=true;
     if(wasSpinning&&typeof window.stopFilmReelSound==="function")window.stopFilmReelSound();
   }
@@ -144,7 +144,7 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
     const token=++state.token,key=state.mood;
     state.loading=true;renderFilms(root,deps);
     const error=activeElement(root,"[data-mood-error]"),retry=activeElement(root,"[data-mood-retry]");if(error){error.hidden=true;error.textContent="";}if(retry)retry.hidden=true;
-    if(!deps.hasKey()){state.loading=false;renderFilms(root,deps);if(error){error.textContent="Добавьте ключ TMDB на экране «Глобус», чтобы загружать подборки.";error.hidden=false;}return;}
+    if(!deps.hasKey()){state.loading=false;renderFilms(root,deps);if(error){error.textContent=uiText("Добавьте ключ TMDB на экране «Глобус», чтобы загружать подборки.");error.hidden=false;}return;}
     const mix=a=>{const r=[...a];for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]];}return r;};
     try{
       const mood=currentMood();
@@ -164,7 +164,7 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
         });
         if(!jobs.length){
           const bad=firsts.find(r=>r.status==="rejected");
-          throw bad?bad.reason:new Error("Для этого настроения фильмов не нашлось.");
+          throw bad?bad.reason:new Error(uiText("Для этого настроения фильмов не нашлось."));
         }
         state.jobs=mix(jobs);state.totalPages=state.jobs.length;state.page=0;
       }
@@ -192,12 +192,12 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
       }
       state.loadedKey=key;
       if(attempted&&!state.films.length&&detailFailures===attempted){
-        throw new Error("Не удалось получить хронометраж из TMDB. Проверьте API-ключ и подключение.");
+        throw new Error(uiText("Не удалось получить хронометраж из TMDB. Проверьте API-ключ и подключение."));
       }
       renderFilms(root,deps);
     }catch(e){
       if(token!==state.token)return;
-      if(error){error.textContent=e.message||"Не удалось загрузить фильмы. Попробуйте ещё раз.";error.hidden=false;}if(retry)retry.hidden=false;
+      if(error){error.textContent=uiText(e.message||"Не удалось загрузить фильмы. Попробуйте ещё раз.");error.hidden=false;}if(retry)retry.hidden=false;
     }finally{
       if(token===state.token){
         state.loading=false;renderFilms(root,deps);
@@ -263,8 +263,8 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
     deps.closeFilm("mood");
     const error=activeElement(root,"[data-mood-error]"),pool=filtered();
     if(error){error.hidden=true;error.textContent="";}
-    if(state.loading){state.autoSpin=state.mood;if(error){error.textContent="Подборка загружается — рулетка запустится сама.";error.hidden=false;}return;}
-    if(!pool.length){if(error){error.textContent="В выбранном настроении и хронометраже фильмов не нашлось. Выберите другой хронометраж.";error.hidden=false;}return;}
+    if(state.loading){state.autoSpin=state.mood;if(error){error.textContent=uiText("Подборка загружается — рулетка запустится сама.");error.hidden=false;}return;}
+    if(!pool.length){if(error){error.textContent=uiText("В выбранном настроении и хронометраже фильмов не нашлось. Выберите другой хронометраж.");error.hidden=false;}return;}
     const moodId=state.mood,film=pool[Math.floor(Math.random()*pool.length)],winnerDetailId=`mood-roulette-winner-detail-${moodId}`;
     const token=++state.spinToken,winnerIndex=26,others=pool.filter(item=>item.id!==film.id),sequence=[];
     for(let i=0;i<winnerIndex;i++)sequence.push(others.length?others[Math.floor(Math.random()*others.length)]:film);
@@ -274,25 +274,25 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
     state.spinning=true;state.skipSpin=false;
     const launchButton=activeElement(root,"[data-mood-spin]"),launchLabel=activeElement(root,"[data-mood-launch-label]");
     if(launchButton)launchButton.disabled=true;
-    if(launchLabel)launchLabel.textContent="Плёнка крутится…";
+    if(launchLabel)launchLabel.textContent=uiText("Плёнка крутится…");
     if(!panel){state.spinning=false;return;}
-    panel.innerHTML=`<div class="relative overflow-hidden rounded-2xl bg-surface-panel p-4 shadow-xl"><div class="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-cinema-amber-glow blur-3xl pointer-events-none"></div><h2 class="relative font-headline-sm text-headline-sm text-primary mb-3">Кинорулетка настроения</h2>${window.KGCinemaReel.render({content:sequence.map(item=>`<div class="kgr-cell">${item.poster_path?`<img alt="${esc(item.title||item.original_title)}" draggable="false" src="${poster(item.poster_path)}">`:`<div class="nop">${esc(item.title||item.original_title)}</div>`}<span class="yr">${(item.release_date||"").slice(0,4)}</span></div>`).join(""),frameAttr:"data-mood-reel-frame"})}<div class="flex items-center justify-between px-1"><span data-mood-frame-counter class="font-mono text-micro-caption text-primary-fixed font-semibold tracking-wide">Кадр -- / ${String(pool.length).padStart(2,"0")}</span><button type="button" data-mood-skip class="font-micro-caption text-micro-caption text-text-muted hover:text-primary underline">Пропустить</button></div><div id="${winnerDetailId}"></div></div>`;
+    panel.innerHTML=`<div class="relative overflow-hidden rounded-2xl bg-surface-panel p-4 shadow-xl"><div class="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-cinema-amber-glow blur-3xl pointer-events-none"></div><h2 class="relative font-headline-sm text-headline-sm text-primary mb-3">${uiText("Кинорулетка настроения")}</h2>${window.KGCinemaReel.render({content:sequence.map(item=>`<div class="kgr-cell">${item.poster_path?`<img alt="${esc(item.title||item.original_title)}" draggable="false" src="${poster(item.poster_path)}">`:`<div class="nop">${esc(item.title||item.original_title)}</div>`}<span class="yr">${(item.release_date||"").slice(0,4)}</span></div>`).join(""),frameAttr:"data-mood-reel-frame"})}<div class="flex items-center justify-between px-1"><span data-mood-frame-counter class="font-mono text-micro-caption text-primary-fixed font-semibold tracking-wide">Кадр -- / ${String(pool.length).padStart(2,"0")}</span><button type="button" data-mood-skip class="font-micro-caption text-micro-caption text-text-muted hover:text-primary underline">${uiText("Пропустить")}</button></div><div id="${winnerDetailId}"></div></div>`;
     if(window.KGCinemaReel?.isProjectionMode?.()){
       panel.scrollIntoView({behavior:"smooth",block:"center"});if(typeof window.startFilmReelSound==="function")window.startFilmReelSound();
-      const landed=await window.KGCinemaReel.spinProjectionTrack(panel,sequence,film,{duration:4600,reducedMotion:prefersReducedMotion()||!others.length,cancelled:()=>token!==state.spinToken||!panel.isConnected,shouldSkip:()=>state.skipSpin,meta:{country:film._cc||"КИНОПОИСК"},onFrame:(_f,index)=>{const c=activeElement(root,"[data-mood-frame-counter]");if(c)c.textContent="Кадр "+String(index+1).padStart(2,"0")+" / "+String(sequence.length).padStart(2,"0");}});
+      const landed=await window.KGCinemaReel.spinProjectionTrack(panel,sequence,film,{duration:4600,reducedMotion:prefersReducedMotion()||!others.length,cancelled:()=>token!==state.spinToken||!panel.isConnected,shouldSkip:()=>state.skipSpin,meta:{country:film._cc||"КИНОПОИСК"},onFrame:(_f,index)=>{const c=activeElement(root,"[data-mood-frame-counter]");if(c)c.textContent=uiText("Кадр")+" "+String(index+1).padStart(2,"0")+" / "+String(sequence.length).padStart(2,"0");}});
       if(typeof window.stopFilmReelSound==="function")window.stopFilmReelSound();if(!landed||token!==state.spinToken||!panel.isConnected){state.spinning=false;if(launchButton)launchButton.disabled=false;return;}
-      state.spinning=false;state.skipSpin=false;const c=activeElement(root,"[data-mood-frame-counter]");if(c)c.textContent="Фильм "+String(pool.indexOf(film)+1).padStart(2,"0")+" / "+String(pool.length).padStart(2,"0");
-      if(launchButton)launchButton.disabled=false;if(launchLabel)launchLabel.textContent="Крутить ещё раз";
+      state.spinning=false;state.skipSpin=false;const c=activeElement(root,"[data-mood-frame-counter]");if(c)c.textContent=uiText("Фильм")+" "+String(pool.indexOf(film)+1).padStart(2,"0")+" / "+String(pool.length).padStart(2,"0");
+      if(launchButton)launchButton.disabled=false;if(launchLabel)launchLabel.textContent=uiText("Крутить ещё раз");
       const skip=activeElement(root,"[data-mood-skip]");if(skip)skip.hidden=true;deps.openFilm({...film,_kgRelatedPool:pool},"mood",winnerDetailId);
       return;
     }
     if(window.KGCinemaReel?.isCassetteMode?.()){
       panel.scrollIntoView({behavior:"smooth",block:"center"});if(typeof window.startFilmReelSound==="function")window.startFilmReelSound();
       const onOpen=f=>deps.openFilm({...f,_kgRelatedPool:pool},"mood",winnerDetailId);
-      const landed=await window.KGCinemaReel.spinCassetteDeck(panel,pool,sequence,film,{duration:4600,reducedMotion:prefersReducedMotion()||!others.length,cancelled:()=>token!==state.spinToken||!panel.isConnected,shouldSkip:()=>state.skipSpin,onOpen,onFrame:(_f,index)=>{const c=activeElement(root,"[data-mood-frame-counter]");if(c)c.textContent="Фильм "+String(index+1).padStart(2,"0")+" / "+String(sequence.length).padStart(2,"0");}});
+      const landed=await window.KGCinemaReel.spinCassetteDeck(panel,pool,sequence,film,{duration:4600,reducedMotion:prefersReducedMotion()||!others.length,cancelled:()=>token!==state.spinToken||!panel.isConnected,shouldSkip:()=>state.skipSpin,onOpen,onFrame:(_f,index)=>{const c=activeElement(root,"[data-mood-frame-counter]");if(c)c.textContent=uiText("Фильм")+" "+String(index+1).padStart(2,"0")+" / "+String(sequence.length).padStart(2,"0");}});
       if(typeof window.stopFilmReelSound==="function")window.stopFilmReelSound();if(!landed||token!==state.spinToken||!panel.isConnected){state.spinning=false;if(launchButton)launchButton.disabled=false;return;}
-      state.spinning=false;state.skipSpin=false;const c=activeElement(root,"[data-mood-frame-counter]");if(c)c.textContent="Фильм "+String(pool.indexOf(film)+1).padStart(2,"0")+" / "+String(pool.length).padStart(2,"0");
-      if(launchButton)launchButton.disabled=false;if(launchLabel)launchLabel.textContent=`Крутить ещё раз (${currentRuntime().button})`;
+      state.spinning=false;state.skipSpin=false;const c=activeElement(root,"[data-mood-frame-counter]");if(c)c.textContent=uiText("Фильм")+" "+String(pool.indexOf(film)+1).padStart(2,"0")+" / "+String(pool.length).padStart(2,"0");
+      if(launchButton)launchButton.disabled=false;if(launchLabel)launchLabel.textContent=uiText("Крутить ещё раз ({runtime})", {runtime: uiText(currentRuntime().button)});
       const skip=activeElement(root,"[data-mood-skip]");if(skip)skip.hidden=true;onOpen(film);
       return;
     }
@@ -304,7 +304,7 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
       if(!landed||token!==state.spinToken||!panel.isConnected){state.spinning=false;if(launchButton)launchButton.disabled=false;return;}
       window.KGCinemaReel.presentTicket(panel,film,{country:film._cc||"КИНОПОИСК"});state.spinning=false;state.skipSpin=false;
       const c=activeElement(root,"[data-mood-frame-counter]");if(c)c.textContent="Билет "+String(pool.indexOf(film)+1).padStart(2,"0")+" / "+String(pool.length).padStart(2,"0");
-      if(launchButton)launchButton.disabled=false;if(launchLabel)launchLabel.textContent=`Крутить ещё раз (${currentRuntime().button})`;
+      if(launchButton)launchButton.disabled=false;if(launchLabel)launchLabel.textContent=uiText("Крутить ещё раз ({runtime})", {runtime: uiText(currentRuntime().button)});
       const skip=activeElement(root,"[data-mood-skip]");if(skip)skip.hidden=true;
       deps.openFilm({...film,_kgRelatedPool:pool},"mood",winnerDetailId);
       return;
@@ -319,9 +319,9 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
       state.spinning=false;state.skipSpin=false;
       cells.forEach((cell,index)=>{cell.classList.remove("spin");cell.classList.toggle("chosen",index===winnerIndex);});
       run.style.transform=`translateX(${-finish}px)`;
-      panel.querySelector("[data-mood-frame-counter]").textContent=`Кадр ${String(pool.indexOf(film)+1).padStart(2,"0")} / ${String(total).padStart(2,"0")}`;
+      panel.querySelector("[data-mood-frame-counter]").textContent=uiText("Кадр {current} / {total}", {current: String(pool.indexOf(film)+1).padStart(2,"0"), total: String(total).padStart(2,"0")});
       if(launchButton)launchButton.disabled=false;
-      if(launchLabel)launchLabel.textContent=`Крутить ещё раз (${currentRuntime().button})`;
+      if(launchLabel)launchLabel.textContent=uiText("Крутить ещё раз ({runtime})", {runtime: uiText(currentRuntime().button)});
       if(skip)skip.hidden=true;
       frame.classList.remove("hit");void frame.offsetWidth;frame.classList.add("hit");
       deps.openFilm({...film,_kgRelatedPool:pool},"mood",winnerDetailId);

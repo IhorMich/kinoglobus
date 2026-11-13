@@ -509,7 +509,7 @@ vc.addEventListener("click",e=>{
   const act=e.target.closest("[data-act]");
   if(act){
     const a=act.dataset.act;
-    if(a==="spin"){e.stopPropagation();openCollection(act.dataset.t,{spin:true});return;}
+    if(a==="spin"){e.stopPropagation();audio();openCollection(act.dataset.t,{spin:true});return;}
     if(a==="open"){openCollection(act.dataset.t);return;}
     if(a==="clear"||a==="reset"){$("cat-search").value="";$("cat-clear").style.display="none";activeCat="all";vc.querySelectorAll("#cat-chips [data-f]").forEach(c=>c.className=chipCls(c.dataset.f==="all"));filterCatalog();return;}
     if(a==="random"){
@@ -991,9 +991,9 @@ function rStop(){
   setBtn(false);
 }
 function finishPick(film,token){
-  if(token!==R.token)return;
+  if(token!==R.token||!R.busy)return;
   R.busy=false;D.picked=film;setBtn(false);
-  window.playFilmFoundSound?.();
+  snd(()=>playFilmFoundSound());
   window.KGCinemaReel?.presentTicket($("cl-reel"),film,{country:cname(film._cc||D.cc||D.t.cc[0])});
   window.KGCinemaReel?.updateIMAX(document.getElementById("kg-imax-stage"),film,{country:cname(film._cc||D.cc||D.t.cc[0]),state:"ФИЛЬМ В КАДРЕ"});
   openFilm(film,"roulette");

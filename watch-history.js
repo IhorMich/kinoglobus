@@ -54,13 +54,13 @@
     const heading = document.getElementById('jfilmsT');
     if (!box) return;
     const films = country ? watched.filter(item => (item.countries || []).includes(country)) : watched;
-    if (heading) heading.textContent = country ? 'Фильмы из ' + (typeof cname === 'function' ? cname(country) : country) + ' · показать все' : 'Просмотренные фильмы';
+    if (heading) heading.textContent = country ? uiText("Фильмы из {country} · показать все", {country: typeof cname === 'function' ? cname(country) : country}) : uiText("Просмотренные фильмы");
     if (!films.length) {
-      box.innerHTML = `<p class="note" style="margin:0">${country ? 'Вы ещё не отмечали просмотренные фильмы из этой страны.' : 'Постеры и страны появятся здесь после нажатия «Посмотрел».'}</p>`;
+      box.innerHTML = `<p class="note" style="margin:0">${country ? uiText("Вы ещё не отмечали просмотренные фильмы из этой страны.") : uiText("Постеры и страны появятся здесь после нажатия «Посмотрел».")}</p>`;
       return;
     }
     box.innerHTML = films.map(item => {
-      const title = escHtml(item.title || 'Фильм');
+      const title = escHtml(item.title || uiText("Фильм"));
       const poster = item.poster ? `<img src="https://image.tmdb.org/t/p/w154${item.poster}" alt="${title}" loading="lazy">` : `<span class="ph">${title}</span>`;
       const code = (item.countries || [])[0] || '';
       const place = code && typeof cname === 'function' ? cname(code) : '';
@@ -73,7 +73,7 @@
     const counts = window.KGWatchedCountryCounts();
     const count = counts[country] || 0;
     const info = document.getElementById('minfo');
-    if (info) info.innerHTML = `${typeof flag === 'function' ? flag(country) : '🌍'} ${escHtml(typeof cname === 'function' ? cname(country) : country)}: ${count ? `просмотрено фильмов ${count}` : 'ещё нет отмеченных фильмов'}`;
+    if (info) info.innerHTML = `${typeof flag === 'function' ? flag(country) : '🌍'} ${escHtml(typeof cname === 'function' ? cname(country) : country)}: ${count ? uiText("просмотрено фильмов {count}", {count}) : uiText("ещё нет отмеченных фильмов")}`;
     window.KGRenderWatchedByCountry(country);
   };
 
@@ -100,7 +100,7 @@
 
   document.addEventListener('DOMContentLoaded', () => {
     const heading = document.getElementById('jfilmsT');
-    if (heading) { heading.style.cursor = 'pointer'; heading.title = 'Показать все просмотренные фильмы'; heading.addEventListener('click', () => window.KGRenderWatchedByCountry('')); }
+    if (heading) { heading.style.cursor = 'pointer'; heading.title = uiText("Показать все просмотренные фильмы"); heading.addEventListener('click', () => window.KGRenderWatchedByCountry('')); }
   });
 
   window.KGMarkWatched = film => {

@@ -156,20 +156,20 @@ const cat=t=>(TM[t.id]||["noir"])[0];
 /* ---------- утилиты ---------- */
 const fl=cc=>`<span class="kgf">${flag(cc,false)}</span>`;
 const P=(p,s)=>p?`https://image.tmdb.org/t/p/${s||"w185"}${p}`:"";
-const nf=n=>new Intl.NumberFormat("ru-RU").format(n);
-const moneyFmt=new Intl.NumberFormat("ru-RU",{style:"currency",currency:"USD",maximumFractionDigits:0});
-const moneyText=n=>Number(n)>0?moneyFmt.format(Number(n)):"Нет данных";
+const nf=n=>new Intl.NumberFormat(interfaceLanguage).format(n);
+const moneyFmt=new Intl.NumberFormat(interfaceLanguage,{style:"currency",currency:"USD",maximumFractionDigits:0});
+const moneyText=n=>Number(n)>0?moneyFmt.format(Number(n)):uiText("Нет данных");
 const kgPersonLink=(p,role)=>p&&p.id?`<button type="button" data-kg-person-id="${p.id}" data-kg-person-name="${esc(p.name)}" data-kg-person-role="${role||"Кинематографист"}" class="kg-person-link">${esc(p.name)}</button>`:esc(p&&p.name||"");
 function fw(n){const m=n%100,k=n%10;return (k===1&&m!==11)?"фильм":(k>1&&k<5&&(m<12||m>14))?"фильма":"фильмов";}
-const gnames=t=>t.g.split("|").map(x=>GENRES[x]).filter(Boolean);
+const gnames=t=>t.g.split("|").map(x=>GENRES[x]).filter(Boolean).map(genre=>uiText(genre));
 const codeOf=t=>t.films?"":REG[t.id]?REG[t.id][1]:(t.cc[0]==="SU"?"СССР":t.cc[0]);
-const where=t=>t.films?"Разные страны":REG[t.id]?REG[t.id][0]:cname(t.cc[0]);
+const where=t=>t.films?uiText("Разные страны"):REG[t.id]?uiText(REG[t.id][0]):cname(t.cc[0]);
 const flagsOf=t=>t.cc.slice(0,3).map(fl).join(" ");
 const BOOK=new Set(store.get("kgBookmarks",[]));
 function toast(msg,icon){
   let el=$("kg-toast");
   if(!el){el=document.createElement("div");el.id="kg-toast";el.className="fixed bottom-20 left-1/2 -translate-x-1/2 max-w-[90vw] z-50 pointer-events-none opacity-0 transition-opacity duration-300";document.body.appendChild(el);}
-  el.innerHTML=`<div class="flex items-center gap-2 px-4 py-2.5 rounded-full bg-surface-panel text-on-surface font-label-sm text-label-sm shadow-[0_8px_24px_rgba(0,0,0,0.9)]"><span class="material-symbols-outlined text-primary-container text-[18px]">${icon||"casino"}</span><span>${esc(msg)}</span></div>`;
+  el.innerHTML=`<div class="flex items-center gap-2 px-4 py-2.5 rounded-full bg-surface-panel text-on-surface font-label-sm text-label-sm shadow-[0_8px_24px_rgba(0,0,0,0.9)]"><span class="material-symbols-outlined text-primary-container text-[18px]">${icon||"casino"}</span><span>${esc(uiText(msg))}</span></div>`;
   el.style.opacity="1";clearTimeout(el._t);el._t=setTimeout(()=>el.style.opacity="0",2200);
 }
 
@@ -370,31 +370,31 @@ function spotlightTheme(){return catalogThemes[Math.floor(Date.now()/6048e5)%cat
 function cardHtml(t,i){
   const m=TM[t.id]||["noir","","",""],special=t.id==="suwar";
   const g0=gnames(t)[0]||"";
-  const top=special?`<div class="flex items-center justify-between mb-2"><span class="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-secondary-container/60 text-secondary font-micro-caption text-micro-caption font-bold"><span class="material-symbols-outlined text-[13px]">history_edu</span>АРХИВ ИСЧЕЗНУВШИХ ЭПОХ</span><span data-k="r" class="font-micro-caption text-micro-caption text-primary-container font-bold">★ …</span></div>`:"";
+  const top=special?`<div class="flex items-center justify-between mb-2"><span class="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-secondary-container/60 text-secondary font-micro-caption text-micro-caption font-bold"><span class="material-symbols-outlined text-[13px]">history_edu</span>${uiText("АРХИВ ИСЧЕЗНУВШИХ ЭПОХ")}</span><span data-k="r" class="font-micro-caption text-micro-caption text-primary-container font-bold">★ …</span></div>`:"";
   const rate=special?"":`<span data-k="r" class="px-2 py-0.5 rounded-full bg-primary-container/15 text-primary-container font-micro-caption text-micro-caption font-bold flex-shrink-0">★ …</span>`;
-  const btn=`<button type="button" aria-label="Крутить" data-act="spin" data-t="${t.id}" class="w-8 h-8 rounded-full bg-surface-container-high hover:bg-primary-container hover:text-on-primary-container text-primary flex items-center justify-center transition-all"><span class="material-symbols-outlined text-[18px]">casino</span></button>`;
+  const btn=`<button type="button" aria-label="${uiText("Крутить")}" data-act="spin" data-t="${t.id}" class="w-8 h-8 rounded-full bg-surface-container-high hover:bg-primary-container hover:text-on-primary-container text-primary flex items-center justify-center transition-all"><span class="material-symbols-outlined text-[18px]">casino</span></button>`;
   return `<article class="collection-card relative flex flex-col ${special?"p-4 bg-gradient-to-br from-cinema-velvet-deep/40 via-surface-panel to-surface-panel shadow-[0_6px_24px_rgba(0,0,0,0.6)]":"p-3.5 bg-surface-panel shadow-[0_4px_20px_rgba(0,0,0,0.45)]"} rounded-2xl transition-all active:scale-[0.99] cursor-pointer" data-t="${t.id}" data-cat="${m[0]}" data-i="${i}">
 ${top}<div class="flex items-start gap-3">
-<div class="relative w-20 h-28 rounded-lg overflow-hidden shrink-0 bg-surface-container-high"><img data-k="img" alt="${esc(t.name)}" src="${getThemeCover(t.id)}" class="w-full h-full object-cover transition-opacity duration-500 ${special?"grayscale contrast-125":""} ${getThemeCover(t.id)?"":"opacity-0"}"><span class="absolute bottom-1 right-1 px-1.5 rounded bg-surface-container-lowest/80 text-[10px] font-bold text-primary">${esc(codeOf(t))}</span></div>
+<div class="relative w-20 h-28 rounded-lg overflow-hidden shrink-0 bg-surface-container-high"><img data-k="img" alt="${esc(uiText(t.name))}" src="${getThemeCover(t.id)}" class="w-full h-full object-cover transition-opacity duration-500 ${special?"grayscale contrast-125":""} ${getThemeCover(t.id)?"":"opacity-0"}"><span class="absolute bottom-1 right-1 px-1.5 rounded bg-surface-container-lowest/80 text-[10px] font-bold text-primary">${esc(codeOf(t))}</span></div>
 <div class="flex flex-col min-w-0 flex-1 justify-between h-28"><div>
 <div class="flex items-center justify-between gap-1"><span class="font-micro-caption text-micro-caption text-text-muted flex items-center gap-1 truncate">${flagsOf(t)} ${esc(where(t))}</span>${rate}</div>
-<h4 class="font-headline-sm text-headline-sm text-primary font-bold truncate mt-0.5">${i+1}. ${esc(t.name)}</h4>
-<p class="font-micro-caption text-micro-caption text-on-surface-variant ${special?"kg-clip2":"truncate"} mt-0.5">${esc(m[2])}</p></div>
+<h4 class="font-headline-sm text-headline-sm text-primary font-bold truncate mt-0.5">${i+1}. ${esc(uiText(t.name))}</h4>
+<p class="font-micro-caption text-micro-caption text-on-surface-variant ${special?"kg-clip2":"truncate"} mt-0.5">${esc(uiText(m[2]))}</p></div>
 <div class="flex items-center justify-between pt-1"><span data-k="cnt" class="font-label-sm text-label-sm text-text-muted truncate">… · ${esc(g0)}</span>${btn}</div>
 </div></div></article>`;
 }
 
 function spotlightHtml(t){
   const m=TM[t.id]||["noir","","",""];
-  return `<section id="spot" data-t="${t.id}" tabindex="0" aria-label="Открыть подборку «${esc(t.name)}»" class="relative w-full rounded-2xl overflow-hidden bg-surface-panel shadow-[0_14px_34px_-10px_rgba(0,0,0,0.85)] cursor-pointer">
+  return `<section id="spot" data-t="${t.id}" tabindex="0" aria-label="${esc(uiText("Открыть подборку «{title}»", {title: uiText(t.name)}))}" class="relative w-full rounded-2xl overflow-hidden bg-surface-panel shadow-[0_14px_34px_-10px_rgba(0,0,0,0.85)] cursor-pointer">
 <div data-k="bg" style="background-image: url('${getThemeCover(t.id)}');" class="w-full h-56 bg-cover bg-center relative bg-surface-container-high"><div class="absolute inset-0 bg-gradient-to-t from-surface-panel via-surface-panel/60 to-transparent"></div>
-<div class="absolute top-3 left-3 right-3 flex items-center justify-between"><div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-cinema-velvet-deep text-secondary font-micro-caption text-micro-caption shadow-md"><span class="material-symbols-outlined text-[14px]">local_fire_department</span>ХИТ НЕДЕЛИ</div>
+<div class="absolute top-3 left-3 right-3 flex items-center justify-between"><div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-cinema-velvet-deep text-secondary font-micro-caption text-micro-caption shadow-md"><span class="material-symbols-outlined text-[14px]">local_fire_department</span>${uiText("ХИТ НЕДЕЛИ")}</div>
 <div class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container-lowest/80 backdrop-blur-md text-primary font-label-sm text-label-sm"><span class="material-symbols-outlined text-[15px] text-primary-container" style="font-variation-settings:'FILL' 1;">star</span><span data-k="r">…</span></div></div>
 <div class="absolute bottom-3 left-3.5 right-3.5 flex items-center gap-1.5"><span class="px-2 py-0.5 rounded-full bg-surface-container-high/90 backdrop-blur text-primary font-micro-caption text-micro-caption tracking-wider">${t.cc.map(fl).join(" ")}</span><span class="font-micro-caption text-micro-caption text-text-muted truncate">${esc(t.cc.map(cname).join(", "))}</span></div></div>
-<div class="p-4 flex flex-col gap-2.5"><div class="flex items-baseline justify-between"><h3 class="font-headline-md text-headline-md text-primary font-bold">${esc(t.name)}</h3><span data-k="cnt" class="font-micro-caption text-micro-caption text-text-muted">…</span></div>
-<p class="font-body-sm text-body-sm text-text-muted kg-clip2">${esc(m[3])}</p>
-<div class="flex items-center gap-2 pt-1"><button type="button" data-act="spin" data-t="${t.id}" class="flex-1 h-11 px-4 rounded-xl bg-primary-container text-on-primary-container font-label-md text-label-md flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(255,184,48,0.32)] transition-transform active:scale-95"><span class="material-symbols-outlined text-[20px]">casino</span><span>Крутить рулетку</span></button>
-<button type="button" aria-label="Подробнее" data-act="open" data-t="${t.id}" class="w-11 h-11 rounded-xl bg-surface-container-high text-primary flex items-center justify-center transition-colors hover:bg-surface-bright active:scale-95"><span class="material-symbols-outlined text-[20px]">arrow_forward</span></button></div></div></section>`;
+<div class="p-4 flex flex-col gap-2.5"><div class="flex items-baseline justify-between"><h3 class="font-headline-md text-headline-md text-primary font-bold">${esc(uiText(t.name))}</h3><span data-k="cnt" class="font-micro-caption text-micro-caption text-text-muted">…</span></div>
+<p class="font-body-sm text-body-sm text-text-muted kg-clip2">${esc(uiText(m[3]))}</p>
+<div class="flex items-center gap-2 pt-1"><button type="button" data-act="spin" data-t="${t.id}" class="flex-1 h-11 px-4 rounded-xl bg-primary-container text-on-primary-container font-label-md text-label-md flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(255,184,48,0.32)] transition-transform active:scale-95"><span class="material-symbols-outlined text-[20px]">casino</span><span>${uiText(uiText("Крутить рулетку"))}</span></button>
+<button type="button" aria-label="${uiText("Подробнее")}" data-act="open" data-t="${t.id}" class="w-11 h-11 rounded-xl bg-surface-container-high text-primary flex items-center justify-center transition-colors hover:bg-surface-bright active:scale-95"><span class="material-symbols-outlined text-[20px]">arrow_forward</span></button></div></div></section>`;
 }
 function updateWeeklySpotlight(){
   const spot=$("spot"),selected=spotlightTheme();
@@ -410,24 +410,24 @@ function buildCatalog(){
   const counts={};catalogThemes.forEach(t=>counts[cat(t)]=(counts[cat(t)]||0)+1);
   vc.innerHTML=`
 <section class="flex flex-col gap-space-xs mt-1">
-<div class="flex items-center justify-between"><span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container text-primary-container font-label-sm text-label-sm shadow-[0_0_14px_rgba(255,184,48,0.18)]"><span class="material-symbols-outlined text-[15px]" style="font-variation-settings:'FILL' 1;">auto_awesome</span>Кураторский киногид</span>
-<span class="font-micro-caption text-micro-caption text-text-muted flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-primary-container animate-pulse"></span>${catalogThemes.length} доступно</span></div>
-<h2 class="font-headline-lg text-headline-lg text-primary tracking-tight">Тематические коллекции</h2>
-<p class="font-body-sm text-body-sm text-text-muted leading-relaxed">${catalogThemes.length} авторских киномаршрутов: от азиатского саспенса и скандинавского холода до исторических эпох</p>
+<div class="flex items-center justify-between"><span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container text-primary-container font-label-sm text-label-sm shadow-[0_0_14px_rgba(255,184,48,0.18)]"><span class="material-symbols-outlined text-[15px]" style="font-variation-settings:'FILL' 1;">auto_awesome</span>${uiText("Кураторский киногид")}</span>
+<span class="font-micro-caption text-micro-caption text-text-muted flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-primary-container animate-pulse"></span>${uiText("{count} доступно", {count: catalogThemes.length})}</span></div>
+<h2 class="font-headline-lg text-headline-lg text-primary tracking-tight">${uiText("Тематические коллекции")}</h2>
+<p class="font-body-sm text-body-sm text-text-muted leading-relaxed">${uiText("{count} авторских киномаршрутов: от азиатского саспенса и скандинавского холода до исторических эпох", {count: catalogThemes.length})}</p>
 <div class="relative w-full mt-2"><div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-text-muted"><span class="material-symbols-outlined text-[20px]">search</span></div>
-<input id="cat-search" type="search" placeholder="Найти подборку, страну или жанр..." class="w-full h-12 pl-11 pr-10 rounded-xl bg-surface-container-low text-on-surface placeholder:text-text-muted font-body-sm text-body-sm focus:outline-none focus:bg-surface-container transition-all shadow-[0_4px_16px_rgba(0,0,0,0.4)]">
+<input id="cat-search" type="search" placeholder="${uiText("Найти подборку, страну или жанр...")}" class="w-full h-12 pl-11 pr-10 rounded-xl bg-surface-container-low text-on-surface placeholder:text-text-muted font-body-sm text-body-sm focus:outline-none focus:bg-surface-container transition-all shadow-[0_4px_16px_rgba(0,0,0,0.4)]">
 <div id="cat-clear" data-act="clear" style="display:none" class="absolute inset-y-0 right-0 pr-3 items-center cursor-pointer text-text-muted hover:text-primary"><span class="material-symbols-outlined text-[18px]">cancel</span></div></div>
 </section>
 <section id="cat-chips" class="flex gap-2 overflow-x-auto pb-1 -mx-gutter-mobile px-gutter-mobile">
-<button type="button" data-f="all" class="${chipCls(true)}"><span>Все ${catalogThemes.length}</span></button>
-${Object.keys(CAT).filter(k=>counts[k]).map(k=>`<button type="button" data-f="${k}" class="${chipCls(false)}"><span>${CAT[k][0]} (${counts[k]})</span></button>`).join("")}</section>
+<button type="button" data-f="all" class="${chipCls(true)}"><span>${uiText("Все {count}", {count: catalogThemes.length})}</span></button>
+${Object.keys(CAT).filter(k=>counts[k]).map(k=>`<button type="button" data-f="${k}" class="${chipCls(false)}"><span>${uiText(CAT[k][0])} (${counts[k]})</span></button>`).join("")}</section>
 ${spotlightHtml(spotlightTheme())}
 <section class="flex items-center justify-between gap-2"><div class="flex items-center gap-1.5 bg-surface-panel px-3 py-1.5 rounded-xl"><span class="material-symbols-outlined text-[17px] text-text-muted">swap_vert</span>
-<select id="cat-sort" class="bg-transparent text-text-muted font-label-sm text-label-sm focus:outline-none focus:text-primary cursor-pointer"><option class="bg-surface-panel text-on-surface" value="curated">По кураторскому списку</option><option class="bg-surface-panel text-on-surface" value="rating">По рейтингу (высокий)</option><option class="bg-surface-panel text-on-surface" value="count">По числу фильмов</option><option class="bg-surface-panel text-on-surface" value="title">По алфавиту</option></select></div>
-<button type="button" data-act="random" class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-secondary-container text-on-secondary-container font-label-sm text-label-sm shadow-[0_0_14px_rgba(134,26,69,0.25)] transition-all active:scale-95"><span class="material-symbols-outlined text-[18px]">casino</span><span>Случайная</span></button></section>
+<select id="cat-sort" class="bg-transparent text-text-muted font-label-sm text-label-sm focus:outline-none focus:text-primary cursor-pointer"><option class="bg-surface-panel text-on-surface" value="curated">${uiText("По кураторскому списку")}</option><option class="bg-surface-panel text-on-surface" value="rating">${uiText("По рейтингу (высокий)")}</option><option class="bg-surface-panel text-on-surface" value="count">${uiText("По числу фильмов")}</option><option class="bg-surface-panel text-on-surface" value="title">${uiText("По алфавиту")}</option></select></div>
+<button type="button" data-act="random" class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-secondary-container text-on-secondary-container font-label-sm text-label-sm shadow-[0_0_14px_rgba(134,26,69,0.25)] transition-all active:scale-95"><span class="material-symbols-outlined text-[18px]">casino</span><span>${uiText("Случайная")}</span></button></section>
 <p id="cat-note" class="font-micro-caption text-micro-caption text-text-muted px-1" style="display:none"></p>
 <section id="cat-grid" class="flex flex-col gap-3">${seededShuffle(catalogThemes,dailySeed()).map((t,i)=>cardHtml(t,i)).join("")}</section>
-<div id="cat-empty" style="display:none" class="flex-col items-center justify-center py-12 px-4 text-center rounded-2xl bg-surface-panel/50"><div class="w-14 h-14 rounded-full bg-surface-container-high flex items-center justify-center text-primary-container mb-3 shadow-[0_0_18px_rgba(255,184,48,0.2)]"><span class="material-symbols-outlined text-[28px]">movie_edit</span></div><h3 class="font-headline-sm text-headline-sm text-primary font-bold">Подборка не найдена</h3><p class="font-body-sm text-body-sm text-text-muted mt-1 max-w-xs">Попробуйте другое ключевое слово или выберите «Все ${catalogThemes.length}», чтобы сбросить фильтр.</p><button type="button" data-act="reset" class="mt-4 px-4 py-2 rounded-xl bg-primary-container text-on-primary-container font-label-sm text-label-sm font-bold shadow-[0_0_12px_rgba(255,184,48,0.25)]">Сбросить поиск</button></div>`;
+<div id="cat-empty" style="display:none" class="flex-col items-center justify-center py-12 px-4 text-center rounded-2xl bg-surface-panel/50"><div class="w-14 h-14 rounded-full bg-surface-container-high flex items-center justify-center text-primary-container mb-3 shadow-[0_0_18px_rgba(255,184,48,0.2)]"><span class="material-symbols-outlined text-[28px]">movie_edit</span></div><h3 class="font-headline-sm text-headline-sm text-primary font-bold">${uiText("Подборка не найдена")}</h3><p class="font-body-sm text-body-sm text-text-muted mt-1 max-w-xs">Попробуйте другое ключевое слово или выберите «${uiText("Все {count}", {count: catalogThemes.length})}», чтобы сбросить фильтр.</p><button type="button" data-act="reset" class="mt-4 px-4 py-2 rounded-xl bg-primary-container text-on-primary-container font-label-sm text-label-sm font-bold shadow-[0_0_12px_rgba(255,184,48,0.25)]">${uiText("Сбросить поиск")}</button></div>`;
   catBuilt=true;
 }
 
@@ -444,7 +444,7 @@ function paintMeta(id){
     const r=el.querySelector('[data-k="r"]');
     if(r){const sp=el.id==="spot";r.textContent=sp?(m.r||"—"):(el.dataset.cat==="retro"&&el.classList.contains("collection-card")?"★ "+(m.r||"—"):"★ "+(m.r||"—"));}
     const c=el.querySelector('[data-k="cnt"]');
-    if(c){const g=gnames(T[id])[0]||"";c.textContent=el.id==="spot"?`${nf(m.n)} ${fw(m.n)}`:`${nf(m.n)} ${fw(m.n)}${g?" · "+g:""}`;}
+    if(c){const g=gnames(T[id])[0]||"";c.textContent=el.id==="spot"?`${nf(m.n)} ${interfaceLanguage==="en"?(m.n===1?"film":"films"):fw(m.n)}`:`${nf(m.n)} ${interfaceLanguage==="en"?(m.n===1?"film":"films"):fw(m.n)}${g?" · "+g:""}`;}
     const img=el.querySelector('[data-k="img"]');
     if(img){
       // Сохраняем авторскую кураторскую обложку вместо случайного первого постера
@@ -463,7 +463,7 @@ function filterCatalog(){
   let vis=0;
   vc.querySelectorAll(".collection-card").forEach(c=>{
     const t=T[c.dataset.t],m=TM[t.id]||[];
-    const hay=[t.name,m[1],m[2],t.cc.map(cname).join(" "),gnames(t).join(" ")].join(" ").toLowerCase();
+    const hay=[t.name,uiText(t.name),m[1],m[2],uiText(m[2]||""),t.cc.map(cname).join(" "),gnames(t).join(" ")].join(" ").toLowerCase();
     const ok=(activeCat==="all"||c.dataset.cat===activeCat)&&(!q||hay.includes(q));
     c.style.display=ok?"":"none";if(ok)vis++;
   });
@@ -475,13 +475,13 @@ function sortCatalog(){
     const ma=META[a.dataset.t]||{},mb=META[b.dataset.t]||{};
     if(sortMode==="rating")return (parseFloat(mb.r)||0)-(parseFloat(ma.r)||0);
     if(sortMode==="count")return (mb.n||0)-(ma.n||0);
-    if(sortMode==="title")return T[a.dataset.t].name.localeCompare(T[b.dataset.t].name,"ru");
+    if(sortMode==="title")return uiText(T[a.dataset.t].name).localeCompare(uiText(T[b.dataset.t].name),interfaceLanguage);
     return a.dataset.i-b.dataset.i;
   }).forEach(c=>grid.appendChild(c));
 }
 async function loadAllMeta(force=false){
   const note=$("cat-note");
-  if(!apiKey){if(note){note.textContent="Введите ключ TMDB на экране «Глобус», чтобы увидеть число фильмов и рейтинги подборок.";note.style.display="";}return false;}
+  if(!apiKey){if(note){note.textContent=uiText("Введите ключ TMDB на экране «Глобус», чтобы увидеть число фильмов и рейтинги подборок.");note.style.display="";}return false;}
   if(note)note.style.display="none";
   const results=await Promise.allSettled(catalogThemes.map(t=>loadMeta(t,force).then(()=>{if(catBuilt)paintMeta(t.id);})));
   if(sortMode!=="curated")sortCatalog();
@@ -513,7 +513,7 @@ vc.addEventListener("click",e=>{
       if(!vis.length)return;
       const c=pick(vis);c.scrollIntoView({behavior:"smooth",block:"center"});
       c.classList.add("ring-2","ring-primary-container");setTimeout(()=>c.classList.remove("ring-2","ring-primary-container"),1800);
-      toast("Выбрано: «"+T[c.dataset.t].name+"»!");return;
+      toast(uiText("Выбрано: «{title}»!", {title: uiText(T[c.dataset.t].name)}));return;
     }
   }
   const spot=e.target.closest("#spot");
@@ -584,7 +584,7 @@ function filmItem(f){
 <div class="relative w-20 h-28 flex-shrink-0 rounded-lg overflow-hidden bg-surface-container-high">${f.poster_path?`<img class="w-full h-full object-cover" loading="lazy" alt="" src="${P(f.poster_path,"w185")}">`:`<div class="w-full h-full flex items-center justify-center text-text-muted"><span class="material-symbols-outlined">movie</span></div>`}
 <span class="absolute top-1 left-1 px-1 py-0.5 rounded bg-surface-panel/90 text-primary-container font-micro-caption text-micro-caption font-bold">${f.vote_average ? Number(f.vote_average).toFixed(1) : "—"} ★</span><button type="button" data-act="bm" data-id="${f.id}" aria-label="${bm?"Убрать из закладок":"Сохранить в закладки"}" class="absolute top-1 right-1 w-6 h-6 rounded-full bg-surface-panel/85 text-primary-container flex items-center justify-center shadow"><span class="material-symbols-outlined text-[16px]">${bm?"bookmark_added":"bookmark_border"}</span></button></div>
 <div class="flex flex-col justify-between flex-1 min-w-0"><div class="flex flex-col gap-0.5">
-<div class="flex items-center justify-between"><span class="font-micro-caption text-micro-caption text-text-muted">${fl(f._cc)} ${esc(cname(f._cc))}${y?" • "+y:""}</span><span data-rt="${f.id}" class="font-micro-caption text-micro-caption px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant">— мин</span></div>
+<div class="flex items-center justify-between"><span class="font-micro-caption text-micro-caption text-text-muted">${fl(f._cc)} ${esc(cname(f._cc))}${y?" • "+y:""}</span><span data-rt="${f.id}" class="font-micro-caption text-micro-caption px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant">${uiText("— мин")}</span></div>
 <h4 class="font-label-lg text-label-lg text-on-surface font-bold truncate">${esc(f.title)}</h4>
 <p data-dir="${f.id}" class="font-micro-caption text-micro-caption text-text-muted truncate">&nbsp;</p>
 <div class="flex items-center gap-1.5 pt-1">${gs.map(g=>`<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-micro-caption text-micro-caption">${esc(g)}</span>`).join("")}</div></div></div></div>
@@ -592,12 +592,12 @@ ${selected?selectedFilmHtml(selected,true):""}</article>`;
 }
 function pearlHtml(f,selected=null){
   const y=(f.release_date||"").slice(0,4),bm=BOOK.has(f.id);
-  return `<div class="flex flex-col gap-space-xs"><div class="flex items-center gap-1.5 px-1"><span class="material-symbols-outlined text-[18px] text-primary-container">stars</span><h3 class="font-headline-sm text-headline-sm text-primary font-bold">Жемчужина коллекции</h3></div>
+  return `<div class="flex flex-col gap-space-xs"><div class="flex items-center gap-1.5 px-1"><span class="material-symbols-outlined text-[18px] text-primary-container">stars</span><h3 class="font-headline-sm text-headline-sm text-primary font-bold">${uiText("Жемчужина коллекции")}</h3></div>
 <div class="relative overflow-hidden rounded-xl bg-surface-panel p-space-md shadow-xl flex flex-col gap-space-md"><div class="flex gap-space-md cursor-pointer" data-act="open" data-id="${f.id}">
 <div class="relative flex-shrink-0 w-28 h-40 rounded-lg overflow-hidden bg-surface-container-high shadow-md">${f.poster_path?`<img class="w-full h-full object-cover" alt="" src="${P(f.poster_path,"w342")}">`:""}
 <div class="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded bg-surface-panel/90 backdrop-blur-md text-primary-container font-label-sm text-label-sm font-bold flex items-center gap-0.5"><span class="material-symbols-outlined text-[13px]" style="font-variation-settings:'FILL' 1;">star</span>${f.vote_average ? Number(f.vote_average).toFixed(1) : "—"}</div><button type="button" data-act="bm" data-id="${f.id}" aria-label="${bm?"Убрать из закладок":"Сохранить в закладки"}" class="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-surface-panel/85 text-primary-container flex items-center justify-center shadow"><span class="material-symbols-outlined text-[16px]">${bm?"bookmark_added":"bookmark_border"}</span></button></div>
 <div class="flex flex-col justify-between flex-1 min-w-0"><div class="flex flex-col gap-1">
-<div class="flex items-center gap-1.5"><span class="font-micro-caption text-micro-caption px-1.5 rounded bg-surface-container text-on-surface-variant">${fl(f._cc)} ${y}</span><span data-rt="${f.id}" class="font-micro-caption text-micro-caption text-text-muted">— мин</span></div>
+<div class="flex items-center gap-1.5"><span class="font-micro-caption text-micro-caption px-1.5 rounded bg-surface-container text-on-surface-variant">${fl(f._cc)} ${y}</span><span data-rt="${f.id}" class="font-micro-caption text-micro-caption text-text-muted">${uiText("— мин")}</span></div>
 <h4 class="font-headline-sm text-headline-sm text-on-surface font-bold leading-snug kg-clip2">${esc(f.title)}</h4>
 <p class="font-micro-caption text-micro-caption text-text-muted italic truncate">${f.original_title&&f.original_title!==f.title?esc(f.original_title):"&nbsp;"}</p>
 <p data-dir="${f.id}" class="font-micro-caption text-micro-caption text-on-surface-variant">&nbsp;</p></div>
@@ -615,20 +615,20 @@ function renderFilms(){
   const keepScroll=()=>{if(anchorId==null)return;
     const el=[...box.querySelectorAll('[data-act="open"]')].find(e=>String(e.dataset.id)===String(anchorId));
     if(el){const d=el.getBoundingClientRect().top-anchorTop;if(d)window.scrollBy(0,d);}};
-  if(!best){box.innerHTML=(selectedInList?selectedFilmHtml(D.selected):"")+'<p class="font-body-sm text-body-sm text-text-muted px-1">Подходящих фильмов не нашлось.</p>';paintWatchedButtons(box);return;}
+  if(!best){box.innerHTML=(selectedInList?selectedFilmHtml(D.selected):"")+`<p class="font-body-sm text-body-sm text-text-muted px-1">${uiText("Подходящих фильмов не нашлось.")}</p>`;paintWatchedButtons(box);return;}
   const list=rest.slice(0,D.shown);
   const pearl=pearlHtml(best,selectedInList&&String(D.selected.id)===String(best.id)?D.selected:null);
   box.innerHTML=pearl+
-  `<div class="flex flex-col gap-space-sm"><div class="flex items-center justify-between px-1"><h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">Отобранные шедевры</h3><span class="font-micro-caption text-micro-caption text-text-muted">${list.length} из ${nf(Math.max(totalFor(),list.length+1))}</span></div>
+  `<div class="flex flex-col gap-space-sm"><div class="flex items-center justify-between px-1"><h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">${uiText("Отобранные шедевры")}</h3><span class="font-micro-caption text-micro-caption text-text-muted">${list.length} из ${nf(Math.max(totalFor(),list.length+1))}</span></div>
   <div class="flex flex-col gap-space-sm">${list.map(f=>filmItem(f)).join("")}</div>
-  ${rest.length>D.shown?`<button type="button" data-act="more" class="w-full py-3 rounded-xl bg-surface-panel hover:bg-surface-container-low text-primary text-center font-label-md text-label-md font-semibold flex items-center justify-center gap-2 transition-colors shadow-sm"><span class="material-symbols-outlined text-[18px]">expand_more</span><span>Показать ещё</span></button>`:""}</div>`;
+  ${rest.length>D.shown?`<button type="button" data-act="more" class="w-full py-3 rounded-xl bg-surface-panel hover:bg-surface-container-low text-primary text-center font-label-md text-label-md font-semibold flex items-center justify-center gap-2 transition-colors shadow-sm"><span class="material-symbols-outlined text-[18px]">expand_more</span><span>${uiText("Показать ещё")}</span></button>`:""}</div>`;
   paintWatchedButtons(box);
   keepScroll();
   if (!apiKey) return;
   [best,...list].forEach(f=>filmDetails(f.id).then(d=>{
     const rt=vd.querySelectorAll(`[data-rt="${f.id}"]`),dr=vd.querySelectorAll(`[data-dir="${f.id}"]`);
-    rt.forEach(e=>e.textContent=d.runtime?d.runtime+" мин":"");
-    dr.forEach(e=>e.innerHTML=(d.dirsFull||[]).length?"Реж. "+d.dirsFull.slice(0,2).map(p=>kgPersonLink(p,"Режиссёр")).join(", "):"");
+    rt.forEach(e=>e.textContent=d.runtime?uiText("{minutes} мин", {minutes: d.runtime}):"");
+    dr.forEach(e=>e.innerHTML=(d.dirsFull||[]).length?uiText("Реж.")+" "+d.dirsFull.slice(0,2).map(p=>kgPersonLink(p,"Режиссёр")).join(", "):"");
   }).catch(()=>{}));
 }
 function trailerThumb(v,f){
@@ -638,16 +638,16 @@ function trailerThumb(v,f){
 function selectedFilmHtml(f,embedded=false){
   const year=(f.release_date||"").slice(0,4);
   const personLink=(p,role)=>p&&p.id?`<button type="button" data-kg-person-id="${p.id}" data-kg-person-name="${esc(p.name)}" data-kg-person-role="${role}" class="kg-person-link">${esc(p.name)}</button>`:esc(p&&p.name||"");
-  const poster=f.poster_path?`<img class="w-full h-full object-cover" loading="lazy" alt="Постер фильма «${esc(f.title||"Фильм")}»" src="${P(f.poster_path,"w185")}">`:`<span class="material-symbols-outlined text-text-muted">movie</span>`;
+  const poster=f.poster_path?`<img class="w-full h-full object-cover" loading="lazy" alt="${esc(uiText("Постер фильма «{title}»", {title: f.title || uiText("Фильм")}))}" src="${P(f.poster_path,"w185")}">`:`<span class="material-symbols-outlined text-text-muted">movie</span>`;
   const cast=(f.castFull||[]).map(c=>`<button type="button" data-kg-person-id="${c.id||""}" data-kg-person-name="${esc(c.name)}" data-kg-person-role="Актёр" class="kg-person-card flex-shrink-0 w-28 flex flex-col items-center text-center p-2 rounded-xl bg-surface-container-high" ${c.id?"":"disabled"}>
 <div class="w-14 h-14 rounded-full overflow-hidden mb-2 bg-surface-variant shadow-md flex items-center justify-center">${c.photo?`<img class="w-full h-full object-cover" loading="lazy" alt="" src="${P(c.photo,"w185")}">`:'<span class="material-symbols-outlined text-text-muted">person</span>'}</div>
 <span class="font-label-sm text-label-sm text-on-surface font-semibold truncate w-full">${esc(c.name)}</span><span class="font-micro-caption text-micro-caption text-text-muted truncate w-full">${esc(c.role)}</span></button>`).join("");
   const activeVideo=f._trailer||null;
   const trailerContent=f._trailerPlaying&&activeVideo
-    ?`<iframe src="${embedSrc(activeVideo,true)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" title="Трейлер ${esc(f.title)}" style="position:absolute;inset:0;width:100%;height:100%;border:0"></iframe>`
+    ?`<iframe src="${embedSrc(activeVideo,true)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" title="${esc(uiText("Трейлер {title}", {title: f.title}))}" style="position:absolute;inset:0;width:100%;height:100%;border:0"></iframe>`
     :activeVideo
-      ?`<button type="button" data-trailer-action="play" data-id="${f.id}" aria-label="Воспроизвести трейлер" class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-surface-container-high to-canvas-obsidian text-primary-container transition-colors hover:text-primary">${trailerThumb(activeVideo,f)}<span class="relative flex items-center justify-center w-16 h-16 rounded-full bg-black/55 border border-primary-container/60 backdrop-blur-sm"><span class="material-symbols-outlined text-[44px]">play_arrow</span></span></button>`
-      :`<div class="absolute inset-0 flex items-center justify-center text-text-muted font-body-sm text-body-sm">${f._trailerStatus==="missing"?"Трейлер не найден":"Ищем трейлер…"}</div>`;
+      ?`<button type="button" data-trailer-action="play" data-id="${f.id}" aria-label="${uiText("Воспроизвести трейлер")}" class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-surface-container-high to-canvas-obsidian text-primary-container transition-colors hover:text-primary">${trailerThumb(activeVideo,f)}<span class="relative flex items-center justify-center w-16 h-16 rounded-full bg-black/55 border border-primary-container/60 backdrop-blur-sm"><span class="material-symbols-outlined text-[44px]">play_arrow</span></span></button>`
+      :`<div class="absolute inset-0 flex items-center justify-center text-text-muted font-body-sm text-body-sm">${f._trailerStatus==="missing"?uiText("Трейлер не найден"):uiText("Ищем трейлер…")}</div>`;
   const oscar=(f._placement==="oscar"||f._placement==="oscar-related")&&window.KGOscarPage&&window.KGOscarPage.info?window.KGOscarPage.info(f):null;
   const awardRows=Array.isArray(f._oscarAwards)?f._oscarAwards:[];
   const awardWins=awardRows.filter(a=>a.won).length,awardNominations=awardRows.length-awardWins;
@@ -658,40 +658,40 @@ function selectedFilmHtml(f,embedded=false){
       :""):"";
   const oscarBlock=oscar?`<div class="flex items-start gap-3 p-3 rounded-xl bg-gradient-to-br from-cinema-velvet-deep/50 via-surface-container-high to-surface-container-high border border-primary-container/25"><span class="material-symbols-outlined text-primary-container text-[28px] shrink-0" style="font-variation-settings:'FILL' 1;">workspace_premium</span><div class="min-w-0 flex flex-col gap-0.5"><h4 class="font-label-md text-label-md text-primary-fixed font-semibold">${oscar.best?"Оскар · Лучший фильм":"Лауреат премии «Оскар»"}</h4>${oscar.best?`<p class="font-label-sm text-label-sm text-primary-container font-semibold">${oscar.n}-я церемония · ${oscar.year} год</p><p class="font-body-sm text-body-sm text-text-muted">Главная награда Американской киноакадемии. Статуэтку получает лучший фильм года; эта картина вышла в ${oscar.film} году.</p>`:`<p class="font-body-sm text-body-sm text-text-muted">Картина входит в список лауреатов Американской киноакадемии${oscar.film?` · фильм ${oscar.film} года`:""}.</p>`}${awardsHtml}</div></div>`:"";
   const tagline=f.tagline&&f.taglineLang===f.overviewLang?`<p class="font-body-sm text-body-sm text-primary-fixed italic">${esc(f.tagline)}</p>`:"";
-  const booked=BOOK.has(f.id),watched=!!window.KGIsFilmWatched?.(f.id),title=esc(f.title||"Фильм");
+  const booked=BOOK.has(f.id),watched=!!window.KGIsFilmWatched?.(f.id),title=esc(f.title||uiText("Фильм"));
   const orig=[f.originalTitle&&f.originalTitle!==f.title?esc(f.originalTitle):"",year?`(${year})`:""].filter(Boolean).join(" ");
   const countries=(f.countries&&f.countries.length?f.countries:(f._cc?[f._cc]:[])).map(cc=>`${esc(cname(cc))} ${fl(cc)}`).join(" · ");
-  const genres=(f.genres||[]).join(" · ");
+  const genres=(f.genres||[]).map(genre => uiText(genre)).join(" · ");
   const votes=f.votes>=1000?(f.votes/1000).toFixed(1)+"k":String(f.votes||0);
   const rating=f.average>0?`<div class="shrink-0 px-2.5 py-1 rounded-lg bg-primary-container/15 flex items-center gap-1.5"><span class="material-symbols-outlined text-primary-container text-[16px]" style="font-variation-settings:'FILL' 1;">star</span><span class="font-label-sm text-label-sm text-primary">${f.average.toFixed(1)} TMDB</span><span class="font-micro-caption text-micro-caption text-text-muted">(${votes})</span></div>`:"";
   const certBadge=f.cert&&!f._trailerPlaying?`<span class="absolute top-3 right-3 px-2 py-0.5 rounded bg-cinema-velvet-deep/90 text-secondary font-label-sm text-label-sm">${esc(f.cert)}</span>`:"";
-  const fact=(label,value,sub)=>`<div class="p-3.5 rounded-xl bg-surface-container flex flex-col gap-1"><span class="font-micro-caption text-micro-caption uppercase text-text-muted">${label}</span>${value}${sub?`<span class="font-body-sm text-body-sm text-text-muted">${sub}</span>`:""}</div>`;
-  const loading=f._detailsLoaded?"—":"Загружаем…";
+  const fact=(label,value,sub)=>`<div class="p-3.5 rounded-xl bg-surface-container flex flex-col gap-1"><span class="font-micro-caption text-micro-caption uppercase text-text-muted">${uiText(label)}</span>${value}${sub?`<span class="font-body-sm text-body-sm text-text-muted">${sub}</span>`:""}</div>`;
+  const loading=f._detailsLoaded?"—":uiText("Загружаем…");
   const dirName=f.dirs&&f.dirs.length?(f.dirsFull&&f.dirsFull.length?f.dirsFull.map(d=>personLink(d,"Режиссёр")).join(", "):esc(f.dirs.join(", "))):loading;
-  const releaseText=f.release?new Date(f.release+"T00:00:00").toLocaleDateString("ru-RU",{day:"numeric",month:"long",year:"numeric"}):loading;
+  const releaseText=f.release?new Date(f.release+"T00:00:00").toLocaleDateString(interfaceLanguage,{day:"numeric",month:"long",year:"numeric"}):loading;
   const shell=embedded?"div":"section",shellClass=embedded?"flex flex-col gap-3 pt-3 border-t border-surface-border-subtle scroll-mt-20":"flex flex-col gap-3 p-3.5 rounded-2xl bg-surface-panel border border-primary-container/30 shadow-xl scroll-mt-20";
   const trailerBox=`<div data-kg-film-trailer class="relative w-full kg-detail-trailer rounded-xl overflow-hidden bg-black border border-primary-container/30" id="cl-inline-trailer">${trailerContent}${certBadge}</div>`;
   return `<${shell} class="${shellClass}" data-selected-film="${f.id}">
 <div class="flex items-start justify-between gap-2"><div class="flex flex-col min-w-0"><h3 class="font-headline-md text-headline-md text-primary font-bold tracking-tight">${title}</h3>${orig?`<span class="font-body-sm text-body-sm text-text-muted mt-0.5">${orig}</span>`:""}</div>
-<div class="flex items-center gap-1.5 shrink-0">${f.runtime?`<div class="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-surface-container-high"><span class="material-symbols-outlined text-primary-container text-[18px]" style="font-variation-settings:'FILL' 1;">timer</span><span class="font-label-sm text-label-sm text-on-surface">${f.runtime} мин</span></div>`:""}<button type="button" data-act="bm" data-id="${f.id}" aria-label="${booked?"Убрать из закладок":"Сохранить в закладки"}" aria-pressed="${booked}" class="w-7 h-7 rounded-full text-primary-container hover:bg-surface-container-high flex items-center justify-center"><span class="material-symbols-outlined text-[18px]">${booked?"bookmark_added":"bookmark_border"}</span></button><button type="button" data-act="close-film" aria-label="Свернуть карточку" class="w-9 h-9 rounded-full bg-surface-container-high text-text-muted hover:text-primary flex items-center justify-center"><span class="material-symbols-outlined">${embedded?"expand_less":"close"}</span></button></div></div>
+<div class="flex items-center gap-1.5 shrink-0">${f.runtime?`<div class="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-surface-container-high"><span class="material-symbols-outlined text-primary-container text-[18px]" style="font-variation-settings:'FILL' 1;">timer</span><span class="font-label-sm text-label-sm text-on-surface">${uiText("{minutes} мин", {minutes: f.runtime})}</span></div>`:""}<button type="button" data-act="bm" data-id="${f.id}" aria-label="${booked?uiText("Убрать из закладок"):uiText("Сохранить в закладки")}" aria-pressed="${booked}" class="w-7 h-7 rounded-full text-primary-container hover:bg-surface-container-high flex items-center justify-center"><span class="material-symbols-outlined text-[18px]">${booked?"bookmark_added":"bookmark_border"}</span></button><button type="button" data-act="close-film" aria-label="${uiText("Свернуть карточку")}" class="w-9 h-9 rounded-full bg-surface-container-high text-text-muted hover:text-primary flex items-center justify-center"><span class="material-symbols-outlined">${embedded?"expand_less":"close"}</span></button></div></div>
 ${trailerBox}
 ${window.KGLegalWatch?.markup(f.id)||""}
-${activeVideo?`<a href="${watchUrl(activeVideo)}" target="_blank" rel="noopener noreferrer" class="font-micro-caption text-micro-caption text-primary underline">Не воспроизводится? Открыть на ${esc(activeVideo.site)}</a>`:""}
+${activeVideo?`<a href="${watchUrl(activeVideo)}" target="_blank" rel="noopener noreferrer" class="font-micro-caption text-micro-caption text-primary underline">${esc(uiText("Не воспроизводится? Открыть на {site}", {site: activeVideo.site}))}</a>`:""}
 ${rating?`<div class="flex items-center gap-2 overflow-x-auto py-0.5">${rating}</div>`:""}
 ${countries||genres?`<div class="flex flex-wrap items-center gap-x-2.5 gap-y-1 font-body-sm text-body-sm text-text-muted">${countries?`<span class="text-on-surface">${countries}</span>`:""}${countries&&genres?"<span>•</span>":""}${genres?`<span class="text-on-surface-variant">${esc(genres)}</span>`:""}</div>`:""}
-<div class="flex items-center gap-2 font-body-sm text-body-sm"><span class="text-text-muted">Язык оригинала</span><span class="text-on-surface-variant">${f.originalLang?esc(typeof langName==="function"?langName(f.originalLang):f.originalLang):f._detailsLoaded?"—":"Загружаем…"}</span></div>
+<div class="flex items-center gap-2 font-body-sm text-body-sm"><span class="text-text-muted">${uiText("Язык оригинала")}</span><span class="text-on-surface-variant">${f.originalLang?esc(typeof langName==="function"?langName(f.originalLang):f.originalLang):f._detailsLoaded?"—":uiText("Загружаем…")}</span></div>
 ${window.KGWatchedButtonHtml(watched, `data-film-watched="${Number(f.id)}"`)}
 ${f.tagline&&f.taglineLang===f.overviewLang?`<blockquote class="italic font-headline-sm text-[15px] leading-tight text-primary-fixed-dim/90">«${esc(f.tagline)}»</blockquote>`:""}
 ${oscarBlock}
-<div data-kg-film-description class="p-4 rounded-xl bg-surface-container flex flex-col gap-2"><span class="font-label-md text-label-md text-primary-fixed tracking-wide uppercase">О фильме</span><p class="font-body-md text-body-md text-on-surface leading-relaxed">${esc(f.overview||"Загружаем описание…")}</p></div>
-<div class="flex flex-col gap-2"><span class="font-label-md text-label-md text-primary-fixed tracking-wide uppercase px-0.5">Факты производства</span><div class="grid grid-cols-2 gap-2.5">
+<div data-kg-film-description class="p-4 rounded-xl bg-surface-container flex flex-col gap-2"><span class="font-label-md text-label-md text-primary-fixed tracking-wide uppercase">${uiText("О фильме")}</span><p class="font-body-md text-body-md text-on-surface leading-relaxed">${esc(f.overview||uiText("Загружаем описание…"))}</p></div>
+<div class="flex flex-col gap-2"><span class="font-label-md text-label-md text-primary-fixed tracking-wide uppercase px-0.5">${uiText("Факты производства")}</span><div class="grid grid-cols-2 gap-2.5">
 ${fact("Режиссёр",`<span class="font-label-md text-label-md text-on-surface">${dirName}</span>`)}
 ${fact("Выход",`<span class="font-label-md text-label-md text-on-surface">${releaseText}</span>`)}
-${fact("Бюджет",`<span class="font-headline-sm text-headline-sm text-primary">${f._detailsLoaded?moneyText(f.budget):"Загружаем…"}</span>`)}
-${fact("Мировые сборы",`<span class="font-headline-sm text-headline-sm text-primary-container">${f._detailsLoaded?moneyText(f.revenue):"Загружаем…"}</span>`)}
+${fact("Бюджет",`<span class="font-headline-sm text-headline-sm text-primary">${f._detailsLoaded?moneyText(f.budget):uiText("Загружаем…")}</span>`)}
+${fact("Мировые сборы",`<span class="font-headline-sm text-headline-sm text-primary-container">${f._detailsLoaded?moneyText(f.revenue):uiText("Загружаем…")}</span>`)}
 </div></div>
-<div class="flex flex-col gap-2"><div class="flex items-center justify-between"><span class="font-label-md text-label-md text-primary-fixed tracking-wide uppercase">В главных ролях</span>${(f.castFull||[]).length?`<span class="font-micro-caption text-micro-caption text-text-muted">${f.castFull.length} ${f.castFull.length%10===1&&f.castFull.length!==11?"актёр":f.castFull.length%10>1&&f.castFull.length%10<5&&(f.castFull.length<10||f.castFull.length>20)?"актёра":"актёров"}</span>`:""}</div>${cast?`<div class="flex gap-2.5 overflow-x-auto py-1" style="-webkit-overflow-scrolling:touch">${cast}</div>`:`<p class="font-body-sm text-body-sm text-text-muted">${f._detailsLoaded?"Сведения об актёрах недоступны.":"Загружаем актёров…"}</p>`}</div>
-<section data-kg-related-films data-film-id="${f.id}" data-context-key="${esc(f._kgRelatedContext||"")}" data-placement="${esc(f._placement||"")}" data-detail-target="${esc(f._detailTarget||"")}" data-global-related="${f._kgGlobalRelated||f._placement==="home-europe"?"true":"false"}" class="flex flex-col gap-space-sm"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary-container text-[20px]">movie_filter</span><h3 class="font-headline-sm text-headline-sm text-on-surface">Похожие фильмы</h3></div><div data-kg-related-list class="flex gap-space-sm overflow-x-auto pb-1"><span class="font-micro-caption text-micro-caption text-text-muted">Подбираем фильмы…</span></div></section></${shell}>`;
+<div class="flex flex-col gap-2"><div class="flex items-center justify-between"><span class="font-label-md text-label-md text-primary-fixed tracking-wide uppercase">${uiText("В главных ролях")}</span>${(f.castFull||[]).length?`<span class="font-micro-caption text-micro-caption text-text-muted">${uiText("{count} {unit}", {count: f.castFull.length, unit: f.castFull.length%10===1&&f.castFull.length!==11?"актёр":f.castFull.length%10>1&&f.castFull.length%10<5&&(f.castFull.length<10||f.castFull.length>20)?"актёра":"актёров"})}</span>`:""}</div>${cast?`<div class="flex gap-2.5 overflow-x-auto py-1" style="-webkit-overflow-scrolling:touch">${cast}</div>`:`<p class="font-body-sm text-body-sm text-text-muted">${f._detailsLoaded?uiText("Сведения об актёрах недоступны."):uiText("Загружаем актёров…")}</p>`}</div>
+<section data-kg-related-films data-film-id="${f.id}" data-context-key="${esc(f._kgRelatedContext||"")}" data-placement="${esc(f._placement||"")}" data-detail-target="${esc(f._detailTarget||"")}" data-global-related="${f._kgGlobalRelated||f._placement==="home-europe"?"true":"false"}" class="flex flex-col gap-space-sm"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary-container text-[20px]">movie_filter</span><h3 class="font-headline-sm text-headline-sm text-on-surface">${uiText("Похожие фильмы")}</h3></div><div data-kg-related-list class="flex gap-space-sm overflow-x-auto pb-1"><span class="font-micro-caption text-micro-caption text-text-muted">${uiText("Подбираем фильмы…")}</span></div></section></${shell}>`;
 }
 document.addEventListener("click",e=>{
   const watchedButton=e.target.closest("[data-film-watched]");
@@ -726,35 +726,35 @@ function otherHtml(t){
   const m=META[t.id]||{};
   const artCover = getThemeCover(t.id);
   const imgMarkup = artCover 
-    ? `<img class="w-full h-full object-cover" alt="${esc(t.name)}" src="${artCover}">`
+    ? `<img class="w-full h-full object-cover" alt="${esc(uiText(t.name))}" src="${artCover}">`
     : (m.p ? `<img class="w-full h-full object-cover" alt="" src="${P(m.p,"w185")}">` : "");
-  return `<a href="#" data-act="goto" data-t="${t.id}" class="flex flex-col gap-1.5 p-3 rounded-xl bg-surface-panel hover:bg-surface-container-low min-w-[140px] max-w-[140px] flex-shrink-0 transition-colors shadow-md"><div class="w-full h-20 rounded-lg overflow-hidden bg-surface-container-high" data-oi="${t.id}">${imgMarkup}</div><span class="font-label-sm text-label-sm text-on-surface font-bold truncate">${esc(t.name)} ${fl(t.cc[0])}</span><span data-oc="${t.id}" class="font-micro-caption text-micro-caption text-text-muted">${m.n?nf(m.n)+" "+fw(m.n):"…"}</span></a>`;
+  return `<a href="#" data-act="goto" data-t="${t.id}" class="flex flex-col gap-1.5 p-3 rounded-xl bg-surface-panel hover:bg-surface-container-low min-w-[140px] max-w-[140px] flex-shrink-0 transition-colors shadow-md"><div class="w-full h-20 rounded-lg overflow-hidden bg-surface-container-high" data-oi="${t.id}">${imgMarkup}</div><span class="font-label-sm text-label-sm text-on-surface font-bold truncate">${esc(uiText(t.name))} ${fl(t.cc[0])}</span><span data-oc="${t.id}" class="font-micro-caption text-micro-caption text-text-muted">${m.n?nf(m.n)+" "+fw(m.n):"…"}</span></a>`;
 }
 
 function renderCollection(){
   const t=D.t,m=TM[t.id]||["noir","","",""];
   const others=shuffle(catalogThemes.filter(x=>x.id!==t.id)).slice(0,5);
   vd.innerHTML=`
-<div class="flex items-center justify-between gap-space-sm pt-space-xs"><button type="button" data-act="back" class="flex items-center gap-1.5 text-text-muted hover:text-primary transition-colors py-1"><span class="material-symbols-outlined text-[18px]">arrow_back</span><span class="font-label-sm text-label-sm">Все подборки</span></button>
-<div class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-high text-primary-fixed shadow-sm"><span class="material-symbols-outlined text-[14px] text-primary-container">${ICON[t.id]||"auto_awesome"}</span><span class="font-micro-caption text-micro-caption font-semibold tracking-wide uppercase">Кураторский выбор</span></div></div>
+<div class="flex items-center justify-between gap-space-sm pt-space-xs"><button type="button" data-act="back" class="flex items-center gap-1.5 text-text-muted hover:text-primary transition-colors py-1"><span class="material-symbols-outlined text-[18px]">arrow_back</span><span class="font-label-sm text-label-sm">${uiText("Все подборки")}</span></button>
+<div class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-high text-primary-fixed shadow-sm"><span class="material-symbols-outlined text-[14px] text-primary-container">${ICON[t.id]||"auto_awesome"}</span><span class="font-micro-caption text-micro-caption font-semibold tracking-wide uppercase">${uiText("Кураторский выбор")}</span></div></div>
 <div class="relative overflow-hidden rounded-xl bg-surface-panel p-space-md shadow-xl"><div class="absolute -right-16 -top-16 w-56 h-56 rounded-full bg-cinema-velvet-glow blur-3xl pointer-events-none"></div><div class="absolute -left-12 -bottom-12 w-48 h-48 rounded-full bg-cinema-amber-glow blur-2xl pointer-events-none"></div>
-<div class="relative flex flex-col gap-space-sm z-10"><div class="flex items-center gap-2"><span class="px-2 py-0.5 rounded-full bg-cinema-velvet-deep text-secondary font-micro-caption text-micro-caption tracking-wider">${CAT[m[0]][1]}</span><span id="cl-count" class="text-text-muted font-micro-caption text-micro-caption">… картин</span></div>
-<div class="flex flex-col"><h2 class="font-display-hero-mobile text-display-hero-mobile text-primary font-bold tracking-tight">${esc(t.name)}</h2><p class="font-label-sm text-label-sm text-on-surface-variant font-medium tracking-wide">${esc(m[1])}</p></div>
+<div class="relative flex flex-col gap-space-sm z-10"><div class="flex items-center gap-2"><span class="px-2 py-0.5 rounded-full bg-cinema-velvet-deep text-secondary font-micro-caption text-micro-caption tracking-wider">${uiText(CAT[m[0]][1])}</span><span id="cl-count" class="text-text-muted font-micro-caption text-micro-caption">${uiText("… картин")}</span></div>
+<div class="flex flex-col"><h2 class="font-display-hero-mobile text-display-hero-mobile text-primary font-bold tracking-tight">${esc(uiText(t.name))}</h2><p class="font-label-sm text-label-sm text-on-surface-variant font-medium tracking-wide">${esc(uiText(m[1]))}</p></div>
 <div class="flex flex-wrap items-center gap-1.5 pt-0.5">${t.cc.map(cc=>`<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container-low text-on-surface font-micro-caption text-micro-caption shadow-sm">${fl(cc)} ${esc(cname(cc))}</span>`).join("")}</div>
-<p class="font-body-sm text-body-sm text-text-muted leading-relaxed pt-1">${esc(m[3])}</p>
+<p class="font-body-sm text-body-sm text-text-muted leading-relaxed pt-1">${esc(uiText(m[3]))}</p>
 <div class="flex items-center gap-2 pt-1 flex-wrap">${gnames(t).map(g=>`<span class="px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-micro-caption text-micro-caption">${esc(g)}</span>`).join("")}</div></div></div>
-<div class="flex flex-col gap-space-sm bg-surface-panel p-space-md rounded-xl shadow-lg"><div class="flex items-center justify-between"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary-container text-[20px]">casino</span><span class="font-headline-sm text-headline-sm text-on-surface font-semibold">Случайный выбор</span></div><span class="font-micro-caption text-micro-caption text-primary-fixed bg-surface-container-high px-2 py-0.5 rounded-full">${t.films ? "Ручной отбор" : "Рейтинг ≥ 6.5"}</span></div>
-<button type="button" id="cl-spin" data-act="spin" class="relative group w-full py-3.5 px-4 rounded-xl bg-primary-container text-on-primary font-label-lg text-label-lg font-bold flex items-center justify-center gap-2 shadow-[0_0_24px_rgba(255,184,48,0.28)] transition-all active:scale-[0.98] overflow-hidden"><span id="cl-ricon" class="material-symbols-outlined text-[22px]">casino</span><span id="cl-rtext">Крутить рулетку</span><div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div></button>
+<div class="flex flex-col gap-space-sm bg-surface-panel p-space-md rounded-xl shadow-lg"><div class="flex items-center justify-between"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary-container text-[20px]">casino</span><span class="font-headline-sm text-headline-sm text-on-surface font-semibold">${uiText("Случайный выбор")}</span></div><span class="font-micro-caption text-micro-caption text-primary-fixed bg-surface-container-high px-2 py-0.5 rounded-full">${t.films ? "Ручной отбор" : "Рейтинг ≥ 6.5"}</span></div>
+<button type="button" id="cl-spin" data-act="spin" class="relative group w-full py-3.5 px-4 rounded-xl bg-primary-container text-on-primary font-label-lg text-label-lg font-bold flex items-center justify-center gap-2 shadow-[0_0_24px_rgba(255,184,48,0.28)] transition-all active:scale-[0.98] overflow-hidden"><span id="cl-ricon" class="material-symbols-outlined text-[22px]">casino</span><span id="cl-rtext">${uiText(uiText("Крутить рулетку"))}</span><div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div></button>
 <div id="cl-reel" style="display:none" class="flex flex-col gap-space-sm">
 <div id="cl-reel-host"></div>
-<div class="flex items-center justify-between px-1"><span id="cl-fc" class="font-mono text-micro-caption text-primary-fixed font-semibold tracking-wide">Кадр 00 / 00</span><button type="button" id="cl-skip" data-act="skip" style="display:none" class="font-micro-caption text-micro-caption text-text-muted hover:text-primary underline">Пропустить</button></div>
+<div class="flex items-center justify-between px-1"><span id="cl-fc" class="font-mono text-micro-caption text-primary-fixed font-semibold tracking-wide">${uiText("Кадр 00 / 00")}</span><button type="button" id="cl-skip" data-act="skip" style="display:none" class="font-micro-caption text-micro-caption text-text-muted hover:text-primary underline">${uiText("Пропустить")}</button></div>
 <div id="cl-result"></div></div>
-${t.cc.length>1?`<div class="flex flex-col gap-1.5 pt-1"><span class="font-micro-caption text-micro-caption text-text-muted">Фильтр по стране:</span><div id="cl-cc" class="flex items-center gap-1.5 overflow-x-auto pb-1"><button type="button" data-act="cc" data-cc="" class="${ccCls(true)}">Все страны</button>${t.cc.map(cc=>`<button type="button" data-act="cc" data-cc="${cc}" class="${ccCls(false)}">${fl(cc)} ${esc(cname(cc))}</button>`).join("")}</div></div>`:""}
-<div class="flex items-center justify-between pt-1"><span class="font-micro-caption text-micro-caption text-text-muted">Сортировка:</span><div id="cl-sort" class="flex items-center gap-1 bg-surface-container-low p-0.5 rounded-lg">${[["rating","По рейтингу"],["pop","Популярные"],["new","Свежие"]].map(([k,l])=>`<button type="button" data-act="sort" data-s="${k}" class="${sCls(k===D.sort)}">${l}</button>`).join("")}</div></div></div>
-<div id="cl-films" class="flex flex-col gap-space-lg"><p class="font-body-sm text-body-sm text-text-muted px-1 animate-pulse">Загружаем подборку…</p></div>
-<div class="flex flex-col gap-space-sm pt-space-xs"><div class="flex items-center justify-between px-1"><h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">Другие подборки</h3><a href="#" data-act="back" class="font-micro-caption text-micro-caption text-primary hover:underline">Все ${catalogThemes.length} →</a></div>
+${t.cc.length>1?`<div class="flex flex-col gap-1.5 pt-1"><span class="font-micro-caption text-micro-caption text-text-muted">${uiText("Фильтр по стране:")}</span><div id="cl-cc" class="flex items-center gap-1.5 overflow-x-auto pb-1"><button type="button" data-act="cc" data-cc="" class="${ccCls(true)}">${uiText("Все страны")}</button>${t.cc.map(cc=>`<button type="button" data-act="cc" data-cc="${cc}" class="${ccCls(false)}">${fl(cc)} ${esc(cname(cc))}</button>`).join("")}</div></div>`:""}
+<div class="flex items-center justify-between pt-1"><span class="font-micro-caption text-micro-caption text-text-muted">${uiText("Сортировка:")}</span><div id="cl-sort" class="flex items-center gap-1 bg-surface-container-low p-0.5 rounded-lg">${[["rating","По рейтингу"],["pop","Популярные"],["new","Свежие"]].map(([k,l])=>`<button type="button" data-act="sort" data-s="${k}" class="${sCls(k===D.sort)}">${uiText(l)}</button>`).join("")}</div></div></div>
+<div id="cl-films" class="flex flex-col gap-space-lg"><p class="font-body-sm text-body-sm text-text-muted px-1 animate-pulse">${uiText("Загружаем подборку…")}</p></div>
+<div class="flex flex-col gap-space-sm pt-space-xs"><div class="flex items-center justify-between px-1"><h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">${uiText("Другие подборки")}</h3><a href="#" data-act="back" class="font-micro-caption text-micro-caption text-primary hover:underline">${uiText("Все {count}", {count: catalogThemes.length})} →</a></div>
 <div id="cl-others" class="flex gap-space-sm overflow-x-auto pb-2">${others.map(otherHtml).join("")}</div>
-<a href="#" data-act="back" class="w-full py-3 rounded-xl bg-surface-panel hover:bg-surface-container-low text-primary text-center font-label-md text-label-md font-semibold flex items-center justify-center gap-2 transition-colors shadow-sm"><span class="material-symbols-outlined text-[18px]">apps</span><span>Все ${catalogThemes.length} подборок Киноглобуса</span></a></div>`;
+<a href="#" data-act="back" class="w-full py-3 rounded-xl bg-surface-panel hover:bg-surface-container-low text-primary text-center font-label-md text-label-md font-semibold flex items-center justify-center gap-2 transition-colors shadow-sm"><span class="material-symbols-outlined text-[18px]">apps</span><span>${uiText("Все {count} подборок Киноглобуса", {count: catalogThemes.length})}</span></a></div>`;
   // постеры и счётчики «других подборок»
   others.forEach(o=>loadMeta(o).then(m=>{
     const a=vd.querySelector(`[data-oc="${o.id}"]`),i=vd.querySelector(`[data-oi="${o.id}"]`);
@@ -775,28 +775,28 @@ async function openCollection(id,opt){
   D={t,all:initial?initial.films:[],total:initial?initial.total:0,totals:initial?initial.totals:{},cc:"",sort:"rating",shown:5,selected:null,picked:null};
   renderCollection();showView("collection");
   if(initial){
-    $("cl-count").textContent=nf(D.total)+" "+(fw(D.total)==="фильм"?"картина":fw(D.total)==="фильма"?"картины":"картин");
+    $("cl-count").textContent=nf(D.total)+" "+(interfaceLanguage==="en"?(D.total===1?"film":"films"):(fw(D.total)==="фильм"?"картина":fw(D.total)==="фильма"?"картины":"картин"));
     renderFilms();
   }
   if (!apiKey) {
     if (t.films && opt?.spin) inPageRoulette();
-    if (!t.films) $("cl-films").innerHTML='<p class="font-body-sm text-body-sm text-text-muted px-1">Введите ключ TMDB на экране «Глобус», чтобы загрузить фильмы подборки.</p>';
+    if (!t.films) $("cl-films").innerHTML=`<p class="font-body-sm text-body-sm text-text-muted px-1">${uiText("Введите ключ TMDB на экране «Глобус», чтобы загрузить фильмы подборки.")}</p>`;
     return;
   }
   try{
     const r=await loadTheme(t,2);
     if(D.t!==t)return;
-    if(r._stale){$("cl-films").insertAdjacentHTML("afterbegin",`<p role="status" class="font-micro-caption text-micro-caption text-text-muted">Не удалось обновить данные; показана сохранённая подборка.</p>`);return;}
+    if(r._stale){$("cl-films").insertAdjacentHTML("afterbegin",`<p role="status" class="font-micro-caption text-micro-caption text-text-muted">${uiText("Не удалось обновить данные; показана сохранённая подборка.")}</p>`);return;}
     D.all=r.films;D.total=r.total;D.totals=r.totals;
     if (t.films && r.films.some(f => f.vote_count)) saveThemeMeta(t, r);
-    $("cl-count").textContent=nf(r.total)+" "+(fw(r.total)==="фильм"?"картина":fw(r.total)==="фильма"?"картины":"картин");
+    $("cl-count").textContent=nf(r.total)+" "+(interfaceLanguage==="en"?(r.total===1?"film":"films"):(fw(r.total)==="фильм"?"картина":fw(r.total)==="фильма"?"картины":"картин"));
     renderFilms();
     if(opt&&opt.spin)inPageRoulette();
   }catch(e){
     if(initial){
-      $("cl-films").insertAdjacentHTML("afterbegin",`<p role="status" class="font-micro-caption text-micro-caption text-text-muted">Не удалось обновить данные; показана сохранённая подборка.</p>`);
+      $("cl-films").insertAdjacentHTML("afterbegin",`<p role="status" class="font-micro-caption text-micro-caption text-text-muted">${uiText("Не удалось обновить данные; показана сохранённая подборка.")}</p>`);
       console.error("[Kinoglobus] Не удалось обновить подборку:",e);
-    }else $("cl-films").innerHTML=`<p class="font-body-sm text-body-sm text-feedback-error px-1">${esc(e.message||"Не удалось загрузить подборку.")}</p>`;
+    }else $("cl-films").innerHTML=`<p class="font-body-sm text-body-sm text-feedback-error px-1">${esc(uiText(e.message||"Не удалось загрузить подборку."))}</p>`;
   }
 }
 
@@ -884,7 +884,7 @@ function openFilm(f,placement="list",detailTarget=null){
   if(relatedContext&&window.KGFilmInteractions)window.KGFilmInteractions.registerPool(relatedContext,relatedPool);
   // Every newly opened item starts in the same poster-first state. A related
   // recommendation must never inherit an already playing YouTube iframe.
-  D.selected={...f,_cc:f._cc||(f.origin_country||[])[0]||"",_placement:placement,_detailTarget:detailTarget,_kgRelatedContext:relatedContext,overview:filmSynopsis(f.overview)||"Загружаем описание…",_trailerPlaying:false,_trailerStatus:apiKey?"loading":"missing",_detailsLoaded:!apiKey};
+  D.selected={...f,_cc:f._cc||(f.origin_country||[])[0]||"",_placement:placement,_detailTarget:detailTarget,_kgRelatedContext:relatedContext,overview:filmSynopsis(f.overview)||uiText("Загружаем описание…"),_trailerPlaying:false,_trailerStatus:apiKey?"loading":"missing",_detailsLoaded:!apiKey};
   const selected=D.selected;
   if(placement==="roulette"||placement==="home"||placement==="home-europe"||placement==="mood"||placement==="oscar"||placement==="related"||placement==="oscar-related"||placement==="person-related"||placement==="search")renderSelectedPanel();else if(!placeListPanel())renderFilms();
   if(personModalScrollRestore!==null){const dialog=document.querySelector("#kg-person-modal .kgpi-modal");requestAnimationFrame(()=>{if(dialog?.isConnected)dialog.scrollTop=personModalScrollRestore;});}
@@ -908,7 +908,7 @@ function openFilm(f,placement="list",detailTarget=null){
   filmDetails(f.id).then(details=>{
     if(D.selected!==selected)return;
     selected.title=details.title||f.title;
-    selected.overview=details.overview||filmSynopsis(f.overview)||"Описание пока недоступно.";
+    selected.overview=details.overview||filmSynopsis(f.overview)||uiText("Описание пока недоступно.");
     selected.overviewLang=details.overviewLang;
     selected.runtime=details.runtime;
     selected.dirs=details.dirs;selected.dirsFull=details.dirsFull;
@@ -926,7 +926,7 @@ function openFilm(f,placement="list",detailTarget=null){
     renderSelectedPanel();
   }).catch(error=>{
     if(D.selected!==selected)return;
-    selected.overview=filmSynopsis(f.overview)||"Не удалось загрузить описание.";
+    selected.overview=filmSynopsis(f.overview)||uiText("Не удалось загрузить описание.");
     selected.overviewLang="";
     selected._detailsLoaded=true;
     renderSelectedPanel();
@@ -977,7 +977,7 @@ function setBtn(on){
   const ic=$("cl-ricon"),tx=$("cl-rtext"),b=$("cl-spin");
   if(!ic||!tx)return;
   ic.classList.toggle("animate-spin",on);
-  tx.textContent=on?"Плёнка крутится…":(D.picked?"Крутить ещё раз":"Крутить рулетку");
+  tx.textContent=on?uiText("Плёнка крутится…"):(D.picked?uiText("Крутить ещё раз"):uiText("Крутить рулетку"));
   if(b){b.disabled=on;b.style.opacity=on?".75":"";}
   const sk=$("cl-skip");if(sk)sk.style.display=on?"":"none";
 }
@@ -1012,17 +1012,17 @@ async function inPageRoulette(){
   if(!others.length||RM){                      // мало постеров или отключена анимация: сразу показываем выбор
     if(window.KGCinemaReel?.isProjectionMode?.()){
       const landed=await window.KGCinemaReel.spinProjectionTrack($("cl-reel"),[film],film,{duration:350,reducedMotion:true,cancelled:()=>token!==R.token,meta:{country:cname(film._cc||D.cc||D.t.cc[0])}});
-      if(landed&&token===R.token){$("cl-fc").textContent="Фильм найден";finishPick(film,token);}return;
+      if(landed&&token===R.token){$("cl-fc").textContent=uiText("Фильм найден");finishPick(film,token);}return;
     }
   if(window.KGCinemaReel?.isCassetteMode?.()){
       const eligible=D.all.filter(inCc),landed=await window.KGCinemaReel.spinCassetteDeck($("cl-reel"),eligible,[film],film,{duration:350,reducedMotion:true,cancelled:()=>token!==R.token,onOpen:f=>openFilm(f,"roulette")});
-      if(landed&&token===R.token){$("cl-fc").textContent="Фильм выбран";finishPick(film,token);}return;
+      if(landed&&token===R.token){$("cl-fc").textContent=uiText("Фильм выбран");finishPick(film,token);}return;
     }
     if(window.KGCinemaReel?.isTicketMode?.()){
       const landed=await window.KGCinemaReel.animateTicketDeck($("cl-reel"),[film],film,{reducedMotion:true,meta:{country:cname(film._cc||D.cc||D.t.cc[0])},cancelled:()=>token!==R.token});
       if(landed&&token===R.token){$("cl-fc").textContent="Билет найден";finishPick(film,token);}return;
     }
-    rMount([film],0,"chosen");$("cl-fc").textContent="Кадр 01 / 01";
+    rMount([film],0,"chosen");$("cl-fc").textContent=uiText("Кадр 01 / 01");
     finishPick(film,token);return;
   }
   const NEED=26,T=4600,TAIL=6,seq=[];
@@ -1032,14 +1032,14 @@ async function inPageRoulette(){
   await Promise.race([Promise.all(seq.filter(f=>f.poster_path).map(f=>new Promise(r=>{const im=new Image();im.onload=im.onerror=r;im.src=P(f.poster_path,"w185");}))),wait(2500)]);
   if(token!==R.token)return;
   if(window.KGCinemaReel?.isProjectionMode?.()){
-    const total=D.all.filter(inCc).length;$("cl-fc").textContent="Проектор запускается…";snd(()=>startFilmReelSound());
-    const landed=await window.KGCinemaReel.spinProjectionTrack($("cl-reel"),seq,film,{duration:T,meta:{country:cname(film._cc||D.cc||D.t.cc[0])},cancelled:()=>token!==R.token,shouldSkip:()=>R.skip,onFrame:(_candidate,index)=>{if(token===R.token)$("cl-fc").textContent=`Кадр ${p2(index+1)} / ${p2(seq.length)}`;}});
-    snd(()=>stopFilmReelSound());if(!landed||token!==R.token)return;const all=D.all.filter(inCc),k=all.findIndex(f=>f.id===film.id);$("cl-fc").textContent=`Фильм ${p2((k<0?0:k)+1)} / ${p2(all.length||total)}`;snd(()=>buzz([25,50,60]));finishPick(film,token);return;
+    const total=D.all.filter(inCc).length;$("cl-fc").textContent=uiText("Проектор запускается…");snd(()=>startFilmReelSound());
+    const landed=await window.KGCinemaReel.spinProjectionTrack($("cl-reel"),seq,film,{duration:T,meta:{country:cname(film._cc||D.cc||D.t.cc[0])},cancelled:()=>token!==R.token,shouldSkip:()=>R.skip,onFrame:(_candidate,index)=>{if(token===R.token)$("cl-fc").textContent=uiText("Кадр {current} / {total}", {current: p2(index+1), total: p2(seq.length)});}});
+    snd(()=>stopFilmReelSound());if(!landed||token!==R.token)return;const all=D.all.filter(inCc),k=all.findIndex(f=>f.id===film.id);$("cl-fc").textContent=uiText("Фильм {current} / {total}", {current: p2((k<0?0:k)+1), total: p2(all.length||total)});snd(()=>buzz([25,50,60]));finishPick(film,token);return;
   }
   if(window.KGCinemaReel?.isCassetteMode?.()){
-    const eligible=D.all.filter(inCc);$("cl-fc").textContent="Кассета перематывается…";snd(()=>startFilmReelSound());
-    const landed=await window.KGCinemaReel.spinCassetteDeck($("cl-reel"),eligible,seq,film,{duration:T,cancelled:()=>token!==R.token,shouldSkip:()=>R.skip,onOpen:f=>openFilm(f,"roulette"),onFrame:(_f,index)=>{if(token===R.token)$("cl-fc").textContent=`Фильм ${p2(index+1)} / ${p2(seq.length)}`;}});
-    snd(()=>stopFilmReelSound());if(!landed||token!==R.token)return;const all=D.all.filter(inCc),k=all.findIndex(f=>f.id===film.id);$("cl-fc").textContent=`Фильм ${p2((k<0?0:k)+1)} / ${p2(all.length)}`;snd(()=>buzz([25,50,60]));finishPick(film,token);return;
+    const eligible=D.all.filter(inCc);$("cl-fc").textContent=uiText("Кассета перематывается…");snd(()=>startFilmReelSound());
+    const landed=await window.KGCinemaReel.spinCassetteDeck($("cl-reel"),eligible,seq,film,{duration:T,cancelled:()=>token!==R.token,shouldSkip:()=>R.skip,onOpen:f=>openFilm(f,"roulette"),onFrame:(_f,index)=>{if(token===R.token)$("cl-fc").textContent=uiText("Фильм {current} / {total}", {current: p2(index+1), total: p2(seq.length)});}});
+    snd(()=>stopFilmReelSound());if(!landed||token!==R.token)return;const all=D.all.filter(inCc),k=all.findIndex(f=>f.id===film.id);$("cl-fc").textContent=uiText("Фильм {current} / {total}", {current: p2((k<0?0:k)+1), total: p2(all.length)});snd(()=>buzz([25,50,60]));finishPick(film,token);return;
   }
   if(window.KGCinemaReel?.isTicketMode?.()){
     const total=D.all.filter(inCc).length;$(`cl-fc`).textContent="Билеты перемешиваются…";
@@ -1073,7 +1073,7 @@ async function inPageRoulette(){
     [...run.children].forEach((c,i)=>{c.classList.remove("spin");c.classList.toggle("chosen",i===NEED);});
     const fr=$("cl-frame");fr.classList.remove("hit");void fr.offsetWidth;fr.classList.add("hit");
     const all=D.all.filter(inCc),k=all.findIndex(f=>f.id===film.id);
-    $("cl-fc").textContent=`Кадр ${p2((k<0?0:k)+1)} / ${p2(all.length)}`;
+    $("cl-fc").textContent=uiText("Кадр {current} / {total}", {current: p2((k<0?0:k)+1), total: p2(all.length)});
     snd(()=>buzz([25,50,60]));
     finishPick(film,token);
   };
@@ -1115,7 +1115,7 @@ vd.addEventListener("click",e=>{
     e.stopPropagation();
     BOOK.has(f.id)?BOOK.delete(f.id):BOOK.add(f.id);store.set("kgBookmarks",[...BOOK]);
     const ic=el.querySelector(".material-symbols-outlined");if(ic)ic.textContent=BOOK.has(f.id)?"bookmark_added":"bookmark_border";
-    el.setAttribute("aria-label",BOOK.has(f.id)?"Убрать из закладок":"Сохранить в закладки");
+    el.setAttribute("aria-label",uiText(BOOK.has(f.id)?"Убрать из закладок":"Сохранить в закладки"));
     toast(BOOK.has(f.id)?"Добавлено в закладки":"Убрано из закладок","bookmark");return;
   }
   if(a==="open")openFilm(f);
@@ -1124,7 +1124,7 @@ vd.addEventListener("click",e=>{
 // старая кнопка «Подборки» из bridge v6 теперь ведёт в каталог
 document.querySelectorAll('[data-path="podborki-i-zhanry"]').forEach(a=>a.addEventListener("click",e=>{e.preventDefault();showView("collections");}));
 // «Тематические коллекции» убраны с главного экрана: подборки теперь только в разделе «Подборки»
-const themeAcc=[...document.querySelectorAll("details")].find(d=>{const m=d.querySelector("summary");return m&&m.textContent.includes("Тематические коллекции");})||document.querySelectorAll("details")[2];
+const themeAcc=[...document.querySelectorAll("details")].find(d=>{const m=d.querySelector("summary");return m&&m.textContent.includes(uiText("Тематические коллекции"));})||document.querySelectorAll("details")[2];
 if(themeAcc)themeAcc.style.display="none";
 // ранее выбранная тема больше не должна незаметно фильтровать глобус
 if(themeId){themeId="";store.set("theme","");try{paintThemes();paintGo();}catch(e){}}
@@ -1378,7 +1378,7 @@ async function refreshAllCollections(forceAll=false){
     if(result.status==="fulfilled"){
       const t=D.t,r=result.value;
       D.all=r.films;D.total=r.total;D.totals=r.totals;
-      $("cl-count").textContent=nf(r.total)+" "+(fw(r.total)==="фильм"?"картина":fw(r.total)==="фильма"?"картины":"картин");
+      $("cl-count").textContent=nf(r.total)+" "+(interfaceLanguage==="en"?(r.total===1?"film":"films"):(fw(r.total)==="фильм"?"картина":fw(r.total)==="фильма"?"картины":"картин"));
       renderFilms();
     }
   }

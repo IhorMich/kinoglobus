@@ -185,7 +185,7 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
         state.films.push(...candidates.map(f=>{
           const d=byId.get(f.id)||null;
           const cc=(d&&d.countries||[]).find(c=>mood.countries.includes(c))||(d&&d.countries||[])[0]||job.cc;
-          return {...f,_cc:cc,runtime:(d||{}).runtime||0,detail:d};
+          return {...f,title:d?.title||f.title,overview:d?.overview||f.overview,_cc:cc,runtime:d?.runtime||0,detail:d};
         }).filter(f=>f.runtime>0));
         state.page++;
         renderFilms(root,deps);

@@ -91,7 +91,6 @@
 <span class="text-primary-container text-sm">文</span>
 <h2 class="font-headline-sm text-headline-sm text-primary">Язык и региональные стандарты</h2>
 </div>
-<span class="text-[10px] uppercase font-micro-caption px-2 py-0.5 rounded-full bg-surface-container text-text-muted border border-surface-border-subtle">Скоро</span>
 </div>
 <div class="space-y-1.5">
 <label for="kgs-language" class="text-[10px] font-bold uppercase tracking-wider text-text-muted font-micro-caption">ЯЗЫК ИНТЕРФЕЙСА</label>
@@ -100,7 +99,7 @@
 </select>
 </div>
 <p class="text-[10px] text-text-muted font-micro-caption leading-relaxed uppercase">
-        ЯЗЫК ИНТЕРФЕЙСА И СУБТИТРЫ БУДУТ ДОСТУПНЫ ПОЗЖЕ.
+        ВЫБОР ЯЗЫКА ИНТЕРФЕЙСА ПОЯВИТСЯ ПОЗЖЕ.
       </p>
 <div class="space-y-2 pt-1 border-t border-surface-border-subtle">
 <div class="space-y-1.5 py-1.5">
@@ -119,9 +118,15 @@
 </select>
 <p id="kgs-watch-region-note" class="text-xs text-text-muted" aria-live="polite"></p>
 </div>
-<div class="flex items-center justify-between py-1.5">
-<span class="text-xs font-medium text-primary-container uppercase tracking-tight font-micro-caption">ЯЗЫК СУБТИТРОВ ТРЕЙЛЕРОВ</span>
-<span class="text-[9px] uppercase font-micro-caption px-1.5 py-0.5 rounded bg-surface-container text-text-muted border border-surface-border-subtle">СКОРО</span>
+<div class="space-y-1.5 py-1.5">
+<label for="kgs-trailer-subtitles" class="block text-xs font-medium text-primary-container uppercase tracking-tight font-micro-caption">Субтитры трейлеров</label>
+<select id="kgs-trailer-subtitles" class="kgs-select bg-surface-container-lowest border-surface-border-subtle w-full rounded-xl px-3.5 py-2.5 text-xs text-on-surface font-medium" aria-describedby="kgs-trailer-subtitles-note">
+<option value="auto">Авто</option>
+<option value="ru">Русский</option>
+<option value="en">Английский</option>
+<option value="off">Выключены</option>
+</select>
+<p id="kgs-trailer-subtitles-note" class="text-xs text-text-muted">Применяется при открытии трейлера. Доступные языки зависят от видео. Плеер может использовать своё сохранённое значение. Субтитры можно переключить кнопкой CC.</p>
 </div>
 </div>
 </section>
@@ -450,6 +455,11 @@ ${[["light","Лёгкое"],["find","Открытие"],["wild","Случайн�
     syncWatchRegion();
   });
 
+  const trailerSubtitlesSelect = $("#kgs-trailer-subtitles");
+  trailerSubtitlesSelect.addEventListener("change", () => {
+    store.set("kgTrailerSubtitles", trailerSubtitlesSelect.value);
+  });
+
   const volumeSlider = $("#kgs-volume");
   const volumeValue = $("[data-kgs-volume-value]");
   const syncVolume = () => {
@@ -502,6 +512,7 @@ ${[["light","Лёгкое"],["find","Открытие"],["wild","Случайн�
 
   const sync = () => {
     syncWatchRegion();
+    trailerSubtitlesSelect.value = getTrailerSubtitles();
     switchState(flareSwitch, hasFlare());
     switchState(beamSwitch, hasBeam());
     switchState(grainSwitch, hasGrain());

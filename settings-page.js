@@ -94,13 +94,9 @@
 </div>
 <div class="space-y-1.5">
 <label for="kgs-language" class="text-[10px] font-bold uppercase tracking-wider text-text-muted font-micro-caption">ЯЗЫК ИНТЕРФЕЙСА</label>
-<select id="kgs-language" class="kgs-select bg-surface-container-lowest border-surface-border-subtle w-full rounded-xl px-3.5 py-2.5 text-xs text-on-surface font-medium" disabled>
-<option>Русский (Russian)</option>
-</select>
+<select id="kgs-language" class="kgs-select bg-surface-container-lowest border-surface-border-subtle w-full rounded-xl px-3.5 py-2.5 text-xs text-on-surface font-medium" aria-describedby="kgs-language-note" data-interface-native-name></select>
+<p id="kgs-language-note" class="text-xs text-text-muted">Часть экранов пока доступна на русском.</p>
 </div>
-<p class="text-[10px] text-text-muted font-micro-caption leading-relaxed uppercase">
-        ВЫБОР ЯЗЫКА ИНТЕРФЕЙСА ПОЯВИТСЯ ПОЗЖЕ.
-      </p>
 <div class="space-y-2 pt-1 border-t border-surface-border-subtle">
 <div class="space-y-1.5 py-1.5">
 <label for="kgs-film-language" class="block text-xs font-medium text-primary-container uppercase tracking-tight font-micro-caption">Язык названий и описаний фильмов</label>
@@ -250,16 +246,6 @@
 </div>
 <span aria-hidden="true" class="kgs-reel-radio w-4 h-4 rounded-full border border-outline shrink-0"></span>
 </button>
-<button type="button" role="radio" data-kgs-reel-style="ticket" aria-checked="false" class="kgs-reel-choice bg-surface-container-low w-full flex items-center justify-between gap-3 p-3 rounded-xl border border-surface-border-subtle text-left">
-<div class="flex items-center gap-3 min-w-0">
-<span aria-hidden="true" class="text-base">🎟</span>
-<div class="min-w-0">
-<div class="kgs-reel-title text-xs font-medium text-on-surface-variant uppercase">Бумажные билеты</div>
-<div class="text-[10px] text-text-muted font-micro-caption uppercase">Стопка билетов с постерами фильмов</div>
-</div>
-</div>
-<span aria-hidden="true" class="kgs-reel-radio w-4 h-4 rounded-full border border-outline shrink-0"></span>
-</button>
 </div>
 </section>
 <section class="rounded-2xl bg-surface-panel border border-surface-border-subtle p-4 space-y-4 transition-colors duration-300" data-purpose="sound-and-haptics">
@@ -317,33 +303,9 @@
 </div>
 </div>
 </section>
-<section class="rounded-2xl bg-surface-panel border border-surface-border-subtle p-4 space-y-4 transition-colors duration-300" data-purpose="cinema-hall-atmosphere">
-<div class="flex items-center gap-2">
-<span class="text-primary-container text-sm">✦</span>
-<h2 class="font-headline-sm text-headline-sm text-primary">Атмосфера кинозала и оптика</h2>
-</div>
+<section class="rounded-2xl bg-surface-panel border border-surface-border-subtle p-4 space-y-4 transition-colors duration-300" data-purpose="film-search-settings">
+<h2 class="font-headline-sm text-headline-sm text-primary">Параметры поиска фильмов</h2>
 <div class="flex items-center justify-between gap-3">
-<div>
-<div id="kgs-beam-label" class="text-xs font-semibold text-on-surface uppercase">Световой конус проектора</div>
-<div id="kgs-beam-note" class="text-[10px] text-text-muted font-micro-caption">Мягкий луч на фоне глобуса</div>
-</div>
-<button class="kgs-switch bg-surface-container-highest aria-checked:bg-primary-container" type="button" role="switch" aria-checked="false" aria-labelledby="kgs-beam-label" aria-describedby="kgs-beam-note" data-kgs-beam><span aria-hidden="true"></span></button>
-</div>
-<div class="flex items-center justify-between gap-3">
-<div>
-<div id="kgs-grain-label" class="text-xs font-semibold text-on-surface uppercase">Плёночное зерно Kodak 64</div>
-<div id="kgs-grain-note" class="text-[10px] text-text-muted font-micro-caption">Тонкая текстура на фоне и обложках</div>
-</div>
-<button class="kgs-switch bg-surface-container-highest aria-checked:bg-primary-container" type="button" role="switch" aria-checked="false" aria-labelledby="kgs-grain-label" aria-describedby="kgs-grain-note" data-kgs-grain><span aria-hidden="true"></span></button>
-</div>
-<div class="flex items-center justify-between gap-3">
-<div>
-<div id="kgs-flare-label" class="text-xs font-semibold text-on-surface uppercase">Анаморфотные блики Panavision</div>
-<div id="kgs-flare-note" class="text-[10px] text-text-muted font-micro-caption">Горизонтальный блик на фоне глобуса</div>
-</div>
-<button class="kgs-switch bg-surface-container-highest aria-checked:bg-primary-container" type="button" role="switch" aria-checked="false" aria-labelledby="kgs-flare-label" aria-describedby="kgs-flare-note" data-kgs-flare><span aria-hidden="true"></span></button>
-</div>
-<div class="flex items-center justify-between gap-3 pt-2 border-t border-surface-border-subtle">
 <div>
 <div class="text-xs font-bold text-on-surface uppercase">КОНТЕНТ ДЛЯ ВЗРОСЛЫХ (18+)</div>
 <div class="text-[10px] text-text-muted font-micro-caption uppercase">ПОКАЗЫВАТЬ ЖАНР 18+ В ФИЛЬТРАХ</div>
@@ -431,9 +393,20 @@ ${[["light","Лёгкое"],["find","Открытие"],["wild","Случайн�
 <div class="kgs-nav" data-kgs-nav></div>
   `;
 
+  localizeInterfaceMarkup(dialog);
   const $ = (selector) => dialog.querySelector(selector);
   const close = () => { if (dialog.open) dialog.close(); else dialog.removeAttribute("open"); };
   const switchState = (el, value) => el.setAttribute("aria-checked", String(!!value));
+  const interfaceLanguageSelect = $("#kgs-language");
+  for (const [code, label] of Object.entries(interfaceLanguages)) {
+    interfaceLanguageSelect.add(new Option(label, code));
+  }
+  interfaceLanguageSelect.value = interfaceLanguage;
+  interfaceLanguageSelect.addEventListener("change", () => {
+    store.set(interfaceLanguageKey, interfaceLanguageSelect.value);
+    location.reload();
+  });
+
   const filmLanguageSelect = $("#kgs-film-language");
   filmLanguageSelect.value = filmLanguage;
   filmLanguageSelect.addEventListener("change", () => {
@@ -443,12 +416,15 @@ ${[["light","Лёгкое"],["find","Открытие"],["wild","Случайн�
 
   const watchRegionSelect = $("#kgs-watch-region");
   const watchProviders = window.KGLegalWatch;
-  for (const {code, name} of watchProviders.regionOptions) {
+  const localizedRegions = watchProviders.regionOptions
+    .map(({code}) => ({code, name: interfaceRegionNames.of(code)}))
+    .sort((a, b) => a.name.localeCompare(b.name, interfaceLanguage));
+  for (const {code, name} of localizedRegions) {
     watchRegionSelect.add(new Option(name, code));
   }
   function syncWatchRegion() {
     watchRegionSelect.value = watchProviders.getRegion();
-    $("#kgs-watch-region-note").textContent = "Регион для блока «Где смотреть»: " + watchProviders.getRegionName() + ".";
+    $("#kgs-watch-region-note").textContent = uiText("Регион для блока «Где смотреть»: {region}.", {region: interfaceRegionNames.of(watchProviders.getEffectiveRegion())});
   }
   watchRegionSelect.addEventListener("change", () => {
     watchProviders.setRegion(watchRegionSelect.value);
@@ -489,52 +465,28 @@ ${[["light","Лёгкое"],["find","Открытие"],["wild","Случайн�
     });
   });
 
-  const grainSwitch = $("[data-kgs-grain]");
-  const hasGrain = () => document.documentElement.hasAttribute("data-kg-film-grain");
-  grainSwitch.addEventListener("click", () => {
-    setFilmGrain(!hasGrain());
-    switchState(grainSwitch, hasGrain());
-  });
-
-  const beamSwitch = $("[data-kgs-beam]");
-  const hasBeam = () => document.documentElement.hasAttribute("data-kg-projector-beam");
-  beamSwitch.addEventListener("click", () => {
-    setProjectorBeam(!hasBeam());
-    switchState(beamSwitch, hasBeam());
-  });
-
-  const flareSwitch = $("[data-kgs-flare]");
-  const hasFlare = () => document.documentElement.hasAttribute("data-kg-anamorphic-flare");
-  flareSwitch.addEventListener("click", () => {
-    setAnamorphicFlare(!hasFlare());
-    switchState(flareSwitch, hasFlare());
-  });
-
   const sync = () => {
     syncWatchRegion();
     trailerSubtitlesSelect.value = getTrailerSubtitles();
-    switchState(flareSwitch, hasFlare());
-    switchState(beamSwitch, hasBeam());
-    switchState(grainSwitch, hasGrain());
     syncVolume();
     syncTheme();
     const hasKey = !!apiKey;
-    $("[data-kgs-status]").textContent = hasKey ? "Ключ сохранён" : "Ключ не добавлен";
-    $("[data-kgs-api-badge]").textContent = hasKey ? "КЛЮЧ СОХРАНЁН" : "НУЖЕН КЛЮЧ";
-    $("[data-kgs-lamp]").textContent = hasKey ? "● ключ сохранён" : "● нет ключа";
+    $("[data-kgs-status]").textContent = hasKey ? uiText("Ключ сохранён") : uiText("Ключ не добавлен");
+    $("[data-kgs-api-badge]").textContent = hasKey ? uiText("КЛЮЧ СОХРАНЁН") : uiText("НУЖЕН КЛЮЧ");
+    $("[data-kgs-lamp]").textContent = hasKey ? uiText("● ключ сохранён") : uiText("● нет ключа");
     dialog.querySelectorAll("[data-kgs-status], [data-kgs-api-badge], [data-kgs-lamp]").forEach(node => {
       node.classList.toggle("kgs-missing-key", !hasKey);
     });
-    $("#kgs-token").placeholder = hasKey ? "••••••••••••••••••••••••••••••••" : "Введите ключ TMDB";
+    $("#kgs-token").placeholder = hasKey ? "••••••••••••••••••••••••••••••••" : uiText("Введите ключ TMDB");
     const opened = Object.keys(visited || {}).length, total = COUNTRIES.length;
-    const count = `${opened} / ${total} стран`;
+    const count = uiText("{opened} / {total} стран", {opened, total});
     dialog.querySelectorAll("[data-kgs-count]").forEach((node) => { node.textContent = count; });
-    $("[data-kgs-progress-label]").textContent = `Открыто ${opened} стран`;
-    $("[data-kgs-left]").textContent = `Осталось ${Math.max(0,total-opened)}`;
+    $("[data-kgs-progress-label]").textContent = uiText("Открыто стран: {count}", {count: opened});
+    $("[data-kgs-left]").textContent = uiText("Осталось {count}", {count: Math.max(0, total - opened)});
     $("[data-kgs-progress]").style.width = `${Math.round(opened/total*100)}%`;
-    $("[data-kgs-warning]").textContent = `Очистка истории снимет отметки со всех ${opened} открытых стран и просмотренных фильмов.`;
+    $("[data-kgs-warning]").textContent = uiText("Очистка истории снимет отметки со всех {count} открытых стран и просмотренных фильмов.", {count: opened});
     const globeMuted = snd === "off";
-    $("[data-kgs-globe-sound-status]").textContent = globeMuted ? "Без звука" : "Активно";
+    $("[data-kgs-globe-sound-status]").textContent = globeMuted ? uiText("Без звука") : uiText("Активно");
     $("[data-kgs-preview]").disabled = globeMuted;
     switchState($("[data-kgs-fx]"), fx);
     switchState($("[data-kgs-adult]"), showAdult);
@@ -545,7 +497,7 @@ ${[["light","Лёгкое"],["find","Открытие"],["wild","Случайн�
     const reelSoundSelect=$("[data-kgs-reel-sound-select]");
     reelSoundSelect.value = window.getCinemaReelSound();
     const reelMuted = reelSoundSelect.value === "off";
-    $("[data-kgs-reel-sound-status]").textContent = reelMuted ? "Без звука" : "Активно";
+    $("[data-kgs-reel-sound-status]").textContent = reelMuted ? uiText("Без звука") : uiText("Активно");
     $("[data-kgs-reel-preview]").disabled = reelMuted;
     dialog.querySelectorAll("[data-kgs-mode]").forEach(button => {
       const active = button.dataset.kgsMode === playMode;
@@ -555,8 +507,8 @@ ${[["light","Лёгкое"],["find","Открытие"],["wild","Случайн�
       button.setAttribute("aria-pressed", String(playMode === "surprise" && button.dataset.kgsSurprise === surprise));
     });
     $("[data-kgs-surprise-note]").textContent = playMode === "surprise"
-      ? SURPRISE_NOTE[surprise]
-      : "Выберите сценарий, чтобы включить режим «Удиви меня».";
+      ? uiText(SURPRISE_NOTE[surprise])
+      : uiText("Выберите сценарий, чтобы включить режим «Удиви меня».");
   };
 
   $("[data-kgs-close]").addEventListener("click", close);
@@ -570,9 +522,9 @@ ${[["light","Лёгкое"],["find","Открытие"],["wild","Случайн�
 
   const labels = {roulette:"Трещотка бобины",bells:"Колокольчики",arcade:"Аркада",casino:"Казино",marimba:"Маримба",space:"Космос",film:"Киноплёнка",orchestra:"Оркестр",jazz:"Джаз",synth:"Синтезатор",chimes:"Звон",off:"Без звука",imax:"Кинозал · низкий гул"};
   if (soundSelect) {
-    [...soundSelect.options].forEach((option) => { option.textContent = labels[option.value] || option.textContent; });
+    [...soundSelect.options].forEach((option) => { option.textContent = uiText(labels[option.value] || option.textContent); });
     soundSelect.className = $("[data-kgs-reel-sound-select]").className;
-    soundSelect.setAttribute("aria-label", "Звук вращения КиноГлобуса");
+    soundSelect.setAttribute("aria-label", uiText("Звук вращения КиноГлобуса"));
     const soundHost = $("[data-kgs-sound]");
     if (soundHost) soundHost.appendChild(soundSelect);
   }
@@ -585,27 +537,27 @@ ${[["light","Лёгкое"],["find","Открытие"],["wild","Случайн�
 
   $("[data-kgs-visibility]").addEventListener("click", () => {
     const input = $("#kgs-token"); input.type = input.type === "password" ? "text" : "password";
-    $("[data-kgs-visibility]").setAttribute("aria-label", input.type === "password" ? "Показать введённый ключ" : "Скрыть введённый ключ");
+    $("[data-kgs-visibility]").setAttribute("aria-label", input.type === "password" ? uiText("Показать введённый ключ") : uiText("Скрыть введённый ключ"));
   });
-  $("[data-kgs-change]").addEventListener("click", () => { $("#kgs-token").focus(); $("[data-kgs-message]").textContent = "Введите новый ключ и нажмите OK. Сохранённый ключ пока остаётся активным."; });
+  $("[data-kgs-change]").addEventListener("click", () => { $("#kgs-token").focus(); $("[data-kgs-message]").textContent = uiText("Введите новый ключ и нажмите OK. Сохранённый ключ пока остаётся активным."); });
   $("[data-kgs-save]").addEventListener("click", () => {
     const value = $("#kgs-token").value.trim();
-    if (!value) { $("[data-kgs-message]").textContent = "Введите новый ключ TMDB перед сохранением."; return; }
+    if (!value) { $("[data-kgs-message]").textContent = uiText("Введите новый ключ TMDB перед сохранением."); return; }
     document.getElementById("tmdb-key-input").value = value;
     document.getElementById("tmdb-key-save").click();
     $("#kgs-token").value = "";
-    $("[data-kgs-message]").textContent = "Ключ сохранён. При желании проверьте соединение.";
+    $("[data-kgs-message]").textContent = uiText("Ключ сохранён. При желании проверьте соединение.");
     sync();
   });
   $("[data-kgs-check]").addEventListener("click", async () => {
     const message = $("[data-kgs-message]");
-    if (!apiKey) { message.textContent = "Сначала добавьте ключ TMDB."; return; }
-    message.textContent = "Проверяем соединение…";
+    if (!apiKey) { message.textContent = uiText("Сначала добавьте ключ TMDB."); return; }
+    message.textContent = uiText("Проверяем соединение…");
     try {
       const response = await fetch(`https://api.themoviedb.org/3/configuration?api_key=${encodeURIComponent(apiKey)}`);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      message.textContent = "TMDB ответил успешно — соединение работает.";
-    } catch (error) { message.textContent = `Не удалось проверить соединение: ${error.message}`; }
+      message.textContent = uiText("TMDB ответил успешно — соединение работает.");
+    } catch (error) { message.textContent = uiText("Не удалось проверить соединение: {error}", {error: error.message}); }
   });
 
   $("[data-kgs-fx]").addEventListener("click", () => { toggleVibration(); sync(); });
@@ -626,13 +578,13 @@ ${[["light","Лёгкое"],["find","Открытие"],["wild","Случайн�
 
   $("[data-kgs-atlas]").addEventListener("click", () => { close(); document.getElementById("mapBtn").click(); });
   $("[data-kgs-history]").addEventListener("click", () => {
-    if (confirm("Очистить историю просмотра и список открытых стран? Закладки сохранятся.")) {
+    if (confirm(uiText("Очистить историю просмотра и список открытых стран? Закладки сохранятся."))) {
       window.KGClearWatchHistory();
       sync();
     }
   });
   $("[data-kgs-reset]").addEventListener("click", () => {
-    if (confirm("Вернуть настройки к значениям по умолчанию? История, закладки и ключ TMDB сохранятся.")) {
+    if (confirm(uiText("Вернуть настройки к значениям по умолчанию? История, закладки и ключ TMDB сохранятся."))) {
       window.KGResetSettings();
       sync();
     }

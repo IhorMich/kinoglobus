@@ -37,7 +37,7 @@
     const step=now=>{const p=Math.min(1,(now-begin)/duration),eased=p<.5?4*p*p*p:1-Math.pow(-2*p+2,3)/2;dialog.scrollTop=start+distance*eased;if(p<1)personScrollFrame=requestAnimationFrame(step);else personScrollFrame=0;};
     personScrollFrame=requestAnimationFrame(step);
   }
-  function filmButton(f){const title=f.title||f.name||"Фильм",year=(f.release_date||"").slice(0,4);return `<button class="kgpi-film" type="button" data-kg-related-open="${f.id}"><span class="kgpi-poster">${image(f.poster_path)?`<img loading="lazy" src="${image(f.poster_path)}" alt="Постер «${esc(title)}»" onerror="this.style.visibility='hidden'">`:`<span class="flex h-full w-full items-center justify-center text-xs text-[#b3a79a]">Нет постера</span>`}</span><span class="block mt-1 text-xs font-semibold leading-tight">${esc(title)}</span><span class="block text-[10px] text-[#b3a79a]">${year}</span></button>`;}
+  function filmButton(f){const title=f.title||f.name||uiText("Фильм"),year=(f.release_date||"").slice(0,4);return `<button class="kgpi-film" type="button" data-kg-related-open="${f.id}"><span class="kgpi-poster">${image(f.poster_path)?`<img loading="lazy" src="${image(f.poster_path)}" alt="${esc(uiText("Постер «{title}»", {title}))}" onerror="this.style.visibility='hidden'">`:`<span class="flex h-full w-full items-center justify-center text-xs text-[#b3a79a]">${uiText("Нет постера")}</span>`}</span><span class="block mt-1 text-xs font-semibold leading-tight">${esc(title)}</span><span class="block text-[10px] text-[#b3a79a]">${year}</span></button>`;}
   function modal(){return document.getElementById("kg-person-modal");}
   function closePerson(){const root=modal();root?.querySelectorAll("[data-kg-person-detail]").forEach(panel=>{if(panel.id)window.KGCloseFilmFromRelated?.(panel.id);});root?.remove();}
   const ageFromBirthday=birthday=>{if(!birthday)return "—";const born=new Date(`${birthday}T00:00:00`);if(Number.isNaN(+born))return "—";const now=new Date();let age=now.getFullYear()-born.getFullYear();if(now<new Date(now.getFullYear(),born.getMonth(),born.getDate()))age--;return `${age} лет`;};
@@ -47,8 +47,8 @@
     return explicitActor||(!explicitDirector&&person.known_for_department==="Acting")?"Актёр":"Режиссёр";
   }
   function creditCard(f,person){
-    const title=f.title||f.name||"Фильм",year=(f.release_date||"").slice(0,4),role=esc(roleFor(person,f));
-    const poster=f.poster_path?`<img class="kgpi-profile-credit-poster" loading="lazy" src="${image(f.poster_path,"w185")}" alt="Постер «${esc(title)}»">`:'<div class="kgpi-profile-credit-poster is-empty"><span class="material-symbols-outlined text-[#b3a79a]">movie</span></div>';
+    const title=f.title||f.name||uiText("Фильм"),year=(f.release_date||"").slice(0,4),role=esc(roleFor(person,f));
+    const poster=f.poster_path?`<img class="kgpi-profile-credit-poster" loading="lazy" src="${image(f.poster_path,"w185")}" alt="${esc(uiText("Постер «{title}»", {title}))}">`:'<div class="kgpi-profile-credit-poster is-empty"><span class="material-symbols-outlined text-[#b3a79a]">movie</span></div>';
     const rating=Number(f.vote_average)>0?`<span class="shrink-0 px-2 py-1 rounded-lg bg-surface-container-lowest text-xs font-semibold text-[#ffdca8]">★ ${Number(f.vote_average).toFixed(1)}</span>`:"";
     return `<div data-kg-person-credit class="flex flex-col gap-0.5"><button type="button" class="kgpi-profile-credit w-full p-3 rounded-xl bg-[#211d26] text-left transition-colors hover:bg-surface-container-high" data-kg-person-film-open="${f.id}" aria-label="Открыть фильм «${esc(title)}»">${poster}<span class="min-w-0 flex flex-col gap-1"><span class="text-sm font-semibold leading-snug text-[#f1e7dc] line-clamp-2">${esc(title)}${year?` <span class="font-normal text-[#b3a79a]">(${year})</span>`:""}</span><span class="text-xs text-[#d5c4ad] line-clamp-1">${role}</span><span class="text-[11px] text-[#b3a79a]">${esc((f.original_language||"").toUpperCase())||"Фильм"}</span></span>${rating}</button><div data-kg-person-detail class=""></div></div>`;
   }
@@ -109,9 +109,9 @@
       if(results.length<8){const similar=await tmdb(`movie/${id}/similar`,{page:"1"});const have=new Set(results.map(f=>Number(f.id)));results=results.concat((similar.results||[]).filter(f=>Number(f.id)!==Number(id)&&!have.has(Number(f.id))&&(!allowed||allowed.has(Number(f.id)))));}
       if(pool&&results.length<8){const have=new Set(results.map(f=>Number(f.id)));const current=pool.find(f=>Number(f.id)===Number(id));const genres=new Set(current&&current.genre_ids||[]);const fallback=pool.filter(f=>Number(f.id)!==Number(id)&&!have.has(Number(f.id))).sort((a,b)=>{const score=f=>(f.genre_ids||[]).filter(g=>genres.has(g)).length*5+(Number(f.vote_average)||0)*.5+(Number(f.popularity)||0)*.01;return score(b)-score(a);});results=results.concat(fallback);}
       results=results.slice(0,14);relatedCache.set(cacheKey,results);paint(section,results);
-    }catch(error){list.innerHTML='<span class="text-xs text-[#b3a79a]">Не удалось загрузить похожие фильмы.</span>';console.warn("[Kinoglobus] related films:",error);}
+    }catch(error){list.innerHTML=`<span class="text-xs text-[#b3a79a]">${uiText("Не удалось загрузить похожие фильмы.")}</span>`;console.warn("[Kinoglobus] related films:",error);}
   }
-  function paint(section,films){const list=section.querySelector("[data-kg-related-list]");if(!list)return;list.innerHTML=films.length?films.map(filmButton).join(""):'<span class="text-xs text-[#b3a79a]">В этом списке больше нет похожих фильмов.</span>';}
+  function paint(section,films){const list=section.querySelector("[data-kg-related-list]");if(!list)return;list.innerHTML=films.length?films.map(filmButton).join(""):`<span class="text-xs text-[#b3a79a]">${uiText("В этом списке больше нет похожих фильмов.")}</span>`;}
   // Apply carousel poster sizing on every screen, not just after opening a person profile.
   ensureStyles();
   const observer=new MutationObserver(records=>records.forEach(record=>record.addedNodes.forEach(node=>{if(node.nodeType!==1)return;if(node.matches?.("[data-kg-related-films]"))related(node);node.querySelectorAll?.("[data-kg-related-films]").forEach(related);}))) ;

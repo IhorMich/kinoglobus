@@ -9,7 +9,7 @@
   if (!app || !dialog || !shell || !map) return;
 
   const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const fmt = value => new Intl.NumberFormat('ru-RU').format(Number(value) || 0);
+  const fmt = value => new Intl.NumberFormat(interfaceLanguage).format(Number(value) || 0);
   const flag = code => `<span class="kgc-flag-mark" data-flag="${code}" aria-hidden="true">${app.countryFlag(code)}</span>`;
   const fabricPath = 'assets/flags/flag-fabric.jpg';
   const flagBackdrop = code => `
@@ -36,7 +36,7 @@
       </svg>
       <div class="kgc-flag-art">${app.countryFlag(code)}</div>
     </div>`;
-  const year = film => String(film?.release_date || '').slice(0, 4) || 'Год неизвестен';
+  const year = film => String(film?.release_date || '').slice(0, 4) || uiText("Год неизвестен");
   const poster = (film, size='w342') => film?.poster_path ? `https://image.tmdb.org/t/p/${size}${film.poster_path}` : '';
   const root = document.createElement('div');
   root.id = 'kg-country-app';
@@ -204,28 +204,28 @@
     const seenCountries=ordered.filter(c=>counts[c]);
     const latestCountry=latest?.cc || latest?.countries?.[0] || '';
     root.innerHTML=`
-      <div class="kgc-head"><button class="kgc-icon" data-atlas-close aria-label="Закрыть">←</button><div class="kgc-head-title"><b>Атлас открытий</b><small>Кинематограф мира · ${countries.length} стран</small></div><span style="font-size:21px">🌍</span></div>
+      <div class="kgc-head"><button class="kgc-icon" data-atlas-close aria-label="${uiText("Закрыть")}">←</button><div class="kgc-head-title"><b>${uiText("Атлас открытий")}</b><small>${uiText("Кинематограф мира · {count} стран", {count: countries.length})}</small></div><span style="font-size:21px">🌍</span></div>
       <div class="kgc-pad"><section class="kgc-panel kgc-overview">
-        <div style="display:flex;justify-content:space-between;gap:8px"><span class="kgc-kicker">✦ Киноэкспедиция</span><span class="kgc-chip neutral">${opened?`${opened} / ${countries.length} открыто`:'Начало пути'}</span></div>
-        <div style="display:flex;align-items:center;gap:14px;margin:9px 0 4px"><div class="kgc-statbig">${opened}<span style="font-size:20px;color:#d5c4ad"> / ${countries.length}</span></div><div style="margin-left:auto;text-align:center"><button class="kgc-btn secondary" data-map-zoom>＋　Карта</button></div></div>
-        <button type="button" class="kgc-catalog-link" data-open-catalog>Страны мирового кинематографа <span aria-hidden="true">→</span></button>
-        <div class="kgc-progress"><i style="width:${pct}%"></i></div><div style="display:flex;justify-content:space-between;margin-top:7px" class="kgc-muted"><span>${fmt(total)} просмотренных фильмов</span><span>${countries.length-opened} не открыто</span></div>
-        <div style="display:flex;align-items:center;gap:8px;margin-top:15px;color:#d5c4ad;font:12px 'Noto Serif',serif"><span>☝</span><span>Выберите страну на карте или в списке ниже</span></div>
+        <div style="display:flex;justify-content:space-between;gap:8px"><span class="kgc-kicker">${uiText("✦ Киноэкспедиция")}</span><span class="kgc-chip neutral">${opened?uiText("{opened} / {total} открыто", {opened, total: countries.length}):uiText("Начало пути")}</span></div>
+        <div style="display:flex;align-items:center;gap:14px;margin:9px 0 4px"><div class="kgc-statbig">${opened}<span style="font-size:20px;color:#d5c4ad"> / ${countries.length}</span></div><div style="margin-left:auto;text-align:center"><button class="kgc-btn secondary" data-map-zoom>${uiText("＋　Карта")}</button></div></div>
+        <button type="button" class="kgc-catalog-link" data-open-catalog>${uiText("Страны мирового кинематографа")} <span aria-hidden="true">→</span></button>
+        <div class="kgc-progress"><i style="width:${pct}%"></i></div><div style="display:flex;justify-content:space-between;margin-top:7px" class="kgc-muted"><span>${uiText("{count} просмотренных фильмов", {count: fmt(total)})}</span><span>${uiText("{count} не открыто", {count: countries.length - opened})}</span></div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:15px;color:#d5c4ad;font:12px 'Noto Serif',serif"><span>☝</span><span>${uiText("Выберите страну на карте или в списке ниже")}</span></div>
       </section></div>
       <div class="kgc-pad" style="padding-top:0"><div class="kgc-grid3">
-        <div class="kgc-mini"><span>🎞</span><b>${fmt(total)}</b><small>Фильмов просмотрено</small></div>
-        <div class="kgc-mini"><span>🌐</span><b>${opened} / ${countries.length}</b><small>Стран открыто</small></div>
-        <div class="kgc-mini"><span>✦</span><b>${opened?`${(total/Math.max(1,opened)).toFixed(1)}`:'0'}</b><small>Фильмов на страну</small></div>
+        <div class="kgc-mini"><span>🎞</span><b>${fmt(total)}</b><small>${uiText("Фильмов просмотрено")}</small></div>
+        <div class="kgc-mini"><span>🌐</span><b>${opened} / ${countries.length}</b><small>${uiText("Стран открыто")}</small></div>
+        <div class="kgc-mini"><span>✦</span><b>${opened?`${(total/Math.max(1,opened)).toFixed(1)}`:'0'}</b><small>${uiText("Фильмов на страну")}</small></div>
       </div></div>
-      <div class="kgc-section"><h3>🏆 Чаще всего в зале</h3><span class="kgc-chip neutral">Лидер кинопутешествия</span></div>
-      ${leader?`<button class="kgc-pad" data-open-country="${leader}" style="display:block;width:100%;text-align:left;border:0;background:transparent;padding-top:0"><div class="kgc-panel kgc-country-hero">${flagBackdrop(leader)}<div class="kgc-hero-content"><div class="kgc-chips"><span class="kgc-chip">${flag(leader)} ${fmt(counts[leader])} сеанс${counts[leader]===1?'':'а'}</span><span class="kgc-chip neutral">№ ${String(ordered.indexOf(leader)+1).padStart(2,'0')} в ваших открытиях</span></div><h2 class="kgc-country-name">${esc(app.countryName(leader))}</h2><p class="kgc-blurb">Ваша личная кинематографическая карта этой страны. Откройте паспорт, чтобы увидеть отмеченные фильмы.</p><span class="kgc-btn">Открыть паспорт страны　↗</span></div></div></button>`:`<div class="kgc-pad" style="padding-top:0"><div class="kgc-panel"><div class="kgc-title">Ваше первое кинооткрытие</div><p class="kgc-muted">Отметьте просмотренный фильм — и страна его производства появится в атласе.</p><button class="kgc-btn secondary" data-open-map>Перейти к глобусу　↗</button></div></div>`}
-      <div class="kgc-section"><h3>◎ Последнее открытие</h3><span class="kgc-muted">${latest?new Date(latest.watchedAt||Date.now()).toLocaleDateString('ru-RU'):'История пока пуста'}</span></div>
-      ${latest?`<button data-open-saved="${esc(latest.id)}" class="kgc-pad" style="display:block;width:100%;text-align:left;border:0;background:transparent;padding-top:0"><div class="kgc-panel kgc-feature">${poster(latest,'w185')?`<img class="kgc-poster" src="${poster(latest,'w185')}" alt="">`:'<div class="kgc-poster"></div>'}<span><span class="kgc-chip">Просмотрено</span><b class="kgc-filmname">${esc(latest.title||'Фильм')}</b><small class="kgc-muted">${esc([latest.year,latestCountry?app.countryName(latestCountry):''].filter(Boolean).join(' · '))}</small></span></div></button>`:`<div class="kgc-pad" style="padding-top:0"><div class="kgc-empty">Здесь появится последний фильм, который вы отметили как просмотренный.</div></div>`}
-      <div class="kgc-section"><h3>🌐 Атлас кинолокаций</h3><span class="kgc-muted">${opened} отмечено</span></div>
-      <div class="kgc-pad" style="padding-top:0"><div class="kgc-panel kgc-map"><div id="kg-country-map-host"></div><div class="kgc-map-controls"><span class="kgc-muted" style="flex:1">Нажмите на отмеченную страну</span><button class="kgc-btn secondary" data-open-globe>Развернуть глобус</button></div></div></div>
-      ${seenCountries.length?`<div class="kgc-section"><h3>Открытые страны</h3><span class="kgc-muted">${seenCountries.length}</span></div><div class="kgc-pad" style="padding-top:0"><div class="kgc-country-list">${seenCountries.map(c=>`<button class="kgc-country-pill has" data-open-country="${c}">${flag(c)} ${esc(app.countryName(c))} · ${counts[c]}</button>`).join('')}</div></div>`:''}
-      <div class="kgc-pad" style="padding-top:0"><button type="button" class="kgc-catalog-link" data-open-catalog="all">Все страны <span aria-hidden="true">→</span></button></div>
-      <div class="kgc-foot"><button class="kgc-btn secondary" data-atlas-close style="width:100%">Закрыть атлас</button></div>`;
+      <div class="kgc-section"><h3>${uiText("🏆 Чаще всего в зале")}</h3><span class="kgc-chip neutral">${uiText("Лидер кинопутешествия")}</span></div>
+      ${leader?`<button class="kgc-pad" data-open-country="${leader}" style="display:block;width:100%;text-align:left;border:0;background:transparent;padding-top:0"><div class="kgc-panel kgc-country-hero">${flagBackdrop(leader)}<div class="kgc-hero-content"><div class="kgc-chips"><span class="kgc-chip">${flag(leader)} ${uiText("Сеансов: {count}", {count: fmt(counts[leader])})}</span><span class="kgc-chip neutral">${uiText("№ {rank} в ваших открытиях", {rank: String(ordered.indexOf(leader)+1).padStart(2,'0')})}</span></div><h2 class="kgc-country-name">${esc(app.countryName(leader))}</h2><p class="kgc-blurb">${uiText("Ваша личная кинематографическая карта этой страны. Откройте паспорт, чтобы увидеть отмеченные фильмы.")}</p><span class="kgc-btn">${uiText("Открыть паспорт страны　↗")}</span></div></div></button>`:`<div class="kgc-pad" style="padding-top:0"><div class="kgc-panel"><div class="kgc-title">${uiText("Ваше первое кинооткрытие")}</div><p class="kgc-muted">${uiText("Отметьте просмотренный фильм — и страна его производства появится в атласе.")}</p><button class="kgc-btn secondary" data-open-map>${uiText("Перейти к глобусу　↗")}</button></div></div>`}
+      <div class="kgc-section"><h3>${uiText("◎ Последнее открытие")}</h3><span class="kgc-muted">${latest?new Date(latest.watchedAt||Date.now()).toLocaleDateString(interfaceLanguage):uiText("История пока пуста")}</span></div>
+      ${latest?`<button data-open-saved="${esc(latest.id)}" class="kgc-pad" style="display:block;width:100%;text-align:left;border:0;background:transparent;padding-top:0"><div class="kgc-panel kgc-feature">${poster(latest,'w185')?`<img class="kgc-poster" src="${poster(latest,'w185')}" alt="">`:'<div class="kgc-poster"></div>'}<span><span class="kgc-chip">${uiText("Просмотрено")}</span><b class="kgc-filmname">${esc(latest.title||uiText("Фильм"))}</b><small class="kgc-muted">${esc([latest.year,latestCountry?app.countryName(latestCountry):''].filter(Boolean).join(' · '))}</small></span></div></button>`:`<div class="kgc-pad" style="padding-top:0"><div class="kgc-empty">${uiText("Здесь появится последний фильм, который вы отметили как просмотренный.")}</div></div>`}
+      <div class="kgc-section"><h3>${uiText("🌐 Атлас кинолокаций")}</h3><span class="kgc-muted">${uiText("{count} отмечено", {count: opened})}</span></div>
+      <div class="kgc-pad" style="padding-top:0"><div class="kgc-panel kgc-map"><div id="kg-country-map-host"></div><div class="kgc-map-controls"><span class="kgc-muted" style="flex:1">${uiText("Нажмите на отмеченную страну")}</span><button class="kgc-btn secondary" data-open-globe>${uiText("Развернуть глобус")}</button></div></div></div>
+      ${seenCountries.length?`<div class="kgc-section"><h3>${uiText("Открытые страны")}</h3><span class="kgc-muted">${seenCountries.length}</span></div><div class="kgc-pad" style="padding-top:0"><div class="kgc-country-list">${seenCountries.map(c=>`<button class="kgc-country-pill has" data-open-country="${c}">${flag(c)} ${esc(app.countryName(c))} · ${counts[c]}</button>`).join('')}</div></div>`:''}
+      <div class="kgc-pad" style="padding-top:0"><button type="button" class="kgc-catalog-link" data-open-catalog="all">${uiText("Все страны")} <span aria-hidden="true">→</span></button></div>
+      <div class="kgc-foot"><button class="kgc-btn secondary" data-atlas-close style="width:100%">${uiText("Закрыть атлас")}</button></div>`;
     const mapHost=root.querySelector('#kg-country-map-host');
     if (mapHost) mapHost.append(map, mapControls);
   }
@@ -240,7 +240,7 @@
     .flatMap(([region, codes]) => codes.split(' ').map(code => [code, region])));
   const regionFor = code => countryRegion.get(code) || 'Европа';
   const creditedCountries = film => film.countries?.length ? film.countries : [film.cc];
-  const normalizeCatalogText = value => String(value ?? '').toLocaleLowerCase('ru').replaceAll('ё', 'е').trim();
+  const normalizeCatalogText = value => String(value ?? '').toLocaleLowerCase(interfaceLanguage).replaceAll('ё', 'е').trim();
   const catalog = {status:null, region:'all', view:'cards', query:'', scroll:0, atlasScroll:0};
 
   function catalogData() {
@@ -254,7 +254,7 @@
     }
     const rows = app.countries().map(code => ({
       code, name:app.countryName(code), region:regionFor(code), films:byCountry.get(code) || []
-    })).sort((a,b) => b.films.length - a.films.length || a.name.localeCompare(b.name,'ru'));
+    })).sort((a,b) => b.films.length - a.films.length || a.name.localeCompare(b.name,interfaceLanguage));
     const opened = rows.filter(row => row.films.length).length;
     return {rows, watched, opened, total:rows.length, closed:rows.length-opened};
   }
@@ -272,33 +272,33 @@
     const percent = total ? Math.round(100 * opened / total) : 0;
     const dates = watched.map(film => Date.parse(film.watchedAt)).filter(Number.isFinite);
     const days = dates.length ? Math.max(1, Math.floor((Date.now()-Math.min(...dates))/86400000)+1) : 0;
-    const pace = days ? (dates.length/days).toLocaleString('ru-RU',{maximumFractionDigits:1})+' / день' : '—';
+    const pace = days ? uiText("{rate} / день", {rate: (dates.length/days).toLocaleString(interfaceLanguage,{maximumFractionDigits:1})}) : '—';
     return `
-      <div class="kgc-catalog-summary-line"><strong>✦ Киноэкспедиция · ${total} стран</strong><span>${opened} / ${total} открыто</span></div>
-      <div class="kgc-catalog-metric"><span><b>${opened}</b> / ${total} стран (${percent}%)</span><small>${closed} не исследовано</small></div>
-      <div class="kgc-catalog-progress" role="progressbar" aria-label="Открыто стран" aria-valuemin="0" aria-valuenow="${opened}" aria-valuemax="${total}"><span style="width:${percent}%"></span></div>
-      <div class="kgc-catalog-stats"><div>Сеансы<b>${fmt(watched.length)}</b></div><div>В планах<b>${fmt(planned)}</b></div><div>Темп<b>${pace}</b></div></div>
-      <div class="kgc-catalog-pills" role="group" aria-label="Статус стран">
-        ${catalogPill('status','all',`Все (${total})`)}
-        ${catalogPill('status','opened',`Открытые (${opened})`)}
-        ${catalogPill('status','unopened',`Неисследованные (${closed})`)}
+      <div class="kgc-catalog-summary-line"><strong>${uiText("✦ Киноэкспедиция · {count} стран", {count: total})}</strong><span>${uiText("{opened} / {total} открыто", {opened, total})}</span></div>
+      <div class="kgc-catalog-metric"><span>${uiText("{opened} / {total} стран", {opened: `<b>${opened}</b>`, total})} (${percent}%)</span><small>${uiText("{count} не исследовано", {count: closed})}</small></div>
+      <div class="kgc-catalog-progress" role="progressbar" aria-label="${uiText("Открыто стран")}" aria-valuemin="0" aria-valuenow="${opened}" aria-valuemax="${total}"><span style="width:${percent}%"></span></div>
+      <div class="kgc-catalog-stats"><div>${uiText("Сеансы")}<b>${fmt(watched.length)}</b></div><div>${uiText("В планах")}<b>${fmt(planned)}</b></div><div>${uiText("Темп")}<b>${pace}</b></div></div>
+      <div class="kgc-catalog-pills" role="group" aria-label="${uiText("Статус стран")}">
+        ${catalogPill('status','all',uiText("Все ({count})", {count: total}))}
+        ${catalogPill('status','opened',uiText("Открытые ({count})", {count: opened}))}
+        ${catalogPill('status','unopened',uiText("Неисследованные ({count})", {count: closed}))}
       </div>`;
   }
 
   function catalogCard(row, rank, hero) {
     const {code, name, region, films} = row;
     const film = films[0];
-    const heading = `<div class="kgc-catalog-country">${flag(code)}<div><h2>${esc(name)}</h2><small>${esc(region)}</small></div></div>`;
-    const badges = `<div class="kgc-catalog-badges"><span class="kgc-catalog-badge${film ? ' open' : ''}">${film ? `✓ Открыта · №${String(rank).padStart(2,'0')}` : 'Не исследована'}</span>${film ? `<span class="kgc-catalog-badge">Сеансы · ${fmt(films.length)}</span>` : ''}</div>`;
-    const passport = `<button type="button" class="kgc-catalog-action${hero ? ' primary' : ''}" data-open-country="${code}" aria-label="Паспорт страны ${esc(name)}">Паспорт →</button>`;
+    const heading = `<div class="kgc-catalog-country">${flag(code)}<div><h2>${esc(name)}</h2><small>${esc(uiText(region))}</small></div></div>`;
+    const badges = `<div class="kgc-catalog-badges"><span class="kgc-catalog-badge${film ? ' open' : ''}">${film ? uiText("✓ Открыта · №{rank}", {rank: String(rank).padStart(2,'0')}) : uiText("Не исследована")}</span>${film ? `<span class="kgc-catalog-badge">${uiText("Сеансы · {count}", {count: fmt(films.length)})}</span>` : ''}</div>`;
+    const passport = `<button type="button" class="kgc-catalog-action${hero ? ' primary' : ''}" data-open-country="${code}" aria-label="${esc(uiText("Паспорт страны {country}", {country: name}))}">${uiText("Паспорт →")}</button>`;
     if (catalog.view === 'grid') {
       return `<article class="kgc-catalog-card"><div class="kgc-catalog-card-body">${heading}${badges}${passport}</div></article>`;
     }
     const directors = film && (film.director || (Array.isArray(film.dirs) ? film.dirs.join(', ') : film.dirs));
-    const filmInfo = film ? [directors, film.year, film.score > 0 ? '★ '+film.score : '', film.runtime ? film.runtime+' мин' : ''].filter(Boolean).join(' · ') : '';
+    const filmInfo = film ? [directors, film.year, film.score > 0 ? '★ '+film.score : '', film.runtime ? uiText("{minutes} мин", {minutes: film.runtime}) : ''].filter(Boolean).join(' · ') : '';
     const preview = film ? `<button type="button" class="kgc-catalog-film" data-open-saved="${esc(film.id)}">
         ${film.poster ? `<img loading="lazy" src="https://image.tmdb.org/t/p/w154${esc(film.poster)}" alt="">` : '<span class="kgc-catalog-poster-placeholder" aria-hidden="true">🎞</span>'}
-        <span><small>Последний сеанс</small><b>${esc(film.title || 'Фильм')}</b><small>${esc(filmInfo)}</small></span>
+        <span><small>${uiText("Последний сеанс")}</small><b>${esc(film.title || uiText("Фильм"))}</b><small>${esc(filmInfo)}</small></span>
       </button>` : '';
     const watchButton = film && window.KGWatchedButtonHtml
       ? window.KGWatchedButtonHtml(true, `data-catalog-unwatch="${Number(film.id)}"`)
@@ -309,7 +309,7 @@
         ${hero ? '' : heading+badges}
         ${preview}
         <div class="kgc-catalog-actions">${passport}${watchButton}
-          ${hero ? `<button type="button" class="kgc-catalog-action" data-catalog-feature="${code}">Шедевр</button>` : ''}
+          ${hero ? `<button type="button" class="kgc-catalog-action" data-catalog-feature="${code}">${uiText("Шедевр")}</button>` : ''}
         </div>
       </div>
     </article>`;
@@ -331,7 +331,7 @@
     });
     feed.dataset.view = catalog.view;
     feed.innerHTML = matches.length ? matches.map(({row,rank},index) => catalogCard(row,rank,index === 0)).join('')
-      : '<p class="kgc-catalog-empty">Страны не найдены. Измените запрос или сбросьте фильтры.</p>';
+      : `<p class="kgc-catalog-empty">${uiText("Страны не найдены. Измените запрос или сбросьте фильтры.")}</p>`;
     root.querySelector('[data-catalog-reset]').hidden = matches.length > 0;
   }
 
@@ -344,34 +344,34 @@
     const regions = ['Европа','Азия','Америка','Африка','Океания'];
     root.innerHTML = `
       <header class="kgc-head kgc-catalog-head">
-        <button type="button" class="kgc-icon" data-catalog-exit aria-label="Назад к атласу"><span class="material-symbols-outlined" aria-hidden="true">arrow_back</span></button>
-        <h1>Каталог стран</h1>
+        <button type="button" class="kgc-icon" data-catalog-exit aria-label="${uiText("Назад к атласу")}"><span class="material-symbols-outlined" aria-hidden="true">arrow_back</span></button>
+        <h1>${uiText("Каталог стран")}</h1>
         <div class="kgc-catalog-head-actions">
-          <button type="button" class="kgc-icon" data-catalog-focus aria-label="Поиск и фильтры"><span class="material-symbols-outlined" aria-hidden="true">tune</span></button>
-          <button type="button" class="kgc-icon kgc-catalog-profile" data-kga-account="true" aria-label="Профиль"><span class="material-symbols-outlined" aria-hidden="true">person</span></button>
+          <button type="button" class="kgc-icon" data-catalog-focus aria-label="${uiText("Поиск и фильтры")}"><span class="material-symbols-outlined" aria-hidden="true">tune</span></button>
+          <button type="button" class="kgc-icon kgc-catalog-profile" data-kga-account="true" aria-label="${uiText("Профиль")}"><span class="material-symbols-outlined" aria-hidden="true">person</span></button>
         </div>
       </header>
       <div class="kgc-catalog">
-        <section class="kgc-catalog-summary" aria-label="Прогресс путешествия">${catalogSummary(data)}</section>
+        <section class="kgc-catalog-summary" aria-label="${uiText("Прогресс путешествия")}">${catalogSummary(data)}</section>
         <div class="kgc-catalog-controls">
-          <label class="kgc-catalog-search"><span class="material-symbols-outlined" aria-hidden="true">search</span><input id="kgc-catalog-search" type="search" aria-label="Поиск по стране, режиссёру или фильму" placeholder="Поиск по стране, режиссёру, фильму…" autocomplete="off" value="${esc(catalog.query)}"></label>
+          <label class="kgc-catalog-search"><span class="material-symbols-outlined" aria-hidden="true">search</span><input id="kgc-catalog-search" type="search" aria-label="${uiText("Поиск по стране, режиссёру или фильму")}" placeholder="${uiText("Поиск по стране, режиссёру, фильму…")}" autocomplete="off" value="${esc(catalog.query)}"></label>
           <div class="kgc-catalog-toolbar">
-            <div class="kgc-catalog-pills" role="group" aria-label="Регионы">${catalogPill('region','all','Все регионы')}
-              ${regions.map(region => catalogPill('region',region,`${region} (${data.rows.filter(row => row.region === region).length})`)).join('')}
+            <div class="kgc-catalog-pills" role="group" aria-label="${uiText("Регионы")}">${catalogPill('region','all',uiText('Все регионы'))}
+              ${regions.map(region => catalogPill('region',region,`${uiText(region)} (${data.rows.filter(row => row.region === region).length})`)).join('')}
             </div>
-            <div class="kgc-catalog-view" role="group" aria-label="Вид каталога">
-              <button type="button" data-catalog-filter="view" data-value="cards" aria-label="Карточки" aria-pressed="${catalog.view === 'cards'}"><span class="material-symbols-outlined" aria-hidden="true">view_agenda</span></button>
-              <button type="button" data-catalog-filter="view" data-value="grid" aria-label="Сетка" aria-pressed="${catalog.view === 'grid'}"><span class="material-symbols-outlined" aria-hidden="true">grid_view</span></button>
+            <div class="kgc-catalog-view" role="group" aria-label="${uiText("Вид каталога")}">
+              <button type="button" data-catalog-filter="view" data-value="cards" aria-label="${uiText("Карточки")}" aria-pressed="${catalog.view === 'cards'}"><span class="material-symbols-outlined" aria-hidden="true">view_agenda</span></button>
+              <button type="button" data-catalog-filter="view" data-value="grid" aria-label="${uiText("Сетка")}" aria-pressed="${catalog.view === 'grid'}"><span class="material-symbols-outlined" aria-hidden="true">grid_view</span></button>
             </div>
           </div>
         </div>
         <div id="kgc-catalog-feed" class="kgc-catalog-feed"></div>
-        <button type="button" class="kgc-catalog-action" data-catalog-reset hidden>Сбросить фильтры</button>
+        <button type="button" class="kgc-catalog-action" data-catalog-reset hidden>${uiText("Сбросить фильтры")}</button>
         <section class="kgc-catalog-bottom">
-          <span class="kgc-kicker">Глобальная навигация</span>
-          <h2>Мировая карта неисследованных территорий кино</h2>
-          <p>${data.closed ? `Стран без киносеансов в вашем паспорте · ${data.closed}` : 'Вы открыли все страны каталога.'}</p>
-          <button type="button" class="kgc-catalog-action primary" data-open-globe><span class="material-symbols-outlined" aria-hidden="true">public</span>Вернуться к 3D-глобусу</button>
+          <span class="kgc-kicker">${uiText("Глобальная навигация")}</span>
+          <h2>${uiText("Мировая карта неисследованных территорий кино")}</h2>
+          <p>${data.closed ? uiText("Стран без киносеансов в вашем паспорте · {count}", {count: data.closed}) : uiText("Вы открыли все страны каталога.")}</p>
+          <button type="button" class="kgc-catalog-action primary" data-open-globe><span class="material-symbols-outlined" aria-hidden="true">public</span>${uiText("Вернуться к 3D-глобусу")}</button>
         </section>
       </div>`;
     paintCatalogFeed(data);
@@ -385,18 +385,18 @@
       return;
     }
     button.disabled = true;
-    button.textContent = 'Загрузка…';
+    button.textContent = uiText("Загрузка…");
     try {
       const response = await app.getCountryFilms(code,1);
       if (!button.isConnected || !dialog.open) return;
       const film = pickCountryFeature(response.results);
       if (!film) {
-        button.textContent = 'Фильмы не найдены';
+        button.textContent = uiText("Фильмы не найдены");
         return;
       }
       app.openMovie(code,film);
     } catch (error) {
-      button.textContent = 'Повторить';
+      button.textContent = uiText("Повторить");
       console.warn('[Kinoglobus] Не удалось загрузить фильм страны:',error);
     } finally {
       button.disabled = false;
@@ -452,7 +452,7 @@
     root.querySelector('.kgc-catalog-summary').innerHTML = catalogSummary(data);
     paintCatalogFeed(data);
     root.querySelector('.kgc-catalog-bottom p').textContent = data.closed
-      ? `Стран без киносеансов в вашем паспорте · ${data.closed}` : 'Вы открыли все страны каталога.';
+      ? uiText("Стран без киносеансов в вашем паспорте · {count}", {count: data.closed}) : uiText("Вы открыли все страны каталога.");
   });
 
   const state={code:'',films:[],total:0,page:1,filter:'all',marked:[],details:new Map(),loadingMore:false};
@@ -483,7 +483,7 @@
     renderCountry(code,[],0,marked,true);
     if(!app.key()){
       const local=marked.map(f=>({...localSavedFilm(f),_kgCountry:code}));
-      renderCountry(code,local,local.length,marked,false,'Для каталога TMDB добавьте ключ в настройках. Ваши просмотренные фильмы уже доступны.');return;
+      renderCountry(code,local,local.length,marked,false,uiText("Для каталога TMDB добавьте ключ в настройках. Ваши просмотренные фильмы уже доступны."));return;
     }
     try{
       const result=await app.getCountryFilms(code,1);if(state.code!==code)return;
@@ -494,7 +494,7 @@
     }catch(error){
       if(state.code!==code)return;
       const local=marked.map(f=>({...localSavedFilm(f),_kgCountry:code}));
-      renderCountry(code,local,local.length,marked,false,'Не удалось загрузить каталог TMDB. Ниже показаны ваши отмеченные фильмы.');
+      renderCountry(code,local,local.length,marked,false,uiText("Не удалось загрузить каталог TMDB. Ниже показаны ваши отмеченные фильмы."));
     }
   }
 
@@ -507,24 +507,24 @@
     const featured=pickCountryFeature(films);
     const featureImage = featured?.backdrop_path ? `https://image.tmdb.org/t/p/w780${featured.backdrop_path}` : poster(featured,'w780');
     const tabs=unique([code,...Object.keys(counts).sort((a,b)=>(counts[b]||0)-(counts[a]||0)),...favorites(),...shortCountries]).filter(c=>app.countries().includes(c)).slice(0,7);
-    const stamps=nWatched?Array.from({length:Math.min(3,nWatched)},(_,i)=>`<span class="w-7 h-7 rounded-full bg-secondary-container text-on-secondary-container text-[11px] font-bold inline-grid place-items-center">${i+1}</span>`).join(''):`<span class="kgc-muted">Нет просмотренных лент</span>`;
+    const stamps=nWatched?Array.from({length:Math.min(3,nWatched)},(_,i)=>`<span class="w-7 h-7 rounded-full bg-secondary-container text-on-secondary-container text-[11px] font-bold inline-grid place-items-center">${i+1}</span>`).join(''):`<span class="kgc-muted">${uiText("Нет просмотренных лент")}</span>`;
     const genres=unique(films.flatMap(f=>f._genres||[])).slice(0,3);
-    const editorial={JP:'«От самурайского эпоса Акиры Куросавы до анимационной магии Studio Ghibli и медитативного неонуара».',FR:'«От поэтического реализма и новой волны до авторского кино, которое меняет язык экрана».',KR:'«От пронзительных семейных драм до смелых жанровых историй и нового корейского нуара».',IT:'«От неореализма послевоенных улиц до барочной красоты итальянского авторского кино».',AU:'«Большие пейзажи, независимый дух и истории, в которых чувствуется дыхание целого континента».',US:'«От золотого века Голливуда до независимого кино — большая история американского экрана».',GB:'«Классическая школа актёрского мастерства, остроумные драмы и смелое британское кино».',DE:'«От экспрессионистских теней до точных, бескомпромиссных историй современного немецкого кино».',IN:'«Музыка, масштабные семейные саги и десятки кинематографических традиций одной страны».',PL:'«Поэтическое авторское кино и истории, оставившие глубокий след в мировой культуре».'}[code]||`«Откройте для себя кино ${name}: заметные авторы, истории и фильмы разных эпох».`;
+    const editorial={JP:'«От самурайского эпоса Акиры Куросавы до анимационной магии Studio Ghibli и медитативного неонуара».',FR:'«От поэтического реализма и новой волны до авторского кино, которое меняет язык экрана».',KR:'«От пронзительных семейных драм до смелых жанровых историй и нового корейского нуара».',IT:'«От неореализма послевоенных улиц до барочной красоты итальянского авторского кино».',AU:'«Большие пейзажи, независимый дух и истории, в которых чувствуется дыхание целого континента».',US:'«От золотого века Голливуда до независимого кино — большая история американского экрана».',GB:'«Классическая школа актёрского мастерства, остроумные драмы и смелое британское кино».',DE:'«От экспрессионистских теней до точных, бескомпромиссных историй современного немецкого кино».',IN:'«Музыка, масштабные семейные саги и десятки кинематографических традиций одной страны».',PL:'«Поэтическое авторское кино и истории, оставившие глубокий след в мировой культуре».'}[code]||uiText("«Откройте для себя кино {country}: заметные авторы, истории и фильмы разных эпох».", {country: name});
     const latest=marked.slice().sort((a,b)=>String(b.watchedAt||'').localeCompare(String(a.watchedAt||'')))[0];
     root.innerHTML=`
-      <header class="kgc-head"><button class="kgc-icon" data-atlas-back aria-label="${passportFromCatalog ? 'Назад к каталогу' : 'Назад к атласу'}"><span class="material-symbols-outlined">arrow_back</span></button><div class="kgc-head-title"><div class="kgc-head-title-row"><b>Путешествие</b><span class="kgc-vip">VIP СИНЕМАТЕКА</span></div></div><button class="kgc-icon" data-country-share="${code}" aria-label="Поделиться"><span class="material-symbols-outlined">share</span></button><button class="kgc-icon" data-country-favorite="${code}" aria-label="Добавить в избранное"><span class="material-symbols-outlined">${isFavorite(code)?'bookmark_added':'bookmark_add'}</span></button><button class="kgc-icon kgc-account-icon" data-kga-account aria-label="Профиль"><span class="material-symbols-outlined">person</span></button></header>
-      <div class="kgc-country-tabs" role="group" aria-label="Выбор страны">${tabs.map(c=>`<button type="button" class="kgc-country-tab ${c===code?'active':''}" data-open-country="${c}" aria-pressed="${c===code}">${flag(c)}<span>${esc(app.countryName(c))}</span></button>`).join('')}</div>
-      <section class="kgc-hero-full">${flagBackdrop(code)}<div class="kgc-hero-copy"><h1 class="kgc-country-name">${esc(name)}</h1><span class="kgc-passport-label">Кинопаспорт страны</span><p class="kgc-blurb">${esc(editorial)}</p><div class="kgc-action-row"><button type="button" class="kgc-btn" data-country-search="${code}"><span class="material-symbols-outlined">casino</span>Найти фильм этой страны</button><button class="kgc-icon-action" data-country-scroll="locations" aria-label="К атласу кинолокаций"><span class="material-symbols-outlined">auto_stories</span></button></div></div></section>
+      <header class="kgc-head"><button class="kgc-icon" data-atlas-back aria-label="${passportFromCatalog ? uiText("Назад к каталогу") : uiText("Назад к атласу")}"><span class="material-symbols-outlined">arrow_back</span></button><div class="kgc-head-title"><div class="kgc-head-title-row"><b>${uiText("Путешествие")}</b><span class="kgc-vip">${uiText("VIP СИНЕМАТЕКА")}</span></div></div><button class="kgc-icon" data-country-share="${code}" aria-label="${uiText("Поделиться")}"><span class="material-symbols-outlined">share</span></button><button class="kgc-icon" data-country-favorite="${code}" aria-label="${uiText("Добавить в избранное")}"><span class="material-symbols-outlined">${isFavorite(code)?'bookmark_added':'bookmark_add'}</span></button><button class="kgc-icon kgc-account-icon" data-kga-account aria-label="${uiText("Профиль")}"><span class="material-symbols-outlined">person</span></button></header>
+      <div class="kgc-country-tabs" role="group" aria-label="${uiText("Выбор страны для просмотра")}">${tabs.map(c=>`<button type="button" class="kgc-country-tab ${c===code?'active':''}" data-open-country="${c}" aria-pressed="${c===code}">${flag(c)}<span>${esc(app.countryName(c))}</span></button>`).join('')}</div>
+      <section class="kgc-hero-full">${flagBackdrop(code)}<div class="kgc-hero-copy"><h1 class="kgc-country-name">${esc(name)}</h1><span class="kgc-passport-label">${uiText("Кинопаспорт страны")}</span><p class="kgc-blurb">${esc(uiText(editorial))}</p><div class="kgc-action-row"><button type="button" class="kgc-btn" data-country-search="${code}"><span class="material-symbols-outlined">casino</span>${uiText("Найти фильм этой страны")}</button><button class="kgc-icon-action" data-country-scroll="locations" aria-label="${uiText("К атласу кинолокаций")}"><span class="material-symbols-outlined">auto_stories</span></button></div></div></section>
       ${message? `<p class="kgc-muted kgc-pad" style="margin:0;padding-top:0">${esc(message)}</p>` : ''}
-      <div class="kgc-section" style="margin-top:7px"><div style="display:flex;align-items:center;gap:8px"><span class="material-symbols-outlined kgc-section-icon">badge</span><h3>Синефильский паспорт</h3></div><span class="kgc-kicker">${nWatched?'Статус: золотой':'Статус: новый'}</span></div>
-      <section class="kgc-passport-grid"><article class="kgc-passport-tile" data-code="${esc(code)}"><div class="kgc-passport-label"><span>Каталог</span><span class="material-symbols-outlined">movie</span></div><div><div class="kgc-passport-value">${loading?'…':fmt(total)}</div><div class="kgc-passport-foot">фильмов в каталоге TMDB</div></div></article><article class="kgc-passport-tile"><div class="kgc-passport-label"><span>Средний рейтинг</span><span class="kgc-rating">★ ${avg?avg.toFixed(1):'—'}</span></div><div><div class="kgc-passport-value">${avg?avg.toFixed(1):'—'}</div><div class="kgc-passport-foot">средний балл первой страницы</div></div></article><article class="kgc-passport-tile"><div class="kgc-passport-label"><span>Штампы</span><span class="material-symbols-outlined">verified</span></div><div style="display:flex;align-items:center;gap:5px;margin-top:12px">${stamps}${nWatched>3?`<span class="kgc-muted">+${nWatched-3}</span>`:''}</div><div class="kgc-passport-foot">${nWatched} просмотрено</div></article><article class="kgc-passport-tile"><div class="kgc-passport-label"><span>Эпохи в выборке</span><span class="material-symbols-outlined">history_edu</span></div><div><div class="kgc-passport-value" style="font-size:17px">${range}</div><div class="kgc-passport-foot">диапазон годов каталога</div></div></article></section>
-      <div class="kgc-section"><div style="display:flex;align-items:center;gap:8px"><span class="material-symbols-outlined kgc-section-icon rose">military_tech</span><h3>Рекомендуемый фильм</h3></div><span class="kgc-kicker">${featured?'Выбор страны':'Каталог'}</span></div>
-      ${featured?`<article class="kgc-feature-card" data-film-id="${featured.id}"><div class="kgc-feature-image" ${featureImage ? `style="background-image:url('${esc(featureImage)}')"` : ''}><span class="kgc-feature-badge"><span class="material-symbols-outlined">star</span> ${Number(featured.vote_average||0).toFixed(1)} / 10 · ${fmt(featured.vote_count||0)} оценок</span><span class="kgc-feature-runtime" data-feature-runtime>${year(featured)}</span></div><div class="kgc-feature-copy"><div class="kgc-feature-title">${esc(featured.title||'Фильм')}</div><div class="kgc-feature-original">${esc(featured.original_title||'')}</div><div class="kgc-feature-original" data-feature-director>Загружаем режиссёра…</div><div class="kgc-feature-meta"><span class="kgc-chip neutral">★ ${Number(featured.vote_average||0).toFixed(1)} · ${fmt(featured.vote_count||0)} оценок</span><span class="kgc-chip neutral" data-feature-runtime-chip>${year(featured)}</span><span class="kgc-feature-genre-list" data-feature-genres></span></div><div class="kgc-feature-cast" data-feature-cast></div><p class="kgc-feature-desc">${esc((featured.overview||'').slice(0,260)||'Описание пока недоступно в TMDB.')}</p><div class="kgc-feature-actions"><button type="button" class="kgc-btn velvet" data-film-id="${featured.id}"><span class="material-symbols-outlined">play_arrow</span>Трейлер</button><button type="button" class="kgc-btn secondary" data-film-id="${featured.id}">О фильме　<span class="material-symbols-outlined">north_east</span></button></div></div></article>`:`<div class="kgc-pad"><div class="kgc-empty">${esc(message||'Каталог TMDB пока не вернул фильмы для этой страны.')}</div></div>`}
-      <div class="kgc-section"><div style="display:flex;align-items:center;gap:8px"><span style="color:#ffdca8">🎭</span><h3>Мэтры кинематографа</h3></div><span class="kgc-kicker" data-master-count>TMDB</span></div><div class="kgc-rowcards" id="kg-country-people"><div class="kgc-empty">${loading?'Загружаем участников…':'Для этого списка TMDB пока не вернул режиссёров.'}</div></div>
-      <div class="kgc-section"><div style="display:flex;align-items:center;gap:8px"><span style="color:#ffdca8">▣</span><h3>Коллекция картин</h3></div><span class="kgc-muted">${fmt(total)} лент</span></div><div class="kgc-filter">${[['all',`Все ленты (${fmt(total)})`],['classic','Золотая классика'],['newwave','1970–1999'],['modern','2000+']].map(([key,label])=>`<button class="${key==='all'?'active':''}" data-country-filter="${key}">${label}</button>`).join('')}</div><div class="kgc-films-grid" id="kg-country-films"></div>
-      <section id="kg-country-locations"><div class="kgc-section"><div style="display:flex;align-items:center;gap:8px"><span style="color:#ffdca8">◎</span><h3>Атлас кинолокаций</h3></div><span class="kgc-muted">${esc(code)}</span></div><div class="kgc-pad" style="padding-top:0"><div class="kgc-location-card"><div class="kgc-location-grid"></div><div class="kgc-location-ping">${esc(code)}</div><div class="kgc-location-copy"><b>${esc(name)} · Кинематограф</b><small>TMDB не предоставляет координаты съёмок по этим фильмам. Откройте страну на глобусе и исследуйте отмеченные вами кинематографические открытия.</small><button type="button" class="kgc-btn secondary" data-country-globe="${code}" style="margin-top:9px;padding:8px 11px">Показать на глобусе　↗</button></div></div></div></section>
-      ${latest?`<div class="kgc-section"><h3>Последняя отмеченная лента</h3></div><div class="kgc-pad" style="padding-top:0"><button class="kgc-country-pill has" data-open-saved="${esc(latest.id)}">${flag(code)} ${esc(latest.title||'Фильм')} · ${esc(latest.year||'')}</button></div>`:''}
-      <div class="kgc-foot"><button class="kgc-btn secondary" data-atlas-back style="width:100%">${passportFromCatalog ? '←　К каталогу стран' : '←　К атласу открытий'}</button></div>`;
+      <div class="kgc-section" style="margin-top:7px"><div style="display:flex;align-items:center;gap:8px"><span class="material-symbols-outlined kgc-section-icon">badge</span><h3>${uiText("Синефильский паспорт")}</h3></div><span class="kgc-kicker">${nWatched?uiText("Статус: золотой"):uiText("Статус: новый")}</span></div>
+      <section class="kgc-passport-grid"><article class="kgc-passport-tile" data-code="${esc(code)}"><div class="kgc-passport-label"><span>${uiText("Каталог")}</span><span class="material-symbols-outlined">movie</span></div><div><div class="kgc-passport-value">${loading?'…':fmt(total)}</div><div class="kgc-passport-foot">${uiText("фильмов в каталоге TMDB")}</div></div></article><article class="kgc-passport-tile"><div class="kgc-passport-label"><span>${uiText("Средний рейтинг")}</span><span class="kgc-rating">★ ${avg?avg.toFixed(1):'—'}</span></div><div><div class="kgc-passport-value">${avg?avg.toFixed(1):'—'}</div><div class="kgc-passport-foot">${uiText("средний балл первой страницы")}</div></div></article><article class="kgc-passport-tile"><div class="kgc-passport-label"><span>${uiText("Штампы")}</span><span class="material-symbols-outlined">verified</span></div><div style="display:flex;align-items:center;gap:5px;margin-top:12px">${stamps}${nWatched>3?`<span class="kgc-muted">+${nWatched-3}</span>`:''}</div><div class="kgc-passport-foot">${uiText("{count} просмотрено", {count: nWatched})}</div></article><article class="kgc-passport-tile"><div class="kgc-passport-label"><span>${uiText("Эпохи в выборке")}</span><span class="material-symbols-outlined">history_edu</span></div><div><div class="kgc-passport-value" style="font-size:17px">${range}</div><div class="kgc-passport-foot">${uiText("диапазон годов каталога")}</div></div></article></section>
+      <div class="kgc-section"><div style="display:flex;align-items:center;gap:8px"><span class="material-symbols-outlined kgc-section-icon rose">military_tech</span><h3>${uiText("Рекомендуемый фильм")}</h3></div><span class="kgc-kicker">${featured?uiText("Выбор страны"):uiText("Каталог")}</span></div>
+      ${featured?`<article class="kgc-feature-card" data-film-id="${featured.id}"><div class="kgc-feature-image" ${featureImage ? `style="background-image:url('${esc(featureImage)}')"` : ''}><span class="kgc-feature-badge"><span class="material-symbols-outlined">star</span> ${Number(featured.vote_average||0).toFixed(1)} / 10 · ${uiText("{count} оценок", {count: fmt(featured.vote_count || 0)})}</span><span class="kgc-feature-runtime" data-feature-runtime>${year(featured)}</span></div><div class="kgc-feature-copy"><div class="kgc-feature-title">${esc(featured.title||uiText("Фильм"))}</div><div class="kgc-feature-original">${esc(featured.original_title||'')}</div><div class="kgc-feature-original" data-feature-director>${uiText("Загружаем режиссёра…")}</div><div class="kgc-feature-meta"><span class="kgc-chip neutral">★ ${Number(featured.vote_average||0).toFixed(1)} · ${uiText("{count} оценок", {count: fmt(featured.vote_count || 0)})}</span><span class="kgc-chip neutral" data-feature-runtime-chip>${year(featured)}</span><span class="kgc-feature-genre-list" data-feature-genres></span></div><div class="kgc-feature-cast" data-feature-cast></div><p class="kgc-feature-desc">${esc((featured.overview||'').slice(0,260)||uiText("Описание пока недоступно в TMDB."))}</p><div class="kgc-feature-actions"><button type="button" class="kgc-btn velvet" data-film-id="${featured.id}"><span class="material-symbols-outlined">play_arrow</span>${uiText("Трейлер")}</button><button type="button" class="kgc-btn secondary" data-film-id="${featured.id}">${uiText("О фильме")}　<span class="material-symbols-outlined">north_east</span></button></div></div></article>`:`<div class="kgc-pad"><div class="kgc-empty">${esc(message||uiText("Каталог TMDB пока не вернул фильмы для этой страны."))}</div></div>`}
+      <div class="kgc-section"><div style="display:flex;align-items:center;gap:8px"><span style="color:#ffdca8">🎭</span><h3>${uiText("Мэтры кинематографа")}</h3></div><span class="kgc-kicker" data-master-count>TMDB</span></div><div class="kgc-rowcards" id="kg-country-people"><div class="kgc-empty">${loading?uiText("Загружаем участников…"):uiText("Для этого списка TMDB пока не вернул режиссёров.")}</div></div>
+      <div class="kgc-section"><div style="display:flex;align-items:center;gap:8px"><span style="color:#ffdca8">▣</span><h3>${uiText("Коллекция картин")}</h3></div><span class="kgc-muted">${uiText("{count} лент", {count: fmt(total)})}</span></div><div class="kgc-filter">${[['all',uiText("Все ленты ({count})", {count: fmt(total)})],['classic',uiText("Золотая классика")],['newwave','1970–1999'],['modern','2000+']].map(([key,label])=>`<button class="${key==='all'?'active':''}" data-country-filter="${key}">${label}</button>`).join('')}</div><div class="kgc-films-grid" id="kg-country-films"></div>
+      <section id="kg-country-locations"><div class="kgc-section"><div style="display:flex;align-items:center;gap:8px"><span style="color:#ffdca8">◎</span><h3>${uiText("Атлас кинолокаций")}</h3></div><span class="kgc-muted">${esc(code)}</span></div><div class="kgc-pad" style="padding-top:0"><div class="kgc-location-card"><div class="kgc-location-grid"></div><div class="kgc-location-ping">${esc(code)}</div><div class="kgc-location-copy"><b>${esc(uiText("{country} · Кинематограф", {country: name}))}</b><small>${uiText("TMDB не предоставляет координаты съёмок по этим фильмам. Откройте страну на глобусе и исследуйте отмеченные вами кинематографические открытия.")}</small><button type="button" class="kgc-btn secondary" data-country-globe="${code}" style="margin-top:9px;padding:8px 11px">${uiText("Показать на глобусе　↗")}</button></div></div></div></section>
+      ${latest?`<div class="kgc-section"><h3>${uiText("Последняя отмеченная лента")}</h3></div><div class="kgc-pad" style="padding-top:0"><button class="kgc-country-pill has" data-open-saved="${esc(latest.id)}">${flag(code)} ${esc(latest.title||uiText("Фильм"))} · ${esc(latest.year||'')}</button></div>`:''}
+      <div class="kgc-foot"><button class="kgc-btn secondary" data-atlas-back style="width:100%">${passportFromCatalog ? uiText("←　К каталогу стран") : uiText("←　К атласу открытий")}</button></div>`;
     paintFilms(films,state.filter);
   }
 
@@ -540,19 +540,19 @@
     if(state.code!==code)return;
     const people=root.querySelector('#kg-country-people');
     const directors=[...found.values()].slice(0,12);
-    if(people)people.innerHTML=directors.length?directors.map(p=>`<button class="kgc-person" data-kg-person-id="${p.id}" data-kg-person-name="${esc(p.name)}" data-kg-person-role="Режиссёр">${p.photo?`<img class="kgc-avatar" src="https://image.tmdb.org/t/p/w185${p.photo}" alt="">`:`<span class="kgc-avatar">${esc(String(p.name||'К').split(/\s+/).map(x=>x[0]).slice(0,2).join(''))}</span>`}<b class="kgc-person-name">${esc(p.name)}</b><span class="kgc-person-role">Режиссёр</span><small class="kgc-person-films">${(p.films||[]).slice(0,3).map(esc).join(' · ')||'Фильмы в каталоге TMDB'}</small><span class="kgc-person-footer"><span>${(p.films||[]).length} фильм${(p.films||[]).length===1?'':'а'} в выборке</span><span class="material-symbols-outlined">north_east</span></span></button>`).join(''):'<div class="kgc-empty">TMDB не вернул режиссёров для первой страницы каталога.</div>';
+    if(people)people.innerHTML=directors.length?directors.map(p=>`<button class="kgc-person" data-kg-person-id="${p.id}" data-kg-person-name="${esc(p.name)}" data-kg-person-role="Режиссёр">${p.photo?`<img class="kgc-avatar" src="https://image.tmdb.org/t/p/w185${p.photo}" alt="">`:`<span class="kgc-avatar">${esc(String(p.name||'К').split(/\s+/).map(x=>x[0]).slice(0,2).join(''))}</span>`}<b class="kgc-person-name">${esc(p.name)}</b><span class="kgc-person-role">${uiText("Режиссёр")}</span><small class="kgc-person-films">${(p.films||[]).slice(0,3).map(esc).join(' · ')||uiText("Фильмы в каталоге TMDB")}</small><span class="kgc-person-footer"><span>${uiText("Фильмов в выборке: {count}", {count: (p.films || []).length})}</span><span class="material-symbols-outlined">north_east</span></span></button>`).join(''):`<div class="kgc-empty">${uiText("TMDB не вернул режиссёров для первой страницы каталога.")}</div>`;
     const feature=pickCountryFeature(films);
     let details=feature&&state.details.get(String(feature.id));
     if(feature&&!details){try{details=await app.getFilmDetails(feature.id);state.details.set(String(feature.id),details)}catch(_){}}
     if(state.code!==code)return;
     if(details){
-      const director=root.querySelector('[data-feature-director]');if(director)director.innerHTML=details.dirsFull?.length?`Режиссёр · ${details.dirsFull.slice(0,2).map(p=>`<button type="button" class="kgc-inline-person" data-kg-person-id="${p.id}" data-kg-person-name="${esc(p.name)}" data-kg-person-role="Режиссёр">${esc(p.name)}</button>`).join(', ')}`:'Съёмочная группа не указана';
-      const runtime=root.querySelector('[data-feature-runtime]');if(runtime)runtime.textContent=[details.runtime?`${details.runtime} мин`:'',year(feature)].filter(Boolean).join(' · ');
-      const runtimeChip=root.querySelector('[data-feature-runtime-chip]');if(runtimeChip)runtimeChip.textContent=[details.runtime?`${details.runtime} мин`:'',year(feature)].filter(Boolean).join(' · ');
-      const chips=root.querySelector('[data-feature-genres]');if(chips)chips.innerHTML=(details.genres||[]).slice(0,3).map(g=>`<span class="kgc-chip neutral">${esc(g)}</span>`).join('');
-      const cast=root.querySelector('[data-feature-cast]');if(cast&&details.castFull?.length)cast.innerHTML=`<span class="kgc-cast-label">В главных ролях</span> ${details.castFull.slice(0,5).map(p=>`<button type="button" class="kgc-inline-person" data-kg-person-id="${p.id}" data-kg-person-name="${esc(p.name)}" data-kg-person-role="Актёр">${esc(p.name)}</button>`).join(' · ')}`;
+      const director=root.querySelector('[data-feature-director]');if(director)director.innerHTML=details.dirsFull?.length?`${uiText("Режиссёр ·")} ${details.dirsFull.slice(0,2).map(p=>`<button type="button" class="kgc-inline-person" data-kg-person-id="${p.id}" data-kg-person-name="${esc(p.name)}" data-kg-person-role="Режиссёр">${esc(p.name)}</button>`).join(', ')}`:uiText("Съёмочная группа не указана");
+      const runtime=root.querySelector('[data-feature-runtime]');if(runtime)runtime.textContent=[details.runtime?uiText("{minutes} мин", {minutes: details.runtime}):'',year(feature)].filter(Boolean).join(' · ');
+      const runtimeChip=root.querySelector('[data-feature-runtime-chip]');if(runtimeChip)runtimeChip.textContent=[details.runtime?uiText("{minutes} мин", {minutes: details.runtime}):'',year(feature)].filter(Boolean).join(' · ');
+      const chips=root.querySelector('[data-feature-genres]');if(chips)chips.innerHTML=(details.genres||[]).slice(0,3).map(g=>`<span class="kgc-chip neutral">${esc(uiText(g))}</span>`).join('');
+      const cast=root.querySelector('[data-feature-cast]');if(cast&&details.castFull?.length)cast.innerHTML=`<span class="kgc-cast-label">${uiText("В главных ролях")}</span> ${details.castFull.slice(0,5).map(p=>`<button type="button" class="kgc-inline-person" data-kg-person-id="${p.id}" data-kg-person-name="${esc(p.name)}" data-kg-person-role="Актёр">${esc(p.name)}</button>`).join(' · ')}`;
     }
-    const masterCount=root.querySelector('[data-master-count]');if(masterCount)masterCount.textContent=`Все (${directors.length})`;
+    const masterCount=root.querySelector('[data-master-count]');if(masterCount)masterCount.textContent=uiText("Все ({count})", {count: directors.length});
   }
 
   function matchesFilter(f,filter){
@@ -564,8 +564,8 @@
     window.__kgCountryFilms=state.films;
     const filtered=films.filter(f=>matchesFilter(f,filter));
     const stored=(()=>{try{return JSON.parse(localStorage.getItem('kgBookmarks')||'[]').map(Number)}catch(_){return[]}})();
-    box.innerHTML=filtered.length?filtered.map(f=>`<article class="kgc-filmcard" data-film-id="${f.id}"><div style="position:relative;display:block;aspect-ratio:2/3;background:rgb(var(--kg-surface-container-high));cursor:pointer" data-film-id="${f.id}" role="button" tabindex="0" aria-label="Открыть фильм ${esc(f.title)}">${poster(f)?`<img loading="lazy" src="${poster(f)}" alt="Постер «${esc(f.title)}" style="width:100%;height:100%;object-fit:cover">`:`<span class="kgc-filmph">${esc(f.title)}</span>`}<span class="kgc-feature-badge">★ ${Number(f.vote_average||0).toFixed(1)}</span><button type="button" class="kgc-film-save" data-country-save="${f.id}" aria-label="${stored.includes(Number(f.id))?'Убрать из закладок':'Сохранить в закладки'}">${stored.includes(Number(f.id))?'▣':'＋'}</button><span class="kgc-feature-runtime" style="top:auto;right:7px;bottom:7px">${esc(year(f))}</span></div><div class="kgc-filmcopy" data-film-id="${f.id}" role="button" tabindex="0"><b>${esc(f.title||'Фильм')}</b><small>${esc(year(f))}${f.original_title&&f.original_title!==f.title?` · ${esc(f.original_title)}`:''}</small><span class="kgc-film-actions"><small>TMDB · ★ ${Number(f.vote_average||0).toFixed(1)}</small></span></div></article>`).join(''):'<div class="kgc-empty" style="grid-column:1/-1">В этой категории пока нет картин в загруженной части каталога.</div>';
-    if(films.length<state.total&&films.length>0)box.insertAdjacentHTML('beforeend',`<button class="kgc-btn secondary kgc-load-more" type="button" data-load-more>${state.loadingMore?'Загружаем…':'Показать ещё фильмы'}</button>`);
+    box.innerHTML=filtered.length?filtered.map(f=>`<article class="kgc-filmcard" data-film-id="${f.id}"><div style="position:relative;display:block;aspect-ratio:2/3;background:rgb(var(--kg-surface-container-high));cursor:pointer" data-film-id="${f.id}" role="button" tabindex="0" aria-label="${esc(uiText("Открыть фильм {title}", {title: f.title}))}">${poster(f)?`<img loading="lazy" src="${poster(f)}" alt="${esc(uiText("Постер «{title}»", {title: f.title}))}" style="width:100%;height:100%;object-fit:cover">`:`<span class="kgc-filmph">${esc(f.title)}</span>`}<span class="kgc-feature-badge">★ ${Number(f.vote_average||0).toFixed(1)}</span><button type="button" class="kgc-film-save" data-country-save="${f.id}" aria-label="${stored.includes(Number(f.id))?uiText("Убрать из закладок"):uiText("Сохранить в закладки")}">${stored.includes(Number(f.id))?'▣':'＋'}</button><span class="kgc-feature-runtime" style="top:auto;right:7px;bottom:7px">${esc(year(f))}</span></div><div class="kgc-filmcopy" data-film-id="${f.id}" role="button" tabindex="0"><b>${esc(f.title||uiText("Фильм"))}</b><small>${esc(year(f))}${f.original_title&&f.original_title!==f.title?` · ${esc(f.original_title)}`:''}</small><span class="kgc-film-actions"><small>TMDB · ★ ${Number(f.vote_average||0).toFixed(1)}</small></span></div></article>`).join(''):`<div class="kgc-empty" style="grid-column:1/-1">${uiText("В этой категории пока нет картин в загруженной части каталога.")}</div>`;
+    if(films.length<state.total&&films.length>0)box.insertAdjacentHTML('beforeend',`<button class="kgc-btn secondary kgc-load-more" type="button" data-load-more>${state.loadingMore?uiText("Загружаем…"):uiText("Показать ещё фильмы")}</button>`);
   }
 
   const historyView = document.createElement('div');
@@ -573,8 +573,8 @@
   historyView.hidden = true;
   historyView.innerHTML = `
     <header class="kgc-head">
-      <button type="button" class="kgc-icon" data-atlas-close aria-label="Закрыть историю">←</button>
-      <div class="kgc-head-title"><h1>История просмотра</h1></div>
+      <button type="button" class="kgc-icon" data-atlas-close aria-label="${uiText("Закрыть историю")}">←</button>
+      <div class="kgc-head-title"><h1>${uiText("История просмотра")}</h1></div>
     </header>
     <div class="kgc-pad" data-kg-history-list></div>`;
   shell.append(historyView);
@@ -609,7 +609,7 @@
     if(!target)return;
     if(target.dataset.countrySave){
       const id=Number(target.dataset.countrySave),saved=(()=>{try{return JSON.parse(localStorage.getItem('kgBookmarks')||'[]').map(Number)}catch(_){return[]}})(),next=saved.includes(id)?saved.filter(x=>x!==id):[...saved,id];
-      localStorage.setItem('kgBookmarks',JSON.stringify(next));target.textContent=next.includes(id)?'▣':'＋';target.setAttribute('aria-label',next.includes(id)?'Убрать из закладок':'Сохранить в закладки');return;
+      localStorage.setItem('kgBookmarks',JSON.stringify(next));target.textContent=next.includes(id)?'▣':'＋';target.setAttribute('aria-label',next.includes(id)?uiText("Убрать из закладок"):uiText("Сохранить в закладки"));return;
     }
     if(target.dataset.openCountry){country(target.dataset.openCountry);return;}
     if(target.hasAttribute('data-atlas-back')){
@@ -618,10 +618,10 @@
       return;
     }
     if(target.hasAttribute('data-atlas-close')){dialog.close?.();return;}
-    if(target.dataset.countrySearch){const code=target.dataset.countrySearch;target.disabled=true;target.dataset.originalLabel=target.innerHTML;target.innerHTML='<span class="material-symbols-outlined">progress_activity</span>Ищем фильм…';Promise.resolve(app.searchCountry(code)).catch(error=>console.warn('[Kinoglobus] Country search failed:',error)).finally(()=>{if(target.isConnected){target.disabled=false;target.innerHTML=target.dataset.originalLabel;}});return;}
+    if(target.dataset.countrySearch){const code=target.dataset.countrySearch;target.disabled=true;target.dataset.originalLabel=target.innerHTML;target.innerHTML=`<span class="material-symbols-outlined">progress_activity</span>${uiText("Ищем фильм…")}`;Promise.resolve(app.searchCountry(code)).catch(error=>console.warn('[Kinoglobus] Country search failed:',error)).finally(()=>{if(target.isConnected){target.disabled=false;target.innerHTML=target.dataset.originalLabel;}});return;}
     if(target.dataset.kgaAccount){window.KGOpenAccountPage?.('register');return;}
-    if(target.dataset.countryFavorite){const code=target.dataset.countryFavorite,list=favorites(),next=list.includes(code)?list.filter(x=>x!==code):[...list,code];localStorage.setItem('kgCountryFavorites',JSON.stringify(next));target.innerHTML=`<span class="material-symbols-outlined">${next.includes(code)?'bookmark_added':'bookmark_add'}</span>`;target.setAttribute('aria-label',next.includes(code)?'Убрать из избранного':'Добавить в избранное');return;}
-    if(target.dataset.countryShare){const code=target.dataset.countryShare,url=location.href.split('#')[0]+'#country-'+encodeURIComponent(code);if(navigator.share)navigator.share({title:app.countryName(code)+' · Киноглобус',url}).catch(()=>{});else navigator.clipboard?.writeText(url).then(()=>{target.textContent='✓';setTimeout(()=>{if(target.isConnected)target.textContent='↗'},1200)}).catch(()=>{});return;}
+    if(target.dataset.countryFavorite){const code=target.dataset.countryFavorite,list=favorites(),next=list.includes(code)?list.filter(x=>x!==code):[...list,code];localStorage.setItem('kgCountryFavorites',JSON.stringify(next));target.innerHTML=`<span class="material-symbols-outlined">${next.includes(code)?'bookmark_added':'bookmark_add'}</span>`;target.setAttribute('aria-label',next.includes(code)?uiText("Убрать из избранного"):uiText("Добавить в избранное"));return;}
+    if(target.dataset.countryShare){const code=target.dataset.countryShare,url=location.href.split('#')[0]+'#country-'+encodeURIComponent(code);if(navigator.share)navigator.share({title:app.countryName(code)+' · '+uiText('Киноглобус'),url}).catch(()=>{});else navigator.clipboard?.writeText(url).then(()=>{target.textContent='✓';setTimeout(()=>{if(target.isConnected)target.textContent='↗'},1200)}).catch(()=>{});return;}
     if(target.dataset.countryScroll){root.querySelector('#kg-country-'+target.dataset.countryScroll)?.scrollIntoView({behavior:'smooth',block:'start'});return;}
     if(target.dataset.countryGlobe){app.showCountryOnGlobe(target.dataset.countryGlobe);return;}
     if(target.dataset.countryFilter){state.filter=target.dataset.countryFilter;root.querySelectorAll('[data-country-filter]').forEach(b=>b.classList.toggle('active',b===target));paintFilms(state.films,state.filter);return;}
@@ -636,7 +636,7 @@
     state.loadingMore=true;paintFilms(state.films,state.filter);
     const code=state.code,page=state.page+1;
     try{const result=await app.getCountryFilms(code,page);if(state.code!==code)return;const known=new Set(state.films.map(f=>String(f.id)));state.films.push(...(result.results||[]).filter(f=>!known.has(String(f.id))).map(f=>({...f,_kgCountry:code})));state.page=page;paintFilms(state.films,state.filter);loadPeopleAndFeature(state.films,code);}
-    catch(_){const more=root.querySelector('[data-load-more]');if(more)more.textContent='Не удалось загрузить · повторить';}
+    catch(_){const more=root.querySelector('[data-load-more]');if(more)more.textContent=uiText("Не удалось загрузить · повторить");}
     finally{state.loadingMore=false;}
   }
   document.addEventListener('click',event=>{

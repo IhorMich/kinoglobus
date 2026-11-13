@@ -22,7 +22,15 @@
   let day = "";
   let filter = "all";
   let limitToMonth = false;
-  let navigate;
+  let closeParent;
+  const routeSelectors = {
+    home: 'body > nav [data-view="home"]',
+    collections: 'body > nav [data-view="collections"]',
+    history: 'body > nav [data-view="history"]',
+    journey: 'body > nav [data-view="journey"]',
+    settings: "#gear",
+    search: "[data-kg-search-open]"
+  };
 
   const style = document.createElement("style");
   style.textContent = `
@@ -366,7 +374,14 @@
     if (!button) return;
     const { edit, route, filter:nextFilter, day:nextDay } = button.dataset;
     if (button.hasAttribute("data-back")) dialog.close();
-    if (route) navigate(route,() => dialog.close());
+    if (route) {
+      const target = document.querySelector(routeSelectors[route]);
+      if (!target) return;
+      dialog.close();
+      closeParent?.();
+      target.click();
+      return;
+    }
     if (button.hasAttribute("data-add")) openNote();
     if (edit) openNote(edit);
     if (button.hasAttribute("data-month-label")) {
@@ -393,8 +408,8 @@
     }
   });
 
-  window.KGOpenCinemaDiary = (avatar, openRoute) => {
-    navigate = openRoute;
+  window.KGOpenCinemaDiary = ({avatar, closeParent: onNavigate} = {}) => {
+    closeParent = onNavigate;
     notes = store.get(notesKey,{}) || {};
     limitToMonth = false;
     refreshEntries();

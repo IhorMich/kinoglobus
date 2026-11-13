@@ -31,7 +31,7 @@
   }
   function markup(id){
     const safeId=String(id||"").replace(/[^0-9]/g,"");
-    return safeId?`<div class="kgw-row" data-kg-legal-watch data-film-id="${safeId}" aria-label="Легальные сервисы просмотра" hidden></div>`:"";
+    return safeId?`<div class="kgw-row" data-kg-legal-watch data-film-id="${safeId}" aria-label="${uiText("Легальные сервисы просмотра")}" hidden></div>`:"";
   }
   function styles(){
     if(document.getElementById("kg-legal-watch-style"))return;
@@ -51,17 +51,17 @@
     for(const group of groups)for(const provider of result[group]||[]){if(!seen.has(provider.provider_id)){seen.add(provider.provider_id);providers.push(provider);}}
     const items=providers.slice(0,3);
     const links=items.map(provider=>{
-      const name=provider.provider_name||"Сервис просмотра";
+      const name=provider.provider_name||uiText("Сервис просмотра");
       const site=officialSites.find(([pattern])=>pattern.test(name))?.[1];
       const href=site||`https://apps.apple.com/search?term=${encodeURIComponent(name)}`;
       const logo=provider.logo_path?`<img src="https://image.tmdb.org/t/p/w92${escape(provider.logo_path)}" alt="${escape(name)}" loading="lazy">`:`<span class="kgw-service-fallback" aria-hidden="true">${escape(name.slice(0,2).toUpperCase())}</span>`;
-      return `<a class="kgw-service" href="${href}" target="_blank" rel="noopener noreferrer" aria-label="Открыть ${escape(name)}" title="${escape(name)}">${logo}</a>`;
+      return `<a class="kgw-service" href="${href}" target="_blank" rel="noopener noreferrer" aria-label="${escape(uiText("Открыть {name}", {name}))}" title="${escape(name)}">${logo}</a>`;
     }).join("");
     const availability = items.length
       ? `<div class="kgw-links">${links}</div>`
-      : '<span class="text-text-muted">Нет данных о сервисах в этом регионе.</span>';
-    section.innerHTML = `<div class="kgw-info"><strong>Где смотреть · ${escape(countryName(code))}</strong>
-      ${availability}<span class="text-text-muted">Данные: <a href="https://www.justwatch.com/" target="_blank" rel="noopener noreferrer">JustWatch</a></span></div>`;
+      : `<span class="text-text-muted">${uiText("Нет данных о сервисах в этом регионе.")}</span>`;
+    section.innerHTML = `<div class="kgw-info"><strong>${escape(uiText("Где смотреть · {region}", {region: interfaceRegionNames.of(code)}))}</strong>
+      ${availability}<span class="text-text-muted">${uiText("Данные:")} <a href="https://www.justwatch.com/" target="_blank" rel="noopener noreferrer">JustWatch</a></span></div>`;
     section.hidden=false;
   }
   function refresh(section){

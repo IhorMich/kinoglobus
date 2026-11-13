@@ -2169,7 +2169,14 @@ function setAnamorphicFlare(enabled) {
   store.set("kgAnamorphicFlare", enabled);
 }
 
+function getTrailerSubtitles() {
+  const value = store.get("kgTrailerSubtitles", "auto");
+  return ["auto", "ru", "en", "off"].includes(value) ? value : "auto";
+}
+
 window.KGResetSettings = () => {
+  store.set("kgTrailerSubtitles", "auto");
+  window.KGLegalWatch?.setRegion("auto");
   store.set("kgFilmLanguage", "ru");
   setAppTheme("cinematic");
   setFilmGrain(false);
@@ -2924,10 +2931,28 @@ async function trailerFor(film){
 }
 let tKey=null;
 function watchUrl(v){return v.site==="Vimeo"?`https://vimeo.com/${v.key}`:`https://www.youtube.com/watch?v=${v.key}`;}
-function embedSrc(v,autoplay=true){
-  return v.site==="Vimeo"
-    ?`https://player.vimeo.com/video/${v.key}?autoplay=${autoplay?1:0}`
-    :`https://www.youtube-nocookie.com/embed/${v.key}?autoplay=${autoplay?1:0}&playsinline=1&rel=0`;
+function embedSrc(v, autoplay = true) {
+  const key = encodeURIComponent(v.key);
+  const subtitles = getTrailerSubtitles();
+  const preferredLanguage = subtitles === "ru" || subtitles === "en" ? subtitles : "";
+  const params = new URLSearchParams({autoplay: autoplay ? "1" : "0"});
+
+  if (v.site === "Vimeo") {
+    if (preferredLanguage) params.set("texttrack", preferredLanguage);
+    if (subtitles === "off") params.set("texttrack", "false");
+    return `https://player.vimeo.com/video/${key}?${params}`;
+  }
+
+  params.set("playsinline", "1");
+  params.set("rel", "0");
+  if (preferredLanguage) {
+    params.set("cc_lang_pref", preferredLanguage);
+    params.set("cc_load_policy", "1");
+  } else if (subtitles === "off") {
+    // YouTube may still use its own saved caption preference.
+    params.set("cc_load_policy", "0");
+  }
+  return `https://www.youtube-nocookie.com/embed/${key}?${params}`;
 }
 function closePlayer(){
   $("player").innerHTML="";$("player").hidden=true;$("ytnote").hidden=true;
@@ -4315,8 +4340,8 @@ console.info("[Kinoglobus] Bridge v6 ready");
 <script src="curated-collections.js?v=1"></script>
 <script src="collections.js?v=76"></script>
 <script src="film-interactions.js?v=15"></script>
-<script src="legal-watch.js?v=3"></script>
+<script src="legal-watch.js?v=4"></script>
 <script src="global-search.js?v=4"></script>
-<script src="settings-page.js?v=38"></script>
+<script src="settings-page.js?v=40"></script>
 
 </body></html>

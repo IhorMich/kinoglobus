@@ -106,6 +106,7 @@
     }
     .kgc-hero-full .kgc-blurb{font-family:'Noto Serif',serif;font-style:italic}
     #kg-watch-history .kgc-head h1{margin:0;font:700 19px 'Noto Serif',serif;color:#ffdca8}
+    #kg-watch-history .kgc-diary-entry{width:100%;margin-bottom:12px}
     #kg-watch-history .note{grid-column:1/-1;color:#d5c4ad;font-size:13px}
     #kg-watch-history .jfilm{min-width:0;overflow-wrap:anywhere;cursor:pointer}
     #kg-watch-history .jfilm:focus-visible{outline:2px solid #ffdca8;outline-offset:2px}
@@ -576,8 +577,16 @@
       <button type="button" class="kgc-icon" data-atlas-close aria-label="${uiText("Закрыть историю")}">←</button>
       <div class="kgc-head-title"><h1>${uiText("История просмотра")}</h1></div>
     </header>
-    <div class="kgc-pad" data-kg-history-list></div>`;
+    <div class="kgc-pad" data-kg-history-list>
+      <button type="button" class="kgc-btn kgc-diary-entry" data-open-diary>
+        <span class="material-symbols-outlined" aria-hidden="true">history_edu</span>
+        <span>${uiText("Кинодневник")}</span>
+      </button>
+    </div>`;
   shell.append(historyView);
+  historyView.querySelector('[data-open-diary]').addEventListener('click', () => {
+    window.KGOpenCinemaDiary({closeParent: () => dialog.close()});
+  });
   const historyList = document.getElementById('jfilms');
   historyList.classList.remove('kg-country-legacy');
   historyView.querySelector('[data-kg-history-list]').append(historyList);

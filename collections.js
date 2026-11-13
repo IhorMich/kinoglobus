@@ -160,9 +160,13 @@ const nf=n=>new Intl.NumberFormat(interfaceLanguage).format(n);
 const moneyFmt=new Intl.NumberFormat(interfaceLanguage,{style:"currency",currency:"USD",maximumFractionDigits:0});
 const moneyText=n=>Number(n)>0?moneyFmt.format(Number(n)):uiText("Нет данных");
 const kgPersonLink=(p,role)=>p&&p.id?`<button type="button" data-kg-person-id="${p.id}" data-kg-person-name="${esc(p.name)}" data-kg-person-role="${role||"Кинематографист"}" class="kg-person-link">${esc(p.name)}</button>`:esc(p&&p.name||"");
-function fw(n){const m=n%100,k=n%10;return (k===1&&m!==11)?"фильм":(k>1&&k<5&&(m<12||m>14))?"фильма":"фильмов";}
+function fw(n){if(interfaceLanguage==="en")return n===1?"film":"films";const m=n%100,k=n%10;return (k===1&&m!==11)?"фильм":(k>1&&k<5&&(m<12||m>14))?"фильма":"фильмов";}
+function collectionFilmCount(n){
+  const word=fw(n);
+  return nf(n)+" "+(interfaceLanguage==="ru"?({фильм:"картина",фильма:"картины",фильмов:"картин"})[word]:word);
+}
 const gnames=t=>t.g.split("|").map(x=>GENRES[x]).filter(Boolean).map(genre=>uiText(genre));
-const codeOf=t=>t.films?"":REG[t.id]?REG[t.id][1]:(t.cc[0]==="SU"?"СССР":t.cc[0]);
+const codeOf=t=>t.films?"":REG[t.id]?REG[t.id][1]:(t.cc[0]==="SU"?(interfaceLanguage==="en"?"USSR":"СССР"):t.cc[0]);
 const where=t=>t.films?uiText("Разные страны"):REG[t.id]?uiText(REG[t.id][0]):cname(t.cc[0]);
 const flagsOf=t=>t.cc.slice(0,3).map(fl).join(" ");
 const BOOK=new Set(store.get("kgBookmarks",[]));
@@ -282,7 +286,7 @@ vm.className="flex flex-col w-full px-gutter-mobile select-none";vm.style.displa
 const vo=document.createElement("div");vo.id="view-oscar";
 vo.className="flex flex-col w-full select-none";vo.style.display="none";
 const sectionNav=document.createElement("nav");
-sectionNav.setAttribute("aria-label","Разделы подборок");
+sectionNav.setAttribute("aria-label",uiText("Разделы подборок"));
 sectionNav.className="w-full px-gutter-mobile pt-2";
 sectionNav.style.display="none";
 sectionNav.innerHTML='<div class="grid grid-cols-3 gap-1.5 rounded-xl bg-surface-panel p-1.5">'+
@@ -393,7 +397,7 @@ function spotlightHtml(t){
 <div class="absolute bottom-3 left-3.5 right-3.5 flex items-center gap-1.5"><span class="px-2 py-0.5 rounded-full bg-surface-container-high/90 backdrop-blur text-primary font-micro-caption text-micro-caption tracking-wider">${t.cc.map(fl).join(" ")}</span><span class="font-micro-caption text-micro-caption text-text-muted truncate">${esc(t.cc.map(cname).join(", "))}</span></div></div>
 <div class="p-4 flex flex-col gap-2.5"><div class="flex items-baseline justify-between"><h3 class="font-headline-md text-headline-md text-primary font-bold">${esc(uiText(t.name))}</h3><span data-k="cnt" class="font-micro-caption text-micro-caption text-text-muted">…</span></div>
 <p class="font-body-sm text-body-sm text-text-muted kg-clip2">${esc(uiText(m[3]))}</p>
-<div class="flex items-center gap-2 pt-1"><button type="button" data-act="spin" data-t="${t.id}" class="flex-1 h-11 px-4 rounded-xl bg-primary-container text-on-primary-container font-label-md text-label-md flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(255,184,48,0.32)] transition-transform active:scale-95"><span class="material-symbols-outlined text-[20px]">casino</span><span>${uiText(uiText("Крутить рулетку"))}</span></button>
+<div class="flex items-center gap-2 pt-1"><button type="button" data-act="spin" data-t="${t.id}" class="flex-1 h-11 px-4 rounded-xl bg-primary-container text-on-primary-container font-label-md text-label-md flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(255,184,48,0.32)] transition-transform active:scale-95"><span class="material-symbols-outlined text-[20px]">casino</span><span>${uiText("Крутить рулетку")}</span></button>
 <button type="button" aria-label="${uiText("Подробнее")}" data-act="open" data-t="${t.id}" class="w-11 h-11 rounded-xl bg-surface-container-high text-primary flex items-center justify-center transition-colors hover:bg-surface-bright active:scale-95"><span class="material-symbols-outlined text-[20px]">arrow_forward</span></button></div></div></section>`;
 }
 function updateWeeklySpotlight(){
@@ -444,7 +448,7 @@ function paintMeta(id){
     const r=el.querySelector('[data-k="r"]');
     if(r){const sp=el.id==="spot";r.textContent=sp?(m.r||"—"):(el.dataset.cat==="retro"&&el.classList.contains("collection-card")?"★ "+(m.r||"—"):"★ "+(m.r||"—"));}
     const c=el.querySelector('[data-k="cnt"]');
-    if(c){const g=gnames(T[id])[0]||"";c.textContent=el.id==="spot"?`${nf(m.n)} ${interfaceLanguage==="en"?(m.n===1?"film":"films"):fw(m.n)}`:`${nf(m.n)} ${interfaceLanguage==="en"?(m.n===1?"film":"films"):fw(m.n)}${g?" · "+g:""}`;}
+    if(c){const g=gnames(T[id])[0]||"";c.textContent=el.id==="spot"?`${nf(m.n)} ${fw(m.n)}`:`${nf(m.n)} ${fw(m.n)}${g?" · "+g:""}`;}
     const img=el.querySelector('[data-k="img"]');
     if(img){
       // Сохраняем авторскую кураторскую обложку вместо случайного первого постера
@@ -577,12 +581,12 @@ const byId=id=>D.all.find(f=>String(f.id)===String(id));
 
 function filmItem(f){
   const y=(f.release_date||"").slice(0,4),bm=BOOK.has(f.id);
-  const gs=(f.genre_ids||[]).map(i=>GENRES[i]).filter(Boolean).slice(0,2);
+  const gs=(f.genre_ids||[]).map(i=>GENRES[i]).filter(Boolean).slice(0,2).map(genre=>uiText(genre));
   const selected=D.selected&&D.selected._placement==="list"&&String(D.selected.id)===String(f.id)?D.selected:null;
   return `<article class="flex flex-col gap-space-sm p-3 rounded-xl bg-surface-panel shadow-md hover:bg-surface-container-low transition-colors">
 <div class="flex gap-space-sm cursor-pointer" data-act="open" data-id="${f.id}">
 <div class="relative w-20 h-28 flex-shrink-0 rounded-lg overflow-hidden bg-surface-container-high">${f.poster_path?`<img class="w-full h-full object-cover" loading="lazy" alt="" src="${P(f.poster_path,"w185")}">`:`<div class="w-full h-full flex items-center justify-center text-text-muted"><span class="material-symbols-outlined">movie</span></div>`}
-<span class="absolute top-1 left-1 px-1 py-0.5 rounded bg-surface-panel/90 text-primary-container font-micro-caption text-micro-caption font-bold">${f.vote_average ? Number(f.vote_average).toFixed(1) : "—"} ★</span><button type="button" data-act="bm" data-id="${f.id}" aria-label="${bm?"Убрать из закладок":"Сохранить в закладки"}" class="absolute top-1 right-1 w-6 h-6 rounded-full bg-surface-panel/85 text-primary-container flex items-center justify-center shadow"><span class="material-symbols-outlined text-[16px]">${bm?"bookmark_added":"bookmark_border"}</span></button></div>
+<span class="absolute top-1 left-1 px-1 py-0.5 rounded bg-surface-panel/90 text-primary-container font-micro-caption text-micro-caption font-bold">${f.vote_average ? Number(f.vote_average).toFixed(1) : "—"} ★</span><button type="button" data-act="bm" data-id="${f.id}" aria-label="${uiText(bm?"Убрать из закладок":"Сохранить в закладки")}" class="absolute top-1 right-1 w-6 h-6 rounded-full bg-surface-panel/85 text-primary-container flex items-center justify-center shadow"><span class="material-symbols-outlined text-[16px]">${bm?"bookmark_added":"bookmark_border"}</span></button></div>
 <div class="flex flex-col justify-between flex-1 min-w-0"><div class="flex flex-col gap-0.5">
 <div class="flex items-center justify-between"><span class="font-micro-caption text-micro-caption text-text-muted">${fl(f._cc)} ${esc(cname(f._cc))}${y?" • "+y:""}</span><span data-rt="${f.id}" class="font-micro-caption text-micro-caption px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant">${uiText("— мин")}</span></div>
 <h4 class="font-label-lg text-label-lg text-on-surface font-bold truncate">${esc(f.title)}</h4>
@@ -595,13 +599,13 @@ function pearlHtml(f,selected=null){
   return `<div class="flex flex-col gap-space-xs"><div class="flex items-center gap-1.5 px-1"><span class="material-symbols-outlined text-[18px] text-primary-container">stars</span><h3 class="font-headline-sm text-headline-sm text-primary font-bold">${uiText("Жемчужина коллекции")}</h3></div>
 <div class="relative overflow-hidden rounded-xl bg-surface-panel p-space-md shadow-xl flex flex-col gap-space-md"><div class="flex gap-space-md cursor-pointer" data-act="open" data-id="${f.id}">
 <div class="relative flex-shrink-0 w-28 h-40 rounded-lg overflow-hidden bg-surface-container-high shadow-md">${f.poster_path?`<img class="w-full h-full object-cover" alt="" src="${P(f.poster_path,"w342")}">`:""}
-<div class="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded bg-surface-panel/90 backdrop-blur-md text-primary-container font-label-sm text-label-sm font-bold flex items-center gap-0.5"><span class="material-symbols-outlined text-[13px]" style="font-variation-settings:'FILL' 1;">star</span>${f.vote_average ? Number(f.vote_average).toFixed(1) : "—"}</div><button type="button" data-act="bm" data-id="${f.id}" aria-label="${bm?"Убрать из закладок":"Сохранить в закладки"}" class="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-surface-panel/85 text-primary-container flex items-center justify-center shadow"><span class="material-symbols-outlined text-[16px]">${bm?"bookmark_added":"bookmark_border"}</span></button></div>
+<div class="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded bg-surface-panel/90 backdrop-blur-md text-primary-container font-label-sm text-label-sm font-bold flex items-center gap-0.5"><span class="material-symbols-outlined text-[13px]" style="font-variation-settings:'FILL' 1;">star</span>${f.vote_average ? Number(f.vote_average).toFixed(1) : "—"}</div><button type="button" data-act="bm" data-id="${f.id}" aria-label="${uiText(bm?"Убрать из закладок":"Сохранить в закладки")}" class="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-surface-panel/85 text-primary-container flex items-center justify-center shadow"><span class="material-symbols-outlined text-[16px]">${bm?"bookmark_added":"bookmark_border"}</span></button></div>
 <div class="flex flex-col justify-between flex-1 min-w-0"><div class="flex flex-col gap-1">
 <div class="flex items-center gap-1.5"><span class="font-micro-caption text-micro-caption px-1.5 rounded bg-surface-container text-on-surface-variant">${fl(f._cc)} ${y}</span><span data-rt="${f.id}" class="font-micro-caption text-micro-caption text-text-muted">${uiText("— мин")}</span></div>
 <h4 class="font-headline-sm text-headline-sm text-on-surface font-bold leading-snug kg-clip2">${esc(f.title)}</h4>
 <p class="font-micro-caption text-micro-caption text-text-muted italic truncate">${f.original_title&&f.original_title!==f.title?esc(f.original_title):"&nbsp;"}</p>
 <p data-dir="${f.id}" class="font-micro-caption text-micro-caption text-on-surface-variant">&nbsp;</p></div>
-<p class="font-body-sm text-body-sm text-text-muted kg-clip2 pt-1">${esc(f.overview||"Описания на русском пока нет.")}</p></div></div>
+<p class="font-body-sm text-body-sm text-text-muted kg-clip2 pt-1">${esc(f.overview||uiText("Описания на русском пока нет."))}</p></div></div>
 ${selected?selectedFilmHtml(selected,true):""}</div></div>`;
 }
 function renderFilms(){
@@ -619,7 +623,7 @@ function renderFilms(){
   const list=rest.slice(0,D.shown);
   const pearl=pearlHtml(best,selectedInList&&String(D.selected.id)===String(best.id)?D.selected:null);
   box.innerHTML=pearl+
-  `<div class="flex flex-col gap-space-sm"><div class="flex items-center justify-between px-1"><h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">${uiText("Отобранные шедевры")}</h3><span class="font-micro-caption text-micro-caption text-text-muted">${list.length} из ${nf(Math.max(totalFor(),list.length+1))}</span></div>
+  `<div class="flex flex-col gap-space-sm"><div class="flex items-center justify-between px-1"><h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">${uiText("Отобранные шедевры")}</h3><span class="font-micro-caption text-micro-caption text-text-muted">${uiText("{opened} из {total}", {opened: list.length, total: nf(Math.max(totalFor(),list.length+1))})}</span></div>
   <div class="flex flex-col gap-space-sm">${list.map(f=>filmItem(f)).join("")}</div>
   ${rest.length>D.shown?`<button type="button" data-act="more" class="w-full py-3 rounded-xl bg-surface-panel hover:bg-surface-container-low text-primary text-center font-label-md text-label-md font-semibold flex items-center justify-center gap-2 transition-colors shadow-sm"><span class="material-symbols-outlined text-[18px]">expand_more</span><span>${uiText("Показать ещё")}</span></button>`:""}</div>`;
   paintWatchedButtons(box);
@@ -638,7 +642,6 @@ function trailerThumb(v,f){
 function selectedFilmHtml(f,embedded=false){
   const year=(f.release_date||"").slice(0,4);
   const personLink=(p,role)=>p&&p.id?`<button type="button" data-kg-person-id="${p.id}" data-kg-person-name="${esc(p.name)}" data-kg-person-role="${role}" class="kg-person-link">${esc(p.name)}</button>`:esc(p&&p.name||"");
-  const poster=f.poster_path?`<img class="w-full h-full object-cover" loading="lazy" alt="${esc(uiText("Постер фильма «{title}»", {title: f.title || uiText("Фильм")}))}" src="${P(f.poster_path,"w185")}">`:`<span class="material-symbols-outlined text-text-muted">movie</span>`;
   const cast=(f.castFull||[]).map(c=>`<button type="button" data-kg-person-id="${c.id||""}" data-kg-person-name="${esc(c.name)}" data-kg-person-role="Актёр" class="kg-person-card flex-shrink-0 w-28 flex flex-col items-center text-center p-2 rounded-xl bg-surface-container-high" ${c.id?"":"disabled"}>
 <div class="w-14 h-14 rounded-full overflow-hidden mb-2 bg-surface-variant shadow-md flex items-center justify-center">${c.photo?`<img class="w-full h-full object-cover" loading="lazy" alt="" src="${P(c.photo,"w185")}">`:'<span class="material-symbols-outlined text-text-muted">person</span>'}</div>
 <span class="font-label-sm text-label-sm text-on-surface font-semibold truncate w-full">${esc(c.name)}</span><span class="font-micro-caption text-micro-caption text-text-muted truncate w-full">${esc(c.role)}</span></button>`).join("");
@@ -652,11 +655,11 @@ function selectedFilmHtml(f,embedded=false){
   const awardRows=Array.isArray(f._oscarAwards)?f._oscarAwards:[];
   const awardWins=awardRows.filter(a=>a.won).length,awardNominations=awardRows.length-awardWins;
   const awardsHtml=oscar?(f._oscarAwards===undefined
-    ?'<div class="pt-2 mt-1 border-t border-primary-container/20"><span class="font-micro-caption text-micro-caption text-text-muted">Загружаем награды и номинации…</span></div>'
+    ?`<div class="pt-2 mt-1 border-t border-primary-container/20"><span class="font-micro-caption text-micro-caption text-text-muted">${uiText("Загружаем награды и номинации…")}</span></div>`
     :awardRows.length
-      ?'<div class="pt-2 mt-1 border-t border-primary-container/20"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary-container text-[18px]">emoji_events</span><span class="font-label-sm text-label-sm text-primary-fixed font-semibold">'+awardWins+' '+(awardWins===1?'победа':awardWins>1&&awardWins<5?'победы':'побед')+' · '+awardNominations+' '+(awardNominations===1?'номинация':awardNominations>1&&awardNominations<5?'номинации':'номинаций')+'</span></div><details class="mt-2"><summary class="flex items-center justify-between gap-2 cursor-pointer list-none rounded-lg bg-surface-container px-3 py-2 font-micro-caption text-micro-caption text-primary hover:bg-surface-container-high"><span>Полный список наград</span><span class="material-symbols-outlined text-[16px]">expand_more</span></summary><div class="flex flex-col gap-1 pt-2">'+awardRows.map(a=>'<div class="flex items-start gap-1.5"><span class="material-symbols-outlined text-[16px] shrink-0 '+(a.won?'text-primary-container':'text-text-muted')+'" style="font-variation-settings:\'FILL\' '+(a.won?1:0)+';">'+(a.won?'emoji_events':'circle')+'</span><span class="font-body-sm text-body-sm '+(a.won?'text-on-surface font-semibold':'text-text-muted')+'">'+esc(a.label)+(a.year?' · '+a.year:'')+(a.won?'':' (номинация)')+'</span></div>').join('')+'</div></details></div>'
+      ?'<div class="pt-2 mt-1 border-t border-primary-container/20"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary-container text-[18px]">emoji_events</span><span class="font-label-sm text-label-sm text-primary-fixed font-semibold">'+uiText('{count} '+(awardWins===1?'победа':awardWins>1&&awardWins<5?'победы':'побед'), {count: awardWins})+' · '+uiText('{count} '+(awardNominations===1?'номинация':awardNominations>1&&awardNominations<5?'номинации':'номинаций'), {count: awardNominations})+'</span></div><details class="mt-2"><summary class="flex items-center justify-between gap-2 cursor-pointer list-none rounded-lg bg-surface-container px-3 py-2 font-micro-caption text-micro-caption text-primary hover:bg-surface-container-high"><span>'+uiText("Полный список наград")+'</span><span class="material-symbols-outlined text-[16px]">expand_more</span></summary><div class="flex flex-col gap-1 pt-2">'+awardRows.map(a=>'<div class="flex items-start gap-1.5"><span class="material-symbols-outlined text-[16px] shrink-0 '+(a.won?'text-primary-container':'text-text-muted')+'" style="font-variation-settings:\'FILL\' '+(a.won?1:0)+';">'+(a.won?'emoji_events':'circle')+'</span><span class="font-body-sm text-body-sm '+(a.won?'text-on-surface font-semibold':'text-text-muted')+'">'+esc(a.label)+(a.year?' · '+a.year:'')+(a.won?'':uiText(' (номинация)'))+'</span></div>').join('')+'</div></details></div>'
       :""):"";
-  const oscarBlock=oscar?`<div class="flex items-start gap-3 p-3 rounded-xl bg-gradient-to-br from-cinema-velvet-deep/50 via-surface-container-high to-surface-container-high border border-primary-container/25"><span class="material-symbols-outlined text-primary-container text-[28px] shrink-0" style="font-variation-settings:'FILL' 1;">workspace_premium</span><div class="min-w-0 flex flex-col gap-0.5"><h4 class="font-label-md text-label-md text-primary-fixed font-semibold">${oscar.best?"Оскар · Лучший фильм":"Лауреат премии «Оскар»"}</h4>${oscar.best?`<p class="font-label-sm text-label-sm text-primary-container font-semibold">${oscar.n}-я церемония · ${oscar.year} год</p><p class="font-body-sm text-body-sm text-text-muted">Главная награда Американской киноакадемии. Статуэтку получает лучший фильм года; эта картина вышла в ${oscar.film} году.</p>`:`<p class="font-body-sm text-body-sm text-text-muted">Картина входит в список лауреатов Американской киноакадемии${oscar.film?` · фильм ${oscar.film} года`:""}.</p>`}${awardsHtml}</div></div>`:"";
+  const oscarBlock=oscar?`<div class="flex items-start gap-3 p-3 rounded-xl bg-gradient-to-br from-cinema-velvet-deep/50 via-surface-container-high to-surface-container-high border border-primary-container/25"><span class="material-symbols-outlined text-primary-container text-[28px] shrink-0" style="font-variation-settings:'FILL' 1;">workspace_premium</span><div class="min-w-0 flex flex-col gap-0.5"><h4 class="font-label-md text-label-md text-primary-fixed font-semibold">${uiText(oscar.best?"Оскар · Лучший фильм":"Лауреат премии «Оскар»")}</h4>${oscar.best?`<p class="font-label-sm text-label-sm text-primary-container font-semibold">${uiText("{number}-я церемония · {year} год", {number: oscar.n, year: oscar.year})}</p><p class="font-body-sm text-body-sm text-text-muted">${uiText("Главная награда Американской киноакадемии. Статуэтку получает лучший фильм года; эта картина вышла в {year} году.", {year: oscar.film})}</p>`:`<p class="font-body-sm text-body-sm text-text-muted">${uiText("Картина входит в список лауреатов Американской киноакадемии{year}.", {year: oscar.film?uiText(" · фильм {year} года", {year: oscar.film}):""})}</p>`}${awardsHtml}</div></div>`:"";
   const tagline=f.tagline&&f.taglineLang===f.overviewLang?`<p class="font-body-sm text-body-sm text-primary-fixed italic">${esc(f.tagline)}</p>`:"";
   const booked=BOOK.has(f.id),watched=!!window.KGIsFilmWatched?.(f.id),title=esc(f.title||uiText("Фильм"));
   const orig=[f.originalTitle&&f.originalTitle!==f.title?esc(f.originalTitle):"",year?`(${year})`:""].filter(Boolean).join(" ");
@@ -672,8 +675,8 @@ function selectedFilmHtml(f,embedded=false){
   const shell=embedded?"div":"section",shellClass=embedded?"flex flex-col gap-3 pt-3 border-t border-surface-border-subtle scroll-mt-20":"flex flex-col gap-3 p-3.5 rounded-2xl bg-surface-panel border border-primary-container/30 shadow-xl scroll-mt-20";
   const trailerBox=`<div data-kg-film-trailer class="relative w-full kg-detail-trailer rounded-xl overflow-hidden bg-black border border-primary-container/30" id="cl-inline-trailer">${trailerContent}${certBadge}</div>`;
   return `<${shell} class="${shellClass}" data-selected-film="${f.id}">
-<div class="flex items-start justify-between gap-2"><div class="flex flex-col min-w-0"><h3 class="font-headline-md text-headline-md text-primary font-bold tracking-tight">${title}</h3>${orig?`<span class="font-body-sm text-body-sm text-text-muted mt-0.5">${orig}</span>`:""}</div>
-<div class="flex items-center gap-1.5 shrink-0">${f.runtime?`<div class="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-surface-container-high"><span class="material-symbols-outlined text-primary-container text-[18px]" style="font-variation-settings:'FILL' 1;">timer</span><span class="font-label-sm text-label-sm text-on-surface">${uiText("{minutes} мин", {minutes: f.runtime})}</span></div>`:""}<button type="button" data-act="bm" data-id="${f.id}" aria-label="${booked?uiText("Убрать из закладок"):uiText("Сохранить в закладки")}" aria-pressed="${booked}" class="w-7 h-7 rounded-full text-primary-container hover:bg-surface-container-high flex items-center justify-center"><span class="material-symbols-outlined text-[18px]">${booked?"bookmark_added":"bookmark_border"}</span></button><button type="button" data-act="close-film" aria-label="${uiText("Свернуть карточку")}" class="w-9 h-9 rounded-full bg-surface-container-high text-text-muted hover:text-primary flex items-center justify-center"><span class="material-symbols-outlined">${embedded?"expand_less":"close"}</span></button></div></div>
+<div class="flex items-start gap-2"><div class="relative w-16 shrink-0 aspect-[2/3] overflow-hidden rounded-lg bg-surface-container-high">${filmPosterMarkup(f,"w185")}</div><div class="flex flex-1 flex-wrap items-start justify-between gap-2 min-w-0"><div class="flex flex-col min-w-0"><h3 class="font-headline-md text-headline-md text-primary font-bold tracking-tight">${title}</h3>${orig?`<span class="font-body-sm text-body-sm text-text-muted mt-0.5">${orig}</span>`:""}</div>
+<div class="flex items-center gap-1.5 shrink-0">${f.runtime?`<div class="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-surface-container-high"><span class="material-symbols-outlined text-primary-container text-[18px]" style="font-variation-settings:'FILL' 1;">timer</span><span class="font-label-sm text-label-sm text-on-surface">${uiText("{minutes} мин", {minutes: f.runtime})}</span></div>`:""}<button type="button" data-act="bm" data-id="${f.id}" aria-label="${booked?uiText("Убрать из закладок"):uiText("Сохранить в закладки")}" aria-pressed="${booked}" class="w-7 h-7 rounded-full text-primary-container hover:bg-surface-container-high flex items-center justify-center"><span class="material-symbols-outlined text-[18px]">${booked?"bookmark_added":"bookmark_border"}</span></button><button type="button" data-act="close-film" aria-label="${uiText("Свернуть карточку")}" class="w-9 h-9 rounded-full bg-surface-container-high text-text-muted hover:text-primary flex items-center justify-center"><span class="material-symbols-outlined">${embedded?"expand_less":"close"}</span></button></div></div></div>
 ${trailerBox}
 ${window.KGLegalWatch?.markup(f.id)||""}
 ${activeVideo?`<a href="${watchUrl(activeVideo)}" target="_blank" rel="noopener noreferrer" class="font-micro-caption text-micro-caption text-primary underline">${esc(uiText("Не воспроизводится? Открыть на {site}", {site: activeVideo.site}))}</a>`:""}
@@ -743,8 +746,8 @@ function renderCollection(){
 <div class="flex flex-wrap items-center gap-1.5 pt-0.5">${t.cc.map(cc=>`<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container-low text-on-surface font-micro-caption text-micro-caption shadow-sm">${fl(cc)} ${esc(cname(cc))}</span>`).join("")}</div>
 <p class="font-body-sm text-body-sm text-text-muted leading-relaxed pt-1">${esc(uiText(m[3]))}</p>
 <div class="flex items-center gap-2 pt-1 flex-wrap">${gnames(t).map(g=>`<span class="px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-micro-caption text-micro-caption">${esc(g)}</span>`).join("")}</div></div></div>
-<div class="flex flex-col gap-space-sm bg-surface-panel p-space-md rounded-xl shadow-lg"><div class="flex items-center justify-between"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary-container text-[20px]">casino</span><span class="font-headline-sm text-headline-sm text-on-surface font-semibold">${uiText("Случайный выбор")}</span></div><span class="font-micro-caption text-micro-caption text-primary-fixed bg-surface-container-high px-2 py-0.5 rounded-full">${t.films ? "Ручной отбор" : "Рейтинг ≥ 6.5"}</span></div>
-<button type="button" id="cl-spin" data-act="spin" class="relative group w-full py-3.5 px-4 rounded-xl bg-primary-container text-on-primary font-label-lg text-label-lg font-bold flex items-center justify-center gap-2 shadow-[0_0_24px_rgba(255,184,48,0.28)] transition-all active:scale-[0.98] overflow-hidden"><span id="cl-ricon" class="material-symbols-outlined text-[22px]">casino</span><span id="cl-rtext">${uiText(uiText("Крутить рулетку"))}</span><div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div></button>
+<div class="flex flex-col gap-space-sm bg-surface-panel p-space-md rounded-xl shadow-lg"><div class="flex items-center justify-between"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary-container text-[20px]">casino</span><span class="font-headline-sm text-headline-sm text-on-surface font-semibold">${uiText("Случайный выбор")}</span></div><span class="font-micro-caption text-micro-caption text-primary-fixed bg-surface-container-high px-2 py-0.5 rounded-full">${uiText(t.films ? "Ручной отбор" : "Рейтинг ≥ 6.5")}</span></div>
+<button type="button" id="cl-spin" data-act="spin" class="relative group w-full py-3.5 px-4 rounded-xl bg-primary-container text-on-primary font-label-lg text-label-lg font-bold flex items-center justify-center gap-2 shadow-[0_0_24px_rgba(255,184,48,0.28)] transition-all active:scale-[0.98] overflow-hidden"><span id="cl-ricon" class="material-symbols-outlined text-[22px]">casino</span><span id="cl-rtext">${uiText("Крутить рулетку")}</span><div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div></button>
 <div id="cl-reel" style="display:none" class="flex flex-col gap-space-sm">
 <div id="cl-reel-host"></div>
 <div class="flex items-center justify-between px-1"><span id="cl-fc" class="font-mono text-micro-caption text-primary-fixed font-semibold tracking-wide">${uiText("Кадр 00 / 00")}</span><button type="button" id="cl-skip" data-act="skip" style="display:none" class="font-micro-caption text-micro-caption text-text-muted hover:text-primary underline">${uiText("Пропустить")}</button></div>
@@ -775,7 +778,7 @@ async function openCollection(id,opt){
   D={t,all:initial?initial.films:[],total:initial?initial.total:0,totals:initial?initial.totals:{},cc:"",sort:"rating",shown:5,selected:null,picked:null};
   renderCollection();showView("collection");
   if(initial){
-    $("cl-count").textContent=nf(D.total)+" "+(interfaceLanguage==="en"?(D.total===1?"film":"films"):(fw(D.total)==="фильм"?"картина":fw(D.total)==="фильма"?"картины":"картин"));
+    $("cl-count").textContent=collectionFilmCount(D.total);
     renderFilms();
   }
   if (!apiKey) {
@@ -789,7 +792,7 @@ async function openCollection(id,opt){
     if(r._stale){$("cl-films").insertAdjacentHTML("afterbegin",`<p role="status" class="font-micro-caption text-micro-caption text-text-muted">${uiText("Не удалось обновить данные; показана сохранённая подборка.")}</p>`);return;}
     D.all=r.films;D.total=r.total;D.totals=r.totals;
     if (t.films && r.films.some(f => f.vote_count)) saveThemeMeta(t, r);
-    $("cl-count").textContent=nf(r.total)+" "+(interfaceLanguage==="en"?(r.total===1?"film":"films"):(fw(r.total)==="фильм"?"картина":fw(r.total)==="фильма"?"картины":"картин"));
+    $("cl-count").textContent=collectionFilmCount(r.total);
     renderFilms();
     if(opt&&opt.spin)inPageRoulette();
   }catch(e){
@@ -908,6 +911,7 @@ function openFilm(f,placement="list",detailTarget=null){
   filmDetails(f.id).then(details=>{
     if(D.selected!==selected)return;
     selected.title=details.title||f.title;
+    selected.localizedPoster=details.localizedPoster;
     selected.overview=details.overview||filmSynopsis(f.overview)||uiText("Описание пока недоступно.");
     selected.overviewLang=details.overviewLang;
     selected.runtime=details.runtime;
@@ -1144,9 +1148,7 @@ function homeFeatureMarkup(f,d,expandedFilm=null){
   const year=homeFilmYear(f);
   const rating=Number(f.vote_average)||0;
   const synopsis=(d&&d.overview)||filmSynopsis(f.overview)||uiText("Описание пока недоступно.");
-  const poster=f.poster_path
-    ?`<img class="w-full h-full object-cover" src="${P(f.poster_path,"w342")}" alt="${uiText("Постер фильма «{title}»", {title})}" loading="lazy">`
-    :`<span class="material-symbols-outlined text-primary-container text-[32px]">movie</span>`;
+  const poster=filmPosterMarkup({...f, title:d?.title || f.title, localizedPoster:d?.localizedPoster});
   const isExpanded=expandedFilm&&String(expandedFilm.id)===String(f.id);
   return `<article data-home-act="open" data-id="${f.id}" class="w-full rounded-xl bg-surface-container-high shadow-xl p-3.5 cursor-pointer">
 <p class="font-micro-caption text-micro-caption uppercase tracking-wider text-primary font-bold mb-2">${uiText("Выбор дня · Программа № {number}", {number: homeDayNumber()})}</p>
@@ -1378,7 +1380,7 @@ async function refreshAllCollections(forceAll=false){
     if(result.status==="fulfilled"){
       const t=D.t,r=result.value;
       D.all=r.films;D.total=r.total;D.totals=r.totals;
-      $("cl-count").textContent=nf(r.total)+" "+(interfaceLanguage==="en"?(r.total===1?"film":"films"):(fw(r.total)==="фильм"?"картина":fw(r.total)==="фильма"?"картины":"картин"));
+      $("cl-count").textContent=collectionFilmCount(r.total);
       renderFilms();
     }
   }

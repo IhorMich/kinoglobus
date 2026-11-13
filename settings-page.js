@@ -261,6 +261,10 @@
 <span class="text-[9px] font-micro-caption font-bold px-2 py-0.5 rounded bg-surface-container-high text-primary-container border border-primary-container/30" data-kgs-globe-sound-status></span>
 </div>
 <div data-kgs-sound></div>
+<button class="w-full py-2 px-3 rounded-xl bg-surface-container hover:bg-surface-container-high border border-primary-container/30 text-primary-container text-xs font-medium transition-all flex items-center justify-center gap-1.5" type="button" data-kgs-preview>
+<span aria-hidden="true">▶</span>
+<span>Прослушать выбранный звук</span>
+</button>
 <div class="space-y-2 pt-2 border-t border-surface-border-subtle">
 <div class="flex items-center justify-between">
 <div class="text-xs font-bold text-on-surface uppercase tracking-tight">ЗВУК ПОИСКА ФИЛЬМА</div>
@@ -289,11 +293,7 @@
 <button class="kgs-switch bg-surface-container-highest aria-checked:bg-primary-container" type="button" role="switch" aria-checked="false" aria-label="Тактильный отклик" data-kgs-fx><span aria-hidden="true"></span></button>
 </div>
 <div class="flex items-center justify-between gap-3 pt-1">
-<button class="py-2 px-3 rounded-xl bg-surface-container hover:bg-surface-container-high border border-surface-border-subtle text-xs text-on-surface font-medium flex items-center gap-1.5" type="button" data-kgs-preview aria-label="Тест звука глобуса">
-<span>▶</span>
-<span>Тест кинозвука</span>
-</button>
-<div class="flex flex-col gap-1.5 flex-1 max-w-[170px] min-w-0">
+<div class="flex flex-col gap-1.5 flex-1 min-w-0">
 <div class="flex justify-between gap-1 text-micro-caption">
 <label for="kgs-volume" class="text-text-muted">Громкость</label>
 <output for="kgs-volume" data-kgs-volume-value class="text-primary tabular-nums" aria-hidden="true"></output>
@@ -574,7 +574,8 @@ ${[["light","Лёгкое"],["find","Открытие"],["wild","Случайн�
       sync();
     });
   });
-  $("[data-kgs-preview]").addEventListener("click", () => { try { preview(); } catch (_) {} });
+  $("[data-kgs-preview]").addEventListener("click", preview);
+  dialog.addEventListener("close", stopGlobeSoundPreview);
 
   $("[data-kgs-atlas]").addEventListener("click", () => { close(); document.getElementById("mapBtn").click(); });
   $("[data-kgs-history]").addEventListener("click", () => {

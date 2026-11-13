@@ -11,9 +11,9 @@ button.kg-watched-button {
   max-width: 100%;
   min-height: 40px;
   padding: 8px 12px;
-  border: 1px solid #3a3140;
+  border: 1px solid rgb(var(--kg-surface-border-subtle));
   border-radius: 12px;
-  background: #2c2830;
+  background: rgb(var(--kg-surface-container-high));
   color: #e8e0ea;
   font: 600 12px/16px "Plus Jakarta Sans", system-ui, sans-serif;
   cursor: pointer;

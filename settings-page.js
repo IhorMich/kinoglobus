@@ -100,12 +100,24 @@
 </select>
 </div>
 <p class="text-[10px] text-text-muted font-micro-caption leading-relaxed uppercase">
-        НАСТРОЙКИ ЯЗЫКА ОРИГИНАЛА, РЕГИОНА И СУБТИТРОВ БУДУТ ДОСТУПНЫ ПОЗЖЕ.
+        ЯЗЫК ИНТЕРФЕЙСА И СУБТИТРЫ БУДУТ ДОСТУПНЫ ПОЗЖЕ.
       </p>
 <div class="space-y-2 pt-1 border-t border-surface-border-subtle">
-<div class="flex items-center justify-between py-1.5">
-<span class="text-xs font-medium text-primary-container uppercase tracking-tight font-micro-caption">ЯЗЫК НАЗВАНИЙ И СИНОПСИСОВ TMDB</span>
-<span class="text-[9px] uppercase font-micro-caption px-1.5 py-0.5 rounded bg-surface-container text-text-muted border border-surface-border-subtle">СКОРО</span>
+<div class="space-y-1.5 py-1.5">
+<label for="kgs-film-language" class="block text-xs font-medium text-primary-container uppercase tracking-tight font-micro-caption">Язык названий и описаний фильмов</label>
+<select id="kgs-film-language" class="kgs-select bg-surface-container-lowest border-surface-border-subtle w-full rounded-xl px-3.5 py-2.5 text-xs text-on-surface font-medium" aria-describedby="kgs-film-language-note">
+<option value="ru">Русский</option>
+<option value="en">Английский</option>
+<option value="original">Язык оригинала</option>
+</select>
+<p id="kgs-film-language-note" class="text-xs text-text-muted">После выбора страница обновится. Если нужного перевода нет, покажем доступный текст.</p>
+</div>
+<div class="space-y-1.5 py-1.5">
+<label for="kgs-watch-region" class="block text-xs font-medium text-primary-container uppercase tracking-tight font-micro-caption">Регион просмотра</label>
+<select id="kgs-watch-region" class="kgs-select bg-surface-container-lowest border-surface-border-subtle w-full rounded-xl px-3.5 py-2.5 text-xs text-on-surface font-medium" aria-describedby="kgs-watch-region-note">
+<option value="auto">Автоматически</option>
+</select>
+<p id="kgs-watch-region-note" class="text-xs text-text-muted" aria-live="polite"></p>
 </div>
 <div class="flex items-center justify-between py-1.5">
 <span class="text-xs font-medium text-primary-container uppercase tracking-tight font-micro-caption">ЯЗЫК СУБТИТРОВ ТРЕЙЛЕРОВ</span>
@@ -162,34 +174,23 @@
 <span class="text-primary-container text-sm">✦</span>
 <h2 class="font-headline-sm text-headline-sm text-primary">Тема и визуальный стиль</h2>
 </div>
-<span class="text-[10px] uppercase font-micro-caption px-2 py-0.5 rounded-full bg-primary-container/10 text-primary-container border border-primary-container/30">3 темы</span>
+<span class="text-[10px] uppercase font-micro-caption px-2 py-0.5 rounded-full bg-primary-container/10 text-primary-container border border-primary-container/30">3 темы доступны</span>
 </div>
-<div class="grid grid-cols-3 gap-2">
-<button class="theme-card theme-card-transition relative rounded-xl p-2.5 bg-gradient-to-b from-surface-container-high to-transparent border-2 border-primary-container flex flex-col items-center text-center justify-between min-h-[104px] kgs-gold-shadow active:scale-95 text-left w-full cursor-pointer focus:outline-none" type="button" disabled aria-label="Кинематографичная, текущий стиль">
-<div class="absolute top-1.5 right-1.5 w-3.5 h-3.5 rounded-full bg-primary-container text-on-primary-fixed flex items-center justify-center text-[9px] font-bold theme-check">✓</div>
-<div class="text-primary-container mt-1 text-base">🎞</div>
-<div class="w-full">
-<div class="text-[10px] font-bold text-on-surface uppercase leading-tight font-headline-sm theme-title">КИНЕМАТОГРАФИЧНАЯ</div>
-<div class="text-[8px] text-primary-container font-micro-caption mt-0.5 theme-sub font-semibold">ТЕКУЩИЙ СТИЛЬ</div>
-</div>
+<div class="grid grid-cols-3 gap-2" role="group" aria-label="Тема оформления">
+<button class="theme-card relative rounded-xl p-2.5 bg-surface-container-lowest border border-surface-border-subtle flex flex-col items-center justify-between min-h-[104px] w-full" type="button" data-kgs-theme="cinematic" aria-pressed="false">
+<span aria-hidden="true" class="text-primary-container mt-1 text-base">🎞</span>
+<span class="text-[10px] font-semibold text-on-surface uppercase leading-tight theme-title">Кинематографичная</span>
+<span class="text-[9px] text-primary-container" data-kgs-theme-current hidden>Выбрано</span>
 </button>
-<button class="theme-card theme-card-transition relative rounded-xl p-2.5 bg-surface-container-lowest border border-surface-border-subtle flex flex-col items-center text-center justify-between min-h-[104px] opacity-80 hover:opacity-100 active:scale-95 text-left w-full cursor-pointer focus:outline-none" type="button" disabled aria-disabled="true">
-<div class="hidden absolute top-1.5 right-1.5 w-3.5 h-3.5 rounded-full bg-primary-container text-on-primary-fixed items-center justify-center text-[9px] font-bold theme-check">✓</div>
-<div class="text-text-muted mt-1 text-base">■</div>
-<div class="w-full">
-<div class="text-[10px] font-semibold text-on-surface-variant uppercase leading-tight theme-title">OLED BLACK</div>
-<div class="text-[8px] text-text-muted font-micro-caption mt-0.5 theme-sub">ГЛУБОКИЙ ЧЁРНЫЙ</div>
-<span class="text-[7px] font-micro-caption px-1 py-0.2 rounded bg-surface-container text-primary-container/80 theme-tag">СКОРО</span>
-</div>
+<button class="theme-card relative rounded-xl p-2.5 bg-surface-container-lowest border border-surface-border-subtle flex flex-col items-center justify-between min-h-[104px] w-full" type="button" data-kgs-theme="oled" aria-pressed="false">
+<span aria-hidden="true" class="text-text-muted mt-1 text-base">■</span>
+<span class="text-[10px] font-semibold text-on-surface uppercase leading-tight theme-title">OLED Black</span>
+<span class="text-[9px] text-primary-container" data-kgs-theme-current hidden>Выбрано</span>
 </button>
-<button class="theme-card theme-card-transition relative rounded-xl p-2.5 bg-surface-container border border-surface-border-subtle flex flex-col items-center text-center justify-between min-h-[104px] opacity-80 hover:opacity-100 active:scale-95 text-left w-full cursor-pointer focus:outline-none" type="button" disabled aria-disabled="true">
-<div class="hidden absolute top-1.5 right-1.5 w-3.5 h-3.5 rounded-full bg-primary-container text-on-primary-fixed items-center justify-center text-[9px] font-bold theme-check">✓</div>
-<div class="text-primary-container/80 mt-1 text-base">🏆</div>
-<div class="w-full">
-<div class="text-[10px] font-semibold text-on-surface-variant uppercase leading-tight theme-title">ЗОЛОТОЙ ВЕК</div>
-<div class="text-[8px] text-text-muted font-micro-caption mt-0.5 theme-sub">КЛАССИЧЕСКИЙ ЗАЛ</div>
-<span class="text-[7px] font-micro-caption px-1 py-0.2 rounded bg-surface-container text-primary-container/80 theme-tag">СКОРО</span>
-</div>
+<button class="theme-card relative rounded-xl p-2.5 bg-surface-container-lowest border border-surface-border-subtle flex flex-col items-center justify-between min-h-[104px] w-full" type="button" data-kgs-theme="golden-age" aria-pressed="false">
+<span aria-hidden="true" class="text-primary-container mt-1 text-base">🏆</span>
+<span class="text-[10px] font-semibold text-on-surface uppercase leading-tight theme-title">Золотой век</span>
+<span class="text-[9px] text-primary-container" data-kgs-theme-current hidden>Выбрано</span>
 </button>
 </div>
 <div class="pt-2 border-t border-surface-border-subtle flex items-center justify-between gap-3">
@@ -224,10 +225,6 @@
 </div>
 <span aria-hidden="true" class="kgs-reel-radio w-4 h-4 rounded-full border border-outline shrink-0"></span>
 </button>
-<div class="flex items-center justify-between gap-2 p-3 rounded-xl bg-surface-container border border-surface-border-subtle">
-<div class="flex items-center gap-3 min-w-0"><span aria-hidden="true" class="text-base">📽</span><div><div class="text-xs font-medium text-on-surface-variant uppercase">70 мм IMAX формат</div><div class="text-[10px] text-text-muted font-micro-caption uppercase">Масштабный кадр высокой чёткости</div></div></div>
-<span class="text-[9px] uppercase font-micro-caption px-1.5 py-0.5 rounded bg-surface-container text-text-muted">Скоро</span>
-</div>
 <button type="button" role="radio" data-kgs-reel-style="projection" aria-checked="false" class="kgs-reel-choice bg-surface-container-low w-full flex items-center justify-between gap-3 p-3 rounded-xl border border-surface-border-subtle text-left">
 <div class="flex items-center gap-3 min-w-0">
 <span aria-hidden="true" class="text-base">📼</span>
@@ -305,9 +302,12 @@
 <span>▶</span>
 <span>Тест кинозвука</span>
 </button>
-<div class="flex items-center gap-2 flex-1 max-w-[170px]">
-<span class="text-[9px] font-micro-caption text-text-muted uppercase">ГРОМКОСТЬ <span class="block">Скоро</span></span>
-<input class="w-full h-1.5 bg-surface-container-high rounded-lg appearance-none cursor-pointer accent-primary-container" max="100" min="0" type="range" value="75" disabled aria-label="Громкость · скоро">
+<div class="flex flex-col gap-1.5 flex-1 max-w-[170px] min-w-0">
+<div class="flex justify-between gap-1 text-micro-caption">
+<label for="kgs-volume" class="text-text-muted">Громкость</label>
+<output for="kgs-volume" data-kgs-volume-value class="text-primary tabular-nums" aria-hidden="true"></output>
+</div>
+<input id="kgs-volume" class="w-full h-2 bg-surface-container-high rounded-lg appearance-none cursor-pointer accent-primary-container" min="0" max="100" step="1" type="range">
 </div>
 </div>
 </div>
@@ -319,33 +319,24 @@
 </div>
 <div class="flex items-center justify-between gap-3">
 <div>
-<div class="text-xs font-semibold text-on-surface-variant uppercase">СВЕТОВОЙ КОНУС ПРОЕКТОРА</div>
-<div class="text-[10px] text-text-muted font-micro-caption">ДИНАМИЧЕСКИЙ ЛУЧ НА ФОНЕ ГЛОБУСА · ГОТОВИТСЯ</div>
+<div id="kgs-beam-label" class="text-xs font-semibold text-on-surface uppercase">Световой конус проектора</div>
+<div id="kgs-beam-note" class="text-[10px] text-text-muted font-micro-caption">Мягкий луч на фоне глобуса</div>
 </div>
-<div class="flex items-center gap-2">
-<span class="text-[9px] font-micro-caption px-1.5 py-0.5 rounded bg-surface-container text-text-muted">СКОРО</span>
-<div class="w-9 h-5 bg-surface-container-high rounded-full opacity-40"></div>
-</div>
+<button class="kgs-switch bg-surface-container-highest aria-checked:bg-primary-container" type="button" role="switch" aria-checked="false" aria-labelledby="kgs-beam-label" aria-describedby="kgs-beam-note" data-kgs-beam><span aria-hidden="true"></span></button>
 </div>
 <div class="flex items-center justify-between gap-3">
 <div>
-<div class="text-xs font-semibold text-on-surface-variant uppercase">ПЛЁНОЧНОЕ ЗЕРНО KODAK 64</div>
-<div class="text-[10px] text-text-muted font-micro-caption">ТОНКАЯ ТЕКСТУРА КИНОПЛЁНКИ · ГОТОВИТСЯ</div>
+<div id="kgs-grain-label" class="text-xs font-semibold text-on-surface uppercase">Плёночное зерно Kodak 64</div>
+<div id="kgs-grain-note" class="text-[10px] text-text-muted font-micro-caption">Тонкая текстура на фоне и обложках</div>
 </div>
-<div class="flex items-center gap-2">
-<span class="text-[9px] font-micro-caption px-1.5 py-0.5 rounded bg-surface-container text-text-muted">СКОРО</span>
-<div class="w-9 h-5 bg-surface-container-high rounded-full opacity-40"></div>
-</div>
+<button class="kgs-switch bg-surface-container-highest aria-checked:bg-primary-container" type="button" role="switch" aria-checked="false" aria-labelledby="kgs-grain-label" aria-describedby="kgs-grain-note" data-kgs-grain><span aria-hidden="true"></span></button>
 </div>
 <div class="flex items-center justify-between gap-3">
 <div>
-<div class="text-xs font-semibold text-on-surface-variant uppercase">АНАМОРФОТНЫЕ БЛИКИ PANAVISION</div>
-<div class="text-[10px] text-text-muted font-micro-caption">КИНЕМАТОГРАФИЧЕСКИЕ БЛИКИ ИНТЕРФЕЙСА · ГОТОВЯТСЯ</div>
+<div id="kgs-flare-label" class="text-xs font-semibold text-on-surface uppercase">Анаморфотные блики Panavision</div>
+<div id="kgs-flare-note" class="text-[10px] text-text-muted font-micro-caption">Горизонтальный блик на фоне глобуса</div>
 </div>
-<div class="flex items-center gap-2">
-<span class="text-[9px] font-micro-caption px-1.5 py-0.5 rounded bg-surface-container text-text-muted">СКОРО</span>
-<div class="w-9 h-5 bg-surface-container-high rounded-full opacity-40"></div>
-</div>
+<button class="kgs-switch bg-surface-container-highest aria-checked:bg-primary-container" type="button" role="switch" aria-checked="false" aria-labelledby="kgs-flare-label" aria-describedby="kgs-flare-note" data-kgs-flare><span aria-hidden="true"></span></button>
 </div>
 <div class="flex items-center justify-between gap-3 pt-2 border-t border-surface-border-subtle">
 <div>
@@ -368,23 +359,12 @@
 <span>Удиви меня</span>
 </button>
 </div>
-<div class="grid grid-cols-4 gap-1.5 pt-1">
-<button class="py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high border border-surface-border-subtle text-[10px] font-medium text-on-surface-variant" type="button" disabled>
-            Лёгкое
-          </button>
-<button class="py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high border border-surface-border-subtle text-[10px] font-medium text-on-surface-variant" type="button" disabled>
-            Открытие
-          </button>
-<button class="py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high border border-surface-border-subtle text-[10px] font-medium text-on-surface-variant" type="button" disabled>
-            Случайность
-          </button>
-<button class="py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high border border-surface-border-subtle text-[10px] font-medium text-on-surface-variant" type="button" disabled>
-            Хардкор
-          </button>
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 pt-1" role="group" aria-label="Сценарии «Удиви меня»">
+${[["light","Лёгкое"],["find","Открытие"],["wild","Случайность"],["hard","Хардкор"]].map(([id,label]) => `
+<button class="min-h-9 px-2 rounded-lg bg-surface-container hover:bg-surface-container-high border border-surface-border-subtle text-xs font-medium text-on-surface-variant aria-pressed:bg-primary-container aria-pressed:text-on-primary-fixed" type="button" data-kgs-surprise="${id}" aria-pressed="false">${label}</button>
+`).join("")}
 </div>
-<p class="text-[10px] text-text-muted font-micro-caption leading-relaxed uppercase">
-          СКОРО · ВЫБОР СЦЕНАРИЯ РУЛЕТКИ ИЗ НАСТРОЕК.
-        </p>
+<p class="text-body-sm text-text-muted" data-kgs-surprise-note></p>
 </div>
 </section>
 <section class="rounded-2xl bg-surface-panel border border-primary-container/25 p-4 space-y-3.5 transition-colors duration-300" data-purpose="expedition-atlas">
@@ -449,7 +429,84 @@
   const $ = (selector) => dialog.querySelector(selector);
   const close = () => { if (dialog.open) dialog.close(); else dialog.removeAttribute("open"); };
   const switchState = (el, value) => el.setAttribute("aria-checked", String(!!value));
+  const filmLanguageSelect = $("#kgs-film-language");
+  filmLanguageSelect.value = filmLanguage;
+  filmLanguageSelect.addEventListener("change", () => {
+    store.set("kgFilmLanguage", filmLanguageSelect.value);
+    location.reload();
+  });
+
+  const watchRegionSelect = $("#kgs-watch-region");
+  const watchProviders = window.KGLegalWatch;
+  for (const {code, name} of watchProviders.regionOptions) {
+    watchRegionSelect.add(new Option(name, code));
+  }
+  function syncWatchRegion() {
+    watchRegionSelect.value = watchProviders.getRegion();
+    $("#kgs-watch-region-note").textContent = "Регион для блока «Где смотреть»: " + watchProviders.getRegionName() + ".";
+  }
+  watchRegionSelect.addEventListener("change", () => {
+    watchProviders.setRegion(watchRegionSelect.value);
+    syncWatchRegion();
+  });
+
+  const volumeSlider = $("#kgs-volume");
+  const volumeValue = $("[data-kgs-volume-value]");
+  const syncVolume = () => {
+    volumeSlider.value = String(soundVolume);
+    volumeSlider.setAttribute("aria-valuetext", soundVolume + "%");
+    volumeValue.value = soundVolume + "%";
+  };
+  volumeSlider.addEventListener("input", () => {
+    setSoundVolume(volumeSlider.valueAsNumber);
+    syncVolume();
+  });
+
+  const themeButtons = dialog.querySelectorAll("[data-kgs-theme]");
+  function syncTheme() {
+    const theme = document.documentElement.dataset.kgTheme || "cinematic";
+    themeButtons.forEach(button => {
+      const selected = button.dataset.kgsTheme === theme;
+      button.setAttribute("aria-pressed", String(selected));
+      button.querySelector("[data-kgs-theme-current]").hidden = !selected;
+    });
+  }
+
+  themeButtons.forEach(button => {
+    button.addEventListener("click", () => {
+      setAppTheme(button.dataset.kgsTheme);
+      syncTheme();
+    });
+  });
+
+  const grainSwitch = $("[data-kgs-grain]");
+  const hasGrain = () => document.documentElement.hasAttribute("data-kg-film-grain");
+  grainSwitch.addEventListener("click", () => {
+    setFilmGrain(!hasGrain());
+    switchState(grainSwitch, hasGrain());
+  });
+
+  const beamSwitch = $("[data-kgs-beam]");
+  const hasBeam = () => document.documentElement.hasAttribute("data-kg-projector-beam");
+  beamSwitch.addEventListener("click", () => {
+    setProjectorBeam(!hasBeam());
+    switchState(beamSwitch, hasBeam());
+  });
+
+  const flareSwitch = $("[data-kgs-flare]");
+  const hasFlare = () => document.documentElement.hasAttribute("data-kg-anamorphic-flare");
+  flareSwitch.addEventListener("click", () => {
+    setAnamorphicFlare(!hasFlare());
+    switchState(flareSwitch, hasFlare());
+  });
+
   const sync = () => {
+    syncWatchRegion();
+    switchState(flareSwitch, hasFlare());
+    switchState(beamSwitch, hasBeam());
+    switchState(grainSwitch, hasGrain());
+    syncVolume();
+    syncTheme();
     const hasKey = !!apiKey;
     $("[data-kgs-status]").textContent = hasKey ? "Ключ сохранён" : "Ключ не добавлен";
     $("[data-kgs-api-badge]").textContent = hasKey ? "КЛЮЧ СОХРАНЁН" : "НУЖЕН КЛЮЧ";
@@ -483,6 +540,12 @@
       const active = button.dataset.kgsMode === playMode;
       button.setAttribute("aria-pressed",String(active));
     });
+    dialog.querySelectorAll("[data-kgs-surprise]").forEach(button => {
+      button.setAttribute("aria-pressed", String(playMode === "surprise" && button.dataset.kgsSurprise === surprise));
+    });
+    $("[data-kgs-surprise-note]").textContent = playMode === "surprise"
+      ? SURPRISE_NOTE[surprise]
+      : "Выберите сценарий, чтобы включить режим «Удиви меня».";
   };
 
   $("[data-kgs-close]").addEventListener("click", close);
@@ -542,6 +605,12 @@
   $("[data-kgs-adult]").addEventListener("click", () => { toggleAdultGenres(); sync(); });
   $("[data-kgs-mode=filters]").addEventListener("click", () => { document.getElementById("modeFilters").click(); sync(); });
   $("[data-kgs-mode=surprise]").addEventListener("click", () => { document.getElementById("modeSurprise").click(); sync(); });
+  dialog.querySelectorAll("[data-kgs-surprise]").forEach(button => {
+    button.addEventListener("click", () => {
+      selectSurpriseScenario(button.dataset.kgsSurprise);
+      sync();
+    });
+  });
   $("[data-kgs-preview]").addEventListener("click", () => { try { preview(); } catch (_) {} });
 
   $("[data-kgs-atlas]").addEventListener("click", () => { close(); document.getElementById("mapBtn").click(); });

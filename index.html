@@ -1,5 +1,5 @@
 <!DOCTYPE html><html class="dark" lang="ru"><head><meta charset="utf-8"><link rel="stylesheet" href="app-theme.css?v=6">
-<script src="interface-en.js?v=3"></script>
+<script src="interface-en.js?v=6"></script>
 <script src="interface-i18n.js?v=2"></script>
 <script>
 const APP_THEMES = ["cinematic", "oled", "golden-age"];
@@ -54,8 +54,8 @@ try {
       0% { transform: translateX(-100%); }
       100% { transform: translateX(200%); }
     }
-  </style><script src="cinema-reel.js?v=37"></script><link rel="stylesheet" href="watched-button.css?v=2">
-<script src="watched-button.js?v=1"></script>
+  </style><script src="cinema-reel.js?v=38"></script><link rel="stylesheet" href="watched-button.css?v=2">
+<script src="watched-button.js?v=2"></script>
 <link rel="stylesheet" href="settings-page.css?v=5">
 </head><body class="bg-canvas-obsidian font-body-md text-on-surface flex flex-col min-h-screen relative">
 <!-- Atmospheric Living Theater Background Layer with Floating Posters -->
@@ -2027,7 +2027,7 @@ function renderMap(){
   const watchedCounts=window.KGWatchedCountryCounts?window.KGWatchedCountryCounts():{};
   const v=c=>"", w=c=>watchedCounts[c]?" w":"", last=c=>c===lastCC&&watchedCounts[c]?" last":"";
   const op=c=>watchedCounts[c]?' style="opacity:1"':"";
-  $("mapbox").innerHTML=`<svg viewBox="0 0 ${MAP.w} ${MAP.h}" style="width:${ZOOMS[zoomI]}%" role="img" aria-label="Карта открытых стран">`
+  $("mapbox").innerHTML=`<svg viewBox="0 0 ${MAP.w} ${MAP.h}" style="width:${ZOOMS[zoomI]}%" role="img" aria-label="${uiText("Карта открытых стран")}">`
     +`<path class="mo" d="${MAP.o}"/>`
     +Object.entries(MAP.c).map(([c,d])=>`<path class="mc${v(c)}${w(c)}${last(c)}" data-c="${c}"${op(c)} d="${d}"/>`).join("")
     +Object.entries(MAP.m).map(([c,[x,y]])=>`<circle class="mc${v(c)}${w(c)}${last(c)}" data-c="${c}"${op(c)} cx="${x}" cy="${y}" r="7"/>`).join("")
@@ -2938,25 +2938,25 @@ function embedSrc(v, autoplay = true) {
 }
 function closePlayer(){
   $("player").innerHTML="";$("player").hidden=true;$("ytnote").hidden=true;
-  if(tKey) $("trailer").textContent="▶ Смотреть трейлер";
+  if(tKey) $("trailer").textContent=uiText("▶ Смотреть трейлер");
 }
 function setTrailer(film){
   const t=$("trailer");
   tKey=null;closePlayer();
-  t.disabled=true;t.textContent="Ищем трейлер…";
+  t.disabled=true;t.textContent=uiText("Ищем трейлер…");
   trailerFor(film).then(k=>{
     if(!cur||cur.film.id!==film.id) return;
-    if(!k){t.textContent="Трейлера нет";return;}
-    tKey=k;t.disabled=false;t.textContent="▶ Смотреть трейлер";
-  }).catch(()=>{if(cur&&cur.film.id===film.id) t.textContent="Трейлера нет";});
+    if(!k){t.textContent=uiText("Трейлера нет");return;}
+    tKey=k;t.disabled=false;t.textContent=uiText("▶ Смотреть трейлер");
+  }).catch(()=>{if(cur&&cur.film.id===film.id) t.textContent=uiText("Трейлера нет");});
 }
 $("trailer").onclick=()=>{
   if(!tKey) return;
   if(!$("player").hidden){closePlayer();return;}
-  $("player").innerHTML=`<iframe src="${embedSrc(tKey)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" title="Трейлер"></iframe>`;
+  $("player").innerHTML=`<iframe src="${embedSrc(tKey)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" title="${uiText("Трейлер")}"></iframe>`;
   $("player").hidden=false;
   $("ytlink").href=watchUrl(tKey);
-  $("ytlink").textContent=tKey.site==="Vimeo"?"Открыть на Vimeo":"Открыть на YouTube";
+  $("ytlink").textContent=uiText("Открыть на {site}", {site: tKey.site});
   $("ytnote").hidden=false;
   $("trailer").textContent="✕ Закрыть трейлер";
 };
@@ -3144,11 +3144,11 @@ function poolLine(pool){
 }
 function fmtRuntime(m){
   const h=Math.floor(m/60), min=m%60;
-  if(h&&min) return h+" ч "+min+" мин";
-  if(h) return h+" ч";
-  return min+" мин";
+  if(h&&min) return uiText("{hours} ч {minutes} мин", {hours: h, minutes: min});
+  if(h) return uiText("{hours} ч", {hours: h});
+  return uiText("{minutes} мин", {minutes: min});
 }
-const moneyFmt=new Intl.NumberFormat("ru-RU",{style:"currency",currency:"USD",maximumFractionDigits:0});
+const moneyFmt=new Intl.NumberFormat(interfaceLanguage,{style:"currency",currency:"USD",maximumFractionDigits:0});
 function money(n){return n?moneyFmt.format(n):"—";}
 const filmSynopsis = text => String(text || "").trim();
 const detailCache={};
@@ -3614,7 +3614,7 @@ ${window.KGWatchedButtonHtml(false, 'id="btn-watched"')}
 <div id="discovery-related"></div>
 </div>
 </section>`;
-{const old=$("cinema-35mm-reel-section")||$("recent-discovery-card");if(old)old.outerHTML=CARD_HTML;}
+{const old=$("cinema-35mm-reel-section")||$("recent-discovery-card");if(old){old.outerHTML=CARD_HTML;localizeInterfaceMarkup($("film-details"));}}
 
 
 // ---------- Диалог настроек ----------
@@ -4044,14 +4044,14 @@ function setVotes(votes){
 }
 
 // ---------- Описание и подробности фильма ----------
-const langName=l=>{try{return l?new Intl.DisplayNames(["ru"],{type:"language"}).of(l):"";}catch(e){return l||"";}};
-const moneyOrNo=n=>n?moneyFmt.format(n):"нет данных";
+const langName=l=>{try{return l?new Intl.DisplayNames([interfaceLanguage],{type:"language"}).of(l):"";}catch(e){return l||"";}};
+const moneyOrNo=n=>n?moneyFmt.format(n):uiText("нет данных");
 function factRow(k,v){
   return v?`<div class="flex gap-2"><span class="text-text-muted flex-shrink-0" style="min-width:104px">${k}</span><span class="text-on-surface min-w-0" style="overflow-wrap:anywhere">${esc(v)}</span></div>`:"";
 }
 function synopsisHTML(text,note){
   return `<div class="p-3.5 rounded-xl bg-surface-container flex flex-col gap-2">
-    <div class="flex items-center gap-1.5 text-primary"><span class="material-symbols-outlined text-[18px]">auto_stories</span><h3 class="font-headline-sm text-headline-sm">Синопсис</h3></div>
+    <div class="flex items-center gap-1.5 text-primary"><span class="material-symbols-outlined text-[18px]">auto_stories</span><h3 class="font-headline-sm text-headline-sm">${uiText("Синопсис")}</h3></div>
     <p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">${esc(text)}</p>
     ${note?`<p class="font-micro-caption text-micro-caption text-text-muted">${esc(note)}</p>`:""}
   </div>`;
@@ -4059,10 +4059,10 @@ function synopsisHTML(text,note){
 function renderExtra(film,d){
   const cc=cur?cur.cc:"";
   const year=(film.release_date||"").slice(0,4);
-  const text=d.overview||filmSynopsis(film.overview)||"Описание пока недоступно.";
+  const text=d.overview||filmSynopsis(film.overview)||uiText("Описание пока недоступно.");
   const preferredLanguage = filmTextLanguage({original_language:d.originalLang});
   const note = d.overview && d.overviewLang && d.overviewLang !== preferredLanguage
-    ? "Показано доступное описание. Язык: " + langName(d.overviewLang) + "."
+    ? uiText("Показано доступное описание. Язык: {language}.", {language: langName(d.overviewLang)})
     : "";
   set("discovery-desc",text);
   $("discovery-desc-lang").textContent=note;
@@ -4076,8 +4076,8 @@ function renderExtra(film,d){
     <span class="font-micro-caption text-micro-caption text-text-muted">${label}</span>
     <span class="font-label-md text-label-md ${main?"text-primary":"text-on-surface"} mt-0.5" style="overflow-wrap:anywhere">${esc(val)}</span></div>`:"";
   const dirsHtml=(d.dirsFull||[]).length?d.dirsFull.map(p=>`<button type="button" data-kg-person-id="${p.id}" data-kg-person-name="${esc(p.name)}" data-kg-person-role="Режиссёр" class="kg-person-link">${esc(p.name)}</button>`).join(", "):esc((d.dirs||[]).join(", "));
-  const directorCard=dirsHtml?`<div class="p-2.5 rounded-xl bg-surface-container-high flex flex-col min-w-0"><span class="font-micro-caption text-micro-caption text-text-muted">${d.dirs.length>1?"Режиссёры":"Режиссёр"}</span><span class="font-label-md text-label-md text-primary mt-0.5" style="overflow-wrap:anywhere">${dirsHtml}</span></div>`:"";
-  const crew=[directorCard,card("Сценарий",d.writers.join(", "),false)].filter(Boolean);
+  const directorCard=dirsHtml?`<div class="p-2.5 rounded-xl bg-surface-container-high flex flex-col min-w-0"><span class="font-micro-caption text-micro-caption text-text-muted">${uiText(d.dirs.length>1?"Режиссёры":"Режиссёр")}</span><span class="font-label-md text-label-md text-primary mt-0.5" style="overflow-wrap:anywhere">${dirsHtml}</span></div>`:"";
+  const crew=[directorCard,card(uiText("Сценарий"),d.writers.join(", "),false)].filter(Boolean);
 
   // актёры
   const cast=(d.castFull||[]).map(c=>`<button type="button" data-kg-person-id="${c.id||""}" data-kg-person-name="${esc(c.name)}" data-kg-person-role="Актёр" class="kg-person-card flex-shrink-0 w-28 flex flex-col items-center text-center p-2 rounded-xl bg-surface-container-high" ${c.id?"":"disabled"}>
@@ -4088,17 +4088,17 @@ function renderExtra(film,d){
     <span class="font-micro-caption text-micro-caption text-text-muted truncate w-full">${esc(c.role)}</span></button>`).join("");
 
   const people=(crew.length||cast)?`<div class="flex flex-col gap-2">
-    <div class="flex items-center justify-between"><h3 class="font-headline-sm text-headline-sm text-on-surface">Создатели и актёры</h3>
+    <div class="flex items-center justify-between"><h3 class="font-headline-sm text-headline-sm text-on-surface">${uiText("Создатели и актёры")}</h3>
       <span class="font-micro-caption text-micro-caption text-text-muted">${esc([cc?cname(cc):"",year].filter(Boolean).join(" · "))}</span></div>
     ${crew.length?`<div class="grid ${crew.length>1?"grid-cols-2":"grid-cols-1"} gap-2">${crew.join("")}</div>`:""}
     ${cast?`<div class="flex gap-2.5 overflow-x-auto py-1" style="-webkit-overflow-scrolling:touch">${cast}</div>`:""}
   </div>`:"";
   const related=document.getElementById("discovery-related");
-  if(related)related.innerHTML=`<section data-kg-related-films data-film-id="${film.id}" data-context-key="discovery-current" data-placement="discovery" class="flex flex-col gap-2 mt-3 pt-3 border-t border-surface-border-subtle"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary-container text-[20px]">movie_filter</span><h3 class="font-headline-sm text-headline-sm text-primary">Похожие фильмы</h3></div><div data-kg-related-list class="flex gap-2 overflow-x-auto pb-1"><span class="text-xs text-text-muted">Подбираем фильмы…</span></div></section>`;
+  if(related)related.innerHTML=`<section data-kg-related-films data-film-id="${film.id}" data-context-key="discovery-current" data-placement="discovery" class="flex flex-col gap-2 mt-3 pt-3 border-t border-surface-border-subtle"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary-container text-[20px]">movie_filter</span><h3 class="font-headline-sm text-headline-sm text-primary">${uiText("Похожие фильмы")}</h3></div><div data-kg-related-list class="flex gap-2 overflow-x-auto pb-1"><span class="text-xs text-text-muted">${uiText("Подбираем фильмы…")}</span></div></section>`;
 
   // остальные факты
   let when="";
-  if(d.release){const t=new Date(d.release+"T00:00:00");when=isNaN(t)?d.release:t.toLocaleDateString("ru-RU",{day:"numeric",month:"long",year:"numeric"});}
+  if(d.release){const t=new Date(d.release+"T00:00:00");when=isNaN(t)?d.release:t.toLocaleDateString(interfaceLanguage,{day:"numeric",month:"long",year:"numeric"});}
   const facts=[
     ["Длительность",d.runtime?fmtRuntime(d.runtime):"",0],["Дата выхода",when,0],
     ["Бюджет",moneyOrNo(d.budget),0],["Сборы",moneyOrNo(d.revenue),0],
@@ -4106,21 +4106,21 @@ function renderExtra(film,d){
     ["Оригинальное название",d.originalTitle&&d.originalTitle!==film.title?d.originalTitle:"",1],
     ["Язык оригинала",langName(d.originalLang),0]
   ].filter(f=>f[1]).map(([k,v,wide])=>`<div class="p-2.5 rounded-xl bg-surface-container-high flex flex-col min-w-0 ${wide?"col-span-2":""}">
-    <span class="font-micro-caption text-micro-caption text-text-muted">${k}</span>
+    <span class="font-micro-caption text-micro-caption text-text-muted">${uiText(k)}</span>
     <span class="font-label-md text-label-md text-on-surface mt-0.5" style="overflow-wrap:anywhere">${esc(v)}</span></div>`).join("");
 
   // страна и прогресс
   const countryCounts=window.KGWatchedCountryCounts?window.KGWatchedCountryCounts():{};const n=countryCounts[cc]||0,open=Object.keys(countryCounts).length,all=COUNTRIES.length,pct=Math.round(open/all*100);
-  const tag=cur&&cur.pool.oscar?"ОСКАР":cur&&cur.pool.top1?"ТОП-1":"НАХОДКА";
+  const tag=uiText(cur&&cur.pool.oscar?"ОСКАР":cur&&cur.pool.top1?"ТОП-1":"НАХОДКА");
   const country=cc?`<div class="p-3.5 rounded-xl bg-surface-container-high flex flex-col gap-2.5">
     <div class="flex items-center justify-between gap-2">
       <div class="flex items-center gap-2 min-w-0"><div class="w-7 h-7 rounded-full bg-cinema-velvet-deep flex items-center justify-center text-secondary flex-shrink-0"><span class="material-symbols-outlined text-[16px]">travel_explore</span></div>
-        <span class="font-label-md text-label-md text-primary font-bold truncate">Кинематограф: ${esc(cname(cc))}</span></div>
+        <span class="font-label-md text-label-md text-primary font-bold truncate">${esc(uiText("Кинематограф: {country}", {country: cname(cc)}))}</span></div>
       <span class="px-2 py-0.5 rounded-full bg-surface-panel text-primary-fixed font-micro-caption text-micro-caption font-bold flex-shrink-0">${tag}</span></div>
-    <p class="font-body-sm text-body-sm text-on-surface-variant">Отмечено фильмов из этой страны: <strong class="text-primary font-bold">${n}</strong>. Открыто стран: <strong class="text-primary font-bold">${open} из ${all}</strong>.</p>
+    <p class="font-body-sm text-body-sm text-on-surface-variant">${uiText("Отмечено фильмов из этой страны:")} <strong class="text-primary font-bold">${n}</strong>. ${uiText("Открыто стран:")} <strong class="text-primary font-bold">${esc(uiText("{opened} из {total}", {opened: open, total: all}))}</strong>.</p>
     <div class="w-full bg-surface-variant/70 rounded-full h-2 overflow-hidden"><div class="bg-primary-container h-full rounded-full transition-all duration-500" style="width:${pct}%"></div></div>
-    <div class="flex items-center justify-between text-text-muted"><span class="font-micro-caption text-micro-caption">Прогресс: ${pct}%</span>
-      <button type="button" data-kg="passport" class="inline-flex items-center gap-1 font-micro-caption text-micro-caption text-primary hover:underline"><span>Смотреть паспорт</span><span class="material-symbols-outlined text-[12px]">chevron_right</span></button></div>
+    <div class="flex items-center justify-between text-text-muted"><span class="font-micro-caption text-micro-caption">${esc(uiText("Прогресс: {percent}%", {percent: pct}))}</span>
+      <button type="button" data-kg="passport" class="inline-flex items-center gap-1 font-micro-caption text-micro-caption text-primary hover:underline"><span>${uiText("Смотреть паспорт")}</span><span class="material-symbols-outlined text-[12px]">chevron_right</span></button></div>
   </div>`:"";
 
   const fx=$("film-facts");
@@ -4143,13 +4143,13 @@ function closeFilmTrailer(){
 }
 function playFilmTrailer(){
   if(!ftKey)return;
-  $("film-trailer-player").innerHTML=`<iframe src="${embedSrc(ftKey)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" title="Трейлер" style="position:absolute;inset:0;width:100%;height:100%;border:0"></iframe>`;
+  $("film-trailer-player").innerHTML=`<iframe src="${embedSrc(ftKey)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" title="${uiText("Трейлер")}" style="position:absolute;inset:0;width:100%;height:100%;border:0"></iframe>`;
   $("film-trailer-player").hidden=false;
   $("film-trailer-preview").hidden=true;
   $("film-trailer-close").hidden=false;
   $("film-trailer-note").hidden=false;
   $("film-trailer-link").href=watchUrl(ftKey);
-  $("film-trailer-link").textContent=ftKey.site==="Vimeo"?"Открыть на Vimeo":"Открыть на YouTube";
+  $("film-trailer-link").textContent=uiText("Открыть на {site}", {site: ftKey.site});
 }
 $("film-trailer-play").addEventListener("click",playFilmTrailer);
 $("film-trailer-close").addEventListener("click",event=>{event.preventDefault();event.stopPropagation();closeFilmTrailer();});
@@ -4162,50 +4162,50 @@ window.show=function(cc,pool,film){
   if(window.KGFilmInteractions)window.KGFilmInteractions.registerPool("discovery-current",pool.films||[]);
   window.KGShowRelatedDiscoveryFilm=related=>window.show(cc,pool,related);
   const w=gc(cc);
-  set("hero-country-films",pool.oscar?"Оскар":pool.top1?"Топ-1":(pool.films.length+" в выборке"));
-  set("hero-country-master","Ищем фильм…");
+  set("hero-country-films",pool.oscar?uiText("Оскар"):pool.top1?uiText("Топ-1"):uiText("{count} в выборке", {count: pool.films.length}));
+  set("hero-country-master",uiText("Ищем фильм…"));
   // «Другой фильм» из той же страны: глобус уже стоит на ней, крутить и приближать его заново не нужно
   const sameCountry=!G.isSpinning&&focusedCC===cc;
   if(!G.isSpinning&&!sameCountry){   // фильм из истории или из другой страны: показать страну
     focusedCC=cc;
     G.currentCountry=w;G.showSingleBeacon(w);G.orientGlobeToCountry(w,false,0.055,G.CAMERA_DIST_FOCUS,true);hero(w,false);
-    set("hero-country-films",pool.oscar?"Оскар":pool.top1?"Топ-1":(pool.films.length+" в выборке"));set("hero-country-master","Ищем фильм…");
+    set("hero-country-films",pool.oscar?uiText("Оскар"):pool.top1?uiText("Топ-1"):uiText("{count} в выборке", {count: pool.films.length}));set("hero-country-master",uiText("Ищем фильм…"));
     tmr.forEach(clearTimeout);tmr=[];
     tmr.push(setTimeout(()=>G.dollyBack(w),2400));
   }
   const y=(film.release_date||"").slice(0,4),votes=film.vote_count||0;
   set("discovery-title",film.title||"");set("discovery-year",y?"("+y+")":"");
   const poster=$("discovery-poster");
-  poster.alt=`Постер фильма «${film.title||"Фильм"}»`;
+  poster.alt=uiText("Постер фильма «{title}»", {title: film.title || uiText("Фильм")});
   if(film.poster_path){poster.src=`https://image.tmdb.org/t/p/w342${film.poster_path}`;poster.classList.remove("hidden");}
   else{poster.removeAttribute("src");poster.classList.add("hidden");}
   $("film-trailer-box").hidden=false;
   $("film-trailer-thumbnail").src=film.poster_path?`https://image.tmdb.org/t/p/w780${film.poster_path}`:"";
   $("film-trailer-play").disabled=true;
-  $("film-trailer-status").textContent="Ищем трейлер…";
+  $("film-trailer-status").textContent=uiText("Ищем трейлер…");
   $("film-trailer-status").hidden=false;
   set("discovery-country",cname(cc));$("discovery-flag").innerHTML=flag(cc,false);
-  set("discovery-genres","· "+(genreLine(film)||"кино"));
-  set("discovery-desc",filmSynopsis(film.overview)||"Ищем описание…");
+  set("discovery-genres","· "+(genreLine(film).split(", ").map(genre => uiText(genre)).join(", ")||uiText("кино")));
+  set("discovery-desc",filmSynopsis(film.overview)||uiText("Ищем описание…"));
   $("discovery-desc-lang").hidden=true;$("film-tagline").hidden=true;
-  $("film-people").innerHTML='<span class="text-text-muted">Загружаем режиссёра и актёров…</span>';
-  $("film-facts").innerHTML='<span class="text-text-muted">Загружаем подробности…</span>';
+  $("film-people").innerHTML=`<span class="text-text-muted">${uiText("Загружаем режиссёра и актёров…")}</span>`;
+  $("film-facts").innerHTML=`<span class="text-text-muted">${uiText("Загружаем подробности…")}</span>`;
   set("discovery-rating",votes?Number(film.vote_average).toFixed(1):"—");setVotes(votes);
-  set("discovery-timestamp",pool.oscar?"Лауреат «Оскара»":pool.top1?"Топ-1 страны":pool.worst?"Из худших":"Случайная находка · "+cname(cc));
+  set("discovery-timestamp",pool.oscar?uiText("Лауреат «Оскара»"):pool.top1?uiText("Топ-1 страны"):pool.worst?uiText("Из худших"):uiText("Случайная находка · {country}", {country: cname(cc)}));
   $("oscar-badge").style.display=pool.oscar?"":"none";
   veil(true);renderBlank();                 // название и рейтинг скрыты до остановки плёнки, спойлера нет
   filmDetails(film.id).then(d=>{
     if(!cur||cur.film.id!==film.id)return;
-    const g=(d.genres.length?d.genres:genreLine(film).split(", ")).filter(Boolean).slice(0,3).join(", ");
-    set("discovery-genres","· "+[g,d.runtime?d.runtime+" мин":""].filter(Boolean).join(" · "));
+    const g=(d.genres.length?d.genres:genreLine(film).split(", ")).filter(Boolean).slice(0,3).map(genre => uiText(genre)).join(", ");
+    set("discovery-genres","· "+[g,d.runtime?uiText("{minutes} мин", {minutes: d.runtime}):""].filter(Boolean).join(" · "));
     if(d.votes){set("discovery-rating",Number(d.average).toFixed(1));setVotes(d.votes);}
     if (d.title) set("discovery-title", d.title);
     renderExtra({...film, title:d.title || film.title},d);
   }).catch(()=>{
     if(!cur||cur.film.id!==film.id)return;
-    set("discovery-desc",filmSynopsis(film.overview)||"Не удалось загрузить описание.");
-    $("film-people").innerHTML='<span class="text-text-muted">Сведения о режиссёре и актёрах сейчас недоступны.</span>';
-    $("film-facts").innerHTML='<span class="text-text-muted">Подробности сейчас недоступны.</span>';
+    set("discovery-desc",filmSynopsis(film.overview)||uiText("Не удалось загрузить описание."));
+    $("film-people").innerHTML=`<span class="text-text-muted">${uiText("Сведения о режиссёре и актёрах сейчас недоступны.")}</span>`;
+    $("film-facts").innerHTML=`<span class="text-text-muted">${uiText("Подробности сейчас недоступны.")}</span>`;
   });
   const alreadyWatched=!!window.KGIsFilmWatched?.(film.id);
   bw.dataset.saving="false";
@@ -4220,8 +4220,8 @@ window.show=function(cc,pool,film){
       $("film-trailer-note").hidden=false;
       $("film-trailer-status").hidden=true;
       if(k.site==="YouTube")$("film-trailer-thumbnail").src=`https://img.youtube.com/vi/${encodeURIComponent(k.key)}/hqdefault.jpg`;
-      $("film-trailer-link").href=watchUrl(k);$("film-trailer-link").textContent=`Открыть на ${k.site}`;
-    }else{$("film-trailer-status").hidden=false;$("film-trailer-status").textContent="Трейлер не найден";}
+      $("film-trailer-link").href=watchUrl(k);$("film-trailer-link").textContent=uiText("Открыть на {site}", {site: k.site});
+    }else{$("film-trailer-status").hidden=false;$("film-trailer-status").textContent=uiText("Трейлер не найден");}
   });
   showProviders(film);
   stopReel();warmPosters(pool,film);
@@ -4288,19 +4288,19 @@ console.info("[Kinoglobus] Bridge v6 ready");
 </script>
 
 <script src="globe-visuals.js?v=3"></script>
-<script src="watch-history.js?v=8"></script>
-<script src="country-pages.js?v=14"></script>
+<script src="watch-history.js?v=9"></script>
+<script src="country-pages.js?v=15"></script>
 <script src="account-page.js?v=2"></script>
 <script src="mood-vibe-additions.js?v=2"></script>
-<script src="mood-page.js?v=35"></script>
-<script src="mood-vibe-page.js?v=20"></script>
+<script src="mood-page.js?v=36"></script>
+<script src="mood-vibe-page.js?v=21"></script>
 <script src="oscar-page.js?v=36"></script>
 <script src="oscar-design.js?v=15"></script>
 <script src="curated-collections.js?v=1"></script>
-<script src="collections.js?v=77"></script>
-<script src="film-interactions.js?v=15"></script>
-<script src="legal-watch.js?v=5"></script>
-<script src="global-search.js?v=4"></script>
+<script src="collections.js?v=79"></script>
+<script src="film-interactions.js?v=16"></script>
+<script src="legal-watch.js?v=6"></script>
+<script src="global-search.js?v=5"></script>
 <script src="settings-page.js?v=43"></script>
 
 </body></html>

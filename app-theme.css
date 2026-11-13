@@ -1,0 +1,94 @@
+:root {
+  --kg-canvas-obsidian: 7 6 10;
+  --kg-primary: 255 220 168;
+  --kg-primary-container: 255 184 48;
+  --kg-on-surface: 232 224 234;
+  --kg-on-surface-variant: 213 196 173;
+  --kg-text-muted: 179 167 154;
+  --kg-cinema-velvet: 76 5 25;
+  --kg-cinema-velvet-glow: 131 24 67;
+  --kg-cinema-amber-glow: 255 184 48;
+  --kg-surface: 21 18 25;
+  --kg-surface-container-lowest: 16 13 20;
+  --kg-surface-panel: 28 24 34;
+  --kg-surface-container-low: 29 26 34;
+  --kg-surface-container: 34 30 38;
+  --kg-surface-container-high: 44 40 48;
+  --kg-surface-container-highest: 55 51 59;
+  --kg-surface-bright: 60 56 64;
+  --kg-surface-border-subtle: 58 49 64;
+  --kg-surface-border: 35 31 46;
+}
+
+:root[data-kg-theme="oled"] {
+  --kg-canvas-obsidian: 0 0 0;
+  --kg-surface: 8 8 9;
+  --kg-surface-container-lowest: 5 5 6;
+  --kg-surface-panel: 16 16 18;
+  --kg-surface-container-low: 13 13 15;
+  --kg-surface-container: 22 22 24;
+  --kg-surface-container-high: 32 32 35;
+  --kg-surface-container-highest: 43 43 46;
+  --kg-surface-bright: 51 51 55;
+  --kg-surface-border-subtle: 53 53 56;
+  --kg-surface-border: 33 33 36;
+}
+
+:root[data-kg-theme="oled"] {
+  color-scheme: dark;
+}
+
+:root[data-kg-theme="golden-age"] {
+  color-scheme: dark;
+  --kg-canvas-obsidian: 20 15 9;
+  --kg-surface: 26 19 11;
+  --kg-surface-container-lowest: 23 16 10;
+  --kg-surface-panel: 34 25 16;
+  --kg-surface-container-low: 38 28 18;
+  --kg-surface-container: 46 34 22;
+  --kg-surface-container-high: 57 42 27;
+  --kg-surface-container-highest: 69 51 33;
+  --kg-surface-bright: 80 60 39;
+  --kg-surface-border-subtle: 100 73 44;
+  --kg-surface-border: 57 42 28;
+  --kg-primary: 255 225 158;
+  --kg-primary-container: 245 178 62;
+  --kg-on-surface: 247 232 208;
+  --kg-on-surface-variant: 225 204 174;
+  --kg-text-muted: 195 170 136;
+  --kg-cinema-velvet: 74 24 22;
+  --kg-cinema-velvet-glow: 124 44 30;
+  --kg-cinema-amber-glow: 245 178 62;
+}
+
+/* One static monochrome tile. Apply it to image surfaces so text stays sharp. */
+:root[data-kg-film-grain] {
+  --kg-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='128' height='128'%3E%3Cfilter id='n' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.86' numOctaves='2' seed='64' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+:root[data-kg-film-grain] body {
+  background-image: linear-gradient(rgb(var(--kg-canvas-obsidian) / .95), rgb(var(--kg-canvas-obsidian) / .95)), var(--kg-grain);
+}
+
+:root[data-kg-film-grain] :is(
+  #starfield-bg,
+  #spot [data-k="bg"],
+  .collection-card .relative:has(> img[data-k="img"]),
+  .mood-card [data-mood-select],
+  .vibe-card section > .bg-cover,
+  #film-details .relative:has(> #discovery-poster)
+)::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: var(--kg-grain) repeat;
+  mix-blend-mode: soft-light;
+  opacity: .34;
+}
+
+:root[data-kg-film-grain] #starfield-bg::before {
+  mix-blend-mode: normal;
+  opacity: .06;
+}

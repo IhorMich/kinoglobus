@@ -63,6 +63,7 @@
     .kg-profile-pills {display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
     .kg-profile-pill {padding:3px 8px;border-radius:99px;background:#30333e;color:var(--profile-muted);font-size:11px}
     .kg-profile-copy {color:var(--profile-muted);font-size:13px;line-height:1.6;margin-top:12px;overflow-wrap:anywhere}
+    .kg-profile-diary {width:100%;margin-top:8px;color:var(--profile-gold)}
     .kg-profile-actions {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:14px}
     .kg-profile-button {display:flex;align-items:center;justify-content:center;gap:5px;padding:7px;min-height:40px;border-radius:9px;background:#30333e;font-size:12px;font-weight:700}
     .kg-profile-button.gold,.kg-profile-tabs button[aria-pressed="true"] {background:var(--profile-gold);color:#302000}
@@ -132,6 +133,7 @@
             <button type="button" class="kg-profile-button gold" data-profile-edit>${icon("edit_note")}<span>Редактировать</span></button>
             <button type="button" class="kg-profile-button" data-profile-share>${icon("share")}<span>Поделиться</span></button>
           </div>
+          <button type="button" class="kg-profile-button kg-profile-diary" data-profile-diary>${icon("history_edu")}<span>Кинодневник</span></button>
         </section>
         <section class="kg-profile-archive">
           <div class="kg-profile-head"><h2>Кинематографический архив</h2><button type="button" class="kg-profile-gold" data-profile-action="history">История</button></div>
@@ -158,7 +160,7 @@
             <button type="button" data-profile-tab="collections" aria-pressed="true">Коллекции и полки</button>
             <button type="button" data-profile-tab="reviews" aria-pressed="false">Рецензии</button>
             <button type="button" data-profile-tab="watchlist" aria-pressed="false">Буду смотреть</button>
-            <button type="button" data-profile-action="history">Дневник</button>
+            <button type="button" data-profile-diary>Дневник</button>
           </div>
           <div data-profile-panel="collections">
             <div class="kg-profile-head"><h2>Авторские подборки</h2><small>Примеры</small></div>
@@ -213,7 +215,8 @@
     collections: 'body > nav [data-view="collections"]',
     history: 'body > nav [data-view="history"]',
     settings: "#gear",
-    search: "[data-kg-search-open]"
+    search: "[data-kg-search-open]",
+    journey: 'body > nav [data-view="journey"]'
   };
 
   function selectTab(tab) {
@@ -295,6 +298,16 @@
     if (event.target.closest("[data-profile-logout]")) {
       profile = null;
       dialog.close();
+    }
+    if (event.target.closest("[data-profile-diary]")) {
+      window.KGOpenCinemaDiary(profile.avatar || artwork[0], (route, closeDiary) => {
+        const target = document.querySelector(routes[route]);
+        if (!target) return;
+        closeDiary();
+        dialog.close();
+        target.click();
+      });
+      return;
     }
     if (event.target.closest("[data-profile-edit]")) {
       window.KGOpenProfileEditor(profile,{

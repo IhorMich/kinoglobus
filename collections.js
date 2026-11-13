@@ -708,7 +708,7 @@ document.addEventListener("click",e=>{
     return;
   }
   const bookmark=e.target.closest('[data-act="bm"]');
-  if(bookmark&&D.selected&&["mood","oscar"].includes(D.selected._placement)&&String(D.selected.id)===bookmark.dataset.id){
+  if(bookmark&&D.selected&&(["mood","oscar"].includes(D.selected._placement)||bookmark.closest("#kg-home-releases"))&&String(D.selected.id)===bookmark.dataset.id){
     e.preventDefault();e.stopPropagation();
     const id=D.selected.id;
     BOOK.has(id)?BOOK.delete(id):BOOK.add(id);store.set("kgBookmarks",[...BOOK]);

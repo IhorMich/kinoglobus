@@ -37,7 +37,10 @@ document.head.appendChild(st2);
    МАППИНГ ВСЕХ 44 АВТОРСКИХ КИНЕМАТОГРАФИЧНЫХ АРТ-ОБЛОЖЕК (16:9)
    Каждая подборка получает гарантированный кураторский визуал
    ========================================================================== */
+const curatedThemes = window.KGCuratedCollections;
+const catalogThemes = [...THEMES, ...curatedThemes];
 const THEME_COVERS = {
+  ...Object.fromEntries(curatedThemes.map(t => [t.id, t.cover])),
   // 1. Азиатский блок
   kr: "assets /covers/kr.jpg",
   krdrama: "assets /covers/krdrama.jpg",
@@ -96,9 +99,10 @@ function getThemeCover(id){
 
 
 /* ---------- данные подборок ---------- */
-const CAT={noir:["Триллер и Нуар","NOIR • CRIME"],horror:["Ужасы и Мистика","HORROR • MYSTERY"],drama:["Драма и Авторское","DRAMA • AUTEUR"],action:["Экшен и Фэнтези","ACTION • FANTASY"],retro:["Историческое","RETRO • WAR"],comedy:["Комедия и Романтика","COMEDY • ROMANCE"],scifi:["Фантастика","SCI-FI • FUTURE"]};
+const CAT={curated:["Необычные подборки","АВТОРСКИЙ ОТБОР"],noir:["Триллер и Нуар","NOIR • CRIME"],horror:["Ужасы и Мистика","HORROR • MYSTERY"],drama:["Драма и Авторское","DRAMA • AUTEUR"],action:["Экшен и Фэнтези","ACTION • FANTASY"],retro:["Историческое","RETRO • WAR"],comedy:["Комедия и Романтика","COMEDY • ROMANCE"],scifi:["Фантастика","SCI-FI • FUTURE"]};
 // id: [категория, английское название, подпись в каталоге, описание]
 const TM={
+...Object.fromEntries(curatedThemes.map(t => [t.id, ["curated", t.englishName, t.subtitle, t.description]])),
 kr:["noir","Korean Thrillers","Шокирующие твисты, вендетта и запредельный саспенс","Шокирующие повороты, месть и психологический саспенс: корейское кино умеет держать в напряжении до последнего кадра."],
 jp:["action","Japanese Animation","Философские шедевры Studio Ghibli, киберпанк и фэнтези","Философские истории студии Ghibli, киберпанк и фэнтези: рукотворные миры, в которые хочется возвращаться."],
 jhorror:["horror","J-Horror","Кайданы, проклятия онрё и холодный ужас J-Horror","Тихий, медленный ужас: призраки-онрё, проклятые вещи и страх, живущий в самых обычных комнатах."],
@@ -145,8 +149,8 @@ inclassic:["comedy","Indian Classics & Musicals","Золотой век Болл
 jpcrime:["noir","Japanese Crime Cinema","Якудза, полицейские расследования и мрачный японский нуар","Криминальное кино Японии: якудза, полицейские расследования и напряжённые истории о чести, власти и мести."]
 };
 const REG={nordic:["Скандинавия","NORD"],cnfan:["Китай, Гонконг","CN"],latam:["Латинская Америка","LATAM"],african:["Африка","AFR"],arabic:["Арабский мир","ARAB"]};
-const ICON={nordic:"ac_unit"};
-const T=Object.fromEntries(THEMES.map(t=>[t.id,t]));
+const ICON={nordic:"ac_unit", ...Object.fromEntries(curatedThemes.map(t => [t.id, t.icon]))};
+const T=Object.fromEntries(catalogThemes.map(t=>[t.id,t]));
 const cat=t=>(TM[t.id]||["noir"])[0];
 
 /* ---------- утилиты ---------- */
@@ -158,8 +162,8 @@ const moneyText=n=>Number(n)>0?moneyFmt.format(Number(n)):"Нет данных";
 const kgPersonLink=(p,role)=>p&&p.id?`<button type="button" data-kg-person-id="${p.id}" data-kg-person-name="${esc(p.name)}" data-kg-person-role="${role||"Кинематографист"}" class="kg-person-link">${esc(p.name)}</button>`:esc(p&&p.name||"");
 function fw(n){const m=n%100,k=n%10;return (k===1&&m!==11)?"фильм":(k>1&&k<5&&(m<12||m>14))?"фильма":"фильмов";}
 const gnames=t=>t.g.split("|").map(x=>GENRES[x]).filter(Boolean);
-const codeOf=t=>REG[t.id]?REG[t.id][1]:(t.cc[0]==="SU"?"СССР":t.cc[0]);
-const where=t=>REG[t.id]?REG[t.id][0]:cname(t.cc[0]);
+const codeOf=t=>t.films?"":REG[t.id]?REG[t.id][1]:(t.cc[0]==="SU"?"СССР":t.cc[0]);
+const where=t=>t.films?"Разные страны":REG[t.id]?REG[t.id][0]:cname(t.cc[0]);
 const flagsOf=t=>t.cc.slice(0,3).map(fl).join(" ");
 const BOOK=new Set(store.get("kgBookmarks",[]));
 function toast(msg,icon){
@@ -179,7 +183,26 @@ const russianText=text=>{
 };
 const DAY_MS=24*60*60*1000;
 const themeDataCache=new Map(),themeRetryAfter=new Map(),themeInflight=new Map(),metaRetryAfter=new Map(),metaInflight=new Map();
-const themeDataKey=(t,pages)=>`${t.id}:${pages}:${playMode!=="surprise"&&(sel.has("adult")||sel.has("erotic"))?"adult":"all"}`;
+function curatedData(films) {
+  const totals = {};
+  for (const film of films) totals[film._cc] = (totals[film._cc] || 0) + 1;
+  return {films, total: films.length, totals};
+}
+
+async function loadCuratedTheme(theme, force) {
+  if (!apiKey) return curatedData(theme.films);
+  const results = await Promise.allSettled(theme.films.map(film =>
+    requestTmdb("movie/" + film.id, {language:"ru-RU"}, {fresh:force})
+  ));
+  const films = theme.films.map((film, i) => {
+    const result = results[i];
+    if (result.status !== "fulfilled" || result.value.id !== film.id) return film;
+    const {poster_path, backdrop_path, vote_average, vote_count, popularity} = result.value;
+    return {...film, poster_path, backdrop_path, vote_average, vote_count, popularity};
+  });
+  return curatedData(films);
+}
+const themeDataKey=(t,pages)=>t.films?t.id:`${t.id}:${pages}:${playMode!=="surprise"&&(sel.has("adult")||sel.has("erotic"))?"adult":"all"}`;
 async function loadTheme(t,pages,force=false){
   const key=themeDataKey(t,pages),cached=themeDataCache.get(key),now=Date.now();
   if(!force&&cached&&now-cached.ts<DAY_MS)return cached.data;
@@ -194,6 +217,13 @@ async function loadTheme(t,pages,force=false){
     return loadTheme(t,pages,true);
   }
   const promise=(async()=>{
+    if (t.films) {
+      const data = await loadCuratedTheme(t, force);
+      if (data.films.some(f => f.poster_path || f.vote_count)) {
+        themeDataCache.set(key, {data, ts:Date.now(), date:localDateKey()});
+      }
+      return data;
+    }
     const jobs=[];
     t.cc.forEach(cc=>{for(let p=1;p<=pages;p++)jobs.push(api({...qs(t,cc),page:p},{fresh:force}).then(r=>({cc,p,total:r.total_results||0,films:(r.results||[]).map(f=>({...f,_cc:cc}))})));});
     try{
@@ -228,6 +258,7 @@ function saveThemeMeta(t,d){
   META[t.id]=meta;store.set("kgThemeMeta",META);return meta;
 }
 async function loadMeta(t,force=false){
+  if (t.films) return META[t.id] || {n:t.films.length};
   if(metaInflight.has(t.id))return metaInflight.get(t.id);
   const m=META[t.id];
   if(!force&&m&&Date.now()-m.ts<FRESH)return m;
@@ -338,7 +369,7 @@ function seededShuffle(arr,seed){
   return a;
 }
 
-function spotlightTheme(){return THEMES[Math.floor(Date.now()/6048e5)%THEMES.length];}
+function spotlightTheme(){return catalogThemes[Math.floor(Date.now()/6048e5)%catalogThemes.length];}
 function cardHtml(t,i){
   const m=TM[t.id]||["noir","","",""],special=t.id==="suwar";
   const g0=gnames(t)[0]||"";
@@ -379,32 +410,32 @@ const CHON="bg-primary-container text-on-primary-container shadow-[0_0_14px_rgba
 function chipCls(on){return "filter-chip flex items-center gap-1.5 px-3.5 py-2 rounded-full font-label-sm text-label-sm shrink-0 transition-all active:scale-95 "+(on?CHON:CHOFF);}
 
 function buildCatalog(){
-  const counts={};THEMES.forEach(t=>counts[cat(t)]=(counts[cat(t)]||0)+1);
+  const counts={};catalogThemes.forEach(t=>counts[cat(t)]=(counts[cat(t)]||0)+1);
   vc.innerHTML=`
 <section class="flex flex-col gap-space-xs mt-1">
 <div class="flex items-center justify-between"><span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container text-primary-container font-label-sm text-label-sm shadow-[0_0_14px_rgba(255,184,48,0.18)]"><span class="material-symbols-outlined text-[15px]" style="font-variation-settings:'FILL' 1;">auto_awesome</span>Кураторский киногид</span>
-<span class="font-micro-caption text-micro-caption text-text-muted flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-primary-container animate-pulse"></span>${THEMES.length} доступно</span></div>
+<span class="font-micro-caption text-micro-caption text-text-muted flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-primary-container animate-pulse"></span>${catalogThemes.length} доступно</span></div>
 <h2 class="font-headline-lg text-headline-lg text-primary tracking-tight">Тематические коллекции</h2>
-<p class="font-body-sm text-body-sm text-text-muted leading-relaxed">${THEMES.length} авторских киномаршрутов: от азиатского саспенса и скандинавского холода до исторических эпох</p>
+<p class="font-body-sm text-body-sm text-text-muted leading-relaxed">${catalogThemes.length} авторских киномаршрутов: от азиатского саспенса и скандинавского холода до исторических эпох</p>
 <div class="relative w-full mt-2"><div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-text-muted"><span class="material-symbols-outlined text-[20px]">search</span></div>
 <input id="cat-search" type="search" placeholder="Найти подборку, страну или жанр..." class="w-full h-12 pl-11 pr-10 rounded-xl bg-surface-container-low text-on-surface placeholder:text-text-muted font-body-sm text-body-sm focus:outline-none focus:bg-surface-container transition-all shadow-[0_4px_16px_rgba(0,0,0,0.4)]">
 <div id="cat-clear" data-act="clear" style="display:none" class="absolute inset-y-0 right-0 pr-3 items-center cursor-pointer text-text-muted hover:text-primary"><span class="material-symbols-outlined text-[18px]">cancel</span></div></div>
 </section>
 <section id="cat-chips" class="flex gap-2 overflow-x-auto pb-1 -mx-gutter-mobile px-gutter-mobile">
-<button type="button" data-f="all" class="${chipCls(true)}"><span>Все ${THEMES.length}</span></button>
+<button type="button" data-f="all" class="${chipCls(true)}"><span>Все ${catalogThemes.length}</span></button>
 ${Object.keys(CAT).filter(k=>counts[k]).map(k=>`<button type="button" data-f="${k}" class="${chipCls(false)}"><span>${CAT[k][0]} (${counts[k]})</span></button>`).join("")}</section>
 ${spotlightHtml(spotlightTheme())}
 <section class="flex items-center justify-between gap-2"><div class="flex items-center gap-1.5 bg-surface-panel px-3 py-1.5 rounded-xl"><span class="material-symbols-outlined text-[17px] text-text-muted">swap_vert</span>
 <select id="cat-sort" class="bg-transparent text-text-muted font-label-sm text-label-sm focus:outline-none focus:text-primary cursor-pointer"><option class="bg-surface-panel text-on-surface" value="curated">По кураторскому списку</option><option class="bg-surface-panel text-on-surface" value="rating">По рейтингу (высокий)</option><option class="bg-surface-panel text-on-surface" value="count">По числу фильмов</option><option class="bg-surface-panel text-on-surface" value="title">По алфавиту</option></select></div>
 <button type="button" data-act="random" class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-secondary-container text-on-secondary-container font-label-sm text-label-sm shadow-[0_0_14px_rgba(134,26,69,0.25)] transition-all active:scale-95"><span class="material-symbols-outlined text-[18px]">casino</span><span>Случайная</span></button></section>
 <p id="cat-note" class="font-micro-caption text-micro-caption text-text-muted px-1" style="display:none"></p>
-<section id="cat-grid" class="flex flex-col gap-3">${seededShuffle(THEMES,dailySeed()).map((t,i)=>cardHtml(t,i)).join("")}</section>
-<div id="cat-empty" style="display:none" class="flex-col items-center justify-center py-12 px-4 text-center rounded-2xl bg-surface-panel/50"><div class="w-14 h-14 rounded-full bg-surface-container-high flex items-center justify-center text-primary-container mb-3 shadow-[0_0_18px_rgba(255,184,48,0.2)]"><span class="material-symbols-outlined text-[28px]">movie_edit</span></div><h3 class="font-headline-sm text-headline-sm text-primary font-bold">Подборка не найдена</h3><p class="font-body-sm text-body-sm text-text-muted mt-1 max-w-xs">Попробуйте другое ключевое слово или выберите «Все ${THEMES.length}», чтобы сбросить фильтр.</p><button type="button" data-act="reset" class="mt-4 px-4 py-2 rounded-xl bg-primary-container text-on-primary-container font-label-sm text-label-sm font-bold shadow-[0_0_12px_rgba(255,184,48,0.25)]">Сбросить поиск</button></div>`;
+<section id="cat-grid" class="flex flex-col gap-3">${seededShuffle(catalogThemes,dailySeed()).map((t,i)=>cardHtml(t,i)).join("")}</section>
+<div id="cat-empty" style="display:none" class="flex-col items-center justify-center py-12 px-4 text-center rounded-2xl bg-surface-panel/50"><div class="w-14 h-14 rounded-full bg-surface-container-high flex items-center justify-center text-primary-container mb-3 shadow-[0_0_18px_rgba(255,184,48,0.2)]"><span class="material-symbols-outlined text-[28px]">movie_edit</span></div><h3 class="font-headline-sm text-headline-sm text-primary font-bold">Подборка не найдена</h3><p class="font-body-sm text-body-sm text-text-muted mt-1 max-w-xs">Попробуйте другое ключевое слово или выберите «Все ${catalogThemes.length}», чтобы сбросить фильтр.</p><button type="button" data-act="reset" class="mt-4 px-4 py-2 rounded-xl bg-primary-container text-on-primary-container font-label-sm text-label-sm font-bold shadow-[0_0_12px_rgba(255,184,48,0.25)]">Сбросить поиск</button></div>`;
   catBuilt=true;
 }
 
 function paintMeta(id){
-  const m=META[id];if(!m)return;
+  const m=META[id] || (T[id]?.films ? {n:T[id].films.length} : null);if(!m)return;
   const customArt = getThemeCover(id);
   document.querySelectorAll(`#view-collections [data-t="${id}"]`).forEach(el=>{
     if(el.id==="spot"){
@@ -455,14 +486,14 @@ async function loadAllMeta(force=false){
   const note=$("cat-note");
   if(!apiKey){if(note){note.textContent="Введите ключ TMDB на экране «Глобус», чтобы увидеть число фильмов и рейтинги подборок.";note.style.display="";}return false;}
   if(note)note.style.display="none";
-  const results=await Promise.allSettled(THEMES.map(t=>loadMeta(t,force).then(()=>{if(catBuilt)paintMeta(t.id);})));
+  const results=await Promise.allSettled(catalogThemes.map(t=>loadMeta(t,force).then(()=>{if(catBuilt)paintMeta(t.id);})));
   if(sortMode!=="curated")sortCatalog();
   return results.every(r=>r.status==="fulfilled");
 }
 function initCatalog(){
   if(!catBuilt)buildCatalog();
   updateWeeklySpotlight();
-  THEMES.forEach(t=>paintMeta(t.id));
+  catalogThemes.forEach(t=>paintMeta(t.id));
   if(!dailyRefreshPromise)loadAllMeta();
 }
 vc.addEventListener("input",e=>{
@@ -541,7 +572,7 @@ function derived(){
   const a=D.all.filter(f=>!D.cc||f._cc===D.cc);
   const best=a.slice().sort((x,y)=>weighed(y)-weighed(x))[0];
   const rest=a.filter(f=>f!==best);
-  rest.sort((x,y)=>D.sort==="pop"?(y.popularity||0)-(x.popularity||0):D.sort==="new"?String(y.release_date||"").localeCompare(String(x.release_date||"")):Number(y.vote_average)-Number(x.vote_average));
+  rest.sort((x,y)=>D.sort==="pop"?(y.popularity||0)-(x.popularity||0):D.sort==="new"?String(y.release_date||"").localeCompare(String(x.release_date||"")):Number(y.vote_average||0)-Number(x.vote_average||0));
   return {best,rest};
 }
 const totalFor=()=>D.cc?(D.totals[D.cc]||0):D.total;
@@ -554,7 +585,7 @@ function filmItem(f){
   return `<article class="flex flex-col gap-space-sm p-3 rounded-xl bg-surface-panel shadow-md hover:bg-surface-container-low transition-colors">
 <div class="flex gap-space-sm cursor-pointer" data-act="open" data-id="${f.id}">
 <div class="relative w-20 h-28 flex-shrink-0 rounded-lg overflow-hidden bg-surface-container-high">${f.poster_path?`<img class="w-full h-full object-cover" loading="lazy" alt="" src="${P(f.poster_path,"w185")}">`:`<div class="w-full h-full flex items-center justify-center text-text-muted"><span class="material-symbols-outlined">movie</span></div>`}
-<span class="absolute top-1 left-1 px-1 py-0.5 rounded bg-surface-panel/90 text-primary-container font-micro-caption text-micro-caption font-bold">${Number(f.vote_average).toFixed(1)} ★</span><button type="button" data-act="bm" data-id="${f.id}" aria-label="${bm?"Убрать из закладок":"Сохранить в закладки"}" class="absolute top-1 right-1 w-6 h-6 rounded-full bg-surface-panel/85 text-primary-container flex items-center justify-center shadow"><span class="material-symbols-outlined text-[16px]">${bm?"bookmark_added":"bookmark_border"}</span></button></div>
+<span class="absolute top-1 left-1 px-1 py-0.5 rounded bg-surface-panel/90 text-primary-container font-micro-caption text-micro-caption font-bold">${f.vote_average ? Number(f.vote_average).toFixed(1) : "—"} ★</span><button type="button" data-act="bm" data-id="${f.id}" aria-label="${bm?"Убрать из закладок":"Сохранить в закладки"}" class="absolute top-1 right-1 w-6 h-6 rounded-full bg-surface-panel/85 text-primary-container flex items-center justify-center shadow"><span class="material-symbols-outlined text-[16px]">${bm?"bookmark_added":"bookmark_border"}</span></button></div>
 <div class="flex flex-col justify-between flex-1 min-w-0"><div class="flex flex-col gap-0.5">
 <div class="flex items-center justify-between"><span class="font-micro-caption text-micro-caption text-text-muted">${fl(f._cc)} ${esc(cname(f._cc))}${y?" • "+y:""}</span><span data-rt="${f.id}" class="font-micro-caption text-micro-caption px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant">— мин</span></div>
 <h4 class="font-label-lg text-label-lg text-on-surface font-bold truncate">${esc(f.title)}</h4>
@@ -567,7 +598,7 @@ function pearlHtml(f,selected=null){
   return `<div class="flex flex-col gap-space-xs"><div class="flex items-center gap-1.5 px-1"><span class="material-symbols-outlined text-[18px] text-primary-container">stars</span><h3 class="font-headline-sm text-headline-sm text-primary font-bold">Жемчужина коллекции</h3></div>
 <div class="relative overflow-hidden rounded-xl bg-surface-panel p-space-md shadow-xl flex flex-col gap-space-md"><div class="flex gap-space-md cursor-pointer" data-act="open" data-id="${f.id}">
 <div class="relative flex-shrink-0 w-28 h-40 rounded-lg overflow-hidden bg-surface-container-high shadow-md">${f.poster_path?`<img class="w-full h-full object-cover" alt="" src="${P(f.poster_path,"w342")}">`:""}
-<div class="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded bg-surface-panel/90 backdrop-blur-md text-primary-container font-label-sm text-label-sm font-bold flex items-center gap-0.5"><span class="material-symbols-outlined text-[13px]" style="font-variation-settings:'FILL' 1;">star</span>${Number(f.vote_average).toFixed(1)}</div><button type="button" data-act="bm" data-id="${f.id}" aria-label="${bm?"Убрать из закладок":"Сохранить в закладки"}" class="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-surface-panel/85 text-primary-container flex items-center justify-center shadow"><span class="material-symbols-outlined text-[16px]">${bm?"bookmark_added":"bookmark_border"}</span></button></div>
+<div class="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded bg-surface-panel/90 backdrop-blur-md text-primary-container font-label-sm text-label-sm font-bold flex items-center gap-0.5"><span class="material-symbols-outlined text-[13px]" style="font-variation-settings:'FILL' 1;">star</span>${f.vote_average ? Number(f.vote_average).toFixed(1) : "—"}</div><button type="button" data-act="bm" data-id="${f.id}" aria-label="${bm?"Убрать из закладок":"Сохранить в закладки"}" class="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-surface-panel/85 text-primary-container flex items-center justify-center shadow"><span class="material-symbols-outlined text-[16px]">${bm?"bookmark_added":"bookmark_border"}</span></button></div>
 <div class="flex flex-col justify-between flex-1 min-w-0"><div class="flex flex-col gap-1">
 <div class="flex items-center gap-1.5"><span class="font-micro-caption text-micro-caption px-1.5 rounded bg-surface-container text-on-surface-variant">${fl(f._cc)} ${y}</span><span data-rt="${f.id}" class="font-micro-caption text-micro-caption text-text-muted">— мин</span></div>
 <h4 class="font-headline-sm text-headline-sm text-on-surface font-bold leading-snug kg-clip2">${esc(f.title)}</h4>
@@ -596,6 +627,7 @@ function renderFilms(){
   ${rest.length>D.shown?`<button type="button" data-act="more" class="w-full py-3 rounded-xl bg-surface-panel hover:bg-surface-container-low text-primary text-center font-label-md text-label-md font-semibold flex items-center justify-center gap-2 transition-colors shadow-sm"><span class="material-symbols-outlined text-[18px]">expand_more</span><span>Показать ещё</span></button>`:""}</div>`;
   paintWatchedButtons(box);
   keepScroll();
+  if (!apiKey) return;
   [best,...list].forEach(f=>filmDetails(f.id).then(d=>{
     const rt=vd.querySelectorAll(`[data-rt="${f.id}"]`),dr=vd.querySelectorAll(`[data-dir="${f.id}"]`);
     rt.forEach(e=>e.textContent=d.runtime?d.runtime+" мин":"");
@@ -704,7 +736,7 @@ function otherHtml(t){
 
 function renderCollection(){
   const t=D.t,m=TM[t.id]||["noir","","",""];
-  const others=shuffle(THEMES.filter(x=>x.id!==t.id)).slice(0,5);
+  const others=shuffle(catalogThemes.filter(x=>x.id!==t.id)).slice(0,5);
   vd.innerHTML=`
 <div class="flex items-center justify-between gap-space-sm pt-space-xs"><button type="button" data-act="back" class="flex items-center gap-1.5 text-text-muted hover:text-primary transition-colors py-1"><span class="material-symbols-outlined text-[18px]">arrow_back</span><span class="font-label-sm text-label-sm">Все подборки</span></button>
 <div class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-high text-primary-fixed shadow-sm"><span class="material-symbols-outlined text-[14px] text-primary-container">${ICON[t.id]||"auto_awesome"}</span><span class="font-micro-caption text-micro-caption font-semibold tracking-wide uppercase">Кураторский выбор</span></div></div>
@@ -714,7 +746,7 @@ function renderCollection(){
 <div class="flex flex-wrap items-center gap-1.5 pt-0.5">${t.cc.map(cc=>`<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container-low text-on-surface font-micro-caption text-micro-caption shadow-sm">${fl(cc)} ${esc(cname(cc))}</span>`).join("")}</div>
 <p class="font-body-sm text-body-sm text-text-muted leading-relaxed pt-1">${esc(m[3])}</p>
 <div class="flex items-center gap-2 pt-1 flex-wrap">${gnames(t).map(g=>`<span class="px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-micro-caption text-micro-caption">${esc(g)}</span>`).join("")}</div></div></div>
-<div class="flex flex-col gap-space-sm bg-surface-panel p-space-md rounded-xl shadow-lg"><div class="flex items-center justify-between"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary-container text-[20px]">casino</span><span class="font-headline-sm text-headline-sm text-on-surface font-semibold">Случайный выбор</span></div><span class="font-micro-caption text-micro-caption text-primary-fixed bg-surface-container-high px-2 py-0.5 rounded-full">Рейтинг ≥ 6.5</span></div>
+<div class="flex flex-col gap-space-sm bg-surface-panel p-space-md rounded-xl shadow-lg"><div class="flex items-center justify-between"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary-container text-[20px]">casino</span><span class="font-headline-sm text-headline-sm text-on-surface font-semibold">Случайный выбор</span></div><span class="font-micro-caption text-micro-caption text-primary-fixed bg-surface-container-high px-2 py-0.5 rounded-full">${t.films ? "Ручной отбор" : "Рейтинг ≥ 6.5"}</span></div>
 <button type="button" id="cl-spin" data-act="spin" class="relative group w-full py-3.5 px-4 rounded-xl bg-primary-container text-on-primary font-label-lg text-label-lg font-bold flex items-center justify-center gap-2 shadow-[0_0_24px_rgba(255,184,48,0.28)] transition-all active:scale-[0.98] overflow-hidden"><span id="cl-ricon" class="material-symbols-outlined text-[22px]">casino</span><span id="cl-rtext">Крутить рулетку</span><div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div></button>
 <div id="cl-reel" style="display:none" class="flex flex-col gap-space-sm">
 <div id="cl-reel-host"></div>
@@ -723,9 +755,9 @@ function renderCollection(){
 ${t.cc.length>1?`<div class="flex flex-col gap-1.5 pt-1"><span class="font-micro-caption text-micro-caption text-text-muted">Фильтр по стране:</span><div id="cl-cc" class="flex items-center gap-1.5 overflow-x-auto pb-1"><button type="button" data-act="cc" data-cc="" class="${ccCls(true)}">Все страны</button>${t.cc.map(cc=>`<button type="button" data-act="cc" data-cc="${cc}" class="${ccCls(false)}">${fl(cc)} ${esc(cname(cc))}</button>`).join("")}</div></div>`:""}
 <div class="flex items-center justify-between pt-1"><span class="font-micro-caption text-micro-caption text-text-muted">Сортировка:</span><div id="cl-sort" class="flex items-center gap-1 bg-surface-container-low p-0.5 rounded-lg">${[["rating","По рейтингу"],["pop","Популярные"],["new","Свежие"]].map(([k,l])=>`<button type="button" data-act="sort" data-s="${k}" class="${sCls(k===D.sort)}">${l}</button>`).join("")}</div></div></div>
 <div id="cl-films" class="flex flex-col gap-space-lg"><p class="font-body-sm text-body-sm text-text-muted px-1 animate-pulse">Загружаем подборку…</p></div>
-<div class="flex flex-col gap-space-sm pt-space-xs"><div class="flex items-center justify-between px-1"><h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">Другие подборки</h3><a href="#" data-act="back" class="font-micro-caption text-micro-caption text-primary hover:underline">Все ${THEMES.length} →</a></div>
+<div class="flex flex-col gap-space-sm pt-space-xs"><div class="flex items-center justify-between px-1"><h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">Другие подборки</h3><a href="#" data-act="back" class="font-micro-caption text-micro-caption text-primary hover:underline">Все ${catalogThemes.length} →</a></div>
 <div id="cl-others" class="flex gap-space-sm overflow-x-auto pb-2">${others.map(otherHtml).join("")}</div>
-<a href="#" data-act="back" class="w-full py-3 rounded-xl bg-surface-panel hover:bg-surface-container-low text-primary text-center font-label-md text-label-md font-semibold flex items-center justify-center gap-2 transition-colors shadow-sm"><span class="material-symbols-outlined text-[18px]">apps</span><span>Все ${THEMES.length} подборок Киноглобуса</span></a></div>`;
+<a href="#" data-act="back" class="w-full py-3 rounded-xl bg-surface-panel hover:bg-surface-container-low text-primary text-center font-label-md text-label-md font-semibold flex items-center justify-center gap-2 transition-colors shadow-sm"><span class="material-symbols-outlined text-[18px]">apps</span><span>Все ${catalogThemes.length} подборок Киноглобуса</span></a></div>`;
   // постеры и счётчики «других подборок»
   others.forEach(o=>loadMeta(o).then(m=>{
     const a=vd.querySelector(`[data-oc="${o.id}"]`),i=vd.querySelector(`[data-oi="${o.id}"]`);
@@ -742,19 +774,24 @@ async function openCollection(id,opt){
   const t=T[id];if(!t)return;
   rStop();
   const cached=themeDataCache.get(themeDataKey(t,2));
-  const initial=cached&&cached.data;
+  const initial=cached?.data || (t.films ? curatedData(t.films) : null);
   D={t,all:initial?initial.films:[],total:initial?initial.total:0,totals:initial?initial.totals:{},cc:"",sort:"rating",shown:5,selected:null,picked:null};
   renderCollection();showView("collection");
-  if(!apiKey){$("cl-films").innerHTML='<p class="font-body-sm text-body-sm text-text-muted px-1">Введите ключ TMDB на экране «Глобус», чтобы загрузить фильмы подборки.</p>';return;}
   if(initial){
     $("cl-count").textContent=nf(D.total)+" "+(fw(D.total)==="фильм"?"картина":fw(D.total)==="фильма"?"картины":"картин");
     renderFilms();
+  }
+  if (!apiKey) {
+    if (t.films && opt?.spin) inPageRoulette();
+    if (!t.films) $("cl-films").innerHTML='<p class="font-body-sm text-body-sm text-text-muted px-1">Введите ключ TMDB на экране «Глобус», чтобы загрузить фильмы подборки.</p>';
+    return;
   }
   try{
     const r=await loadTheme(t,2);
     if(D.t!==t)return;
     if(r._stale){$("cl-films").insertAdjacentHTML("afterbegin",`<p role="status" class="font-micro-caption text-micro-caption text-text-muted">Не удалось обновить данные; показана сохранённая подборка.</p>`);return;}
     D.all=r.films;D.total=r.total;D.totals=r.totals;
+    if (t.films && r.films.some(f => f.vote_count)) saveThemeMeta(t, r);
     $("cl-count").textContent=nf(r.total)+" "+(fw(r.total)==="фильм"?"картина":fw(r.total)==="фильма"?"картины":"картин");
     renderFilms();
     if(opt&&opt.spin)inPageRoulette();
@@ -850,7 +887,7 @@ function openFilm(f,placement="list",detailTarget=null){
   if(relatedContext&&window.KGFilmInteractions)window.KGFilmInteractions.registerPool(relatedContext,relatedPool);
   // Every newly opened item starts in the same poster-first state. A related
   // recommendation must never inherit an already playing YouTube iframe.
-  D.selected={...f,_cc:f._cc||(f.origin_country||[])[0]||"",_placement:placement,_detailTarget:detailTarget,_kgRelatedContext:relatedContext,overview:russianText(f.overview)||"Загружаем описание…",_trailerPlaying:false,_trailerStatus:"loading"};
+  D.selected={...f,_cc:f._cc||(f.origin_country||[])[0]||"",_placement:placement,_detailTarget:detailTarget,_kgRelatedContext:relatedContext,overview:russianText(f.overview)||"Загружаем описание…",_trailerPlaying:false,_trailerStatus:apiKey?"loading":"missing",_detailsLoaded:!apiKey};
   const selected=D.selected;
   if(placement==="roulette"||placement==="home"||placement==="home-europe"||placement==="mood"||placement==="oscar"||placement==="related"||placement==="oscar-related"||placement==="person-related"||placement==="search")renderSelectedPanel();else if(!placeListPanel())renderFilms();
   if(personModalScrollRestore!==null){const dialog=document.querySelector("#kg-person-modal .kgpi-modal");requestAnimationFrame(()=>{if(dialog?.isConnected)dialog.scrollTop=personModalScrollRestore;});}
@@ -870,6 +907,7 @@ function openFilm(f,placement="list",detailTarget=null){
     else if(target&&window.KGScrollToFilmDescription)window.KGScrollToFilmDescription(target);
     else target?.scrollIntoView({behavior:"smooth",block:"start"});
   }));
+  if (!apiKey) return;
   filmDetails(f.id).then(details=>{
     if(D.selected!==selected)return;
     selected.overview=details.overview||russianText(f.overview)||"Описания на русском и английском пока нет.";
@@ -965,7 +1003,7 @@ async function inPageRoulette(){
   const pool=D.all.filter(f=>inCc(f)&&!seen.has(f.id));
   if(!pool.length){toast("Все фильмы из выборки уже в истории","history");return;}
   const film=pick(pool);
-  const others=shuffle(D.all.filter(f=>inCc(f)&&f.id!==film.id&&f.poster_path));
+  const others=shuffle(D.all.filter(f=>inCc(f)&&f.id!==film.id&&(f.poster_path||D.t.films)));
   const token=++R.token;R.busy=true;R.skip=false;D.picked=null;D.selected=null;
   renderFilms();
   $("cl-reel").style.display="";$("cl-result").innerHTML="";
@@ -1325,7 +1363,8 @@ async function settleWithLimit(items,limit,work){
   return results;
 }
 async function refreshAllCollections(forceAll=false){
-  const results=await settleWithLimit(THEMES,4,async t=>{
+  const results=await settleWithLimit(catalogThemes,4,async t=>{
+    if (t.films) return themeDataCache.get(themeDataKey(t,2))?.data || curatedData(t.films);
     const cached=themeDataCache.get(themeDataKey(t,2));
     if(!forceAll&&cached&&cached.date===localDateKey()&&Date.now()-cached.ts<DAY_MS)return cached.data;
     const data=await loadTheme(t,2,true);
@@ -1335,7 +1374,7 @@ async function refreshAllCollections(forceAll=false){
     return data;
   });
   if(sortMode!=="curated")sortCatalog();
-  const activeIndex=view==="collection"&&D.t?THEMES.findIndex(t=>t.id===D.t.id):-1;
+  const activeIndex=view==="collection"&&D.t?catalogThemes.findIndex(t=>t.id===D.t.id):-1;
   if(activeIndex>=0){
     const result=results[activeIndex];
     if(result.status==="fulfilled"){

@@ -17,6 +17,7 @@
   dialog.id = 'kg-account-dialog';
   dialog.setAttribute('aria-labelledby','kga-title');
   dialog.innerHTML = `<div class="kga-shell"><header class="kga-head"><button type="button" class="kga-back" data-kga-close aria-label="Назад">‹</button><span class="kga-brand">◉ Kinoglobus</span><button type="button" class="kga-mode" data-kga-mode>Войти</button></header><div class="kga-scroll"><section class="kga-intro"><span class="kga-club">✦ Клуб ценителей кино</span><h1 id="kga-title">Откройте мировой кинематограф</h1><p>Отмечайте просмотренные страны на 3D-глобусе, исследуйте редкие шедевры и ведите личный кинодневник.</p><div class="kga-perks"><span>◉ 104 страны</span><span>▣ Синхронизация TMDB</span><span>▤ Кинодневник</span></div></section><div class="kga-social"><button type="button" data-kga-provider="Google">🌐　Google</button><button type="button" data-kga-provider="Apple">●　Apple</button><button type="button" data-kga-provider="Telegram">➤　Telegram</button></div><div class="kga-divider"><span data-kga-divider>ИЛИ ПРОДОЛЖИТЕ С EMAIL</span></div><form class="kga-form" novalidate><div class="kga-field" data-kga-name><label for="kga-name"><span>Имя или псевдоним</span><small>для кинопрофиля</small></label><input class="kga-input" id="kga-name" name="name" autocomplete="name" placeholder="Например, Франсуа Трюффо" maxlength="40"></div><div class="kga-field"><label for="kga-email"><span>Электронная почта</span><small>без спама</small></label><input class="kga-input" id="kga-email" name="email" type="email" autocomplete="email" placeholder="name@example.com" required></div><div class="kga-field"><label for="kga-password"><span>Пароль</span><small>минимум 8 символов</small></label><div class="kga-password"><input class="kga-input" id="kga-password" name="password" type="password" autocomplete="new-password" placeholder="Введите пароль" required minlength="8"><button type="button" class="kga-eye" data-kga-eye aria-label="Показать пароль">◉</button></div><div class="kga-strength" aria-hidden="true"><i></i><i></i><i></i></div><div class="kga-strength-label"><span>Надёжность пароля</span><b data-kga-strength>Введите пароль</b></div></div><label class="kga-check" data-kga-recommend><input type="checkbox" name="recommendations" checked><span>Персональные рекомендации<br><small style="color:#b3a79a">Подборки, премьеры и авторское кино</small></span></label><label class="kga-check secondary" data-kga-terms><input type="checkbox" name="terms"><span>Согласен с правилами киноклуба и политикой конфиденциальности</span></label><button class="kga-submit" type="submit"><span data-kga-submit>Создать аккаунт　→</span></button><p class="kga-message" aria-live="polite"></p></form><p class="kga-note">Регистрация и синхронизация между устройствами пока не подключены. Эта форма не отправляет и не сохраняет пароль.</p><div class="kga-foot" style="margin-top:18px"><span data-kga-foot-label>Уже есть аккаунт?</span> <button type="button" data-kga-toggle>Войти</button></div></div></div>`;
+  localizeInterfaceMarkup(dialog);
   document.body.appendChild(dialog);
 
   const form = dialog.querySelector('form');
@@ -26,12 +27,12 @@
   const setMode = next => {
     mode = next;
     const login = mode === 'login';
-    dialog.querySelector('#kga-title').textContent = login ? 'С возвращением в Киноглобус' : 'Откройте мировой кинематограф';
-    dialog.querySelector('[data-kga-mode]').textContent = login ? 'Регистрация' : 'Войти';
-    dialog.querySelector('[data-kga-submit]').textContent = login ? 'Продолжить　→' : 'Создать аккаунт　→';
-    dialog.querySelector('[data-kga-foot-label]').textContent = login ? 'Новый участник?' : 'Уже есть аккаунт?';
-    dialog.querySelector('[data-kga-toggle]').textContent = login ? 'Регистрация' : 'Войти';
-    dialog.querySelector('[data-kga-divider]').textContent = login ? 'ИЛИ ВОЙДИТЕ С EMAIL' : 'ИЛИ ПРОДОЛЖИТЕ С EMAIL';
+    dialog.querySelector('#kga-title').textContent = uiText(login ? 'С возвращением в Киноглобус' : 'Откройте мировой кинематограф');
+    dialog.querySelector('[data-kga-mode]').textContent = uiText(login ? 'Регистрация' : 'Войти');
+    dialog.querySelector('[data-kga-submit]').textContent = uiText(login ? 'Продолжить　→' : 'Создать аккаунт　→');
+    dialog.querySelector('[data-kga-foot-label]').textContent = uiText(login ? 'Новый участник?' : 'Уже есть аккаунт?');
+    dialog.querySelector('[data-kga-toggle]').textContent = uiText(login ? 'Регистрация' : 'Войти');
+    dialog.querySelector('[data-kga-divider]').textContent = uiText(login ? 'ИЛИ ВОЙДИТЕ С EMAIL' : 'ИЛИ ПРОДОЛЖИТЕ С EMAIL');
     dialog.querySelector('[data-kga-name]').classList.toggle('kga-hidden',login);
     dialog.querySelector('[data-kga-recommend]').classList.toggle('kga-hidden',login);
     dialog.querySelector('[data-kga-terms]').classList.toggle('kga-hidden',login);
@@ -46,22 +47,33 @@
     if(event.target.closest('[data-kga-toggle]'))setMode(mode==='register'?'login':'register');
     if(event.target.closest('[data-kgs-auth-open]')){event.preventDefault();open(event.target.closest('[data-kgs-auth-open]').dataset.kgsAuthOpen||'register');}
     const provider=event.target.closest('[data-kga-provider]');
-    if(provider){message.textContent=`Вход через ${provider.dataset.kgaProvider} станет доступен после подключения авторизации.`;message.classList.remove('error');}
+    if(provider){message.textContent=uiText("Вход через {provider} станет доступен после подключения авторизации.", {provider: provider.dataset.kgaProvider});message.classList.remove('error');}
   });
   dialog.querySelector('[data-kga-mode]').addEventListener('click',()=>setMode(mode==='register'?'login':'register'));
   dialog.querySelector('[data-kga-eye]').addEventListener('click',event=>{
-    const visible=password.type==='password';password.type=visible?'text':'password';event.currentTarget.textContent=visible?'◉̸':'◉';event.currentTarget.setAttribute('aria-label',visible?'Скрыть пароль':'Показать пароль');
+    const visible=password.type==='password';password.type=visible?'text':'password';event.currentTarget.textContent=visible?'◉̸':'◉';event.currentTarget.setAttribute('aria-label',uiText(visible?'Скрыть пароль':'Показать пароль'));
   });
   password.addEventListener('input',()=>{
     const value=password.value;const score=[value.length>=8,/[A-ZА-Я]/.test(value)&&/[a-zа-я]/.test(value),/\d/.test(value),/[^A-Za-zА-Яа-я0-9]/.test(value)].filter(Boolean).length;
     const bars=dialog.querySelectorAll('.kga-strength i');bars.forEach((bar,i)=>bar.classList.toggle('on',i<Math.min(3,score)));
-    const words=['Введите пароль','Слабый пароль','Средний пароль','Надёжный пароль','Надёжный пароль'];dialog.querySelector('[data-kga-strength]').textContent=words[score];
+    const words=['Введите пароль','Слабый пароль','Средний пароль','Надёжный пароль','Надёжный пароль'];dialog.querySelector('[data-kga-strength]').textContent=uiText(words[score]);
   });
   form.addEventListener('submit',event=>{
     event.preventDefault();message.classList.remove('error');
-    if(!form.reportValidity()){message.textContent='Проверьте заполнение обязательных полей.';message.classList.add('error');return;}
-    if(mode==='register'&&!form.elements.terms.checked){message.textContent='Подтвердите согласие с правилами и политикой конфиденциальности.';message.classList.add('error');return;}
-    message.textContent='Форма заполнена. Отправка пока отключена: сервер учётных записей не подключён, пароль не сохранён.';
+    const invalidField = form.querySelector("input:invalid");
+    if (invalidField) {
+      const copy = invalidField.validity.typeMismatch
+        ? "Введите корректный адрес электронной почты."
+        : invalidField.validity.tooShort
+          ? "Пароль должен содержать минимум 8 символов."
+          : "Проверьте заполнение обязательных полей.";
+      message.textContent = uiText(copy);
+      message.classList.add("error");
+      invalidField.focus();
+      return;
+    }
+    if(mode==='register'&&!form.elements.terms.checked){message.textContent=uiText("Подтвердите согласие с правилами и политикой конфиденциальности.");message.classList.add('error');return;}
+    message.textContent=uiText("Форма заполнена. Отправка пока отключена: сервер учётных записей не подключён, пароль не сохранён.");
   });
   dialog.addEventListener('click',event=>{if(event.target===dialog)dialog.close();});
 })();

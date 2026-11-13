@@ -96,31 +96,25 @@
 
   function cinemaHero(film) {
     const label = film.release_date >= day(6) ? "Премьера недели" : "В кинотеатрах";
-    const query = uiText("Сеансы {title} {region}", {title:title(film), region:context.regionName});
-    const tickets = `https://www.google.com/search?${new URLSearchParams({q:query})}`;
     const runtime = film.runtime ? copy("{minutes} мин", {minutes:film.runtime}) : "";
     const director = film.dirs?.[0] ? copy("Реж. {name}", {name:film.dirs[0]}) : "";
-    return `<article class="rounded-2xl overflow-hidden bg-surface-container-low shadow-xl">
-      <div class="relative h-52">
+    return `<button type="button" data-release-action="film" data-id="${film.id}" aria-label="${copy("Открыть фильм {title}", {title:title(film)})}" class="group block w-full text-left cursor-pointer rounded-2xl overflow-hidden bg-surface-container-low shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary">
+      <span class="relative block h-52">
         ${image(film.backdrop_path || film.poster_path, "w780")}
-        <div class="absolute inset-0 bg-gradient-to-t from-surface-container-low via-surface-container-low/30 to-transparent"></div>
-        <div class="absolute inset-x-3 top-3 flex flex-wrap justify-between gap-1">
+        <span class="absolute inset-0 bg-gradient-to-t from-surface-container-low via-surface-container-low/30 to-transparent"></span>
+        <span class="absolute inset-x-3 top-3 flex flex-wrap justify-between gap-1">
           <span class="flex items-center gap-1 px-2 py-1 rounded-full bg-primary-container text-on-primary-container font-label-sm text-label-sm font-bold uppercase">${icon("local_fire_department")}${copy(label)}</span>
           ${runtime ? `<span class="flex items-center gap-1 px-2 py-1 rounded-full bg-surface-container-lowest/85 font-label-sm text-label-sm">${icon("schedule")}${runtime}</span>` : ""}
-        </div>
-      </div>
-      <div class="p-4 pt-1 flex flex-col gap-3">
-        <div class="flex items-start justify-between gap-2">
-          <div class="min-w-0"><h3 class="font-headline-md text-headline-md text-on-surface font-semibold">${escape(title(film))}</h3>
-          <p class="font-body-sm text-body-sm text-on-surface-variant">${[escape(releaseDate(film)),director].filter(Boolean).join(" · ")}</p></div>
-          ${rating(film)}
-        </div>
-        <div class="grid grid-cols-3 gap-2">
-          <a href="${escape(tickets)}" target="_blank" rel="noopener noreferrer" class="col-span-2 py-2.5 px-2 rounded-xl bg-gradient-to-r from-primary-container to-[#ff9f00] text-on-primary-container font-label-sm text-label-sm font-bold flex items-center justify-center gap-1">${icon("confirmation_number")}${copy("Найти сеансы")}</a>
-          <button type="button" data-release-action="film" data-id="${film.id}" class="min-w-0 py-2.5 px-1 rounded-xl bg-surface-container-high text-on-surface font-label-sm text-label-sm flex items-center justify-center gap-1">${icon("play_circle")}${copy("Трейлер")}</button>
-        </div>
-      </div>
-    </article>`;
+        </span>
+      </span>
+      <span class="flex items-start justify-between gap-2 p-4 pt-1">
+        <span class="min-w-0">
+          <span class="block font-headline-md text-headline-md text-on-surface font-semibold group-hover:text-primary">${escape(title(film))}</span>
+          <span class="block font-body-sm text-body-sm text-on-surface-variant">${[escape(releaseDate(film)),director].filter(Boolean).join(" · ")}</span>
+        </span>
+        ${rating(film)}
+      </span>
+    </button>`;
   }
 
   function message(section, text, action, label) {

@@ -81,5 +81,5 @@
   const observer=new MutationObserver(records=>records.forEach(record=>record.addedNodes.forEach(node=>{if(node.nodeType!==1)return;if(node.matches?.("[data-kg-legal-watch]"))hydrate(node);node.querySelectorAll?.("[data-kg-legal-watch]").forEach(hydrate);} )));
   observer.observe(document.documentElement,{childList:true,subtree:true});
   document.querySelectorAll("[data-kg-legal-watch]").forEach(hydrate);
-  window.KGLegalWatch=Object.freeze({markup, regionOptions, getRegion:() => selectedRegion, getRegionName:() => countryName(region()), setRegion});
+  window.KGLegalWatch=Object.freeze({markup, regionOptions, getRegion:() => selectedRegion, getRegionName:() => countryName(region()), getEffectiveRegion:region, setRegion});
 })();

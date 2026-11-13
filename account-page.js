@@ -16,14 +16,16 @@
   const dialog = document.createElement('dialog');
   dialog.id = 'kg-account-dialog';
   dialog.setAttribute('aria-labelledby','kga-title');
-  dialog.innerHTML = `<div class="kga-shell"><header class="kga-head"><button type="button" class="kga-back" data-kga-close aria-label="Назад">‹</button><span class="kga-brand">◉ Kinoglobus</span><button type="button" class="kga-mode" data-kga-mode>Войти</button></header><div class="kga-scroll"><section class="kga-intro"><span class="kga-club">✦ Клуб ценителей кино</span><h1 id="kga-title">Откройте мировой кинематограф</h1><p>Отмечайте просмотренные страны на 3D-глобусе, исследуйте редкие шедевры и ведите личный кинодневник.</p><div class="kga-perks"><span>◉ 104 страны</span><span>▣ Синхронизация TMDB</span><span>▤ Кинодневник</span></div></section><div class="kga-social"><button type="button" data-kga-provider="Google">🌐　Google</button><button type="button" data-kga-provider="Apple">●　Apple</button><button type="button" data-kga-provider="Telegram">➤　Telegram</button></div><div class="kga-divider"><span data-kga-divider>ИЛИ ПРОДОЛЖИТЕ С EMAIL</span></div><form class="kga-form" novalidate><div class="kga-field" data-kga-name><label for="kga-name"><span>Имя или псевдоним</span><small>для кинопрофиля</small></label><input class="kga-input" id="kga-name" name="name" autocomplete="name" placeholder="Например, Франсуа Трюффо" maxlength="40"></div><div class="kga-field"><label for="kga-email"><span>Электронная почта</span><small>без спама</small></label><input class="kga-input" id="kga-email" name="email" type="email" autocomplete="email" placeholder="name@example.com" required></div><div class="kga-field"><label for="kga-password"><span>Пароль</span><small>минимум 8 символов</small></label><div class="kga-password"><input class="kga-input" id="kga-password" name="password" type="password" autocomplete="new-password" placeholder="Введите пароль" required minlength="8"><button type="button" class="kga-eye" data-kga-eye aria-label="Показать пароль">◉</button></div><div class="kga-strength" aria-hidden="true"><i></i><i></i><i></i></div><div class="kga-strength-label"><span>Надёжность пароля</span><b data-kga-strength>Введите пароль</b></div></div><label class="kga-check" data-kga-recommend><input type="checkbox" name="recommendations" checked><span>Персональные рекомендации<br><small style="color:#b3a79a">Подборки, премьеры и авторское кино</small></span></label><label class="kga-check secondary" data-kga-terms><input type="checkbox" name="terms"><span>Согласен с правилами киноклуба и политикой конфиденциальности</span></label><button class="kga-submit" type="submit"><span data-kga-submit>Создать аккаунт　→</span></button><p class="kga-message" aria-live="polite"></p></form><p class="kga-note">Регистрация и синхронизация между устройствами пока не подключены. Эта форма не отправляет и не сохраняет пароль.</p><div class="kga-foot" style="margin-top:18px"><span data-kga-foot-label>Уже есть аккаунт?</span> <button type="button" data-kga-toggle>Войти</button></div></div></div>`;
+  dialog.innerHTML = `<div class="kga-shell"><header class="kga-head"><button type="button" class="kga-back" data-kga-close aria-label="Назад">‹</button><span class="kga-brand">◉ Kinoglobus</span><button type="button" class="kga-mode" data-kga-mode>Войти</button></header><div class="kga-scroll"><section class="kga-intro"><span class="kga-club">✦ Клуб ценителей кино</span><h1 id="kga-title">Откройте мировой кинематограф</h1><p>Отмечайте просмотренные страны на 3D-глобусе, исследуйте редкие шедевры и ведите личный кинодневник.</p><div class="kga-perks"><span>◉ 104 страны</span><span>▣ Синхронизация TMDB</span><span>▤ Кинодневник</span></div></section><div class="kga-social"><button type="button" data-kga-provider="Google">🌐　Google</button><button type="button" data-kga-provider="Apple">●　Apple</button><button type="button" data-kga-provider="Telegram">➤　Telegram</button></div><div class="kga-divider"><span data-kga-divider>ИЛИ ПРОДОЛЖИТЕ С EMAIL</span></div><form class="kga-form" novalidate><div class="kga-field" data-kga-name><label for="kga-name"><span>Имя или псевдоним</span><small>для кинопрофиля</small></label><input class="kga-input" id="kga-name" name="name" autocomplete="name" placeholder="Например, Франсуа Трюффо" maxlength="40"></div><div class="kga-field"><label for="kga-email"><span>Электронная почта или тестовое слово</span><small>Тестовый режим</small></label><input class="kga-input" id="kga-email" name="email" type="text" autocomplete="off" placeholder="name@example.com" required></div><div class="kga-field"><label for="kga-password"><span>Пароль</span></label><div class="kga-password"><input class="kga-input" id="kga-password" name="password" type="password" autocomplete="off" placeholder="Введите пароль" required><button type="button" class="kga-eye" data-kga-eye aria-label="Показать пароль">◉</button></div><div class="kga-strength" aria-hidden="true"><i></i><i></i><i></i></div><div class="kga-strength-label"><span>Надёжность пароля</span><b data-kga-strength>Введите пароль</b></div></div><label class="kga-check" data-kga-recommend><input type="checkbox" name="recommendations" checked><span>Персональные рекомендации<br><small style="color:#b3a79a">Подборки, премьеры и авторское кино</small></span></label><button class="kga-submit" type="submit"><span data-kga-submit>Создать аккаунт　→</span></button><p class="kga-message" aria-live="polite"></p></form><p class="kga-note">Тестовая регистрация. Введите любые слова в поля почты и пароля.</p><div class="kga-foot" style="margin-top:18px"><span data-kga-foot-label>Уже есть аккаунт?</span> <button type="button" data-kga-toggle>Войти</button></div></div></div>`;
   localizeInterfaceMarkup(dialog);
   document.body.appendChild(dialog);
 
   const form = dialog.querySelector('form');
+  const identifier = dialog.querySelector('#kga-email');
   const password = dialog.querySelector('#kga-password');
   const message = dialog.querySelector('.kga-message');
   const open = modeName => {
+    if (window.KGOpenDemoProfile()) return;
     if (modeName === 'login') {
       if (dialog.open) dialog.close();
       window.KGOpenLoginPage();
@@ -51,21 +53,16 @@
     const words=['Введите пароль','Слабый пароль','Средний пароль','Надёжный пароль','Надёжный пароль'];dialog.querySelector('[data-kga-strength]').textContent=uiText(words[score]);
   });
   form.addEventListener('submit',event=>{
-    event.preventDefault();message.classList.remove('error');
-    const invalidField = form.querySelector("input:invalid");
-    if (invalidField) {
-      const copy = invalidField.validity.typeMismatch
-        ? "Введите корректный адрес электронной почты."
-        : invalidField.validity.tooShort
-          ? "Пароль должен содержать минимум 8 символов."
-          : "Проверьте заполнение обязательных полей.";
-      message.textContent = uiText(copy);
+    event.preventDefault();
+    const invalid = [identifier, password].find(input => !input.value.trim());
+    if (invalid) {
+      message.textContent = uiText("Проверьте заполнение обязательных полей.");
       message.classList.add("error");
-      invalidField.focus();
+      invalid.focus();
       return;
     }
-    if(!form.elements.terms.checked){message.textContent=uiText("Подтвердите согласие с правилами и политикой конфиденциальности.");message.classList.add('error');return;}
-    message.textContent=uiText("Форма заполнена. Отправка пока отключена: сервер учётных записей не подключён, пароль не сохранён.");
+    dialog.close();
+    window.KGStartDemoSession(uiText("Регистрация завершена"));
   });
   dialog.addEventListener('close', () => {
     form.reset();

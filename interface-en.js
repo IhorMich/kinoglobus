@@ -1451,5 +1451,21 @@ window.KGInterfaceDictionaries.en = Object.freeze({
   "Ещё нет аккаунта?": "New here?",
   "Зарегистрироваться": "Create an account",
   "Скоро": "Coming soon",
-  "Восстановление пароля скоро будет доступно.": "Password recovery is coming soon."
+  "Восстановление пароля скоро будет доступно.": "Password recovery is coming soon.",
+  "КЛЮЧ ДОСТУПА В СИНЕМАТЕКУ": "YOUR KEY TO KINOGLOBUS",
+  "Восстановление доступа": "Recover access",
+  "Укажите электронную почту, привязанную к вашему киноатласу и дневнику просмотров.": "Enter the email address linked to your film atlas and viewing diary.",
+  "Личный 3D-киноатлас": "Personal 3D film atlas",
+  "Страны: {countries} · Фильмы: {films}": "Countries: {countries} · Films: {films}",
+  "По почте (Email)": "By email",
+  "ЭЛЕКТРОННАЯ ПОЧТА": "EMAIL ADDRESS",
+  "Киноман ID": "KinoGlobus ID",
+  "Временный кино-пропуск": "Temporary cinema pass",
+  "Отправка ссылки для сброса пароля станет доступна после подключения сервера аккаунтов.": "Password reset links will be available once the account server is connected.",
+  "ОТПРАВИТЬ ССЫЛКУ СБРОСА": "SEND RESET LINK",
+  "«В кинотеатре свет гаснет, чтобы открылась тайна.»": "“In a cinema, the lights go out so a mystery can unfold.”",
+  "Палата редких плёнок": "Rare Film Archive",
+  "Вспомнили пароль?": "Remember your password?",
+  "Укажите действительный адрес электронной почты.": "Enter a valid email address.",
+  "Отправка письма пока недоступна.": "Email delivery is currently unavailable."
 });

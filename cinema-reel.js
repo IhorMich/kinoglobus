@@ -214,7 +214,7 @@
   const projectionPoster=path=>path?`https://image.tmdb.org/t/p/w500${path}`:"";
   function renderProjectionTrack(){
     return `<section class="kg-projection" data-kg-projection>
-      <div class="kg-projection-top"><span><i></i> ПРОЕКЦИОННЫЙ ТРАКТ · 35 ММ</span><b data-kg-projection-counter>КАДР 00 / 00</b><span>24 FPS</span></div>
+      <div class="kg-projection-top"><span><i></i> ПРОЕКЦИОННЫЙ ТРАКТ · 35 ММ</span><b data-kg-projection-counter>${uiText("КАДР 00 / 00")}</b><span>24 FPS</span></div>
       <div class="kg-projection-telemetry"><span>35 MM · KODAK</span><span data-kg-projection-state>ОЖИДАНИЕ ПОИСКА</span><span>КИНОГЛОБУС</span></div>
       <div class="kg-projection-machine"><div class="kg-projection-perfs" aria-hidden="true">${"<i></i>".repeat(11)}</div><div class="kg-projection-window"><div class="kg-projection-beam"></div><div class="kg-projection-image" data-kg-projection-image><div class="kg-projection-empty">ЗАПУСТИТЕ ПОИСК ФИЛЬМА</div></div><div class="kg-projection-frame-meta"><span data-kg-projection-year>35 MM · 24 FPS</span><b data-kg-projection-rating>● TMDB</b></div></div><div class="kg-projection-perfs" aria-hidden="true">${"<i></i>".repeat(11)}</div></div>
       <div class="kg-projection-caption"><small data-kg-projection-country>КИНОГЛОБУС · ПОИСК</small><strong data-kg-projection-title>Фильм появится после запуска</strong><span data-kg-projection-subtitle>Оптическая рамка 35 мм</span></div>
@@ -252,7 +252,7 @@
         const traveled = Math.max(0, Math.floor(distance));
         const frameIndex = traveled % items.length;
         emitReelMotion((1 - progress) ** 3, distance, traveled);
-        if(frameIndex!==lastFrame){lastFrame=frameIndex;const film=items[frameIndex];if(counter)counter.textContent=`КАДР ${String(frameIndex+1).padStart(2,"0")} / ${String(items.length).padStart(2,"0")}`;const title=root.querySelector("[data-kg-projection-title]"),year=root.querySelector("[data-kg-projection-year]"),rating=root.querySelector("[data-kg-projection-rating]"),subtitle=root.querySelector("[data-kg-projection-subtitle]");if(title)title.textContent=film.title||film.original_title||"Фильм";if(year)year.textContent=`${(film.release_date||"").slice(0,4)||"35 MM"} · KODAK`;if(rating)rating.textContent=Number(film.vote_average)>0?`★ ${Number(film.vote_average).toFixed(1)}`:"● TMDB";if(subtitle)subtitle.textContent=film.original_title&&film.original_title!==film.title?film.original_title:"Оптическая рамка 35 мм";options.onFrame?.(film,frameIndex);}
+        if(frameIndex!==lastFrame){lastFrame=frameIndex;const film=items[frameIndex];if(counter)counter.textContent=uiText("КАДР {current} / {total}", {current: String(frameIndex+1).padStart(2,"0"), total: String(items.length).padStart(2,"0")});const title=root.querySelector("[data-kg-projection-title]"),year=root.querySelector("[data-kg-projection-year]"),rating=root.querySelector("[data-kg-projection-rating]"),subtitle=root.querySelector("[data-kg-projection-subtitle]");if(title)title.textContent=film.title||film.original_title||"Фильм";if(year)year.textContent=`${(film.release_date||"").slice(0,4)||"35 MM"} · KODAK`;if(rating)rating.textContent=Number(film.vote_average)>0?`★ ${Number(film.vote_average).toFixed(1)}`:"● TMDB";if(subtitle)subtitle.textContent=film.original_title&&film.original_title!==film.title?film.original_title:"Оптическая рамка 35 мм";options.onFrame?.(film,frameIndex);}
         requestAnimationFrame(step);};requestAnimationFrame(step);});
   }
   function isProjectionMode(){return reelMode()==="projection";}

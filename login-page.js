@@ -80,7 +80,7 @@
           <div class="grid gap-1.5">
             <div class="flex flex-wrap items-center justify-between gap-2">
               <label for="kg-login-password" class="font-label-sm text-label-sm text-primary">Пароль</label>
-              <button type="button" data-kg-login-soon="reset" class="text-xs font-semibold text-secondary">Забыли пароль?</button>
+              <button type="button" data-kg-login-recovery class="text-xs font-semibold text-secondary">Забыли пароль?</button>
             </div>
             <div class="kg-login-field">${icon("lock")}<input id="kg-login-password" type="password" placeholder="Введите пароль" required>
               <button type="button" data-kg-login-eye aria-label="Показать пароль" class="w-9 h-9 grid place-items-center shrink-0">${icon("visibility")}</button>
@@ -118,11 +118,15 @@
       dialog.close();
       window.KGOpenAccountPage("register");
     }
+    if (event.target.closest("[data-kg-login-recovery]")) {
+      const address = identifier.value;
+      dialog.close();
+      window.KGOpenPasswordRecovery(address);
+      return;
+    }
     const feature = event.target.closest("[data-kg-login-soon]")?.dataset.kgLoginSoon;
     if (feature) {
-      message.textContent = feature === "reset"
-        ? uiText("Восстановление пароля скоро будет доступно.")
-        : uiText("Вход через {provider} станет доступен после подключения авторизации.", {provider:feature});
+      message.textContent = uiText("Вход через {provider} станет доступен после подключения авторизации.", {provider:feature});
       message.scrollIntoView({block:"nearest"});
     }
   });

@@ -23,33 +23,25 @@
   const form = dialog.querySelector('form');
   const password = dialog.querySelector('#kga-password');
   const message = dialog.querySelector('.kga-message');
-  let mode = 'register';
-  const setMode = next => {
-    mode = next;
-    const login = mode === 'login';
-    dialog.querySelector('#kga-title').textContent = uiText(login ? 'С возвращением в Киноглобус' : 'Откройте мировой кинематограф');
-    dialog.querySelector('[data-kga-mode]').textContent = uiText(login ? 'Регистрация' : 'Войти');
-    dialog.querySelector('[data-kga-submit]').textContent = uiText(login ? 'Продолжить　→' : 'Создать аккаунт　→');
-    dialog.querySelector('[data-kga-foot-label]').textContent = uiText(login ? 'Новый участник?' : 'Уже есть аккаунт?');
-    dialog.querySelector('[data-kga-toggle]').textContent = uiText(login ? 'Регистрация' : 'Войти');
-    dialog.querySelector('[data-kga-divider]').textContent = uiText(login ? 'ИЛИ ВОЙДИТЕ С EMAIL' : 'ИЛИ ПРОДОЛЖИТЕ С EMAIL');
-    dialog.querySelector('[data-kga-name]').classList.toggle('kga-hidden',login);
-    dialog.querySelector('[data-kga-recommend]').classList.toggle('kga-hidden',login);
-    dialog.querySelector('[data-kga-terms]').classList.toggle('kga-hidden',login);
-    password.autocomplete=login?'current-password':'new-password';
-    message.textContent='';message.classList.remove('error');
+  const open = modeName => {
+    if (modeName === 'login') {
+      if (dialog.open) dialog.close();
+      window.KGOpenLoginPage();
+      return;
+    }
+    if (!dialog.open) dialog.showModal();
+    requestAnimationFrame(() => dialog.querySelector('#kga-email').focus({preventScroll:true}));
   };
-  const open = modeName => {setMode(modeName||'register');dialog.showModal();requestAnimationFrame(()=>dialog.querySelector('#kga-email').focus({preventScroll:true}));};
   window.KGOpenAccountPage = open;
   document.getElementById('kg-account-open')?.addEventListener('click',()=>open('register'));
   document.addEventListener('click',event=>{
     if(event.target.closest('[data-kga-close]'))dialog.close();
-    if(event.target.closest('[data-kga-toggle]'))setMode(mode==='register'?'login':'register');
+    if(event.target.closest('[data-kga-toggle]'))open('login');
     if(event.target.closest('[data-kgs-auth-open]')){event.preventDefault();open(event.target.closest('[data-kgs-auth-open]').dataset.kgsAuthOpen||'register');}
     const provider=event.target.closest('[data-kga-provider]');
     if(provider){message.textContent=uiText("Вход через {provider} станет доступен после подключения авторизации.", {provider: provider.dataset.kgaProvider});message.classList.remove('error');}
   });
-  dialog.querySelector('[data-kga-mode]').addEventListener('click',()=>setMode(mode==='register'?'login':'register'));
+  dialog.querySelector('[data-kga-mode]').addEventListener('click',()=>open('login'));
   dialog.querySelector('[data-kga-eye]').addEventListener('click',event=>{
     const visible=password.type==='password';password.type=visible?'text':'password';event.currentTarget.textContent=visible?'◉̸':'◉';event.currentTarget.setAttribute('aria-label',uiText(visible?'Скрыть пароль':'Показать пароль'));
   });
@@ -72,8 +64,18 @@
       invalidField.focus();
       return;
     }
-    if(mode==='register'&&!form.elements.terms.checked){message.textContent=uiText("Подтвердите согласие с правилами и политикой конфиденциальности.");message.classList.add('error');return;}
+    if(!form.elements.terms.checked){message.textContent=uiText("Подтвердите согласие с правилами и политикой конфиденциальности.");message.classList.add('error');return;}
     message.textContent=uiText("Форма заполнена. Отправка пока отключена: сервер учётных записей не подключён, пароль не сохранён.");
+  });
+  dialog.addEventListener('close', () => {
+    form.reset();
+    password.type = 'password';
+    const eye = dialog.querySelector('[data-kga-eye]');
+    eye.textContent = '◉';
+    eye.setAttribute('aria-label', uiText('Показать пароль'));
+    password.dispatchEvent(new Event('input'));
+    message.textContent = '';
+    message.classList.remove('error');
   });
   dialog.addEventListener('click',event=>{if(event.target===dialog)dialog.close();});
 })();

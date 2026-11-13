@@ -2752,7 +2752,21 @@ function previewFilmReelSound() {
 window.startFilmReelSound = startFilmReelSound;
 window.stopFilmReelSound = stopFilmReelSound;
 window.previewFilmReelSound = previewFilmReelSound;
-function preview(){if(snd==="off")return;audio();let i=0;const id=setInterval(()=>{sTick(i/10);if(++i>5){clearInterval(id);setTimeout(sWin,150);}},120);}
+let globeSoundPreviewTimer;
+function stopGlobeSoundPreview() {
+  clearTimeout(globeSoundPreviewTimer);
+}
+function preview() {
+  stopGlobeSoundPreview();
+  if (snd === "off" || !audio()) return;
+  let index = 0;
+  const step = () => {
+    sTick(index / 10);
+    index++;
+    globeSoundPreviewTimer = setTimeout(index < 6 ? step : sWin, index < 6 ? 120 : 150);
+  };
+  step();
+}
 function buzz(p){if(fx&&navigator.vibrate){try{navigator.vibrate(p)}catch(e){}}}
 function fxLabel() {
   const button = $("fx");
@@ -2766,7 +2780,7 @@ function toggleVibration() {
 }
 $("fx").onclick = toggleVibration;
 fxLabel();
-$("snd").value=snd;$("snd").onchange=()=>{snd=$("snd").value;store.set("snd",snd);preview();};
+$("snd").value=snd;$("snd").onchange=()=>{snd=$("snd").value;store.set("snd",snd);stopGlobeSoundPreview();};
 
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const RM=matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -4264,16 +4278,16 @@ console.info("[Kinoglobus] Bridge v6 ready");
 <script src="country-pages.js?v=15"></script>
 <script src="account-page.js?v=3"></script>
 <script src="mood-vibe-additions.js?v=2"></script>
-<script src="mood-page.js?v=36"></script>
-<script src="mood-vibe-page.js?v=21"></script>
-<script src="oscar-page.js?v=38"></script>
-<script src="oscar-design.js?v=19"></script>
+<script src="mood-page.js?v=37"></script>
+<script src="mood-vibe-page.js?v=22"></script>
+<script src="oscar-page.js?v=39"></script>
+<script src="oscar-design.js?v=20"></script>
 <script src="curated-collections.js?v=1"></script>
-<script src="collections.js?v=83"></script>
+<script src="collections.js?v=85"></script>
 <script src="film-interactions.js?v=17"></script>
 <script src="legal-watch.js?v=6"></script>
 <script src="global-search.js?v=5"></script>
 <script src="home-releases.js?v=3"></script>
-<script src="settings-page.js?v=43"></script>
+<script src="settings-page.js?v=44"></script>
 
 </body></html>

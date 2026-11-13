@@ -1,5 +1,5 @@
 <!DOCTYPE html><html class="dark" lang="ru"><head><meta charset="utf-8"><link rel="stylesheet" href="app-theme.css?v=6">
-<script src="interface-en.js?v=6"></script>
+<script src="interface-en.js?v=10"></script>
 <script src="interface-i18n.js?v=2"></script>
 <script>
 const APP_THEMES = ["cinematic", "oled", "golden-age"];
@@ -1503,7 +1503,7 @@ if (areaRing) {
         cardGenres.textContent = country.movie.genres;
         cardDesc.textContent = country.movie.desc;
         cardRating.textContent = country.movie.rating;
-        if (country.movie.poster) cardPoster.src = country.movie.poster;
+        if (country.movie.poster && cardPoster instanceof HTMLImageElement) cardPoster.src = country.movie.poster;
 
         if (discoveryCard) {
           discoveryCard.classList.remove('card-discovery-win');
@@ -3151,11 +3151,40 @@ function fmtRuntime(m){
 const moneyFmt=new Intl.NumberFormat(interfaceLanguage,{style:"currency",currency:"USD",maximumFractionDigits:0});
 function money(n){return n?moneyFmt.format(n):"—";}
 const filmSynopsis = text => String(text || "").trim();
+function selectFilmPoster(movie) {
+  const posters = movie.images?.posters || [];
+  const language = filmTextLanguage(movie);
+  const matching = posters.find(image => image.iso_639_1 === language && image.file_path);
+  if (matching) return {path: matching.file_path, showTitle: false};
+
+  const neutral = posters.find(image => image.iso_639_1 == null && image.file_path);
+  return {path: neutral?.file_path || movie.backdrop_path || "", showTitle: true};
+}
+
+function filmPosterMarkup(film, size = "w342") {
+  // Before the localised poster is available, use a still and the selected title.
+  const poster = film.localizedPoster || {path: film.backdrop_path, showTitle: true};
+  const path = /^\/[a-z0-9_.-]+$/i.test(poster.path || "") ? poster.path : "";
+  const title = film.title || film.original_title || uiText("Фильм");
+  const escape = value => String(value).replace(/[&<>"']/g, char =>
+    ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[char]
+  );
+  const alt = poster.showTitle ? "" : escape(uiText("Постер фильма «{title}»", {title}));
+  const image = path
+    ? `<img class="absolute inset-0 w-full h-full object-cover" src="https://image.tmdb.org/t/p/${size}${path}" alt="${alt}" loading="lazy">`
+    : "";
+  const caption = poster.showTitle
+    ? `<span class="absolute inset-x-0 bottom-0 bg-black/80 px-1.5 py-1.5 text-center text-xs font-semibold leading-tight text-white break-words">${escape(title)}</span>`
+    : "";
+  return image + caption;
+}
+
 const detailCache={};
 async function filmDetails(id){
   if(id in detailCache) return detailCache[id];
   const r=await fetch("https://api.themoviedb.org/3/movie/"+id+"?"+new URLSearchParams({
-    api_key:apiKey, language:filmLocale, append_to_response:"credits,translations,release_dates"}),{cache:"no-store"});
+    api_key:apiKey, language:filmLocale, append_to_response:"credits,translations,release_dates,images",
+    include_image_language:"ru,en,null"}),{cache:"no-store"});
   if(!r.ok) throw new Error("details");
   const j=await r.json();
   const crew=j.credits&&j.credits.crew||[];
@@ -3171,7 +3200,7 @@ async function filmDetails(id){
   const certOf=cc=>{const c=rel.find(x=>x.iso_3166_1===cc);const d=c&&(c.release_dates||[]).find(x=>String(x.certification||"").trim());return d?String(d.certification).trim():"";};
   const cert=certOf("RU")||certOf("US")||(rel.map(x=>certOf(x.iso_3166_1)).find(Boolean)||"");
   return detailCache[id]={cert,runtime:j.runtime||0,dirs,dirsFull:dirsFull.map(d=>({...d,photo:(crew.find(c=>c.id===d.id)||{}).profile_path||""})),writers:writers.slice(0,3),cast,castFull:(j.credits&&j.credits.cast||[]).slice(0,10).map(c=>({id:c.id,name:c.name,role:c.character||"",photo:c.profile_path||""})),genres,budget:j.budget||0,revenue:j.revenue||0,
-    title:selectMovieText(j, "title").text,
+    title:selectMovieText(j, "title").text, localizedPoster:selectFilmPoster(j),
     tagline:tg.text,taglineLang:tg.lang,overview:ov.text,overviewLang:ov.lang,
     release:j.release_date||"",originalTitle:j.original_title||"",originalLang:j.original_language||"",
     companies:(j.production_companies||[]).map(c=>c.name).filter(Boolean).slice(0,3),
@@ -3582,8 +3611,8 @@ const CARD_HTML=`
 <div class="flex items-start justify-between gap-2">
 <div class="relative w-24 sm:w-28 flex-shrink-0 aspect-[2/3] rounded-lg overflow-hidden bg-surface-container-high shadow-md border border-primary-container/20">
 <span class="absolute inset-0 flex items-center justify-center text-primary-container"><span class="material-symbols-outlined text-[32px]">movie</span></span>
-<img class="relative w-full h-full object-cover" id="discovery-poster" alt="Постер фильма" loading="lazy">
-<div class="absolute bottom-1 left-1 right-1 px-1.5 py-1 rounded bg-surface-container-lowest/90 text-center shadow">
+<div class="absolute inset-0" id="discovery-poster"></div>
+<div class="absolute top-1 left-1 px-1.5 py-1 rounded bg-surface-container-lowest/90 text-center shadow">
 <div class="font-headline-sm text-headline-sm font-bold text-primary-fixed" id="discovery-rating">—</div><span class="text-[9px] text-text-muted font-mono uppercase tracking-tighter">TMDB</span>
 </div></div>
 <div class="min-w-0 flex-1">
@@ -4176,9 +4205,7 @@ window.show=function(cc,pool,film){
   const y=(film.release_date||"").slice(0,4),votes=film.vote_count||0;
   set("discovery-title",film.title||"");set("discovery-year",y?"("+y+")":"");
   const poster=$("discovery-poster");
-  poster.alt=uiText("Постер фильма «{title}»", {title: film.title || uiText("Фильм")});
-  if(film.poster_path){poster.src=`https://image.tmdb.org/t/p/w342${film.poster_path}`;poster.classList.remove("hidden");}
-  else{poster.removeAttribute("src");poster.classList.add("hidden");}
+  poster.innerHTML = filmPosterMarkup(film);
   $("film-trailer-box").hidden=false;
   $("film-trailer-thumbnail").src=film.poster_path?`https://image.tmdb.org/t/p/w780${film.poster_path}`:"";
   $("film-trailer-play").disabled=true;
@@ -4200,6 +4227,7 @@ window.show=function(cc,pool,film){
     set("discovery-genres","· "+[g,d.runtime?uiText("{minutes} мин", {minutes: d.runtime}):""].filter(Boolean).join(" · "));
     if(d.votes){set("discovery-rating",Number(d.average).toFixed(1));setVotes(d.votes);}
     if (d.title) set("discovery-title", d.title);
+    poster.innerHTML = filmPosterMarkup({...film, title:d.title || film.title, localizedPoster:d.localizedPoster});
     renderExtra({...film, title:d.title || film.title},d);
   }).catch(()=>{
     if(!cur||cur.film.id!==film.id)return;
@@ -4290,15 +4318,15 @@ console.info("[Kinoglobus] Bridge v6 ready");
 <script src="globe-visuals.js?v=3"></script>
 <script src="watch-history.js?v=9"></script>
 <script src="country-pages.js?v=15"></script>
-<script src="account-page.js?v=2"></script>
+<script src="account-page.js?v=3"></script>
 <script src="mood-vibe-additions.js?v=2"></script>
 <script src="mood-page.js?v=36"></script>
 <script src="mood-vibe-page.js?v=21"></script>
-<script src="oscar-page.js?v=36"></script>
-<script src="oscar-design.js?v=15"></script>
+<script src="oscar-page.js?v=38"></script>
+<script src="oscar-design.js?v=19"></script>
 <script src="curated-collections.js?v=1"></script>
-<script src="collections.js?v=79"></script>
-<script src="film-interactions.js?v=16"></script>
+<script src="collections.js?v=82"></script>
+<script src="film-interactions.js?v=17"></script>
 <script src="legal-watch.js?v=6"></script>
 <script src="global-search.js?v=5"></script>
 <script src="settings-page.js?v=43"></script>

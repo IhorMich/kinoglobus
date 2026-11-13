@@ -94,7 +94,7 @@
           <button type="button" data-kg-login-soon="Face ID" class="kg-login-biometrics">${icon("face")}<span>Быстрый вход через Face ID</span></button>
         </form>
         <p data-kg-login-message role="status" class="mt-3 text-sm text-secondary empty:hidden"></p>
-        <p class="mt-4 text-center text-xs text-text-muted">Вход и синхронизация скоро будут доступны.</p>
+        <p class="mt-4 text-center text-xs text-text-muted">Тестовый вход. Введите любые слова в оба поля.</p>
         <div class="mt-3 text-sm text-center"><span>Ещё нет аккаунта?</span> <button type="button" data-kg-login-register class="font-semibold text-primary underline underline-offset-4">Зарегистрироваться</button></div>
       </div>
     </div>`;
@@ -135,13 +135,13 @@
   form.addEventListener("submit", event => {
     event.preventDefault();
     const invalid = [identifier, password].find(input => !input.value.trim());
-    message.textContent = uiText(invalid ? "Проверьте заполнение обязательных полей." : "Форма заполнена. Отправка пока отключена: сервер учётных записей не подключён, пароль не сохранён.");
-    if (invalid) invalid.focus();
-    else {
-      password.value = "";
-      setPasswordVisible(false);
-      message.scrollIntoView({block:"nearest"});
+    if (invalid) {
+      message.textContent = uiText("Проверьте заполнение обязательных полей.");
+      invalid.focus();
+      return;
     }
+    dialog.close();
+    window.KGStartDemoSession(uiText("Вход выполнен"));
   });
   dialog.addEventListener("close", () => {
     form.reset();

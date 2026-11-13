@@ -331,6 +331,7 @@ ${info.best?`<span class="block font-micro-caption text-micro-caption text-prima
     if(e.target.closest("[data-oscar-reset]")){state.onlyBest=false;state.onlyUnseen=false;relist(root,deps);return;}
     if(e.target.closest("[data-oscar-reel-close]")){closeReel(root,deps);return;}
     if(e.target.closest("#oscar-roulette")){
+      audio();
       spinReel(root,deps).catch(error=>{
         console.error("[Kinoglobus] Случайный поиск Оскара завершился ошибкой:",error);
         state.spinning=false;state.skipSpin=false;sound("stopFilmReelSound");setLaunch(root,false);
@@ -393,6 +394,10 @@ ${info.best?`<span class="block font-micro-caption text-micro-caption text-prima
     }else sequence.push(film);
     const winnerIndex=animate?NEED:0;
     const token=++state.spinToken;
+    const showWinner = () => {
+      window.playFilmFoundSound?.();
+      deps.openFilm({...film,_kgRelatedPool:pool},"oscar","oscar-reel-detail");
+    };
     deps.closeFilm("oscar");
     state.spinning=true;state.skipSpin=false;state.spun=true;
     setLaunch(root,true);
@@ -427,7 +432,7 @@ ${window.KGCinemaReel.render({shellClass:"kgo-reel relative w-full rounded-xl bg
       if(skip)skip.hidden=true;
       frame.classList.remove("hit");void frame.offsetWidth;frame.classList.add("hit");
       sound("buzz",[25,50,60]);
-      deps.openFilm({...film,_kgRelatedPool:pool},"oscar","oscar-reel-detail");
+      showWinner();
     };
     if(window.KGCinemaReel?.isProjectionMode?.()){
       panel.scrollIntoView({behavior:"smooth",block:"center"});sound("startFilmReelSound");
@@ -435,7 +440,7 @@ ${window.KGCinemaReel.render({shellClass:"kgo-reel relative w-full rounded-xl bg
       sound("stopFilmReelSound");if(!landed||token!==state.spinToken||!panel.isConnected){if(token===state.spinToken){state.spinning=false;setLaunch(root,false);}return;}
       state.spinning=false;state.skipSpin=false;if(counter)counter.textContent=uiText("Фильм")+" "+String(pool.indexOf(film)+1).padStart(2,"0")+" / "+String(pool.length).padStart(2,"0");
       const sub=panel.querySelector("[data-oscar-reel-sub]");if(sub)sub.textContent=(film.title||film.original_title||uiText("Фильм"))+" · "+yearOf(film);
-      setLaunch(root,false);if(skip)skip.hidden=true;deps.openFilm({...film,_kgRelatedPool:pool},"oscar","oscar-reel-detail");
+      setLaunch(root,false);if(skip)skip.hidden=true;showWinner();
       return;
     }
     if(window.KGCinemaReel?.isCassetteMode?.()){
@@ -445,7 +450,7 @@ ${window.KGCinemaReel.render({shellClass:"kgo-reel relative w-full rounded-xl bg
       sound("stopFilmReelSound");if(!landed||token!==state.spinToken||!panel.isConnected){if(token===state.spinToken){state.spinning=false;setLaunch(root,false);}return;}
       state.spinning=false;state.skipSpin=false;if(counter)counter.textContent=uiText("Фильм")+" "+String(pool.indexOf(film)+1).padStart(2,"0")+" / "+String(pool.length).padStart(2,"0");
       const sub=panel.querySelector("[data-oscar-reel-sub]");if(sub)sub.textContent=(film.title||film.original_title||uiText("Фильм"))+" · "+yearOf(film);
-      setLaunch(root,false);if(skip)skip.hidden=true;deps.openFilm({...film,_kgRelatedPool:pool},"oscar","oscar-reel-detail");
+      setLaunch(root,false);if(skip)skip.hidden=true;showWinner();
       return;
     }
     if(window.KGCinemaReel?.isTicketMode?.()){
@@ -455,7 +460,7 @@ ${window.KGCinemaReel.render({shellClass:"kgo-reel relative w-full rounded-xl bg
       window.KGCinemaReel.presentTicket(panel,film,{country:uiText("Оскар")});state.spinning=false;state.skipSpin=false;
       if(counter)counter.textContent="Билет "+String(pool.indexOf(film)+1).padStart(2,"0")+" / "+String(pool.length).padStart(2,"0");
       const sub=panel.querySelector("[data-oscar-reel-sub]");if(sub)sub.textContent=(film.title||film.original_title||uiText("Фильм"))+" · "+yearOf(film);
-      setLaunch(root,false);if(skip)skip.hidden=true;deps.openFilm({...film,_kgRelatedPool:pool},"oscar","oscar-reel-detail");
+      setLaunch(root,false);if(skip)skip.hidden=true;showWinner();
       return;
     }
     start=offsetFor(0);finish=offsetFor(winnerIndex);

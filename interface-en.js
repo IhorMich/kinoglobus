@@ -1435,5 +1435,21 @@ window.KGInterfaceDictionaries.en = Object.freeze({
   "Найти сеансы": "Find showtimes",
   "За этот период в выбранном регионе релизов нет.": "No releases in the selected region for this period.",
   "Добавьте ключ TMDB, чтобы загрузить релизы.": "Add a TMDB key to load releases.",
-  "Не удалось загрузить релизы.": "Could not load releases."
+  "Не удалось загрузить релизы.": "Could not load releases.",
+  "Клуб ценителей кино": "Film lovers’ club",
+  "С возвращением в синематеку": "Welcome back to KinoGlobus",
+  "Исследуйте мировой кинематограф, отмечайте страны на 3D-глобусе и пополняйте личный кинодневник.": "Explore world cinema, mark countries on the 3D globe, and build your personal film diary.",
+  "Страны: {count}": "Countries: {count}",
+  "Фильмы: {count}": "Films: {count}",
+  "Или войдите с электронной почтой": "Or sign in with email",
+  "Электронная почта или псевдоним": "Email or nickname",
+  "Забыли пароль?": "Forgot password?",
+  "Запомнить меня": "Remember me",
+  "Войти в синематеку": "Sign in to KinoGlobus",
+  "Быстрый вход через Face ID": "Quick sign-in with Face ID",
+  "Вход и синхронизация скоро будут доступны.": "Sign-in and sync are coming soon.",
+  "Ещё нет аккаунта?": "New here?",
+  "Зарегистрироваться": "Create an account",
+  "Скоро": "Coming soon",
+  "Восстановление пароля скоро будет доступно.": "Password recovery is coming soon."
 });

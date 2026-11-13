@@ -100,9 +100,6 @@
     .kg-profile-club h2 {font-size:17px;font-weight:700;color:var(--profile-gold)}
     .kg-profile-nav {justify-content:space-around;padding:5px 2% calc(5px + env(safe-area-inset-bottom,0px));box-shadow:0 -8px 30px #080a1070}
     .kg-profile-nav button {display:grid;justify-items:center;align-content:center;gap:3px;min-width:58px;min-height:48px;color:var(--profile-muted);font-size:11px}
-    .kg-profile-edit {display:grid;gap:10px;margin-top:12px}
-    .kg-profile-edit label {display:grid;gap:3px;color:var(--profile-muted)}
-    .kg-profile-edit input,.kg-profile-edit textarea {padding:8px;border-radius:7px;background:#11141d;color:inherit;width:100%;min-width:0}
   `;
   document.head.appendChild(styles);
 
@@ -126,19 +123,15 @@
             <div>
               <h1 id="kg-profile-title"></h1>
               <p class="kg-profile-handle" data-profile-handle></p>
-              <div class="kg-profile-pills"><span class="kg-profile-pill">Демо-профиль</span><span class="kg-profile-pill">Kinoglobus Club</span></div>
+              <div class="kg-profile-pills"><span class="kg-profile-pill">Демо-профиль</span><span class="kg-profile-pill" data-profile-club-badge>Kinoglobus Club</span><span data-profile-badges class="contents"></span></div>
             </div>
           </div>
           <p class="kg-profile-copy" data-profile-bio></p>
+          <p class="kg-profile-meta" data-profile-city hidden></p>
           <div class="kg-profile-actions">
             <button type="button" class="kg-profile-button gold" data-profile-edit>${icon("edit_note")}<span>Редактировать</span></button>
             <button type="button" class="kg-profile-button" data-profile-share>${icon("share")}<span>Поделиться</span></button>
           </div>
-          <form class="kg-profile-edit" hidden>
-            <label>Имя или псевдоним<input name="displayName" maxlength="40" required></label>
-            <label>О себе<textarea name="bio" rows="3" maxlength="240"></textarea></label>
-            <button class="kg-profile-button gold" type="submit">Сохранить</button>
-          </form>
         </section>
         <section class="kg-profile-archive">
           <div class="kg-profile-head"><h2>Кинематографический архив</h2><button type="button" class="kg-profile-gold" data-profile-action="history">История</button></div>
@@ -155,8 +148,8 @@
           </div>
         </section>
         <section>
-          <div class="kg-profile-head"><h2 class="kg-profile-line"><span class="kg-profile-gold">${icon("stars")}</span><span>Золотая полка</span></h2><small>Пример · Топ-4</small></div>
-          <div class="kg-profile-grid">
+          <div class="kg-profile-head"><h2 class="kg-profile-line"><span class="kg-profile-gold">${icon("stars")}</span><span>Золотая полка</span></h2><small data-profile-shelf-label>Пример · Топ-4</small></div>
+          <div class="kg-profile-grid" data-profile-shelf>
             ${sampleFilms.map(([title, year, index, ratio]) => `<div class="kg-profile-film"><span class="kg-profile-frame">${still(index)}<small>${ratio}</small></span><strong title="${title}">${title}</strong><small class="kg-profile-meta">${year}</small></div>`).join("")}
           </div>
         </section>
@@ -192,7 +185,7 @@
             <blockquote>«Эффект step-printing превращает бег по эскалаторам Гонконга в медитацию об ускользающем времени».</blockquote>
           </article>
         </section>
-        <section class="kg-profile-card kg-profile-club">
+        <section class="kg-profile-card kg-profile-club" data-profile-club>
           <div class="kg-profile-head"><h2>Kinoglobus Club Gold</h2><span class="kg-profile-pill">Скоро</span></div>
           <p class="kg-profile-copy">Премиальный доступ к плёночным реставрациям</p>
           <div class="kg-profile-actions">
@@ -213,7 +206,6 @@
 
   const scroll = dialog.querySelector(".kg-profile-scroll");
   const status = dialog.querySelector("[role=status]");
-  const edit = dialog.querySelector("form");
   const tabs = [...dialog.querySelectorAll("[data-profile-tab]")];
   const panels = [...dialog.querySelectorAll("[data-profile-panel]")];
   const routes = {
@@ -229,11 +221,50 @@
     panels.forEach(panel => { panel.hidden = panel.dataset.profilePanel !== tab; });
   }
 
+  const defaultShelf = dialog.querySelector("[data-profile-shelf]").innerHTML;
+  const label = dialog.querySelector("[data-profile-shelf-label]");
+  const defaultShelfLabel = label.textContent;
+
   function renderProfile() {
     const format = new Intl.NumberFormat(interfaceLanguage);
     dialog.querySelector("h1").textContent = profile.name;
     dialog.querySelector("[data-profile-handle]").textContent = profile.handle;
     dialog.querySelector("[data-profile-bio]").textContent = profile.bio;
+    const city = dialog.querySelector("[data-profile-city]");
+    city.textContent = profile.city || "";
+    city.hidden = !profile.city;
+    dialog.querySelectorAll(".kg-profile-header img,.kg-profile-avatar img").forEach(image => { image.src = profile.avatar || artwork[0]; });
+    const hero = dialog.querySelector(".kg-profile-hero");
+    hero.style.backgroundImage = profile.banner
+      ? `linear-gradient(#161923aa,#181b25 87%),url("${profile.banner}")` : "";
+    hero.style.backgroundSize = profile.banner ? "cover" : "";
+    dialog.querySelector("[data-profile-club]").hidden = profile.goldVisible === false;
+    dialog.querySelector("[data-profile-club-badge]").hidden = profile.goldVisible === false;
+    const badges = dialog.querySelector("[data-profile-badges]");
+    badges.replaceChildren();
+    if (profile.badgesVisible !== false) {
+      for (const name of profile.badges || []) {
+        const badge = document.createElement("span");
+        badge.className = "kg-profile-pill";
+        badge.textContent = uiText(name);
+        badges.append(badge);
+      }
+    }
+    const shelf = dialog.querySelector("[data-profile-shelf]");
+    shelf.innerHTML = profile.shelf ? "" : defaultShelf;
+    label.textContent = profile.shelf ? uiText("Топ-4") : defaultShelfLabel;
+    for (const film of profile.shelf || []) {
+      const card = document.createElement("div");
+      card.className = "kg-profile-film";
+      card.innerHTML = '<span class="kg-profile-frame"><img alt="" loading="lazy"><small></small></span><strong></strong><small class="kg-profile-meta"></small>';
+      const image = card.querySelector("img");
+      if (film.image) image.src = film.image;
+      else image.remove();
+      card.querySelector(".kg-profile-frame small").textContent = film.ratio;
+      card.querySelector("strong").textContent = uiText(film.title);
+      card.querySelector(".kg-profile-meta").textContent = film.year;
+      shelf.append(card);
+    }
     dialog.querySelector("[data-profile-film-count]").textContent = format.format(watched.length);
     dialog.querySelector("[data-profile-country-count]").textContent = format.format(Object.keys(window.KGWatchedCountryCounts()).length);
   }
@@ -241,7 +272,6 @@
   function openProfile(message = "") {
     if (!profile) return false;
     renderProfile();
-    edit.hidden = true;
     selectTab("collections");
     status.textContent = message;
     if (!dialog.open) dialog.showModal();
@@ -264,16 +294,20 @@
     if (event.target.closest("[data-profile-back]")) dialog.close();
     if (event.target.closest("[data-profile-logout]")) {
       profile = null;
-      edit.reset();
       dialog.close();
     }
     if (event.target.closest("[data-profile-edit]")) {
-      edit.hidden = !edit.hidden;
-      if (!edit.hidden) {
-        edit.elements.displayName.value = profile.name;
-        edit.elements.bio.value = profile.bio;
-        edit.elements.displayName.focus();
-      }
+      window.KGOpenProfileEditor(profile,{
+        save(changes) { profile = changes; renderProfile(); },
+        logout() { profile = null; dialog.close(); },
+        navigate(action, closeEditor) {
+          const target = document.querySelector(routes[action]);
+          if (!target) return;
+          closeEditor();
+          dialog.close();
+          target.click();
+        }
+      });
     }
     if (event.target.closest("[data-profile-share]")) {
       const sharedProfile = profile;
@@ -293,21 +327,6 @@
         }
       }
     }
-  });
-
-  edit.addEventListener("submit", event => {
-    event.preventDefault();
-    const name = edit.elements.displayName.value.trim();
-    if (!name) {
-      edit.elements.displayName.focus();
-      return;
-    }
-    if (profile.name !== name) profile.handle = "";
-    profile.name = name;
-    profile.bio = edit.elements.bio.value.trim();
-    edit.hidden = true;
-    renderProfile();
-    dialog.querySelector("[data-profile-edit]").focus();
   });
 
   window.KGOpenDemoProfile = () => openProfile();

@@ -101,6 +101,7 @@
 <div class="space-y-1.5 py-1.5">
 <label for="kgs-film-language" class="block text-xs font-medium text-primary-container uppercase tracking-tight font-micro-caption">Язык названий и описаний фильмов</label>
 <select id="kgs-film-language" class="kgs-select bg-surface-container-lowest border-surface-border-subtle w-full rounded-xl px-3.5 py-2.5 text-xs text-on-surface font-medium" aria-describedby="kgs-film-language-note">
+<option value="auto">Как в интерфейсе</option>
 <option value="ru">Русский</option>
 <option value="en">Английский</option>
 <option value="original">Язык оригинала</option>
@@ -408,7 +409,7 @@ ${[["light","Лёгкое"],["find","Открытие"],["wild","Случайн�
   });
 
   const filmLanguageSelect = $("#kgs-film-language");
-  filmLanguageSelect.value = filmLanguage;
+  filmLanguageSelect.value = filmLanguagePreference;
   filmLanguageSelect.addEventListener("change", () => {
     store.set("kgFilmLanguage", filmLanguageSelect.value);
     location.reload();

@@ -617,8 +617,12 @@
     const target=event.target.closest('[data-country-save],[data-open-country],[data-atlas-back],[data-atlas-close],[data-country-search],[data-open-map],[data-open-globe],[data-map-zoom],[data-country-filter],[data-load-more],[data-country-scroll],[data-country-globe],[data-country-favorite],[data-country-share],[data-kga-account],[data-film-id],[data-open-saved]');
     if(!target)return;
     if(target.dataset.countrySave){
-      const id=Number(target.dataset.countrySave),saved=(()=>{try{return JSON.parse(localStorage.getItem('kgBookmarks')||'[]').map(Number)}catch(_){return[]}})(),next=saved.includes(id)?saved.filter(x=>x!==id):[...saved,id];
-      localStorage.setItem('kgBookmarks',JSON.stringify(next));target.textContent=next.includes(id)?'▣':'＋';target.setAttribute('aria-label',next.includes(id)?uiText("Убрать из закладок"):uiText("Сохранить в закладки"));return;
+      const id=Number(target.dataset.countrySave);
+      const film=state.films.find(item=>Number(item.id)===id);
+      const booked=kgToggleBookmark(id,film);
+      target.textContent=booked?'▣':'＋';
+      target.setAttribute('aria-label',uiText(booked?"Убрать из закладок":"Сохранить в закладки"));
+      return;
     }
     if(target.dataset.openCountry){country(target.dataset.openCountry);return;}
     if(target.hasAttribute('data-atlas-back')){

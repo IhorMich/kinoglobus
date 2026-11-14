@@ -427,7 +427,7 @@ ${Object.keys(CAT).filter(k=>counts[k]).map(k=>`<button type="button" data-f="${
 ${spotlightHtml(spotlightTheme())}
 <section class="flex items-center justify-between gap-2"><div class="flex items-center gap-1.5 bg-surface-panel px-3 py-1.5 rounded-xl"><span class="material-symbols-outlined text-[17px] text-text-muted">swap_vert</span>
 <select id="cat-sort" class="bg-transparent text-text-muted font-label-sm text-label-sm focus:outline-none focus:text-primary cursor-pointer"><option class="bg-surface-panel text-on-surface" value="curated">${uiText("По кураторскому списку")}</option><option class="bg-surface-panel text-on-surface" value="rating">${uiText("По рейтингу (высокий)")}</option><option class="bg-surface-panel text-on-surface" value="count">${uiText("По числу фильмов")}</option><option class="bg-surface-panel text-on-surface" value="title">${uiText("По алфавиту")}</option></select></div>
-<button type="button" data-act="random" class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-secondary-container text-on-secondary-container font-label-sm text-label-sm shadow-[0_0_14px_rgba(134,26,69,0.25)] transition-all active:scale-95"><span class="material-symbols-outlined text-[18px]">casino</span><span>${uiText("Случайная")}</span></button></section>
+<button type="button" data-act="random" class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-secondary-container text-on-secondary-container font-label-sm text-label-sm shadow-[0_0_14px_rgba(134,26,69,0.25)] transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"><span class="material-symbols-outlined text-[18px]">casino</span><span>${uiText("Случайная")}</span></button></section>
 <p id="cat-note" class="font-micro-caption text-micro-caption text-text-muted px-1" style="display:none"></p>
 <section id="cat-grid" class="flex flex-col gap-3">${seededShuffle(catalogThemes,dailySeed()).map((t,i)=>cardHtml(t,i)).join("")}</section>
 <div id="cat-empty" style="display:none" class="flex-col items-center justify-center py-12 px-4 text-center rounded-2xl bg-surface-panel/50"><div class="w-14 h-14 rounded-full bg-surface-container-high flex items-center justify-center text-primary-container mb-3 shadow-[0_0_18px_rgba(255,184,48,0.2)]"><span class="material-symbols-outlined text-[28px]">movie_edit</span></div><h3 class="font-headline-sm text-headline-sm text-primary font-bold">${uiText("Подборка не найдена")}</h3><p class="font-body-sm text-body-sm text-text-muted mt-1 max-w-xs">Попробуйте другое ключевое слово или выберите «${uiText("Все {count}", {count: catalogThemes.length})}», чтобы сбросить фильтр.</p><button type="button" data-act="reset" class="mt-4 px-4 py-2 rounded-xl bg-primary-container text-on-primary-container font-label-sm text-label-sm font-bold shadow-[0_0_12px_rgba(255,184,48,0.25)]">${uiText("Сбросить поиск")}</button></div>`;
@@ -471,6 +471,7 @@ function filterCatalog(){
     c.style.display=ok?"":"none";if(ok)vis++;
   });
   $("cat-empty").style.display=vis?"none":"flex";
+  vc.querySelector('[data-act="random"]').disabled = vis === 0;
 }
 function sortCatalog(){
   const grid=$("cat-grid");if(!grid)return;const cards=[...grid.children];
@@ -581,7 +582,7 @@ function filmItem(f){
   const gs=(f.genre_ids||[]).map(i=>GENRES[i]).filter(Boolean).slice(0,2).map(genre=>uiText(genre));
   const selected=D.selected&&D.selected._placement==="list"&&String(D.selected.id)===String(f.id)?D.selected:null;
   return `<article class="flex flex-col gap-space-sm p-3 rounded-xl bg-surface-panel shadow-md hover:bg-surface-container-low transition-colors">
-<div class="flex gap-space-sm cursor-pointer" data-act="open" data-id="${f.id}">
+<div class="flex gap-space-sm cursor-pointer" data-act="open" data-id="${f.id}" ${selected ? 'style="display:none"' : ""}>
 <div class="kg-film-card-poster relative flex-shrink-0 rounded-lg overflow-hidden bg-surface-container-high">${f.poster_path?`<img class="w-full h-full object-cover" loading="lazy" alt="" src="${P(f.poster_path,"w185")}">`:`<div class="w-full h-full flex items-center justify-center text-text-muted"><span class="material-symbols-outlined">movie</span></div>`}
 <span class="absolute top-1 left-1 px-1 py-0.5 rounded bg-surface-panel/90 text-primary-container font-micro-caption text-micro-caption font-bold">${f.vote_average ? Number(f.vote_average).toFixed(1) : "—"} ★</span>${kgBookmarkButton(f, "corner")}</div>
 <div class="flex flex-col justify-between flex-1 min-w-0"><div class="flex flex-col gap-0.5">
@@ -594,7 +595,7 @@ ${selected?selectedFilmHtml(selected,true):""}</article>`;
 function pearlHtml(f,selected=null){
   const y=(f.release_date||"").slice(0,4);
   return `<div class="flex flex-col gap-space-xs"><div class="flex items-center gap-1.5 px-1"><span class="material-symbols-outlined text-[18px] text-primary-container">stars</span><h3 class="font-headline-sm text-headline-sm text-primary font-bold">${uiText("Жемчужина коллекции")}</h3></div>
-<div class="relative overflow-hidden rounded-xl bg-surface-panel p-space-md shadow-xl flex flex-col gap-space-md"><div class="flex gap-space-md cursor-pointer" data-act="open" data-id="${f.id}">
+<div class="relative overflow-hidden rounded-xl bg-surface-panel p-space-md shadow-xl flex flex-col gap-space-md"><div class="flex gap-space-md cursor-pointer" data-act="open" data-id="${f.id}" ${selected ? 'style="display:none"' : ""}>
 <div class="relative flex-shrink-0 w-28 h-40 rounded-lg overflow-hidden bg-surface-container-high shadow-md">${f.poster_path?`<img class="w-full h-full object-cover" alt="" src="${P(f.poster_path,"w342")}">`:""}
 <div class="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded bg-surface-panel/90 backdrop-blur-md text-primary-container font-label-sm text-label-sm font-bold flex items-center gap-0.5"><span class="material-symbols-outlined text-[13px]" style="font-variation-settings:'FILL' 1;">star</span>${f.vote_average ? Number(f.vote_average).toFixed(1) : "—"}</div>${kgBookmarkButton(f, "corner")}</div>
 <div class="flex flex-col justify-between flex-1 min-w-0"><div class="flex flex-col gap-1">
@@ -793,23 +794,26 @@ async function openCollection(id,opt){
 
 function placeListPanel(){
   const box=$("cl-films");if(!box)return false;
-  const sel=D.selected&&D.selected._placement==="list"?D.selected:null;
-  const findOpen=id=>[...box.querySelectorAll('[data-act="open"]')].find(e=>String(e.dataset.id)===String(id));
-  const anchor=sel&&findOpen(sel.id),top0=anchor?anchor.getBoundingClientRect().top:0;
-  try{return placeInner(box,sel);}finally{
-    const el=sel&&findOpen(sel.id);
-    if(el){const d=el.getBoundingClientRect().top-top0;if(d)window.scrollBy(0,d);}
+  const selected = D.selected?._placement === "list" ? D.selected : null;
+  const previews = [...box.querySelectorAll('[data-act="open"]')];
+  const preview = selected && previews.find(item => item.dataset.id === String(selected.id));
+  const card = preview?.parentElement;
+  const top = card?.getBoundingClientRect().top;
+
+  for (const item of previews) item.style.display = item === preview ? "none" : "";
+  const panels = box.querySelectorAll('[data-act="open"] + [data-selected-film]');
+  for (const panel of panels) {
+    if (panel.previousElementSibling !== preview) panel.remove();
   }
-}
-function placeInner(box,sel){
-  box.querySelectorAll("[data-selected-film]").forEach(p=>{if(!sel||String(p.dataset.selectedFilm)!==String(sel.id))p.remove();});
-  if(!sel)return true;
-  const html=selectedFilmHtml(sel,true);
-  const cur=box.querySelector(`[data-selected-film="${sel.id}"]`);
-  if(cur){cur.outerHTML=html;return true;}
-  const open=[...box.querySelectorAll('[data-act="open"]')].find(e=>String(e.dataset.id)===String(sel.id));
-  if(!open)return false;
-  open.parentElement.insertAdjacentHTML("beforeend",html);
+
+  if (!selected) return true;
+  if (!card) return false;
+  const html = selectedFilmHtml(selected, true);
+  const panel = preview.nextElementSibling;
+  if (panel?.matches("[data-selected-film]")) panel.outerHTML = html;
+  else card.insertAdjacentHTML("beforeend", html);
+  const delta = card.getBoundingClientRect().top - top;
+  if (delta) window.scrollBy(0, delta);
   return true;
 }
 function paintWatchedButtons(container){container?.querySelectorAll("[data-film-watched]").forEach(button=>{const id=button.dataset.filmWatched;window.KGPaintWatchedButton?.(button,!!window.KGIsFilmWatched?.(id));});}
@@ -884,7 +888,7 @@ function openFilm(f,placement="list",detailTarget=null,{autoplayTrailer=false}={
     if (D.selected !== selected) return;
     const reelResult = placement === "roulette" || detailTarget === "oscar-reel-detail" ||
       String(detailTarget || "").startsWith("mood-roulette-winner-detail-");
-    if (reelResult && window.KGScrollToFilmStart) {
+    if ((reelResult || placement === "list") && window.KGScrollToFilmStart) {
       window.KGScrollToFilmStart(placement === "roulette" ? $("cl-result") : panel);
       return;
     }
@@ -1028,18 +1032,21 @@ async function inPageRoulette(){
   if(window.KGCinemaReel?.isProjectionMode?.()){
     const total=D.all.filter(inCc).length;$("cl-fc").textContent=uiText("Проектор запускается…");snd(()=>startFilmReelSound());
     const landed=await window.KGCinemaReel.spinProjectionTrack($("cl-reel"),seq,film,{duration:T,meta:{country:cname(film._cc||D.cc||D.t.cc[0])},cancelled:()=>token!==R.token,shouldSkip:()=>R.skip,onFrame:(_candidate,index)=>{if(token===R.token)$("cl-fc").textContent=uiText("Кадр {current} / {total}", {current: p2(index+1), total: p2(seq.length)});}});
-    snd(()=>stopFilmReelSound());if(!landed||token!==R.token)return;const all=D.all.filter(inCc),k=all.findIndex(f=>f.id===film.id);$("cl-fc").textContent=uiText("Фильм {current} / {total}", {current: p2((k<0?0:k)+1), total: p2(all.length||total)});snd(()=>buzz([25,50,60]));finishPick(film,token);return;
+    if(token!==R.token)return;
+    snd(()=>stopFilmReelSound());if(!landed)return;const all=D.all.filter(inCc),k=all.findIndex(f=>f.id===film.id);$("cl-fc").textContent=uiText("Фильм {current} / {total}", {current: p2((k<0?0:k)+1), total: p2(all.length||total)});snd(()=>buzz([25,50,60]));finishPick(film,token);return;
   }
   if(window.KGCinemaReel?.isCassetteMode?.()){
     const eligible=D.all.filter(inCc);$("cl-fc").textContent=uiText("Кассета перематывается…");snd(()=>startFilmReelSound());
     const landed=await window.KGCinemaReel.spinCassetteDeck($("cl-reel"),eligible,seq,film,{duration:T,cancelled:()=>token!==R.token,shouldSkip:()=>R.skip,onOpen:f=>openFilm(f,"roulette"),onFrame:(_f,index)=>{if(token===R.token)$("cl-fc").textContent=uiText("Фильм {current} / {total}", {current: p2(index+1), total: p2(seq.length)});}});
-    snd(()=>stopFilmReelSound());if(!landed||token!==R.token)return;const all=D.all.filter(inCc),k=all.findIndex(f=>f.id===film.id);$("cl-fc").textContent=uiText("Фильм {current} / {total}", {current: p2((k<0?0:k)+1), total: p2(all.length)});snd(()=>buzz([25,50,60]));finishPick(film,token);return;
+    if(token!==R.token)return;
+    snd(()=>stopFilmReelSound());if(!landed)return;const all=D.all.filter(inCc),k=all.findIndex(f=>f.id===film.id);$("cl-fc").textContent=uiText("Фильм {current} / {total}", {current: p2((k<0?0:k)+1), total: p2(all.length)});snd(()=>buzz([25,50,60]));finishPick(film,token);return;
   }
   if(window.KGCinemaReel?.isTicketMode?.()){
     const total=D.all.filter(inCc).length;$(`cl-fc`).textContent="Билеты перемешиваются…";
     snd(()=>startFilmReelSound());
     const landed=await window.KGCinemaReel.animateTicketDeck($("cl-reel"),seq,film,{duration:T,meta:{country:cname(film._cc||D.cc||D.t.cc[0])},cancelled:()=>token!==R.token,shouldSkip:()=>R.skip,onFrame:(_candidate,index,total)=>{if(token===R.token)$(`cl-fc`).textContent=`Билет ${p2(index+1)} / ${p2(total)}`;}});
-    snd(()=>stopFilmReelSound());if(!landed||token!==R.token)return;
+    if(token!==R.token)return;
+    snd(()=>stopFilmReelSound());if(!landed)return;
     const all=D.all.filter(inCc),k=all.findIndex(f=>f.id===film.id);$("cl-fc").textContent=`Билет ${p2((k<0?0:k)+1)} / ${p2(all.length||total)}`;
     snd(()=>buzz([25,50,60]));finishPick(film,token);return;
   }
@@ -1053,7 +1060,7 @@ async function inPageRoulette(){
   run.style.transform=`translateX(${-x0}px)`;run.classList.add("fast");
   const t0=performance.now();
   const step=now=>{
-    if(token!==R.token){snd(()=>stopFilmReelSound());return;}
+    if(token!==R.token)return;
     const t=R.skip?1:Math.min(1,(now-t0)/T);
     const x=x0+(x1-x0)*(1-Math.pow(1-t,4)),left=x1-x;
     run.style.transform=`translateX(${-x}px)`;
@@ -1093,7 +1100,15 @@ vd.addEventListener("click",e=>{
   if(a==="spin"){inPageRoulette();return;}
   if(a==="skip"){R.skip=true;return;}
   if(a==="cc"){
-    D.cc=el.dataset.cc;D.shown=5;
+    if (D.cc === el.dataset.cc) return;
+    D.cc = el.dataset.cc;
+    D.shown = 5;
+    D.selected = null;
+    D.picked = null;
+    rStop();
+    $("cl-reel").style.display = "none";
+    $("cl-reel-host").replaceChildren();
+    $("cl-result").replaceChildren();
     vd.querySelectorAll("#cl-cc [data-act=cc]").forEach(b=>b.className=ccCls(b===el));
     renderFilms();return;
   }

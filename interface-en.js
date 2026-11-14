@@ -491,6 +491,8 @@ window.KGInterfaceDictionaries.en = Object.freeze({
   "Паспорт →": "Passport →",
   "Последний сеанс": "Last screening",
   "Шедевр": "Featured film",
+  "Все ленты": "All films",
+  "Шедевр страны {country}": "Featured film from {country}",
   "Страны не найдены. Измените запрос или сбросьте фильтры.": "No countries found. Change your search or clear the filters.",
   "Назад к атласу": "Back to atlas",
   "Назад к каталогу": "Back to catalogue",

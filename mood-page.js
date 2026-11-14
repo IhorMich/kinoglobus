@@ -355,5 +355,5 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
     scrollToMoodResult(panel,moodId);
   }
   function stop(root){stopSpin(root);}
-  window.KGMoodPage={render,stop};
+  window.KGMoodPage={render,stop,runtimes,getRuntime:()=>state.runtime};
 })();

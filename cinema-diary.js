@@ -354,7 +354,7 @@
     const card = document.createElement("article");
     card.className = "kg-diary-card";
     card.innerHTML = `
-      <button type="button" class="kg-diary-select-film" data-film-select>
+      <div class="kg-bookmark-card"><button type="button" class="kg-diary-select-film" data-film-select>
       <span class="kg-diary-film">
         <span class="kg-diary-poster">${icon("movie")}</span>
         <span>
@@ -362,7 +362,7 @@
           <span class="kg-diary-muted block" data-tags></span><span class="kg-diary-stars block" data-stars hidden></span>
         </span>
       </span>
-      </button>
+      </button>${kgBookmarkButton(film, "edge")}</div>
       <div class="kg-diary-film-action" hidden><button type="button" class="kg-diary-edit" data-edit></button></div>
       <div class="kg-diary-note-content">
         <strong data-note-title hidden></strong>
@@ -709,10 +709,18 @@
     }
   });
 
-  window.KGOpenCinemaDiary = ({avatar, closeParent: onNavigate} = {}) => {
+  document.addEventListener("kg-bookmark-change",event => {
+    if (!dialog.open || source !== "bookmarks") return;
+    if (selectedFilm === String(event.detail.id) && !event.detail.enabled) selectedFilm = "";
+    refreshBookmarks();
+    // Removing the card also removes the focused button.
+    dialog.querySelector('[data-source="bookmarks"]').focus({preventScroll:true});
+  });
+
+  window.KGOpenCinemaDiary = ({avatar, closeParent: onNavigate, initialSource} = {}) => {
     closeParent = onNavigate;
     bookmarkLoad++;
-    source = "watched";
+    source = initialSource === "bookmarks" ? "bookmarks" : "watched";
     selectedFilm = "";
     dialog.querySelectorAll("[data-source]").forEach(tab => tab.setAttribute("aria-pressed",String(tab.dataset.source === source)));
     notes = store.get(notesKey,{}) || {};
@@ -727,8 +735,9 @@
     const portrait = dialog.querySelector(".kg-diary-header img");
     portrait.hidden = !avatar;
     if (avatar) portrait.src = avatar;
-    render();
     if (!dialog.open) dialog.showModal();
+    render();
+    if (source === "bookmarks") refreshBookmarks();
     dialog.querySelector(".kg-diary-scroll").scrollTop = 0;
   };
 })();

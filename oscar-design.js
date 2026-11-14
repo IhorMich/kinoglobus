@@ -7,17 +7,6 @@
   const $=id=>document.getElementById(id);
   const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
-  // 98-я церемония (2026): «One Battle After Another». В списке BEST_PICTURE из oscar-page.js её нет.
-  const baseInfo=KG.info;
-  KG.info=f=>{
-    const r=baseInfo(f);
-    if(r&&r.best)return r;
-    const y=Number(String(f.release_date||"").slice(0,4))||0;
-    const names=[f.original_title,f.title].map(x=>String(x||"").toLowerCase().replace(/[^a-z0-9]+/g,""));
-    if(names.includes("onebattleafteranother")&&Math.abs(y-2025)<=1)return {best:true,n:98,year:2026,film:y};
-    return r;
-  };
-
   // ---------- TMDB: поиск фильмов и людей (кэш в localStorage) ----------
   const LS="kgoDesignCache2",reg={};
   let disk={};try{disk=JSON.parse(localStorage.getItem(LS)||"{}");}catch(e){}
@@ -156,7 +145,7 @@
   const pOn="bg-primary-container text-on-primary-container shadow-[0_0_12px_rgba(255,184,48,0.3)]",pOff="bg-surface-panel text-text-muted hover:text-primary";
   const pillCls=on=>`shrink-0 h-[34px] px-3.5 rounded-full font-label-sm text-label-sm flex items-center gap-1.5 transition-transform active:scale-95 ${on?pOn:pOff}`;
 
-  const HEAD=`<div id="kgo-top" class="sticky z-30 bg-surface/85 backdrop-blur-xl shadow-[0_4px_24px_rgba(0,0,0,0.65)]" style="top:calc(80px + env(safe-area-inset-top,0px))"><div class="h-14 px-gutter-mobile flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-sm min-w-0 flex-1"><button type="button" data-oscar-back aria-label="${uiText("Назад")}" class="w-11 h-11 -ml-1.5 flex items-center justify-center rounded-full text-on-surface hover:text-primary transition-colors"><span class="material-symbols-outlined text-[24px]">arrow_back</span></button><div class="flex flex-col min-w-0"><div class="flex items-center gap-1.5 min-w-0"><span class="material-symbols-outlined text-primary-container text-[20px] shrink-0">military_tech</span><h2 class="font-headline-sm text-headline-sm text-primary tracking-tight truncate">Oscar Winners</h2></div><span class="font-micro-caption text-micro-caption text-text-muted">${uiText("98 лауреатов • 1929–2026")}</span></div></div><div class="flex items-center gap-space-xs shrink-0"><button type="button" data-kgo-tune aria-label="${uiText("Поиск и фильтры")}" class="w-11 h-11 flex items-center justify-center rounded-full text-on-surface-variant hover:text-primary hover:bg-surface-container-high/60 transition-colors"><span class="material-symbols-outlined text-[22px]">tune</span></button><button type="button" data-kgo-avatar aria-label="${uiText("Профиль")}" class="w-8 h-8 rounded-full bg-primary flex items-center justify-center ml-0.5"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></button></div></div></div>
+  const HEAD=`<div id="kgo-top" class="sticky z-30 bg-surface/85 backdrop-blur-xl shadow-[0_4px_24px_rgba(0,0,0,0.65)]" style="top:calc(80px + env(safe-area-inset-top,0px))"><div class="h-14 px-gutter-mobile flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-sm min-w-0 flex-1"><button type="button" data-oscar-back aria-label="${uiText("Назад")}" class="w-11 h-11 -ml-1.5 flex items-center justify-center rounded-full text-on-surface hover:text-primary transition-colors"><span class="material-symbols-outlined text-[24px]">arrow_back</span></button><div class="flex flex-col min-w-0"><div class="flex items-center gap-1.5 min-w-0"><span class="material-symbols-outlined text-primary-container text-[20px] shrink-0">military_tech</span><h2 class="font-headline-sm text-headline-sm text-primary tracking-tight truncate">${uiText("Лауреаты «Оскара»")}</h2></div><span data-oscar-summary class="font-micro-caption text-micro-caption text-text-muted"></span></div></div><div class="flex items-center gap-space-xs shrink-0"><button type="button" data-kgo-tune aria-label="${uiText("Поиск и фильтры")}" class="w-11 h-11 flex items-center justify-center rounded-full text-on-surface-variant hover:text-primary hover:bg-surface-container-high/60 transition-colors"><span class="material-symbols-outlined text-[22px]">tune</span></button><button type="button" data-kgo-avatar aria-label="${uiText("Профиль")}" class="w-8 h-8 rounded-full bg-primary flex items-center justify-center ml-0.5"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></button></div></div></div>
 <div id="kgo-pills" class="w-full overflow-x-auto pb-space-sm px-gutter-mobile mt-space-md flex items-center gap-2">${PILLS.map(([l,ic,t],i)=>`<button type="button" data-kgo-pill="${t}" class="${pillCls(i===0)}">${ic?`<span class="material-symbols-outlined text-[15px]">${ic}</span>`:""}${uiText(l)}</button>`).join("")}</div>`;
 
   function decorate(root,deps){

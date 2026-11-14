@@ -3,16 +3,13 @@
   const root = document.getElementById("kg-home-releases");
   const sections = [
     {id: "digital", icon: "high_quality", title: "Новинки в качестве", subtitle: "Уже в цифровом релизе", more: "Все новинки", type: "4", days: 60, limit: 6},
-    {id: "cinema", icon: "theaters", title: "Сейчас в кинотеатрах", subtitle: "Недавние премьеры на большом экране", more: "Афиша залов", type: "3|2", days: 21, limit: 4}
+    {id: "cinema", icon: "theaters", title: "Сейчас в кинотеатрах", subtitle: "Недавние премьеры на большом экране", type: "3|2", days: 21, limit: 7}
   ].map(section => ({...section, films: [], expanded: false}));
   const escape = value => String(value ?? "").replace(/[&<>"']/g, char =>
     ({"&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"})[char]
   );
   const copy = (source, params) => escape(uiText(source, params));
   const icon = name => `<span class="material-symbols-outlined text-[18px]" aria-hidden="true">${name}</span>`;
-  const image = (path, size) => /^\/[a-z0-9_.-]+$/i.test(path || "")
-    ? `<img class="absolute inset-0 w-full h-full object-cover" src="https://image.tmdb.org/t/p/${size}${path}" alt="" loading="lazy">`
-    : "";
   const title = film => film.title || film.original_title || uiText("Фильм");
   const day = daysAgo => {
     const date = new Date();
@@ -47,7 +44,7 @@
           </div>
           <p class="font-body-sm text-body-sm text-on-surface-variant" data-release-subtitle></p>
         </div>
-        <button type="button" class="shrink-0 text-right font-label-sm text-label-sm text-primary hover:underline" data-release-action="expand" aria-expanded="false" aria-controls="kg-release-${section.id}-feed" hidden></button>
+        ${section.more ? `<button type="button" class="shrink-0 text-right font-label-sm text-label-sm text-primary hover:underline" data-release-action="expand" aria-expanded="false" aria-controls="kg-release-${section.id}-feed" hidden></button>` : ""}
       </div>
       <div id="kg-release-${section.id}-feed"></div>
       <div id="kg-release-${section.id}-detail"></div>`;
@@ -66,8 +63,12 @@
       } else if (action === "retry") {
         loadSection(section, context);
       } else if (action === "expand") {
-        section.expanded = !section.expanded;
-        render(section);
+        if (section.id === "cinema") {
+          expandCinema(section, button);
+        } else {
+          section.expanded = !section.expanded;
+          render(section);
+        }
       } else if (action === "film") {
         const film = section.films.find(item => String(item.id) === button.dataset.id);
         if (!film) return;
@@ -81,7 +82,7 @@
   }
 
   function posterCard(film, digital) {
-    return `<div class="kg-bookmark-card ${digital ? "w-40 shrink-0 snap-start" : "min-w-0"}"><button type="button" data-release-action="film" data-id="${film.id}" class="${digital ? "w-full" : "w-full p-2 rounded-xl bg-surface-container-low shadow-sm"} group flex flex-col gap-1.5 text-left">
+    return `<div class="kg-bookmark-card w-40 shrink-0 snap-start"><button type="button" data-release-action="film" data-id="${film.id}" class="group w-full flex flex-col gap-1.5 text-left">
       <span class="relative block w-full aspect-[2/3] overflow-hidden rounded-xl bg-surface-container-high shadow-md">
         ${filmPosterMarkup({...film, localizedPoster:film.localizedPoster || {path:film.poster_path, showTitle:true}}, "w342")}
         <span class="absolute inset-x-1.5 top-1.5 flex flex-wrap justify-between gap-0.5">
@@ -94,31 +95,61 @@
     </button>${kgBookmarkButton(film, "poster")}</div>`;
   }
 
-  function cinemaHero(film) {
-    const label = film.release_date >= day(6) ? "Премьера недели" : "В кинотеатрах";
-    const runtime = film.runtime ? copy("{minutes} мин", {minutes:film.runtime}) : "";
-    const director = film.dirs?.[0] ? copy("Реж. {name}", {name:film.dirs[0]}) : "";
-    return `<div class="kg-bookmark-card"><button type="button" data-release-action="film" data-id="${film.id}" aria-label="${copy("Открыть фильм {title}", {title:title(film)})}" class="group block w-full text-left cursor-pointer rounded-2xl overflow-hidden bg-surface-container-low shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary">
-      <span class="relative block h-52">
-        ${image(film.backdrop_path || film.poster_path, "w780")}
-        <span class="absolute inset-0 bg-gradient-to-t from-surface-container-low via-surface-container-low/30 to-transparent"></span>
-        <span class="absolute inset-x-3 top-3 flex flex-wrap justify-between gap-1">
-          <span class="flex items-center gap-1 px-2 py-1 rounded-full bg-primary-container text-on-primary-container font-label-sm text-label-sm font-bold uppercase">${icon("local_fire_department")}${copy(label)}</span>
-          ${runtime ? `<span class="flex items-center gap-1 px-2 py-1 rounded-full bg-surface-container-lowest/85 font-label-sm text-label-sm">${icon("schedule")}${runtime}</span>` : ""}
-        </span>
-      </span>
-      <span class="flex items-start justify-between gap-2 p-4 pt-1">
-        <span class="min-w-0">
-          <span class="block font-headline-md text-headline-md text-on-surface font-semibold group-hover:text-primary">${escape(title(film))}</span>
-          <span class="block font-body-sm text-body-sm text-on-surface-variant">${[escape(releaseDate(film)),director].filter(Boolean).join(" · ")}</span>
-        </span>
-        ${rating(film)}
-      </span>
-    </button>${kgBookmarkButton(film, "hero")}</div>`;
+  const railClass = "flex gap-3.5 overflow-x-auto snap-x -mx-margin-mobile px-margin-mobile py-1";
+
+  function cinemaMore(section) {
+    if (section.visible >= section.films.length && section.page >= section.totalPages) return "";
+    return `<button type="button" data-release-action="expand"
+      class="grid w-40 shrink-0 snap-start self-start aspect-[2/3] place-items-center rounded-xl bg-surface-container-lowest border border-surface-border-subtle text-primary font-label-md text-label-md hover:bg-surface-container-high focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary">
+      ${copy("Ещё")}
+    </button>`;
+  }
+
+  async function expandCinema(section, button) {
+    const current = context;
+    const start = section.visible;
+    const rail = button.parentElement;
+    if (start >= section.films.length) {
+      button.disabled = true;
+      button.textContent = uiText("Загружаем фильмы…");
+      try {
+        const page = section.page + 1;
+        const result = await requestTmdb("discover/movie", {...section.params, page});
+        if (context !== current || !button.isConnected) return;
+        const known = new Set(section.films.map(film => film.id));
+        for (const film of releaseFilms(result)) {
+          if (known.has(film.id)) continue;
+          section.films.push(film);
+          known.add(film.id);
+        }
+        section.page = page;
+        section.totalPages = Math.min(result.total_pages || page, 500);
+      } catch {
+        if (button.isConnected) {
+          button.disabled = false;
+          button.textContent = uiText("Повторить загрузку");
+        }
+        return;
+      }
+    }
+    section.visible = section.films.length;
+    const previous = button.previousElementSibling;
+    button.insertAdjacentHTML("beforebegin", section.films.slice(start).map(film => posterCard(film, false)).join(""));
+    const firstAdded = previous?.nextElementSibling;
+    button.insertAdjacentHTML("afterend", cinemaMore(section));
+    const nextButton = button.nextElementSibling;
+    button.remove();
+    const next = firstAdded && firstAdded !== button ? firstAdded : nextButton;
+    const target = next?.matches("button") ? next : next?.querySelector("button");
+    if (target) {
+      target.focus({preventScroll: true});
+      const offset = next.getBoundingClientRect().left - rail.getBoundingClientRect().left;
+      rail.scrollBy({left: offset - parseFloat(getComputedStyle(rail).paddingLeft), behavior: "auto"});
+    }
   }
 
   function message(section, text, action, label) {
-    section.moreButton.hidden = true;
+    if (section.moreButton) section.moreButton.hidden = true;
     section.feed.innerHTML = `<div class="rounded-xl bg-surface-panel p-3">
       <p role="status" class="font-body-sm text-body-sm text-text-muted">${copy(text)}</p>
       ${action ? `<button type="button" data-release-action="${action}" class="mt-2 rounded-lg bg-surface-container-high px-3 py-2 font-label-sm text-label-sm text-primary">${copy(label)}</button>` : ""}
@@ -131,16 +162,20 @@
       message(section, "За этот период в выбранном регионе релизов нет.");
       return;
     }
+    if (section.id === "cinema") {
+      feed.innerHTML = `<div class="${railClass}">${films.slice(0, section.visible).map(film => posterCard(film, false)).join("")}${cinemaMore(section)}</div>`;
+      return;
+    }
     moreButton.hidden = films.length <= limit;
     moreButton.textContent = uiText(expanded ? "Свернуть" : section.more) + (expanded ? " ↑" : " →");
     moreButton.setAttribute("aria-expanded", String(expanded));
     const filmsToShow = expanded ? films : films.slice(0, limit);
-    if (section.id === "digital") {
-      feed.innerHTML = `<div class="${expanded ? "grid grid-cols-2 sm:grid-cols-3 gap-3 [&>div]:w-full" : "flex gap-3.5 overflow-x-auto snap-x -mx-margin-mobile px-margin-mobile py-1"}">${filmsToShow.map(film => posterCard(film,true)).join("")}</div>`;
-    } else {
-      feed.innerHTML = `<div class="flex flex-col gap-3.5">${cinemaHero(filmsToShow[0])}<div class="grid grid-cols-3 gap-2.5">${filmsToShow.slice(1).map(film => posterCard(film,false)).join("")}</div></div>`;
-    }
+    feed.innerHTML = `<div class="${expanded ? "grid grid-cols-2 sm:grid-cols-3 gap-3 [&>div]:w-full" : railClass}">${filmsToShow.map(film => posterCard(film, true)).join("")}</div>`;
   }
+
+  const releaseFilms = result => (result.results || [])
+    .filter(film => Number.isSafeInteger(film.id))
+    .map(localizeFilmListItem);
 
   async function loadSection(section, current) {
     if (!current.key) {
@@ -156,15 +191,23 @@
       };
       const result = await requestTmdb("discover/movie", params);
       if (context !== current) return;
-      section.films = (result.results || []).filter(film => Number.isSafeInteger(film.id)).map(localizeFilmListItem);
+      section.films = releaseFilms(result);
+      section.params = params;
+      section.page = 1;
+      section.totalPages = Math.min(result.total_pages || 1, 500);
+      section.visible = section.limit;
       render(section);
       const featured = section.id === "cinema" ? section.films.slice(0, 1) : section.films.slice(0, 3);
       await Promise.allSettled(featured.map(async film => {
         const details = await filmDetails(film.id);
         if (context !== current) return;
-        Object.assign(film, {title:details.title || film.title, localizedPoster:details.localizedPoster, runtime:details.runtime, dirs:details.dirs});
+        Object.assign(film, {title:details.title || film.title, localizedPoster:details.localizedPoster});
+        if (section.id === "cinema") {
+          const card = section.feed.querySelector(`[data-release-action="film"][data-id="${film.id}"]`)?.parentElement;
+          if (card && !card.contains(document.activeElement)) card.outerHTML = posterCard(film, false);
+        }
       }));
-      if (context === current && section.films.length) {
+      if (context === current && section.id === "digital" && section.films.length) {
         const carousel = section.feed.firstElementChild;
         const left = carousel?.scrollLeft || 0;
         render(section);

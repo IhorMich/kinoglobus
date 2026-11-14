@@ -46,7 +46,7 @@ try {
       0% { transform: translateX(-100%); }
       100% { transform: translateX(200%); }
     }
-  </style><script src="cinema-reel.js?v=38"></script><link rel="stylesheet" href="watched-button.css?v=2">
+  </style><script src="cinema-reel.js?v=38"></script><link rel="stylesheet" href="watched-button.css?v=3">
 <script src="watched-button.js?v=2"></script>
 <link rel="stylesheet" href="settings-page.css?v=5">
 </head><body class="bg-canvas-obsidian font-body-md text-on-surface flex flex-col min-h-screen relative">
@@ -1834,8 +1834,41 @@ function kgToggleBookmark(id, film) {
   } else if (!enabled) delete details[id];
   store.set("kgBookmarkFilms",details);
   store.set("kgBookmarks",enabled ? [...ids,id] : ids.filter(bookmark => bookmark !== id));
+  document.querySelectorAll(`[data-kg-bookmark="${id}"]`).forEach(button => paintBookmarkButton(button,enabled));
+  document.dispatchEvent(new CustomEvent("kg-bookmark-change",{detail:{id,enabled}}));
   return enabled;
 }
+function bookmarkLabel(enabled) {
+  return uiText(enabled ? "Убрать из закладок" : "Сохранить в закладки");
+}
+function paintBookmarkButton(button,enabled) {
+  const label = bookmarkLabel(enabled);
+  button.setAttribute("aria-pressed",String(enabled));
+  button.setAttribute("aria-label",label);
+  button.title = label;
+}
+function kgBookmarkButton(film,position = "") {
+  const id = Number(film?.id);
+  if (!Number.isSafeInteger(id) || id <= 0) return "";
+  const metadata = JSON.stringify({
+    title:film.title || film.original_title || film.original || film.name || "",
+    original:film.original_title || film.original || "",
+    year:String(film.release_date || film.year || "").slice(0,4),
+    poster:film.localizedPoster?.path || film.poster_path || film.poster || "",
+    cc:film._cc || film._kgCountry || film.cc || film.countries?.[0] || ""
+  });
+  const enabled = kgIsBookmarked(id);
+  const label = bookmarkLabel(enabled);
+  return `<button type="button" class="kg-bookmark-button${position ? " kg-bookmark-" + position : ""}" data-kg-bookmark="${id}" data-kg-bookmark-film="${encodeURIComponent(metadata)}" aria-pressed="${enabled}" aria-label="${label}" title="${label}"><span class="material-symbols-outlined" aria-hidden="true">bookmark</span></button>`;
+}
+document.addEventListener("click",event => {
+  const button = event.target.closest("[data-kg-bookmark]");
+  if (!button) return;
+  event.preventDefault();
+  event.stopPropagation();
+  const film = JSON.parse(decodeURIComponent(button.dataset.kgBookmarkFilm));
+  kgToggleBookmark(button.dataset.kgBookmark,film);
+},true);
 const savedFilmLanguage = store.get("kgFilmLanguage", "ru");
 const filmLanguage = ["ru", "en", "original"].includes(savedFilmLanguage) ? savedFilmLanguage : "ru";
 const filmLocale = filmLanguage === "en" ? "en-US" : "ru-RU";
@@ -2943,6 +2976,7 @@ function embedSrc(v, autoplay = true) {
   }
   return `https://www.youtube-nocookie.com/embed/${key}?${params}`;
 }
+const trailerFramePermissions = "autoplay; encrypted-media; fullscreen; picture-in-picture 'none'";
 function closePlayer(){
   $("player").innerHTML="";$("player").hidden=true;$("ytnote").hidden=true;
   if(tKey) $("trailer").textContent=uiText("▶ Смотреть трейлер");
@@ -2960,7 +2994,7 @@ function setTrailer(film){
 $("trailer").onclick=()=>{
   if(!tKey) return;
   if(!$("player").hidden){closePlayer();return;}
-  $("player").innerHTML=`<iframe src="${embedSrc(tKey)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" title="${uiText("Трейлер")}"></iframe>`;
+  $("player").innerHTML=`<iframe src="${embedSrc(tKey)}" allow="${trailerFramePermissions}" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" title="${uiText("Трейлер")}"></iframe>`;
   $("player").hidden=false;
   $("ytlink").href=watchUrl(tKey);
   $("ytlink").textContent=uiText("Открыть на {site}", {site: tKey.site});
@@ -3584,8 +3618,10 @@ st.textContent=`
 #btn-mode-surprise[aria-pressed="true"]{background:linear-gradient(135deg,#861a45,#ff4e78)}
 #film-details.veiled{display:none}
 #film-trailer-box{filter:none!important;opacity:1!important}
-#film-trailer-stage,#film-trailer-player{contain:layout style paint;transform:translateZ(0)}
-#film-trailer-player iframe{display:block;width:100%;height:100%}
+.kg-film-card-poster{width:80px;height:112px;flex:none}
+.kg-trailer-frame{position:absolute;inset:0;display:block;width:100%;height:100%;border:0}
+#film-trailer-stage{aspect-ratio:16/9;isolation:isolate}
+#film-trailer-box [hidden]{display:none!important}
 #err{color:#ff8d7a;font-size:12px;text-align:center;width:100%;margin-top:6px;z-index:10}
 `;
 document.head.appendChild(st);
@@ -3610,15 +3646,16 @@ const CARD_HTML=`
 <div id="film-reel-host">${mainReelMarkup()}</div>
 <div class="veiled flex flex-col mt-2.5 pt-2 border-t border-surface-border-subtle/80" id="film-details">
 <div class="flex items-start justify-between gap-2">
-<div class="relative w-24 sm:w-28 flex-shrink-0 aspect-[2/3] rounded-lg overflow-hidden bg-surface-container-high shadow-md border border-primary-container/20">
+<div class="kg-film-card-poster relative rounded-lg overflow-hidden bg-surface-container-high shadow-md border border-primary-container/20">
 <span class="absolute inset-0 flex items-center justify-center text-primary-container"><span class="material-symbols-outlined text-[32px]">movie</span></span>
 <div class="absolute inset-0" id="discovery-poster"></div>
-<div class="absolute top-1 left-1 px-1.5 py-1 rounded bg-surface-container-lowest/90 text-center shadow">
-<div class="font-headline-sm text-headline-sm font-bold text-primary-fixed" id="discovery-rating">—</div><span class="text-[9px] text-text-muted font-mono uppercase tracking-tighter">TMDB</span>
-</div></div>
+</div>
 <div class="min-w-0 flex-1">
 <div class="flex items-center gap-1.5 flex-wrap"><h3 class="font-headline-sm text-headline-sm font-bold text-on-surface" id="discovery-title">Крутите глобус</h3><span class="text-micro-caption text-text-muted font-body-sm" id="discovery-year"></span><span id="oscar-badge" style="display:none" class="px-1.5 rounded bg-surface-container text-secondary text-micro-caption font-semibold flex items-center gap-1 border border-secondary/25"><span class="material-symbols-outlined text-[12px]">workspace_premium</span>Оскар</span></div>
 <p class="font-label-sm text-label-sm text-primary-fixed mt-0.5 flex items-center gap-1"><span id="discovery-country">—</span><span id="discovery-flag">🌍</span><span class="text-text-muted truncate" id="discovery-genres">· кино</span></p>
+<div class="mt-1.5 flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
+<span class="text-primary-fixed font-label-sm text-label-sm">★ <b id="discovery-rating">—</b></span><span class="font-micro-caption text-micro-caption text-text-muted" id="discovery-votes">TMDB</span>
+</div>
 <p class="font-body-sm text-body-sm text-primary-fixed mt-1" style="font-style:italic" id="film-tagline" hidden></p>
 </div>
 </div>
@@ -3626,18 +3663,21 @@ const CARD_HTML=`
 <p class="font-micro-caption text-[11px] text-text-muted mt-0.5" id="discovery-desc-lang" style="opacity:.75" hidden></p>
 <div class="mt-2" id="film-people"></div>
 <div class="mt-2.5" id="film-trailer-box" hidden>
-<div class="relative w-full rounded-xl overflow-hidden bg-black border border-primary-container/30 shadow-md" style="aspect-ratio:16/10;min-height:220px;max-height:min(65vh,520px)" id="film-trailer-stage">
+<div class="relative w-full rounded-xl overflow-hidden bg-black border border-primary-container/30 shadow-md" id="film-trailer-stage">
 <div class="absolute inset-0" id="film-trailer-preview"><img class="w-full h-full object-cover opacity-80" id="film-trailer-thumbnail" alt="" loading="lazy"><div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-black/20"></div><button type="button" id="film-trailer-play" class="absolute inset-0 flex items-center justify-center text-white disabled:opacity-40" aria-label="Воспроизвести трейлер" disabled><span class="w-16 h-16 rounded-full bg-primary-container/95 text-on-primary shadow-[0_0_32px_rgba(255,184,48,.45)] flex items-center justify-center transition-transform hover:scale-110"><span class="material-symbols-outlined text-[40px]">play_arrow</span></span></button><span class="absolute bottom-3 left-3 right-3 text-center font-label-sm text-label-sm text-white drop-shadow-lg" id="film-trailer-status">Ищем трейлер…</span></div>
 <div class="absolute inset-0" id="film-trailer-player" hidden></div>
-<button type="button" id="film-trailer-close" class="absolute top-3 right-3 z-10 w-10 h-10 rounded-full bg-black/70 text-white flex items-center justify-center hover:bg-black/90" style="position:absolute;top:12px;right:12px;z-index:30;pointer-events:auto;touch-action:manipulation" aria-label="Закрыть трейлер" title="Закрыть трейлер" hidden><span class="material-symbols-outlined">close</span></button>
 </div>
-<div class="font-micro-caption text-[11px] text-text-muted mt-1.5" id="film-trailer-note" hidden><span>Не воспроизводится? <a id="film-trailer-link" target="_blank" rel="noopener noreferrer" class="text-primary underline">Открыть на YouTube</a></span></div>
+<div class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1.5">
+<button type="button" id="film-trailer-close" class="inline-flex min-h-9 items-center gap-1 rounded-lg px-2 text-primary hover:bg-surface-container-high font-label-sm text-label-sm" hidden><span class="material-symbols-outlined text-[16px]" aria-hidden="true">close</span><span>Закрыть трейлер</span></button>
+<div class="font-micro-caption text-[11px] text-text-muted" id="film-trailer-note" hidden><span>Не воспроизводится? <a id="film-trailer-link" target="_blank" rel="noopener noreferrer" class="text-primary underline">Открыть на YouTube</a></span></div>
+</div>
 <div id="discovery-legal-watch"></div>
 </div>
 <div class="mt-2.5 pt-2 border-t border-surface-border/50" id="film-more">
 <div class="grid gap-1 font-body-sm text-body-sm mt-1" id="film-facts"></div>
 <div class="flex flex-wrap items-center gap-2 mt-2" id="film-actions">
 ${window.KGWatchedButtonHtml(false, 'id="btn-watched"')}
+<span id="discovery-bookmark"></span>
 <button class="py-2 px-3 rounded-xl bg-primary-container text-on-primary-container font-label-sm text-label-sm font-semibold flex items-center justify-center gap-1 hover:brightness-110 transition-all active:scale-95 cursor-pointer" id="btn-spin-another-film" title="Найти другой фильм из этой страны" type="button"><span class="material-symbols-outlined text-[16px]">autorenew</span><span>Крутить ещё раз</span></button>
 </div>
 </div>
@@ -4050,7 +4090,7 @@ function showProviders(film){
   box.innerHTML=window.KGLegalWatch?.markup(film.id)||"";
 }
 function setVotes(votes){
-  const vl=$("discovery-rating").nextElementSibling;
+  const vl=$("discovery-votes");
   if(vl)vl.textContent="TMDB"+(votes?" · "+(votes>=1000?(votes/1000).toFixed(1)+"k":votes):"");
 }
 
@@ -4153,9 +4193,10 @@ function closeFilmTrailer(){
   window.closePlayer=function(){_closePlayer();closeFilmTrailer();};
 }
 function playFilmTrailer(){
-  if(!ftKey)return;
-  $("film-trailer-player").innerHTML=`<iframe src="${embedSrc(ftKey)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" title="${uiText("Трейлер")}" style="position:absolute;inset:0;width:100%;height:100%;border:0"></iframe>`;
-  $("film-trailer-player").hidden=false;
+  const player = $("film-trailer-player");
+  if (!ftKey || !player.hidden) return;
+  player.innerHTML=`<iframe src="${embedSrc(ftKey)}" allow="${trailerFramePermissions}" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" title="${uiText("Трейлер")}" class="kg-trailer-frame"></iframe>`;
+  player.hidden=false;
   $("film-trailer-preview").hidden=true;
   $("film-trailer-close").hidden=false;
   $("film-trailer-note").hidden=false;
@@ -4210,6 +4251,7 @@ window.show=function(cc,pool,film){
     set("discovery-genres","· "+[g,d.runtime?uiText("{minutes} мин", {minutes: d.runtime}):""].filter(Boolean).join(" · "));
     if(d.votes){set("discovery-rating",Number(d.average).toFixed(1));setVotes(d.votes);}
     if (d.title) set("discovery-title", d.title);
+    $("discovery-bookmark").innerHTML = kgBookmarkButton({...film,title:d.title || film.title,localizedPoster:d.localizedPoster,_cc:cur.cc});
     poster.innerHTML = filmPosterMarkup({...film, title:d.title || film.title, localizedPoster:d.localizedPoster});
     renderExtra({...film, title:d.title || film.title},d);
   }).catch(()=>{
@@ -4221,6 +4263,7 @@ window.show=function(cc,pool,film){
   const alreadyWatched=!!window.KGIsFilmWatched?.(film.id);
   bw.dataset.saving="false";
   paintWatchedButton(bw,alreadyWatched);
+  $("discovery-bookmark").innerHTML = kgBookmarkButton({...film,_cc:cur.cc});
   ag.style.display=$("again").hidden?"none":"";
   ftKey=null;closeFilmTrailer();
   trailerFor(film).then(k=>{
@@ -4299,26 +4342,26 @@ console.info("[Kinoglobus] Bridge v6 ready");
 </script>
 
 <script src="globe-visuals.js?v=3"></script>
-<script src="watch-history.js?v=9"></script>
-<script src="country-pages.js?v=17"></script>
-<script src="profile-page.js?v=5"></script>
-<script src="cinema-diary.js?v=4"></script>
+<script src="watch-history.js?v=10"></script>
+<script src="country-pages.js?v=18"></script>
+<script src="profile-page.js?v=6"></script>
+<script src="cinema-diary.js?v=5"></script>
 <script src="profile-editor.js?v=1"></script>
 <script src="login-page.js?v=3"></script>
 <script src="password-recovery.js?v=2"></script>
 <script src="recovery-code.js?v=1"></script>
 <script src="account-page.js?v=6"></script>
 <script src="mood-vibe-additions.js?v=2"></script>
-<script src="mood-page.js?v=37"></script>
-<script src="mood-vibe-page.js?v=23"></script>
-<script src="oscar-page.js?v=39"></script>
-<script src="oscar-design.js?v=20"></script>
+<script src="mood-page.js?v=38"></script>
+<script src="mood-vibe-page.js?v=24"></script>
+<script src="oscar-page.js?v=40"></script>
+<script src="oscar-design.js?v=21"></script>
 <script src="curated-collections.js?v=1"></script>
-<script src="collections.js?v=86"></script>
-<script src="film-interactions.js?v=17"></script>
+<script src="collections.js?v=88"></script>
+<script src="film-interactions.js?v=18"></script>
 <script src="legal-watch.js?v=6"></script>
-<script src="global-search.js?v=5"></script>
-<script src="home-releases.js?v=3"></script>
+<script src="global-search.js?v=7"></script>
+<script src="home-releases.js?v=4"></script>
 <script src="settings-page.js?v=44"></script>
 
 </body></html>

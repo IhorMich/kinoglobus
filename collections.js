@@ -28,7 +28,7 @@ st2.textContent=`.kgr-win{position:relative;height:150px;overflow:hidden;-webkit
 .kg-clip3{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .kg-home-europe{scrollbar-width:none;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
 .kg-home-europe::-webkit-scrollbar{display:none}
-.kg-home-film{flex:0 0 9rem;scroll-snap-align:start}
+.kg-home-film-wrap{flex:0 0 9rem;scroll-snap-align:start}
 [data-selected-film]{min-width:0;max-width:100%}.kg-detail-trailer{box-sizing:border-box;width:100%;max-width:100%;height:auto;aspect-ratio:16/9;min-height:0;max-height:min(56dvh,320px);flex:none;overflow:hidden;contain:layout paint}.kg-detail-trailer iframe{position:absolute;inset:0;width:100%;height:100%;max-width:100%;border:0}
 @media(prefers-reduced-motion:reduce){.kgr-rise{animation:none}}`;
 document.head.appendChild(st2);
@@ -559,13 +559,7 @@ const pageDeps={
   openFilm:(film,placement,detailTarget)=>openFilm(film,placement,detailTarget),
   closeFilm:placement=>closePageFilm(placement),
   refreshFilm:()=>renderSelectedPanel(),
-  back:()=>showView("collections"),
-  isBooked:kgIsBookmarked,
-  toggleBook:(id,film)=>{
-    const booked=kgToggleBookmark(id,film);
-    toast(booked?"Добавлено в закладки":"Убрано из закладок",booked?"bookmark_added":"bookmark_border");
-    return booked;
-  }
+  back:()=>showView("collections")
 };
 const CCON="bg-primary-container text-on-primary shadow-[0_0_12px_rgba(255,184,48,0.28)] font-semibold",CCOFF="bg-surface-container text-text-muted hover:text-on-surface";
 const SON="bg-surface-container-high text-primary-fixed font-semibold",SOFF="text-text-muted hover:text-on-surface";
@@ -583,13 +577,13 @@ const totalFor=()=>D.cc?(D.totals[D.cc]||0):D.total;
 const byId=id=>D.all.find(f=>String(f.id)===String(id));
 
 function filmItem(f){
-  const y=(f.release_date||"").slice(0,4),bm=kgIsBookmarked(f.id);
+  const y=(f.release_date||"").slice(0,4);
   const gs=(f.genre_ids||[]).map(i=>GENRES[i]).filter(Boolean).slice(0,2).map(genre=>uiText(genre));
   const selected=D.selected&&D.selected._placement==="list"&&String(D.selected.id)===String(f.id)?D.selected:null;
   return `<article class="flex flex-col gap-space-sm p-3 rounded-xl bg-surface-panel shadow-md hover:bg-surface-container-low transition-colors">
 <div class="flex gap-space-sm cursor-pointer" data-act="open" data-id="${f.id}">
 <div class="relative w-20 h-28 flex-shrink-0 rounded-lg overflow-hidden bg-surface-container-high">${f.poster_path?`<img class="w-full h-full object-cover" loading="lazy" alt="" src="${P(f.poster_path,"w185")}">`:`<div class="w-full h-full flex items-center justify-center text-text-muted"><span class="material-symbols-outlined">movie</span></div>`}
-<span class="absolute top-1 left-1 px-1 py-0.5 rounded bg-surface-panel/90 text-primary-container font-micro-caption text-micro-caption font-bold">${f.vote_average ? Number(f.vote_average).toFixed(1) : "—"} ★</span><button type="button" data-act="bm" data-id="${f.id}" aria-label="${uiText(bm?"Убрать из закладок":"Сохранить в закладки")}" class="absolute top-1 right-1 w-6 h-6 rounded-full bg-surface-panel/85 text-primary-container flex items-center justify-center shadow"><span class="material-symbols-outlined text-[16px]">${bm?"bookmark_added":"bookmark_border"}</span></button></div>
+<span class="absolute top-1 left-1 px-1 py-0.5 rounded bg-surface-panel/90 text-primary-container font-micro-caption text-micro-caption font-bold">${f.vote_average ? Number(f.vote_average).toFixed(1) : "—"} ★</span>${kgBookmarkButton(f, "corner")}</div>
 <div class="flex flex-col justify-between flex-1 min-w-0"><div class="flex flex-col gap-0.5">
 <div class="flex items-center justify-between"><span class="font-micro-caption text-micro-caption text-text-muted">${fl(f._cc)} ${esc(cname(f._cc))}${y?" • "+y:""}</span><span data-rt="${f.id}" class="font-micro-caption text-micro-caption px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant">${uiText("— мин")}</span></div>
 <h4 class="font-label-lg text-label-lg text-on-surface font-bold truncate">${esc(f.title)}</h4>
@@ -598,11 +592,11 @@ function filmItem(f){
 ${selected?selectedFilmHtml(selected,true):""}</article>`;
 }
 function pearlHtml(f,selected=null){
-  const y=(f.release_date||"").slice(0,4),bm=kgIsBookmarked(f.id);
+  const y=(f.release_date||"").slice(0,4);
   return `<div class="flex flex-col gap-space-xs"><div class="flex items-center gap-1.5 px-1"><span class="material-symbols-outlined text-[18px] text-primary-container">stars</span><h3 class="font-headline-sm text-headline-sm text-primary font-bold">${uiText("Жемчужина коллекции")}</h3></div>
 <div class="relative overflow-hidden rounded-xl bg-surface-panel p-space-md shadow-xl flex flex-col gap-space-md"><div class="flex gap-space-md cursor-pointer" data-act="open" data-id="${f.id}">
 <div class="relative flex-shrink-0 w-28 h-40 rounded-lg overflow-hidden bg-surface-container-high shadow-md">${f.poster_path?`<img class="w-full h-full object-cover" alt="" src="${P(f.poster_path,"w342")}">`:""}
-<div class="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded bg-surface-panel/90 backdrop-blur-md text-primary-container font-label-sm text-label-sm font-bold flex items-center gap-0.5"><span class="material-symbols-outlined text-[13px]" style="font-variation-settings:'FILL' 1;">star</span>${f.vote_average ? Number(f.vote_average).toFixed(1) : "—"}</div><button type="button" data-act="bm" data-id="${f.id}" aria-label="${uiText(bm?"Убрать из закладок":"Сохранить в закладки")}" class="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-surface-panel/85 text-primary-container flex items-center justify-center shadow"><span class="material-symbols-outlined text-[16px]">${bm?"bookmark_added":"bookmark_border"}</span></button></div>
+<div class="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded bg-surface-panel/90 backdrop-blur-md text-primary-container font-label-sm text-label-sm font-bold flex items-center gap-0.5"><span class="material-symbols-outlined text-[13px]" style="font-variation-settings:'FILL' 1;">star</span>${f.vote_average ? Number(f.vote_average).toFixed(1) : "—"}</div>${kgBookmarkButton(f, "corner")}</div>
 <div class="flex flex-col justify-between flex-1 min-w-0"><div class="flex flex-col gap-1">
 <div class="flex items-center gap-1.5"><span class="font-micro-caption text-micro-caption px-1.5 rounded bg-surface-container text-on-surface-variant">${fl(f._cc)} ${y}</span><span data-rt="${f.id}" class="font-micro-caption text-micro-caption text-text-muted">${uiText("— мин")}</span></div>
 <h4 class="font-headline-sm text-headline-sm text-on-surface font-bold leading-snug kg-clip2">${esc(f.title)}</h4>
@@ -664,7 +658,7 @@ function selectedFilmHtml(f,embedded=false){
       :""):"";
   const oscarBlock=oscar?`<div class="flex items-start gap-3 p-3 rounded-xl bg-gradient-to-br from-cinema-velvet-deep/50 via-surface-container-high to-surface-container-high border border-primary-container/25"><span class="material-symbols-outlined text-primary-container text-[28px] shrink-0" style="font-variation-settings:'FILL' 1;">workspace_premium</span><div class="min-w-0 flex flex-col gap-0.5"><h4 class="font-label-md text-label-md text-primary-fixed font-semibold">${uiText(oscar.best?"Оскар · Лучший фильм":"Лауреат премии «Оскар»")}</h4>${oscar.best?`<p class="font-label-sm text-label-sm text-primary-container font-semibold">${uiText("{number}-я церемония · {year} год", {number: oscar.n, year: oscar.year})}</p><p class="font-body-sm text-body-sm text-text-muted">${uiText("Главная награда Американской киноакадемии. Статуэтку получает лучший фильм года; эта картина вышла в {year} году.", {year: oscar.film})}</p>`:`<p class="font-body-sm text-body-sm text-text-muted">${uiText("Картина входит в список лауреатов Американской киноакадемии{year}.", {year: oscar.film?uiText(" · фильм {year} года", {year: oscar.film}):""})}</p>`}${awardsHtml}</div></div>`:"";
   const tagline=f.tagline&&f.taglineLang===f.overviewLang?`<p class="font-body-sm text-body-sm text-primary-fixed italic">${esc(f.tagline)}</p>`:"";
-  const booked=kgIsBookmarked(f.id),watched=!!window.KGIsFilmWatched?.(f.id),title=esc(f.title||uiText("Фильм"));
+  const watched=!!window.KGIsFilmWatched?.(f.id),title=esc(f.title||uiText("Фильм"));
   const orig=[f.originalTitle&&f.originalTitle!==f.title?esc(f.originalTitle):"",year?`(${year})`:""].filter(Boolean).join(" ");
   const countries=(f.countries&&f.countries.length?f.countries:(f._cc?[f._cc]:[])).map(cc=>`${esc(cname(cc))} ${fl(cc)}`).join(" · ");
   const genres=(f.genres||[]).map(genre => uiText(genre)).join(" · ");
@@ -679,7 +673,7 @@ function selectedFilmHtml(f,embedded=false){
   const trailerBox=`<div data-kg-film-trailer class="relative w-full kg-detail-trailer rounded-xl overflow-hidden bg-black border border-primary-container/30" id="cl-inline-trailer">${trailerContent}${certBadge}</div>`;
   return `<${shell} class="${shellClass}" data-selected-film="${f.id}">
 <div class="flex flex-wrap items-start justify-between gap-2 min-w-0"><div class="flex flex-col min-w-0"><h3 class="font-headline-md text-headline-md text-primary font-bold tracking-tight">${title}</h3>${orig?`<span class="font-body-sm text-body-sm text-text-muted mt-0.5">${orig}</span>`:""}</div>
-<div class="flex items-center gap-1.5 shrink-0">${f.runtime?`<div class="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-surface-container-high"><span class="material-symbols-outlined text-primary-container text-[18px]" style="font-variation-settings:'FILL' 1;">timer</span><span class="font-label-sm text-label-sm text-on-surface">${uiText("{minutes} мин", {minutes: f.runtime})}</span></div>`:""}<button type="button" data-act="bm" data-id="${f.id}" aria-label="${booked?uiText("Убрать из закладок"):uiText("Сохранить в закладки")}" aria-pressed="${booked}" class="w-7 h-7 rounded-full text-primary-container hover:bg-surface-container-high flex items-center justify-center"><span class="material-symbols-outlined text-[18px]">${booked?"bookmark_added":"bookmark_border"}</span></button><button type="button" data-act="close-film" aria-label="${uiText("Свернуть карточку")}" class="w-9 h-9 rounded-full bg-surface-container-high text-text-muted hover:text-primary flex items-center justify-center"><span class="material-symbols-outlined">${embedded?"expand_less":"close"}</span></button></div></div>
+<div class="flex items-center gap-1.5 shrink-0">${f.runtime?`<div class="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-surface-container-high"><span class="material-symbols-outlined text-primary-container text-[18px]" style="font-variation-settings:'FILL' 1;">timer</span><span class="font-label-sm text-label-sm text-on-surface">${uiText("{minutes} мин", {minutes: f.runtime})}</span></div>`:""}${kgBookmarkButton(f)}<button type="button" data-act="close-film" aria-label="${uiText("Свернуть карточку")}" class="w-9 h-9 rounded-full bg-surface-container-high text-text-muted hover:text-primary flex items-center justify-center"><span class="material-symbols-outlined">${embedded?"expand_less":"close"}</span></button></div></div>
 ${trailerBox}
 ${window.KGLegalWatch?.markup(f.id)||""}
 ${activeVideo?`<a href="${watchUrl(activeVideo)}" target="_blank" rel="noopener noreferrer" class="font-micro-caption text-micro-caption text-primary underline">${esc(uiText("Не воспроизводится? Открыть на {site}", {site: activeVideo.site}))}</a>`:""}
@@ -708,15 +702,6 @@ document.addEventListener("click",e=>{
     const next=!window.KGIsFilmWatched?.(film.id);watchedButton.dataset.saving="true";
     window.KGPaintWatchedButton?.(watchedButton,next);
     Promise.resolve(window.KGToggleWatched({...film,_cc:film._cc||film.cc||""})).then(result=>{if(result!==next)throw new Error("Не удалось обновить отметку просмотра");if(D.selected&&String(D.selected.id)===String(film.id))renderSelectedPanel();}).catch(error=>{console.warn("[Kinoglobus] Не удалось обновить просмотр:",error);watchedButton.dataset.saving="false";window.KGPaintWatchedButton?.(watchedButton,!!window.KGIsFilmWatched?.(film.id));});
-    return;
-  }
-  const bookmark=e.target.closest('[data-act="bm"]');
-  if(bookmark&&D.selected&&(["mood","oscar"].includes(D.selected._placement)||bookmark.closest("#kg-home-releases"))&&String(D.selected.id)===bookmark.dataset.id){
-    e.preventDefault();e.stopPropagation();
-    const id=D.selected.id;
-    const booked=kgToggleBookmark(id,D.selected);
-    toast(booked?"Добавлено в закладки":"Убрано из закладок","bookmark");
-    renderSelectedPanel();
     return;
   }
   const action=e.target.closest("[data-trailer-action]");
@@ -1118,13 +1103,6 @@ vd.addEventListener("click",e=>{
   if(a==="more"){D.shown+=5;renderFilms();return;}
   const f=byId(el.dataset.id);if(!f)return;
   if(a==="trailer"){e.stopPropagation();openFilm(f);return;}
-  if(a==="bm"){
-    e.stopPropagation();
-    const booked=kgToggleBookmark(f.id,f);
-    const ic=el.querySelector(".material-symbols-outlined");if(ic)ic.textContent=booked?"bookmark_added":"bookmark_border";
-    el.setAttribute("aria-label",uiText(booked?"Убрать из закладок":"Сохранить в закладки"));
-    toast(booked?"Добавлено в закладки":"Убрано из закладок","bookmark");return;
-  }
   if(a==="open")openFilm(f);
 });
 
@@ -1156,7 +1134,7 @@ function homeFeatureMarkup(f,d,expandedFilm=null){
   return `<article data-home-act="open" data-id="${f.id}" class="w-full rounded-xl bg-surface-container-high shadow-xl p-3.5 cursor-pointer">
 <p class="font-micro-caption text-micro-caption uppercase tracking-wider text-primary font-bold mb-2">${uiText("Выбор дня · Программа № {number}", {number: homeDayNumber()})}</p>
 <div class="flex gap-3.5 items-start">
-<div class="relative w-28 h-40 shrink-0 rounded-lg overflow-hidden shadow-md bg-surface-container-lowest flex items-center justify-center">${poster}<span class="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded bg-surface-container-lowest/90 text-primary-container font-label-sm text-label-sm font-bold shadow">★ ${rating.toFixed(1)}</span></div>
+<div class="relative w-28 h-40 shrink-0 rounded-lg overflow-hidden shadow-md bg-surface-container-lowest flex items-center justify-center">${poster}<span class="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded bg-surface-container-lowest/90 text-primary-container font-label-sm text-label-sm font-bold shadow">★ ${rating.toFixed(1)}</span>${kgBookmarkButton({...f,title:d?.title || f.title, localizedPoster:d?.localizedPoster}, "corner")}</div>
 <div class="min-w-0 flex-1">
 <h3 class="font-headline-sm text-headline-sm text-on-surface font-bold leading-snug">${title}</h3>
 ${year?`<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">${year}</p>`:""}
@@ -1173,10 +1151,10 @@ function homeFilmCard(f){
   const details=homeEditorial.directorData.get(f.id);
   const credit=details&&details.dirs&&details.dirs.length?details.dirs[0]:cname(f._cc);
   const poster=f.poster_path?`<img class="w-full h-full object-cover" src="${P(f.poster_path,"w342")}" alt="${uiText("Постер фильма «{title}»", {title})}" loading="lazy">`:'<span class="material-symbols-outlined text-primary-container text-[32px]">movie</span>';
-  return `<button type="button" data-home-act="open" data-home-meta="${f.id}" data-id="${f.id}" class="kg-home-film shrink-0 rounded-xl bg-surface-container-high p-2 shadow-md text-left">
+  return `<div class="relative kg-home-film-wrap"><button type="button" data-home-act="open" data-home-meta="${f.id}" data-id="${f.id}" class="w-full rounded-xl bg-surface-container-high p-2 shadow-md text-left">
 <span class="relative w-full h-44 rounded-lg overflow-hidden mb-1.5 bg-surface-container-lowest flex items-center justify-center block">${poster}<span class="absolute bottom-1 right-1 px-1.5 py-0.5 rounded bg-surface-container-lowest/90 font-micro-caption text-micro-caption text-primary-container font-bold">★ ${(Number(f.vote_average)||0).toFixed(1)}</span></span>
 <span class="font-label-sm text-label-sm font-bold text-on-surface block truncate">${title}</span>
-<span class="font-micro-caption text-micro-caption text-on-surface-variant block truncate" data-home-director="${f.id}">${esc(credit)}${year?" · "+year:""}</span></button>`;
+<span class="font-micro-caption text-micro-caption text-on-surface-variant block truncate" data-home-director="${f.id}">${esc(credit)}${year?" · "+year:""}</span></button>${kgBookmarkButton(f, "corner")}</div>`;
 }
 function renderHomeEditorial(){
   if(!homeEditorialRoot)return;
@@ -1305,11 +1283,7 @@ homeEditorialRoot.addEventListener("click",async e=>{
         const container=detailAction.closest("#kg-home-europe-detail");
         if(container){container.replaceChildren();container.hidden=true;}
       }
-    }else if(detailAction.dataset.act==="bm"){
-      const id=Number(detailAction.dataset.id);
-      const booked=kgToggleBookmark(id,D.selected);
-      if(D.selected&&D.selected._placement.startsWith("home")&&D.selected.id===id)renderSelectedPanel();
-      toast(booked?"Добавлено в закладки":"Убрано из закладок","bookmark");
+
     }
     return;
   }
@@ -1332,11 +1306,6 @@ homeEditorialRoot.addEventListener("click",async e=>{
   if(action==="trailer"){
     openFilm(film,"home");
     return;
-  }
-  if(action==="bookmark"){
-    const booked=kgToggleBookmark(film.id,film);
-    toast(booked?"Добавлено в закладки":"Убрано из закладок","bookmark");
-    renderHomeEditorial();return;
   }
   if(action==="share"){
     try{

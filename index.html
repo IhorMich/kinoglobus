@@ -1,5 +1,5 @@
 <!DOCTYPE html><html class="dark" lang="ru"><head><meta charset="utf-8"><link rel="stylesheet" href="app-theme.css?v=6">
-<script src="interface-en.js?v=26"></script>
+<script src="interface-en.js?v=27"></script>
 <script src="interface-i18n.js?v=2"></script>
 <script>
 const APP_THEMES = ["cinematic", "oled", "golden-age"];
@@ -3460,9 +3460,32 @@ async function oscarFilms(){
     const results=await Promise.all(pages.map(loadPage));
     results.forEach(j=>all.push(...(j.items||[]).filter(m=>m&&m.id&&m.media_type!=="tv")));
   }
-  if(!all.length) throw new Error("Список лауреатов пуст.");
-  oscarCache = all.map(localizeFilmListItem);
-  return oscarCache;
+  const films = new Map(all.map(film => [Number(film.id), film]));
+  // Best Picture winners from the 2021–2026 Academy Awards missing from the TMDB list.
+  const recentWinners = [
+    581734, // Nomadland
+    776503, // CODA
+    545611, // Everything Everywhere All at Once
+    872585, // Oppenheimer
+    1064213, // Anora
+    1054867 // One Battle After Another
+  ];
+  const missing = recentWinners.filter(id => !films.get(id)?.release_date);
+  const query = new URLSearchParams({api_key: apiKey, language: filmLocale});
+  const recent = await Promise.allSettled(missing.map(async id => {
+    const response = await fetch(`https://api.themoviedb.org/3/movie/${id}?${query}`);
+    if (!response.ok) throw new Error(`TMDB movie ${id}: ${response.status}`);
+    const movie = await response.json();
+    if (Number(movie.id) !== id || !movie.release_date) throw new Error(`TMDB movie ${id}: missing release date`);
+    return {...movie, genre_ids: (movie.genres || []).map(genre => genre.id)};
+  }));
+  for (const result of recent) {
+    if (result.status === "fulfilled") films.set(Number(result.value.id), result.value);
+  }
+  if (!films.size) throw new Error("Список лауреатов пуст.");
+  const localized = [...films.values()].map(localizeFilmListItem);
+  if (recent.every(result => result.status === "fulfilled")) oscarCache = localized;
+  return localized;
 }
 async function spinOscar(){
   $("err").textContent="";
@@ -4419,13 +4442,13 @@ console.info("[Kinoglobus] Bridge v6 ready");
 <script src="recovery-code.js?v=1"></script>
 <script src="account-page.js?v=6"></script>
 <script src="mood-vibe-additions.js?v=2"></script>
-<script src="mood-page.js?v=38"></script>
-<script src="mood-vibe-page.js?v=24"></script>
-<script src="oscar-page.js?v=40"></script>
-<script src="oscar-design.js?v=21"></script>
+<script src="mood-page.js?v=39"></script>
+<script src="mood-vibe-page.js?v=25"></script>
+<script src="oscar-page.js?v=41"></script>
+<script src="oscar-design.js?v=22"></script>
 <script src="curated-collections.js?v=1"></script>
-<script src="collections.js?v=89"></script>
-<script src="film-interactions.js?v=19"></script>
+<script src="collections.js?v=91"></script>
+<script src="film-interactions.js?v=20"></script>
 <script src="legal-watch.js?v=6"></script>
 <script src="global-search.js?v=7"></script>
 <script src="home-releases.js?v=4"></script>

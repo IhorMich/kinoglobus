@@ -1,28 +1,108 @@
-(() => {
-  const translate = typeof uiText === "function" ? uiText : (text => text);
-  const markLabel = translate("Отметить как просмотренный");
-  const removeLabel = translate("Снять отметку о просмотре");
+button.kg-watched-button {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  flex: 0 0 auto;
+  width: fit-content;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid rgb(var(--kg-surface-border-subtle));
+  border-radius: 12px;
+  background: rgb(var(--kg-surface-container-high));
+  color: #e8e0ea;
+  font: 600 12px/16px "Plus Jakarta Sans", system-ui, sans-serif;
+  cursor: pointer;
+  transition: color .15s, background-color .15s, box-shadow .15s, transform .15s;
+}
 
-  function content(watched) {
-    const ring = watched
-      ? '<path d="M21 12a9 9 0 1 1-5.5-8.3"/>'
-      : '<circle cx="12" cy="12" r="9"/>';
-    const check = watched ? "m8 11 4 4 9-9" : "m8 12 3 3 5-6";
-    return `<svg class="kg-watched-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ring}<path d="${check}"/></svg><span>${translate(watched ? "Просмотрено ✓" : "Посмотрел")}</span>`;
-  }
+button.kg-watched-button[aria-pressed="true"] {
+  border-color: #ffdeadb3;
+  background: linear-gradient(110deg, #ffb830, #ffdda0);
+  box-shadow: 0 5px 18px #ffb8303d, inset 0 1px #ffffff38;
+  color: #432c00;
+}
 
-  window.KGWatchedButtonHtml = (watched, attributes) => {
-    const label = watched ? removeLabel : markLabel;
-    return `<button type="button" class="kg-watched-button" ${attributes} aria-pressed="${!!watched}" aria-label="${label}" title="${label}">${content(watched)}</button>`;
-  };
+.kg-watched-button[aria-pressed="false"]:hover,
+.kg-watched-button[aria-pressed="false"] .kg-watched-icon {
+  color: #ffb830;
+}
 
-  window.KGPaintWatchedButton = (button, watched) => {
-    if (!button) return;
-    const label = watched ? removeLabel : markLabel;
-    button.setAttribute("aria-pressed", String(!!watched));
-    button.setAttribute("aria-label", label);
-    button.title = label;
-    button.innerHTML = content(watched);
-    button.disabled = false;
-  };
-})();
+.kg-watched-button .kg-watched-icon {
+  flex: none;
+  width: 16px;
+  height: 16px;
+}
+
+.kg-watched-button:focus-visible {
+  outline: 2px solid #ffb830;
+  outline-offset: 2px;
+}
+
+.kg-watched-button:active {
+  transform: scale(.95);
+}
+
+.kg-bookmark-card {
+  position: relative;
+  min-width: 0;
+}
+.kg-bookmark-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+.kg-bookmark-row > :first-child {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+button.kg-bookmark-button {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid rgb(var(--kg-primary) / .32);
+  border-radius: 9px;
+  background: rgb(var(--kg-surface-container-lowest) / .92);
+  color: rgb(var(--kg-primary));
+  cursor: pointer;
+  transition: color .15s, background-color .15s, border-color .15s;
+}
+button.kg-bookmark-button[aria-pressed="true"] {
+  background: rgb(var(--kg-primary));
+  border-color: rgb(var(--kg-primary));
+  color: rgb(var(--kg-canvas-obsidian));
+}
+.kg-bookmark-button .material-symbols-outlined {
+  font-size: 19px;
+  font-variation-settings: 'FILL' 0;
+}
+.kg-bookmark-button[aria-pressed="true"] .material-symbols-outlined {
+  font-variation-settings: 'FILL' 1;
+}
+.kg-bookmark-button:hover,
+.kg-bookmark-button:focus-visible {
+  outline: 2px solid rgb(var(--kg-primary));
+  outline-offset: 1px;
+}
+button.kg-bookmark-corner,
+button.kg-bookmark-poster,
+button.kg-bookmark-hero,
+button.kg-bookmark-edge {
+  position: absolute;
+  z-index: 2;
+  inset-inline-end: 5px;
+  top: 5px;
+}
+button.kg-bookmark-poster {top: 42px;}
+button.kg-bookmark-hero {top: 45px;inset-inline-end: 12px;}
+button.kg-bookmark-edge {top: 0;inset-inline-end: 0;}
+.kg-bookmark-card > .jfilm {width: 100%;}
+.kg-diary-select-film {padding-inline-end: 40px;}

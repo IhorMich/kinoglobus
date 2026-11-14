@@ -4410,7 +4410,6 @@ window.KGCountryApp={
   getCountryFilms:async(code,page=1)=>api({with_origin_country:code,sort_by:"popularity.desc","vote_count.gte":10,include_adult:"false",page}),
   getFilmDetails:filmDetails,
   showCountryOnGlobe:code=>{closeJ();const country=gc(code);G.currentCountry=country;focusedCC=code;G.showSingleBeacon(country);G.orientGlobeToCountry(country,false,0.055,G.CAMERA_DIST_FOCUS,true);hero(country,false);setTimeout(()=>G.dollyBack(country),1800);window.scrollTo({top:0,behavior:"smooth"});},
-  openMovie:(code,film)=>{closeJ();window.show(code,{films:[film],saved:true},film);},
   searchCountry:async code=>{if(!apiKey){closeJ();showKeyUi();$("tmdb-key-banner").scrollIntoView({behavior:"smooth",block:"center"});return;}closeJ();await spin(code);}
 };
 console.info("[Kinoglobus] Bridge v6 ready");
@@ -4419,7 +4418,7 @@ console.info("[Kinoglobus] Bridge v6 ready");
 
 <script src="globe-visuals.js?v=3"></script>
 <script src="watch-history.js?v=10"></script>
-<script src="country-pages.js?v=18"></script>
+<script src="country-pages.js?v=20"></script>
 <script src="profile-page.js?v=6"></script>
 <script src="cinema-diary.js?v=5"></script>
 <script src="profile-editor.js?v=1"></script>
@@ -4433,7 +4432,7 @@ console.info("[Kinoglobus] Bridge v6 ready");
 <script src="oscar-page.js?v=40"></script>
 <script src="oscar-design.js?v=21"></script>
 <script src="curated-collections.js?v=1"></script>
-<script src="collections.js?v=88"></script>
+<script src="collections.js?v=89"></script>
 <script src="film-interactions.js?v=19"></script>
 <script src="legal-watch.js?v=6"></script>
 <script src="global-search.js?v=7"></script>

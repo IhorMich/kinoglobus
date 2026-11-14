@@ -169,7 +169,6 @@ const gnames=t=>t.g.split("|").map(x=>GENRES[x]).filter(Boolean).map(genre=>uiTe
 const codeOf=t=>t.films?"":REG[t.id]?REG[t.id][1]:(t.cc[0]==="SU"?(interfaceLanguage==="en"?"USSR":"СССР"):t.cc[0]);
 const where=t=>t.films?uiText("Разные страны"):REG[t.id]?uiText(REG[t.id][0]):cname(t.cc[0]);
 const flagsOf=t=>t.cc.slice(0,3).map(fl).join(" ");
-const BOOK=new Set(store.get("kgBookmarks",[]));
 function toast(msg,icon){
   let el=$("kg-toast");
   if(!el){el=document.createElement("div");el.id="kg-toast";el.className="fixed bottom-20 left-1/2 -translate-x-1/2 max-w-[90vw] z-50 pointer-events-none opacity-0 transition-opacity duration-300";document.body.appendChild(el);}
@@ -561,8 +560,12 @@ const pageDeps={
   closeFilm:placement=>closePageFilm(placement),
   refreshFilm:()=>renderSelectedPanel(),
   back:()=>showView("collections"),
-  isBooked:id=>BOOK.has(id),
-  toggleBook:id=>{if(BOOK.has(id))BOOK.delete(id);else BOOK.add(id);store.set("kgBookmarks",[...BOOK]);toast(BOOK.has(id)?"Добавлено в закладки":"Убрано из закладок",BOOK.has(id)?"bookmark_added":"bookmark_border");return BOOK.has(id);}
+  isBooked:kgIsBookmarked,
+  toggleBook:(id,film)=>{
+    const booked=kgToggleBookmark(id,film);
+    toast(booked?"Добавлено в закладки":"Убрано из закладок",booked?"bookmark_added":"bookmark_border");
+    return booked;
+  }
 };
 const CCON="bg-primary-container text-on-primary shadow-[0_0_12px_rgba(255,184,48,0.28)] font-semibold",CCOFF="bg-surface-container text-text-muted hover:text-on-surface";
 const SON="bg-surface-container-high text-primary-fixed font-semibold",SOFF="text-text-muted hover:text-on-surface";
@@ -580,7 +583,7 @@ const totalFor=()=>D.cc?(D.totals[D.cc]||0):D.total;
 const byId=id=>D.all.find(f=>String(f.id)===String(id));
 
 function filmItem(f){
-  const y=(f.release_date||"").slice(0,4),bm=BOOK.has(f.id);
+  const y=(f.release_date||"").slice(0,4),bm=kgIsBookmarked(f.id);
   const gs=(f.genre_ids||[]).map(i=>GENRES[i]).filter(Boolean).slice(0,2).map(genre=>uiText(genre));
   const selected=D.selected&&D.selected._placement==="list"&&String(D.selected.id)===String(f.id)?D.selected:null;
   return `<article class="flex flex-col gap-space-sm p-3 rounded-xl bg-surface-panel shadow-md hover:bg-surface-container-low transition-colors">
@@ -595,7 +598,7 @@ function filmItem(f){
 ${selected?selectedFilmHtml(selected,true):""}</article>`;
 }
 function pearlHtml(f,selected=null){
-  const y=(f.release_date||"").slice(0,4),bm=BOOK.has(f.id);
+  const y=(f.release_date||"").slice(0,4),bm=kgIsBookmarked(f.id);
   return `<div class="flex flex-col gap-space-xs"><div class="flex items-center gap-1.5 px-1"><span class="material-symbols-outlined text-[18px] text-primary-container">stars</span><h3 class="font-headline-sm text-headline-sm text-primary font-bold">${uiText("Жемчужина коллекции")}</h3></div>
 <div class="relative overflow-hidden rounded-xl bg-surface-panel p-space-md shadow-xl flex flex-col gap-space-md"><div class="flex gap-space-md cursor-pointer" data-act="open" data-id="${f.id}">
 <div class="relative flex-shrink-0 w-28 h-40 rounded-lg overflow-hidden bg-surface-container-high shadow-md">${f.poster_path?`<img class="w-full h-full object-cover" alt="" src="${P(f.poster_path,"w342")}">`:""}
@@ -661,7 +664,7 @@ function selectedFilmHtml(f,embedded=false){
       :""):"";
   const oscarBlock=oscar?`<div class="flex items-start gap-3 p-3 rounded-xl bg-gradient-to-br from-cinema-velvet-deep/50 via-surface-container-high to-surface-container-high border border-primary-container/25"><span class="material-symbols-outlined text-primary-container text-[28px] shrink-0" style="font-variation-settings:'FILL' 1;">workspace_premium</span><div class="min-w-0 flex flex-col gap-0.5"><h4 class="font-label-md text-label-md text-primary-fixed font-semibold">${uiText(oscar.best?"Оскар · Лучший фильм":"Лауреат премии «Оскар»")}</h4>${oscar.best?`<p class="font-label-sm text-label-sm text-primary-container font-semibold">${uiText("{number}-я церемония · {year} год", {number: oscar.n, year: oscar.year})}</p><p class="font-body-sm text-body-sm text-text-muted">${uiText("Главная награда Американской киноакадемии. Статуэтку получает лучший фильм года; эта картина вышла в {year} году.", {year: oscar.film})}</p>`:`<p class="font-body-sm text-body-sm text-text-muted">${uiText("Картина входит в список лауреатов Американской киноакадемии{year}.", {year: oscar.film?uiText(" · фильм {year} года", {year: oscar.film}):""})}</p>`}${awardsHtml}</div></div>`:"";
   const tagline=f.tagline&&f.taglineLang===f.overviewLang?`<p class="font-body-sm text-body-sm text-primary-fixed italic">${esc(f.tagline)}</p>`:"";
-  const booked=BOOK.has(f.id),watched=!!window.KGIsFilmWatched?.(f.id),title=esc(f.title||uiText("Фильм"));
+  const booked=kgIsBookmarked(f.id),watched=!!window.KGIsFilmWatched?.(f.id),title=esc(f.title||uiText("Фильм"));
   const orig=[f.originalTitle&&f.originalTitle!==f.title?esc(f.originalTitle):"",year?`(${year})`:""].filter(Boolean).join(" ");
   const countries=(f.countries&&f.countries.length?f.countries:(f._cc?[f._cc]:[])).map(cc=>`${esc(cname(cc))} ${fl(cc)}`).join(" · ");
   const genres=(f.genres||[]).map(genre => uiText(genre)).join(" · ");
@@ -711,8 +714,8 @@ document.addEventListener("click",e=>{
   if(bookmark&&D.selected&&(["mood","oscar"].includes(D.selected._placement)||bookmark.closest("#kg-home-releases"))&&String(D.selected.id)===bookmark.dataset.id){
     e.preventDefault();e.stopPropagation();
     const id=D.selected.id;
-    BOOK.has(id)?BOOK.delete(id):BOOK.add(id);store.set("kgBookmarks",[...BOOK]);
-    toast(BOOK.has(id)?"Добавлено в закладки":"Убрано из закладок","bookmark");
+    const booked=kgToggleBookmark(id,D.selected);
+    toast(booked?"Добавлено в закладки":"Убрано из закладок","bookmark");
     renderSelectedPanel();
     return;
   }
@@ -1117,10 +1120,10 @@ vd.addEventListener("click",e=>{
   if(a==="trailer"){e.stopPropagation();openFilm(f);return;}
   if(a==="bm"){
     e.stopPropagation();
-    BOOK.has(f.id)?BOOK.delete(f.id):BOOK.add(f.id);store.set("kgBookmarks",[...BOOK]);
-    const ic=el.querySelector(".material-symbols-outlined");if(ic)ic.textContent=BOOK.has(f.id)?"bookmark_added":"bookmark_border";
-    el.setAttribute("aria-label",uiText(BOOK.has(f.id)?"Убрать из закладок":"Сохранить в закладки"));
-    toast(BOOK.has(f.id)?"Добавлено в закладки":"Убрано из закладок","bookmark");return;
+    const booked=kgToggleBookmark(f.id,f);
+    const ic=el.querySelector(".material-symbols-outlined");if(ic)ic.textContent=booked?"bookmark_added":"bookmark_border";
+    el.setAttribute("aria-label",uiText(booked?"Убрать из закладок":"Сохранить в закладки"));
+    toast(booked?"Добавлено в закладки":"Убрано из закладок","bookmark");return;
   }
   if(a==="open")openFilm(f);
 });
@@ -1304,10 +1307,9 @@ homeEditorialRoot.addEventListener("click",async e=>{
       }
     }else if(detailAction.dataset.act==="bm"){
       const id=Number(detailAction.dataset.id);
-      BOOK.has(id)?BOOK.delete(id):BOOK.add(id);
-      store.set("kgBookmarks",[...BOOK]);
+      const booked=kgToggleBookmark(id,D.selected);
       if(D.selected&&D.selected._placement.startsWith("home")&&D.selected.id===id)renderSelectedPanel();
-      toast(BOOK.has(id)?"Добавлено в закладки":"Убрано из закладок","bookmark");
+      toast(booked?"Добавлено в закладки":"Убрано из закладок","bookmark");
     }
     return;
   }
@@ -1332,9 +1334,8 @@ homeEditorialRoot.addEventListener("click",async e=>{
     return;
   }
   if(action==="bookmark"){
-    BOOK.has(film.id)?BOOK.delete(film.id):BOOK.add(film.id);
-    store.set("kgBookmarks",[...BOOK]);
-    toast(BOOK.has(film.id)?"Добавлено в закладки":"Убрано из закладок","bookmark");
+    const booked=kgToggleBookmark(film.id,film);
+    toast(booked?"Добавлено в закладки":"Убрано из закладок","bookmark");
     renderHomeEditorial();return;
   }
   if(action==="share"){

@@ -23,6 +23,10 @@
   let filter = "all";
   let limitToMonth = false;
   let closeParent;
+  const rhythmKey = "kgCinemaDiaryRhythmCollapsed";
+  const draftKey = "kgCinemaDiaryDrafts";
+  const vibes = ["Ночная меланхолия","Неоновый пульс","Экзистенциальный дождь",
+    "Созерцательное спокойствие","Пьянящая романтика","Сюрреалистический трип","Ностальгия по 90-м"];
   const routeSelectors = {
     home: 'body > nav [data-view="home"]',
     collections: 'body > nav [data-view="collections"]',
@@ -94,8 +98,32 @@
     .kg-diary-route {width:100%;color:rgb(var(--kg-primary));font-size:12px}
     .kg-diary-nav {justify-content:space-around;padding:5px 2% calc(5px + env(safe-area-inset-bottom,0px))}
     .kg-diary-nav button {min-height:45px;display:grid;justify-items:center;align-content:center;gap:3px;font-size:11px;color:rgb(var(--kg-on-surface-variant))}
-    #kg-diary-note {position:fixed;inset:auto 0 0;width:min(100%,480px);max-width:none;max-height:88dvh;margin:0 auto;border-radius:20px 20px 0 0;padding:18px 5% calc(18px + env(safe-area-inset-bottom,0px))}
-    #kg-diary-note form {display:grid;gap:10px}
+    #kg-diary-note {
+      position:fixed;inset:0;width:min(100%,520px);max-width:none;height:100dvh;max-height:100dvh;
+      margin:0 auto;padding:0;overflow:auto;
+    }
+    .kg-diary-note-content:not(:empty) > strong:not([hidden]),
+    .kg-diary-note-content > details:not([hidden]),
+    .kg-diary-note-content > p:not([hidden]) {display:block;margin-top:8px}
+    #kg-diary-note form {display:grid;gap:16px;padding:0 5% 24px}
+    .kg-diary-editor-head {position:sticky;top:0;z-index:1;display:grid;grid-template-columns:1fr 1.8fr 1fr;align-items:center;gap:6px;background:rgb(var(--kg-surface-panel));margin:0 -5.55%;padding:calc(10px + env(safe-area-inset-top,0px)) 5% 10px;text-align:center}
+    #kg-diary-note .kg-diary-editor-head h2 {line-height:1.2}
+    .kg-diary-editor-card {display:grid;gap:10px}
+    .kg-diary-editor-card h3 {font-size:17px;font-weight:700}
+    .kg-diary-preview {display:grid;grid-template-columns:70px minmax(0,1fr);gap:12px;align-items:start}
+    .kg-diary-preview img {width:100%;height:100%;object-fit:cover}
+    #kg-diary-note [hidden] {display:none}
+    .kg-diary-editor-stars {display:flex;justify-content:center;gap:4px;color:rgb(var(--kg-primary))}
+    #kg-diary-note .kg-diary-editor-stars button {font-size:clamp(21px,8vw,34px);padding:1px 4px}
+    #kg-diary-note [data-vibe] {border-radius:99px;background:rgb(var(--kg-surface-container-high));padding:5px 9px;font-size:12px}
+    #kg-diary-note [data-vibe][aria-pressed=true] {color:rgb(var(--kg-primary));box-shadow:inset 0 0 0 1px rgb(var(--kg-primary))}
+    .kg-diary-vibes {display:flex;flex-wrap:wrap;gap:6px}
+    #kg-diary-note input[type=range] {accent-color:rgb(var(--kg-primary));padding:0}
+    .kg-diary-draft {background:rgb(var(--kg-surface-container-high))}
+    .kg-diary-toggle {display:grid;place-items:center;min-width:36px;min-height:36px;border-radius:8px;background:rgb(var(--kg-surface-container-high));color:rgb(var(--kg-primary))}
+    .kg-diary-toggle .material-symbols-outlined {transition:transform .18s ease}
+    .kg-diary-toggle[aria-expanded=false] .material-symbols-outlined {transform:rotate(-90deg)}
+    @media(prefers-reduced-motion:reduce) {.kg-diary-toggle .material-symbols-outlined {transition:none}}
     #kg-diary-note h2 {font-weight:700;font-size:20px}
     #kg-diary-note label:not(.kg-diary-check) {display:grid;gap:4px}
     #kg-diary-note :is(select,input:not([type=checkbox]),textarea) {width:100%;min-width:0;background:rgb(var(--kg-surface-container-high));padding:8px;border-radius:8px;font-size:16px}
@@ -136,9 +164,17 @@
         </div>
         <p class="kg-diary-muted" data-status role="status" hidden></p>
         <section class="kg-diary-card">
-          <div class="kg-diary-row"><h2>Киноритм месяца</h2><button type="button" class="kg-diary-count" data-month-label aria-pressed="false"></button></div>
-          <div class="kg-diary-strip" data-days></div>
-          <div class="kg-diary-legend kg-diary-muted"><span>Без сеансов</span><span>1 фильм</span><span>Несколько фильмов</span></div>
+          <div class="kg-diary-row">
+            <h2>Киноритм месяца</h2>
+            <div class="kg-diary-actions" style="gap:5px">
+              <button type="button" class="kg-diary-count" data-month-label aria-pressed="false"></button>
+              <button type="button" class="kg-diary-toggle" aria-expanded="true" aria-controls="kg-diary-rhythm">${icon("expand_more")}</button>
+            </div>
+          </div>
+          <div id="kg-diary-rhythm">
+            <div class="kg-diary-strip" data-days></div>
+            <div class="kg-diary-legend kg-diary-muted"><span>Без сеансов</span><span>1 фильм</span><span>Несколько фильмов</span></div>
+          </div>
         </section>
         <div class="kg-diary-tabs" role="group" aria-label="Фильтры дневника"></div>
         <div data-entries></div>
@@ -158,16 +194,60 @@
   const noteDialog = document.createElement("dialog");
   noteDialog.id = "kg-diary-note";
   noteDialog.setAttribute("aria-labelledby","kg-diary-note-title");
+  const metrics = [
+    ["intensity","Интенсивность вайба",100],
+    ["visual","Визуальный восторг",100],
+    ["emotion","Эмоциональный резонанс",100],
+    ["curation","Кураторская ценность",10]
+  ];
+  const slider = ([key,title,max]) => `
+    <label><span class="kg-diary-row"><b>${title}</b><output data-value="${key}"></output></span>
+    <input name="${key}" type="range" min="0" max="${max}" value="0"></label>`;
   noteDialog.innerHTML = `<form>
-    <h2 id="kg-diary-note-title">Запись в кинодневнике</h2>
-    <label>Фильм<select name="film" required></select></label>
-    <label>Дата просмотра<input name="date" type="date" required></label>
-    <label>Личная оценка<select name="rating"></select></label>
-    <label>Заметка<textarea name="text" rows="4" maxlength="1200"></textarea></label>
-    <label class="kg-diary-check"><input name="festival" type="checkbox"> <span>Фестивальный показ</span></label>
-    <label class="kg-diary-check"><input name="rewatch" type="checkbox"> <span>Повторный просмотр</span></label>
-    <button class="kg-diary-primary" type="submit">Сохранить запись</button>
-    <button type="button" data-cancel>Отмена</button>
+    <header class="kg-diary-editor-head">
+      <button type="button" data-cancel autofocus>Отмена</button>
+      <div><h2 id="kg-diary-note-title">Запись в кинодневник</h2><p class="kg-diary-muted" data-draft-status role="status"></p></div>
+      <button class="kg-diary-primary" type="submit">Готово</button>
+    </header>
+    <section class="kg-diary-card kg-diary-editor-card">
+      <div class="kg-diary-preview">
+        <div class="kg-diary-poster"><img alt="" hidden><span>${icon("movie")}</span></div>
+        <div>
+          <p class="kg-diary-kicker">Фильм</p>
+          <h3 data-preview-title></h3><p class="kg-diary-muted" data-preview-meta></p>
+          <label><span>Сменить фильм</span><select name="film" required></select></label>
+        </div>
+      </div>
+      <label><span>Дата просмотра</span><input name="date" type="date" required></label>
+    </section>
+    <section class="kg-diary-card kg-diary-editor-card">
+      <h3>Оценка архивиста</h3>
+      <div class="kg-diary-editor-stars" role="group" aria-label="Личная оценка">
+        ${[1,2,3,4,5].map(value => `<button type="button" data-rating="${value}" aria-label="${value} / 5" aria-pressed="false">☆</button>`).join("")}
+      </div>
+      <label><span>Личная оценка</span><select name="rating"></select></label>
+      <label class="kg-diary-check"><input name="festival" type="checkbox"> <span>Фестивальный показ</span></label>
+      <label class="kg-diary-check"><input name="rewatch" type="checkbox"> <span>Повторный просмотр</span></label>
+    </section>
+    <section class="kg-diary-card kg-diary-editor-card">
+      <div class="kg-diary-row"><h3>Рецензия и заметки</h3><output class="kg-diary-muted" data-word-count></output></div>
+      <label><span>Заголовок текста</span><input name="title" type="text" maxlength="100"></label>
+      <label class="kg-diary-check"><input name="spoiler" type="checkbox"> <span>Спойлер</span></label>
+      <label><span>Заметка</span><textarea name="text" rows="7" maxlength="1200"></textarea></label>
+    </section>
+    <section class="kg-diary-card kg-diary-editor-card">
+      <h3>Настроение и вайб</h3>
+      <div class="kg-diary-vibes">${vibes.map(vibe => `<button type="button" data-vibe="${vibe}" aria-pressed="false">${vibe}</button>`).join("")}</div>
+      <label><span>Свой вайб</span><input name="customVibe" type="text" maxlength="48"></label>
+      ${slider(metrics[0])}
+    </section>
+    <section class="kg-diary-card kg-diary-editor-card">
+      <h3>Сенсорный паспорт</h3>
+      <label><span>Теги через запятую</span><input name="tags" type="text" maxlength="160"></label>
+      ${metrics.slice(1).map(slider).join("")}
+    </section>
+    <button class="kg-diary-primary" type="submit">Опубликовать в кинодневник</button>
+    <button class="kg-diary-draft" type="button" data-save-draft>Сохранить как личный черновик</button>
   </form>`;
   localizeInterfaceMarkup(noteDialog);
   document.body.appendChild(noteDialog);
@@ -179,6 +259,17 @@
   const calendar = dialog.querySelector('input[type="month"]');
   const status = dialog.querySelector("[data-status]");
   const notesKey = "kgCinemaDiaryNotes";
+  const rhythm = dialog.querySelector("#kg-diary-rhythm");
+  const rhythmToggle = dialog.querySelector(".kg-diary-toggle");
+  function setRhythmCollapsed(collapsed) {
+    rhythm.hidden = collapsed;
+    rhythmToggle.setAttribute("aria-expanded",String(!collapsed));
+    rhythmToggle.setAttribute("aria-label",uiText(collapsed ? "Показать киноритм месяца" : "Скрыть киноритм месяца"));
+  }
+  rhythmToggle.addEventListener("click",() => {
+    setRhythmCollapsed(!rhythm.hidden);
+    store.set(rhythmKey,rhythm.hidden);
+  });
   let notes = store.get(notesKey,{}) || {};
 
   function refreshEntries() {
@@ -214,7 +305,12 @@
           <button type="button" class="kg-diary-edit" data-edit>${uiText("Редактировать заметку")}</button>
         </div>
       </div>
-      <blockquote class="kg-diary-note" hidden></blockquote>`;
+      <div class="kg-diary-note-content">
+        <strong data-note-title hidden></strong>
+        <blockquote class="kg-diary-note" hidden></blockquote>
+        <details hidden><summary>${uiText("Показать спойлер")}</summary><p class="kg-diary-note"></p></details>
+        <p class="kg-diary-muted" data-note-extra hidden></p>
+      </div>`;
     if (/^\/[\w.-]+$/.test(film.poster || "")) {
       const image = document.createElement("img");
       image.alt = "";
@@ -237,8 +333,17 @@
     }
     card.querySelector("[data-edit]").dataset.edit = film.id;
     const quote = card.querySelector("blockquote");
-    quote.hidden = !note.text;
-    quote.textContent = note.text || "";
+    quote.hidden = !note.text || !!note.spoiler;
+    quote.textContent = quote.hidden ? "" : note.text;
+    const spoiler = card.querySelector("details");
+    spoiler.hidden = !note.text || !note.spoiler;
+    spoiler.querySelector("p").textContent = spoiler.hidden ? "" : note.text;
+    const title = card.querySelector("[data-note-title]");
+    title.hidden = !note.title;
+    title.textContent = note.title || "";
+    const extra = card.querySelector("[data-note-extra]");
+    extra.textContent = [uiText(note.vibe || ""), ...(Array.isArray(note.tags) ? note.tags.map(tag => "#" + tag) : [])].filter(Boolean).join(" · ");
+    extra.hidden = !extra.textContent;
     return card;
   }
 
@@ -314,14 +419,56 @@
     if (!countries.size) geography.textContent = uiText("Данных за этот месяц пока нет.");
   }
 
+  function updateEditor() {
+    const rating = Number(fields.rating.value);
+    noteDialog.querySelectorAll("[data-rating]").forEach(button => {
+      const value = Number(button.dataset.rating);
+      button.textContent = rating >= value ? "★" : rating === value - .5 ? "◐" : "☆";
+      button.setAttribute("aria-pressed",String(rating === value));
+    });
+    metrics.forEach(([key,,max]) => {
+      noteDialog.querySelector(`[data-value="${key}"]`).textContent = max === 100
+        ? number.format(Number(fields[key].value)) + "%" : fields[key].value + " / 10";
+    });
+    const words = fields.text.value.trim().split(/\s+/).filter(Boolean).length;
+    noteDialog.querySelector("[data-word-count]").textContent = uiText("Слов: {count}",{count:number.format(words)});
+  }
+
   function fillNote() {
     const entry = entries.find(item => String(item.film.id) === fields.film.value);
     if (!entry) return;
-    fields.date.value = entry.key || dayKey(new Date());
-    fields.rating.value = entry.note.rating || "";
-    fields.text.value = entry.note.text || "";
-    fields.festival.checked = !!entry.note.festival;
-    fields.rewatch.checked = !!entry.note.rewatch;
+    const draft = (store.get(draftKey,{}) || {})[fields.film.value];
+    const note = draft || entry.note;
+    const {film,code} = entry;
+    const poster = noteDialog.querySelector(".kg-diary-preview img");
+    const hasPoster = /^\/[\w.-]+$/.test(film.poster || "");
+    poster.hidden = !hasPoster;
+    poster.nextElementSibling.hidden = hasPoster;
+    if (hasPoster) poster.src = "https://image.tmdb.org/t/p/w154" + film.poster;
+    else poster.removeAttribute("src");
+    noteDialog.querySelector("[data-preview-title]").textContent = film.title || film.original || uiText("Фильм");
+    noteDialog.querySelector("[data-preview-meta]").textContent = [film.original,film.year,code && countryName(code)].filter(Boolean).join(" · ");
+    noteDialog.querySelector("[data-draft-status]").textContent = draft ? uiText("Личный черновик") : "";
+    fields.date.value = note.date || entry.key || dayKey(new Date());
+    fields.rating.value = note.rating || "";
+    fields.title.value = note.title || "";
+    fields.text.value = note.text || "";
+    fields.tags.value = Array.isArray(note.tags) ? note.tags.join(", ") : "";
+    fields.customVibe.value = vibes.includes(note.vibe) ? "" : note.vibe || "";
+    noteDialog.querySelectorAll("[data-vibe]").forEach(button => button.setAttribute("aria-pressed",String(button.dataset.vibe === note.vibe)));
+    for (const key of ["festival","rewatch","spoiler"]) fields[key].checked = !!note[key];
+    for (const [key] of metrics) fields[key].value = note.metrics?.[key] ?? 0;
+    updateEditor();
+  }
+
+  function entryValues() {
+    return {
+      date:fields.date.value,rating:Number(fields.rating.value),title:fields.title.value.trim(),
+      text:fields.text.value.trim(),festival:fields.festival.checked,rewatch:fields.rewatch.checked,spoiler:fields.spoiler.checked,
+      vibe:fields.customVibe.value.trim() || noteDialog.querySelector('[data-vibe][aria-pressed="true"]')?.dataset.vibe || "",
+      tags:[...new Set(fields.tags.value.split(",").map(tag => tag.trim().replace(/^#+/,"")).filter(Boolean))],
+      metrics:Object.fromEntries(metrics.map(([key]) => [key,Number(fields[key].value)]))
+    };
   }
 
   function openNote(id = "") {
@@ -333,22 +480,52 @@
     fields.film.value = id || String(entries[0].film.id);
     fillNote();
     noteDialog.showModal();
+    noteDialog.scrollTop = 0;
   }
 
   fields.film.addEventListener("change",fillNote);
-  noteDialog.querySelector("[data-cancel]").addEventListener("click",() => noteDialog.close());
+  form.addEventListener("input",updateEditor);
+  noteDialog.querySelector(".kg-diary-preview img").addEventListener("error",event => {
+    event.target.hidden = true;
+    event.target.nextElementSibling.hidden = false;
+  });
+  noteDialog.addEventListener("click",event => {
+    const button = event.target.closest("button");
+    if (!button) return;
+    if (button.hasAttribute("data-cancel")) noteDialog.close();
+    if (button.dataset.rating) {
+      fields.rating.value = fields.rating.value === button.dataset.rating ? "" : button.dataset.rating;
+      updateEditor();
+    }
+    if (button.dataset.vibe) {
+      const next = button.getAttribute("aria-pressed") !== "true";
+      fields.customVibe.value = "";
+      noteDialog.querySelectorAll("[data-vibe]").forEach(chip => chip.setAttribute("aria-pressed",String(chip === button && next)));
+    }
+    if (button.hasAttribute("data-save-draft")) {
+      const drafts = store.get(draftKey,{}) || {};
+      try {
+        localStorage.setItem(draftKey,JSON.stringify({...drafts,[fields.film.value]:entryValues()}));
+        noteDialog.querySelector("[data-draft-status]").textContent = uiText("Черновик сохранён.");
+      } catch {
+        noteDialog.querySelector("[data-draft-status]").textContent = uiText("Не удалось сохранить черновик.");
+      }
+    }
+  });
   form.addEventListener("submit",event => {
     event.preventDefault();
-    const next = {...(store.get(notesKey,{}) || {}),[fields.film.value]:{
-      date:fields.date.value,rating:Number(fields.rating.value),text:fields.text.value.trim(),
-      festival:fields.festival.checked,rewatch:fields.rewatch.checked
-    }};
+    const id = fields.film.value;
+    const next = {...(store.get(notesKey,{}) || {}),[id]:entryValues()};
     try {
       localStorage.setItem(notesKey,JSON.stringify(next));
     } catch {
-      showStatus("Хранилище браузера недоступно. Запись не сохранена.");
-      noteDialog.close();
+      noteDialog.querySelector("[data-draft-status]").textContent = uiText("Хранилище браузера недоступно. Запись не сохранена.");
       return;
+    }
+    const drafts = store.get(draftKey,{}) || {};
+    if (Object.hasOwn(drafts,id)) {
+      delete drafts[id];
+      store.set(draftKey,drafts);
     }
     notes = next;
     refreshEntries();
@@ -413,6 +590,7 @@
     notes = store.get(notesKey,{}) || {};
     limitToMonth = false;
     refreshEntries();
+    setRhythmCollapsed(store.get(rhythmKey,false) === true);
     month = entries.find(entry => entry.key)?.key.slice(0,7) || dayKey(new Date()).slice(0,7);
     calendar.value = month;
     filter = "all";

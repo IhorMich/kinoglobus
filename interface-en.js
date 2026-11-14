@@ -440,7 +440,7 @@ window.KGInterfaceDictionaries.en = Object.freeze({
   "✦ Киноэкспедиция": "✦ Cinema expedition",
   "{opened} / {total} открыто": "{opened} / {total} unlocked",
   "Начало пути": "Journey begins",
-  "＋　Карта": "＋ Map",
+  "Карта": "Map",
   "Страны мирового кинематографа": "Explore cinema by country",
   "{count} просмотренных фильмов": "Films watched: {count}",
   "{count} не открыто": "{count} locked",

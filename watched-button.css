@@ -46,3 +46,63 @@ button.kg-watched-button[aria-pressed="true"] {
 .kg-watched-button:active {
   transform: scale(.95);
 }
+
+.kg-bookmark-card {
+  position: relative;
+  min-width: 0;
+}
+.kg-bookmark-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+.kg-bookmark-row > :first-child {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+button.kg-bookmark-button {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid rgb(var(--kg-primary) / .32);
+  border-radius: 9px;
+  background: rgb(var(--kg-surface-container-lowest) / .92);
+  color: rgb(var(--kg-primary));
+  cursor: pointer;
+  transition: color .15s, background-color .15s, border-color .15s;
+}
+button.kg-bookmark-button[aria-pressed="true"] {
+  background: rgb(var(--kg-primary));
+  border-color: rgb(var(--kg-primary));
+  color: rgb(var(--kg-canvas-obsidian));
+}
+.kg-bookmark-button .material-symbols-outlined {
+  font-size: 19px;
+  font-variation-settings: 'FILL' 0;
+}
+.kg-bookmark-button[aria-pressed="true"] .material-symbols-outlined {
+  font-variation-settings: 'FILL' 1;
+}
+.kg-bookmark-button:hover,
+.kg-bookmark-button:focus-visible {
+  outline: 2px solid rgb(var(--kg-primary));
+  outline-offset: 1px;
+}
+button.kg-bookmark-corner,
+button.kg-bookmark-poster,
+button.kg-bookmark-hero,
+button.kg-bookmark-edge {
+  position: absolute;
+  z-index: 2;
+  inset-inline-end: 5px;
+  top: 5px;
+}
+button.kg-bookmark-poster {top: 42px;}
+button.kg-bookmark-hero {top: 45px;inset-inline-end: 12px;}
+button.kg-bookmark-edge {top: 0;inset-inline-end: 0;}
+.kg-bookmark-card > .jfilm {width: 100%;}
+.kg-diary-select-film {padding-inline-end: 40px;}

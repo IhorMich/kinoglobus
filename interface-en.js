@@ -1696,5 +1696,12 @@ window.KGInterfaceDictionaries.en = Object.freeze({
   "Созерцательное спокойствие": "Contemplative calm",
   "Пьянящая романтика": "Head-spinning romance",
   "Сюрреалистический трип": "Surreal trip",
-  "Ностальгия по 90-м": "’90s nostalgia"
+  "Ностальгия по 90-м": "’90s nostalgia",
+  "Закладки": "Bookmarks",
+  "Просмотренные": "Watched",
+  "Списки фильмов": "Film lists",
+  "Фильм №{id}": "Film #{id}",
+  "В закладках пока нет фильмов.": "No bookmarked films yet.",
+  "Сначала добавьте фильм в закладки.": "Bookmark a film first.",
+  "Редактировать запись": "Edit entry"
 });

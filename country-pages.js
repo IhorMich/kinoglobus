@@ -109,6 +109,9 @@
     #kg-watch-history .jfilm:focus-visible{outline:2px solid #ffdca8;outline-offset:2px}
     .kgc-catalog-link{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;margin:10px 0;padding:9px 10px;border:1px solid #ffdca832;border-radius:10px;background:rgb(var(--kg-surface-container-high));color:#ffdca8;text-align:left;font-weight:600;cursor:pointer}
     .kgc-catalog-link:hover{border-color:#ffdca8}
+    .kgc-overview-open{position:absolute;inset:0;width:100%;height:100%;border:0;border-radius:inherit;background:transparent;cursor:pointer}
+    .kgc-overview-open:focus-visible{outline:2px solid #ffdca8;outline-offset:-3px}
+    .kgc-overview [data-atlas-scroll-map]{position:relative;z-index:1}
     .kgc-catalog-head{display:grid;grid-template-columns:76px 1fr 76px;gap:4px;background:rgb(var(--kg-surface) / 0.961)}
     .kgc-catalog-head h1{margin:0;text-align:center;font:700 20px 'Noto Serif',serif;color:#ffdca8}
     .kgc-catalog-head-actions{display:flex;align-items:center;justify-content:flex-end;gap:4px}
@@ -254,9 +257,9 @@
     root.innerHTML=`
       <div class="kgc-head"><button class="kgc-icon" data-atlas-close aria-label="${uiText("Закрыть")}">←</button><div class="kgc-head-title"><b>${uiText("Атлас открытий")}</b><small>${uiText("Кинематограф мира · {count} стран", {count: countries.length})}</small></div><span style="font-size:21px">🌍</span></div>
       <div class="kgc-pad"><section class="kgc-panel kgc-overview">
-        <div style="display:flex;justify-content:space-between;gap:8px"><span class="kgc-kicker">${uiText("✦ Киноэкспедиция")}</span><span class="kgc-chip neutral">${opened?uiText("{opened} / {total} открыто", {opened, total: countries.length}):uiText("Начало пути")}</span></div>
+        <button type="button" class="kgc-overview-open" data-open-catalog aria-label="${esc(uiText("Страны мирового кинематографа"))}"></button>
+        <div style="display:flex;justify-content:space-between;gap:8px"><span class="kgc-kicker">${uiText("✦ Киноэкспедиция")} <span aria-hidden="true">→</span></span><span class="kgc-chip neutral">${opened?uiText("{opened} / {total} открыто", {opened, total: countries.length}):uiText("Начало пути")}</span></div>
         <div style="display:flex;align-items:center;gap:14px;margin:9px 0 4px"><div class="kgc-statbig">${opened}<span style="font-size:20px;color:#d5c4ad"> / ${countries.length}</span></div><div style="margin-left:auto;text-align:center"><button class="kgc-btn secondary" data-atlas-scroll-map>${uiText("Карта")}</button></div></div>
-        <button type="button" class="kgc-catalog-link" data-open-catalog>${uiText("Страны мирового кинематографа")} <span aria-hidden="true">→</span></button>
         <div class="kgc-progress"><i style="width:${pct}%"></i></div><div style="display:flex;justify-content:space-between;margin-top:7px" class="kgc-muted"><span>${uiText("{count} просмотренных фильмов", {count: fmt(total)})}</span><span>${uiText("{count} не открыто", {count: countries.length - opened})}</span></div>
         <div style="display:flex;align-items:center;gap:8px;margin-top:15px;color:#d5c4ad;font:12px 'Noto Serif',serif"><span>☝</span><span>${uiText("Выберите страну на карте или в списке ниже")}</span></div>
       </section></div>

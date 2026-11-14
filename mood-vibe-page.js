@@ -398,7 +398,7 @@
     }
     const bm=e.target.closest("[data-vibe-bm]");
     if(bm){
-      const id=Number(bm.dataset.vibeBm),on=deps.toggleBook?.(id);
+      const id=Number(bm.dataset.vibeBm),on=deps.toggleBook?.(id,state.films.find(film=>Number(film.id)===id));
       host.querySelectorAll(`[data-vibe-bm="${id}"] .material-symbols-outlined`).forEach(icon=>{icon.textContent=on?"bookmark_added":(icon.closest("[data-vibe-jewel]")?"bookmark_add":"bookmark_border");});
       return;
     }

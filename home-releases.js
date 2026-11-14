@@ -81,7 +81,7 @@
   }
 
   function posterCard(film, digital) {
-    return `<button type="button" data-release-action="film" data-id="${film.id}" class="${digital ? "w-40 shrink-0 snap-start" : "min-w-0 p-2 rounded-xl bg-surface-container-low shadow-sm"} group flex flex-col gap-1.5 text-left">
+    return `<div class="kg-bookmark-card ${digital ? "w-40 shrink-0 snap-start" : "min-w-0"}"><button type="button" data-release-action="film" data-id="${film.id}" class="${digital ? "w-full" : "w-full p-2 rounded-xl bg-surface-container-low shadow-sm"} group flex flex-col gap-1.5 text-left">
       <span class="relative block w-full aspect-[2/3] overflow-hidden rounded-xl bg-surface-container-high shadow-md">
         ${filmPosterMarkup({...film, localizedPoster:film.localizedPoster || {path:film.poster_path, showTitle:true}}, "w342")}
         <span class="absolute inset-x-1.5 top-1.5 flex flex-wrap justify-between gap-0.5">
@@ -91,14 +91,14 @@
       </span>
       <span class="font-label-md text-label-md text-on-surface group-hover:text-primary leading-snug line-clamp-2">${escape(title(film))}</span>
       <span class="font-micro-caption text-micro-caption text-text-muted">${escape(releaseDate(film))}</span>
-    </button>`;
+    </button>${kgBookmarkButton(film, "poster")}</div>`;
   }
 
   function cinemaHero(film) {
     const label = film.release_date >= day(6) ? "Премьера недели" : "В кинотеатрах";
     const runtime = film.runtime ? copy("{minutes} мин", {minutes:film.runtime}) : "";
     const director = film.dirs?.[0] ? copy("Реж. {name}", {name:film.dirs[0]}) : "";
-    return `<button type="button" data-release-action="film" data-id="${film.id}" aria-label="${copy("Открыть фильм {title}", {title:title(film)})}" class="group block w-full text-left cursor-pointer rounded-2xl overflow-hidden bg-surface-container-low shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary">
+    return `<div class="kg-bookmark-card"><button type="button" data-release-action="film" data-id="${film.id}" aria-label="${copy("Открыть фильм {title}", {title:title(film)})}" class="group block w-full text-left cursor-pointer rounded-2xl overflow-hidden bg-surface-container-low shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary">
       <span class="relative block h-52">
         ${image(film.backdrop_path || film.poster_path, "w780")}
         <span class="absolute inset-0 bg-gradient-to-t from-surface-container-low via-surface-container-low/30 to-transparent"></span>
@@ -114,7 +114,7 @@
         </span>
         ${rating(film)}
       </span>
-    </button>`;
+    </button>${kgBookmarkButton(film, "hero")}</div>`;
   }
 
   function message(section, text, action, label) {
@@ -136,7 +136,7 @@
     moreButton.setAttribute("aria-expanded", String(expanded));
     const filmsToShow = expanded ? films : films.slice(0, limit);
     if (section.id === "digital") {
-      feed.innerHTML = `<div class="${expanded ? "grid grid-cols-2 sm:grid-cols-3 gap-3 [&>button]:w-full" : "flex gap-3.5 overflow-x-auto snap-x -mx-margin-mobile px-margin-mobile py-1"}">${filmsToShow.map(film => posterCard(film,true)).join("")}</div>`;
+      feed.innerHTML = `<div class="${expanded ? "grid grid-cols-2 sm:grid-cols-3 gap-3 [&>div]:w-full" : "flex gap-3.5 overflow-x-auto snap-x -mx-margin-mobile px-margin-mobile py-1"}">${filmsToShow.map(film => posterCard(film,true)).join("")}</div>`;
     } else {
       feed.innerHTML = `<div class="flex flex-col gap-3.5">${cinemaHero(filmsToShow[0])}<div class="grid grid-cols-3 gap-2.5">${filmsToShow.slice(1).map(film => posterCard(film,false)).join("")}</div></div>`;
     }

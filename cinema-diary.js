@@ -18,6 +18,10 @@
   const navigation = [["home","public","Глобус"],["collections","collections_bookmark","Подборки"],
     ["history","history_edu","История"],["settings","tune","Настройки"]];
   let entries = [];
+  let bookmarks = [];
+  let source = "watched";
+  let selectedFilm = "";
+  let bookmarkLoad = 0;
   let month = "";
   let day = "";
   let filter = "all";
@@ -81,6 +85,13 @@
     .kg-diary-legend span::before {content:"";display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;background:rgb(var(--kg-surface-container-high))}
     .kg-diary-legend span:nth-child(2)::before {background:rgb(var(--kg-primary) / .4)}
     .kg-diary-legend span:nth-child(3)::before {background:rgb(var(--kg-primary))}
+    .kg-diary-sources {display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:4px;border-radius:12px;background:rgb(var(--kg-surface-container-lowest))}
+    .kg-diary-sources button {min-height:40px;padding:5px;border-radius:8px;font-weight:700}
+    .kg-diary-sources button[aria-pressed=true] {background:rgb(var(--kg-primary));color:rgb(var(--kg-canvas-obsidian))}
+    .kg-diary-select-film {display:block;width:100%;text-align:start;border-radius:8px}
+    .kg-diary-select-film .kg-diary-film {align-items:start}
+    .kg-diary-film-name {font-size:16px;font-weight:700;overflow-wrap:anywhere}
+    .kg-diary-film-action {margin-top:10px}
     .kg-diary-tabs {overflow:auto;padding:3px 2px 5px;scrollbar-width:none}
     .kg-diary-tabs button {white-space:nowrap;padding:6px 10px;border-radius:99px;background:rgb(var(--kg-surface-container-high));font-size:11px}
     .kg-diary-tabs button[aria-pressed=true] {background:rgb(var(--kg-primary));color:rgb(var(--kg-canvas-obsidian))}
@@ -176,8 +187,12 @@
             <div class="kg-diary-legend kg-diary-muted"><span>Без сеансов</span><span>1 фильм</span><span>Несколько фильмов</span></div>
           </div>
         </section>
+        <div class="kg-diary-sources" role="group" aria-label="Списки фильмов">
+          <button type="button" data-source="watched" aria-pressed="true" aria-controls="kg-diary-entries">Просмотренные</button>
+          <button type="button" data-source="bookmarks" aria-pressed="false" aria-controls="kg-diary-entries">Закладки</button>
+        </div>
         <div class="kg-diary-tabs" role="group" aria-label="Фильтры дневника"></div>
-        <div data-entries></div>
+        <div id="kg-diary-entries" data-entries></div>
         <section class="kg-diary-card">
           <div class="kg-diary-row"><h2>Аналитика просмотров</h2><span class="kg-diary-count" data-analysis-month></span></div>
           <p class="kg-diary-muted">География просмотров</p>
@@ -272,13 +287,55 @@
   });
   let notes = store.get(notesKey,{}) || {};
 
+  function makeEntry(film) {
+    const note = notes[String(film.id)] || {};
+    const date = readDate(note.date || film.watchedAt);
+    const code = film.countries?.[0] || film.cc || "";
+    return {film,note,date,key:date ? dayKey(date) : "",code:/^[A-Z]{2}$/.test(code) ? code : ""};
+  }
+
   function refreshEntries() {
-    entries = watched.filter(film => film?.id).map(film => {
-      const note = notes[String(film.id)] || {};
-      const date = readDate(note.date || film.watchedAt);
-      const code = (film.countries || [])[0] || film.cc || "";
-      return {film,note,date,key:date ? dayKey(date) : "",code:/^[A-Z]{2}$/.test(code) ? code : ""};
-    }).sort((a,b) => b.key.localeCompare(a.key));
+    entries = watched.filter(film => Number.isSafeInteger(Number(film?.id)) && Number(film.id) > 0).map(makeEntry).sort((a,b) => b.key.localeCompare(a.key));
+  }
+
+  const filmName = film => film.title || film.original || uiText("Фильм №{id}",{id:film.id});
+  const currentList = () => source === "bookmarks" ? bookmarks : entries;
+
+  async function refreshBookmarks() {
+    const load = ++bookmarkLoad;
+    const saved = store.get("kgBookmarkFilms",{}) || {};
+    const watchedById = new Map(entries.map(entry => [Number(entry.film.id),entry.film]));
+    bookmarks = kgBookmarkIds().map(id => makeEntry(watchedById.get(id) || saved[id] || {id}));
+    renderList();
+    if (!apiKey) return;
+    const missing = bookmarks.filter(entry => !entry.film.title || !entry.film.poster);
+    for (let index=0; index<missing.length; index+=6) {
+      await Promise.all(missing.slice(index,index+6).map(async entry => {
+        try {
+          const details = await filmDetails(entry.film.id);
+          if (load !== bookmarkLoad || !details.title) return;
+          Object.assign(entry, makeEntry({
+            id:entry.film.id,title:details.title,original:details.originalTitle,year:details.release.slice(0,4),
+            poster:details.localizedPoster?.path || entry.film.poster,cc:details.countries[0] || entry.code
+          }));
+          if (noteDialog.open) {
+            const option = [...fields.film.options].find(item => item.value === String(entry.film.id));
+            if (option) option.textContent = filmName(entry.film);
+          }
+        } catch { /* The bookmark remains selectable while its metadata is unavailable. */ }
+      }));
+      if (load !== bookmarkLoad || source !== "bookmarks" || !dialog.open) return;
+      const active = document.activeElement;
+      const focusedFilm = active?.dataset.filmSelect;
+      const focusedEdit = active?.dataset.edit;
+      if (!noteDialog.open) {
+        renderList();
+        if (focusedFilm || focusedEdit) {
+          const selector = focusedFilm ? `[data-film-select="${focusedFilm}"]` : `[data-edit="${focusedEdit}"]`;
+          dialog.querySelector(selector)?.focus({preventScroll:true});
+        }
+      }
+    }
   }
 
   function showStatus(message = "") {
@@ -297,14 +354,16 @@
     const card = document.createElement("article");
     card.className = "kg-diary-card";
     card.innerHTML = `
-      <div class="kg-diary-film">
-        <div class="kg-diary-poster">${icon("movie")}</div>
-        <div>
-          <p class="kg-diary-muted" data-date></p><h3></h3><p class="kg-diary-muted" data-meta></p>
-          <p class="kg-diary-muted" data-tags></p><p class="kg-diary-stars" data-stars hidden></p>
-          <button type="button" class="kg-diary-edit" data-edit>${uiText("Редактировать заметку")}</button>
-        </div>
-      </div>
+      <button type="button" class="kg-diary-select-film" data-film-select>
+      <span class="kg-diary-film">
+        <span class="kg-diary-poster">${icon("movie")}</span>
+        <span>
+          <span class="kg-diary-muted block" data-date></span><strong class="kg-diary-film-name block"></strong><span class="kg-diary-muted block" data-meta></span>
+          <span class="kg-diary-muted block" data-tags></span><span class="kg-diary-stars block" data-stars hidden></span>
+        </span>
+      </span>
+      </button>
+      <div class="kg-diary-film-action" hidden><button type="button" class="kg-diary-edit" data-edit></button></div>
       <div class="kg-diary-note-content">
         <strong data-note-title hidden></strong>
         <blockquote class="kg-diary-note" hidden></blockquote>
@@ -320,8 +379,19 @@
       poster.replaceChildren(image);
       image.addEventListener("error", () => { poster.innerHTML = icon("movie"); }, {once:true});
     }
-    card.querySelector("h3").textContent = film.title || film.original || uiText("Фильм");
-    card.querySelector("[data-date]").textContent = date ? dateLabel.format(date) : uiText("Дата не указана");
+    const select = card.querySelector("[data-film-select]");
+    const id = String(film.id);
+    select.dataset.filmSelect = id;
+    select.setAttribute("aria-expanded",String(id === selectedFilm));
+    const action = card.querySelector(".kg-diary-film-action");
+    action.id = "kg-diary-film-action-" + id;
+    select.setAttribute("aria-controls",action.id);
+    action.hidden = id !== selectedFilm;
+    const edit = action.querySelector("button");
+    edit.dataset.edit = id;
+    edit.textContent = uiText(Object.hasOwn(notes,id) ? "Редактировать запись" : "Добавить запись");
+    card.querySelector(".kg-diary-film-name").textContent = filmName(film);
+    card.querySelector("[data-date]").textContent = date ? dateLabel.format(date) : source === "watched" ? uiText("Дата не указана") : "";
     card.querySelector("[data-meta]").textContent = [film.original,film.year,code && countryName(code)].filter(Boolean).join(" · ");
     card.querySelector("[data-tags]").textContent = [
       note.festival && uiText("Фестивальный показ"),note.rewatch && uiText("Повторный просмотр")
@@ -331,7 +401,6 @@
       stars.hidden = false;
       stars.textContent = "★".repeat(Math.floor(note.rating)) + (note.rating % 1 ? "½" : "") + " · " + number.format(note.rating);
     }
-    card.querySelector("[data-edit]").dataset.edit = film.id;
     const quote = card.querySelector("blockquote");
     quote.hidden = !note.text || !!note.spoiler;
     quote.textContent = quote.hidden ? "" : note.text;
@@ -374,33 +443,7 @@
       return `<button type="button" data-day="${key}" data-level="${Math.min(2,count)}" aria-pressed="${key === day}" aria-label="${dateLabel.format(readDate(key))} · ${number.format(count)}">${index+1}</button>`;
     }).join("");
 
-    dialog.querySelector(".kg-diary-tabs").innerHTML = collections.map(([key,title]) =>
-      `<button type="button" data-filter="${key}" aria-pressed="${key === filter}">${uiText(title)} (${number.format(entries.filter(entry => matches(entry,key)).length)})</button>`).join("");
-
-    const groups = new Map();
-    const period = limitToMonth ? monthly : entries;
-    period.filter(entry => (!day || entry.key === day) && matches(entry,filter)).forEach(entry => {
-      const key = entry.key.slice(0,7);
-      if (!groups.has(key)) groups.set(key,[]);
-      groups.get(key).push(entry);
-    });
-    const list = dialog.querySelector("[data-entries]");
-    list.replaceChildren();
-    for (const [key,items] of groups) {
-      const section = document.createElement("section");
-      section.className = "kg-diary-group";
-      section.innerHTML = '<div class="kg-diary-row"><h2></h2><span class="kg-diary-count"></span></div>';
-      section.querySelector("h2").textContent = key ? monthLabel.format(readDate(key+"-01")) : uiText("Без даты");
-      section.querySelector(".kg-diary-count").textContent = uiText("Сеансы: {count}",{count:number.format(items.length)});
-      section.append(...items.map(filmCard));
-      list.append(section);
-    }
-    if (!groups.size) {
-      const empty = document.createElement("p");
-      empty.className = "kg-diary-card kg-diary-muted";
-      empty.textContent = uiText(entries.length ? "За выбранный период или по фильтру записей нет." : "Отметьте фильм как просмотренный, чтобы он появился в кинодневнике.");
-      list.append(empty);
-    }
+    renderList();
 
     const geography = dialog.querySelector(".kg-diary-geography");
     geography.replaceChildren();
@@ -419,6 +462,54 @@
     if (!countries.size) geography.textContent = uiText("Данных за этот месяц пока нет.");
   }
 
+  function showEmpty(list,message) {
+    const empty = document.createElement("p");
+    empty.className = "kg-diary-card kg-diary-muted";
+    empty.textContent = uiText(message);
+    list.append(empty);
+  }
+
+  function renderList() {
+    calendar.hidden = source === "bookmarks";
+    rhythm.closest("section").hidden = source === "bookmarks";
+    const tabs = dialog.querySelector(".kg-diary-tabs");
+    tabs.hidden = source === "bookmarks";
+    tabs.innerHTML = collections.map(([key,title]) =>
+      `<button type="button" data-filter="${key}" aria-pressed="${key === filter}">${uiText(title)} (${number.format(entries.filter(entry => matches(entry,key)).length)})</button>`).join("");
+
+    const list = dialog.querySelector("[data-entries]");
+    list.replaceChildren();
+    if (source === "bookmarks") {
+      if (bookmarks.length) {
+        const section = document.createElement("section");
+        section.className = "kg-diary-group";
+        section.append(...bookmarks.map(filmCard));
+        list.append(section);
+      } else showEmpty(list,"В закладках пока нет фильмов.");
+      return;
+    }
+    const groups = new Map();
+    const period = limitToMonth ? entries.filter(entry => entry.key.startsWith(month)) : entries;
+    period.filter(entry => (!day || entry.key === day) && matches(entry,filter)).forEach(entry => {
+      const key = entry.key.slice(0,7);
+      if (!groups.has(key)) groups.set(key,[]);
+      groups.get(key).push(entry);
+    });
+    for (const [key,items] of groups) {
+      const section = document.createElement("section");
+      section.className = "kg-diary-group";
+      section.innerHTML = '<div class="kg-diary-row"><h2></h2><span class="kg-diary-count"></span></div>';
+      section.querySelector("h2").textContent = key ? monthLabel.format(readDate(key+"-01")) : uiText("Без даты");
+      section.querySelector(".kg-diary-count").textContent = uiText("Сеансы: {count}",{count:number.format(items.length)});
+      section.append(...items.map(filmCard));
+      list.append(section);
+    }
+    if (!groups.size) {
+      showEmpty(list,entries.length ? "За выбранный период или по фильтру записей нет." : "Отметьте фильм как просмотренный, чтобы он появился в кинодневнике.");
+    }
+
+  }
+
   function updateEditor() {
     const rating = Number(fields.rating.value);
     noteDialog.querySelectorAll("[data-rating]").forEach(button => {
@@ -435,7 +526,7 @@
   }
 
   function fillNote() {
-    const entry = entries.find(item => String(item.film.id) === fields.film.value);
+    const entry = currentList().find(item => String(item.film.id) === fields.film.value);
     if (!entry) return;
     const draft = (store.get(draftKey,{}) || {})[fields.film.value];
     const note = draft || entry.note;
@@ -446,7 +537,7 @@
     poster.nextElementSibling.hidden = hasPoster;
     if (hasPoster) poster.src = "https://image.tmdb.org/t/p/w154" + film.poster;
     else poster.removeAttribute("src");
-    noteDialog.querySelector("[data-preview-title]").textContent = film.title || film.original || uiText("Фильм");
+    noteDialog.querySelector("[data-preview-title]").textContent = filmName(film);
     noteDialog.querySelector("[data-preview-meta]").textContent = [film.original,film.year,code && countryName(code)].filter(Boolean).join(" · ");
     noteDialog.querySelector("[data-draft-status]").textContent = draft ? uiText("Личный черновик") : "";
     fields.date.value = note.date || entry.key || dayKey(new Date());
@@ -472,17 +563,23 @@
   }
 
   function openNote(id = "") {
-    if (!entries.length) {
-      showStatus("Сначала отметьте фильм как просмотренный.");
+    const films = currentList();
+    if (!films.length) {
+      showStatus(source === "bookmarks" ? "Сначала добавьте фильм в закладки." : "Сначала отметьте фильм как просмотренный.");
       return;
     }
-    fields.film.replaceChildren(...entries.map(({film}) => new Option(film.title || film.original || uiText("Фильм"),film.id)));
-    fields.film.value = id || String(entries[0].film.id);
+    fields.film.replaceChildren(...films.map(({film}) => new Option(filmName(film),film.id)));
+    fields.film.value = id || String(films[0].film.id);
     fillNote();
     noteDialog.showModal();
     noteDialog.scrollTop = 0;
   }
 
+  noteDialog.addEventListener("close",() => {
+    if (!dialog.open || noteDialog.open || source !== "bookmarks") return;
+    renderList();
+    dialog.querySelector(`[data-edit="${selectedFilm}"]`)?.focus({preventScroll:true});
+  });
   fields.film.addEventListener("change",fillNote);
   form.addEventListener("input",updateEditor);
   noteDialog.querySelector(".kg-diary-preview img").addEventListener("error",event => {
@@ -528,13 +625,19 @@
       store.set(draftKey,drafts);
     }
     notes = next;
+    const scroll = dialog.querySelector(".kg-diary-scroll");
+    const scrollTop = scroll.scrollTop;
+    selectedFilm = id;
     refreshEntries();
+    bookmarks = bookmarks.map(entry => makeEntry(entry.film));
     filter = "all";
     day = "";
     month = fields.date.value.slice(0,7);
     calendar.value = month;
     render();
     noteDialog.close();
+    scroll.scrollTop = scrollTop;
+    dialog.querySelector(`[data-edit="${id}"]`)?.focus({preventScroll:true});
     showStatus("Запись сохранена.");
   });
 
@@ -549,7 +652,7 @@
   dialog.addEventListener("click",async event => {
     const button = event.target.closest("button");
     if (!button) return;
-    const { edit, route, filter:nextFilter, day:nextDay } = button.dataset;
+    const { edit, route, filter:nextFilter, day:nextDay, source:nextSource, filmSelect } = button.dataset;
     if (button.hasAttribute("data-back")) dialog.close();
     if (route) {
       const target = document.querySelector(routeSelectors[route]);
@@ -559,7 +662,28 @@
       target.click();
       return;
     }
-    if (button.hasAttribute("data-add")) openNote();
+    if (nextSource && nextSource !== source) {
+      source = nextSource;
+      selectedFilm = "";
+      showStatus();
+      dialog.querySelectorAll("[data-source]").forEach(tab => tab.setAttribute("aria-pressed",String(tab === button)));
+      if (source === "bookmarks") refreshBookmarks();
+      else {
+        bookmarkLoad++;
+        renderList();
+      }
+      return;
+    }
+    if (filmSelect) {
+      selectedFilm = selectedFilm === filmSelect ? "" : filmSelect;
+      dialog.querySelectorAll("[data-film-select]").forEach(card => {
+        const expanded = card.dataset.filmSelect === selectedFilm;
+        card.setAttribute("aria-expanded",String(expanded));
+        document.getElementById(card.getAttribute("aria-controls")).hidden = !expanded;
+      });
+      return;
+    }
+    if (button.hasAttribute("data-add")) openNote(selectedFilm);
     if (edit) openNote(edit);
     if (button.hasAttribute("data-month-label")) {
       limitToMonth = !limitToMonth || !!day;
@@ -587,6 +711,10 @@
 
   window.KGOpenCinemaDiary = ({avatar, closeParent: onNavigate} = {}) => {
     closeParent = onNavigate;
+    bookmarkLoad++;
+    source = "watched";
+    selectedFilm = "";
+    dialog.querySelectorAll("[data-source]").forEach(tab => tab.setAttribute("aria-pressed",String(tab.dataset.source === source)));
     notes = store.get(notesKey,{}) || {};
     limitToMonth = false;
     refreshEntries();

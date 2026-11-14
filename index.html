@@ -2074,7 +2074,18 @@ applyMode();
 // ---- settings sheet
 const dlg=$("settings");
 function closeSettings(){dlg.close?dlg.close():dlg.removeAttribute("open");}
-$("gear").onclick=()=>{dlg.showModal?dlg.showModal():dlg.setAttribute("open","");};
+const settingsButton = $("gear");
+settingsButton.onclick = () => {
+  if (dlg.open) return;
+  if (dlg.showModal) dlg.showModal();
+  else dlg.setAttribute("open", "");
+};
+document.querySelectorAll('[data-path="nastrojki"]').forEach(link => {
+  link.addEventListener("click", event => {
+    event.preventDefault();
+    settingsButton.click();
+  });
+});
 $("sclose").onclick=closeSettings;
 dlg.addEventListener("click",e=>{if(e.target===dlg)closeSettings();});
 // ---- journey: stats of opened countries
@@ -4381,7 +4392,6 @@ $("btn-mode-surprise").addEventListener("click",()=>$("modeSurprise").click());
 const go=(sel,fn)=>document.querySelectorAll(`[data-path="${sel}"]`).forEach(a=>a.addEventListener("click",e=>{e.preventDefault();fn();}));
 go("moe-puteshestvie",()=>$("mapBtn").click());
 go("istoriya-posmotrel",()=>window.KGOpenWatchHistory());
-go("nastrojki",()=>$("gear").click());
 go("globus-random",()=>scrollTo({top:0,behavior:"smooth"}));
 go("podborki-i-zhanry",()=>{themeFilter.open=true;themeFilter.scrollIntoView({behavior:"smooth",block:"start"});});
 
@@ -4428,6 +4438,6 @@ console.info("[Kinoglobus] Bridge v6 ready");
 <script src="legal-watch.js?v=6"></script>
 <script src="global-search.js?v=7"></script>
 <script src="home-releases.js?v=4"></script>
-<script src="settings-page.js?v=45"></script>
+<script src="settings-page.js?v=46"></script>
 
 </body></html>

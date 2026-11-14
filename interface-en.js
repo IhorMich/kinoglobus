@@ -1326,7 +1326,7 @@ window.KGInterfaceDictionaries.en = Object.freeze({
   "🎨 Анимация": "🎨 Animation",
   "🎬 Режиссёры": "🎬 Directors",
   "Клуб 11": "11-Oscar Club",
-  "98 лауреатов • 1929–2026": "98 winners • 1929–2026",
+  "Лауреаты «Оскара»": "Oscar Winners",
   "Смотри в Киноглобусе: {title}": "Watch on KinoGlobus: {title}",
   "Загружаем награды из Wikidata…": "Loading awards from Wikidata…",
   "Подробности наград в Wikidata не найдены.": "No award details found in Wikidata.",

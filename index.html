@@ -1,5 +1,5 @@
 <!DOCTYPE html><html class="dark" lang="ru"><head><meta charset="utf-8"><link rel="stylesheet" href="app-theme.css?v=6">
-<script src="interface-en.js?v=20"></script>
+<script src="interface-en.js?v=23"></script>
 <script src="interface-i18n.js?v=2"></script>
 <script>
 const APP_THEMES = ["cinematic", "oled", "golden-age"];
@@ -584,7 +584,7 @@ localizeInterfaceMarkup(document.querySelector("main"));
         const count = parseInt(country.films, 10);
         heroFilms.textContent = Number.isNaN(count) ? country.films : uiText("{count} лент", {count});
       }
-      if (heroMaster) heroMaster.textContent = country.dirs;
+      if (heroMaster) heroMaster.textContent = uiText(country.dirs);
       if (radarFreq) {
         const sign = country.lat >= 0 ? 'N' : 'S';
         radarFreq.textContent = `SAT·${Math.abs(country.lat).toFixed(1)}°${sign}`;
@@ -657,6 +657,7 @@ localizeInterfaceMarkup(document.querySelector("main"));
     let markerPulseT = 0;
     let camera;
     let targetRotY = 0;
+    let countryFramed = false;
     let targetRotX = 0;
     let currentRotY = 0;
     let currentRotX = 0;
@@ -1416,7 +1417,7 @@ if (areaRing) {
 
  
         // Idle slow rotation
-        if (!isSpinning && !isDragging) {
+        if (!isSpinning && !isDragging && !countryFramed) {
           targetRotY += driftSpeed;
         }
         if (rotatingGroup) {
@@ -1639,6 +1640,7 @@ if (areaRing) {
     // === Export for engine bridge ===
     // Helpers below repeat exactly what the design's runCountryRoulette does around the spin.
     function beginScan() {
+      countryFramed = false;
       if (zoomResetTimeout) { clearTimeout(zoomResetTimeout); zoomResetTimeout = null; }
       isDragging = false;
       touchGesture = null;
@@ -1648,6 +1650,7 @@ if (areaRing) {
       isSpinning = true;
     }
     function dollyBack(country) {
+      countryFramed = false;
       targetCameraZ = defaultDist;
       if (country) {
         const rots = countryToRotations(country.lat, country.lon);
@@ -1662,6 +1665,14 @@ if (areaRing) {
       get currentCountry() { return currentCountry; },
       set currentCountry(v) { currentCountry = v; },
       orientGlobeToCountry,
+      frameCountry(country) {
+        clearTimeout(zoomResetTimeout);
+        zoomResetTimeout = null;
+        countryFramed = true;
+        currentCountry = country;
+        showSingleBeacon(country);
+        orientGlobeToCountry(country, true, 0.065, focusDist, true);
+      },
       updateHolographicView,
       triggerWinnerCelebration,
       triggerTickEffect,
@@ -1869,12 +1880,13 @@ document.addEventListener("click",event => {
   const film = JSON.parse(decodeURIComponent(button.dataset.kgBookmarkFilm));
   kgToggleBookmark(button.dataset.kgBookmark,film);
 },true);
-const savedFilmLanguage = store.get("kgFilmLanguage", "ru");
-const filmLanguage = ["ru", "en", "original"].includes(savedFilmLanguage) ? savedFilmLanguage : "ru";
+const savedFilmLanguage = store.get("kgFilmLanguage", "auto");
+const filmLanguagePreference = ["ru", "en", "original"].includes(savedFilmLanguage) ? savedFilmLanguage : "auto";
+const filmLanguage = filmLanguagePreference === "auto" ? interfaceLanguage : filmLanguagePreference;
 const filmLocale = filmLanguage === "en" ? "en-US" : "ru-RU";
 
 function localizeFilmListItem(film) {
-  if (filmLanguage !== "original" || !film.original_title) return film;
+  if (!film.original_title || (filmLanguage !== "original" && filmLanguage !== film.original_language)) return film;
   return {...film, title:film.original_title};
 }
 
@@ -1892,6 +1904,13 @@ function selectMovieText(movie, field) {
     if (!lang) continue;
     const entry = translations.find(item => item.iso_639_1 === lang && item.data?.[field]?.trim());
     if (entry) return {text:entry.data[field].trim(), lang};
+    if (field === "title" && lang === movie.original_language && movie.original_title?.trim()) {
+      return {text:movie.original_title.trim(), lang};
+    }
+    if (field === "title" && lang === preferred && filmLanguage !== "original"
+        && movie.title?.trim() && movie.title !== movie.original_title) {
+      return {text:movie.title.trim(), lang};
+    }
   }
   const fallback = String(movie[field] || "").trim()
     || String(translations.find(item => item.data?.[field]?.trim())?.data[field] || "").trim();
@@ -1918,10 +1937,20 @@ $("country-filter-chips").onclick=e=>{
   const button=e.target.closest("[data-country-code]");if(!button)return;
   const code=button.dataset.countryCode;
   countryFilters.has(code)?countryFilters.delete(code):countryFilters.add(code);
-  store.set("countryFilters",[...countryFilters]);paintCountryFilters();if(typeof syncDesign==="function")syncDesign();
+  updateCountryFilter(countryFilters.has(code) ? code : "");
 };
 $("country-filter-search").addEventListener("input",paintCountryFilters);
-$("country-filter-clear").onclick=()=>{countryFilters.clear();store.set("countryFilters",[]);$("country-filter-search").value="";paintCountryFilters();if(typeof syncDesign==="function")syncDesign();};
+$("country-filter-clear").onclick=()=>{
+  countryFilters.clear();
+  $("country-filter-search").value="";
+  updateCountryFilter();
+};
+function updateCountryFilter(preferredCountry = ""){
+  store.set("countryFilters",[...countryFilters]);
+  paintCountryFilters();
+  paintGo();
+  window.KGUpdateCountryFrame?.(preferredCountry);
+}
 paintCountryFilters();
 let apiKey=store.get("tmdbKey","");
 let seen=new Set(store.get("seen",[]));
@@ -2015,6 +2044,7 @@ $("surpriseChips").onclick=e=>{
   if (button) selectSurpriseScenario(button.dataset.s);
 };
 function goLabel(){
+  if(countryFilters.size) return uiText("НАЙТИ ФИЛЬМ");
   if(playMode==="surprise") return "🎲 Удиви меня";
   const t=THEMES.find(x=>x.id===themeId);
   return t?"🎲 "+t.name:"🎲 Крутить глобус";
@@ -2189,7 +2219,7 @@ window.KGResetSettings = () => {
   store.set(interfaceLanguageKey, "ru");
   store.set("kgTrailerSubtitles", "auto");
   window.KGLegalWatch?.setRegion("auto");
-  store.set("kgFilmLanguage", "ru");
+  store.set("kgFilmLanguage", "auto");
   setAppTheme("cinematic");
   sel.clear();
   store.set("cats",[]);
@@ -2228,7 +2258,7 @@ window.KGResetSettings = () => {
   surprise = "light";
   store.set("surprise",surprise);
   $("btn-mode-filters").click();
-  if (filmLanguage !== "ru" || interfaceLanguage !== "ru") location.reload();
+  if (filmLanguagePreference !== "auto" || interfaceLanguage !== "ru") location.reload();
 };
 $("resetSettings").onclick = window.KGResetSettings;
 const RATE_OPTS=["5","6","6.5","7","7.5","8","9","10"];
@@ -2405,7 +2435,6 @@ async function buildPool(cc,o){
   return null;
 }
 
-let forcedCountryQuery="";
 function currentQuery(){
   if(playMode==="surprise"){
     if(surprise==="find") return {g:pick(GENRE_IDS),find:true,adult:false,worst:false,rmin:"",rmax:"",y:"",yto:"",theme:"",themeName:""};
@@ -2421,7 +2450,7 @@ function currentQuery(){
     rmin:sel.has("worst")?"":$("rmin").value,rmax:sel.has("worst")?"":$("rmax").value,
     y:years.y,yto:years.yto,
     theme:theme?theme.id:"",themeName:theme?theme.name:"",
-    countries:forcedCountryQuery?[forcedCountryQuery]:(countryFilters.size?[...countryFilters]:(theme?theme.cc:null))
+    countries:countryFilters.size?[...countryFilters]:(theme?theme.cc:null)
   };
 }
 function yearQuery(){
@@ -3468,21 +3497,27 @@ show(cc,{films:reelFilms,oscar:true,votes:film.vote_count||0,total:all.length},f
   finally{reelAbort();unlockSpin();}
 }
 
-async function spin(){
+async function spin(countryCode = ""){
+  if ($("go").disabled) return;
   $("err").textContent="";
   if(!apiKey){showKeyUi();$("err").textContent="Сначала введите ключ TMDB.";return;}
   store.set("year",$("year").value);store.set("yearTo",$("yearTo").value);
   audio();
-  lockSpin('<span class="spin">🌍</span> Крутим…');
-  reelStart();
+  const q=currentQuery();
+  const manualCountries=countryCode ? [countryCode] : [...countryFilters];
+  const frameOnly=manualCountries.length > 0;
+  if (frameOnly) q.countries=manualCountries;
+  lockSpin(frameOnly ? uiText("Ищем фильм…") : '<span class="spin">🌍</span> Крутим…', frameOnly);
   try{
-    const q=currentQuery();
-    if(forcedCountryQuery)q.countries=[forcedCountryQuery];
+    if (frameOnly) {
+      closePlayer();
+      window.KGFrameSelectedCountry(manualCountries[0],manualCountries);
+    } else reelStart();
     const order=shuffle(q.countries||COUNTRIES);
     const cap=q.countries?order.length:Math.min(order.length,18);
     for(let i=0;i<cap;i+=3){   // проверяем небольшими параллельными партиями, чтобы поиск оставался отзывчивым
       const batch=order.slice(i,i+3);
-      lockSpin(`<span class="spin">🌍</span> Проверяем страны ${i+1}–${Math.min(i+batch.length,cap)} из ${cap}…`);
+      if (!frameOnly) lockSpin(`<span class="spin">🌍</span> Проверяем страны ${i+1}–${Math.min(i+batch.length,cap)} из ${cap}…`);
       const pools=await Promise.all(batch.map(cc=>getPool(cc,q).catch(error=>{console.warn("[Kinoglobus] country search",cc,error);return null;})));
       for(let k=0;k<batch.length;k++){
         const pool=pools[k];
@@ -3491,14 +3526,15 @@ async function spin(){
         if(!left.length) continue;            // everything here already watched
         const film=pick(left);
         const warm=preloadPosters(pool,film);
-        await reelLand(batch[k]);
+        if (frameOnly) window.KGFrameSelectedCountry(batch[k]);
+        else await reelLand(batch[k]);
         await filmReel(pool,film,batch[k],warm);
         show(batch[k],pool,film);return;
       }
     }
     $("err").textContent="Подходящих фильмов не нашлось. Смягчите фильтры или сбросьте историю.";
   }catch(e){$("err").textContent=e.message}
-  finally{reelAbort();unlockSpin();}
+  finally{if (!frameOnly) reelAbort();unlockSpin();}
 }
 
 $("go").onclick=()=>{hideHints();spin();};
@@ -3761,6 +3797,7 @@ const yi=[...yearRatingFilter.querySelectorAll('input[type="number"]')];
 
 function plural(n){const m=n%100,k=n%10;return (k===1&&m!==11)?"страна":(k>1&&k<5&&(m<12||m>14))?"страны":"стран";}
 function spinLabel(){
+  if(countryFilters.size) return uiText("НАЙТИ ФИЛЬМ");
   if(playMode==="surprise") return uiText("УДИВИ МЕНЯ");
   const t=THEMES.find(x=>x.id===themeId);return t?uiText(t.name).toLocaleUpperCase(interfaceLanguage):uiText("КРУТИТЬ ГЛОБУС");
 }
@@ -3847,22 +3884,47 @@ function pinLight(cc){
   G.orientGlobeToCountry(w,false,0.08,G.CAMERA_DIST_FOCUS,false);
   hero(w,false);
 }
-function setSpinUi(on){
+function frameSelectedCountry(code){
+  scanOn=false;
+  clearTimeout(scanT);
+  tmr.forEach(clearTimeout);
+  tmr=[];
+  G.isSpinning=false;
+  focusedCC=code;
+  landed=true;
+  const country=gc(code);
+  G.frameCountry(country);
+  hero(country,false);
+}
+window.KGFrameSelectedCountry=(code, candidates=[])=>{
+  frameSelectedCountry(candidates.includes(focusedCC) ? focusedCC : code);
+};
+window.KGUpdateCountryFrame=function(preferredCountry){
+  syncDesign();
+  if ($("go").disabled) return;
+  const lastSelected = preferredCountry || [...countryFilters].at(-1);
+  if (!lastSelected) {
+    focusedCC = "";
+    G.dollyBack(G.currentCountry);
+    G.hideMarks();
+  } else if (preferredCountry || !countryFilters.has(focusedCC)) frameSelectedCountry(lastSelected);
+};
+function setSpinUi(on, frameOnly=false){
   const b=$("btn-spin-roulette"),t=$("btn-spin-text"),s=$("btn-spin-secondary-icon"),sb=$("roulette-status-badge");
-  const known=!!activeTheme();
+  const known=frameOnly||!!activeTheme();
   b.disabled=on;b.classList.toggle("brightness-125",on);
   t.innerHTML=on
     ?(known?'<span class="material-symbols-outlined text-[22px]">movie</span><span>'+uiText("ИЩЕМ ФИЛЬМ...")+'</span>'
       :'<span class="material-symbols-outlined text-[22px] animate-spin">sensors</span><span>'+uiText("ПОИСК СТРАНЫ...")+'</span>')
     :'<span class="material-symbols-outlined text-[22px] text-canvas-obsidian font-bold">casino</span><span>'+spinLabel()+'</span>';
   s.classList.toggle("animate-spin",on&&!known);
-  sb.textContent=on?uiText(known?"Подборка":"Сканирование...")
+  sb.textContent=on?uiText(frameOnly?"Ищем фильм…":known?"Подборка":"Сканирование...")
     :uiText("{count} {unit} онлайн", {count: COUNTRIES.length, unit: plural(COUNTRIES.length)});
   sb.className=on?"font-micro-caption text-micro-caption px-2.5 py-0.5 rounded-full bg-primary-container text-on-primary-container font-bold"
     :"font-micro-caption text-micro-caption px-2.5 py-0.5 rounded-full bg-surface-container-high/90 text-primary-fixed border border-primary-container/20";
 }
 const _lock=window.lockSpin,_unlock=window.unlockSpin;
-window.lockSpin=function(l){_lock(l);setSpinUi(true);};
+window.lockSpin=function(label,frameOnly){_lock(label);setSpinUi(true,frameOnly);};
 window.unlockSpin=function(){_unlock();setSpinUi(false);};
 window.reelStart=function(){
   closePlayer();tmr.forEach(clearTimeout);tmr=[];landed=false;focusedCC="";
@@ -4080,7 +4142,7 @@ function reveal(film,pool){
   if (!detailsEl.classList.contains("veiled")) return;
   detailsEl.classList.remove("veiled");
   playFilmFoundSound();
-  set("hero-country-master",film.title||"");
+  set("hero-country-master",$("discovery-title").textContent);
   scrollToFilmReel(detailsEl);
 }
 
@@ -4250,7 +4312,10 @@ window.show=function(cc,pool,film){
     const g=(d.genres.length?d.genres:genreLine(film).split(", ")).filter(Boolean).slice(0,3).map(genre => uiText(genre)).join(", ");
     set("discovery-genres","· "+[g,d.runtime?uiText("{minutes} мин", {minutes: d.runtime}):""].filter(Boolean).join(" · "));
     if(d.votes){set("discovery-rating",Number(d.average).toFixed(1));setVotes(d.votes);}
-    if (d.title) set("discovery-title", d.title);
+    if (d.title) {
+      set("discovery-title", d.title);
+      if (!detailsEl.classList.contains("veiled") && focusedCC === cc) set("hero-country-master", d.title);
+    }
     $("discovery-bookmark").innerHTML = kgBookmarkButton({...film,title:d.title || film.title,localizedPoster:d.localizedPoster,_cc:cur.cc});
     poster.innerHTML = filmPosterMarkup({...film, title:d.title || film.title, localizedPoster:d.localizedPoster});
     renderExtra({...film, title:d.title || film.title},d);
@@ -4324,6 +4389,7 @@ go("podborki-i-zhanry",()=>{themeFilter.open=true;themeFilter.scrollIntoView({be
 G.orientGlobeToCountry(G.currentCountry,true,0.08,G.CAMERA_DIST_DEFAULT,false);G.hideMarks();
 applyMode();
 syncDesign();setSpinUi(false);
+if (countryFilters.size) frameSelectedCountry([...countryFilters].at(-1));
 window.KGCountryApp={
   countries:()=>COUNTRIES.slice(),
   watched:()=>watched.slice(),
@@ -4335,7 +4401,7 @@ window.KGCountryApp={
   getFilmDetails:filmDetails,
   showCountryOnGlobe:code=>{closeJ();const country=gc(code);G.currentCountry=country;focusedCC=code;G.showSingleBeacon(country);G.orientGlobeToCountry(country,false,0.055,G.CAMERA_DIST_FOCUS,true);hero(country,false);setTimeout(()=>G.dollyBack(country),1800);window.scrollTo({top:0,behavior:"smooth"});},
   openMovie:(code,film)=>{closeJ();window.show(code,{films:[film],saved:true},film);},
-  searchCountry:async code=>{if(!apiKey){closeJ();showKeyUi();$("tmdb-key-banner").scrollIntoView({behavior:"smooth",block:"center"});return;}forcedCountryQuery=code;G.currentCountry=gc(code);focusedCC=code;closeJ();try{await spin();}finally{forcedCountryQuery="";}}
+  searchCountry:async code=>{if(!apiKey){closeJ();showKeyUi();$("tmdb-key-banner").scrollIntoView({behavior:"smooth",block:"center"});return;}closeJ();await spin(code);}
 };
 console.info("[Kinoglobus] Bridge v6 ready");
 })();
@@ -4358,10 +4424,10 @@ console.info("[Kinoglobus] Bridge v6 ready");
 <script src="oscar-design.js?v=21"></script>
 <script src="curated-collections.js?v=1"></script>
 <script src="collections.js?v=88"></script>
-<script src="film-interactions.js?v=18"></script>
+<script src="film-interactions.js?v=19"></script>
 <script src="legal-watch.js?v=6"></script>
 <script src="global-search.js?v=7"></script>
 <script src="home-releases.js?v=4"></script>
-<script src="settings-page.js?v=44"></script>
+<script src="settings-page.js?v=45"></script>
 
 </body></html>

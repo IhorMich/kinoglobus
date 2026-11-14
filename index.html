@@ -1,5 +1,5 @@
 <!DOCTYPE html><html class="dark" lang="ru"><head><meta charset="utf-8"><link rel="stylesheet" href="app-theme.css?v=6">
-<script src="interface-en.js?v=25"></script>
+<script src="interface-en.js?v=26"></script>
 <script src="interface-i18n.js?v=2"></script>
 <script>
 const APP_THEMES = ["cinematic", "oled", "golden-age"];
@@ -347,8 +347,6 @@ try {
   <button id="saveKey"></button>
   <button id="modeFilters"></button>
   <button id="modeSurprise"></button>
-  <button id="mzin"></button>
-  <button id="mzout"></button>
   <div id="keyCard" hidden><input id="key"></div>
   <div id="surpriseCard" hidden></div>
   <div id="filterCard"><div id="chips"></div><div id="worstBox" hidden></div><div id="adultNote" hidden></div><span id="filterSum"></span></div>
@@ -2089,12 +2087,11 @@ document.querySelectorAll('[data-path="nastrojki"]').forEach(link => {
 $("sclose").onclick=closeSettings;
 dlg.addEventListener("click",e=>{if(e.target===dlg)closeSettings();});
 // ---- journey: stats of opened countries
-let zoomI=0;const ZOOMS=[100,200,320];
 function renderMap(){
   const watchedCounts=window.KGWatchedCountryCounts?window.KGWatchedCountryCounts():{};
   const v=c=>"", w=c=>watchedCounts[c]?" w":"", last=c=>c===lastCC&&watchedCounts[c]?" last":"";
   const op=c=>watchedCounts[c]?' style="opacity:1"':"";
-  $("mapbox").innerHTML=`<svg viewBox="0 0 ${MAP.w} ${MAP.h}" style="width:${ZOOMS[zoomI]}%" role="img" aria-label="${uiText("Карта открытых стран")}">`
+  $("mapbox").innerHTML=`<svg viewBox="0 0 ${MAP.w} ${MAP.h}" width="100%" role="img" aria-label="${uiText("Карта открытых стран")}">`
     +`<path class="mo" d="${MAP.o}"/>`
     +Object.entries(MAP.c).map(([c,d])=>`<path class="mc${v(c)}${w(c)}${last(c)}" data-c="${c}"${op(c)} d="${d}"/>`).join("")
     +Object.entries(MAP.m).map(([c,[x,y]])=>`<circle class="mc${v(c)}${w(c)}${last(c)}" data-c="${c}"${op(c)} cx="${x}" cy="${y}" r="7"/>`).join("")
@@ -2106,8 +2103,6 @@ $("mapbox").onclick=e=>{
   const count=window.KGWatchedCountryCounts?window.KGWatchedCountryCounts()[c]||0:0;
   $("minfo").innerHTML=(typeof flag==="function"?flag(c):"🌍")+" "+cname(c)+": "+(count?"просмотрено фильмов "+count:"пока нет отмеченных фильмов");
 };
-$("mzin").onclick=()=>{zoomI=Math.min(ZOOMS.length-1,zoomI+1);const s=$("mapbox").querySelector("svg");if(s)s.style.width=ZOOMS[zoomI]+"%";};
-$("mzout").onclick=()=>{zoomI=Math.max(0,zoomI-1);const s=$("mapbox").querySelector("svg");if(s)s.style.width=ZOOMS[zoomI]+"%";};
 
 function renderJourney(){
   renderMap();$("minfo").textContent="Нажми на страну на карте";
@@ -3748,19 +3743,16 @@ dlgS.innerHTML="";dlgS.appendChild(inS);
 
 // ---------- Диалог «Моё путешествие» ----------
 const dlgJ=$("journey");
-const J={};["jhead","jfill","mapbox","minfo","jstats","jopenT","jopen","jclosed","jclosedsum","jfilmsT","jfilms","jclose","mzin","mzout"].forEach(id=>J[id]=$(id));
+const J={};["jhead","jfill","mapbox","minfo","jstats","jopenT","jopen","jclosed","jclosedsum","jfilmsT","jfilms","jclose"].forEach(id=>J[id]=$(id));
 document.body.appendChild(dlgJ);dlgJ.className="kg-dlg";
 const inJ=document.createElement("div");inJ.className="kg-in";
 const bar=document.createElement("div");bar.className="kg-bar";bar.appendChild(J.jfill);
-const zoom=document.createElement("div");zoom.className="kg-row";
-[J.mzout,J.mzin].forEach((b,i)=>{b.textContent=i?"＋":"－";b.className="kg-btn";});
-zoom.append(J.minfo,J.mzout,J.mzin);
 J.jopenT.textContent="Открытые страны";J.jopenT.className="kg-sub";J.jopenT.style.display="block";
 J.jfilmsT.textContent="Просмотренные фильмы";J.jfilmsT.className="kg-sub";J.jfilmsT.style.display="block";
 const det=document.createElement("details");const sm=document.createElement("summary");sm.appendChild(J.jclosedsum);sm.style.cursor="pointer";det.append(sm,J.jclosed);
 J.jclose.textContent="Закрыть";J.jclose.className="kg-btn";J.jclose.style.width="100%";J.jhead.className="kg-h";
 dlgJ.innerHTML="";
-inJ.append(J.jhead,bar,J.mapbox,zoom,J.jstats,J.jopenT,J.jopen,det,J.jfilmsT,J.jfilms,J.jclose);
+inJ.append(J.jhead,bar,J.mapbox,J.minfo,J.jstats,J.jopenT,J.jopen,det,J.jfilmsT,J.jfilms,J.jclose);
 dlgJ.appendChild(inJ);
 
 // ---------- Поля оценки (в скрытом движке была только одна опция) ----------
@@ -4418,7 +4410,7 @@ console.info("[Kinoglobus] Bridge v6 ready");
 
 <script src="globe-visuals.js?v=3"></script>
 <script src="watch-history.js?v=10"></script>
-<script src="country-pages.js?v=22"></script>
+<script src="country-pages.js?v=23"></script>
 <script src="profile-page.js?v=6"></script>
 <script src="cinema-diary.js?v=5"></script>
 <script src="profile-editor.js?v=1"></script>

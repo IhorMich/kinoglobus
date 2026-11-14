@@ -846,7 +846,7 @@ function renderSelectedPanel(){
   }
   renderFilms();
 }
-function openFilm(f,placement="list",detailTarget=null){
+function openFilm(f,placement="list",detailTarget=null,{autoplayTrailer=false}={}){
   if(D.selected&&D.selected._placement===placement&&String(D.selected.id)===String(f.id)&&D.selected._detailTarget===detailTarget){
     if(placement==="mood"||placement==="oscar")closePageFilm(placement);
     else if(placement==="related"||placement==="oscar-related"||placement==="person-related"||placement==="search"){ $(detailTarget)?.replaceChildren();D.selected=null; }
@@ -896,7 +896,7 @@ function openFilm(f,placement="list",detailTarget=null){
     else target?.scrollIntoView({behavior:"smooth",block:"start"});
   }));
   if (!apiKey) return;
-  filmDetails(f.id).then(details=>{
+  const detailsReady = filmDetails(f.id).then(details=>{
     if(D.selected!==selected)return;
     selected.title=details.title||f.title;
     selected.localizedPoster=details.localizedPoster;
@@ -924,9 +924,11 @@ function openFilm(f,placement="list",detailTarget=null){
     renderSelectedPanel();
     console.error("[Kinoglobus] Не удалось загрузить сведения о фильме:",error);
   });
-  trailerFor(f).then(trailer=>{
+  trailerFor(f).then(async trailer=>{
+    if (autoplayTrailer && trailer) await detailsReady;
     if(D.selected!==selected)return;
     selected._trailer=trailer;
+    selected._trailerPlaying=Boolean(autoplayTrailer && trailer);
     selected._trailerStatus=trailer?"ready":"missing";
     renderSelectedPanel();
   }).catch(e=>{
@@ -940,7 +942,7 @@ function openFilm(f,placement="list",detailTarget=null){
       .catch(e=>{selected._oscarAwards=[];if(D.selected===selected)renderSelectedPanel();console.warn("[Kinoglobus] Награды Wikidata недоступны:",e);});
   }
 }
-window.KGOpenFilmFromRelated=(film,placement,detailTarget)=>openFilm(film,placement||"home-europe",detailTarget||null);
+window.KGOpenFilmFromRelated=(film,placement,detailTarget,options)=>openFilm(film,placement||"home-europe",detailTarget||null,options);
 window.KGCloseFilmFromRelated=detailTarget=>{if(D.selected&&["related","oscar-related","person-related","search"].includes(D.selected._placement)&&D.selected._detailTarget===detailTarget)D.selected=null;$(detailTarget)?.replaceChildren();};
 
 /* ---------- рулетка с плёнкой прямо в подборке ---------- */

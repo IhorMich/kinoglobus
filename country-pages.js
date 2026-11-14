@@ -109,6 +109,8 @@
     #kg-watch-history .jfilm:focus-visible{outline:2px solid #ffdca8;outline-offset:2px}
     .kgc-catalog-link{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;margin:10px 0;padding:9px 10px;border:1px solid #ffdca832;border-radius:10px;background:rgb(var(--kg-surface-container-high));color:#ffdca8;text-align:left;font-weight:600;cursor:pointer}
     .kgc-catalog-link:hover{border-color:#ffdca8}
+    .kgc-mini[data-open-catalog],.kgc-mini[data-atlas-history]{border:1px solid transparent;text-align:center;cursor:pointer;color:inherit}
+    .kgc-mini[data-open-catalog]:is(:hover,:focus-visible),.kgc-mini[data-atlas-history]:is(:hover,:focus-visible){border-color:#ffdca8}
     .kgc-overview-open{position:absolute;inset:0;width:100%;height:100%;border:0;border-radius:inherit;background:transparent;cursor:pointer}
     .kgc-overview-open:focus-visible{outline:2px solid #ffdca8;outline-offset:-3px}
     .kgc-overview [data-atlas-scroll-map]{position:relative;z-index:1}
@@ -264,12 +266,12 @@
         <div style="display:flex;align-items:center;gap:8px;margin-top:15px;color:#d5c4ad;font:12px 'Noto Serif',serif"><span>☝</span><span>${uiText("Выберите страну на карте или в списке ниже")}</span></div>
       </section></div>
       <div class="kgc-pad" style="padding-top:0"><div class="kgc-grid3">
-        <div class="kgc-mini"><span>🎞</span><b>${fmt(total)}</b><small>${uiText("Фильмов просмотрено")}</small></div>
-        <div class="kgc-mini"><span>🌐</span><b>${opened} / ${countries.length}</b><small>${uiText("Стран открыто")}</small></div>
-        <div class="kgc-mini"><span>✦</span><b>${opened?`${(total/Math.max(1,opened)).toFixed(1)}`:'0'}</b><small>${uiText("Фильмов на страну")}</small></div>
+        <button type="button" class="kgc-mini" data-atlas-history><span aria-hidden="true">🎞</span><b>${fmt(watched.length)}</b><small>${uiText("Фильмов просмотрено")}</small></button>
+        <button type="button" class="kgc-mini" data-open-catalog="opened"><span aria-hidden="true">🌐</span><b>${opened} / ${countries.length}</b><small>${uiText("Стран открыто")}</small></button>
+        <button type="button" class="kgc-mini" data-open-catalog="screenings"><span aria-hidden="true">✦</span><b>${opened?`${(total/opened).toFixed(1)}`:'0'}</b><small>${uiText("Фильмов на страну")}</small></button>
       </div></div>
       <div class="kgc-section"><h3>${uiText("🏆 Чаще всего в зале")}</h3><span class="kgc-chip neutral">${uiText("Лидер кинопутешествия")}</span></div>
-      ${leader?`<button class="kgc-pad" data-open-country="${leader}" style="display:block;width:100%;text-align:left;border:0;background:transparent;padding-top:0"><div class="kgc-panel kgc-country-hero">${flagBackdrop(leader)}<div class="kgc-hero-content"><div class="kgc-chips"><span class="kgc-chip">${flag(leader)} ${uiText("Сеансов: {count}", {count: fmt(counts[leader])})}</span><span class="kgc-chip neutral">${uiText("№ {rank} в ваших открытиях", {rank: String(ordered.indexOf(leader)+1).padStart(2,'0')})}</span></div><h2 class="kgc-country-name">${esc(app.countryName(leader))}</h2><p class="kgc-blurb">${uiText("Ваша личная кинематографическая карта этой страны. Откройте паспорт, чтобы увидеть отмеченные фильмы.")}</p><span class="kgc-btn">${uiText("Открыть паспорт страны　↗")}</span></div></div></button>`:`<div class="kgc-pad" style="padding-top:0"><div class="kgc-panel"><div class="kgc-title">${uiText("Ваше первое кинооткрытие")}</div><p class="kgc-muted">${uiText("Отметьте просмотренный фильм — и страна его производства появится в атласе.")}</p><button class="kgc-btn secondary" data-open-map>${uiText("Перейти к глобусу　↗")}</button></div></div>`}
+      ${leader?`<button class="kgc-pad" data-open-country="${leader}" style="display:block;width:100%;text-align:left;border:0;background:transparent;padding-top:0"><div class="kgc-panel kgc-country-hero">${flagBackdrop(leader)}<div class="kgc-hero-content"><div class="kgc-chips"><span class="kgc-chip">${flag(leader)} ${uiText("Сеансов: {count}", {count: fmt(counts[leader])})}</span><span class="kgc-chip neutral">${uiText("№ {rank} в ваших открытиях", {rank: String(ordered.indexOf(leader)+1).padStart(2,'0')})}</span></div><h2 class="kgc-country-name">${esc(app.countryName(leader))}</h2><p class="kgc-blurb">${uiText("Ваша личная кинематографическая карта этой страны. Откройте паспорт, чтобы увидеть отмеченные фильмы.")}</p></div></div></button>`:`<div class="kgc-pad" style="padding-top:0"><div class="kgc-panel"><div class="kgc-title">${uiText("Ваше первое кинооткрытие")}</div><p class="kgc-muted">${uiText("Отметьте просмотренный фильм — и страна его производства появится в атласе.")}</p><button class="kgc-btn secondary" data-open-map>${uiText("Перейти к глобусу　↗")}</button></div></div>`}
       <div class="kgc-section"><h3>${uiText("◎ Последнее открытие")}</h3><span class="kgc-muted">${latest?new Date(latest.watchedAt||Date.now()).toLocaleDateString(interfaceLanguage):uiText("История пока пуста")}</span></div>
       ${latest?`<div class="kg-bookmark-card"><button data-open-saved="${esc(latest.id)}" class="kgc-pad" style="display:block;width:100%;text-align:left;border:0;background:transparent;padding-top:0"><div class="kgc-panel kgc-feature">${poster(latest,'w185')?`<img class="kgc-poster" src="${poster(latest,'w185')}" alt="">`:'<div class="kgc-poster"></div>'}<span class="kgc-latest-copy"><span class="kgc-chip">${uiText("Просмотрено")}</span><b class="kgc-filmname">${esc(latest.title||uiText("Фильм"))}</b><small class="kgc-muted">${esc([latest.year,latestCountry?app.countryName(latestCountry):''].filter(Boolean).join(' · '))}</small></span></div></button>${kgBookmarkButton(latest,"hero")}</div>`:`<div class="kgc-pad" style="padding-top:0"><div class="kgc-empty">${uiText("Здесь появится последний фильм, который вы отметили как просмотренный.")}</div></div>`}
       <div class="kgc-section"><h3>${uiText("🌐 Атлас кинолокаций")}</h3><span class="kgc-muted">${uiText("{count} отмечено", {count: opened})}</span></div>
@@ -293,7 +295,7 @@
   const creditedCountries = film => film.countries?.length ? film.countries : [film.cc];
   const normalizeCatalogText = value => String(value ?? '').toLowerCase().normalize('NFC')
     .replaceAll('ё', 'е').replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
-  const catalog = {status:null, region:'all', view:'cards', query:'', scroll:0, atlasScroll:0};
+  const catalog = {status:null, region:'all', view:'cards', query:'', scroll:0, atlasScroll:0, atlasEntry:''};
   const regionNames = ['ru', 'en'].map(locale => new Intl.DisplayNames([locale], {type:'region'}));
   const countryNames = new Map(app.countries().map(code => [code, [
     app.countryName(code), ...regionNames.map(names => names.of(code)),
@@ -567,15 +569,25 @@
   root.addEventListener('click', async event => {
     const button = event.target.closest('button');
     if (!button) return;
-    if (button.hasAttribute('data-open-catalog')) {
+    if (button.hasAttribute('data-atlas-history')) {
+      openWatchHistory(true);
+    } else if (button.hasAttribute('data-open-catalog')) {
       catalog.atlasScroll = shell.scrollTop;
-      if (button.dataset.openCatalog === 'all') Object.assign(catalog,{status:'all',region:'all',query:''});
+      const entry = button.dataset.openCatalog;
+      catalog.atlasEntry = entry;
+      if (entry) {
+        Object.assign(catalog, {status:entry === 'all' ? 'all' : 'opened', region:'all', query:''});
+        if (entry === 'screenings') catalog.view = 'grid';
+        if (entry === 'opened') catalog.view = 'cards';
+      }
       showCatalog();
       root.querySelector('[data-catalog-exit]')?.focus({preventScroll:true});
     } else if (button.hasAttribute('data-catalog-exit')) {
       atlas();
       shell.scrollTo({top:catalog.atlasScroll || 0,behavior:'instant'});
-      root.querySelector('[data-open-catalog]')?.focus({preventScroll:true});
+      const opener = [...root.querySelectorAll('[data-open-catalog]')]
+        .find(control => control.dataset.openCatalog === catalog.atlasEntry);
+      opener?.focus({preventScroll:true});
     } else if (button.hasAttribute('data-catalog-focus')) {
       root.querySelector('#kgc-catalog-search')?.focus();
     } else if (button.dataset.catalogFilter) {
@@ -748,7 +760,11 @@
   historyList.classList.remove('kg-country-legacy');
   historyView.querySelector('[data-kg-history-list]').append(historyList);
 
-  window.KGOpenWatchHistory = () => {
+  let historyAtlasScroll = null;
+  function openWatchHistory(fromAtlas = false) {
+    historyAtlasScroll = fromAtlas ? shell.scrollTop : null;
+    historyView.querySelector('[data-atlas-close]').setAttribute('aria-label',
+      uiText(fromAtlas ? "Назад к атласу" : "Закрыть историю"));
     parkAtlasMap();
     root.dataset.page = 'history';
     delete root.dataset.code;
@@ -757,8 +773,9 @@
     window.KGRenderWatchedByCountry('');
     if (!dialog.open) dialog.showModal();
     shell.scrollTo({top:0,behavior:'instant'});
-    historyView.querySelector('button').focus({preventScroll:true});
-  };
+    historyView.querySelector('[data-atlas-close]').focus({preventScroll:true});
+  }
+  window.KGOpenWatchHistory = () => openWatchHistory();
 
   function showAtlas() {
     root.hidden = false;
@@ -779,7 +796,16 @@
       else {atlas();shell.scrollTo({top:0,behavior:'instant'});}
       return;
     }
-    if(target.hasAttribute('data-atlas-close')){dialog.close?.();return;}
+    if (target.hasAttribute('data-atlas-close')) {
+      if (root.dataset.page === 'history' && historyAtlasScroll !== null) {
+        const top = historyAtlasScroll;
+        historyAtlasScroll = null;
+        showAtlas();
+        shell.scrollTo({top, behavior:'instant'});
+        root.querySelector('[data-atlas-history]')?.focus({preventScroll:true});
+      } else dialog.close?.();
+      return;
+    }
     if (target.dataset.countrySearch && !app.key()) {
       const settings = document.getElementById('settings');
       if (!settings) return;

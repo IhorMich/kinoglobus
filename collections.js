@@ -378,7 +378,7 @@ function cardHtml(t,i){
   const btn=`<button type="button" aria-label="${uiText("Крутить")}" data-act="spin" data-t="${t.id}" class="w-8 h-8 rounded-full bg-surface-container-high hover:bg-primary-container hover:text-on-primary-container text-primary flex items-center justify-center transition-all"><span class="material-symbols-outlined text-[18px]">casino</span></button>`;
   return `<article class="collection-card relative flex flex-col ${special?"p-4 bg-gradient-to-br from-cinema-velvet-deep/40 via-surface-panel to-surface-panel shadow-[0_6px_24px_rgba(0,0,0,0.6)]":"p-3.5 bg-surface-panel shadow-[0_4px_20px_rgba(0,0,0,0.45)]"} rounded-2xl transition-all active:scale-[0.99] cursor-pointer" data-t="${t.id}" data-cat="${m[0]}" data-i="${i}">
 ${top}<div class="flex items-start gap-3">
-<div class="relative w-20 h-28 rounded-lg overflow-hidden shrink-0 bg-surface-container-high"><img data-k="img" alt="${esc(uiText(t.name))}" src="${getThemeCover(t.id)}" class="w-full h-full object-cover transition-opacity duration-500 ${special?"grayscale contrast-125":""} ${getThemeCover(t.id)?"":"opacity-0"}"><span class="absolute bottom-1 right-1 px-1.5 rounded bg-surface-container-lowest/80 text-[10px] font-bold text-primary">${esc(codeOf(t))}</span></div>
+<div class="kg-film-card-poster relative rounded-lg overflow-hidden shrink-0 bg-surface-container-high"><img data-k="img" alt="${esc(uiText(t.name))}" src="${getThemeCover(t.id)}" class="w-full h-full object-cover transition-opacity duration-500 ${special?"grayscale contrast-125":""} ${getThemeCover(t.id)?"":"opacity-0"}"><span class="absolute bottom-1 right-1 px-1.5 rounded bg-surface-container-lowest/80 text-[10px] font-bold text-primary">${esc(codeOf(t))}</span></div>
 <div class="flex flex-col min-w-0 flex-1 justify-between h-28"><div>
 <div class="flex items-center justify-between gap-1"><span class="font-micro-caption text-micro-caption text-text-muted flex items-center gap-1 truncate">${flagsOf(t)} ${esc(where(t))}</span>${rate}</div>
 <h4 class="font-headline-sm text-headline-sm text-primary font-bold truncate mt-0.5">${i+1}. ${esc(uiText(t.name))}</h4>
@@ -582,7 +582,7 @@ function filmItem(f){
   const selected=D.selected&&D.selected._placement==="list"&&String(D.selected.id)===String(f.id)?D.selected:null;
   return `<article class="flex flex-col gap-space-sm p-3 rounded-xl bg-surface-panel shadow-md hover:bg-surface-container-low transition-colors">
 <div class="flex gap-space-sm cursor-pointer" data-act="open" data-id="${f.id}">
-<div class="relative w-20 h-28 flex-shrink-0 rounded-lg overflow-hidden bg-surface-container-high">${f.poster_path?`<img class="w-full h-full object-cover" loading="lazy" alt="" src="${P(f.poster_path,"w185")}">`:`<div class="w-full h-full flex items-center justify-center text-text-muted"><span class="material-symbols-outlined">movie</span></div>`}
+<div class="kg-film-card-poster relative flex-shrink-0 rounded-lg overflow-hidden bg-surface-container-high">${f.poster_path?`<img class="w-full h-full object-cover" loading="lazy" alt="" src="${P(f.poster_path,"w185")}">`:`<div class="w-full h-full flex items-center justify-center text-text-muted"><span class="material-symbols-outlined">movie</span></div>`}
 <span class="absolute top-1 left-1 px-1 py-0.5 rounded bg-surface-panel/90 text-primary-container font-micro-caption text-micro-caption font-bold">${f.vote_average ? Number(f.vote_average).toFixed(1) : "—"} ★</span>${kgBookmarkButton(f, "corner")}</div>
 <div class="flex flex-col justify-between flex-1 min-w-0"><div class="flex flex-col gap-0.5">
 <div class="flex items-center justify-between"><span class="font-micro-caption text-micro-caption text-text-muted">${fl(f._cc)} ${esc(cname(f._cc))}${y?" • "+y:""}</span><span data-rt="${f.id}" class="font-micro-caption text-micro-caption px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant">${uiText("— мин")}</span></div>
@@ -644,7 +644,7 @@ function selectedFilmHtml(f,embedded=false){
 <span class="font-label-sm text-label-sm text-on-surface font-semibold truncate w-full">${esc(c.name)}</span><span class="font-micro-caption text-micro-caption text-text-muted truncate w-full">${esc(c.role)}</span></button>`).join("");
   const activeVideo=f._trailer||null;
   const trailerContent=f._trailerPlaying&&activeVideo
-    ?`<iframe src="${embedSrc(activeVideo,true)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" title="${esc(uiText("Трейлер {title}", {title: f.title}))}" style="position:absolute;inset:0;width:100%;height:100%;border:0"></iframe>`
+    ?`<iframe src="${embedSrc(activeVideo,true)}" allow="${trailerFramePermissions}" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" title="${esc(uiText("Трейлер {title}", {title: f.title}))}" class="kg-trailer-frame"></iframe>`
     :activeVideo
       ?`<button type="button" data-trailer-action="play" data-id="${f.id}" aria-label="${uiText("Воспроизвести трейлер")}" class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-surface-container-high to-canvas-obsidian text-primary-container transition-colors hover:text-primary">${trailerThumb(activeVideo,f)}<span class="relative flex items-center justify-center w-16 h-16 rounded-full bg-black/55 border border-primary-container/60 backdrop-blur-sm"><span class="material-symbols-outlined text-[44px]">play_arrow</span></span></button>`
       :`<div class="absolute inset-0 flex items-center justify-center text-text-muted font-body-sm text-body-sm">${f._trailerStatus==="missing"?uiText("Трейлер не найден"):uiText("Ищем трейлер…")}</div>`;
@@ -709,7 +709,7 @@ document.addEventListener("click",e=>{
   const selected=D.selected;
   if(!selected||String(selected.id)!==String(action.dataset.id))return;
   e.preventDefault();
-  if(action.dataset.trailerAction!=="play")return;
+  if(action.dataset.trailerAction!=="play" || selected._trailerPlaying)return;
   selected._trailerPlaying=true;
   renderSelectedPanel();
 });

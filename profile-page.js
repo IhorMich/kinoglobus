@@ -63,7 +63,6 @@
     .kg-profile-pills {display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
     .kg-profile-pill {padding:3px 8px;border-radius:99px;background:#30333e;color:var(--profile-muted);font-size:11px}
     .kg-profile-copy {color:var(--profile-muted);font-size:13px;line-height:1.6;margin-top:12px;overflow-wrap:anywhere}
-    .kg-profile-diary {width:100%;margin-top:8px;color:var(--profile-gold)}
     .kg-profile-actions {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:14px}
     .kg-profile-button {display:flex;align-items:center;justify-content:center;gap:5px;padding:7px;min-height:40px;border-radius:9px;background:#30333e;font-size:12px;font-weight:700}
     .kg-profile-button.gold,.kg-profile-tabs button[aria-pressed="true"] {background:var(--profile-gold);color:#302000}
@@ -133,7 +132,7 @@
             <button type="button" class="kg-profile-button gold" data-profile-edit>${icon("edit_note")}<span>Редактировать</span></button>
             <button type="button" class="kg-profile-button" data-profile-share>${icon("share")}<span>Поделиться</span></button>
           </div>
-          <button type="button" class="kg-profile-button kg-profile-diary" data-profile-diary>${icon("history_edu")}<span>Кинодневник</span></button>
+          <div class="kg-profile-actions"><button type="button" class="kg-profile-button" data-profile-diary>${icon("history_edu")}<span>Кинодневник</span></button><button type="button" class="kg-profile-button" data-profile-diary="bookmarks">${icon("bookmark")}<span>Закладки</span></button></div>
         </section>
         <section class="kg-profile-archive">
           <div class="kg-profile-head"><h2>Кинематографический архив</h2><button type="button" class="kg-profile-gold" data-profile-action="history">История</button></div>
@@ -265,6 +264,8 @@
       card.querySelector(".kg-profile-frame small").textContent = film.ratio;
       card.querySelector("strong").textContent = uiText(film.title);
       card.querySelector(".kg-profile-meta").textContent = film.year;
+      const savedFilm = watched.find(item => item.title === film.title && String(item.year || "") === film.year);
+      card.querySelector(".kg-profile-frame").insertAdjacentHTML("beforeend",kgBookmarkButton(savedFilm,"corner"));
       shelf.append(card);
     }
     dialog.querySelector("[data-profile-film-count]").textContent = format.format(watched.length);
@@ -298,9 +299,11 @@
       profile = null;
       dialog.close();
     }
-    if (event.target.closest("[data-profile-diary]")) {
+    const diaryButton = event.target.closest("[data-profile-diary]");
+    if (diaryButton) {
       window.KGOpenCinemaDiary({
         avatar: profile.avatar || artwork[0],
+        initialSource: diaryButton.dataset.profileDiary,
         closeParent: () => dialog.close()
       });
       return;

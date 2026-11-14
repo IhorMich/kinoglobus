@@ -226,7 +226,6 @@
     const wins=aw?aw.filter(a=>a.won):[],noms=aw?aw.filter(a=>!a.won):[];
     const year=String(f.release_date||"").slice(0,4),title=esc(f.title||uiText("Фильм"));
     const bg=f.backdrop_path;
-    let booked=false;try{booked=(store.get("kgBookmarks",[])||[]).includes(f.id);}catch(e){}
     const watched=deps.isWatched?deps.isWatched(f.id):false;
     const rate=Number(f.average||f.vote_average)||0;
     const countries=(f.countries||[]).map(c=>cname(c)).filter(Boolean).slice(0,2).join(", ");
@@ -268,7 +267,7 @@
 <div class="relative w-full aspect-[16/11] bg-surface-container-lowest">${bg?`<div class="absolute inset-0 bg-cover bg-center" style="background-image:url('https://image.tmdb.org/t/p/w780${bg}')"></div>`:""}<div class="absolute inset-0 bg-gradient-to-t from-surface via-surface/60 to-transparent"></div>
 <button type="button" data-act="close-film" aria-label="${uiText("Свернуть карточку")}" class="absolute top-3 right-3 w-9 h-9 rounded-full bg-surface-panel/90 backdrop-blur-md text-text-muted hover:text-primary flex items-center justify-center z-10"><span class="material-symbols-outlined">close</span></button>
 <div class="absolute bottom-4 left-4 right-4 flex items-end justify-between gap-space-sm z-10"><div class="flex flex-col gap-1 min-w-0"><div class="flex items-center gap-1.5 flex-wrap">${wins.length?badge("bg-primary-container text-on-primary-container",`<span class="material-symbols-outlined text-[15px]" style="font-variation-settings:'FILL' 1;">military_tech</span>${uiText("{count} "+plural(wins.length,"ОСКАР","ОСКАРА","ОСКАРОВ"), {count: wins.length})}`):""}${rate?badge("bg-surface-panel/90 backdrop-blur-md text-primary",`<span class="material-symbols-outlined text-[14px]" style="font-variation-settings:'FILL' 1;">star</span>${rate.toFixed(1)} TMDB`):""}${f.cert?badge("bg-secondary-container text-on-secondary-container",esc(f.cert)):""}</div>${meta?`<p class="font-micro-caption text-micro-caption text-on-surface-variant uppercase tracking-widest pt-1">${esc(meta)}</p>`:""}</div>
-<button type="button" data-act="bm" data-id="${f.id}" aria-label="${booked?uiText("Убрать из закладок"):uiText("Сохранить в закладки")}" class="w-6 h-6 rounded-full bg-surface-panel/90 backdrop-blur-md text-on-surface flex items-center justify-center shrink-0 shadow active:scale-95 transition-transform"><span class="material-symbols-outlined text-[15px]" style="font-variation-settings:'FILL' ${booked?1:0};">${booked?"bookmark_added":"bookmark_add"}</span></button></div></div>
+${kgBookmarkButton(f)}</div></div>
 <div class="px-margin-mobile flex flex-col gap-space-md">
 <div class="flex flex-col gap-1 min-w-0"><div class="flex items-baseline justify-between gap-2"><h3 class="font-display-hero-mobile text-display-hero-mobile text-on-surface font-bold tracking-tight">${uiText(title)}</h3>${f.originalTitle&&f.originalTitle!==f.title?`<span class="font-body-sm text-body-sm text-text-muted text-right">${esc(f.originalTitle)}</span>`:""}</div>${tag}</div>
 ${oscar}

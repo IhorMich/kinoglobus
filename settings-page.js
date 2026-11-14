@@ -409,7 +409,8 @@ ${[["light","Лёгкое"],["find","Открытие"],["wild","Случайн�
   });
 
   const filmLanguageSelect = $("#kgs-film-language");
-  filmLanguageSelect.value = filmLanguagePreference;
+  filmLanguageSelect.value = store.get("kgFilmLanguage", "auto");
+  if (!filmLanguageSelect.value) filmLanguageSelect.value = "auto";
   filmLanguageSelect.addEventListener("change", () => {
     store.set("kgFilmLanguage", filmLanguageSelect.value);
     location.reload();

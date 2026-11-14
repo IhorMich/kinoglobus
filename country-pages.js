@@ -293,8 +293,86 @@
     .flatMap(([region, codes]) => codes.split(' ').map(code => [code, region])));
   const regionFor = code => countryRegion.get(code) || 'Европа';
   const creditedCountries = film => film.countries?.length ? film.countries : [film.cc];
-  const normalizeCatalogText = value => String(value ?? '').toLocaleLowerCase(interfaceLanguage).replaceAll('ё', 'е').trim();
+  const normalizeCatalogText = value => String(value ?? '').toLowerCase().normalize('NFC')
+    .replaceAll('ё', 'е').replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
   const catalog = {status:null, region:'all', view:'cards', query:'', scroll:0, atlasScroll:0};
+  const regionNames = ['ru', 'en'].map(locale => new Intl.DisplayNames([locale], {type:'region'}));
+  const countryNames = new Map(app.countries().map(code => [code, [
+    app.countryName(code), ...regionNames.map(names => names.of(code)),
+    ...(HIST[code] ? [HIST[code], window.KGInterfaceDictionaries?.en?.[HIST[code]]] : [])
+  ].map(normalizeCatalogText)]));
+  let catalogSearch = null;
+  let catalogSearchTimer;
+
+  async function searchCatalogCountries(query, key, signal) {
+    const request = async (path, params = {}) => {
+      const url = new URL('https://api.themoviedb.org/3/' + path);
+      url.search = new URLSearchParams({api_key:key, ...params});
+      const response = await fetch(url, {signal});
+      if (!response.ok) throw new Error('TMDB HTTP ' + response.status);
+      return response.json();
+    };
+    const language = /\p{Script=Cyrillic}/u.test(query) ? 'ru-RU' : 'en-US';
+    const params = {query, language, include_adult:'false'};
+    let partial = false;
+    const gather = async requests => {
+      const results = await Promise.allSettled(requests);
+      signal.throwIfAborted();
+      if (results.some(result => result.status === 'rejected')) partial = true;
+      return results.flatMap(result => result.status === 'fulfilled' ? [result.value] : []);
+    };
+    const [movies, directors] = await Promise.all([
+      gather([request('search/movie', params)]),
+      gather([request('search/person', params)])
+    ]);
+    const people = (directors[0]?.results || []).slice().sort((a, b) =>
+      Number(b.known_for_department === 'Directing') - Number(a.known_for_department === 'Directing'));
+    const credits = await gather(people.slice(0, 4).map(person => request('person/' + person.id + '/movie_credits')));
+    const directed = credits.flatMap(credit => (credit.crew || [])
+      .filter(film => film.job === 'Director' && !film.adult)
+      .sort((a, b) => (b.vote_count || 0) - (a.vote_count || 0)).slice(0, 6));
+    const candidates = [...(movies[0]?.results || []).slice(0, 6), ...directed];
+    const ids = [...new Set(candidates.map(film => film.id))].slice(0, 24);
+    const countries = new Set();
+    for (let offset = 0; offset < ids.length; offset += 6) {
+      const details = await gather(ids.slice(offset, offset + 6).map(id => request('movie/' + id)));
+      for (const film of details) {
+        if (film.adult) continue;
+        const codes = [...(film.origin_country || []), ...(film.production_countries || []).map(country => country.iso_3166_1)];
+        for (const code of codes) countries.add(code);
+      }
+    }
+    return {countries, partial};
+  }
+
+  function scheduleCatalogSearch() {
+    const query = catalog.query.trim();
+    const normalized = normalizeCatalogText(query);
+    const key = app.key();
+    if (catalogSearch?.query === query && catalogSearch.key === key && catalogSearch.status !== 'error') return;
+    clearTimeout(catalogSearchTimer);
+    catalogSearch?.controller?.abort();
+    catalogSearch = {query, key, countries:new Set(), status:''};
+    if (normalized.length < 2 || [...countryNames].some(([code, names]) =>
+      code.toLowerCase() === normalized || names.includes(normalized))) return;
+    if (!key) {
+      catalogSearch.status = 'key';
+      return;
+    }
+    const search = catalogSearch;
+    search.controller = new AbortController();
+    search.status = 'loading';
+    catalogSearchTimer = setTimeout(async () => {
+      try {
+        const {countries, partial} = await searchCatalogCountries(query, key, search.controller.signal);
+        search.countries = countries;
+        search.status = partial ? 'error' : '';
+      } catch {
+        search.status = 'error';
+      }
+      if (catalogSearch === search && dialog.open && root.dataset.page === 'catalog') paintCatalogFeed();
+    }, 350);
+  }
 
   function catalogData() {
     const watched = app.watched().slice().sort((a,b) => String(b.watchedAt || '').localeCompare(String(a.watchedAt || '')));
@@ -371,21 +449,31 @@
   function paintCatalogFeed(data = catalogData()) {
     const feed = root.querySelector('#kgc-catalog-feed');
     if (!feed) return;
-    const terms = normalizeCatalogText(catalog.query).split(/\s+/).filter(Boolean);
+    const terms = normalizeCatalogText(catalog.query).split(' ').filter(Boolean);
+    const search = catalogSearch;
+    const status = {
+      loading: "Ищем фильмы и режиссёров в TMDB…",
+      key: "Для поиска по фильмам и режиссёрам добавьте ключ TMDB в настройках.",
+      error: "Часть результатов TMDB недоступна. Попробуйте повторить поиск."
+    }[search?.status];
+    const feedback = root.querySelector('#kgc-catalog-search-status');
+    feedback.hidden = !status;
+    feedback.textContent = status ? uiText(status) : '';
     const matches = data.rows.map((row,index) => ({row, rank:index+1})).filter(({row}) => {
       if (catalog.region !== 'all' && row.region !== catalog.region) return false;
       if (catalog.status === 'opened' && !row.films.length) return false;
       if (catalog.status === 'unopened' && row.films.length) return false;
       const text = normalizeCatalogText([
-        row.name, row.code,
+        ...countryNames.get(row.code), row.code,
         ...row.films.flatMap(film => [film.title, film.original, film.director, film.dirs])
       ].join(' '));
-      return terms.every(term => text.includes(term));
+      return terms.every(term => text.includes(term)) || search?.countries.has(row.code);
     });
     feed.dataset.view = catalog.view;
     feed.innerHTML = matches.length ? matches.map(({row,rank},index) => catalogCard(row,rank,index === 0)).join('')
+      : search?.status === 'loading' ? ''
       : `<p class="kgc-catalog-empty">${uiText("Страны не найдены. Измените запрос или сбросьте фильтры.")}</p>`;
-    root.querySelector('[data-catalog-reset]').hidden = matches.length > 0;
+    root.querySelector('[data-catalog-reset]').hidden = matches.length > 0 || search?.status === 'loading';
   }
 
   function showCatalog(restoreScroll = false) {
@@ -418,6 +506,7 @@
             </div>
           </div>
         </div>
+        <p id="kgc-catalog-search-status" class="kgc-muted" role="status" hidden></p>
         <div id="kgc-catalog-feed" class="kgc-catalog-feed"></div>
         <button type="button" class="kgc-catalog-action" data-catalog-reset hidden>${uiText("Сбросить фильтры")}</button>
         <section class="kgc-catalog-bottom">
@@ -427,6 +516,7 @@
           <button type="button" class="kgc-catalog-action primary" data-open-globe><span class="material-symbols-outlined" aria-hidden="true">public</span>${uiText("Вернуться к 3D-глобусу")}</button>
         </section>
       </div>`;
+    scheduleCatalogSearch();
     paintCatalogFeed(data);
     shell.scrollTo({top:restoreScroll ? catalog.scroll : 0,behavior:'instant'});
   }
@@ -460,6 +550,7 @@
   root.addEventListener('input', event => {
     if (event.target.id !== 'kgc-catalog-search') return;
     catalog.query = event.target.value;
+    scheduleCatalogSearch();
     paintCatalogFeed();
   });
 

@@ -1,5 +1,5 @@
 <!DOCTYPE html><html class="dark" lang="ru"><head><meta charset="utf-8"><link rel="stylesheet" href="app-theme.css?v=6">
-<script src="interface-en.js?v=19"></script>
+<script src="interface-en.js?v=20"></script>
 <script src="interface-i18n.js?v=2"></script>
 <script>
 const APP_THEMES = ["cinematic", "oled", "golden-age"];
@@ -1811,6 +1811,31 @@ const flag = (c, wave = true) => {
 // storage (guarded)
 const store={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},
  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+function kgBookmarkIds() {
+  const saved = store.get("kgBookmarks",[]);
+  if (!Array.isArray(saved)) return [];
+  return [...new Set(saved.map(Number).filter(id => Number.isSafeInteger(id) && id > 0))];
+}
+function kgIsBookmarked(id) {
+  return kgBookmarkIds().includes(Number(id));
+}
+function kgToggleBookmark(id, film) {
+  id = Number(id);
+  const ids = kgBookmarkIds();
+  const enabled = !ids.includes(id);
+  if (!Number.isSafeInteger(id) || id <= 0) return false;
+  const details = store.get("kgBookmarkFilms",{}) || {};
+  if (enabled && film?.title) {
+    details[id] = {
+      id,title:film.title,original:film.original_title || film.original || "",
+      year:String(film.release_date || film.year || "").slice(0,4),
+      poster:film.poster_path || film.poster || "",cc:film._cc || film._kgCountry || film.cc || ""
+    };
+  } else if (!enabled) delete details[id];
+  store.set("kgBookmarkFilms",details);
+  store.set("kgBookmarks",enabled ? [...ids,id] : ids.filter(bookmark => bookmark !== id));
+  return enabled;
+}
 const savedFilmLanguage = store.get("kgFilmLanguage", "ru");
 const filmLanguage = ["ru", "en", "original"].includes(savedFilmLanguage) ? savedFilmLanguage : "ru";
 const filmLocale = filmLanguage === "en" ? "en-US" : "ru-RU";
@@ -4275,9 +4300,9 @@ console.info("[Kinoglobus] Bridge v6 ready");
 
 <script src="globe-visuals.js?v=3"></script>
 <script src="watch-history.js?v=9"></script>
-<script src="country-pages.js?v=16"></script>
+<script src="country-pages.js?v=17"></script>
 <script src="profile-page.js?v=5"></script>
-<script src="cinema-diary.js?v=3"></script>
+<script src="cinema-diary.js?v=4"></script>
 <script src="profile-editor.js?v=1"></script>
 <script src="login-page.js?v=3"></script>
 <script src="password-recovery.js?v=2"></script>
@@ -4285,11 +4310,11 @@ console.info("[Kinoglobus] Bridge v6 ready");
 <script src="account-page.js?v=6"></script>
 <script src="mood-vibe-additions.js?v=2"></script>
 <script src="mood-page.js?v=37"></script>
-<script src="mood-vibe-page.js?v=22"></script>
+<script src="mood-vibe-page.js?v=23"></script>
 <script src="oscar-page.js?v=39"></script>
 <script src="oscar-design.js?v=20"></script>
 <script src="curated-collections.js?v=1"></script>
-<script src="collections.js?v=85"></script>
+<script src="collections.js?v=86"></script>
 <script src="film-interactions.js?v=17"></script>
 <script src="legal-watch.js?v=6"></script>
 <script src="global-search.js?v=5"></script>

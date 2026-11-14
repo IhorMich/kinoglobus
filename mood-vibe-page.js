@@ -12,12 +12,7 @@
     {id:"animation",icon:"palette",image:"https://lh3.googleusercontent.com/aida-public/AB6AXuA7XeKmR4NcdscQ5cY6uHSLGrqpmKK4puQns6A475PweY7SRLBMbpUc-ttlveea6uepgUzA7qfzwyY2ctZVVnM-ksU8ZuVCzILvdRkUg_Dpe1cHo7JuvlHCKS7fehVmYe_FpElITk9FvPJ7w8HGQsp-CLNqrmMoMotkiaHGLd2z0ow80TTqsEaOGKHu0yQVKMnoeRVQNFc-3bDS1OqyBQa0B-YMSjmgtf_10V8BEMuo",title:"«Красивые миры анимации»",tag:"#Анимация #Вдохновение",description:"Визуально яркие истории для любого возраста — от волшебных приключений до трогательных драм.",countries:["JP","US","FR","GB"],genres:[16,14,10751],labels:["🇯🇵 Япония","🇺🇸 США","🇫🇷 Франция"],genreLabel:"Анимация · Фэнтези"},
     ...window.KGMoodVibeAdditions.cards.map(card => ({...card}))
   ];
-  const runtimes=[
-    {id:"any",label:"Любой хронометраж",button:"любая длительность",icon:"all_inclusive",test:()=>true},
-    {id:"classic",label:"90–120 минут",button:"90–120 мин",icon:"schedule",test:m=>m>=90&&m<=120},
-    {id:"epic",label:"150+ минут",button:"150+ мин",icon:"movie",test:m=>m>=150},
-    {id:"short",label:"До 90 минут",button:"до 90 мин",icon:"bolt",test:m=>m>0&&m<90}
-  ];
+  const {runtimes, getRuntime} = window.KGMoodPage;
   const extra={
     wine:{crumb:"Уют и тепло",pill:"ТЕПЛО И ДУША",badge:["local_fire_department","100% уют"],tags:["#Тепло","#ФранцияИталия","#Диалоги","#МедленноеКино"],heading:"Уют и бокал вина",hero:"Неспешные вечерние разговоры, мерцание свечей в парижских бистро, залитые золотым солнцем холмы Тосканы и искренние человеческие чувства. Фильмы, укутывающие словно кашемировый плед.",effect:["spa","Антистресс"],projector:"Винный кинопроектор",spin:"Крутить этот вайб (Случайный уютный фильм)",chips:[["chat_bubble","text-primary","Камерные диалоги"],["restaurant","text-secondary","Кулинария и вино"],["wb_sunny","text-primary-fixed-dim","Солнечный юг"],["hourglass_bottom","text-tertiary","Неспешный ритм"]],coll:"Коллекция согревающих картин",sub:"Отобрано с любовью для тихого вечера",short:"Уют",shortSub:"Тепло и вино",jewel:"Жемчужина вайба · Выбор куратора"},
     mindfuck:{crumb:"Лабиринты разума",pill:"ВЗРЫВ МОЗГА",badge:["psychology","Мозг на пределе"],tags:["#Психоделика","#Неонуар","#Загадки","#ПетлиСюжета"],heading:"Взрыв мозга и психоделика",hero:"Запутанные сюжетные петли, сюрреализм, гипнотический саундтрек и глубокий экзистенциальный шок. Фильмы, после которых хочется пересмотреть всё с начала.",effect:["psychology_alt","Переосмысление"],projector:"Психоделический кинопроектор",spin:"Крутить этот вайб (Случайный мозговзрыв)",chips:[["neurology","text-primary","Лабиринты разума"],["blur_on","text-secondary","Сюрреализм"],["troubleshoot","text-primary-fixed-dim","Неожиданные финалы"],["hourglass_bottom","text-tertiary","Глубокое погружение"]],coll:"Коллекция для взрыва мозга",sub:"Сюжеты, которые обсуждают после титров",short:"Взрыв мозга",shortSub:"Психоделика"},
@@ -56,9 +51,12 @@
       window.scrollTo({top:Math.max(0,top),behavior:"smooth"});
     });
   }
+  const launchTitle = () => state.runtime === "any"
+    ? uiText(currentMood().x.spin)
+    : uiText("Крутить этот вайб ({runtime})", {runtime: uiText(currentRuntime().button)});
   function updateLaunchLabel(root){
     const launch=activeElement(root,"[data-vibe-launch-label]");
-    if(launch&&!state.spinning)launch.textContent=uiText(currentMood().x.spin);
+    if(launch&&!state.spinning)launch.textContent=launchTitle();
   }
   const switchTones=[["bg-error-container/40","text-error"],["bg-surface-container-highest","text-primary-fixed-dim"],["bg-secondary-container/40","text-secondary"]];
   function detailHtml(m){
@@ -81,7 +79,7 @@
 <div class="flex flex-col items-center justify-center py-2 px-1 rounded-xl bg-surface-panel/80 shadow-[0_2px_8px_rgba(0,0,0,0.4)]"><span class="font-label-sm text-label-sm text-secondary flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">${x.effect[0]}</span> ${esc(uiText(x.effect[1]))}</span><span class="font-micro-caption text-micro-caption text-text-muted mt-0.5">${uiText("Эффект")}</span></div>
 </div></div></section>
 <section class="flex flex-col gap-space-sm p-space-md rounded-2xl bg-surface-panel shadow-[0_12px_32px_rgba(7,6,10,0.85)] relative overflow-hidden">
-<button class="w-full h-12 rounded-xl bg-primary-container text-on-primary-fixed font-label-lg text-label-lg flex items-center justify-center gap-2 shadow-[0_0_24px_rgba(255,184,48,0.35)] active:scale-[0.98] transition-all hover:brightness-105" data-vibe-spin type="button"><span class="material-symbols-outlined text-[20px]">casino</span><span data-vibe-launch-label>${esc(uiText(x.spin))}</span></button>
+<button class="w-full h-12 rounded-xl bg-primary-container text-on-primary-fixed font-label-lg text-label-lg flex items-center justify-center gap-2 shadow-[0_0_24px_rgba(255,184,48,0.35)] active:scale-[0.98] transition-all hover:brightness-105" data-vibe-spin type="button"><span class="material-symbols-outlined text-[20px]">casino</span><span data-vibe-launch-label>${esc(launchTitle())}</span></button>
 <p class="font-body-sm text-body-sm text-feedback-error" data-vibe-error role="status" hidden></p><button class="self-start px-3 py-2 rounded-lg bg-surface-container-high text-primary font-label-sm text-label-sm" data-vibe-retry type="button" hidden>${uiText("Повторить загрузку")}</button>
 <div data-vibe-result></div>
 </section>
@@ -136,8 +134,9 @@
     const sel=s=>card.querySelector(s);
     const rtFiltered=all.filter(f=>currentRuntime().test(f.runtime||0));
     const count=sel("[data-mv-count]"),avg=sel("[data-mv-avg]");
-    if(count)count.textContent=state.loading&&!all.length?"…":`${all.length} ${interfaceLanguage==="en"?(all.length===1?"film":"films"):plural(all.length,["картина","картины","картин"])}`;
-    if(avg)avg.textContent=all.length?(all.reduce((s,f)=>s+(Number(f.vote_average)||0),0)/all.length).toFixed(1):"—";
+    const countForRuntime = rtFiltered.length;
+    if(count)count.textContent=state.loading&&!countForRuntime?"…":`${countForRuntime} ${interfaceLanguage==="en"?(countForRuntime===1?"film":"films"):plural(countForRuntime,["картина","картины","картин"])}`;
+    if(avg)avg.textContent=countForRuntime?(rtFiltered.reduce((s,f)=>s+(Number(f.vote_average)||0),0)/countForRuntime).toFixed(1):"—";
     const reel=sel("[data-vibe-reel]");
     if(reel&&!state.spinning){
       const cells=rtFiltered.slice(0,16);
@@ -180,7 +179,7 @@
     state.spinToken++;cancelAnimationFrame(state.spinFrame);state.spinning=false;state.skipSpin=false;
     const button=activeElement(root,"[data-vibe-spin]"),label=activeElement(root,"[data-vibe-launch-label]"),skip=activeElement(root,"[data-vibe-skip]");
     if(button)button.disabled=false;
-    if(label)label.textContent=currentMood().x.spin;
+    if(label)label.textContent=launchTitle();
     if(skip)skip.hidden=true;
     if(wasSpinning&&typeof window.stopFilmReelSound==="function")window.stopFilmReelSound();
   }
@@ -366,7 +365,7 @@
       root.appendChild(host);
     }
     stopSpin(root);deps.closeFilm("mood");
-    state.mood=id;state.runtime="any";state.country="all";state.films=[];state.shown=4;state.loadedKey="";state.page=0;state.totalPages=0;state.jobs=null;state.loading=false;state.autoSpin=null;
+    state.mood=id;state.runtime=getRuntime();state.country="all";state.films=[];state.shown=4;state.loadedKey="";state.page=0;state.totalPages=0;state.jobs=null;state.loading=false;state.autoSpin=null;
     host.innerHTML=`<style>#mood-vibe-root [hidden]{display:none!important}</style>`+detailHtml(currentMood());
     window.scrollTo({top:0});
     loadMood(host,deps);renderFilms(host,deps);

@@ -289,8 +289,10 @@ ${info.best?`<span class="block font-micro-caption text-micro-caption text-prima
 <div id="oscar-list-detail-${f.id}" data-oscar-detail-host></div></article>`;
   }
   function gridCellHtml(f,deps,hostId){
-    const title=esc(f.title||f.original_title||uiText("Фильм")),y=yearOf(f),info=oscarInfo(f),seen=deps.isWatched(f.id);
-    return `<div class="kg-bookmark-card flex flex-col"><button type="button" class="flex flex-col gap-1 text-left" data-oscar-open="${f.id}" data-oscar-host="${hostId}" aria-label="${uiText("Трейлер и подробности: {title}", {title})}"><span class="relative block w-full aspect-[2/3] rounded-lg overflow-hidden bg-surface-container-high shadow-md">${f.poster_path?`<img class="w-full h-full object-cover" loading="lazy" alt="${uiText("Постер «{title}»", {title})}" src="${image(f.poster_path,"w342")}">`:'<span class="material-symbols-outlined w-full h-full flex items-center justify-center text-text-muted">movie</span>'}<span class="absolute bottom-1 left-1 px-1.5 py-0.5 rounded bg-canvas-obsidian/85 text-primary font-micro-caption text-micro-caption font-bold">★ ${Number(f.vote_average||0).toFixed(1)}</span>${info.best?'<span class="absolute top-1 left-1 w-6 h-6 rounded-full bg-cinema-velvet-deep/90 text-secondary flex items-center justify-center" title="${uiText("Лучший фильм")}"><span class="material-symbols-outlined text-[14px]" style="font-variation-settings:\'FILL\' 1;">workspace_premium</span></span>':""}</span><span class="block font-label-sm text-label-sm text-on-surface font-semibold leading-tight kg-clip2">${title}</span><span class="block font-micro-caption text-micro-caption text-text-muted">${y||""}</span></button></div>`;
+    const badge=oscarInfo(f).best
+      ?`<span class="absolute top-1 left-1 w-6 h-6 rounded-full bg-cinema-velvet-deep/90 text-secondary flex items-center justify-center" title="${uiText("Лучший фильм")}"><span class="material-symbols-outlined text-[14px]" aria-hidden="true">workspace_premium</span></span>`
+      :"";
+    return deps.posterTile(f,`data-oscar-open="${f.id}" data-oscar-host="${hostId}"`,badge);
   }
   function renderList(root,deps){
     const box=root.querySelector("#oscar-list");
@@ -304,8 +306,10 @@ ${info.best?`<span class="block font-micro-caption text-micro-caption text-prima
       let head="";
       if(g.key){const st=stat(g.key);head=`<div class="flex items-center justify-between px-1 pt-3 pb-1"><span class="font-label-md text-label-md text-primary font-semibold">${g.key==="gold"?uiText("Золотой Голливуд · до 1960"):uiText("{decade}0-е", {decade: g.key.slice(0,3)})}</span><span class="font-micro-caption text-micro-caption text-text-muted">${uiText("{films} · просмотрено {watched}", {films: st.n+" "+filmsWord(st.n), watched: st.seen})}</span></div>`;}
       if(state.view==="grid"){
-        const rows=[];for(let i=0;i<g.films.length;i+=3)rows.push(g.films.slice(i,i+3));
-        return head+rows.map(row=>{const host=`oscar-grid-detail-${row[0].id}`;return `<div class="grid grid-cols-3 gap-2 mb-2">${row.map(f=>gridCellHtml(f,deps,host)).join("")}</div><div id="${host}" data-oscar-detail-host></div>`;}).join("");
+        return head+deps.filmGridRows(g.films,row=>{
+          const host=`oscar-grid-detail-${row[0].id}`;
+          return `<div class="kg-three-columns kg-film-grid-row">${row.map(f=>gridCellHtml(f,deps,host)).join("")}</div><div id="${host}" class="empty:hidden" data-oscar-detail-host></div>`;
+        });
       }
       return head+`<div class="flex flex-col gap-space-sm">${g.films.map(f=>listItemHtml(f,deps)).join("")}</div>`;
     }).join("");

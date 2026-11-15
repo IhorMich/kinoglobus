@@ -87,9 +87,13 @@
   }
 
   function posterCard(film, digital) {
+    const localizedPoster = film.localizedPoster || {path:film.poster_path, showTitle:true};
+    const poster = digital
+      ? filmPosterMarkup({...film, localizedPoster}, "w342")
+      : filmPosterMarkup({...film, localizedPoster:{path:localizedPoster.path || film.poster_path, showTitle:false}}, "w342");
     return `<div class="kg-bookmark-card w-40 shrink-0 snap-start"><button type="button" data-release-action="film" data-id="${film.id}" class="group w-full flex flex-col gap-1.5 text-left">
       <span class="relative block w-full aspect-[2/3] overflow-hidden rounded-xl bg-surface-container-high shadow-md">
-        ${filmPosterMarkup({...film, localizedPoster:film.localizedPoster || {path:film.poster_path, showTitle:true}}, "w342")}
+        ${digital ? poster : `<span aria-hidden="true">${poster || '<span class="material-symbols-outlined absolute inset-0 grid place-items-center text-primary-container">movie</span>'}</span>`}
         <span class="absolute inset-x-1.5 top-1.5 flex flex-wrap justify-between gap-0.5">
           ${digital ? `<span class="px-1.5 py-1 rounded bg-surface-container-lowest/90 text-secondary font-label-sm text-label-sm">${copy("Цифровой релиз")}</span>` : ""}
           ${rating(film)}

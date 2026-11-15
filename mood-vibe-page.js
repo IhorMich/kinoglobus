@@ -30,7 +30,7 @@
   const poster=(path,size="w185")=>path?`https://image.tmdb.org/t/p/${size}${path}`:"";
   const flag=cc=>/^[A-Za-z]{2}$/.test(cc||"")?String.fromCodePoint(...[...cc.toUpperCase()].map(c=>127397+c.charCodeAt(0))):"";
   const plural=(n,f)=>{const a=Math.abs(n)%100,b=a%10;return a>10&&a<20?f[2]:b>1&&b<5?f[1]:b===1?f[0]:f[2];};
-  const state={view:"list",mood:"wine",runtime:"any",country:"all",films:[],shown:4,loading:false,loadedKey:"",token:0,spinToken:0,spinFrame:0,spinning:false,skipSpin:false,page:0,totalPages:0,jobs:null,autoSpin:null};
+  const state={view:"list",sort:"rating",mood:"wine",runtime:"any",country:"all",films:[],shown:4,loading:false,loadedKey:"",token:0,spinToken:0,spinFrame:0,spinning:false,skipSpin:false,page:0,totalPages:0,jobs:null,autoSpin:null};
   const reelStep=90,reelPadding=8,reelCellWidth=80;
   const prefersReducedMotion=()=>window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches||false;
   let host=null;
@@ -59,7 +59,7 @@
     if(launch&&!state.spinning)launch.textContent=launchTitle();
   }
   const switchTones=[["bg-error-container/40","text-error"],["bg-surface-container-highest","text-primary-fixed-dim"],["bg-secondary-container/40","text-secondary"]];
-  function detailHtml(m){
+  function detailHtml(m,deps){
     const x=m.x;
     const others=moods.filter(o=>o.id!==m.id).sort(()=>Math.random()-.5).slice(0,3);
     return `<div class="vibe-card flex flex-col w-full gap-space-lg pb-8" data-vibe-card="${m.id}">
@@ -80,6 +80,7 @@
 </div></div></section>
 <section class="flex flex-col gap-space-sm p-space-md rounded-2xl bg-surface-panel shadow-[0_12px_32px_rgba(7,6,10,0.85)] relative overflow-hidden">
 <button class="w-full h-12 rounded-xl bg-primary-container text-on-primary-fixed font-label-lg text-label-lg flex items-center justify-center gap-2 shadow-[0_0_24px_rgba(255,184,48,0.35)] active:scale-[0.98] transition-all hover:brightness-105" data-vibe-spin type="button"><span class="material-symbols-outlined text-[20px]">casino</span><span data-vibe-launch-label>${esc(launchTitle())}</span></button>
+${deps.sortBar(state.sort)}
 <p class="font-body-sm text-body-sm text-feedback-error" data-vibe-error role="status" hidden></p><button class="self-start px-3 py-2 rounded-lg bg-surface-container-high text-primary font-label-sm text-label-sm" data-vibe-retry type="button" hidden>${uiText("Повторить загрузку")}</button>
 <div data-vibe-result></div>
 </section>
@@ -90,7 +91,7 @@
 </section>
 <section class="flex flex-col gap-space-xs p-space-md rounded-2xl bg-gradient-to-b from-surface-panel to-surface-container-low shadow-[0_16px_36px_rgba(7,6,10,0.8)] relative overflow-hidden" data-vibe-jewel hidden></section>
 <section class="flex flex-col gap-space-md">
-<div class="flex items-center justify-between"><div class="flex flex-col"><h2 class="font-headline-md text-headline-md text-primary">${esc(uiText(x.coll))}</h2><span class="font-body-sm text-body-sm text-text-muted">${esc(uiText(x.sub))}</span></div><span class="flex items-center text-primary-container"><span class="material-symbols-outlined text-[18px]">tune</span></span></div>
+<div class="flex items-center justify-between gap-2"><div class="flex flex-col min-w-0"><h2 class="font-headline-md text-headline-md text-primary">${esc(uiText(x.coll))}</h2><span class="font-body-sm text-body-sm text-text-muted">${esc(uiText(x.sub))}</span></div>${deps.layoutSwitch(state.view,"vibe-films")}</div>
 <div class="flex flex-col gap-space-sm" data-vibe-films></div>
 <button class="w-full py-3.5 rounded-xl bg-surface-panel hover:bg-surface-bright text-primary font-label-md text-label-md flex items-center justify-center gap-2 shadow-[0_4px_16px_rgba(7,6,10,0.6)] active:scale-95 transition-all" data-vibe-more type="button" hidden><span data-vibe-more-label>${uiText("Показать ещё")}</span><span class="material-symbols-outlined text-[18px]">expand_more</span></button>
 </section>
@@ -162,7 +163,8 @@
       }else if(!best){
         box.innerHTML=`<p class="font-body-sm text-body-sm text-text-muted p-3 rounded-xl bg-surface-panel">${uiText("Нет фильмов для выбранного настроения. Выберите другую страну или настроение.")}</p>`;
       }else{
-        box.innerHTML=rest.slice(0,state.shown).map(f=>filmCardHtml(f,deps)).join("");
+        const films=deps.sortCollectionFilms(rest,state.sort).slice(0,state.shown);
+        box.innerHTML=state.view==="grid"?deps.moodFilmGrid(films,"vibe"):films.map(f=>filmCardHtml(f,deps)).join("");
       }
     }
     const more=sel("[data-vibe-more]");
@@ -366,11 +368,30 @@
     }
     stopSpin(root);deps.closeFilm("mood");
     state.mood=id;state.runtime=getRuntime();state.country="all";state.films=[];state.shown=4;state.loadedKey="";state.page=0;state.totalPages=0;state.jobs=null;state.loading=false;state.autoSpin=null;
-    host.innerHTML=`<style>#mood-vibe-root [hidden]{display:none!important}</style>`+detailHtml(currentMood());
+    state.sort="rating";
+    host.innerHTML=`<style>#mood-vibe-root [hidden]{display:none!important}</style>`+detailHtml(currentMood(),deps);
     window.scrollTo({top:0});
     loadMood(host,deps);renderFilms(host,deps);
   }
   function handleClick(e,root,deps){
+    const sort=e.target.closest("[data-kg-film-sort]");
+    if(sort){
+      if(state.sort===sort.dataset.kgFilmSort)return;
+      if(host.querySelector("[data-vibe-films] [data-selected-film]"))deps.closeFilm("mood");
+      state.sort=sort.dataset.kgFilmSort;
+      deps.syncFilmSort(host,state.sort);
+      renderFilms(host,deps);
+      return;
+    }
+    const layout=e.target.closest('[data-kg-layout="vibe-films"]');
+    if(layout){
+      if(state.view===layout.dataset.mode)return;
+      if(host.querySelector("[data-vibe-films] [data-selected-film]"))deps.closeFilm("mood");
+      state.view=layout.dataset.mode;
+      deps.syncLayout(host,state.view,"vibe-films");
+      renderFilms(host,deps);
+      return;
+    }
     if(e.target.closest("[data-vibe-all]")){closeVibe(root,deps);window.scrollTo({top:0});return;}
     if(e.target.closest('[data-act="close-film"]')){deps.closeFilm("mood");return;}
     const goto=e.target.closest("[data-vibe-goto]");

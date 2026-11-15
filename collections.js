@@ -1,1681 +1,4489 @@
-// ========== Bridge v7: «Подборки» (каталог + страница подборки + нижняя навигация) ==========
-(function(){
-const $=id=>document.getElementById(id);
-const main=document.querySelector("main");
-const home=main&&main.querySelector(":scope > div");
-if(!home||typeof THEMES==="undefined"){console.error("[Kinoglobus] v7: движок не найден");return;}
-
-/* ---------- стили ---------- */
-const st=document.createElement("style");
-st.textContent=".kgf{display:inline-flex;align-items:center;vertical-align:middle}.kgf img.flag-img{width:1.25em;height:.9em;object-fit:cover;border-radius:2px}.kgf svg{width:1.25em;height:.9em}.kgf .wave{width:auto;height:auto;flex:none}.kg-clip2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}";
-document.head.appendChild(st);
-const st2=document.createElement("style");
-st2.textContent=`.kgr-win{position:relative;height:150px;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 13%,#000 87%,transparent);mask-image:linear-gradient(90deg,transparent,#000 13%,#000 87%,transparent)}
-#cat-search::-webkit-search-cancel-button{display:none}
-.kgr-track{position:absolute;inset:0;overflow:hidden}
-.kgr-run{position:absolute;left:0;top:0;height:100%;display:flex;align-items:center;gap:10px;padding-left:8px;will-change:transform}
-.kgr-run.fast{filter:blur(1.4px) brightness(1.08)}
-.kgr-cell{box-sizing:border-box;position:relative;flex:none;width:80px;height:112px;border-radius:6px;overflow:hidden;background:rgb(var(--kg-surface-container));border:1px solid rgb(var(--kg-surface-border));opacity:.62;transition:opacity .45s,transform .45s,box-shadow .45s;color:#b3a79a;font-size:10px;line-height:1.2;pointer-events:none;user-select:none}
-.kgr-cell img{width:100%;height:100%;object-fit:cover;display:block}
-.kgr-cell .nop{width:100%;height:100%;display:flex;align-items:center;justify-content:center;text-align:center;padding:4px}
-.kgr-cell.spin{opacity:.92}
-.kgr-cell.chosen{opacity:1;transform:scale(1.07);box-shadow:0 0 22px rgba(255,184,48,.55)}
-.kgr-cell .yr{position:absolute;left:0;right:0;bottom:0;background:rgba(0,0,0,.78);font:600 9px/1.4 ui-monospace,monospace;text-align:center;color:#b3a79a}
-.kgr-frame{position:absolute;left:50%;top:50%;width:94px;height:128px;transform:translate(-50%,-50%);z-index:5;pointer-events:none;border:2px solid #ffb830;border-radius:10px;box-shadow:0 0 18px rgba(255,184,48,.5),inset 0 0 14px rgba(255,184,48,.22)}
-.kgr-frame.hit{animation:kgrHit 1s cubic-bezier(.2,.8,.25,1)}
-@keyframes kgrHit{0%{box-shadow:0 0 0 0 rgba(255,184,48,.8),inset 0 0 14px rgba(255,184,48,.22)}45%{box-shadow:0 0 38px 8px rgba(255,184,48,.75),inset 0 0 22px rgba(255,184,48,.4)}100%{box-shadow:0 0 18px rgba(255,184,48,.5),inset 0 0 14px rgba(255,184,48,.22)}}
-.kgr-rise{animation:kgrRise .6s cubic-bezier(.2,.7,.2,1) both}
-@keyframes kgrRise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-.kg-clip3{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.kg-home-europe{scrollbar-width:none;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
-.kg-home-europe::-webkit-scrollbar{display:none}
-.kg-home-film-wrap{flex:0 0 9rem;scroll-snap-align:start}
-[data-selected-film]{min-width:0;max-width:100%}.kg-detail-trailer{box-sizing:border-box;width:100%;max-width:100%;height:auto;aspect-ratio:16/9;min-height:0;max-height:min(56dvh,320px);flex:none;overflow:hidden;contain:layout paint}.kg-detail-trailer iframe{position:absolute;inset:0;width:100%;height:100%;max-width:100%;border:0}
-#kg-home-feature .kg-day-poster{width:44%;max-width:192px;aspect-ratio:2/3}
-#kg-home-feature .kg-detail-trailer{max-height:none}
-.kg-three-columns{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.5rem;align-items:start}
-.kg-film-grid-row{column-gap:clamp(10px,3.3vw,14px);padding-bottom:.55rem}
-#view-collection .kg-film-grid-row{margin-inline:-4px}
-.kg-film-grid-tile{box-sizing:border-box;display:block;width:100%;min-width:0;padding:0;text-align:left}
-.kg-film-grid-tile:focus-visible{outline:2px solid rgb(var(--kg-primary));outline-offset:3px;border-radius:.5rem}
-.kg-film-grid-poster{box-sizing:border-box;position:relative;display:block;width:100%;aspect-ratio:2/3;overflow:hidden;border-radius:clamp(10px,3vw,16px);background:rgb(var(--kg-surface-container-high));border:1px solid rgb(var(--kg-on-surface) / .10)}
-.kg-film-grid-poster>img,#cat-grid.kg-three-columns .kg-film-card-poster>img{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover}
-.kg-film-grid-score{position:absolute;top:.45rem;right:.45rem;padding:.13rem .42rem;border-radius:.65rem;background:rgb(0 0 0 / .74);color:#fff;font-size:.78rem;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.4}
-.kg-film-grid-title{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;overflow-wrap:anywhere;min-height:2.7em;margin-top:.5rem;padding-inline:.125rem;color:rgb(var(--kg-on-surface));font-size:.875rem;font-weight:500;line-height:1.35}
-.kg-film-grid-tile:hover .kg-film-grid-title{color:rgb(var(--kg-primary))}
-.kg-three-columns .kg-catalog-row{flex-direction:column;gap:.25rem}
-#cat-grid.kg-three-columns{column-gap:clamp(10px,3.3vw,14px)}
-.kg-three-columns .collection-card{padding:0;min-width:0;height:100%;background:none;box-shadow:none}
-.kg-three-columns .kg-catalog-row .kg-film-card-poster{box-sizing:border-box;width:100%;height:auto;aspect-ratio:2/3;border-radius:clamp(10px,3vw,16px)}
-.kg-three-columns .kg-catalog-text{width:100%;height:auto;gap:.25rem}
-.kg-three-columns .kg-catalog-text h4{white-space:normal;overflow-wrap:anywhere;font-size:.82rem;line-height:1.25;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;min-height:3.1em}
-.kg-three-columns .kg-catalog-summary,.kg-three-columns .kg-catalog-region{display:none}
-.kg-three-columns .kg-catalog-archive > span:first-child{font-size:0;gap:0}
-#mood-cards.kg-three-columns .mood-card [data-mood-select]{height:auto;aspect-ratio:3/4;min-height:7rem}
-#mood-cards.kg-three-columns .kg-mood-cover-copy{left:.4rem;right:.4rem;bottom:.4rem}
-#mood-cards.kg-three-columns .mood-title{font-size:.82rem;line-height:1.2;overflow-wrap:anywhere}
-#mood-cards.kg-three-columns .mood-radio,#mood-cards.kg-three-columns .kg-mood-secondary{display:none}
-@media(prefers-reduced-motion:reduce){.kgr-rise{animation:none}}`;
-document.head.appendChild(st2);
-
-/* ==========================================================================
-   МАППИНГ ВСЕХ 44 АВТОРСКИХ КИНЕМАТОГРАФИЧНЫХ АРТ-ОБЛОЖЕК (16:9)
-   Каждая подборка получает гарантированный кураторский визуал
-   ========================================================================== */
-const curatedThemes = window.KGCuratedCollections;
-const catalogThemes = [...THEMES, ...curatedThemes];
-const THEME_COVERS = {
-  ...Object.fromEntries(curatedThemes.map(t => [t.id, t.cover])),
-  // 1. Азиатский блок
-  kr: "assets /covers/kr.jpg",
-  krdrama: "assets /covers/krdrama.jpg",
-  jp: "assets /covers/jp.jpg",
-  jhorror: "assets /covers/jhorror.jpg",
-  jpauteur: "assets /covers/jpauteur.jpg",
-  jpcrime: "assets /covers/jpcrime.jpg",
-  jpscifi: "assets /covers/jpscifi.jpg",
-  hk: "assets /covers/hk.jpg",
-  cnfan: "assets /covers/cnfan.jpg",
-  thhorror: "assets /covers/thhorror.jpg",
-  idhorror: "assets /covers/idhorror.jpg",
-  // 2. Индия и Ближний Восток
-  inact: "assets /covers/inact.jpg",
-  inromance: "assets /covers/inromance.jpg",
-  inclassic: "assets /covers/inclassic.jpg",
-  ir: "assets /covers/ir.jpg",
-  tr: "assets /covers/tr.jpg",
-  arabic: "assets /covers/arabic.jpg",
-  // 3. Европейский блок
-  nordic: "assets /covers/nordic.jpg",
-  frnoir: "assets /covers/frnoir.jpg",
-  frcom: "assets /covers/frcom.jpg",
-  itcrime: "assets /covers/itcrime.jpg",
-  itcom: "assets /covers/itcom.jpg",
-  eshorror: "assets /covers/eshorror.jpg",
-  esdrama: "assets /covers/esdrama.jpg",
-  dedrama: "assets /covers/dedrama.jpg",
-  gbdet: "assets /covers/gbdet.jpg",
-  gbdrama: "assets /covers/gbdrama.jpg",
-  pldrama: "assets /covers/pldrama.jpg",
-  // 4. Постсоветский архив
-  suwar: "assets /covers/suwar.jpg",
-  sufi: "assets /covers/sufi.jpg",
-  suanim: "assets /covers/suanim.jpg",
-  uadrama: "assets /covers/uadrama.jpg",
-  // 5. Америка и Латинская Америка
-  uscrime: "assets /covers/uscrime.jpg",
-  uswestern: "assets /covers/uswestern.jpg",
-  uscomedy: "assets /covers/uscomedy.jpg",
-  usdrama: "assets /covers/usdrama.jpg",
-  ushorror: "assets /covers/ushorror.jpg",
-  usscifi: "assets /covers/usscifi.jpg",
-  usanimation: "assets /covers/usanimation.jpg",
-  mxdrama: "assets /covers/mxdrama.jpg",
-  latam: "assets /covers/latam.jpg",
-  brazil: "assets /covers/brazil.jpg",
-  // 6. Африка и Океания
-  african: "assets /covers/african.jpg",
-  auhorror: "assets /covers/auhorror.jpg"
-};
-function getThemeCover(id){
-  return THEME_COVERS[id] || "";
-}
-
-
-
-/* ---------- данные подборок ---------- */
-const CAT={curated:["Необычные подборки","АВТОРСКИЙ ОТБОР"],noir:["Триллер и Нуар","NOIR • CRIME"],horror:["Ужасы и Мистика","HORROR • MYSTERY"],drama:["Драма и Авторское","DRAMA • AUTEUR"],action:["Экшен и Фэнтези","ACTION • FANTASY"],retro:["Историческое","RETRO • WAR"],comedy:["Комедия и Романтика","COMEDY • ROMANCE"],scifi:["Фантастика","SCI-FI • FUTURE"]};
-// id: [категория, английское название, подпись в каталоге, описание]
-const TM={
-...Object.fromEntries(curatedThemes.map(t => [t.id, ["curated", t.englishName, t.subtitle, t.description]])),
-kr:["noir","Korean Thrillers","Шокирующие твисты, вендетта и запредельный саспенс","Шокирующие повороты, месть и психологический саспенс: корейское кино умеет держать в напряжении до последнего кадра."],
-jp:["action","Japanese Animation","Философские шедевры Studio Ghibli, киберпанк и фэнтези","Философские истории студии Ghibli, киберпанк и фэнтези: рукотворные миры, в которые хочется возвращаться."],
-jhorror:["horror","J-Horror","Кайданы, проклятия онрё и холодный ужас J-Horror","Тихий, медленный ужас: призраки-онрё, проклятые вещи и страх, живущий в самых обычных комнатах."],
-eshorror:["horror","Spanish Horror","Готика, мокьюментари и мистические фамильные тайны","Готические приюты, мокьюментари и семейные тайны: испанский хоррор делает ставку на атмосферу."],
-idhorror:["horror","Indonesian Horror","Оккультный фольклор, чёрная магия и бескомпромиссный шок","Деревенские легенды, чёрная магия и ритуалы: фольклорный ужас без компромиссов."],
-nordic:["noir","Nordic Noir & Cold Thrillers","Ледяные загадки севера, меланхолия и глубокий реализм","Мрачные тайны северных фьордов, заснеженные пустоши, меланхоличные следователи и психологическая глубина классического скандинавского детектива."],
-hk:["action","Hong Kong Action","Героическое кровопролитие, кунг-фу и золотая эра 80–90-х","Героическое кровопролитие, кунг-фу и перестрелки золотой эры гонконгского кино 80–90-х."],
-ir:["drama","Iranian Cinema","Тонкий гуманизм, метафоры и триумфы Каннского фестиваля","Тонкий гуманизм, метафоры и бытовые драмы, отмеченные главными фестивалями мира."],
-tr:["drama","Turkish Dramas","От медитативного артхауса до мощных фестивальных саг","От медитативного артхауса до мощных фестивальных саг о семье, долге и свободе."],
-inact:["action","Indian Action","Масштабная масала, бешеная хореография и взрывной пафос","Масштабная масала: бешеная хореография, пафос и герои, которым подвластно всё."],
-frnoir:["noir","French Noir","Классический полар Мельвиля и современный криминальный Париж","Полар Мельвиля и современный криминальный Париж: дождь, сигареты и неоднозначные герои."],
-gbdet:["noir","British Detectives","Изящная логика, туманные поместья и виртуозный whodunit","Изящная логика, туманные поместья и классический whodunit в британском исполнении."],
-itcrime:["noir","Italian Crime","Ярость полицаеско 70-х, неаполитанская мафия и закон чести","Полицаеско 70-х, неаполитанская мафия и закон чести: итальянский криминал без прикрас."],
-thhorror:["horror","Thai Horror","Призраки мести, шаманизм и леденящие фотоплёнки","Призраки мести, шаманизм и холодный страх: тайский хоррор берёт традициями и атмосферой."],
-auhorror:["horror","Australian Horror","Безжалостный аутбэк, клаустрофобия пустоты и чудовища","Безжалостный аутбэк, клаустрофобия пустоты и чудовища, которым негде спрятаться."],
-suwar:["retro","Soviet War Cinema","«Иди и смотри», «Летят журавли», шедевры Бондарчука и Тарковского","Честные и пронзительные картины о войне: от «Летят журавли» до «Иди и смотри»."],
-krdrama:["drama","Korean Dramas","Социальное расслоение, поэзия Ли Чхан Дона и глубокие чувства","Социальное расслоение, тихие трагедии и поэзия обыденности в корейском авторском кино."],
-cnfan:["action","Chinese Fantasy","Полёты над бамбуковыми рощами, мифы уся и восточная магия","Полёты над бамбуковыми рощами, мифы уся и восточная магия."],
-mxdrama:["drama","Mexican Dramas","Жар страстей, Иньярриту, Куарон и магический реализм","Жар страстей, Иньярриту, Куарон и магический реализм мексиканского кино."],
-latam:["noir","Latin American Noir","Тайны фавел, коррупция мегаполисов и аргентинский саспенс","Тайны фавел, коррупция мегаполисов и аргентинский саспенс: латиноамериканский нуар."],
-pldrama:["drama","Polish Cinema","Метафизика Кеслёвского, школа Вайды и тихая боль истории","Метафизические притчи Кеслёвского, польская кинематографическая школа и истории о памяти и выборе, снятые с редкой сдержанностью."],
-dedrama:["drama","German Cinema","Новое немецкое кино, Херцог, Фассбиндер и тяжёлая память","От Нового немецкого кино Херцога и Фассбиндера до современных драм о памяти, вине и свободе."],
-jpauteur:["drama","Japanese Auteur Cinema","Куросава, Одзу, Корээда: тишина, семья и человеческая хрупкость","Тихие семейные драмы Одзу, эпос Куросавы и тёплый гуманизм Корээды: японское кино, которое говорит паузами."],
-gbdrama:["drama","British Drama","Социальный реализм, камерные истории и тонкая британская ирония","Социальный реализм, камерные истории и сдержанная ирония: британская драма о людях, которых редко замечают."],
-esdrama:["drama","Spanish Drama","Страсти Альмодовара, память о войне и южное солнце","Страсти Альмодовара, память о гражданской войне и семейные драмы под южным солнцем."],
-brazil:["drama","Brazilian Cinema","«Город Бога», улицы фавел и яркий социальный нерв","Бразильское кино: от уличной жестокости «Города Бога» до острых социальных драм и криминальных историй."],
-uadrama:["drama","Ukrainian Cinema","Поэтическое кино, военные драмы и украинский взгляд на историю","От поэтического кино 1960-х до современных драм о войне и памяти: украинский взгляд на историю."],
-frcom:["comedy","French Comedies","Остроумие, неловкие ситуации и лёгкость парижских улиц","От Луи де Фюнеса до современных хитов: французская комедия смешит остроумием и теплом."],
-itcom:["comedy","Italian Comedies","Комедия по-итальянски: горькая ирония, семья и вечное солнце","Смех сквозь горечь, большие семьи и характеры, которые невозможно забыть: итальянская комедия."],
-inromance:["comedy","Indian Romance","Песни, танцы, большие чувства и красочные свадьбы","Болливудская мелодрама: большие чувства, песни, танцы и любовь вопреки всему."],
-sufi:["scifi","Soviet Sci-Fi","«Солярис», «Сталкер», «Кин-дза-дза!» и философия космоса","Философская и ироничная советская фантастика: космос, будущее и вопросы о том, что значит быть человеком."],
-jpscifi:["scifi","Japanese Sci-Fi","Киберпанк, гигантские монстры и тревожное будущее","Японская фантастика: киберпанк, гигантские монстры и тревожные картины будущего."],
-suanim:["retro","Soviet Animation","Рисованные сказки, кукольные шедевры и «Ёжик в тумане»","Рисованные и кукольные шедевры: тёплые сказки, философские притчи и мультфильмы, ставшие классикой."],
-uswestern:["retro","Classic Western","Пыльные дороги, дуэли на рассвете и одинокие герои","Дуэли на рассвете, пыльные городки и одинокие герои: классический вестерн во всей красе."],
-uscrime:["noir","American Crime & Thrillers","Голливудский нуар, громкие ограбления и напряжённые расследования","От нуарной классики до современных криминальных триллеров: роковые решения, ограбления и расследования по-американски."],
-ushorror:["horror","American Horror","От классики Universal до слэшеров и современного хоррора","Монстры, слэшеры и психологический ужас: американское кино десятилетиями переизобретает жанр."],
-usscifi:["scifi","American Science Fiction","Голливудские миры будущего, космические саги и научные загадки","Фантастика США — от масштабных космических историй до фильмов о технологиях, времени и будущем человечества."],
-uscomedy:["comedy","American Comedies","Голливудские комедии — от классического фарса до современной сатиры","Романтические комедии, фарсы и сатира: лёгкий и разнообразный маршрут по американскому юмору."],
-usdrama:["drama","American Drama","Большие семейные саги, независимое кино и сильные актёрские работы","Американская драма: от независимого кино и камерных историй до семейных саг и историй о переменах."],
-usanimation:["action","American Animation","Золотой век анимации, студийные хиты и независимые мультфильмы","Американская анимация — от классических мультфильмов до авторских историй и современных студийных хитов."],
-african:["drama","African Cinema","Кино ЮАР, Нигерии и Ганы: социальные истории и криминальные драмы","Африканское кино трех ярких индустрий — ЮАР, Нигерии и Ганы: социальные драмы и криминальные истории."],
-arabic:["drama","Arab Cinema","Египет, Левант и Магриб: драмы и криминальные истории арабского мира","Подборка фильмов Египта, Ливана, Марокко, Туниса и Алжира: драмы и криминальные истории из разных уголков арабского мира."],
-inclassic:["comedy","Indian Classics & Musicals","Золотой век Болливуда, музыкальные истории и большие чувства","Индийская классика и музыкальное кино: песни, танцы и истории любви, которые стали частью золотого века Болливуда."],
-jpcrime:["noir","Japanese Crime Cinema","Якудза, полицейские расследования и мрачный японский нуар","Криминальное кино Японии: якудза, полицейские расследования и напряжённые истории о чести, власти и мести."]
-};
-const REG={nordic:["Скандинавия","NORD"],cnfan:["Китай, Гонконг","CN"],latam:["Латинская Америка","LATAM"],african:["Африка","AFR"],arabic:["Арабский мир","ARAB"]};
-const ICON={nordic:"ac_unit", ...Object.fromEntries(curatedThemes.map(t => [t.id, t.icon]))};
-const T=Object.fromEntries(catalogThemes.map(t=>[t.id,t]));
-const cat=t=>(TM[t.id]||["noir"])[0];
-
-/* ---------- утилиты ---------- */
-const fl=cc=>`<span class="kgf">${flag(cc,false)}</span>`;
-const P=(p,s)=>p?`https://image.tmdb.org/t/p/${s||"w185"}${p}`:"";
-const nf=n=>new Intl.NumberFormat(interfaceLanguage).format(n);
-const moneyFmt=new Intl.NumberFormat(interfaceLanguage,{style:"currency",currency:"USD",maximumFractionDigits:0});
-const moneyText=n=>Number(n)>0?moneyFmt.format(Number(n)):uiText("Нет данных");
-const kgPersonLink=(p,role)=>p&&p.id?`<button type="button" data-kg-person-id="${p.id}" data-kg-person-name="${esc(p.name)}" data-kg-person-role="${role||"Кинематографист"}" class="kg-person-link">${esc(p.name)}</button>`:esc(p&&p.name||"");
-function fw(n){if(interfaceLanguage==="en")return n===1?"film":"films";const m=n%100,k=n%10;return (k===1&&m!==11)?"фильм":(k>1&&k<5&&(m<12||m>14))?"фильма":"фильмов";}
-function collectionFilmCount(n){
-  const word=fw(n);
-  return nf(n)+" "+(interfaceLanguage==="ru"?({фильм:"картина",фильма:"картины",фильмов:"картин"})[word]:word);
-}
-const gnames=t=>t.g.split("|").map(x=>GENRES[x]).filter(Boolean).map(genre=>uiText(genre));
-const codeOf=t=>t.films?"":REG[t.id]?REG[t.id][1]:(t.cc[0]==="SU"?(interfaceLanguage==="en"?"USSR":"СССР"):t.cc[0]);
-const where=t=>t.films?uiText("Разные страны"):REG[t.id]?uiText(REG[t.id][0]):cname(t.cc[0]);
-const flagsOf=t=>t.cc.slice(0,3).map(fl).join(" ");
-function toast(msg,icon){
-  let el=$("kg-toast");
-  if(!el){el=document.createElement("div");el.id="kg-toast";el.className="fixed bottom-20 left-1/2 -translate-x-1/2 max-w-[90vw] z-50 pointer-events-none opacity-0 transition-opacity duration-300";document.body.appendChild(el);}
-  el.innerHTML=`<div class="flex items-center gap-2 px-4 py-2.5 rounded-full bg-surface-panel text-on-surface font-label-sm text-label-sm shadow-[0_8px_24px_rgba(0,0,0,0.9)]"><span class="material-symbols-outlined text-primary-container text-[18px]">${icon||"casino"}</span><span>${esc(uiText(msg))}</span></div>`;
-  el.style.opacity="1";clearTimeout(el._t);el._t=setTimeout(()=>el.style.opacity="0",2200);
-}
-
-/* ---------- загрузка данных TMDB ---------- */
-const floorOf=cc=>BIG.has(cc)?300:60;
-const qs=(t,cc)=>({with_origin_country:cc,with_genres:t.g,"vote_count.gte":floorOf(cc),"vote_average.gte":"6.5"});
-const DAY_MS=24*60*60*1000;
-const themeDataCache=new Map(),themeRetryAfter=new Map(),themeInflight=new Map(),metaRetryAfter=new Map(),metaInflight=new Map();
-function curatedData(films) {
-  const totals = {};
-  for (const film of films) totals[film._cc] = (totals[film._cc] || 0) + 1;
-  return {films, total: films.length, totals};
-}
-
-async function loadCuratedTheme(theme, force) {
-  if (!apiKey) return curatedData(theme.films.map(localizeFilmListItem));
-  const results = await Promise.allSettled(theme.films.map(film =>
-    requestTmdb("movie/" + film.id, {language:filmLocale, append_to_response:"translations"}, {fresh:force})
-  ));
-  const films = theme.films.map((film, i) => {
-    const result = results[i];
-    if (result.status !== "fulfilled" || result.value.id !== film.id) return localizeFilmListItem(film);
-    const {poster_path, backdrop_path, vote_average, vote_count, popularity} = result.value;
-    const title = selectMovieText(result.value, "title").text;
-    const overview = selectMovieText(result.value, "overview").text;
-    return {...film, title:title || film.title, overview:overview || film.overview, poster_path, backdrop_path, vote_average, vote_count, popularity};
-  });
-  return curatedData(films);
-}
-const themeDataKey=(t,pages)=>t.films?t.id:`${t.id}:${pages}:${playMode!=="surprise"&&(sel.has("adult")||sel.has("erotic"))?"adult":"all"}`;
-async function loadTheme(t,pages,force=false){
-  const key=themeDataKey(t,pages),cached=themeDataCache.get(key),now=Date.now();
-  if(!force&&cached&&now-cached.ts<DAY_MS)return cached.data;
-  if(!force&&(themeRetryAfter.get(key)||0)>now){
-    if(cached)return {...cached.data,_stale:true};
-    throw new Error("Подборка временно недоступна для обновления.");
+<!DOCTYPE html><html class="dark" lang="ru" data-kg-button-accent="cyan"><head><meta charset="utf-8"><link rel="stylesheet" href="app-theme.css?v=8">
+<script src="interface-en.js?v=34"></script>
+<script src="interface-i18n.js?v=2"></script>
+<script>
+const APP_THEMES = ["cinematic", "oled", "golden-age"];
+try {
+  if (JSON.parse(localStorage.getItem("kgButtonAccent")) === "gold") {
+    document.documentElement.dataset.kgButtonAccent = "gold";
   }
-  const active=themeInflight.get(key);
-  if(active){
-    if(!force||active.fresh)return active.promise;
-    try{await active.promise;}catch{}
-    return loadTheme(t,pages,true);
-  }
-  const promise=(async()=>{
-    if (t.films) {
-      const data = await loadCuratedTheme(t, force);
-      if (data.films.some(f => f.poster_path || f.vote_count)) {
-        themeDataCache.set(key, {data, ts:Date.now(), date:localDateKey()});
+} catch (_) {}
+try {
+  const savedTheme = JSON.parse(localStorage.getItem("kgAppTheme"));
+  if (APP_THEMES.includes(savedTheme)) document.documentElement.dataset.kgTheme = savedTheme;
+} catch (_) {}
+</script><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"><meta content="mobile_tab" name="shell-type"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,600;0,700;1,400&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "surface-container-lowest": "rgb(var(--kg-surface-container-lowest) / <alpha-value>)", "text-muted": "rgb(var(--kg-text-muted) / <alpha-value>)", "tertiary": "#e6e1d8", "on-tertiary": "#32302a", "on-primary-container": "rgb(var(--kg-on-primary-container) / <alpha-value>)", "on-primary-fixed-variant": "rgb(var(--kg-on-primary-fixed-variant) / <alpha-value>)", "background": "rgb(var(--kg-surface) / <alpha-value>)", "on-background": "#e8e0ea", "on-tertiary-fixed": "#1d1c16", "surface-bright": "rgb(var(--kg-surface-bright) / <alpha-value>)", "outline": "#9e8e7a", "surface": "rgb(var(--kg-surface) / <alpha-value>)", "on-error": "#690005", "surface-border-subtle": "rgb(var(--kg-surface-border-subtle) / <alpha-value>)", "on-secondary-fixed-variant": "#861a45", "secondary": "#ffb1c5", "surface-variant": "rgb(var(--kg-surface-container-highest))", "on-primary": "rgb(var(--kg-on-primary) / <alpha-value>)", "surface-tint": "#ffba3a", "tertiary-fixed": "#e7e2d9", "on-surface-variant": "rgb(var(--kg-on-surface-variant) / <alpha-value>)", "on-tertiary-fixed-variant": "#494740", "on-secondary": "#65002f", "inverse-primary": "#7e5700", "surface-dim": "rgb(var(--kg-surface) / <alpha-value>)", "inverse-surface": "#e8e0ea", "on-error-container": "#ffdad6", "error": "#ffb4ab", "feedback-error": "#ff8d7a", "surface-panel": "rgb(var(--kg-surface-panel) / <alpha-value>)", "primary-fixed-dim": "rgb(var(--kg-primary-fixed-dim) / <alpha-value>)", "secondary-fixed-dim": "#ffb1c5", "cinema-amber-glow": "rgb(var(--kg-cinema-amber-glow) / .28)", "tertiary-fixed-dim": "#cac6be", "secondary-fixed": "#ffd9e1", "outline-variant": "#514534", "on-secondary-fixed": "#3f001a", "on-secondary-container": "#ff96b3", "primary": "rgb(var(--kg-primary) / <alpha-value>)", "inverse-on-surface": "#332f37", "primary-container": "rgb(var(--kg-primary-container) / <alpha-value>)", "on-primary-fixed": "rgb(var(--kg-on-primary-fixed) / <alpha-value>)", "surface-container-highest": "rgb(var(--kg-surface-container-highest) / <alpha-value>)", "surface-container": "rgb(var(--kg-surface-container) / <alpha-value>)", "surface-container-high": "rgb(var(--kg-surface-container-high) / <alpha-value>)", "cinema-velvet-glow": "rgb(var(--kg-cinema-velvet-glow) / .35)", "surface-border": "rgb(var(--kg-surface-border) / <alpha-value>)", "surface-container-low": "rgb(var(--kg-surface-container-low) / <alpha-value>)", "on-surface": "rgb(var(--kg-on-surface) / <alpha-value>)", "on-tertiary-container": "#54524b", "cinema-velvet-deep": "rgb(var(--kg-cinema-velvet) / <alpha-value>)", "error-container": "#93000a", "secondary-container": "#861a45", "tertiary-container": "#c9c5bc", "primary-fixed": "rgb(var(--kg-primary-fixed) / <alpha-value>)", "canvas-obsidian": "rgb(var(--kg-canvas-obsidian) / <alpha-value>)" }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, spacing: { "space-xs": "0.25rem", "gutter-mobile": "0.75rem", "space-sm": "0.5rem", "margin": "1.5rem", "gutter": "1rem", "space-md": "0.875rem", "space-xl": "2rem", "margin-mobile": "1rem", "space-lg": "1.25rem" }, fontFamily: { "label-sm": ["Plus Jakarta Sans"], "body-md": ["Plus Jakarta Sans"], "micro-caption": ["Plus Jakarta Sans"], "display-hero-mobile": ["Noto Serif"], "label-lg": ["Plus Jakarta Sans"], "body-sm": ["Plus Jakarta Sans"], "headline-md": ["Noto Serif"], "headline-sm": ["Noto Serif"], "display-hero": ["Noto Serif"], "label-md": ["Plus Jakarta Sans"], "body-lg": ["Plus Jakarta Sans"], "headline-lg": ["Noto Serif"] }, fontSize: { "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }], "body-md": ["15px", { "lineHeight": "22px", "fontWeight": "400" }], "micro-caption": ["11px", { "lineHeight": "14px", "fontWeight": "500" }], "display-hero-mobile": ["26px", { "lineHeight": "30px", "letterSpacing": "-0.01em", "fontWeight": "700" }], "label-lg": ["16px", { "lineHeight": "20px", "fontWeight": "700" }], "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }], "headline-md": ["20px", { "lineHeight": "24px", "fontWeight": "600" }], "headline-sm": ["18px", { "lineHeight": "22px", "fontWeight": "600" }], "display-hero": ["34px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "label-md": ["14px", { "lineHeight": "18px", "letterSpacing": "0.01em", "fontWeight": "600" }], "body-lg": ["18px", { "lineHeight": "26px", "fontWeight": "400" }], "headline-lg": ["24px", { "lineHeight": "28px", "fontWeight": "700" }] } } } };</script><style>@layer base{html,body{width:100vw;margin:0;padding:0;background-color:rgb(var(--kg-canvas-obsidian));color:#e8e0ea;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 0.5rem);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+    @keyframes floatPostersA {
+      0% { transform: translateY(0px) rotate(-3deg); }
+      50% { transform: translateY(-10px) rotate(-1.5deg); }
+      100% { transform: translateY(6px) rotate(-4deg); }
+    }
+    @keyframes floatPostersB {
+      0% { transform: translateY(0px) rotate(2deg); }
+      50% { transform: translateY(8px) rotate(3.5deg); }
+      100% { transform: translateY(-8px) rotate(1deg); }
+    }
+    @keyframes ambientGlowPulse {
+      0%, 100% { opacity: 0.35; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.08); }
+    }
+    @keyframes hintPulse {
+      0%, 100% { transform: translateY(0); opacity: 0.85; }
+      50% { transform: translateY(-2px); opacity: 1; }
+    }
+    .floating-poster-col-1 {
+      animation: floatPostersA 12s ease-in-out infinite alternate;
+    }
+    .floating-poster-col-2 {
+      animation: floatPostersB 15s ease-in-out infinite alternate;
+    }
+    .ambient-glow {
+      animation: ambientGlowPulse 8s ease-in-out infinite;
+    }
+    .hint-float {
+      animation: hintPulse 2.8s ease-in-out infinite;
+    }
+    @keyframes shimmerMove {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(200%); }
+    }
+  </style><script src="cinema-reel.js?v=38"></script><link rel="stylesheet" href="watched-button.css?v=4">
+<script src="watched-button.js?v=3"></script>
+<link rel="stylesheet" href="settings-page.css?v=5">
+</head><body class="bg-canvas-obsidian font-body-md text-on-surface flex flex-col min-h-screen relative">
+<!-- Atmospheric Living Theater Background Layer with Floating Posters -->
+<div class="fixed inset-0 pointer-events-none overflow-hidden -z-10 select-none">
+<!-- Ambient Projector Velvet & Amber Glow Orbs -->
+<div class="ambient-glow absolute top-10 -left-20 w-96 h-96 rounded-full bg-cinema-velvet-glow blur-3xl"></div>
+<div class="ambient-glow absolute top-1/3 -right-20 w-[420px] h-[420px] rounded-full bg-cinema-amber-glow blur-3xl" style="animation-delay: -3s;"></div>
+<div class="ambient-glow absolute -bottom-16 left-1/4 w-80 h-80 rounded-full bg-cinema-velvet-deep/40 blur-3xl" style="animation-delay: -5s;"></div>
+<!-- Tilted Living Poster Columns -->
+<div class="absolute inset-0 flex justify-between px-2 sm:px-6 opacity-[0.14] scale-105">
+<!-- Left Column of Tilted Backdrop Posters -->
+<div class="floating-poster-col-1 flex flex-col gap-8 w-36 sm:w-44 -mt-10">
+<div class="w-full h-52 rounded-xl overflow-hidden shadow-2xl bg-surface-container border border-surface-border-subtle">
+<img alt="Atmospheric cinema poster" onerror="this.style.display='none'" class="w-full h-full object-cover grayscale contrast-125" src="assets%20/covers/frnoir.jpg">
+</div>
+<div class="w-full h-56 rounded-xl overflow-hidden shadow-2xl bg-surface-container border border-surface-border-subtle">
+<img alt="Atmospheric cinema poster" onerror="this.style.display='none'" class="w-full h-full object-cover grayscale contrast-125" src="assets%20/covers/jpcrime.jpg">
+</div>
+<div class="w-full h-52 rounded-xl overflow-hidden shadow-2xl bg-surface-container border border-surface-border-subtle">
+<img alt="Atmospheric cinema poster" onerror="this.style.display='none'" class="w-full h-full object-cover grayscale contrast-125" src="assets%20/covers/frnoir.jpg">
+</div>
+</div>
+<!-- Right Column of Tilted Backdrop Posters -->
+<div class="floating-poster-col-2 flex flex-col gap-8 w-36 sm:w-44 mt-6">
+<div class="w-full h-56 rounded-xl overflow-hidden shadow-2xl bg-surface-container border border-surface-border-subtle">
+<img alt="Atmospheric cinema poster" onerror="this.style.display='none'" class="w-full h-full object-cover grayscale contrast-125" src="assets%20/covers/jpcrime.jpg">
+</div>
+<div class="w-full h-52 rounded-xl overflow-hidden shadow-2xl bg-surface-container border border-surface-border-subtle">
+<img alt="Atmospheric cinema poster" onerror="this.style.display='none'" class="w-full h-full object-cover grayscale contrast-125" src="assets%20/covers/frnoir.jpg">
+</div>
+<div class="w-full h-56 rounded-xl overflow-hidden shadow-2xl bg-surface-container border border-surface-border-subtle">
+<img alt="Atmospheric cinema poster" onerror="this.style.display='none'" class="w-full h-full object-cover grayscale contrast-125" src="assets%20/covers/jpcrime.jpg">
+</div>
+</div>
+</div>
+<!-- Dark Vignette Overlay for Crisp Readability of Forefront Elements -->
+<div class="absolute inset-0 bg-gradient-to-b from-canvas-obsidian via-canvas-obsidian/85 to-canvas-obsidian"></div>
+</div>
+<header class="fixed top-0 w-full z-50 pt-safe bg-surface-panel/85 backdrop-blur-xl shadow-[0_4px_24px_rgba(7,6,10,0.85)]"><div class="h-20 px-gutter-mobile flex items-center justify-between gap-space-sm max-w-[520px] mx-auto"><div class="flex items-center gap-space-sm min-w-0 flex-1"><div class="relative flex-shrink-0"><div class="w-11 h-11 rounded-full p-[2px] bg-gradient-to-tr from-cinema-velvet-deep via-primary-container to-primary flex items-center justify-center shadow-[0_0_12px_rgba(255,184,48,0.28)]"><span class="material-symbols-outlined text-primary-fixed text-[24px]">public</span></div></div><div class="flex flex-col min-w-0"><div class="flex items-center gap-space-xs"><h1 class="font-headline-sm text-headline-sm font-bold tracking-tight text-primary drop-shadow-[0_0_14px_rgba(255,184,48,0.35)] truncate">Киноглобус</h1><span class="px-1.5 py-0.5 rounded-full bg-cinema-velvet-deep/70 text-secondary font-micro-caption text-micro-caption tracking-wider border-none">PRO</span></div><p class="font-micro-caption text-micro-caption text-text-muted truncate">Случайная страна · Лучшие фильмы</p></div></div><div class="flex items-center gap-space-xs flex-shrink-0"><button type="button" data-kg-search-open aria-label="Поиск фильмов, актёров и режиссёров" title="Поиск" class="w-9 h-9 flex items-center justify-center rounded-full text-primary-fixed hover:bg-surface-container-high border border-primary-container/20"><span class="material-symbols-outlined text-[20px]">search</span></button><a class="flex items-center gap-1.5 h-9 px-3 rounded-full bg-surface-container-high/90 text-primary-fixed border border-primary-container/20 transition-all active:scale-95 shadow-[0_0_10px_rgba(255,184,48,0.15)] hover:border-primary-container/50" data-path="moe-puteshestvie" href="#" title="Моё путешествие"><span class="material-symbols-outlined text-[16px] text-primary-container">explore</span><span class="font-label-sm text-label-sm font-bold text-primary-fixed tracking-wide">42/104</span></a><a aria-label="Настройки" class="w-9 h-9 flex items-center justify-center rounded-full text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all active:scale-95" data-path="nastrojki" href="#"><span class="material-symbols-outlined text-[20px]">settings</span></a><button id="kg-account-open" type="button" aria-label="Открыть профиль и регистрацию" title="Профиль" class="kg-account-avatar ml-0.5"><img alt="" class="w-8 h-8 rounded-full object-cover border border-primary-container/30 shadow-[0_0_8px_rgba(255,184,48,0.25)]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCdLg3sLBvV5C2sZ07bWRzHNAJmJaRmEX2Goq4C0MdemCoCPam7pZebU2QLXvbPIGiROKivIg5-BQrwLFBR1jND7Mm3QCBX2sm4c6mKTZKsJ7cM956ZwqniQ_ajzjh6Qt_hjTIbhqP2tu4tuNyBCe34OM_6Ei49zUEcke8sVmNKfalQmBXxvFY3w6gj0wjWsHNoh97ZLOMjX3FT4nK7mMo6yYR__VDDQb7D8fbOucu4"></button></div></div></header><main class="flex flex-col relative w-full pt-20 pb-28 bg-transparent min-h-screen max-w-[520px] mx-auto"><div class="flex flex-col w-full px-margin-mobile space-y-space-lg select-none">
+<!-- 1. Mode Switcher Segmented Control -->
+<section class="w-full">
+<div class="p-1 rounded-full bg-surface-container-low shadow-inner flex items-center gap-1"><button class="kg-mode-choice flex-1 py-2.5 px-4 rounded-full font-label-md text-label-md transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer" id="btn-mode-filters" aria-pressed="false" type="button"><span class="material-symbols-outlined text-[18px]">tune</span><span class="">Свои фильтры</span></button><button class="kg-mode-choice flex-1 py-2.5 px-4 rounded-full font-label-md text-label-md transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer" id="btn-mode-surprise" aria-pressed="false" type="button"><span class="material-symbols-outlined text-[18px] text-secondary">auto_awesome</span><span class="">Удиви меня</span></button></div>
+</section>
+
+<!-- Visible TMDB key prompt (shown when key missing) -->
+<section id="tmdb-key-banner" class="w-full rounded-xl bg-surface-panel border border-primary-container/40 p-3.5 shadow-lg hidden">
+  <div class="flex items-start gap-3">
+    <span class="material-symbols-outlined text-primary-container text-[22px]">vpn_key</span>
+    <div class="flex-1 min-w-0">
+      <p class="font-label-md text-label-md text-on-surface font-semibold mb-1">Нужен ключ TMDB</p>
+      <p class="font-body-sm text-body-sm text-text-muted mb-2">Без бесплатного API-ключа крутить глобус нельзя. Получи ключ на themoviedb.org → Settings → API.</p>
+      <div class="flex gap-2">
+        <input id="tmdb-key-input" type="text" placeholder="Вставь API key" class="flex-1 h-10 px-3 rounded-lg bg-surface-container-lowest font-label-md text-label-md text-on-surface outline-none border border-surface-border-subtle">
+        <button id="tmdb-key-save" type="button" class="h-10 px-4 rounded-lg bg-primary-container text-on-primary-container font-label-sm font-bold">Сохранить</button>
+      </div>
+      <p id="tmdb-key-err" class="font-micro-caption text-feedback-error mt-1.5 hidden"></p>
+    </div>
+  </div>
+</section>
+
+<!-- 2. 'Удиви меня' Pill Matrix (Collapsible by mode) -->
+<section class="hidden flex flex-col space-y-2" id="surprise-levels-panel">
+<div class="flex items-center justify-between px-1">
+<span class="font-label-sm text-label-sm text-text-muted uppercase tracking-wider">Градус неожиданности</span>
+<span class="material-symbols-outlined text-secondary text-[16px]">casino</span>
+</div>
+<div class="grid grid-cols-2 gap-2">
+<button class="surprise-chip py-2.5 px-3 rounded-xl bg-surface-panel text-on-surface font-label-sm text-label-sm text-left flex items-center justify-between transition-all duration-150 active:scale-95 shadow-sm" type="button">
+<span class="">Лёгкое удивление</span>
+<span class="material-symbols-outlined text-[16px] text-text-muted">emoji_objects</span>
+</button>
+<button class="surprise-chip py-2.5 px-3 rounded-xl bg-surface-container-high text-primary-fixed font-label-sm text-label-sm text-left flex items-center justify-between transition-all duration-150 active:scale-95 shadow-[0_0_10px_rgba(255,184,48,0.2)]" type="button">
+<span class="">Настоящее открытие</span>
+<span class="material-symbols-outlined text-[16px] text-primary-container">explore</span>
+</button>
+<button class="surprise-chip py-2.5 px-3 rounded-xl bg-surface-panel text-on-surface font-label-sm text-label-sm text-left flex items-center justify-between transition-all duration-150 active:scale-95 shadow-sm" type="button">
+<span class="">Полная случайность</span>
+<span class="material-symbols-outlined text-[16px] text-text-muted">shuffle</span>
+</button>
+<button class="surprise-chip py-2.5 px-3 rounded-xl bg-surface-panel text-on-surface font-label-sm text-label-sm text-left flex items-center justify-between transition-all duration-150 active:scale-95 shadow-sm" type="button">
+<span class="">Хардкор</span>
+<span class="material-symbols-outlined text-[16px] text-feedback-error">local_fire_department</span>
+</button>
+</div>
+<p class="font-micro-caption text-micro-caption text-text-muted px-1" id="surprise-description-text">
+      Случайная страна и редкий шедевр с рейтингом от ⭐ 7.0, который пропустил массовый зритель.
+    </p>
+</section>
+<!-- 3. PHOTOREALISTIC EARTH CINE-GLOBE & RADAR SECTION -->
+<section class="relative w-full rounded-2xl bg-gradient-to-b from-surface-panel via-surface-panel/95 to-surface-container-lowest shadow-[0_8px_36px_rgba(7,6,10,0.95)] p-space-md flex flex-col items-center overflow-hidden border border-surface-border-subtle/80 backdrop-blur-2xl" id="roulette-section">
+<!-- Ambient Holographic Nebula Flares -->
+<div class="absolute -top-16 -left-16 w-52 h-52 rounded-full bg-cinema-velvet-glow blur-3xl pointer-events-none opacity-80"></div>
+<div class="absolute -bottom-16 -right-16 w-56 h-56 rounded-full bg-cinema-amber-glow blur-3xl pointer-events-none opacity-90"></div>
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 rounded-full bg-primary-container/10 blur-3xl pointer-events-none"></div>
+<!-- Visor HUD Header with Live Satellite Status -->
+<div class="w-full flex items-center justify-between mb-2 z-20">
+<div class="flex items-center gap-2">
+<span class="relative flex h-2.5 w-2.5">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-container opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary-container" id="roulette-status-dot"></span>
+</span>
+<span class="font-label-sm text-label-sm text-primary-fixed uppercase tracking-wider font-bold drop-shadow-[0_0_8px_rgba(255,184,48,0.4)]">Кинорадар стран</span>
+<span class="text-[10px] px-1.5 py-0.2 rounded bg-surface-container text-text-muted font-mono tracking-tighter" id="radar-freq">SAT·40.4°N</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-primary/40 transition-colors bg-primary" id="tick-spark"></span>
+<span class="font-micro-caption text-micro-caption px-2.5 py-0.5 rounded-full bg-surface-container-high/90 text-primary-fixed border border-primary-container/20 shadow-[0_0_10px_rgba(255,184,48,0.15)]" id="roulette-status-badge">104 страны онлайн</span>
+</div>
+</div>
+<!-- Photorealistic Earth Space Viewport Card -->
+<div class="relative w-full mx-auto rounded-2xl bg-black overflow-hidden flex flex-col items-center justify-between group h-[440px] select-none" id="globe-container">
+<!-- 1. STATIC DEEP SPACE BACKGROUND LAYER -->
+<div class="absolute inset-0 z-0 overflow-hidden pointer-events-none select-none" id="starfield-bg">
+<img alt="Млечный Путь, снятый экипажем Artemis II. Фото NASA, «No Place Like Home»." class="w-full h-full object-cover object-center scale-105 pointer-events-none select-none opacity-90 contrast-125" src="https://images-assets.nasa.gov/image/art002e028296/art002e028296~large.jpg">
+<div class="absolute inset-0 bg-gradient-to-b from-black/25 via-black/45 to-black/65 pointer-events-none"></div>
+</div>
+<!-- 2. 3D PLANET EARTH CANVASES & RENDER VIEWPORT -->
+<div class="absolute inset-0 flex items-center justify-center pointer-events-auto z-10" id="earth-canvas-container">
+<!-- Interactive 3D Earth WebGL Canvas -->
+<canvas class="w-full h-full block touch-none cursor-grab active:cursor-grabbing" id="earth-webgl-canvas"></canvas>
+</div>
+<!-- Selected Country Holographic Display Card: reveals selected country details with golden radiance -->
+<div class="relative z-30 flex flex-col items-center justify-center px-4 pt-2 pb-3 transition-all duration-300 w-full max-w-[320px] text-center pointer-events-none mt-auto" id="hero-hologram-display" style="filter: drop-shadow(rgba(255, 184, 48, 0.5) 0px 0px 20px);"><div class="relative w-15 h-15 rounded-2xl p-[2px] bg-gradient-to-tr from-cinema-velvet-deep via-primary-container to-primary shadow-[0_0_28px_rgba(255,184,48,0.7)] flex items-center justify-center backdrop-blur-md mb-1.5 transition-transform" id="hologram-flag-orb"><div class="w-full h-full rounded-[14px] bg-surface-container-lowest/90 flex items-center justify-center overflow-hidden relative shadow-[0_0_16px_rgba(255,184,48,0.4)]"><div class="absolute inset-0 bg-gradient-to-b from-white/15 via-transparent to-transparent pointer-events-none"></div><span class="text-3xl drop-shadow-[0_4px_16px_rgba(0,0,0,0.8)] select-none transition-all duration-150" id="hero-country-flag">🇪🇸</span></div><div class="absolute -bottom-1 inset-x-3 h-2 bg-primary-container/70 blur-sm rounded-full"></div></div><div class="inline-flex items-center gap-1 px-3 py-0.5 rounded-full bg-[#20152a]/95 border border-primary-container/50 text-primary-container font-micro-caption mb-1 shadow-[0_0_12px_rgba(255,184,48,0.3)]"><span class="text-primary text-[10px]">✪</span><span class="font-bold tracking-wider uppercase text-amber-200">ВЫПАЛА СТРАНА</span></div><h2 class="font-headline-lg text-headline-lg font-bold text-primary tracking-tight leading-tight drop-shadow-[0_0_16px_rgba(255,215,120,0.45)] truncate max-w-[260px]" id="hero-country-name">Испания</h2><div class="flex items-center gap-1.5 mt-1"><span class="px-2.5 py-0.5 rounded-full bg-surface-container-high/90 text-primary-fixed font-micro-caption text-micro-caption tracking-wider uppercase border border-primary-container/20" id="hero-country-region">ЮЖНАЯ ЕВРОПА</span><span class="px-2.5 py-0.5 rounded-full bg-cinema-velvet-deep/70 text-secondary font-micro-caption text-micro-caption tracking-wider" id="hero-country-films">295 лент</span></div><div class="flex items-center gap-1 text-text-muted font-micro-caption text-micro-caption mt-1.5 opacity-90"><span class="material-symbols-outlined text-[13px] text-primary-container">movie</span><span class="truncate max-w-[250px]" id="hero-country-master">Педро Альмодовар · Гильермо дель Торо</span></div></div></div>
+<!-- Tactile Primary CTA Button: 'Крутить глобус' -->
+<div class="w-full mt-3.5 z-10">
+<button class="relative w-full py-4 px-6 rounded-2xl text-canvas-obsidian font-headline-sm text-[17px] font-bold tracking-wider uppercase flex items-center justify-between shadow-[0_8px_32px_rgba(255,115,0,0.45)] transition-all duration-200 hover:brightness-110 active:scale-[0.97] overflow-hidden group select-none cursor-pointer border border-white/20" id="btn-spin-roulette" style="background: linear-gradient(135deg, rgb(255, 78, 32) 0%, rgb(255, 140, 0) 48%, rgb(255, 193, 7) 100%); box-shadow: rgba(255, 115, 0, 0.45) 0px 8px 30px, rgba(255, 255, 255, 0.4) 0px 1px 1px inset;" type="button"><span class="w-9 h-9 rounded-xl bg-black/20 flex items-center justify-center text-lg select-none">🎲</span><span class="font-bold tracking-wide text-canvas-obsidian drop-shadow-[0_1px_1px_rgba(255,255,255,0.4)] flex items-center gap-2" id="btn-spin-text"><span class="material-symbols-outlined text-[22px] text-canvas-obsidian font-bold transition-transform duration-300" id="btn-spin-icon">casino</span><span class="">КРУТИТЬ ГЛОБУС</span></span><span class="w-9 h-9 rounded-xl flex items-center justify-center text-xl text-black select-none font-bold transition-transform duration-300 group-hover:rotate-180" id="btn-spin-secondary-icon">↻</span><div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/35 to-transparent -translate-x-full animate-[shimmerMove_2.5s_infinite]"></div></button>
+</div>
+<!-- Secondary Quick-Action Cinema Launchers -->
+<div class="w-full grid grid-cols-2 gap-2 mt-2.5 z-10"><button class="py-2.5 px-3 rounded-xl text-on-surface hover:text-primary font-label-sm text-label-sm flex items-center justify-center gap-2 transition-all duration-200 active:scale-95 cursor-pointer backdrop-blur-md border border-primary-container/25 shadow-[0_4px_16px_rgba(0,0,0,0.4)] hover:border-primary-container/50 hover:shadow-[0_0_14px_rgba(255,184,48,0.25)]" id="btn-top-one" style="background: linear-gradient(rgba(38, 30, 48, 0.85) 0%, rgba(22, 18, 28, 0.95) 100%);" type="button"><span class="material-symbols-outlined text-[18px] text-primary-container">military_tech</span><span class="font-medium">Топ-1 всех времён</span></button><button class="py-2.5 px-3 rounded-xl text-on-surface hover:text-secondary font-label-sm text-label-sm flex items-center justify-center gap-2 transition-all duration-200 active:scale-95 cursor-pointer backdrop-blur-md border border-secondary/25 shadow-[0_4px_16px_rgba(0,0,0,0.4)] hover:border-secondary/50 hover:shadow-[0_0_14px_rgba(255,177,197,0.25)]" id="btn-oscar-laureate" style="background: linear-gradient(rgba(48, 22, 38, 0.85) 0%, rgba(28, 14, 24, 0.95) 100%);" type="button"><span class="material-symbols-outlined text-[18px] text-secondary">hotel_class</span><span class="font-medium">Лауреат Оскар</span></button></div>
+</section>
+<!-- Главные фильтры -->
+<section class="w-full flex flex-col gap-2.5">
+<div class="grid grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] gap-2" role="group" aria-label="Фильтры кино">
+<button id="genre-filter-button" type="button" aria-expanded="false" aria-controls="genre-filter-panel" class="group flex min-w-0 items-center gap-2 px-2.5 py-2.5 rounded-xl bg-surface-panel shadow-sm hover:bg-surface-container aria-expanded:bg-surface-container transition-colors text-left">
+<span aria-hidden="true" class="material-symbols-outlined shrink-0 text-primary-container text-[18px]">movie_creation</span>
+<span class="min-w-0 flex-1">
+<span class="block font-headline-sm text-[13px] leading-tight text-on-surface font-semibold">Категории и жанры</span>
+<span id="genre-filter-summary" class="block truncate font-micro-caption text-micro-caption text-text-muted">Любой</span>
+</span>
+<span aria-hidden="true" class="material-symbols-outlined shrink-0 text-text-muted text-[16px] transition-transform group-aria-expanded:rotate-180">expand_more</span>
+</button>
+<button id="country-filter-button" type="button" aria-expanded="false" aria-controls="country-filter-panel" class="group flex min-w-0 items-center gap-2 px-2.5 py-2.5 rounded-xl bg-surface-panel shadow-sm hover:bg-surface-container aria-expanded:bg-surface-container transition-colors text-left">
+<span aria-hidden="true" class="material-symbols-outlined shrink-0 text-primary-container text-[18px]">public</span>
+<span class="min-w-0 flex-1">
+<span class="block font-headline-sm text-[13px] leading-tight text-on-surface font-semibold">Страны</span>
+<span id="country-filter-summary" class="block truncate font-micro-caption text-micro-caption text-text-muted">Любая страна</span>
+</span>
+<span aria-hidden="true" class="material-symbols-outlined shrink-0 text-text-muted text-[16px] transition-transform group-aria-expanded:rotate-180">expand_more</span>
+</button>
+</div>
+<div id="genre-filter-panel" class="rounded-xl bg-surface-panel shadow-sm p-3.5" hidden>
+<div id="genre-filter-chips" class="flex flex-wrap gap-2">
+<button class="genre-pill h-[34px] px-4 rounded-full font-label-sm text-label-sm flex items-center gap-1 text-canvas-obsidian font-bold cursor-pointer border border-white/20 transition-all" style="background: linear-gradient(135deg, rgb(255, 78, 32) 0%, rgb(255, 149, 0) 50%, rgb(255, 193, 7) 100%); box-shadow: rgba(255, 115, 0, 0.4) 0px 2px 14px, rgba(255, 255, 255, 0.35) 0px 1px 0px inset;" type="button"><span class="">🌐 Любой жанр</span></button>
+<button class="genre-pill h-[34px] px-3.5 rounded-full font-label-sm text-label-sm flex items-center gap-1 bg-surface-container text-text-muted hover:text-on-surface" type="button">
+<span class="">Боевик</span>
+</button>
+<button class="genre-pill h-[34px] px-3.5 rounded-full font-label-sm text-label-sm flex items-center gap-1 bg-surface-container text-text-muted hover:text-on-surface" type="button">
+<span class="">Детектив</span>
+</button>
+<button class="genre-pill h-[34px] px-3.5 rounded-full font-label-sm text-label-sm flex items-center gap-1 bg-surface-container text-text-muted hover:text-on-surface" type="button">
+<span class="">Драма</span>
+</button>
+<button class="genre-pill h-[34px] px-3.5 rounded-full font-label-sm text-label-sm flex items-center gap-1 bg-surface-container text-text-muted hover:text-on-surface" type="button">
+<span class="">Комедия</span>
+</button>
+<button class="genre-pill h-[34px] px-3.5 rounded-full font-label-sm text-label-sm flex items-center gap-1 bg-surface-container text-text-muted hover:text-on-surface" type="button">
+<span class="">Триллер</span>
+</button>
+<button class="genre-pill h-[34px] px-3.5 rounded-full font-label-sm text-label-sm flex items-center gap-1 bg-surface-container text-text-muted hover:text-on-surface" type="button">
+<span class="">Ужасы</span>
+</button>
+<button class="genre-pill h-[34px] px-3.5 rounded-full font-label-sm text-label-sm flex items-center gap-1 bg-surface-container-high text-on-surface-variant hover:text-on-surface" type="button">
+<span class="">📉 Худшие из худших</span>
+</button>
+<button class="genre-pill h-[34px] px-3.5 rounded-full font-label-sm text-label-sm flex items-center gap-1 bg-surface-container-high text-secondary hover:text-secondary-fixed" type="button">
+<span class="">🔞 Взрослое кино 18+</span>
+</button>
+</div>
+</div>
+<div id="country-filter-panel" class="rounded-xl bg-surface-panel shadow-sm p-3.5" hidden>
+<input id="country-filter-search" type="search" aria-label="Найти страну" autocomplete="off" placeholder="Найти страну…" class="w-full h-10 px-3 mb-2 rounded-lg bg-surface-container-lowest text-label-sm text-on-surface placeholder:text-text-muted/70 outline-none border border-white/10 focus:border-primary-container/60">
+<div class="flex items-center justify-between mb-2"><span id="country-filter-hint" class="font-micro-caption text-micro-caption text-text-muted">Без выбора поиск идёт по всем странам</span><button id="country-filter-clear" type="button" class="font-micro-caption text-micro-caption text-primary-container hover:text-primary">Сбросить</button></div>
+<div id="country-filter-chips" class="flex flex-wrap gap-2 max-h-44 overflow-y-auto pr-1" aria-label="Страны производства"></div>
+</div>
+<!-- Год и рейтинг -->
+<details id="year-rating-filter" class="group rounded-xl bg-surface-panel shadow-sm overflow-hidden">
+<summary class="flex items-center justify-between p-3.5 cursor-pointer list-none select-none bg-surface-panel hover:bg-surface-container transition-colors">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-container text-[20px]">calendar_month</span>
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold">Год и рейтинг</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="font-micro-caption text-micro-caption text-text-muted" id="year-rating-filter-summary">1920–2026 · 6.0+</span>
+<span class="material-symbols-outlined text-text-muted text-[20px] transition-transform duration-200 group-open:rotate-180">expand_more</span>
+</div>
+</summary>
+<div class="p-3.5 pt-1 space-y-3">
+<!-- Dual Year Inputs -->
+<div class="flex items-center gap-2">
+<div class="flex-1 flex flex-col">
+<label class="font-micro-caption text-micro-caption text-text-muted mb-1">Год от</label>
+<div class="h-12 px-3 rounded-lg bg-surface-container-lowest flex items-center shadow-inner">
+<input class="w-full bg-transparent font-label-md text-label-md text-on-surface outline-none" max="2026" min="1920" type="number" value="1970">
+</div>
+</div>
+<span class="text-text-muted mt-5">—</span>
+<div class="flex-1 flex flex-col">
+<label class="font-micro-caption text-micro-caption text-text-muted mb-1">Год до</label>
+<div class="h-12 px-3 rounded-lg bg-surface-container-lowest flex items-center shadow-inner">
+<input class="w-full bg-transparent font-label-md text-label-md text-on-surface outline-none" max="2026" min="1920" type="number" value="2026">
+</div>
+</div>
+</div>
+<!-- Rating Filter Selector Chips -->
+<div class="flex flex-col">
+<label class="font-micro-caption text-micro-caption text-text-muted mb-1.5">Минимальная оценка зрителей</label>
+<div class="flex items-center justify-between gap-1.5 overflow-x-auto pb-1">
+<button class="flex-1 py-1.5 px-2 rounded-lg bg-surface-container font-label-sm text-label-sm text-text-muted hover:text-on-surface" type="button">5.0</button>
+<button class="flex-1 py-1.5 px-2 rounded-lg bg-primary-container text-on-primary-container font-label-sm text-label-sm shadow-[0_0_8px_rgba(255,184,48,0.25)] font-bold" type="button">6.0</button>
+<button class="flex-1 py-1.5 px-2 rounded-lg bg-surface-container font-label-sm text-label-sm text-text-muted hover:text-on-surface" type="button">7.0</button>
+<button class="flex-1 py-1.5 px-2 rounded-lg bg-surface-container font-label-sm text-label-sm text-text-muted hover:text-on-surface" type="button">7.5</button>
+<button class="flex-1 py-1.5 px-2 rounded-lg bg-surface-container font-label-sm text-label-sm text-text-muted hover:text-on-surface" type="button">8.0+</button>
+</div>
+</div>
+</div>
+</details>
+<!-- Тематические коллекции -->
+<details id="theme-filter" class="group rounded-xl bg-surface-panel shadow-sm overflow-hidden">
+<summary class="flex items-center justify-between p-3.5 cursor-pointer list-none select-none bg-surface-panel hover:bg-surface-container transition-colors">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-container text-[20px]">collections_bookmark</span>
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold">Тематические коллекции</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="font-micro-caption text-micro-caption text-text-muted" id="theme-filter-summary">Готовые сеты</span>
+<span class="material-symbols-outlined text-text-muted text-[20px] transition-transform duration-200 group-open:rotate-180">expand_more</span>
+</div>
+</summary>
+<div class="p-3.5 pt-1 flex flex-wrap gap-2">
+<button class="h-[34px] px-3.5 rounded-full font-label-sm text-label-sm bg-surface-container text-text-muted hover:text-primary transition-colors flex items-center gap-1.5" type="button">
+<span class="">🔪 Корейские триллеры</span>
+</button>
+<button class="h-[34px] px-3.5 rounded-full font-label-sm text-label-sm bg-surface-container text-text-muted hover:text-primary transition-colors flex items-center gap-1.5" type="button">
+<span class="">❄️ Скандинавский нуар</span>
+</button>
+<button class="h-[34px] px-3.5 rounded-full font-label-sm text-label-sm bg-surface-container text-text-muted hover:text-primary transition-colors flex items-center gap-1.5" type="button">
+<span class="">🌸 Японское аниме</span>
+</button>
+<button class="h-[34px] px-3.5 rounded-full font-label-sm text-label-sm bg-surface-container text-text-muted hover:text-primary transition-colors flex items-center gap-1.5" type="button">
+<span class="">☕ Французский нуар</span>
+</button>
+<button class="h-[34px] px-3.5 rounded-full font-label-sm text-label-sm bg-surface-container text-text-muted hover:text-primary transition-colors flex items-center gap-1.5" type="button">
+<span class="">🥋 Гонконгские боевики</span>
+</button>
+</div>
+</details>
+</section>
+<!-- 5. Active / Recent Discovery Mini-Card Banner -->
+<section class="w-full rounded-2xl bg-surface-panel p-3.5 shadow-xl relative overflow-hidden transition-all duration-300 border border-surface-border-subtle" id="recent-discovery-card"><div class="flex items-center justify-between mb-2.5"><div class="flex items-center gap-1.5"><span class="material-symbols-outlined text-primary-container text-[16px]">history_edu</span><span class="font-micro-caption text-micro-caption text-text-muted uppercase tracking-wider font-semibold">Последняя находка</span></div><span class="font-micro-caption text-micro-caption text-primary-fixed font-medium" id="discovery-timestamp">#1 по рейтингу</span></div><div class="flex gap-3"><div class="relative w-20 h-28 rounded-lg overflow-hidden flex-shrink-0 bg-surface-container-high shadow-md"><img alt="Постер фильма" class="w-full h-full object-cover transition-opacity duration-300" id="discovery-poster" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCpkySIT3QFOrvaTrn_y3e9VU2oJXCOiXlq4gTLB2lruBr4zze6OOCSX4ly_tDA8-zMStZ3ymPns5xeDFmrV8gX0MGNY_McudquZZMMYeeZN8R0iNYKkP35pdycV3BcxA8ot4M-ve0cbgCdLZwE971O4I8elJaULWCr-vmaDWzqdmskz5GvRBIqCPqPM35WWOKSwoUbQT4BunQfy9yBuT1CKDD6ef4ISV7wyD5Gu0jR"><div class="absolute bottom-1 right-1 px-1.5 py-0.5 rounded bg-surface-container-lowest/85 font-micro-caption text-micro-caption font-bold text-primary-fixed" id="discovery-rating">8.2</div></div><div class="flex flex-col justify-between flex-1 min-w-0 py-0.5"><div><div class="flex items-center gap-1.5"><h3 class="font-headline-sm text-headline-sm font-bold text-on-surface truncate" id="discovery-title">Лабиринт Фавна</h3><span class="text-micro-caption text-text-muted font-body-sm" id="discovery-year">(2006)</span></div><p class="font-label-sm text-label-sm text-primary-fixed mt-0.5 flex items-center gap-1"><span class="" id="discovery-country">Испания</span><span class="" id="discovery-flag">🇪🇸</span><span class="text-text-muted truncate" id="discovery-genres">· Фэнтези, Драма · 118 мин</span></p><p class="font-body-sm text-body-sm text-text-muted line-clamp-2 mt-1" id="discovery-desc">Испания 1944 года: одинокая девочка находит тайный древний лабиринт и сказочного Фавна.</p></div><div class="flex items-center gap-2 mt-2"><button class="flex-1 py-2 px-3 rounded-xl text-white font-label-sm text-label-sm font-bold flex items-center justify-center gap-1.5 transition-all duration-150 hover:brightness-110 active:scale-95 cursor-pointer border border-white/20 shadow-[0_4px_16px_rgba(255,77,77,0.35)]" style="background: linear-gradient(135deg, rgb(255, 59, 48) 0%, rgb(255, 107, 34) 50%, rgb(245, 158, 11) 100%); box-shadow: rgba(255, 77, 77, 0.35) 0px 4px 18px, rgba(255, 255, 255, 0.3) 0px 1px 0px inset;" type="button"><span class="material-symbols-outlined text-[18px]">play_arrow</span><span class="truncate">Смотреть трейлер</span></button></div></div></div></section>
+<div id="kg-home-releases" class="w-full flex flex-col gap-7 pt-1"></div>
+<div id="kg-home-editorial" class="w-full flex flex-col gap-3">
+  <article id="kg-home-feature" class="w-full rounded-xl bg-surface-container-high shadow-xl p-3.5">
+    <p class="font-micro-caption text-micro-caption text-primary font-bold uppercase tracking-wider">Выбор дня</p>
+    <p class="font-body-sm text-body-sm text-text-muted mt-2">Добавьте ключ TMDB, чтобы загрузить фильм и подборку европейского кино.</p>
+  </article>
+  <section class="w-full" aria-labelledby="kg-home-europe-title">
+    <div class="flex items-center justify-between gap-2 mb-2">
+      <div class="flex items-center gap-1.5 min-w-0"><span class="material-symbols-outlined text-primary-container text-[20px]">theaters</span><h2 id="kg-home-europe-title" class="font-headline-sm text-headline-sm text-on-surface truncate">Европейская палитра</h2></div>
+      <button id="kg-home-europe-link" type="button" class="font-label-sm text-label-sm text-primary-container font-semibold hover:underline flex-shrink-0">Все 14 стран →</button>
+    </div>
+    <div id="kg-home-europe" class="kg-home-europe flex gap-2 overflow-x-auto pb-2" aria-label="Фильмы европейского кино"></div>
+    <div id="kg-home-europe-detail" class="w-full mt-2" hidden></div>
+  </section>
+</div>
+</div>
+
+<!-- Bridge elements for Kinoglobus engine (visually hidden) -->
+<div id="kg-bridge" style="position:absolute;width:0;height:0;overflow:hidden;opacity:0;pointer-events:none" aria-hidden="true">
+  <button id="go"></button>
+  <button id="top1"></button>
+  <button id="oscar"></button>
+  <button id="again"></button>
+  <button id="seen"></button>
+  <button id="trailer"></button>
+  <button id="fskip"></button>
+  <button id="gear"></button>
+  <button id="mapBtn"></button>
+  <button id="sclose"></button>
+  <button id="jclose"></button>
+  <button id="fx"></button>
+  <button id="filmTog"></button>
+  <button id="adultVis"></button>
+  <button id="resetSettings"></button>
+  <button id="resetHist"></button>
+  <button id="changeKey"></button>
+  <button id="saveKey"></button>
+  <button id="modeFilters"></button>
+  <button id="modeSurprise"></button>
+  <div id="keyCard" hidden><input id="key"></div>
+  <div id="surpriseCard" hidden></div>
+  <div id="filterCard"><div id="chips"></div><div id="worstBox" hidden></div><div id="adultNote" hidden></div><span id="filterSum"></span></div>
+  <div id="extraCard"><input id="year"><input id="yearTo"><select id="rmin"><option value="6">6</option></select><select id="rmax"><option value=""></option></select><span id="extraSum"></span><div id="yearNote" hidden></div></div>
+  <div id="themeCard"><div id="themes"></div><div id="themeNote" hidden></div><span id="themeSum"></span></div>
+  <div id="surpriseChips"></div>
+  <div id="surpriseNote" hidden></div>
+  <div id="err"></div>
+  <div id="reel" hidden><div id="rcol"></div><div id="rname"></div><div class="rlens"></div></div>
+  <div id="freel" hidden><div id="fhead"></div><div id="fcol"></div><div id="fname"></div><div class="flens"></div></div>
+  <div id="result" hidden>
+    <span id="flag"></span><p id="cname"></p><p id="cmeta"></p>
+    <img id="poster"><h2 id="title"></h2><div id="fmeta"></div><div id="fgenre"></div><span id="rating"></span>
+    <div id="crew" hidden></div><p id="tagline" hidden></p><p id="over"></p>
+    <div id="player" hidden></div><p id="ytnote" hidden><a id="ytlink"></a></p>
+  </div>
+  <dialog id="settings"><select id="snd"><option value="roulette">roulette</option><option value="bells">bells</option><option value="arcade">arcade</option><option value="casino">casino</option><option value="marimba">marimba</option><option value="space">space</option><option value="film">film</option><option value="orchestra">orchestra</option><option value="jazz">jazz</option><option value="synth">synth</option><option value="chimes">chimes</option><option value="off">off</option></select><select id="reel-snd"><option value="projector">35 мм · проектор</option><option value="imax">Кинозал · мягкий импульс</option><option value="camera">Кинокамера · механика</option><option value="tape">Магнитная плёнка</option><option value="premiere">Премьерный зал</option><option value="shutter">Кинокамера · затвор</option><option value="editbench">Монтажный стол · шаг кадра</option><option value="sixteenmm">16 мм · мягкая трещотка</option><option value="off">Без звука</option></select></dialog>
+  <dialog id="journey"><div id="jhead"></div><i id="jfill"></i><div id="mapbox"></div><div id="jstats"></div><div id="jopen"></div><div id="jclosed"></div><span id="jclosedsum"></span><div id="jfilms"></div><span id="jopenT"></span><span id="jfilmsT"></span><span id="minfo"></span><span id="jtitle"></span></dialog>
+  <span id="brand"></span>
+  <span id="topNote" hidden></span><span id="oscarNote" hidden></span>
+  <div id="rwin"></div>
+</div>
+
+<script>
+localizeInterfaceMarkup(document.querySelector("body > header"));
+localizeInterfaceMarkup(document.querySelector("main"));
+// ========== Глобус и UI: перенесены 1:1 из дизайна (вращение подключает мост ниже) ==========
+
+  (function() {
+    // Full Real-World Countries Cinema Database with exact lat/lon
+    const catalog = [
+      {
+        id: 'KR',
+        name: 'Южная Корея',
+        flag: '🇰🇷',
+        reg: 'ВОСТОЧНАЯ АЗИЯ',
+        films: '412 лент',
+        dirs: 'Пон Чжун Хо · Пак Чхан Ук',
+        lat: 37.5,
+        lon: 126.9,
+        movie: {
+          title: 'Паразиты',
+          year: '(2019)',
+          rating: '8.5',
+          genres: '· Триллер, Драма · 132 мин',
+          desc: 'Бедная семья Ким обманом устраивается на работу в богатый дом Пак, но скрытая тайна меняет всё...',
+          poster: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=300&q=80'
+        }
+      },
+      {
+        id: 'JP',
+        name: 'Япония',
+        flag: '🇯🇵',
+        reg: 'ВОСТОЧНАЯ АЗИЯ',
+        films: '389 лент',
+        dirs: 'Акира Куросава · Хаяо Миядзаки',
+        lat: 36.2,
+        lon: 138.2,
+        movie: {
+          title: 'Унесённые призраками',
+          year: '(2001)',
+          rating: '8.6',
+          genres: '· Аниме, Приключения · 125 мин',
+          desc: 'Маленькая Тихиро попадает в потусторонний мир духов и колдуньи Юбабы, спасая родителей.',
+          poster: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=300&q=80'
+        }
+      },
+      {
+        id: 'FR',
+        name: 'Франция',
+        flag: '🇫🇷',
+        reg: 'ЗАПАДНАЯ ЕВРОПА',
+        films: '520 лент',
+        dirs: 'Франсуа Трюффо · Жан-Люк Годар',
+        lat: 46.2,
+        lon: 2.2,
+        movie: {
+          title: '1+1 (Неприкасаемые)',
+          year: '(2011)',
+          rating: '8.8',
+          genres: '· Драма, Комедия · 112 мин',
+          desc: 'Богатый аристократ в инвалидном кресле нанимает в сиделки парня с улицы.',
+          poster: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=300&q=80'
+        }
+      },
+      {
+        id: 'IT',
+        name: 'Италия',
+        flag: '🇮🇹',
+        reg: 'ЮЖНАЯ ЕВРОПА',
+        films: '310 лент',
+        dirs: 'Паоло Соррентино · Федерико Феллини',
+        lat: 41.9,
+        lon: 12.6,
+        movie: {
+          title: 'Великая красота',
+          year: '(2013)',
+          rating: '8.2',
+          genres: '· Драма, Философия · 141 мин',
+          desc: 'Писатель Джеп Гамбарделла наблюдает за римской жизнью в поисках подлинного смысла.',
+          poster: 'https://images.unsplash.com/photo-1518676590629-3dcbd9c5a5c9?auto=format&fit=crop&w=300&q=80'
+        }
+      },
+      {
+        id: 'US',
+        name: 'США',
+        flag: '🇺🇸',
+        reg: 'СЕВЕРНАЯ АМЕРИКА',
+        films: '1240 лент',
+        dirs: 'Кристофер Нолан · Мартин Скорсезе',
+        lat: 37.1,
+        lon: -95.7,
+        movie: {
+          title: 'Интерстеллар',
+          year: '(2014)',
+          rating: '8.7',
+          genres: '· Фантастика, Драма · 169 мин',
+          desc: 'Группа исследователей отправляется сквозь червоточину в поисках нового дома для человечества.',
+          poster: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=300&q=80'
+        }
+      },
+      {
+        id: 'BR',
+        name: 'Бразилия',
+        flag: '🇧🇷',
+        reg: 'ЮЖНАЯ АМЕРИКА',
+        films: '185 лент',
+        dirs: 'Фернанду Мейреллиш · Валтер Саллес',
+        lat: -14.2,
+        lon: -51.9,
+        movie: {
+          title: 'Город Бога',
+          year: '(2002)',
+          rating: '8.6',
+          genres: '· Криминал, Драма · 130 мин',
+          desc: 'Хроника взросления двух парней в жестоких трущобах Рио-де-Жанейро 1960–80-х годов.',
+          poster: 'https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?auto=format&fit=crop&w=300&q=80'
+        }
+      },
+      {
+        id: 'DE',
+        name: 'Германия',
+        flag: '🇩🇪',
+        reg: 'ЦЕНТРАЛЬНАЯ ЕВРОПА',
+        films: '430 лент',
+        dirs: 'Вим Вендерс · Фриц Ланг',
+        lat: 51.1,
+        lon: 10.4,
+        movie: {
+          title: 'Жизнь других',
+          year: '(2006)',
+          rating: '8.4',
+          genres: '· Триллер, Драма · 137 мин',
+          desc: 'Сотрудник Штази ведет тайную слежку за драматургом и проникается его свободой.',
+          poster: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=300&q=80'
+        }
+      },
+      {
+        id: 'GB',
+        name: 'Великобритания',
+        flag: '🇬🇧',
+        reg: 'ЗАПАДНАЯ ЕВРОПА',
+        films: '610 лент',
+        dirs: 'Стэнли Кубрик · Альфред Хичкок',
+        lat: 55.3,
+        lon: -3.4,
+        movie: {
+          title: 'Тёмный рыцарь',
+          year: '(2008)',
+          rating: '9.0',
+          genres: '· Боевик, Триллер · 152 мин',
+          desc: 'Бэтмен поднимает ставки в войне с криминалом, когда Готэм наводняет психопат Джокер.',
+          poster: 'https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?auto=format&fit=crop&w=300&q=80'
+        }
+      },
+      {
+        id: 'ES',
+        name: 'Испания',
+        flag: '🇪🇸',
+        reg: 'ЮЖНАЯ ЕВРОПА',
+        films: '295 лент',
+        dirs: 'Педро Альмодовар · Гильермо дель Торо',
+        lat: 40.4,
+        lon: -3.7,
+        movie: {
+          title: 'Лабиринт Фавна',
+          year: '(2006)',
+          rating: '8.2',
+          genres: '· Фэнтези, Драма · 118 мин',
+          desc: 'Испания 1944 года: одинокая девочка находит тайный древний лабиринт и сказочного Фавна.',
+          poster: 'https://images.unsplash.com/photo-1518676590629-3dcbd9c5a5c9?auto=format&fit=crop&w=300&q=80'
+        }
+      },
+      {
+        id: 'MX',
+        name: 'Мексика',
+        flag: '🇲🇽',
+        reg: 'СЕВЕРНАЯ АМЕРИКА',
+        films: '160 лент',
+        dirs: 'Алехандро Г. Иньярриту · Альфонсо Куарон',
+        lat: 23.6,
+        lon: -102.5,
+        movie: {
+          title: 'Сука-любовь',
+          year: '(2000)',
+          rating: '8.1',
+          genres: '· Драма, Триллер · 154 мин',
+          desc: 'Фатальная автомобильная авария в Мехико связывает судьбы трёх совершенно разных людей.',
+          poster: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=300&q=80'
+        }
       }
-      return data;
+    ];
+
+    // Initial state: Spain (index 8)
+    let currentCountry = catalog[8];
+
+    // DOM Elements
+    const heroDisplay = document.getElementById('hero-hologram-display');
+    const heroFlag = document.getElementById('hero-country-flag');
+    const heroName = document.getElementById('hero-country-name');
+    const heroRegion = document.getElementById('hero-country-region');
+    const heroFilms = document.getElementById('hero-country-films');
+    const heroMaster = document.getElementById('hero-country-master');
+    const radarFreq = document.getElementById('radar-freq');
+
+
+    function updateHolographicView(country, isStep = false) {
+      if (!country) return;
+      if (heroFlag) heroFlag.innerHTML = country.flag || flag(country.id, false);
+      if (heroName) heroName.textContent = interfaceLanguage === "ru" ? country.name : interfaceRegionNames.of(country.id);
+      if (heroRegion) heroRegion.textContent = uiText(country.reg);
+      if (heroFilms) {
+        const count = parseInt(country.films, 10);
+        heroFilms.textContent = Number.isNaN(count) ? country.films : uiText("{count} лент", {count});
+      }
+      if (heroMaster) heroMaster.textContent = uiText(country.dirs);
+      if (radarFreq) {
+        const sign = country.lat >= 0 ? 'N' : 'S';
+        radarFreq.textContent = `SAT·${Math.abs(country.lat).toFixed(1)}°${sign}`;
+      }
+
+      if (isStep && heroDisplay) {
+        heroDisplay.style.transform = 'scale(0.96)';
+        setTimeout(() => { if (heroDisplay) heroDisplay.style.transform = 'scale(1)'; }, 100);
+      }
     }
-    const jobs=[];
-    t.cc.forEach(cc=>{for(let p=1;p<=pages;p++)jobs.push(api({...qs(t,cc),page:p},{fresh:force}).then(r=>({cc,p,total:r.total_results||0,films:(r.results||[]).map(f=>({...f,_cc:cc}))})));});
-    try{
-      const parts=await Promise.all(jobs);
-      const aggregate=selected=>{
-        const totals={},ids=new Set();let films=[];
-        selected.forEach(x=>{if(x.p===1)totals[x.cc]=x.total;films.push(...x.films.filter(f=>!ids.has(f.id)&&ids.add(f.id)));});
-        const total=Object.values(totals).reduce((a,b)=>a+b,0);
-        films.sort((a,b)=>weighed(b)-weighed(a));
-        return {total,totals,films};
+
+    // Audio Engine
+    function playRadarChirp(freq = 900) {
+      if (snd === "off") return;
+      try {
+        const audioCtx = audio();
+        if (!audioCtx) return;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(320, audioCtx.currentTime + 0.04);
+        gain.gain.setValueAtTime(0.09, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.04);
+        osc.connect(gain);
+        gain.connect(soundOutput);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.045);
+      } catch(e) {}
+    }
+
+    function playHologramLockSound() {
+      if (snd === "off") return;
+      try {
+        const audioCtx = audio();
+        if (!audioCtx) return;
+        const chords = [523.25, 659.25, 783.99, 1046.50, 1318.51];
+        chords.forEach((freq, idx) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, audioCtx.currentTime + idx * 0.05);
+          gain.gain.setValueAtTime(0.12, audioCtx.currentTime + idx * 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + idx * 0.05 + 0.45);
+          osc.connect(gain);
+          gain.connect(soundOutput);
+          osc.start(audioCtx.currentTime + idx * 0.05);
+          osc.stop(audioCtx.currentTime + idx * 0.05 + 0.5);
+        });
+      } catch(e) {}
+    }
+
+    const tickSpark = document.getElementById('tick-spark');
+    function triggerTickEffect() {
+      if (tickSpark) {
+        tickSpark.classList.remove('bg-primary');
+        void tickSpark.offsetWidth;
+        tickSpark.classList.add('bg-primary');
+      }
+      buzz(10);
+      playRadarChirp(800 + Math.random() * 300);
+    }
+
+    // 3D PLANET EARTH ENGINE WITH AUTHENTIC AXIAL TILT & TRUE POLAR ROTATION
+    let tiltGroup, rotatingGroup;
+    let earthMesh, cloudsMesh;
+    let flagPinGroup = null;      // теперь это группа маркера (луч + пульс)
+    let flagBannerMesh = null;    // больше не используем
+    let targetFlagScale = 0.001;
+    let markerPulseT = 0;
+    let camera;
+    let targetRotY = 0;
+    let countryFramed = false;
+    let targetRotX = 0;
+    let currentRotY = 0;
+    let currentRotX = 0;
+    let isDragging = false;
+    let touchGesture = null;
+    let previousMousePosition = { x: 0, y: 0 };
+    let lerpSpeed = 0.045;
+
+    // Beacon dots storage map & group
+    let dotMeshMap = {};
+    let beaconGroup = null;
+    // Вспышки во время поиска: точка загорается у проходимой страны и плавно гаснет
+    const FLASH_MS = 850;
+    let flashing = {};   // id страны -> момент вспышки (performance.now())
+    let countryBoundaryFeatures = [];
+    let watchedCountryIds = new Set();
+    let countryOutlineGroup = null;
+    const countryOutlineByCode = new Map();
+
+    function normalizeNear(lon, reference) {
+      return reference + ((((lon - reference) % 360) + 540) % 360 - 180);
+    }
+    function pointInRing(lon, lat, ring) {
+      let inside = false;
+      for (let i=0,j=ring.length-1;i<ring.length;j=i++) {
+        const ax=normalizeNear(Number(ring[i][0]),lon), ay=Number(ring[i][1]);
+        const bx=normalizeNear(Number(ring[j][0]),lon), by=Number(ring[j][1]);
+        if ((ay>lat)!==(by>lat) && lon < (bx-ax)*(lat-ay)/(by-ay)+ax) inside=!inside;
+      }
+      return inside;
+    }
+    function pointInCountry(lon, lat, feature) {
+      const geometry=feature.geometry;
+      const polygons=geometry.type==="Polygon"?[geometry.coordinates]:geometry.coordinates;
+      return polygons.some(rings=>pointInRing(lon,lat,rings[0])&&!rings.slice(1).some(r=>pointInRing(lon,lat,r)));
+    }
+    function countryAtCoordinates(lon, lat) {
+      for (const feature of countryBoundaryFeatures) {
+        if (pointInCountry(lon,lat,feature)) return feature.properties.iso_a2;
+      }
+      return "";
+    }
+    function addCountryHalo(feature) {
+      if (!countryOutlineGroup || !window.THREE || !window.KGGlobeVisuals) return;
+      const code=feature.properties.iso_a2;
+      const group=window.KGGlobeVisuals.createCountryOutline(THREE,feature,latLonToVector3,{radius:1.289,glowColor:0xffbd62,coreColor:0xffe6b5,glowRadius:.0048,coreRadius:.00135});
+      group.name="watched-country-outline-"+code;
+      countryOutlineGroup.add(group);
+      countryOutlineByCode.set(code,group);
+    }
+    function updateWatchedCountryOutlines(codes) {
+      watchedCountryIds=new Set((Array.isArray(codes)?codes:[]).filter(code=>/^[A-Z]{2}$/.test(code)));
+      if (!countryOutlineGroup) return;
+      for (const [code,group] of countryOutlineByCode) {
+        if (watchedCountryIds.has(code)) continue;
+        countryOutlineGroup.remove(group);
+        group.traverse(object=>{if(object.geometry)object.geometry.dispose();});
+        (group.userData.visualMaterials||[]).forEach(material=>material.dispose());
+        countryOutlineByCode.delete(code);
+      }
+      for (const feature of countryBoundaryFeatures) {
+        const code=feature.properties.iso_a2;
+        if (watchedCountryIds.has(code) && !countryOutlineByCode.has(code)) addCountryHalo(feature);
+      }
+    }
+    async function loadCountryBoundaries() {
+      try {
+        const response=await fetch("assets/geo/countries-110m.json",{cache:"force-cache"});
+        if(!response.ok) throw new Error("HTTP "+response.status);
+        const data=await response.json();
+        countryBoundaryFeatures=Array.isArray(data.features)?data.features:[];
+        updateWatchedCountryOutlines([...watchedCountryIds]);
+      } catch(error) {
+        console.warn("[Kinoglobus] Не удалось загрузить границы стран",error);
+      }
+    }
+
+    // Authentic Earth axial tilt: 23.4 degrees = 0.4084 radians
+    const axialTilt = 23.4 * (Math.PI / 180);
+
+    // Exact camera distances:
+    const defaultDist = 6.35;
+    const focusDist = 4.75;
+
+    let targetCameraZ = defaultDist;
+    let currentCameraZ = defaultDist;
+    let targetCameraY = 0.15;
+    let currentCameraY = 0.15;
+    let zoomLerpFactor = 0.035;
+    let zoomResetTimeout = null;
+
+    let isSpinning = false;
+    let driftSpeed = 0.0018;
+
+    function shortestAngleDist(a0, a1) {
+      const max = Math.PI * 2;
+      const da = (a1 - a0) % max;
+      return ((2 * da) % max) - da;
+    }
+
+    function countryToRotations(lat, lon) {
+      const rotY = - (lon * Math.PI / 180) - Math.PI / 2;
+      const rotX = (lat * Math.PI / 180);
+      return { rotX, rotY };
+    }
+
+    function latLonToVector3(lat, lon, radius) {
+      const phi = (90 - lat) * (Math.PI / 180);
+      const theta = (lon + 180) * (Math.PI / 180);
+      const x = - (radius * Math.sin(phi) * Math.cos(theta));
+      const z = (radius * Math.sin(phi) * Math.sin(theta));
+      const y = (radius * Math.cos(phi));
+      return new THREE.Vector3(x, y, z);
+    }
+
+    // High quality canvas texture for the 3D winner flag
+    function createFlagCanvasTexture(country) {
+      const canvas = document.createElement('canvas');
+      canvas.width = 256;
+      canvas.height = 160;
+      const ctx = canvas.getContext('2d');
+
+      // Rounded banner background
+      ctx.fillStyle = '#1c1626';
+      ctx.fillRect(0, 0, 256, 160);
+
+      // Gold border
+      const borderGrad = ctx.createLinearGradient(0, 0, 256, 160);
+      borderGrad.addColorStop(0, '#ffdca8');
+      borderGrad.addColorStop(0.5, '#ffb830');
+      borderGrad.addColorStop(1, '#9e6200');
+      ctx.strokeStyle = borderGrad;
+      ctx.lineWidth = 6;
+      ctx.strokeRect(3, 3, 250, 154);
+
+      // Emoji Flag
+      ctx.font = '82px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      const histColors = { SU: "#CD0000", YU: "#003893", CS: "#11457e", DD: "#dd0000" };
+      if (country.id && histColors[country.id]) {
+        ctx.fillStyle = histColors[country.id];
+        ctx.fillRect(48, 28, 160, 70);
+        ctx.strokeStyle = "#FFD700";
+        ctx.lineWidth = 3;
+        ctx.strokeRect(48, 28, 160, 70);
+        ctx.fillStyle = "#FFD700";
+        ctx.font = "bold 28px sans-serif";
+        ctx.fillText(country.id, 128, 63);
+      } else {
+        const emoji = (country.id && typeof emojiFlag === "function")
+          ? emojiFlag(country.id)
+          : "🌐";
+        ctx.fillText(emoji, 128, 70);
+      }
+
+      // Country Name
+      ctx.fillStyle = '#ffdca8';
+      ctx.font = 'bold 20px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText((country.name || '').toUpperCase(), 128, 134);
+
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.needsUpdate = true;
+      return texture;
+    }
+
+    // Hide all beacon dots to maintain a clean and pristine Earth
+    function hideAllBeacons() {
+      flashing = {};
+      Object.keys(dotMeshMap).forEach(key => {
+        const item = dotMeshMap[key];
+        if (item && item.holder) {
+          item.holder.visible = false;
+          if (item.dotMat) item.dotMat.opacity = 0;
+          if (item.ringMat) item.ringMat.opacity = 0;
+          if (item.dotMesh) item.dotMesh.scale.setScalar(1);
+          if (item.ringMesh) item.ringMesh.scale.setScalar(1);
+        }
+      });
+    }
+
+    // Вспышка точки у страны, которую сейчас проходит поиск
+    function flashBeacon(country) {
+      if (!country || !rotatingGroup) return;
+      const b = dotMeshMap[country.id] || addBeacon(country);
+      if (!b || !b.holder) return;
+      b.holder.visible = true;
+      b.dotMat.opacity = 1;
+      b.ringMat.opacity = 0.85;
+      flashing[country.id] = performance.now();
+    }
+
+    // Каждый кадр: точки вспышек гаснут, кольцо расходится
+    function updateFlashes(now) {
+      for (const id in flashing) {
+        const b = dotMeshMap[id];
+        if (!b) { delete flashing[id]; continue; }
+        const p = (now - flashing[id]) / FLASH_MS;
+        if (p >= 1) {
+          b.holder.visible = false;
+          b.dotMat.opacity = 0;
+          b.ringMat.opacity = 0;
+          b.dotMesh.scale.setScalar(1);
+          b.ringMesh.scale.setScalar(1);
+          delete flashing[id];
+          continue;
+        }
+        const fade = Math.pow(1 - p, 1.6);
+        b.dotMat.opacity = fade;
+        b.ringMat.opacity = fade * 0.85;
+        b.dotMesh.scale.setScalar(1 + 1.2 * (1 - Math.min(1, p * 3)));   // вспыхивает крупнее и сжимается
+        b.ringMesh.scale.setScalar(1 + p * 1.8);                         // кольцо расходится
+      }
+    }
+
+    // Turn on beacon dot strictly for a specific winning country
+    function showSingleBeacon(country) {
+      hideAllBeacons();
+      const countryId = (country && typeof country === 'object') ? country.id : country;
+      let target = dotMeshMap[countryId];
+      if (!target && country && typeof country === 'object') target = addBeacon(country);
+      if (target && target.holder) {
+        target.holder.visible = true;
+        if (target.dotMat) target.dotMat.opacity = 1.0;
+        if (target.ringMat) target.ringMat.opacity = 0.85;
+      }
+    }
+
+    // Hide the 3D flagpost
+    function hideFlagPost() {
+      if (flagPinGroup) {
+        flagPinGroup.visible = false;
+        flagPinGroup.scale.set(0.001, 0.001, 0.001);
+      }
+      targetFlagScale = 0.001;
+    }
+
+    function hideFlagPost() {
+  if (flagPinGroup) {
+    flagPinGroup.visible = false;
+    flagPinGroup.scale.set(0.001, 0.001, 0.001);
+  }
+  targetFlagScale = 0.001;
+}
+
+// Современный маркер: световой луч + пульсирующие кольца
+function update3DCountryFlag(country, popAnimation = false) {
+  if (!rotatingGroup || !country) return;
+
+  const radius = 1.285; // чуть выше поверхности (earthRadius 1.28)
+  const pos = latLonToVector3(country.lat, country.lon, radius);
+  const normal = pos.clone().normalize();
+
+  if (!flagPinGroup) {
+    flagPinGroup = new THREE.Group();
+
+    // 1. Ядро (яркая точка на поверхности)
+    const coreGeo = new THREE.SphereGeometry(0.028, 16, 16);
+    const coreMat = new THREE.MeshBasicMaterial({
+      color: 0xffe08a,
+      transparent: true,
+      opacity: 1
+    });
+    const coreMesh = new THREE.Mesh(coreGeo, coreMat);
+    flagPinGroup.add(coreMesh);
+
+    // 2. Вертикальный световой луч
+    const beamHeight = 0.55;
+    const beamGeo = new THREE.CylinderGeometry(0.006, 0.018, beamHeight, 12, 1, true);
+    beamGeo.translate(0, beamHeight / 2, 0);
+    const beamMat = new THREE.MeshBasicMaterial({
+      color: 0xffc857,
+      transparent: true,
+      opacity: 0.55,
+      depthWrite: false,
+      side: THREE.DoubleSide
+    });
+    const beamMesh = new THREE.Mesh(beamGeo, beamMat);
+    beamMesh.name = 'beam';
+    flagPinGroup.add(beamMesh);
+
+    // 3. Мягкое свечение у основания
+    const glowGeo = new THREE.SphereGeometry(0.07, 16, 16);
+    const glowMat = new THREE.MeshBasicMaterial({
+      color: 0xffb830,
+      transparent: true,
+      opacity: 0.35,
+      depthWrite: false
+    });
+    const glowMesh = new THREE.Mesh(glowGeo, glowMat);
+    glowMesh.name = 'glow';
+    flagPinGroup.add(glowMesh);
+
+    // 4. Два пульс-кольца на поверхности
+    const makeRing = (name, size) => {
+      const geo = new THREE.RingGeometry(size * 0.7, size, 32);
+      geo.rotateX(-Math.PI / 2);
+      const mat = new THREE.MeshBasicMaterial({
+        color: 0xffc857,
+        transparent: true,
+        opacity: 0.7,
+        side: THREE.DoubleSide,
+        depthWrite: false
+      });
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.name = name;
+      flagPinGroup.add(mesh);
+      return mesh;
+    };
+    makeRing('pulse1', 0.08);
+    makeRing('pulse2', 0.08);
+// 5. Мягкая подсветка «территории» страны
+const areaGeo = new THREE.CircleGeometry(0.16, 32);
+areaGeo.rotateX(-Math.PI / 2);
+const areaMat = new THREE.MeshBasicMaterial({
+  color: 0xffc857,
+  transparent: true,
+  opacity: 0.22,
+  side: THREE.DoubleSide,
+  depthWrite: false
+});
+const areaMesh = new THREE.Mesh(areaGeo, areaMat);
+areaMesh.name = 'area';
+areaMesh.position.y = 0.002;
+flagPinGroup.add(areaMesh);
+
+// Тонкое кольцо-контур зоны
+const areaRingGeo = new THREE.RingGeometry(0.145, 0.165, 48);
+areaRingGeo.rotateX(-Math.PI / 2);
+const areaRingMat = new THREE.MeshBasicMaterial({
+  color: 0xffe08a,
+  transparent: true,
+  opacity: 0.7,
+  side: THREE.DoubleSide,
+  depthWrite: false
+});
+const areaRingMesh = new THREE.Mesh(areaRingGeo, areaRingMat);
+areaRingMesh.name = 'areaRing';
+areaRingMesh.position.y = 0.003;
+flagPinGroup.add(areaRingMesh);
+
+rotatingGroup.add(flagPinGroup);
+    
+  }
+
+  // Ориентация маркера по нормали поверхности
+  flagPinGroup.position.copy(pos);
+  const up = new THREE.Vector3(0, 1, 0);
+  const quaternion = new THREE.Quaternion().setFromUnitVectors(up, normal);
+  flagPinGroup.setRotationFromQuaternion(quaternion);
+
+  flagPinGroup.visible = true;
+  markerPulseT = 0;
+
+  if (popAnimation) {
+    flagPinGroup.scale.set(0.01, 0.01, 0.01);
+    targetFlagScale = 1.0;
+  } else {
+    flagPinGroup.scale.set(1.0, 1.0, 1.0);
+    targetFlagScale = 1.0;
+  }
+}
+
+    // Beacon dots: created once per country on demand (hidden in idle state)
+    let beaconGeo = null;
+    function addBeacon(item) {
+      if (!rotatingGroup || !item) return null;
+      if (!beaconGroup) {
+        beaconGroup = new THREE.Group();
+        rotatingGroup.add(beaconGroup);
+      }
+      if (!beaconGeo) {
+        beaconGeo = {
+          dotGeo: new THREE.SphereGeometry(0.022, 16, 16),
+          pulseRingGeo: new THREE.RingGeometry(0.024, 0.052, 24)
+        };
+      }
+      if (dotMeshMap[item.id]) return dotMeshMap[item.id];
+
+      const holder = new THREE.Group();
+      const pos = latLonToVector3(item.lat, item.lon, 1.422);
+      const normal = pos.clone().normalize();
+
+      const dotMat = new THREE.MeshBasicMaterial({ color: 0xffcc44, transparent: true, opacity: 0 });
+      const dotMesh = new THREE.Mesh(beaconGeo.dotGeo, dotMat);
+      dotMesh.position.copy(pos);
+      holder.add(dotMesh);
+
+      const ringMat = new THREE.MeshBasicMaterial({ color: 0xffa500, side: THREE.DoubleSide, transparent: true, opacity: 0 });
+      const ringMesh = new THREE.Mesh(beaconGeo.pulseRingGeo, ringMat);
+      ringMesh.position.copy(pos);
+      const up = new THREE.Vector3(0, 0, 1);
+      ringMesh.quaternion.setFromUnitVectors(up, normal);
+      holder.add(ringMesh);
+
+      // Pristine Earth: Initialized hidden
+      holder.visible = false;
+      beaconGroup.add(holder);
+
+      dotMeshMap[item.id] = { holder: holder, dotMat: dotMat, ringMat: ringMat, dotMesh: dotMesh, ringMesh: ringMesh, country: item };
+      return dotMeshMap[item.id];
+    }
+
+    function createCountryBeacons() {
+      if (!rotatingGroup) return;
+      beaconGroup = new THREE.Group();
+      dotMeshMap = {};
+      rotatingGroup.add(beaconGroup);
+      catalog.forEach(item => addBeacon(item));
+    }
+
+    function orientGlobeToCountry(country, immediate = false, speed = 0.065, zoomLevel = focusDist, showFlag = true) {
+      if (!country) return;
+      const rots = countryToRotations(country.lat, country.lon);
+      targetRotX = rots.rotX;
+      targetRotY = rots.rotY;
+      lerpSpeed = speed;
+      targetCameraZ = zoomLevel;
+
+      if (immediate && rotatingGroup) {
+        currentRotX = targetRotX;
+        currentRotY = targetRotY;
+        rotatingGroup.rotation.x = currentRotX;
+        rotatingGroup.rotation.y = currentRotY;
+        currentCameraZ = targetCameraZ;
+        if (camera) camera.position.z = currentCameraZ;
+      }
+
+      if (showFlag) {
+        update3DCountryFlag(country, !immediate);
+      } else {
+        hideFlagPost();
+      }
+    }
+
+    function initRealisticEarth() {
+      const canvas = document.getElementById('earth-webgl-canvas');
+      if (!canvas || !window.THREE) return;
+
+      const container = document.getElementById('earth-canvas-container');
+      const width = container.clientWidth || 360;
+      const height = container.clientHeight || 420;
+
+      const scene = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+      camera.position.set(0, currentCameraY, defaultDist);
+
+      const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+      renderer.setSize(width, height);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      // Cinema Lighting: Soft ambient & directional space lighting without blinding specular hotspot
+      const dirLight = new THREE.DirectionalLight(0xffedd4, 1.15);
+      dirLight.position.set(4, 2, 4);
+      scene.add(dirLight);
+
+      const ambLight = new THREE.AmbientLight(0x687d9c, 0.24);
+      scene.add(ambLight);
+
+      const hemiLight = new THREE.HemisphereLight(0xdce6ff, 0x121622, 0.22);
+      scene.add(hemiLight);
+
+      // Hierarchical Setup for True 3D Axial Tilt (23.4°) & Rotation:
+      tiltGroup = new THREE.Group();
+      tiltGroup.position.y = 0.20;
+      tiltGroup.rotation.z = axialTilt; // Canonical 23.4 degrees tilt
+      scene.add(tiltGroup);
+
+      rotatingGroup = new THREE.Group();
+      tiltGroup.add(rotatingGroup);
+
+      // Earth Sphere Geometry (SphereGeometry(1.42, 64, 48))
+      const earthRadius = 1.28;
+      const earthGeo = new THREE.SphereGeometry(earthRadius, 64, 48);
+
+      // High-resolution realistic NASA Blue Marble procedural texture
+      function createEarthTexture() {
+        const texCanvas = document.createElement('canvas');
+        texCanvas.width = 2048;
+        texCanvas.height = 1024;
+        const ctx = texCanvas.getContext('2d');
+
+        // Natural ocean colors for the offline fallback texture.
+        const oceanGrad = ctx.createLinearGradient(0, 0, 0, 1024);
+        oceanGrad.addColorStop(0, '#081a36');
+        oceanGrad.addColorStop(0.5, '#2f5f9c');
+        oceanGrad.addColorStop(1, '#081a36');
+        ctx.fillStyle = oceanGrad;
+        ctx.fillRect(0, 0, 2048, 1024);
+
+        // Continental shapes & topography
+        ctx.fillStyle = '#265432';
+        function drawBlob(x, y, w, h) {
+          ctx.beginPath();
+          ctx.ellipse(x, y, w, h, 0, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        // Eurasia
+        drawBlob(1350, 310, 280, 140);
+        // Europe
+        drawBlob(1050, 290, 110, 75);
+        // Africa
+        ctx.fillStyle = '#61542f';
+        drawBlob(1070, 480, 150, 180);
+        // North America
+        ctx.fillStyle = '#2e5b38';
+        drawBlob(460, 310, 180, 130);
+        // South America
+        ctx.fillStyle = '#245230';
+        drawBlob(570, 640, 120, 200);
+        // Australia
+        ctx.fillStyle = '#6f5734';
+        drawBlob(1580, 710, 110, 80);
+
+        // Soft cloud wisps overlay
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.22)';
+        for (let i = 0; i < 40; i++) {
+          const cx = Math.random() * 2048;
+          const cy = Math.random() * 1024;
+          drawBlob(cx, cy, 60 + Math.random() * 120, 15 + Math.random() * 30);
+        }
+
+        return new THREE.CanvasTexture(texCanvas);
+      }
+
+      // Preserve the natural color balance of the Earth texture.
+      const fallbackEarthTexture = createEarthTexture();
+      const earthMat = new THREE.MeshLambertMaterial({
+        map: fallbackEarthTexture
+      });
+      earthMat.onBeforeCompile = (shader) => {
+        shader.fragmentShader = shader.fragmentShader.replace(
+          '#include <map_fragment>',
+          `#include <map_fragment>
+           vec3 earthColor = diffuseColor.rgb;
+           float earthLuminance = dot(earthColor, vec3(0.2126, 0.7152, 0.0722));
+           float oceanSignal = earthColor.b - max(earthColor.r, earthColor.g) * 0.82;
+           float earthOceanMask = smoothstep(-0.008, 0.065, oceanSignal);
+           vec3 blueOcean = vec3(max(earthColor.r * 0.78, 0.029), max(earthColor.g * 0.88, 0.116), max(earthColor.b * 1.28, 0.332));
+           earthColor = mix(earthColor, blueOcean, earthOceanMask * 0.95);
+           diffuseColor.rgb = clamp(mix(vec3(earthLuminance), earthColor, 1.12) * 1.02, 0.0, 1.0);`
+        );
+        shader.fragmentShader = shader.fragmentShader.replace(
+          '#include <emissivemap_fragment>',
+          `#include <emissivemap_fragment>
+           totalEmissiveRadiance += vec3(0.035, 0.16, 0.42) * earthOceanMask;`
+        );
       };
-      const data=aggregate(parts);
-      const refreshedAt=Date.now(),date=localDateKey();
-      themeDataCache.set(key,{data,ts:refreshedAt,date});themeRetryAfter.delete(key);
-      if(pages>1)themeDataCache.set(themeDataKey(t,1),{data:aggregate(parts.filter(x=>x.p===1)),ts:refreshedAt,date});
-      return data;
-    }catch(error){
-      themeRetryAfter.set(key,Date.now()+15*60*1000);
-      if(cached){console.warn(`[Kinoglobus] Обновление подборки «${t.name}» не удалось; показываем сохранённые данные.`,error);return {...cached.data,_stale:true};}
-      throw error;
+
+      const textureLoader = new THREE.TextureLoader();
+      textureLoader.setCrossOrigin('anonymous');
+      textureLoader.load(
+        'https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg',
+        (tex) => {
+          tex.encoding = THREE.sRGBEncoding;
+          tex.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+          tex.needsUpdate = true;
+          earthMat.map = tex;
+          earthMat.needsUpdate = true;
+          fallbackEarthTexture.dispose();
+        },
+        undefined,
+        (error) => {
+          console.warn('[Kinoglobus] Не удалось загрузить текстуру Земли; оставляем запасную поверхность.', error);
+        }
+      );
+
+      earthMesh = new THREE.Mesh(earthGeo, earthMat);
+      rotatingGroup.add(earthMesh);
+
+      // Atmospheric cloud layer
+      const cloudsGeo = new THREE.SphereGeometry(earthRadius + 0.012, 48, 48);
+      const cloudsMat = new THREE.MeshLambertMaterial({
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.18,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+      });
+      cloudsMesh = new THREE.Mesh(cloudsGeo, cloudsMat);
+      rotatingGroup.add(cloudsMesh);
+
+      // Build beacon dots structure (all hidden initially for pristine look)
+      createCountryBeacons();
+      countryOutlineGroup=new THREE.Group();
+      countryOutlineGroup.name="watched-country-outlines";
+      rotatingGroup.add(countryOutlineGroup);
+      loadCountryBoundaries();
+
+      const countryTapRaycaster=new THREE.Raycaster();
+      const countryTapPointer=new THREE.Vector2();
+      let countryTapStart=null;
+      canvas.addEventListener("pointerdown",event=>{countryTapStart={x:event.clientX,y:event.clientY};},{passive:true});
+      canvas.addEventListener("click",event=>{
+        if(isSpinning||!countryBoundaryFeatures.length||!countryTapStart)return;
+        const moved=Math.hypot(event.clientX-countryTapStart.x,event.clientY-countryTapStart.y);
+        countryTapStart=null;
+        if(moved>8)return;
+        const rect=canvas.getBoundingClientRect();
+        countryTapPointer.x=((event.clientX-rect.left)/rect.width)*2-1;
+        countryTapPointer.y=-((event.clientY-rect.top)/rect.height)*2+1;
+        countryTapRaycaster.setFromCamera(countryTapPointer,camera);
+        const hit=countryTapRaycaster.intersectObject(earthMesh,false)[0];
+        if(!hit)return;
+        const local=rotatingGroup.worldToLocal(hit.point.clone()).normalize();
+        const lat=Math.asin(Math.max(-1,Math.min(1,local.y)))*180/Math.PI;
+        let lon=(Math.atan2(local.z,-local.x)*180/Math.PI)-180;
+        lon=((lon+540)%360)-180;
+        const code=countryAtCoordinates(lon,lat);
+        if(!code||!watchedCountryIds.has(code))return;
+        const journey=document.getElementById("journey");
+        if(journey&&!journey.open)document.getElementById("mapBtn")?.click();
+        window.KGSelectWatchedCountry?.(code);
+      });
+
+      // Initial clean idle orientation to Spain (no dots, no flag)
+      orientGlobeToCountry(currentCountry, true, 0.08, defaultDist, false);
+      hideAllBeacons();
+      hideFlagPost();
+
+      // One finger: vertical page scroll or horizontal globe rotation.
+      // Two fingers: tilt the globe vertically and pinch to zoom.
+      container.style.touchAction = 'pan-y';
+      canvas.style.touchAction = 'pan-y';
+      canvas.addEventListener('mousedown', (e) => {
+        if (isSpinning) return;
+        isDragging = true;
+        previousMousePosition = { x: e.clientX, y: e.clientY };
+      });
+      canvas.addEventListener('touchstart', (e) => {
+        if (isSpinning) { touchGesture = null; return; }
+        if (e.touches.length >= 2) {
+          const a=e.touches[0],b=e.touches[1],dx=b.clientX-a.clientX,dy=b.clientY-a.clientY;
+          touchGesture={mode:'multi',lastDistance:Math.max(1,Math.hypot(dx,dy)),lastMidY:(a.clientY+b.clientY)/2};
+          isDragging=false;
+          return;
+        }
+        if (e.touches.length !== 1) { touchGesture = null; return; }
+        const t = e.touches[0];
+        isDragging = false;
+        touchGesture = { mode:'single',startX: t.clientX, startY: t.clientY, lastX: t.clientX, lastY: t.clientY, axis: null };
+      }, { passive: true });
+
+      window.addEventListener('mousemove', (e) => {
+        if (!isDragging || isSpinning || !rotatingGroup) return;
+        const deltaX = e.clientX - previousMousePosition.x;
+        const deltaY = e.clientY - previousMousePosition.y;
+        targetRotY += deltaX * 0.008;
+        targetRotX = Math.max(-1.2, Math.min(1.2, targetRotX + deltaY * 0.008));
+        previousMousePosition = { x: e.clientX, y: e.clientY };
+      });
+      window.addEventListener('touchmove', (e) => {
+        if (!touchGesture || !e.touches[0] || !rotatingGroup || isSpinning) return;
+        if(touchGesture.mode==='multi'){
+          if(e.touches.length<2){touchGesture=null;return;}
+          const a=e.touches[0],b=e.touches[1],dx=b.clientX-a.clientX,dy=b.clientY-a.clientY;
+          const distance=Math.max(1,Math.hypot(dx,dy)),midY=(a.clientY+b.clientY)/2;
+          if(e.cancelable)e.preventDefault();
+          targetRotX=Math.max(-1.45,Math.min(1.45,targetRotX+(midY-touchGesture.lastMidY)*.006));
+          targetCameraZ=Math.max(3.15,Math.min(8.5,targetCameraZ*touchGesture.lastDistance/distance));
+          touchGesture.lastDistance=distance;touchGesture.lastMidY=midY;
+          return;
+        }
+        if(e.touches.length!==1)return;
+        const t = e.touches[0];
+        const movedX = t.clientX - touchGesture.startX;
+        const movedY = t.clientY - touchGesture.startY;
+        if (!touchGesture.axis) {
+          if (Math.max(Math.abs(movedX), Math.abs(movedY)) < 8) return;
+          if (Math.abs(movedY) > Math.abs(movedX) * 1.15) { touchGesture.axis = 'y'; return; }
+          if (Math.abs(movedX) <= Math.abs(movedY) * 1.15) return;
+          touchGesture.axis = 'x';
+          isDragging = true;
+        }
+        if (touchGesture.axis !== 'x') return;
+        isDragging = true;
+        if (e.cancelable) e.preventDefault();
+        const totalX = t.clientX - touchGesture.lastX;
+        targetRotY += totalX * 0.008;
+        touchGesture.lastX = t.clientX;
+        touchGesture.lastY = t.clientY;
+      }, { passive: false });
+
+      window.addEventListener('mouseup', () => { isDragging = false; });
+      const endTouchGesture = (e) => {
+        const gesture = touchGesture;
+        isDragging = false;
+        touchGesture = null;
+        if (!gesture || gesture.mode!=='single' || gesture.axis!=='x' || e.type==='touchcancel' || isSpinning) return;
+      };
+      window.addEventListener('touchend', endTouchGesture, { passive: true });
+      window.addEventListener('touchcancel', endTouchGesture, { passive: true });
+
+      // Animation Loop
+      const clock = new THREE.Clock();
+      function animate() {
+        requestAnimationFrame(animate);
+        const elapsedTime = clock.getElapsedTime();
+
+                // Camera smooth zoom lerp
+        currentCameraZ += (targetCameraZ - currentCameraZ) * zoomLerpFactor;
+        currentCameraY += (targetCameraY - currentCameraY) * zoomLerpFactor;
+        if (camera) {
+          camera.position.z = currentCameraZ;
+          camera.position.y = currentCameraY;
+        }
+
+        // Marker rise + cinematic pulse
+if (flagPinGroup && flagPinGroup.visible) {
+  const s = flagPinGroup.scale.x + (targetFlagScale - flagPinGroup.scale.x) * 0.1;
+  flagPinGroup.scale.set(s, s, s);
+
+  markerPulseT += 0.016;
+  const t = markerPulseT;
+
+  const pulse1 = flagPinGroup.getObjectByName('pulse1');
+  const pulse2 = flagPinGroup.getObjectByName('pulse2');
+  const beam = flagPinGroup.getObjectByName('beam');
+  const glow = flagPinGroup.getObjectByName('glow');
+
+  if (pulse1) {
+    const p = (t % 1.8) / 1.8;
+    const scale = 0.6 + p * 2.4;
+    pulse1.scale.set(scale, scale, scale);
+    pulse1.material.opacity = (1 - p) * 0.75;
+  }
+
+  if (pulse2) {
+    const p = ((t + 0.9) % 1.8) / 1.8;
+    const scale = 0.6 + p * 2.4;
+    pulse2.scale.set(scale, scale, scale);
+    pulse2.material.opacity = (1 - p) * 0.55;
+  }
+
+  if (beam) {
+    beam.material.opacity = 0.42 + Math.sin(t * 2.2) * 0.12;
+  }
+  if (glow) {
+    const g = 0.9 + Math.sin(t * 2.2) * 0.15;
+    glow.scale.set(g, g, g);
+    glow.material.opacity = 0.28 + Math.sin(t * 2.2) * 0.08;
+  }
+
+// Дыхание зоны вокруг маркера
+const area = flagPinGroup.getObjectByName('area');
+const areaRing = flagPinGroup.getObjectByName('areaRing');
+
+if (area) {
+  area.material.opacity = 0.16 + Math.sin(t * 1.6) * 0.05;
+}
+
+if (areaRing) {
+  areaRing.material.opacity = 0.55 + Math.sin(t * 1.6) * 0.15;
+}
+
+}
+
+ 
+        // Idle slow rotation
+        if (!isSpinning && !isDragging && !countryFramed) {
+          targetRotY += driftSpeed;
+        }
+        if (rotatingGroup) {
+          const diffY = shortestAngleDist(currentRotY, targetRotY);
+          currentRotY += diffY * lerpSpeed;
+          currentRotX += (targetRotX - currentRotX) * lerpSpeed;
+
+          rotatingGroup.rotation.y = currentRotY;
+          rotatingGroup.rotation.x = currentRotX;
+
+          if (cloudsMesh) {
+            cloudsMesh.rotation.y = currentRotY * 1.04 + elapsedTime * 0.0006;
+          }
+        }
+
+        updateFlashes(performance.now());
+        renderer.render(scene, camera);
+      }
+      animate();
+
+      window.addEventListener('resize', () => {
+        if (!container || !renderer || !camera) return;
+        const w = container.clientWidth;
+        const h = container.clientHeight;
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        renderer.setSize(w, h);
+      });
     }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initRealisticEarth);
+    } else {
+      setTimeout(initRealisticEarth, 50);
+    }
+
+    // Discovery celebration on win
+    function triggerWinnerCelebration(country) {
+      playHologramLockSound();
+      buzz([70, 90, 220]);
+
+      // Sync Bottom Discovery Card
+      const cardTitle = document.getElementById('discovery-title');
+      const cardYear = document.getElementById('discovery-year');
+      const cardCountry = document.getElementById('discovery-country');
+      const cardFlag = document.getElementById('discovery-flag');
+      const cardGenres = document.getElementById('discovery-genres');
+      const cardDesc = document.getElementById('discovery-desc');
+      const cardRating = document.getElementById('discovery-rating');
+      const cardPoster = document.getElementById('discovery-poster');
+
+      if (cardTitle && country.movie) {
+        cardTitle.textContent = country.movie.title;
+        cardYear.textContent = country.movie.year;
+        cardCountry.textContent = country.name;
+        if (cardFlag) cardFlag.innerHTML = country.flag || flag(country.id, false);
+        cardGenres.textContent = country.movie.genres;
+        cardDesc.textContent = country.movie.desc;
+        cardRating.textContent = country.movie.rating;
+        if (country.movie.poster && cardPoster instanceof HTMLImageElement) cardPoster.src = country.movie.poster;
+
+      }
+    }
+
+    // Roulette execution
+    const spinBtn = document.getElementById('btn-spin-roulette');
+    const spinIcon = document.getElementById('btn-spin-icon');
+    const spinText = document.getElementById('btn-spin-text');
+    const spinSecIcon = document.getElementById('btn-spin-secondary-icon');
+    const statusBadge = document.getElementById('roulette-status-badge');
+
+    function runCountryRoulette(forcedTargetCountry = null) {
+      if (isSpinning) return;
+      isSpinning = true;
+
+      // Keep all dots and flag hidden during spinning
+      hideAllBeacons();
+      hideFlagPost();
+
+      if (zoomResetTimeout) {
+        clearTimeout(zoomResetTimeout);
+        zoomResetTimeout = null;
+      }
+
+      targetCameraZ = defaultDist;
+
+      let finalWinner = forcedTargetCountry;
+      if (!finalWinner) {
+        const pool = catalog.filter(c => c.id !== currentCountry.id);
+        finalWinner = pool[Math.floor(Math.random() * pool.length)];
+      }
+
+      const intermediateStepsCount = 6 + Math.floor(Math.random() * 3);
+      const countrySequence = [];
+      let prevId = currentCountry.id;
+
+      for (let i = 0; i < intermediateStepsCount - 1; i++) {
+        const available = catalog.filter(c => c.id !== prevId && c.id !== finalWinner.id);
+        const nextCountry = available[Math.floor(Math.random() * available.length)];
+        countrySequence.push(nextCountry);
+        prevId = nextCountry.id;
+      }
+      countrySequence.push(finalWinner);
+
+      spinBtn.disabled = true;
+      spinBtn.classList.add('brightness-125', 'shadow-[0_0_36px_rgba(255,184,48,0.8)]');
+      if (spinIcon) {
+        spinIcon.textContent = 'sensors';
+        spinIcon.classList.add('animate-spin');
+      }
+      if (spinText) {
+        spinText.innerHTML = '<span class="material-symbols-outlined text-[22px] animate-spin">sensors</span><span>'+uiText("ПОИСК СТРАНЫ...")+'</span>';
+      }
+      if (spinSecIcon) spinSecIcon.classList.add('animate-spin');
+
+      if (statusBadge) {
+        statusBadge.textContent = uiText("Сканирование...");
+        statusBadge.className = 'font-micro-caption text-micro-caption px-2.5 py-0.5 rounded-full bg-primary-container text-on-primary-container font-bold shadow-[0_0_12px_rgba(255,184,48,0.5)]';
+      }
+
+      let stepIndex = 0;
+      const delays = [140, 160, 200, 260, 340, 450, 590, 780];
+
+      function executeStep() {
+        if (stepIndex >= countrySequence.length) {
+          currentCountry = finalWinner;
+          // Final landing: Show beacon dot ONLY for winner and tilt 3D flag ~28° facing the camera
+          showSingleBeacon(finalWinner.id);
+          orientGlobeToCountry(finalWinner, false, 0.055, focusDist, true);
+          updateHolographicView(finalWinner, false);
+          triggerWinnerCelebration(finalWinner);
+
+          spinBtn.disabled = false;
+          spinBtn.classList.remove('brightness-125', 'shadow-[0_0_36px_rgba(255,184,48,0.8)]');
+          if (spinText) {
+            spinText.innerHTML = '<span class="material-symbols-outlined text-[22px] text-canvas-obsidian font-bold transition-transform duration-300" id="btn-spin-icon">casino</span><span>КРУТИТЬ ГЛОБУС</span>';
+          }
+          if (spinSecIcon) spinSecIcon.classList.remove('animate-spin');
+
+          if (statusBadge) {
+            statusBadge.textContent = uiText("104 страны онлайн");
+            statusBadge.className = 'font-micro-caption text-micro-caption px-2.5 py-0.5 rounded-full bg-surface-container-high/90 text-primary-fixed border border-primary-container/20 shadow-[0_0_10px_rgba(255,184,48,0.15)]';
+          }
+
+          zoomResetTimeout = setTimeout(() => {
+            targetCameraZ = defaultDist;
+            const rots = countryToRotations(finalWinner.lat, finalWinner.lon);
+            targetRotX = rots.rotX;
+            lerpSpeed = 0.035;
+            setTimeout(() => {
+              isSpinning = false;
+            }, 800);
+          }, 2400);
+
+          return;
+        }
+
+        const stepCountry = countrySequence[stepIndex];
+        const isFinal = stepIndex === countrySequence.length - 1;
+
+        const targetZoom = isFinal ? focusDist : defaultDist;
+        // Keep flag hidden during intermediate steps
+        orientGlobeToCountry(stepCountry, false, isFinal ? 0.06 : 0.22, targetZoom, false);
+
+        updateHolographicView(stepCountry, true);
+        triggerTickEffect();
+
+        const currentDelay = delays[stepIndex] || 450;
+        stepIndex++;
+        setTimeout(executeStep, currentDelay);
+      }
+
+      executeStep();
+    }
+
+    if (spinBtn) {
+      spinBtn.addEventListener('click', () => {
+        runCountryRoulette();
+      });
+    }
+
+    // Secondary Buttons
+    const btnTopOne = document.getElementById('btn-top-one');
+    const btnOscar = document.getElementById('btn-oscar-laureate');
+
+    if (btnTopOne) {
+      btnTopOne.addEventListener('click', () => {
+        const topPool = [catalog[0], catalog[4], catalog[7]];
+        const target = topPool[Math.floor(Math.random() * topPool.length)];
+        runCountryRoulette(target);
+      });
+    }
+
+    if (btnOscar) {
+      btnOscar.addEventListener('click', () => {
+        const oscarPool = [catalog[2], catalog[3], catalog[6], catalog[8]];
+        const target = oscarPool[Math.floor(Math.random() * oscarPool.length)];
+        runCountryRoulette(target);
+      });
+    }
+
+    // Filter Chips
+    const pills = document.querySelectorAll('.genre-pill');
+    pills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        pills.forEach(p => {
+          p.className = 'genre-pill h-[34px] px-3.5 rounded-full font-label-sm text-label-sm flex items-center gap-1 bg-surface-container text-text-muted hover:text-on-surface';
+          p.style.background = '';
+          p.style.boxShadow = '';
+        });
+        pill.className = 'genre-pill h-[34px] px-4 rounded-full font-label-sm text-label-sm flex items-center gap-1 text-canvas-obsidian font-bold cursor-pointer border border-white/20 transition-all';
+        pill.style.background = 'linear-gradient(135deg, rgb(255, 78, 32) 0%, rgb(255, 149, 0) 50%, rgb(255, 193, 7) 100%)';
+        pill.style.boxShadow = 'rgba(255, 115, 0, 0.4) 0px 2px 14px, rgba(255, 255, 255, 0.35) 0px 1px 0px inset';
+      });
+    });
+
+    // Initial render
+    updateHolographicView(currentCountry);
+
+    // === Export for engine bridge ===
+    // Helpers below repeat exactly what the design's runCountryRoulette does around the spin.
+    function beginScan() {
+      countryFramed = false;
+      if (zoomResetTimeout) { clearTimeout(zoomResetTimeout); zoomResetTimeout = null; }
+      isDragging = false;
+      touchGesture = null;
+      hideAllBeacons();
+      hideFlagPost();
+      targetCameraZ = defaultDist;
+      isSpinning = true;
+    }
+    function dollyBack(country) {
+      countryFramed = false;
+      targetCameraZ = defaultDist;
+      if (country) {
+        const rots = countryToRotations(country.lat, country.lon);
+        targetRotX = rots.rotX;
+      }
+      lerpSpeed = 0.035;
+    }
+    function hideMarks() { hideAllBeacons(); hideFlagPost(); }
+
+    window.KinoglobusGlobe = {
+      catalog,
+      get currentCountry() { return currentCountry; },
+      set currentCountry(v) { currentCountry = v; },
+      orientGlobeToCountry,
+      frameCountry(country) {
+        clearTimeout(zoomResetTimeout);
+        zoomResetTimeout = null;
+        countryFramed = true;
+        currentCountry = country;
+        showSingleBeacon(country);
+        orientGlobeToCountry(country, true, 0.065, focusDist, true);
+      },
+      updateHolographicView,
+      triggerWinnerCelebration,
+      triggerTickEffect,
+      showSingleBeacon,
+      flashBeacon,
+      hideMarks,
+      setWatchedCountryOutlines: updateWatchedCountryOutlines,
+      beginScan,
+      dollyBack,
+      get isSpinning() { return isSpinning; },
+      set isSpinning(v) { isSpinning = v; },
+      runCountryRoulette,
+      countryToRotations,
+      get CAMERA_DIST_DEFAULT() { return defaultDist; },
+      get CAMERA_DIST_SPIN() { return defaultDist; },
+      get CAMERA_DIST_FOCUS() { return focusDist; }
+    };
   })();
-  const entry={promise,fresh:force};themeInflight.set(key,entry);
-  try{return await promise;}finally{if(themeInflight.get(key)===entry)themeInflight.delete(key);}
-}
-const META=store.get("kgThemeMeta",{});
-const FRESH=DAY_MS;
-function saveThemeMeta(t,d){
-  const top=d.films.slice(0,10);
-  const r=top.length?top.reduce((s,f)=>s+Number(f.vote_average||0),0)/top.length:0;
-  const meta={n:d.total,r:r?r.toFixed(1):"",p:(d.films.find(f=>f.poster_path)||{}).poster_path||"",b:(d.films.find(f=>f.backdrop_path)||{}).backdrop_path||"",ts:Date.now()};
-  META[t.id]=meta;store.set("kgThemeMeta",META);return meta;
-}
-async function loadMeta(t,force=false){
-  if (t.films) return META[t.id] || {n:t.films.length};
-  if(metaInflight.has(t.id))return metaInflight.get(t.id);
-  const m=META[t.id];
-  if(!force&&m&&Date.now()-m.ts<FRESH)return m;
-  if((metaRetryAfter.get(t.id)||0)>Date.now()){if(m)return m;throw new Error("Метаданные подборки временно недоступны.");}
-  const request=(async()=>{
-    try{
-      const d=await loadTheme(t,1,force);
-      if(d._stale){if(m&&!force)return m;throw new Error("Метаданные подборки временно недоступны.");}
-      const meta=saveThemeMeta(t,d);metaRetryAfter.delete(t.id);
-      return meta;
-    }catch(error){metaRetryAfter.set(t.id,Date.now()+15*60*1000);throw error;}
-  })();
-  metaInflight.set(t.id,request);
-  try{return await request;}finally{metaInflight.delete(t.id);}
-}
 
-/* ---------- экраны и навигация ---------- */
-const vc=document.createElement("div");vc.id="view-collections";
-vc.className="flex flex-col w-full px-gutter-mobile gap-space-lg select-none";vc.style.display="none";
-const vd=document.createElement("div");vd.id="view-collection";
-vd.className="flex flex-col w-full px-margin-mobile gap-space-lg select-none pb-space-xl";vd.style.display="none";
-const vm=document.createElement("div");vm.id="view-mood";
-vm.className="flex flex-col w-full px-gutter-mobile select-none";vm.style.display="none";
-const vo=document.createElement("div");vo.id="view-oscar";
-vo.className="flex flex-col w-full select-none";vo.style.display="none";
-const sectionNav=document.createElement("nav");
-sectionNav.setAttribute("aria-label",uiText("Разделы подборок"));
-sectionNav.className="w-full px-gutter-mobile pt-2";
-sectionNav.style.display="none";
-sectionNav.innerHTML='<div class="grid grid-cols-3 gap-1.5 rounded-xl bg-surface-panel p-1.5">'+
-[["collections","Коллекции"],["mood","Коллекция по настроению"],["oscar","Оскар"]]
-.map(([route,label])=>`<button type="button" data-collection-route="${route}" aria-current="false" class="min-w-0 px-1.5 py-2 rounded-lg text-text-muted hover:text-primary font-micro-caption text-micro-caption leading-tight">${uiText(label)}</button>`).join("")+
-"</div>";
-home.after(sectionNav);sectionNav.after(vc);vc.after(vd);vd.after(vm);vm.after(vo);
+</script>
+<script>
+// ========== Kinoglobus engine (TMDB, filters, history) ==========
 
-const NB="flex flex-col items-center justify-center gap-1 min-w-[64px] h-12 transition-all active:scale-95 ";
-const NON="text-primary-container font-bold drop-shadow-[0_0_12px_rgba(255,184,48,0.45)]",NOFF="text-text-muted";
-const nav=document.createElement("nav");
-nav.className="fixed bottom-0 w-full z-50 pb-safe bg-surface-panel/90 backdrop-blur-xl shadow-[0_-4px_24px_rgba(7,6,10,0.9)]";
-nav.innerHTML='<div class="flex justify-around items-center h-16 max-w-[520px] mx-auto px-gutter-mobile">'+
-[["home","casino","Глобус"],["collections","movie_filter","Подборки"],["journey","travel_explore","Путешествие"],["history","history_toggle_off","История"]]
-.map(([v,i,l])=>`<a href="#" data-view="${v}" class="${NB}${NOFF}"><span class="material-symbols-outlined text-[22px]">${i}</span><span class="font-micro-caption text-micro-caption tracking-tight">${uiText(l)}</span></a>`).join("")+"</div>";
-document.body.appendChild(nav);
+const GENRES={"":"Любой жанр",28:"Боевик",12:"Приключения",16:"Мультфильм",35:"Комедия",80:"Криминал",99:"Документальный",18:"Драма",10751:"Семейный",14:"Фэнтези",36:"История",27:"Ужасы",9648:"Детектив",10402:"Музыка",10749:"Мелодрама",878:"Фантастика",53:"Триллер",10752:"Военный",37:"Вестерн"};
+const COUNTRIES=["US","GB","FR","DE","IT","ES","JP","KR","CN","HK","TW","IN","RU","CA","AU","MX","BR","AR","CL","CO","PE","CU","SE","DK","NO","FI","IS","PL","CZ","HU","RO","BG","RS","GR","TR","IR","IL","LB","EG","MA","NG","ZA","TH","VN","ID","PH","MY","SG","PK","KZ","UA","GE","AM","NL","BE","AT","CH","PT","IE","NZ","UY","VE","EC","BO","PY","CR","DO","LV","LT","EE","SK","SI","HR","BA","MK","AL","BY","MD","AZ","UZ","IQ","JO","SA","AE","TN","DZ","SN","KE","GH","ET","BF","ML","CI","BD","LK","NP","MN","KH","MM","LU","SU","YU","CS","DD"];
+const BIG=new Set(["US","GB","FR","DE","IT","ES","JP","KR","CN","HK","IN","RU","CA"]);
+const MIN_POOL=10, MAX_POOL=100;
+const GENRE_IDS=Object.keys(GENRES).filter(Boolean);
+// Ready country+genre sets. Pipe in g is TMDB OR; a comma would mean AND.
+const THEMES=[
+  {id:"kr",name:"Корейские триллеры",cc:["KR"],g:"53"},
+  {id:"jp",name:"Японская анимация",cc:["JP"],g:"16"},
+  {id:"jhorror",name:"Японские ужасы",cc:["JP"],g:"27"},
+  {id:"eshorror",name:"Испанские ужасы",cc:["ES"],g:"27"},
+  {id:"idhorror",name:"Индонезийские ужасы",cc:["ID"],g:"27"},
+  {id:"nordic",name:"Скандинавский нуар",cc:["SE","DK","NO","FI","IS"],g:"80|53"},
+  {id:"hk",name:"Гонконгские боевики",cc:["HK"],g:"28"},
+  {id:"ir",name:"Иранское кино",cc:["IR"],g:"18"},
+  {id:"tr",name:"Турецкие драмы",cc:["TR"],g:"18"},
+  {id:"inact",name:"Индийские боевики",cc:["IN"],g:"28"},
+  {id:"frnoir",name:"Французский нуар",cc:["FR"],g:"80|53"},
+  {id:"gbdet",name:"Британские детективы",cc:["GB"],g:"9648"},
+  {id:"itcrime",name:"Итальянский криминал",cc:["IT"],g:"80"},
+  {id:"thhorror",name:"Тайские ужасы",cc:["TH"],g:"27"},
+  {id:"auhorror",name:"Австралийские ужасы",cc:["AU"],g:"27"},
+  {id:"suwar",name:"Советское кино о войне",cc:["SU"],g:"10752"},
+  {id:"krdrama",name:"Корейские драмы",cc:["KR"],g:"18"},
+  {id:"cnfan",name:"Китайское фэнтези",cc:["CN","HK"],g:"14"},
+  {id:"mxdrama",name:"Мексиканские драмы",cc:["MX"],g:"18"},
+  {id:"latam",name:"Латиноамериканский нуар",cc:["MX","BR","AR","CL"],g:"80|53"},
+  {id:"pldrama",name:"Польское кино",cc:["PL"],g:"18"},
+  {id:"dedrama",name:"Немецкое кино",cc:["DE"],g:"18"},
+  {id:"jpauteur",name:"Японское авторское кино",cc:["JP"],g:"18"},
+  {id:"gbdrama",name:"Британские драмы",cc:["GB"],g:"18"},
+  {id:"esdrama",name:"Испанские драмы",cc:["ES"],g:"18"},
+  {id:"brazil",name:"Бразильское кино",cc:["BR"],g:"18|80"},
+  {id:"uadrama",name:"Украинское кино",cc:["UA"],g:"18|10752|36"},
+  {id:"frcom",name:"Французские комедии",cc:["FR"],g:"35"},
+  {id:"itcom",name:"Итальянские комедии",cc:["IT"],g:"35"},
+  {id:"inromance",name:"Индийские мелодрамы",cc:["IN"],g:"10749"},
+  {id:"sufi",name:"Советская фантастика",cc:["SU"],g:"878"},
+  {id:"jpscifi",name:"Японская фантастика",cc:["JP"],g:"878"},
+  {id:"suanim",name:"Советская мультипликация",cc:["SU"],g:"16"},
+  {id:"uswestern",name:"Классический вестерн",cc:["US"],g:"37"},
+  {id:"uscrime",name:"Американский криминал и триллеры",cc:["US"],g:"80|53"},
+  {id:"ushorror",name:"Американские ужасы",cc:["US"],g:"27"},
+  {id:"usscifi",name:"Американская фантастика",cc:["US"],g:"878"},
+  {id:"uscomedy",name:"Американские комедии",cc:["US"],g:"35"},
+  {id:"usdrama",name:"Американские драмы",cc:["US"],g:"18"},
+  {id:"usanimation",name:"Американская анимация",cc:["US"],g:"16"},
+  {id:"african",name:"Африканское кино",cc:["ZA","NG","GH"],g:"18|80"},
+  {id:"arabic",name:"Арабское кино",cc:["EG","LB","MA","TN","DZ"],g:"18|80"},
+  {id:"inclassic",name:"Индийское кино: классика и мюзиклы",cc:["IN"],g:"10402|10749"},
+  {id:"jpcrime",name:"Японское криминальное кино",cc:["JP"],g:"80|9648"}
+];
+const SURPRISE_NOTE={
+  light:"Случайные страна и жанр. Оценка не ниже 6, фильмы оценило много зрителей.",
+  find:"Случайные страна и жанр. Оценка от 7 при небольшом числе голосов: фильм хороший, но его мало кто видел.",
+  wild:"Случайная страна. Жанр и оценка не задаются.",
+  hard:"Случайная страна и случайный год. Любой фильм: без жанра, оценки и числа отзывов, включая 18+."
+};
+// World map: simplified country shapes (Natural Earth data, 110m), pre-projected into a 1000-wide viewBox.
+const MAP={"w":1000,"h":432,"c":{"CA":"M199 95l-3 -3 -1 -1 -4 -2 1 -2 1 -2 -2 -2 1 -2 -1 -2 1 -2 2 -1 1 -2 -2 -2 0 -3 0 -3 -1 -1 -1 -1 0 -2 -3 1 -3 2 -1 -2 0 -1 -2 -1 -2 0 14 -16 10 -11 4 1 2 1 2 1 3 -2 3 0 3 0 4 -1 4 -1 0 1 3 -1 1 -1 1 1 2 2 4 -2 -1 2 3 0 1 -1 3 0 2 1 4 1 2 1 3 -1 1 2 -4 1 4 1 6 0 2 -1 1 2 3 -2 -1 -1 2 -1 3 0 2 0 1 0 1 2 2 0 3 1 4 0 3 0 1 -2 2 -1 3 1 -2 3 3 -2 1 0 3 -3 -1 -2 -2 -1 3 -3 3 -2 3 1 1 1 1 3 -3 1 4 1 -2 3 4 -2 2 1 -2 2 1 2 3 -2 3 -2 2 -3 3 0 3 0 2 2 -1 1 -2 2 0 1 -1 1 -5 2 -3 1 -2 -1 -1 1 -4 3 -1 1 -4 2 -3 0 -3 1 -1 2 -3 1 -4 2 -4 3 -2 2 -2 4 3 0 0 3 0 2 3 0 4 1 2 1 1 2 2 0 2 2 4 0 2 0 -1 3 -1 3 0 3 3 3 2 -1 3 -3 0 -5 -1 -1 5 -2 3 -2 2 -2 1 -2 0 -3 -2 -2 4 -3 0 -2 2 -5 1 -1 4 1 2 0 2 0 2 1 2 1 0 1 4 1 -1 2 -1 4 2 0 1 2 4 -2 3 -3 2 -1 1 2 2 4 1 4 -1 2 2 1 2 2 3 1 1 1 1 2 1 1 1 1 -1 3 -2 2 -2 1 -4 1 -4 2 -4 1 -5 -1 -4 0 -2 0 -3 3 -4 1 -4 4 -4 3 2 -1 5 -4 6 -2 4 -1 2 2 -3 2 0 3 0 3 3 1 4 0 3 -4 0 3 1 1 -4 2 -6 2 -2 1 -4 2 -2 0 1 -3 5 -2 -4 0 -3 0 -1 -2 1 -4 -1 -1 -1 1 -1 -1 -3 2 -1 3 -1 1 -2 1 -1 1 -5 0 -3 0 -2 0 -3 3 -2 1 -2 0 -2 0 -2 1 1 0 0 1 -1 1 -3 1 -3 1 -4 1 -1 0 0 -1 1 -1 2 -2 1 -2 0 -3 1 -2 -2 -2 0 -1 -1 0 0 -1 -1 0 0 -1 -2 -1 -1 -1 -2 -2 -2 -1 -3 1 -1 0 -2 -1 -2 1 -2 -1 -3 -1 -1 0 -1 0 0 -2 -1 1 -5 0 -8 0 -9 0 -7 0 -7 0 -8 0 -7 0 -3 0 -7 0 -7 0zM339 27l2 -1 4 2 2 1 0 1 4 -1 1 2 5 1 1 1 1 3 -5 1 5 2 3 0 2 3 3 0 -2 2 -5 3 -2 -1 -2 -3 -3 1 -1 1 2 2 2 1 0 1 1 3 -2 2 -2 -1 -5 -2 2 2 2 2 0 1 -6 -1 -4 -2 -2 -1 1 -1 -2 -1 -3 -2 0 1 -7 1 -1 -1 2 -3 4 0 5 0 0 -1 1 -1 4 -3 0 -1 0 -1 -3 -2 -3 0 1 -1 -1 -2 -2 0 -1 -1 -1 1 -4 0 -8 0 -4 -1 -3 -1 -1 -1 3 -1 -3 0 1 -2 4 -3 2 -1 6 -1 -3 2 1 2 3 -2 6 -1 2 2 -2 2 5 -1zM332 4l4 0 2 0 4 -1 3 0 2 0 2 0 2 -1 3 0 4 0 5 0 1 0 5 -1 4 1 4 0 5 0 3 0 3 1 -6 1 -4 1 -3 0 4 0 -5 1 -3 1 -5 2 -4 0 -2 1 -6 0 3 0 -2 1 1 1 -3 1 -3 0 -2 1 -3 1 3 0 0 1 -6 1 -5 0 -6 0 -3 0 -3 0 0 -2 4 0 1 -2 1 0 4 1 -1 -1 -3 -1 3 -1 4 0 1 -1 -2 -1 0 -1 5 0 2 0 3 -1 -4 0 -6 0 -3 -1 -1 -1 -1 0 0 -1zM284 25l1 1 -1 3 0 2 2 1 3 1 -1 2 -4 0 1 1 -2 1 -3 -1 -3 0 -3 0 -5 1 -5 0 -4 1 0 -2 -3 -1 -2 1 0 -2 1 -1 4 0 3 0 3 0 -4 -1 -4 0 -3 0 -1 -1 6 -1 -3 0 -3 -1 3 -2 3 -1 7 -1 1 0 -2 1 5 0 2 1 4 -1 1 1 -1 2 2 -1 1 -3 2 0 2 0zM366 88l-2 2 -2 3 1 -1 2 0 -1 1 2 1 1 -1 2 1 -1 3 2 -1 0 2 0 2 -2 2 -1 1 -1 -1 1 -3 -1 0 -3 3 -2 0 2 -2 -2 -1 -2 1 -5 -1 1 -2 2 -2 4 -5 2 -2 2 -1 1 0 0 1zM257 22l2 0 5 0 1 1 1 1 -3 1 -6 2 -5 2 -1 1 -6 1 0 -1 -4 -1 2 -2 3 -2 4 -1 -1 -2 8 0zM323 22l-3 0 -4 -1 0 -2 1 -1 -1 -1 -4 0 -2 -1 2 -1 4 0 1 1 4 0 1 1 -1 1 2 0 1 1 2 0 3 0 3 0 5 -1 3 1 1 1 0 1 -2 0 -3 1 -2 -1 -6 1 -5 0zM321 7l2 -1 2 0 4 0 1 1 3 0 3 1 0 1 1 1 -3 0 -5 2 -3 0 -4 0 -1 -1 1 -1 2 0 -4 0 -1 -1 0 -1 2 -1zM287 18l2 0 2 0 0 1 -3 1 -7 1 -6 1 -3 0 1 -1 5 -1 -9 0 -3 0 5 -3 3 0 5 1 2 1 3 0 -1 -2 3 -1 2 0 -1 1 0 1zM295 26l-1 -1 4 -2 2 1 4 0 -3 2 2 1 -2 2 -4 1 -2 0 -1 -1 -3 -2 0 -1 4 0zM317 47l2 1 2 1 -1 1 2 0 1 1 -2 1 -3 -1 -1 -1 -3 1 -4 2 0 -2 -3 0 3 -1 1 -2 2 -3 2 1 0 1 1 -1 1 1zM310 23l4 0 4 0 -5 3 -3 0 -3 2 -3 0 1 -2 1 -2 2 -1 2 0zM197 97l-2 0 -3 -1 0 -1 -2 -2 -2 -1 0 -2 1 0 2 0 1 1 2 0 1 1 0 2 2 1 0 2zM308 16l0 1 -1 2 -2 1 -4 1 -2 -1 2 -1 -4 0 2 -2 2 0 3 -1 3 0 1 0zM258 18l6 -2 5 -2 3 0 3 0 -2 2 -2 1 -2 0 -5 1 -4 0 -2 0zM300 10l3 0 5 1 0 1 0 1 -3 0 -2 -1 -5 0 3 -1 -2 0 1 -1zM298 35l0 1 -2 1 -2 -1 -2 0 -2 -1 3 -1 2 -1 2 1 1 1zM338 26l-2 -1 1 -1 1 0 4 0 3 1 0 1 -2 0 -2 0 -3 0zM185 80l3 -1 -4 4 1 2 -1 0 -1 -1 1 -2 -1 -1 0 -1 1 -1 1 1zM315 11l2 1 -1 1 -4 0 -1 0 0 -1 1 -1 2 0 1 0zM314 20l-2 1 -3 0 -2 0 2 -2 3 0 1 1 1 0zM339 41l-2 0 -2 0 0 -1 2 -1 2 -1 1 1 -1 1 0 1zM343 92l1 0 3 1 2 1 0 1 -1 0 -3 -1 -2 -2zM342 101l0 2 2 0 2 0 -2 1 -1 1 -2 -2 -1 -1 2 -1zM313 55l2 -2 3 0 0 1 -4 1 -1 0zM286 13l2 0 -1 1 -4 0 -2 0 2 -1 3 0zM285 24l2 0 2 0 -4 2 -1 -2 1 0zM318 14l-1 0 -3 0 0 -1 4 0 1 1 -1 0zM320 56l2 -1 1 0 -2 2 -1 0 0 -1zM288 11l2 1 -2 0 -4 0 1 0 2 -1 1 0z","US":"M199 95l7 0 7 0 3 0 7 0 8 0 7 0 7 0 9 0 8 0 5 0 1 -1 0 2 1 0 1 0 3 1 2 1 2 -1 2 1 1 0 3 -1 2 1 2 2 1 1 2 1 0 1 1 0 0 1 1 0 0 1 2 2 -1 2 0 3 -1 2 -2 2 -1 1 0 1 1 0 4 -1 3 -1 3 -1 1 -1 0 -1 -1 0 2 -1 2 0 2 0 2 -1 3 -3 2 0 3 0 5 0 1 -1 2 -1 1 -1 1 -3 3 -2 1 1 1 -1 1 1 -1 4 1 2 0 1 -3 2 -3 1 -3 1 -1 2 -1 1 -1 1 1 2 1 0 0 -1 0 1 -2 1 -1 0 -2 0 -1 1 -2 0 -2 1 4 -1 0 1 -3 1 -2 0 0 -1 -1 1 1 0 -1 3 -3 2 0 -1 -1 -1 0 2 1 1 -1 1 -1 1 -2 3 0 -1 1 -2 -1 -1 1 -3 -1 2 0 2 -2 -1 2 1 -1 3 1 1 0 1 -1 3 -2 2 -3 1 -2 2 -1 0 -2 2 0 1 -4 2 -2 1 -1 2 -1 3 0 2 0 3 1 2 0 1 0 4 0 2 -1 1 -1 2 0 1 -2 -1 0 -1 -1 -1 -1 -2 -1 -3 0 -1 1 -2 0 -2 -2 -3 -1 0 -3 1 -1 -2 -1 0 -4 0 -2 0 -2 0 -1 0 0 1 0 2 0 1 -1 -1 -1 1 -2 0 -2 -2 -2 0 -2 0 -2 0 -2 1 -3 2 -3 1 -2 2 -1 1 0 3 -1 1 1 1 -1 0 -2 0 -2 -1 0 -2 -1 -2 -1 -2 0 -2 -1 -2 -2 -1 -2 0 -2 2 -2 -1 -1 -1 0 -1 -1 -2 -1 -2 -1 -1 -1 -1 -4 0 -1 2 -2 0 -5 0 -5 -3 -4 -1 1 -1 -4 1 -3 0 0 -2 -1 -2 -1 0 0 -1 -1 0 -1 -1 -2 0 -1 -1 0 -2 -1 -3 0 -4 0 -1 -1 -1 0 -3 0 -3 0 -1 1 -3 2 -3 0 -2 2 -3 2 -3 2 -3 2 -4 0 -3 0 -1 1 -1 3 1 0 3 1 -1 1 -2 0 -3zM204 34l-10 11 -14 16 2 0 2 1 0 1 1 2 3 -2 3 -1 0 2 1 1 1 1 0 3 0 3 2 2 -1 2 -2 1 -1 -1 -1 -1 1 -2 -1 -3 1 -3 -2 0 -4 0 -2 -1 -2 -3 -2 0 -3 -2 -3 1 -4 -2 -1 -1 -3 1 -2 2 -1 0 -3 1 -3 1 -3 0 1 -2 3 -2 4 -1 0 -1 -5 2 -3 2 -5 2 0 1 -4 2 -3 1 -3 1 -2 2 -5 1 -2 2 -4 1 -1 0 -3 1 -3 1 -3 1 -5 0 4 -1 3 -1 4 -2 3 0 2 -2 5 -1 1 -1 3 -1 2 -2 3 -2 -4 1 0 -1 -2 1 0 -1 -2 1 1 -2 -4 2 -1 0 1 -2 2 -1 -1 -1 -3 0 -1 -1 -1 -1 2 -1 -1 -2 3 -1 3 -2 3 -1 2 -1 1 1 3 -2 1 1 3 -1 1 -1 -1 -1 3 -1 -1 0 -3 1 -2 0 -1 0 -3 0 -3 -1 1 -1 -1 -2 4 -1 6 -1 2 0 -2 1 5 0 0 -2 -1 -1 0 -1 -1 -1 -2 -1 3 -1 4 -1 4 -1 2 -1 3 -1 3 -1 5 -1 2 0 5 -1 2 0 0 2 2 -1 3 0 -1 1 3 0 2 0 4 1 4 0 1 1 3 -1 2 1 2 0zM76 188l1 0 0 1 1 1 -2 1 -1 0 0 1 -1 -1 0 -1 0 -1 1 0 0 -1 0 -1 1 0 0 1zM146 68l2 0 0 1 -4 1 -3 1 1 -2 3 -1 1 0zM121 51l1 0 1 0 1 1 2 0 0 1 -3 0 -1 -1 -2 0 1 -1zM122 61l2 0 -1 1 -2 0 -1 0 0 -1 2 0zM74 184l0 1 -2 0 0 -1 2 0zM68 181l-1 1 -1 0 0 -1 1 0 1 0zM75 186l-1 0 0 -1 1 0 0 1zM71 183l0 1 -1 0 0 -1 1 0z","KZ":"M714 94l-1 3 -2 0 1 3 -1 1 -5 -1 0 6 -1 1 -5 1 4 5 -1 1 0 2 -1 0 -2 -1 -4 -1 -4 0 -1 0 -4 -1 -1 1 0 2 -4 -1 -2 0 0 1 -1 1 -3 2 -1 3 -1 0 -1 -2 -3 0 -1 -3 -1 0 -1 -3 -4 -2 -4 0 -3 0 -3 -2 -2 -2 -5 -2 -6 2 3 11 -2 1 -2 -3 -2 -1 -3 1 -1 1 0 -1 1 -1 -1 -1 -3 -1 -2 -3 -2 -1 0 -1 3 0 -1 -2 2 -1 3 1 -1 -3 -1 -2 -2 0 -2 -1 -3 2 -2 0 -1 0 0 -2 -3 -2 -1 0 -3 -2 1 -2 -1 -1 1 -3 3 1 0 -2 4 -3 4 0 6 2 3 1 2 -1 4 0 4 1 0 -1 4 1 0 -2 -5 -2 2 -2 -1 0 2 -1 -2 -2 1 -1 8 -1 1 -1 6 -1 1 -2 5 1 2 3 2 0 3 1 1 1 2 0 5 -3 -1 1 4 3 9 7 0 -1 4 1 4 0 1 0 2 2 2 1 2 1 3 0 2 1z","UZ":"M643 119l-3 -11 6 -2 5 2 2 2 3 2 3 0 4 0 4 2 1 3 1 0 1 3 3 0 1 2 1 0 1 -3 3 -2 1 -1 1 1 -2 2 2 1 2 -1 3 2 -2 2 -2 0 -1 0 -1 -1 0 -1 -3 0 0 2 -1 2 -2 0 -1 1 3 1 1 3 -1 3 -2 -1 -2 0 0 -2 -4 -1 -3 -2 -2 -1 -3 -2 -2 -4 -1 0 -3 0 -1 -1 -1 -2 -4 -2 -1 2 -2 1 0 1 -2 0z","ID":"M827 239l-1 3 2 3 -1 2 4 3 -4 0 -1 2 0 3 -2 2 0 4 -2 5 0 -2 -3 2 -1 -2 -2 0 -2 -1 -3 1 -1 -2 -2 0 -2 0 0 -4 -2 -1 -1 -3 0 -3 0 -3 2 -2 0 2 2 2 2 0 2 0 1 -2 1 0 3 1 2 -1 2 -4 1 -2 1 -3 3 0 2 0zM790 256l0 2 1 2 2 0 2 3 -1 4 -1 4 -3 1 -2 -3 -3 -3 -1 -2 -2 -2 -2 -3 -2 -4 -2 -3 -1 -3 -1 -2 -3 -2 -1 -3 -2 -2 -3 -3 -1 -2 2 0 4 1 3 3 2 2 2 1 3 4 2 0 3 2 1 3 2 1 -1 3 2 1 1 0zM892 261l-1 11 -1 10 -2 -3 -3 0 0 1 -4 0 1 -3 2 -1 0 -3 -1 -3 -6 -3 -2 0 -4 -3 -1 2 -1 0 0 -1 0 -2 -2 -1 3 -1 2 0 -1 -1 -4 0 -1 -2 -2 -1 -1 -1 3 -1 2 -1 4 1 1 1 0 6 3 1 2 -3 4 -2 2 0 3 1 2 1 3 1zM841 250l4 0 2 -3 1 1 -2 3 -2 1 -3 -1 -5 0 -2 1 -1 2 3 3 1 -1 6 -1 -1 1 -1 0 -1 2 -3 1 3 4 -1 1 3 4 0 2 -2 1 -1 -1 2 -3 -3 1 -1 -1 1 -1 -2 -2 0 -3 -2 1 0 4 0 4 -2 1 -1 -1 1 -3 0 -3 -1 0 -1 -2 1 -2 0 -3 2 -5 0 -1 3 -3 2 1 3 1zM801 273l0 1 5 1 1 -2 5 2 1 2 4 1 3 2 -3 1 -3 -1 -2 0 -3 -1 -3 0 -3 -1 -2 -1 -1 1 -5 -2 0 -1 -3 0 2 -3 3 0 3 1 1 0zM855 246l1 1 1 1 0 1 0 3 -1 0 -1 1 2 2 -1 1 -1 -2 -1 -5 0 -2 1 -1zM859 262l3 1 1 2 -2 -1 -2 -1 -2 1 -2 0 1 -2 3 0zM827 280l2 -1 1 2 -4 0 -1 1 -2 0 1 -2 2 0 1 -1 0 1zM846 281l0 1 0 1 -2 2 -2 1 -1 0 1 -1 1 -2 3 -2zM836 280l2 0 2 -1 0 1 -4 1 -4 0 0 -1 2 -1 2 1zM872 275l0 -3 0 -1 1 -1 1 1 0 2 -2 2zM833 286l-4 -3 3 0 1 1 1 1 0 1 -1 0zM852 265l-2 -1 0 -1 3 0 0 1 -1 1z","AR":"M347 350l0 3 -1 3 1 3 -1 1 1 2 0 2 4 3 0 2 1 1 1 2 -2 4 -4 2 -5 0 -3 0 1 2 0 2 1 2 -1 1 -3 0 -2 -1 -1 1 1 3 2 1 1 -1 1 2 -2 1 -1 2 0 3 0 2 -2 0 -2 1 0 3 3 2 3 1 0 3 -3 1 0 4 -2 1 -1 2 2 3 3 2 -2 -1 -2 0 -6 0 -2 -2 0 -3 -2 1 -1 -1 -1 -4 1 -1 0 -2 -1 -2 1 -2 -1 -5 0 -1 1 -1 -1 -1 -1 -1 0 -1 -1 -1 -2 -4 1 -1 -2 -4 0 -3 0 -3 1 -1 -1 -3 -1 -3 2 -2 -1 -3 1 -3 -1 -3 0 -1 -3 -5 1 -4 -1 -3 1 -3 1 -3 2 -2 -1 -1 0 -1 -1 -5 3 -2 1 -3 -1 -1 2 -3 4 1 2 2 0 -3 3 1 1 0 6 6 2 0 3 2 3 2 1 1 -2 5 3 1 3 0 2 0 2 -3 0 -2 1 -1 2 2 0 2 -2 2 -2 2 -2 3 -3 4zM336 421l1 2 2 2 4 2 3 1 0 1 -2 0 -2 -1 -1 0 -3 0 -2 -7z","CL":"M309 309l2 2 1 3 1 1 0 3 2 4 1 4 2 0 1 1 -1 3 -3 2 1 5 0 1 1 1 -2 2 -1 3 -1 3 1 3 -1 4 3 5 0 1 1 3 -1 3 1 3 -2 2 1 3 1 3 -1 1 0 3 0 3 2 4 -1 1 2 4 1 1 0 1 1 1 1 1 -1 1 0 1 1 5 -1 2 1 2 0 2 -1 1 1 4 1 1 2 -1 0 3 2 2 6 0 2 0 -2 0 -1 1 -1 1 0 3 -1 0 -3 -1 -3 -2 -4 -2 -1 -2 0 -1 -2 -2 -2 -6 0 -3 1 -2 -4 -1 2 -3 -1 -5 3 1 0 -7 -2 -1 0 4 -2 0 0 -5 -1 -6 1 -2 -2 -3 -1 -3 1 -1 1 -5 0 -5 1 -5 -2 -5 0 -2 -1 -4 1 -4 0 -6 0 -7 -1 -7 0 -6 -1 -4 1 -1 0 -2zM336 421l2 7 3 0 1 0 0 2 -2 1 -1 -1 -2 0 -2 -1 -2 0 -4 -2 -3 -1 -5 -4 3 1 4 2 3 1 1 -2 0 -2 2 -1 2 0z","KE":"M609 268l-4 -4 0 -1 -10 -7 -1 0 0 -4 1 -1 1 -2 1 -2 -1 -4 0 -2 -2 -2 2 -2 2 -2 1 1 0 1 1 1 2 0 4 3 1 0 1 0 2 1 1 -2 2 -1 1 1 2 0 -2 4 0 11 2 3 -2 1 -1 2 -1 0 -1 2 -1 2 0 2 -1 1z","DO":"M304 195l0 -1 -1 -1 1 -1 0 -1 0 -2 1 0 2 0 1 1 1 -1 1 2 1 0 1 1 1 1 -1 1 -1 -1 -1 1 -1 -1 -1 1 -1 0 0 -1 -1 1 -1 2 -1 0 0 -1z","RU":"M832 117l-1 -1 -1 -2 2 0 -2 -3 -2 -3 1 -1 4 0 0 -3 -1 -3 0 -1 0 -3 -4 1 -1 1 -4 0 -3 -3 -4 -2 -5 -1 -3 -3 -2 -2 -1 -2 -4 -3 -3 -1 -4 -1 -3 0 -2 1 -1 1 1 1 1 2 0 1 -1 3 1 2 -2 2 -4 -2 -3 1 -1 -1 -2 -1 -2 2 -3 1 -2 1 -4 -1 -2 0 -2 -1 -3 -2 -3 0 -3 0 -2 1 -4 -2 -1 -2 -4 -1 -2 0 -3 -1 -1 3 1 2 -1 2 -4 -1 -2 0 -3 -1 -2 -1 -3 0 -3 1 -3 3 -3 0 -2 -1 -3 0 -2 -1 -2 -1 -2 -2 -1 0 -4 0 -4 -1 0 1 -9 -7 -4 -3 1 -1 -5 3 -2 0 -1 -1 -3 -1 -2 0 -2 -3 -5 -1 -1 2 -6 1 -1 1 -8 1 -1 1 2 2 -2 1 1 0 -2 2 5 2 0 2 -4 -1 0 1 -4 -1 -4 0 -2 1 -3 -1 -6 -2 -4 0 -4 3 0 2 -3 -1 -1 3 1 1 -1 2 3 2 1 0 3 2 0 2 1 0 -1 2 -2 1 -2 3 3 3 0 2 3 4 -1 1 0 1 -1 0 -2 -2 -1 0 -2 -1 -1 -1 -2 -1 -2 0 -4 -2 -4 0 -2 -1 0 1 -4 -3 -3 -1 -2 -2 1 -1 2 -2 -2 -1 4 -2 -2 0 -1 -1 2 -1 2 0 0 -1 -1 -2 1 -2 0 -1 -4 -1 -1 0 -2 -1 -2 0 -3 -1 -1 -2 -2 0 -1 -1 1 0 -2 -2 -2 0 -1 0 -1 1 -1 0 -1 -2 0 -1 0 -1 2 0 1 0 -1 -1 -2 -1 -1 -1 -1 -2 0 -1 0 -1 -3 -1 -1 1 -1 -1 -2 -1 -1 -2 -1 -1 -1 -1 1 -1 -1 -3 1 -1 0 -1 2 -1 -2 -2 4 -3 2 -2 0 -2 -4 -2 1 -1 -2 -3 1 -2 -4 -3 2 -2 -4 -2 0 -2 2 0 3 -1 2 -1 4 1 6 1 9 3 2 1 1 2 -2 2 -4 1 -10 -3 -1 1 4 2 0 1 1 3 3 1 2 1 0 -2 -2 -1 1 -1 6 2 2 -1 -2 -2 4 -3 2 0 2 1 1 -2 -2 -1 0 -2 -2 -2 6 1 2 2 -3 0 1 2 2 1 3 -1 0 -2 4 -1 7 -2 1 0 -1 1 2 1 2 -1 4 0 2 -1 3 1 2 -2 -3 -1 1 -1 6 1 4 1 9 3 1 -2 -3 -1 -1 -1 -2 0 0 -1 -2 -2 -1 -1 3 -3 0 -2 1 -1 6 1 1 2 -1 2 2 1 2 1 1 4 3 2 0 2 -2 4 3 0 0 -1 2 -1 0 -1 1 -1 -2 -2 0 -2 -2 0 -2 -1 1 -3 -4 -2 2 -2 -1 -2 1 0 2 1 0 3 3 0 -2 -1 3 -2 4 0 5 2 -4 -2 -1 -3 3 -1 5 0 4 0 -3 -1 1 -2 3 0 2 -1 5 -1 1 0 5 0 2 0 3 -1 4 0 -1 -1 1 -1 4 -1 4 0 -2 1 4 0 2 2 1 -1 6 0 6 1 2 1 1 2 -2 0 -4 2 2 1 4 0 1 0 3 2 0 -1 3 0 7 0 2 1 8 1 -1 -2 4 0 4 0 4 1 3 2 0 1 4 2 5 1 -1 -2 4 1 3 -1 5 1 1 -1 3 1 -4 -3 2 -1 20 2 4 1 7 2 8 0 5 0 3 1 2 2 3 1 2 -1 4 0 5 1 3 0 7 2 1 -1 -3 -2 -1 -1 8 1 4 0 8 1 4 1 8 2 9 3 2 2 2 1 -3 -2 7 0 7 3 -1 1 -3 0 4 3 -1 0 -2 0 -3 -1 -4 0 -2 -2 -2 0 -2 0 -3 -1 0 -1 -2 1 2 1 0 1 -1 2 -3 -1 4 2 4 2 2 1 1 1 0 1 -4 -1 -4 3 -2 0 -1 2 -2 2 1 1 -5 -2 -4 2 -2 -1 -1 2 -4 -1 1 2 0 3 2 1 3 1 3 4 -2 0 2 3 2 1 -3 2 2 3 -3 1 2 3 -2 3 -2 -2 -5 -5 -6 -7 -3 -4 1 -1 -2 -2 3 -1 1 -3 1 -3 2 -3 -2 -4 -3 1 1 2 -2 3 -6 -3 -4 1 -2 4 4 2 -4 1 -4 0 -1 -2 -4 0 -2 1 -7 0 -7 1 -3 5 -4 7 4 1 3 2 2 0 1 -1 3 0 6 3 1 3 1 3 2 4 2 5 -1 4 0 3 -1 3 -1 4 -1 2 -2 2 -2 0 -2 -2 -2 3 0 1zM-81 117l0 -1 1 -2 1 0 4 -3 2 -3 3 -1 3 0 4 -3 4 -3 2 -1 5 -3 -5 1 -4 1 -4 0 2 -3 0 -2 -3 -1 2 -3 1 -2 1 -2 2 -3 -1 -1 -2 -1 -3 0 -4 1 -4 1 1 1 -2 2 -3 1 -6 3 -1 2 -6 2 -2 -2 -3 1 0 -1 -1 -1 -6 2 -4 1 -3 1 -2 -1 -3 0 1 -1 -1 -2 -2 0 -4 0 -3 1 -1 -2 2 -2 -2 -1 -2 0 -1 -1 -6 3 -2 2 -5 2 -2 -1 -2 0 0 -1 -3 -1 -1 0 -5 1 -8 3 -3 0 -2 0 1 -1 -3 0 0 -1 -1 -1 2 -2 -1 0 -4 0 -1 -1 -4 1 6 -7 0 -3 2 -1 -10 3 -3 0 3 -1 -1 -1 -4 0 4 -3 -3 -1 -4 2 -8 1 -2 1 -11 1 -2 1 -2 2 -3 1 -1 0 -5 2 1 2 -2 2 -4 -1 -2 1 0 -1 -4 0 -5 1 -1 -1 -2 -2 -4 0 -10 3 -4 2 1 -1 -7 3 -1 1 -4 2 -1 2 2 0 -1 2 -3 2 1 0 -4 2 -3 1 -7 3 -1 3 -3 2 -1 4 -3 1 -2 1 -1 0 1 -2 -1 0 -1 -1 1 -1 -1 -1 -2 0 -2 -2 -3 0 -1 -1 -1 1 0 -3 -1 -1 0 -2 2 -1 6 -2 0 -1 6 -2 1 0 -3 0 2 -1 2 -1 3 0 2 -1 2 -2 3 -2 1 -1 -2 -1 -1 0 1 -1 -3 0 -1 -1 1 0 1 -2 -2 0 1 -1 2 0 1 -2 -3 0 -2 1 -1 0 3 -2 1 -1 1 -1 2 0 2 0 0 -1 0 -1 1 0 0 -1 2 -2 2 -1 2 -1 -1 -1 -2 1 1 -1 -1 -1 2 -2 3 -1 0 -1 3 -1 4 -3 5 -1 1 -1 5 -1 1 -2 12 -3 6 -2 3 -2 1 -2 5 -1 2 -3 7 -2 5 -3 6 -2 1 -2 5 -2 2 0 6 -1 5 -1 -1 1 5 1 1 3 -1 1 -4 2 -6 2 -5 1 -5 -3 -2 1 -1 2 -3 1 -6 3 1 1 0 1 3 -2 2 -1 3 -1 2 2 3 -1 3 -2 11 -3 2 0 -1 1 6 -2 2 -1 4 -2 2 -2 4 1 -2 2 -3 0 -3 2 -1 1 5 -1 4 -2 7 -1 13 -2 1 0 -6 1 2 1 4 -1 4 0 6 -1 -1 1 6 -2 1 -1 3 -1 4 1 2 1 1 3 4 -2 1 -1 1 -1 -2 0 3 -1 4 -2 2 -1 9 -3 6 -2 3 -1 4 1 -3 2 -7 2 0 1 -3 1 -9 4 -1 2 -4 2 -12 4 2 0 3 -1 3 -1 3 -1 5 -1 2 -2 4 -2 -2 0 3 -1 7 -3 2 -2 8 -2 3 -2 1 0 -2 1 -6 3 1 0 3 -1 6 -2 5 0 0 2 3 -2 6 -3 4 -1 5 0 5 0 1 -1 7 -2 2 0 7 -1 6 -1 2 0 6 0 7 -1 4 0 3 -1 4 -1 7 -1 1 0 -4 1 4 0 -2 2 3 -1 6 0 1 1 0 1 -3 2 -4 0 -8 2 -3 0 2 1 1 0 3 0 -2 2 2 -1 4 0 6 0 -2 1 8 1 3 -2 4 0 3 0 1 1 -2 2 -3 1 -1 2 1 1 7 -2 1 1 5 -1 3 1 2 -1 3 1 3 -3 4 -1 16 2 -1 1 2 2 10 0 3 0 0 1 -3 2 2 1 3 -1 4 0 3 1 5 0 0 2 4 -1 0 -2 3 -1 6 1 4 0 5 1 1 1 3 2 2 3 -2 2 0 1 2 -2 5 0 2 3 -4 1 -4 0 -3 3 -1 0 -2 0 -1 -1 -2 0 1 -2 -2 0 -3 0 0 -1 2 -1 -3 1 -1 1 -2 1 -1 0 -4 2 -2 -1 0 2 -2 2 1 1 -1 1 -2 1 -3 -1 -9 3 -2 0 -6 2 -6 2 -2 1 -1 -2 -8 2 0 -1 -4 2 -2 -1 -3 2 -6 3 -2 1 2 1 -5 4 -2 0 -4 3 0 1 -6 2 -4 3 -4 1 -4 3 -7 3 2 -2 3 -5 6 -7 6 -4 4 -1 1 -2 5 -1 8 -3 7 -3 7 -3 7 -4 -3 1 -4 2 -10 3 3 -3 -7 1 -12 4 0 2 -6 1 -4 0 3 -2 -3 0 -5 1 -6 0 -9 1 -15 5 -17 7 3 1 -1 2 2 0 3 -1 2 0 0 3 -3 3 -5 3 -4 4 -6 5 -8 4 -3 3 -7 3 -7 4 -3 2 -5 2 -1 0 -1 -2 -5 3 -1 1zM608 24l4 -3 -1 -1 3 -1 6 -2 6 0 3 -1 4 0 2 1 -1 0 -6 2 -6 1 -5 2 -2 3 -2 2 2 2 5 3 -2 0 -7 -1 -1 -1 -4 0 0 -2 1 0 0 -2 3 -2 -2 0zM840 81l3 3 2 3 3 3 6 5 -4 -1 1 5 5 3 1 2 -3 -2 0 3 -2 -3 -2 -3 -2 -3 -1 -3 -3 -4 -3 -3 -3 -4 1 -2 -2 -1 1 0 2 2zM674 6l3 0 5 1 7 2 1 2 -3 0 -6 -1 -4 0 -3 -2 -3 0 3 -2zM773 18l5 0 9 1 1 2 -8 0 -2 0 -6 -1 -1 -2 2 0zM583 105l1 -1 2 1 1 0 0 1 2 0 2 0 0 1 -3 1 -3 2 -1 -1 0 -1 -3 -1 0 -1 3 -1 -1 0zM695 10l6 1 1 1 -10 1 0 -3 1 0 2 0zM554 79l-5 0 -2 -1 0 -1 3 -1 3 1 1 0 0 1 0 1zM871 29l2 0 4 1 -1 1 -3 0 -2 0 -1 0 1 -2zM783 25l1 -1 2 -1 4 1 1 1 -3 0 -4 0 -1 0zM794 20l6 0 -1 1 -4 0 -5 -1 0 -1 4 1zM129 29l2 0 2 1 -1 0 -3 1 -2 0 -3 0 1 0 4 -2zM584 7l3 0 3 0 1 0 2 -1 3 1 -1 0 -2 0 -2 1 -2 0 -2 0 1 -1 -4 0z","NO":"M565 35l-3 1 -2 0 1 -2 -3 -1 -3 1 -1 2 -2 1 -2 0 -3 0 -2 -2 -1 1 -2 0 0 2 -4 -1 0 2 -2 0 -1 2 -2 3 -3 4 1 1 -1 1 -2 0 -2 3 1 3 1 2 0 3 -2 2 -1 2 -1 -2 -5 4 -3 0 -3 -1 -1 -3 -1 -7 2 -2 6 -2 4 -3 4 -4 4 -5 4 -3 5 -3 5 -1 3 0 3 -2 4 0 3 -1 7 2 -2 1 2 2zM529 9l0 -1 3 0 2 1 7 2 -5 1 0 1 -2 1 -1 2 -2 0 -4 -2 1 0 -3 -1 -4 -2 -1 -2 5 -1 1 1 3 0zM551 8l-2 1 -5 1 -6 -1 -1 0 -2 0 -3 -1 6 -1 3 0 2 0 5 0 3 1zM548 13l-4 1 -4 0 1 -1 -1 -1 4 0 1 1 3 0z","ZA":"M544 345l1 -2 1 1 0 1 2 1 1 0 2 0 2 -2 1 -12 0 1 2 3 0 2 0 1 2 0 1 -2 2 -1 0 -1 2 -1 1 0 1 1 2 1 2 -1 0 -1 1 -2 1 0 1 -1 1 -2 3 -3 4 -2 1 0 1 0 1 0 2 0 1 5 0 2 0 4 0 1 -2 -1 0 1 -1 1 -1 1 0 1 2 2 1 -1 1 -1 2 0 -1 2 0 3 -1 1 -2 2 -1 0 -1 2 -1 2 -1 2 -4 3 -2 2 -2 2 -3 1 -1 0 0 1 -2 0 -1 0 -3 0 -2 0 -1 0 -3 1 -2 1 -1 1 -2 0 -1 -1 -1 0 -1 -2 0 1 0 -1 0 -2 -1 -2 1 -1 0 -2 -1 -3 -2 -3 -1 -4z","MX":"M191 148l3 0 4 -1 -1 1 4 1 5 3 5 0 2 0 1 -2 4 0 1 1 1 1 1 2 1 2 0 1 1 1 2 1 2 -2 2 0 2 1 1 2 0 2 1 2 1 2 0 2 2 1 2 0 1 0 -2 3 -1 2 -1 5 0 1 0 2 0 2 0 2 2 3 0 1 1 2 3 1 1 1 2 -1 2 0 3 -1 1 0 2 -1 1 -2 1 -3 0 -1 2 -1 3 -1 3 1 1 -1 1 1 0 2 -2 1 -1 2 0 1 0 1 -1 3 -1 -1 -1 0 -1 2 -1 0 -2 0 -3 0 0 2 -2 0 1 1 1 1 1 1 0 1 -4 0 -1 3 0 1 -1 1 -2 -4 -2 -1 -2 0 -1 0 -3 1 -1 0 -2 -1 -2 0 -2 -2 -2 0 -3 -2 -2 -1 -1 -1 -1 0 -3 -1 -1 -2 -3 -1 -1 -3 0 -1 1 0 0 -1 1 -1 0 -1 -1 -2 0 -1 0 -2 -2 -3 -2 -2 -1 -2 -2 -2 0 -1 0 -2 -1 0 -1 -2 0 -2 -1 0 -2 -2 0 -2 0 -1 -1 -2 0 -3 0 -1 -1 -1 -1 0 -1 -1 -1 1 0 2 -1 2 1 2 1 2 0 1 1 0 0 1 0 2 1 1 0 1 1 2 1 3 0 1 0 2 0 1 1 1 1 1 1 1 0 1 -2 1 0 -2 -2 -2 -1 -1 -2 -1 1 -2 0 -2 -1 -1 -2 -2 0 1 0 -1 -2 -1 -1 -2 1 0 2 -1 0 -1 -1 -3 -2 -1 0 -2 0 -2 -1 -2 0 -3z","UY":"M347 350l2 0 3 2 1 0 3 2 2 2 2 2 -1 2 1 2 -1 2 -3 1 -2 0 -1 0 -3 -1 -1 0 -2 -2 -1 -2 1 -1 -1 -3 1 -3 0 -3z","BR":"M360 362l-1 -2 1 -2 -2 -2 -2 -2 -3 -2 -1 0 -3 -2 -2 0 3 -4 2 -3 2 -2 2 -2 0 -2 -2 -2 -1 1 0 -2 0 -2 0 -2 -1 -1 -1 1 -1 0 0 -1 -1 -3 0 -1 -2 -1 -1 0 -3 0 -1 -5 -1 -1 1 -1 0 -2 0 -1 1 -3 -1 -2 -2 -1 0 -1 0 -2 -5 0 -1 -4 0 -1 0 -1 -1 -2 -1 -1 -2 0 -1 -1 -2 -1 -1 -1 -3 0 -4 -3 1 -2 -1 -2 0 -2 -3 1 -2 1 -2 1 -1 1 -1 0 -2 0 -2 0 -1 0 0 -5 -2 2 -3 0 -1 -2 -2 0 1 -1 -2 -2 -1 -3 1 -1 0 -1 1 -1 0 -2 1 -1 0 -1 3 -3 2 0 1 -1 2 0 1 -8 0 -2 0 -2 -1 -1 0 -2 1 -1 1 1 0 -1 -2 -1 0 -2 5 0 1 -1 1 1 1 2 2 1 2 0 0 -1 3 -1 1 0 0 -1 2 -1 0 -1 -2 0 -1 -2 0 -3 -1 0 1 -1 2 1 2 1 1 -1 2 -1 3 -1 1 -1 0 -1 1 0 1 1 -1 1 1 0 1 2 -1 1 -1 3 1 1 0 2 2 1 1 1 1 -1 1 0 1 -1 1 -1 1 1 1 0 1 0 1 -1 -1 0 1 -1 1 0 1 0 2 0 1 1 1 -1 1 1 1 0 1 -1 1 -3 2 -3 1 0 0 2 2 6 1 0 0 2 -2 3 1 1 5 0 0 4 2 -2 4 1 4 2 2 2 -1 1 3 -1 6 2 4 0 4 3 4 3 2 1 2 0 1 1 1 4 1 2 -1 6 -2 2 -3 4 -2 4 -2 3 -1 0 0 2 0 6 0 5 0 2 -1 1 0 5 -3 4 0 3 -2 2 -1 2 -3 0 -4 1 -2 1 -3 1 -2 3 -2 3 -1 2 1 2 0 4 -1 1 -1 2 -2 6 -2 2 -2 2 -1 3 -1 2z","BO":"M308 288l2 0 1 0 1 -1 2 -1 2 -1 3 -1 0 2 1 2 -1 2 4 3 3 0 1 1 2 1 1 1 2 0 1 1 1 2 0 1 0 1 1 4 5 0 0 2 0 1 2 1 1 2 -1 3 0 1 0 2 -1 1 0 -1 -2 -2 -3 0 -5 1 -1 3 1 1 -1 4 -1 0 -3 -1 0 3 -2 -2 -4 -1 -2 3 -2 0 -1 -4 -2 -4 0 -3 -1 -1 -1 -3 -2 -2 2 -3 -2 -3 1 -1 -1 -1 1 -2 0 -3 0 -2 1 -1 -3 -5z","PE":"M306 266l-2 0 -1 1 -2 0 -3 3 0 1 -1 1 0 2 -1 1 0 1 -1 1 1 3 2 2 -1 1 2 0 1 2 3 0 2 -2 0 5 1 0 2 0 3 5 -1 1 0 2 0 3 -1 2 1 1 -1 1 2 3 -2 3 0 2 -1 1 -3 -2 -1 -1 -5 -4 -6 -3 -2 -2 -1 -3 0 -1 -3 -4 -3 -6 -3 -6 -1 -2 -1 -2 -2 -2 -2 -2 1 -1 -2 -3 1 -2 2 -2 0 1 0 1 0 1 1 0 1 0 1 2 2 -2 0 -2 2 -3 3 -1 3 -3 1 -2 0 -3 2 1 1 2 1 1 2 3 2 1 2 -1 1 0 1 0 2 1 -1 4 1 0 1 1z","CO":"M314 249l-1 -2 -1 -1 -1 1 -5 0 0 2 2 1 0 1 -1 -1 -1 1 0 2 1 1 0 2 0 2 -1 8 -1 -1 -1 0 1 -4 -2 -1 -1 0 -1 0 -2 1 -2 -1 -2 -3 -1 -1 -1 -2 -2 -1 -2 -1 -1 -1 -1 1 -2 -1 -1 -1 -3 -2 0 -1 1 0 0 -2 0 -1 2 0 1 -2 1 -2 -1 0 0 -2 0 -3 1 -1 -1 -3 -1 -2 1 -1 1 -1 0 -2 1 0 3 -2 1 -1 0 -1 0 -2 2 -2 2 0 0 -1 2 1 3 -2 1 -1 1 -1 1 0 1 1 -1 1 -2 0 0 2 -2 1 0 1 -1 2 -1 2 2 0 0 2 0 1 1 1 -1 1 0 1 1 0 1 1 3 0 2 0 2 3 1 0 2 0 1 0 1 0 0 2 -1 1 0 2 0 2 1 1 0 1 -1 2 1 0 0 1 1 4z","CR":"M272 222l-1 0 0 2 0 1 -1 1 -1 0 -1 -1 1 -1 -1 -1 -1 -1 -1 0 0 -1 -1 -1 0 1 0 1 -1 -1 -1 0 0 -1 0 -1 0 -1 0 -1 1 0 1 0 1 0 1 0 0 1 1 0 1 0 0 1 1 2 2 1z","VE":"M332 236l0 1 -1 1 -3 1 -2 1 -1 1 -2 -1 -2 -1 -1 1 1 0 0 3 1 2 2 0 0 1 -2 1 0 1 -1 0 -3 1 0 1 -2 0 -2 -1 -1 -4 0 -1 -1 0 1 -2 0 -1 -1 -1 0 -2 0 -2 1 -1 0 -2 -1 0 -1 0 -2 0 -1 0 -2 -3 -2 0 -3 0 -1 -1 -1 0 0 -1 1 -1 -1 -1 0 -1 0 -2 -2 0 1 -2 1 -2 0 -1 2 -1 0 -2 2 0 0 1 -2 0 1 1 0 2 -1 2 1 3 1 -1 1 -2 -1 -1 0 -3 3 -1 0 -1 1 -1 1 2 2 0 2 2 0 1 2 0 3 -1 2 2 2 0 1 -1 0 -1 4 0 3 0 -2 1 0 2 3 0 2 2 0 2 1 0 2 1 -3 2 0 1 1 1 -1 1 -2 0 0 2 0 1 2 2z","FR":"M515 94l1 0 4 1 -1 2 -1 2 0 1 -1 0 -2 2 0 2 1 -1 1 2 1 2 -1 1 1 2 1 0 0 2 -3 2 -5 -1 -3 1 0 2 -3 0 -3 -1 -1 0 -5 -1 -1 -1 2 -2 0 -6 -3 -4 -1 -1 -4 -2 0 -2 3 -1 4 1 -1 -3 3 1 5 -2 1 -3 2 -1 0 2 2 0 1 1 1 1 2 0 2 1 0 1 1 0zM357 239l-2 3 -1 3 -1 1 -1 0 -1 -1 -1 1 -1 -1 0 -1 1 -2 0 -1 -1 -2 0 -2 1 -3 1 1 2 0 3 3 1 1zM522 115l2 -1 0 3 0 2 -2 0 0 -3 0 -1z","EC":"M291 253l0 3 -1 2 -3 3 -3 1 -2 3 0 2 -2 2 -1 -2 -1 0 -1 0 0 -1 0 -1 0 -1 1 -3 0 -1 -1 1 -2 -1 1 -1 -1 -3 1 0 1 -2 1 -2 0 -2 1 0 2 -2 3 2 1 1 2 1 1 -1 1 1 2 1z","CU":"M277 178l3 0 2 0 2 1 1 2 3 -1 0 1 2 2 2 1 1 0 1 1 0 1 2 0 2 1 0 1 -2 1 -2 0 -2 -1 -4 1 2 -2 -1 -1 -2 0 0 -1 -1 -2 -1 0 -3 -1 -1 0 -3 -1 -1 0 1 -1 -2 0 -3 1 -1 0 0 1 -2 0 -1 0 2 -1 1 -1 1 -1 1 0 3 -1z","SN":"M454 209l-1 -3 -1 -1 1 0 1 -3 1 -1 1 -1 1 0 1 -1 2 0 1 1 2 1 2 2 2 3 0 2 0 2 1 0 0 2 0 1 -2 0 -2 -1 -2 0 -5 0 -1 0 -1 0 -1 1 0 -3 2 0 1 0 1 -1 1 1 2 0 1 -1 -1 -1 -1 1 -2 -1 -1 1 -3 0z","ML":"M468 213l0 -1 0 -2 -1 0 0 -2 0 -2 0 -1 1 -2 1 0 2 1 1 -1 1 1 1 -1 11 0 0 -2 0 -1 -1 -14 -1 -14 4 0 9 7 9 7 1 2 1 1 2 0 0 2 3 0 0 7 -2 3 0 2 -2 0 -4 0 -1 2 -2 0 -2 0 0 -1 -2 1 -3 1 0 1 -2 1 -1 1 -1 1 -1 -1 -1 1 0 2 -2 3 0 1 -1 1 0 2 -1 1 -1 0 0 -1 -1 0 -1 1 -2 0 -1 0 -1 -1 0 -1 -1 0 0 -1 1 -1 -1 -1 -1 -1 0 -1 -1 0 -1 1 -1 1 -1 -1 -1 0 0 -1 -1 1 -1 0 0 -1z","NG":"M507 233l1 -6 0 -2 0 -2 1 -1 1 -2 0 -1 0 -1 0 -2 0 -1 0 -3 1 -1 0 -2 1 -1 3 0 3 1 1 2 1 0 1 -1 4 1 1 0 2 -1 1 0 1 0 2 0 2 1 2 -2 1 0 2 4 1 1 0 1 -2 3 -1 2 -1 2 -1 3 -1 1 -1 2 0 1 0 1 -2 1 -2 -1 -1 0 -2 2 -2 3 0 2 -3 2 -1 -1 -1 1 -3 0 -1 -2 -1 -2 -2 -2 -2 0 -3 0z","GH":"M500 217l0 1 1 2 0 2 0 3 1 1 -1 3 1 1 0 2 1 2 -4 2 -2 1 -2 1 -3 -1 0 -2 -1 -2 1 -4 1 -3 -1 -4 0 -3 0 -2 5 0 1 1 1 -1 1 0z","CI":"M478 220l1 0 2 0 1 -1 1 0 0 1 1 0 1 -1 1 1 1 1 1 1 1 -1 1 0 2 1 1 4 -1 3 -1 4 1 2 0 2 -1 0 -2 -1 -2 0 -3 1 -2 1 -3 1 0 -3 0 -2 -1 -1 -1 0 -1 -1 1 -2 -1 -1 1 -1 0 -1 0 -1 1 -1 0 -2 -1 -2 0 -1 1 0z","BF":"M485 219l0 -2 1 -1 0 -1 2 -3 0 -2 1 -1 1 1 1 -1 1 -1 2 -1 0 -1 3 -1 2 -1 0 1 2 0 0 1 0 2 2 2 0 1 3 1 0 2 -1 1 -1 1 -1 1 -1 0 -2 0 -1 0 -1 1 -1 -1 -5 0 0 2 0 3 -2 -1 -1 0 -1 1 -1 -1 -1 -1 -1 -1z","IL":"M594 147l0 1 -1 0 -1 2 1 0 0 1 -1 1 2 -1 0 1 -1 6 0 -1 -2 -5 0 -1 1 -2 0 -2 0 -1 1 0 1 -1 0 2z","LB":"M594 145l-1 1 -1 0 1 -3 1 -2 1 0 1 1 -1 2 -1 1z","TN":"M525 155l-1 -6 -2 -1 0 -1 -2 -2 0 -2 1 -2 1 -3 -1 -3 1 -1 3 -2 1 1 0 1 3 -1 0 1 -1 1 0 2 1 1 -1 2 -1 2 0 2 2 0 0 1 1 1 0 2 -1 1 -1 1 -2 2 1 1 -1 1 -1 1z","DZ":"M477 164l0 -4 4 -3 3 0 2 -1 1 -2 3 -1 0 -2 2 -1 1 -1 4 0 0 -2 -1 0 -1 -4 0 -2 -1 -2 3 -2 3 0 1 -1 3 -1 4 -1 5 0 1 0 2 -1 3 0 1 1 2 0 -1 1 1 3 -1 3 -1 2 0 2 2 2 0 1 2 1 1 6 1 3 0 1 0 3 0 1 0 2 0 2 -1 2 2 2 0 1 1 2 1 0 2 1 1 2 -9 6 -8 7 -3 1 -3 0 0 -2 -2 0 -1 -1 -1 -2 -9 -7 -9 -7 -10 -8z","JO":"M594 148l0 -1 3 1 5 -3 2 4 -1 0 -5 2 3 3 -1 1 0 1 -2 0 -1 2 -1 1 -3 -1 1 -6 0 -1 0 -1 0 -2z","AE":"M639 175l1 -1 0 1 2 0 2 0 2 0 2 -2 1 -2 2 -2 0 1 1 2 -1 0 0 2 0 1 -1 1 0 1 0 1 0 2 -1 0 -8 -1 -2 -4z","IQ":"M604 149l-2 -4 5 -3 1 -4 -1 -3 2 0 1 -2 1 -1 3 1 1 0 1 0 2 4 2 1 1 1 -2 2 0 2 2 3 4 2 2 2 -1 3 1 0 0 1 2 2 -1 0 -2 0 -2 3 -5 0 -8 -7 -4 -2 -3 -1z","KH":"M783 213l-1 -3 1 -3 4 -1 3 1 2 1 1 -2 2 1 1 2 0 4 -4 2 1 2 -2 1 -3 1 -2 -1 -1 -1 -2 -4z","TH":"M790 207l-3 -1 -4 1 -1 3 1 3 -3 -1 -2 0 0 -2 -2 0 0 3 -1 5 -1 3 1 2 1 0 2 3 0 3 2 2 2 0 1 2 -1 1 -1 0 -1 -1 -2 -2 -1 1 -1 -1 0 -2 -2 -2 -1 -1 -1 2 0 -2 0 -2 1 -3 1 -4 1 -3 -2 -2 0 -2 0 -2 -2 -2 -1 -2 1 -1 0 -2 -1 -2 -2 -3 -2 -3 1 0 1 -4 2 0 1 -1 2 -1 1 1 0 2 2 0 0 3 1 3 2 -2 1 1 2 0 0 -1 2 0 3 3 0 3 3 3 0 2 0 2z","MM":"M773 187l-2 1 -1 1 -2 0 -1 4 -1 0 2 3 2 3 1 2 0 2 -1 1 1 2 2 2 0 2 0 2 2 2 -1 3 -1 4 -1 -3 1 -2 -1 -2 -1 -4 -1 -1 -1 -4 -1 -4 -2 -3 -1 2 -3 2 -2 0 -1 -1 0 -4 -1 -3 -3 -4 0 -1 -1 0 -3 -3 0 -2 1 0 0 -2 1 -1 -1 -1 1 -2 -1 -3 2 1 1 -3 0 -1 1 -3 -1 -2 3 -2 2 0 0 -2 1 0 -1 -1 2 -1 1 2 1 1 1 2 0 3 -2 3 1 4 3 -1 1 3 2 1 -1 2 3 2 1 0 2 -1 0 2 -2 2 0 1z","VN":"M788 219l3 -1 2 -1 -1 -2 4 -2 0 -4 -1 -2 1 -3 -1 -3 -3 -2 -2 -3 -3 -3 -3 -2 0 -1 2 -1 -2 -3 -3 0 -2 -3 -2 -3 1 0 3 0 2 -1 2 -2 2 2 2 0 0 2 2 1 3 1 -4 3 -1 3 0 2 2 4 3 4 3 2 2 3 2 6 0 5 -2 2 -3 2 -2 3 -3 3 -1 -2 1 -2 -3 -2z","KR":"M826 131l2 0 0 -2 2 0 1 0 0 -1 4 4 1 2 2 4 -1 2 -2 0 -1 1 -3 1 -1 -2 0 -2 -2 -4 1 0 -3 -3z","MN":"M714 94l3 0 3 -3 3 -1 3 0 2 1 3 1 2 0 4 1 1 -2 -1 -2 1 -3 3 1 2 0 4 1 1 2 4 2 2 -1 3 0 3 0 3 2 2 1 2 0 4 1 2 -1 3 -1 2 -2 2 1 1 1 3 -1 0 3 0 3 1 1 2 0 2 0 2 -1 2 1 3 2 1 1 -2 0 -4 0 -1 1 -1 2 -3 2 -2 1 -3 0 -1 -1 -1 2 2 2 1 1 -2 1 -1 1 -2 2 -4 0 -4 1 -2 2 -1 -1 -4 0 -4 -2 -3 -1 -3 1 -5 -1 -3 0 -2 -2 -3 -3 -1 0 -4 -2 -4 -1 -3 0 -1 -2 -1 -3 -2 -3 -4 -1 -3 -2 -2 -2z","IN":"M760 162l1 1 -1 0 0 2 -2 0 -3 2 1 2 -1 3 0 1 -1 3 -2 -1 1 3 -1 2 1 1 -1 1 -3 -5 -1 2 -1 -2 0 -2 1 0 1 -3 -2 0 -2 0 -3 -1 0 -2 -2 0 -2 -2 -1 3 3 1 -2 2 0 1 2 1 -1 2 2 2 1 3 -1 1 -1 0 -4 0 1 3 -1 2 -4 2 -2 4 -2 2 -3 2 0 1 -1 1 -2 1 -1 1 -1 2 1 4 0 3 -1 3 1 5 -2 1 -1 2 1 1 -2 1 -1 2 -1 1 -3 -3 -2 -4 -1 -4 -1 -1 -2 -3 -1 -4 0 -2 -3 -5 -2 -6 -1 -4 -1 -4 -1 -3 -3 2 -2 -1 -4 -3 1 -2 -1 -1 -4 -3 2 -2 6 0 -1 -3 -2 -1 -1 -3 -2 -1 3 -4 3 1 2 -4 1 -3 2 -3 0 -3 2 -1 -3 -2 -1 -2 -2 -3 1 -1 4 0 3 0 2 -3 4 4 0 3 2 1 0 2 -2 -1 1 4 3 2 5 2 -2 2 0 3 3 1 2 2 4 1 4 1 2 2 2 0 3 1 3 0 0 -2 -1 -2 0 -1 1 -1 1 3 3 2 1 -1 3 0 2 0 0 -2 -2 -1 2 0 2 -3 3 -2 2 1 2 -1 2 2 -1 1 3 1z","BD":"M752 182l0 2 -1 0 0 2 -1 -2 0 -1 -1 -2 -1 -2 -3 0 1 2 -1 1 -1 0 -1 0 -1 0 -1 -3 -2 -2 1 -2 -2 -1 0 -1 2 -2 -3 -1 1 -3 2 2 2 0 0 2 3 1 2 0 2 0 -1 3 -1 0 0 2 1 2 1 -2 3 5z","NP":"M736 163l0 1 1 2 0 2 -3 0 -3 -1 -2 0 -2 -2 -4 -1 -4 -1 -2 -2 -3 -1 0 -3 2 -2 3 1 3 2 2 0 1 2 2 0 2 2 4 1 3 0z","PK":"M703 138l-2 3 -3 0 -4 0 -1 1 2 3 1 2 3 2 -2 1 0 3 -2 3 -1 3 -2 4 -3 -1 -3 4 2 1 1 3 2 1 1 3 -6 0 -2 2 -2 0 -1 -3 -2 -2 -5 0 -4 0 -4 1 0 -4 4 -2 -1 -1 -1 -1 0 -2 -3 -2 -1 -2 -2 -1 5 1 2 0 2 0 0 -1 2 1 3 -2 0 -2 1 -2 2 0 0 -1 2 -1 1 1 1 -1 0 -2 0 -2 2 -1 -2 -2 3 0 0 -1 0 -1 1 -2 -1 -1 0 -2 1 -1 2 -1 3 0 1 -1 2 0 2 1 2 3 4 1z","IR":"M629 156l-2 -2 0 -1 -1 0 1 -3 -2 -2 -4 -2 -2 -3 0 -2 2 -2 -1 -1 -2 -1 -2 -4 -2 -3 1 -1 -2 -3 2 -1 1 1 1 1 2 1 1 0 2 -3 1 0 1 1 0 2 2 1 1 2 3 1 2 2 4 0 4 -1 2 -1 1 -2 2 0 1 0 2 0 3 2 2 0 4 3 2 0 1 3 -1 4 0 2 1 1 -1 1 2 3 0 2 2 0 1 3 -2 3 2 1 1 2 3 2 0 2 1 1 1 1 -4 2 0 4 -5 -1 -3 -1 -4 0 -1 -4 -2 -1 -2 1 -2 1 -3 -1 -3 -2 -3 -1 -2 -3 -3 -5 -1 1 -2 -1 -1 1z","AM":"M620 128l-1 0 -1 -2 -1 -1 -1 0 -1 0 -1 -1 -2 -1 0 -2 -1 -1 4 0 0 1 1 0 0 1 1 1 0 1 1 1 1 0 1 3z","SE":"M525 65l1 -2 2 -2 0 -3 -1 -2 -1 -3 2 -3 2 0 1 -1 -1 -1 3 -4 2 -3 1 -2 2 0 0 -2 4 1 0 -2 2 0 3 1 3 2 1 4 1 2 -4 0 -2 2 1 2 -3 2 -4 3 -1 4 1 2 3 2 -2 3 -2 1 -1 5 -1 2 -3 0 -1 2 -3 1 -1 -3 -2 -4 -2 -4z","BY":"M566 73l2 1 1 1 1 -1 3 1 0 1 0 1 1 2 1 1 2 1 1 1 -1 0 -2 0 0 1 0 1 1 2 -2 0 0 2 -1 0 -2 0 -1 -1 -1 1 -1 -1 -2 0 -3 -1 -2 0 -2 0 -1 1 -1 0 0 -1 -1 -2 1 0 0 -2 -1 -1 0 -1 2 0 3 -1 0 -2 2 -1 -1 -1 2 -1 2 -1z","UA":"M576 86l1 0 1 -1 1 0 2 0 2 2 -1 0 1 1 2 0 1 2 3 1 2 0 2 1 1 0 4 1 0 1 -1 2 1 2 0 1 -2 0 -2 1 1 1 -2 0 -2 1 -2 1 -2 1 0 1 -1 0 -2 -1 -1 1 0 -1 -4 0 0 -2 -3 1 0 1 -2 3 -1 -1 -1 1 -2 -1 1 0 0 -1 1 -1 0 -1 2 0 1 0 -1 0 0 -1 -1 0 0 -2 -1 0 0 -1 -1 -1 -1 0 -2 -1 -2 0 -1 1 -1 0 -2 1 -1 0 -1 -1 -1 0 -2 0 -1 1 0 -1 -2 -1 1 -1 0 -1 1 0 -1 -1 2 -3 1 0 0 -1 -1 -3 1 0 1 -1 2 0 2 0 3 1 2 0 1 1 1 -1 1 1 2 0 1 0 0 -2 2 0z","PL":"M556 80l0 1 1 1 0 2 -1 0 1 2 0 1 1 3 0 1 -1 0 -2 3 1 1 -1 0 -2 -1 -2 0 -1 0 -2 0 -1 -1 -1 1 -1 -2 -2 0 0 -1 -2 0 -2 0 0 -1 -1 0 -2 -1 -1 -2 0 -1 0 -2 -1 -1 0 -1 0 -2 1 0 4 -2 3 -1 2 1 3 0 2 1 5 0 1 0 1 1z","AT":"M542 98l0 1 -2 0 1 1 -1 2 -2 0 -2 1 -2 0 -3 -1 -1 -1 -2 1 -1 0 -1 0 -1 0 -2 -1 1 -1 2 0 2 0 2 -1 1 0 1 1 0 -1 0 -2 1 0 0 -1 2 1 1 -2 1 0 2 1 1 0 2 0 -1 1 1 1z","HU":"M554 97l2 1 0 1 -1 0 -1 2 -2 3 -2 0 -1 0 -2 1 -1 0 -2 0 -2 -2 -1 0 0 -1 -1 0 1 -2 -1 -1 2 0 0 -1 1 1 1 0 2 0 0 -1 1 0 1 -1 1 1 1 -1 0 -1 1 0 3 1z","MD":"M565 98l1 -1 2 0 2 1 1 0 1 1 0 1 1 0 0 2 1 0 0 1 1 0 -1 0 -2 0 0 1 -1 1 0 1 -1 0 0 -1 0 -2 0 -1 -2 -2 -1 -1 -1 -1 -1 0z","RO":"M570 106l2 1 1 -1 1 1 0 1 -1 0 -1 0 0 4 -2 -1 -2 -1 -2 1 -2 1 -3 0 -2 -1 -1 0 -1 -1 -1 0 1 -1 -1 0 -2 -1 0 -1 -2 -1 0 -1 -2 -1 2 0 2 -3 1 -2 1 0 1 -1 2 0 1 0 1 1 1 0 2 -1 1 0 1 0 1 1 1 1 2 2 0 1 0 2 0 1z","LT":"M562 75l1 1 -2 1 0 2 -3 1 -2 0 -1 -1 -1 0 0 -1 0 -1 -1 0 -3 -1 -1 -2 3 -1 4 0 2 0 2 0 2 2z","LV":"M563 69l1 1 1 1 1 2 -2 1 -2 1 -2 -2 -2 0 -2 0 -4 0 -3 1 0 -3 1 -2 2 -1 2 3 2 0 0 -3 2 0 1 0 2 1 2 0z","EE":"M564 63l0 1 -1 1 1 3 -1 1 -2 0 -2 -1 -1 0 -2 0 0 -1 -1 0 -1 -1 -1 -2 3 -1 3 0 3 0 2 0z","DE":"M534 80l0 2 0 1 1 1 0 2 0 1 1 2 -1 0 -1 0 -2 1 -1 0 -1 1 0 1 1 1 1 1 1 2 0 1 -1 0 0 2 0 1 -1 -1 -1 0 -2 1 -2 0 -2 0 -3 -1 -3 0 1 -2 1 -2 -4 -1 -1 0 0 -2 0 -2 -1 -4 2 0 0 -1 1 -3 -1 -1 1 0 2 -1 0 1 2 -1 -1 -2 0 -1 2 0 1 0 0 1 3 1 0 1 2 -1 2 -1 2 1 2 1z","BG":"M557 110l1 1 1 0 2 1 3 0 2 -1 2 -1 2 1 2 1 -1 1 -1 2 1 2 -2 0 -3 1 0 1 -2 1 -2 -1 -2 0 -2 0 0 -2 -1 -1 0 -1 0 -1 1 -1 -1 -1 -1 -1 1 -1z","GR":"M558 119l2 0 2 0 2 1 2 -1 0 -1 2 1 -1 2 -2 0 -1 0 -3 0 2 2 -2 1 -1 0 -2 -2 0 1 1 2 1 1 -1 1 2 1 1 1 0 2 -2 -1 1 2 -2 0 1 3 -2 0 -2 -1 -1 -3 0 -2 -2 -1 -1 -2 0 -1 1 -2 0 -1 1 0 0 -1 1 0 1 -1 2 0 0 -1zM569 139l-1 1 -3 0 -4 -1 1 -1 1 1 2 -1 2 1 2 0z","TR":"M616 133l-1 0 -1 0 -3 -1 -1 1 -3 0 -1 0 -3 1 -2 0 -2 0 -3 1 -1 -1 0 2 -1 1 -1 -1 1 -2 -2 1 -2 -1 -1 2 -4 0 -3 -2 -2 0 -1 2 -2 0 -2 -2 -3 0 -2 -3 -2 -2 1 -2 -2 -2 3 -3 4 0 1 -2 4 0 3 -2 3 -1 4 0 5 2 4 2 3 -1 2 0 3 -1 2 0 3 1 1 1 0 2 2 1 1 1 -2 1 2 3 -1 1 2 3zM566 118l3 -1 2 0 1 1 2 2 -1 0 -3 0 -1 1 -2 2 0 -1 0 -1 1 -2 -2 -1z","AL":"M554 121l0 1 -1 0 0 1 -1 2 -1 0 0 -1 -1 -1 -1 -2 0 -2 1 -1 -1 0 0 -1 1 -2 0 1 1 -1 0 1 1 1 0 1 0 1 1 1 1 1z","HR":"M541 103l1 0 2 2 2 0 1 0 1 1 0 1 0 1 -2 -1 -1 0 -3 0 -1 0 0 1 -1 -1 -1 1 2 2 0 1 2 1 1 1 1 1 2 1 0 1 -3 -1 -1 -2 -3 -1 -2 -2 1 0 -2 -1 0 -2 -1 0 -1 1 -1 -1 0 -1 2 0 1 0 1 0 0 -1 1 0 0 -1 2 -1z","CH":"M524 100l-1 1 2 1 1 0 0 1 -1 1 -2 -1 -1 1 -1 1 0 -1 -2 1 -1 0 -1 0 -1 -2 -1 1 0 -2 2 -2 1 0 0 -1 3 0 3 1z","LU":"M515 92l0 2 -1 0 0 -1 0 -1 1 0z","BE":"M515 90l0 2 -1 0 0 1 -2 -1 -2 0 -1 -1 -1 -1 -2 0 0 -2 2 0 2 0 2 -1 2 2 1 1z","NL":"M516 81l1 1 -1 3 0 1 -2 0 1 4 -1 -1 -2 -2 -2 1 -2 0 1 -1 2 -5 3 -1 2 0z","PT":"M477 118l1 -1 1 -1 1 2 1 0 1 0 1 0 1 1 -1 1 -1 3 0 2 -1 0 1 2 -1 2 1 1 -1 1 -1 1 1 1 -1 1 -2 -1 -1 1 0 -3 0 -2 -1 0 -1 -1 1 -2 1 -2 0 -1 1 -2 0 -1 -1 -1 0 -1z","ES":"M481 133l-1 -1 1 -1 1 -1 -1 -1 1 -2 -1 -2 1 0 0 -2 1 -3 1 -1 -1 -1 -1 0 -1 0 -1 0 -1 -2 -1 1 -1 1 0 -3 -1 -1 4 -2 3 0 3 0 3 1 2 0 4 0 1 1 5 1 1 0 3 1 3 0 0 2 -3 2 -3 0 0 2 -2 1 -1 3 1 2 -1 1 -1 2 -2 1 -2 2 -3 0 -2 0 -2 2 -1 1 -1 -1 -1 -1 -1 -1 -2 -1z","IE":"M485 80l1 2 -2 3 -5 2 -3 -1 2 -3 -1 -3 3 -2 2 -2 1 2 -1 2 2 -1 1 1z","NZ":"M928 393l3 -2 2 -1 3 -3 2 0 1 -2 3 -2 0 2 -1 1 3 -1 0 1 -1 1 -2 2 -3 2 -2 1 0 2 -2 0 -3 1 -2 2 -4 4 -3 1 -2 1 -2 0 -1 -1 -3 -1 1 -1 3 -2 5 -3 2 -1 3 -1zM953 382l-2 2 -3 2 -2 1 0 -1 -1 0 3 -3 0 -2 -2 -1 1 -1 3 -1 2 -3 1 -2 0 -2 0 -2 -1 -3 0 -2 1 0 1 2 1 0 0 3 0 4 1 -2 1 0 -1 3 1 1 2 0 2 -1 1 0 -2 3 -2 2 -2 0 -2 1 0 1 -1 1z","AU":"M833 357l-3 1 -3 1 -1 2 -1 1 -3 0 -1 0 -2 0 -3 0 -1 0 -3 2 -2 1 -1 1 -2 0 -2 0 -2 -2 -1 -1 0 -2 2 0 0 -1 1 -1 1 -2 0 -2 0 -4 0 -2 0 -1 0 -2 0 -1 -1 -2 1 -2 -1 -3 0 -1 1 1 -1 -3 1 1 1 1 0 -1 0 -3 0 -1 -1 -1 1 -2 1 0 0 -2 0 -2 2 -2 0 2 1 -2 3 -1 1 -1 3 -2 1 0 1 0 2 -1 2 0 0 -1 1 0 2 0 3 -1 1 -1 1 -2 2 -2 1 -1 0 -2 2 -3 1 3 1 0 0 -2 1 -1 1 0 1 -2 1 -2 1 -1 2 -1 0 -1 1 1 0 -1 1 0 2 -1 2 2 1 2 2 0 1 0 0 -2 2 -3 1 0 0 -1 1 -2 2 -1 1 0 3 0 0 -2 -2 -1 2 -1 1 1 2 2 2 0 1 0 1 1 2 -1 1 0 1 0 1 1 -1 2 -1 1 -1 1 0 1 -1 1 -2 2 0 1 2 2 2 1 1 1 2 2 1 0 1 1 0 1 3 1 2 -1 1 -2 1 -2 0 -1 1 -3 0 -1 1 -1 0 -2 0 -3 1 0 0 -1 1 -2 0 -2 1 -1 1 -1 0 2 0 2 1 0 0 1 1 2 0 2 -1 1 1 2 2 -1 1 2 1 1 -1 1 0 3 0 2 1 0 0 3 -1 2 1 2 2 1 2 2 1 1 0 1 1 2 0 4 1 -1 1 1 1 0 -1 3 2 2 1 1 1 3 0 3 -1 2 -1 2 1 2 -2 3 -1 2 -1 3 -1 1 -2 3 -2 3 -3 1 -2 3 -1 1 -2 3 -2 2 -2 2 -1 2 0 1 -2 2 -3 0 -3 1 -2 1 -3 2 -1 -2 -1 0 1 -2 -2 1 -3 2 -2 -1 -1 -1 -2 0 -2 -1 0 -2 0 -2 0 -2 0 -1 -3 0 2 -2 0 -2 -2 2 -3 0 3 -1 1 -2 1 -2 1 -2 -3 3 -2 1 -2 2 -2 -1 1 -2 -1 -2 -1 -1 1 -1 -3 -2 -1 0 -2 -2 -5 1 -4 1 -3 1 -3 0zM877 384l1 0 -1 4 -2 1 -2 3 0 -1 -3 2 -2 0 0 -3 1 -2 0 -3 1 -1 1 0 2 1 2 0 2 -1z","LK":"M727 229l-1 3 -1 1 -2 0 -2 -2 0 -5 1 -5 2 2 1 2 2 4z","CN":"M703 116l0 -2 1 -1 -4 -5 5 -1 1 -1 0 -6 5 1 1 -1 -1 -3 2 0 1 -3 2 2 3 2 4 1 2 3 1 3 1 2 3 0 4 1 4 2 1 0 3 3 2 2 3 0 5 1 3 -1 3 1 4 2 4 0 1 1 2 -2 4 -1 4 0 2 -2 1 -1 2 -1 -1 -1 -2 -2 1 -2 1 1 3 0 2 -1 3 -2 1 -2 1 -1 4 0 2 0 -1 -1 -3 -2 -2 -1 -2 1 -2 0 -2 0 -1 -1 0 -3 0 -3 4 2 2 -2 -1 -2 1 -3 0 -1 -1 -2 -1 -1 1 -1 2 -1 3 0 4 1 3 1 4 3 1 2 2 2 3 3 5 1 4 2 3 3 4 0 1 -1 4 -1 0 3 0 1 1 3 0 3 -4 0 -1 1 2 3 2 3 -2 0 1 2 -2 -2 -1 2 -3 1 1 2 -2 0 -2 -1 0 2 -2 2 -1 2 -4 1 -1 1 -2 1 0 -1 -1 -2 1 -2 -2 -1 -1 1 -2 2 -1 2 -2 0 -1 2 2 2 2 0 1 2 2 1 2 -2 3 1 2 0 1 2 -3 0 -1 2 -2 2 0 2 3 2 2 3 3 3 2 2 1 3 -1 1 1 1 2 1 0 3 0 3 -1 0 -1 3 -1 5 -2 4 -3 3 -3 2 -3 1 -1 1 -1 -1 -2 2 -3 1 -3 1 0 3 -2 0 -1 -2 1 -1 -4 -1 -1 0 -3 -1 -2 -1 0 -2 -2 0 -2 -2 -2 2 -2 1 -3 0 -1 0 -1 1 1 4 -2 -1 0 -2 -2 1 -1 0 -3 -2 1 -2 -2 -1 -1 -3 -3 1 -1 -4 2 -3 0 -3 -1 -2 -1 -1 -1 -2 -2 1 -3 -1 1 -1 -2 -2 -2 1 -2 -1 -3 2 -2 3 -2 0 -1 -1 -1 0 -2 -1 -2 1 -1 3 -1 -3 -1 1 -3 0 -4 -1 -2 -2 -2 0 -1 -2 -2 0 -3 -2 -3 -1 -5 -2 -3 -2 -1 -4 2 1 0 -2 -2 -1 0 -3 -4 -4 -4 -1 -2 -3 -2 -1 -1 -1 -1 -2 0 -1 -2 -1 -2 -2 1 -1 -1 -1 2 -1 2 -1 3 0 0 -2 3 0 1 -1 3 -2 0 -1zM799 194l-2 -1 -1 -3 2 -1 2 -1 2 0 1 1 -1 2 0 2 -3 1z","TW":"M829 174l-1 5 0 3 -2 -3 -1 -2 1 -3 1 -3 2 1 0 2z","IT":"M526 102l1 0 1 0 2 -1 1 1 3 1 0 1 1 2 -2 -1 -2 2 0 1 0 1 1 2 2 1 2 3 2 2 2 0 1 1 -1 1 3 1 2 1 2 2 0 1 -2 -1 -2 -1 -1 2 2 2 0 1 -1 0 -1 3 -1 0 0 -1 0 -1 0 -1 -1 -2 -1 -1 -1 -1 0 -1 -2 -1 -1 -1 -2 0 -2 -2 -3 -2 -1 -2 -1 -3 -2 0 -2 -1 -1 0 -1 2 -1 0 0 -2 -1 0 -1 -2 1 -1 -1 -2 1 0 1 0 2 -1 0 1 1 -1 1 -1 2 1 1 -1 0 -1zM538 130l2 -1 -1 3 1 1 -1 2 -2 -2 -1 0 -4 -2 0 -1 4 0 2 0zM522 121l1 -1 2 2 0 4 -1 0 -1 1 -1 -1 -1 -4 0 -1 1 0z","DK":"M523 77l-1 0 -2 0 -1 -2 0 -3 0 -1 1 -1 2 0 1 -1 1 -1 0 2 0 1 0 1 1 0 0 1 -1 0 -1 2 0 2zM529 73l1 2 -1 2 -3 -1 0 -2 3 -1z","GB":"M493 82l0 -2 -2 -2 -2 -1 -1 -1 1 -1 -1 -1 -1 2 0 -3 -1 -2 1 -3 1 -2 2 0 3 0 -2 3 2 0 2 0 0 2 -2 3 2 0 2 4 2 0 1 4 1 1 3 1 0 2 -1 0 0 2 -2 2 -3 0 -4 0 -1 0 -2 1 -2 0 -2 1 -1 0 4 -4 2 0 -4 -1 -1 -1 3 -1 -1 -2 0 -2 4 1zM485 80l-1 -1 -2 1 1 -2 -1 -2 2 0 3 2 -2 2z","IS":"M469 43l-1 2 2 2 -3 2 -6 2 -2 1 -3 -1 -6 -1 2 -1 -4 -1 4 -1 0 -1 -5 0 2 -2 3 -1 3 2 4 -1 2 1 4 -2 4 0z","AZ":"M618 118l1 0 2 2 1 0 0 -1 1 -1 2 2 2 2 1 0 1 1 -2 0 0 3 0 1 -1 0 0 2 -2 -1 0 -2 -1 -1 -1 0 -2 3 -1 -3 -1 0 -1 -1 0 -1 -1 -1 0 -1 -1 0 0 -1 0 -1 2 1 2 0 -2 -2 1 0zM619 128l-2 -1 -1 -1 -1 -1 1 0 1 0 1 1 1 2z","GE":"M601 113l0 -1 2 1 4 0 4 2 2 0 2 1 1 1 2 1 -1 0 2 2 -2 0 -2 -1 0 1 -4 0 -3 -1 -2 0 0 -2 -1 -2 -2 -1 -1 0 -1 -1z","PH":"M835 194l-1 1 2 3 -1 2 -1 1 0 3 1 3 1 0 2 0 3 1 0 2 1 1 0 1 -2 -1 -1 -2 -1 1 -2 -2 -2 1 -2 -1 0 -1 1 -1 -1 -1 0 1 -2 -1 -1 -2 0 -3 1 1 0 -5 0 -3 2 0 1 1 1 -1 1 1zM850 226l0 2 1 2 -1 3 -1 -4 -2 2 2 2 -1 2 -4 -2 0 -2 0 -2 -2 -2 0 2 -2 0 -2 2 0 -1 1 -3 1 -1 2 -1 1 1 2 -1 0 -1 2 0 0 -3 2 2 1 1 0 2zM839 221l1 -1 0 -2 1 0 0 2 2 -3 0 3 -1 1 -1 2 -1 1 -2 -3 1 0zM846 214l1 3 -2 -1 0 1 1 2 -1 1 0 -2 -1 0 -1 -2 2 0 0 -1 -2 -3 2 0 1 2zM828 223l-4 3 2 -2 1 -2 2 -3 1 -3 1 3 -2 2 -1 2zM837 216l-1 -2 2 1 2 0 0 2 -1 1 -2 1 0 -1 0 -2zM833 212l-2 -3 3 0 1 2 0 2 -2 -1z","MY":"M827 239l-2 0 -3 0 -1 3 -1 2 -2 4 -2 1 -3 -1 -1 0 -1 2 -2 0 -2 0 -2 -2 0 -2 2 1 2 0 0 -3 1 -1 4 0 2 -3 1 -2 1 2 1 -1 1 0 0 -2 0 -2 2 -2 2 -3 1 0 1 2 0 1 2 1 3 1 -1 2 -1 0 0 1 -2 1zM777 232l1 -1 2 2 1 1 1 0 1 -1 1 0 2 2 1 2 0 2 0 2 0 1 0 2 1 1 2 2 0 2 -2 0 -3 -3 -3 -2 -1 -2 -1 -2 -1 -3 -1 -1 0 -3 -1 -1z","SI":"M534 103l2 0 2 -1 2 0 1 0 0 1 -2 1 0 1 -1 0 0 1 -1 0 -1 0 -2 0 1 0 -1 -2 0 -1z","FI":"M560 36l0 2 4 2 -2 2 4 3 -1 2 2 3 -1 1 4 2 0 2 -2 2 -4 3 -4 1 -4 1 -4 0 -1 -1 -3 -1 0 -3 -1 -3 1 -2 2 -1 4 -3 1 -1 0 -1 -3 -1 -1 -2 -1 -4 -3 -2 -3 -1 1 -1 2 2 3 0 2 0 2 -1 1 -2 3 -1 3 1 -1 2z","SK":"M555 95l0 1 -1 1 -3 -1 -1 0 0 1 -1 1 -1 -1 -1 1 -1 0 0 1 -2 0 -1 0 -1 -1 -1 -1 1 -1 1 0 1 -1 0 -1 1 0 1 0 1 -1 1 1 2 0 1 0 2 0 2 1z","CZ":"M536 89l2 1 1 0 0 1 2 0 2 0 0 1 2 0 1 2 -1 0 -1 0 0 1 -1 1 -1 0 -2 0 -1 0 -2 -1 -1 0 -1 2 -2 -1 -1 -2 -1 -1 -1 -1 0 -1 1 -1 1 0 2 -1 1 0 1 0z","JP":"M865 126l-1 4 2 3 0 2 1 2 0 2 -3 2 -5 0 -2 4 -2 -1 -1 -3 -5 1 -2 1 -3 0 3 3 1 5 -2 2 -1 -2 -1 -3 -2 0 -2 -3 3 -1 0 -2 2 -1 1 -3 5 -1 3 1 0 -6 3 2 2 -3 1 -2 0 -4 -2 -3 0 -2 2 -1 4 5 1 2zM864 111l1 -1 2 3 -3 1 0 3 -6 -2 1 4 -3 0 -2 -4 0 -2 3 0 -2 -5 -1 -2 5 3 3 1 2 1zM848 145l1 -2 1 0 1 -1 2 1 1 1 -1 2 -1 -1 -1 0 0 2 -2 -1 -1 -1z","PY":"M341 318l1 1 1 5 3 0 1 0 2 1 0 1 1 3 0 1 1 0 1 -1 1 1 0 2 0 2 0 2 0 2 -2 3 -2 0 -3 0 -3 -1 2 -5 -1 -1 -3 -2 -3 -2 -2 0 -6 -6 1 -4 -1 -1 1 -3 5 -1 3 0 2 2 0 1z","SA":"M593 158l3 1 1 -1 1 -2 2 0 0 -1 1 -1 -3 -3 5 -2 1 0 3 1 4 2 8 7 5 0 3 0 0 2 2 0 2 2 1 1 1 1 2 2 0 1 0 1 0 1 1 1 1 1 0 1 1 1 1 -1 0 2 2 4 8 1 1 0 1 2 -1 6 -8 4 -8 1 -2 1 -2 4 -1 0 -1 -1 -1 0 -3 0 -3 0 -1 0 -1 -1 -1 2 0 1 -1 1 0 -1 -1 -1 0 -2 -2 -1 -1 -2 -1 -3 -2 -2 -2 -1 -2 -3 0 -2 0 -2 -2 -4 -1 -1 -2 -1 -1 -1 0 -1 -1 -2 0 -1 -2 -2 -2 -3 -1 -2 -1 0 0 -2 0 -1 0 -1z","MA":"M494 139l1 2 0 2 1 4 1 0 0 2 -4 0 -1 1 -2 1 0 2 -3 1 -1 2 -2 1 -3 0 -4 3 0 4 -1 0 0 1 -1 0 -1 1 -1 0 -1 0 -3 0 -1 3 -2 4 -4 3 -1 5 -1 1 0 1 -6 1 0 -2 1 -1 1 -1 0 -1 1 -3 1 -2 1 0 1 -2 0 -2 1 -2 2 -1 2 -3 1 -2 3 0 2 -2 1 -1 3 -3 -1 -4 1 -3 0 -1 2 -3 3 -1 2 -1 2 -4 1 -2 1 0 2 2 2 -1 3 1 1 0z","EG":"M600 182l-11 0 -10 0 -11 0 -1 -12 0 -12 -1 -2 0 -2 0 -2 1 -1 3 0 3 1 2 1 2 0 2 -1 1 -1 2 0 2 0 1 2 0 -1 2 1 3 0 1 -1 2 5 0 1 -1 1 0 2 -1 2 0 1 -1 -1 -1 -2 -3 -5 0 1 1 3 2 3 3 5 1 2 1 2 2 4 0 2 4 3 0 1z","ET":"M632 227l-7 10 -4 0 -2 2 -2 0 -1 1 -2 0 -1 -1 -2 1 -1 2 -2 -1 -1 0 -1 0 -4 -3 -2 0 -1 -1 0 -1 -1 -1 -2 -4 -1 0 -1 -2 -1 -1 -2 0 1 -2 2 0 0 -1 0 -3 1 -3 1 -1 0 -2 1 -2 2 -2 1 -3 0 -3 3 1 1 -2 2 1 2 -1 0 1 2 0 3 1 0 1 2 1 1 2 1 1 -1 2 -1 1 0 1 0 1 2 0 1 0 0 1 0 1 1 1 1 2 1 1 9 4 2 0z","BA":"M547 115l-2 -1 -1 -1 -1 -1 -2 -1 0 -1 -2 -2 1 -1 1 1 0 -1 1 0 3 0 1 0 2 1 0 2 1 1 0 1 -1 0 0 1 -1 0 0 2z","MK":"M557 116l1 1 0 2 0 1 -2 0 -1 1 -1 0 -1 -1 -1 -1 0 -1 1 0 0 -1 1 0 1 -1 1 0 1 0z","RS":"M547 105l2 -1 1 0 2 1 0 1 2 1 0 1 2 1 1 0 -1 1 1 0 -1 1 1 1 1 1 -1 1 0 1 0 1 -1 0 -1 0 0 -1 -1 0 0 -1 -1 0 0 -1 -1 0 0 1 -1 1 0 -1 -1 0 0 -1 -1 0 -1 -1 1 0 0 -1 -1 -1 0 -2 0 -1 0 -1 -1 -1z"},"o":"M988 309l1 -1 0 1 -1 2 -1 1 -2 -1 0 -1 2 -1 1 0zM994 304l1 0 -1 2 -2 1 -2 0 0 -1 1 0 1 -1 2 -1zM6 304l1 0 0 2 -1 0 -1 1 -2 0 0 -1 1 0 1 -1 1 -1zM594 256l1 0 10 7 0 1 4 4 -2 4 1 1 1 2 0 2 0 1 -1 2 1 2 1 3 1 1 -2 2 -3 1 -2 0 -1 1 -1 0 -1 0 -4 -1 -2 1 0 -5 -1 -1 -1 -1 -2 -1 -2 -1 -2 0 -1 -1 -1 -1 -1 -4 -2 -1 0 -2 0 -2 -1 -3 2 0 1 -1 1 -2 0 -1 0 -1 0 -2 1 -2 -2 -2 1 0 4 0 5 0zM477 164l0 5 -9 0 0 8 -3 1 -1 1 1 5 -11 0 0 1 0 -1 6 -1 0 -1 1 -1 1 -5 4 -3 2 -4 1 -3 3 0 1 0 1 0 1 -1 1 0 0 -1 1 0zM892 261l4 2 5 2 2 2 2 1 0 2 4 2 1 2 -3 0 1 2 2 3 2 3 1 0 0 1 2 1 -1 0 3 2 -1 1 -1 0 -1 -1 -2 0 -3 -1 -2 -2 -1 -2 -2 -2 -3 -2 -2 1 -2 1 0 3 -2 1 -2 -1 -3 0 1 -10 1 -11zM920 271l-2 1 -1 1 -2 0 -2 -1 -2 -1 1 -1 2 1 2 -1 0 -1 1 0 0 1 1 0 1 -1 2 -1 0 -2 1 0 1 1 0 1 -1 2 -2 1zM924 264l1 1 0 2 -1 1 0 -2 -1 -1 -1 -1 -2 -2 -2 -1 1 0 2 1 1 0 1 1 1 1zM929 270l1 1 1 2 2 1 -1 1 -1 0 -1 -1 -1 -2 0 -3 0 1zM581 267l1 3 0 2 0 2 2 1 1 4 -1 0 -4 1 -1 2 0 2 0 3 -1 4 1 0 2 1 1 0 0 3 -2 0 -1 -1 -1 -2 -2 0 -1 -2 -2 1 -2 0 -1 -2 -2 0 -1 0 0 -1 -1 0 -1 0 -2 0 -1 0 -1 0 0 -4 0 -1 -1 -2 1 -2 -1 -1 0 -2 -3 0 0 -1 -1 0 0 1 -2 0 -1 2 -2 0 -1 0 -2 1 -1 -2 0 -1 -1 -2 -1 -2 -8 0 -1 0 -1 0 -1 0 0 -1 1 -1 0 -1 1 -1 1 0 1 -1 1 0 0 1 1 1 2 -2 2 -2 0 -1 0 -3 2 -3 1 -1 2 -2 0 -1 0 -1 1 -1 -1 -2 1 -3 0 -2 1 -2 0 -2 0 -2 2 -1 1 -1 2 1 2 1 2 0 2 1 1 -2 2 0 3 -2 1 1 1 0 0 -1 1 0 2 0 2 0 1 0 2 3 1 0 1 -1 1 1 1 -1 1 1 3 2 -1 4 2 1 -1 1 -1 1 -1 1 -1 2 0 2 -1 2 0 2 -1 1 0 2 0 2 0 1 0 4zM616 258l-2 -3 0 -11 2 -4 1 -1 2 0 2 -2 4 0 7 -10 2 -3 1 -2 0 -1 0 -4 0 -1 1 0 1 -1 2 0 1 -1 1 0 0 1 0 2 0 1 0 2 -1 3 -1 4 -2 4 -2 5 -2 3 -4 5 -2 2 -5 3 -2 3 -3 4 -1 1 0 1zM568 226l-2 -1 -1 -1 0 -1 0 -1 0 -2 -2 -2 0 -1 0 -1 -1 -1 0 -2 -1 -1 -1 0 1 -1 0 -1 0 -2 1 -1 -1 0 1 -2 1 -3 3 0 -1 -12 0 -2 3 0 0 -6 11 0 10 0 11 0 1 3 0 1 0 3 1 4 2 1 1 1 -1 2 -2 0 -1 1 0 2 -1 5 0 1 0 3 -1 3 -2 2 -1 2 0 2 -1 1 -1 3 0 3 0 -3 0 -1 -1 -2 -1 -1 -1 -2 1 -2 -2 -1 0 1 -1 0 0 1 0 2 -1 2 -1 2 -2 0 -2 -1 -1 0 0 1 -2 1 -3 0 -2 0 -1 0 -1 0 -1 -2 -1 -1 -2 1 0 1 -1 3 -1 1 -1 0 2 1zM565 190l1 12 -3 0 -1 3 -1 2 1 0 -1 1 0 2 0 1 -1 1 1 0 1 1 0 2 1 1 0 1 -2 0 -1 2 -2 3 -2 2 -3 0 -1 0 0 1 -1 1 -1 1 -4 2 0 -1 -1 0 0 1 -3 0 1 -1 -1 -2 -1 -2 -1 0 -1 -2 0 -2 1 1 1 0 2 0 -2 -3 0 -2 0 -3 -1 -2 0 -1 -2 0 0 -2 -1 -2 1 -4 4 -3 0 -4 1 -7 0 -1 -1 -1 0 -1 -1 -1 -1 -5 3 -2 11 6 11 7zM304 189l0 2 0 1 -1 1 1 1 0 1 -2 -1 -1 0 -2 0 -1 1 -2 -1 1 -1 2 0 2 0 1 0 -1 -2 0 -1 -1 -1 2 0 2 0zM289 171l1 1 1 2 -1 2 -1 -2 -1 0 1 -3zM288 166l1 0 2 0 0 1 -3 1 0 -2zM353 419l2 -2 2 1 1 -1 3 1 -1 1 -3 1 -1 -1 -2 1 -1 -1zM415 3l7 -2 6 1 3 -1 7 0 14 0 10 1 -3 1 -7 0 -10 1 1 0 6 0 5 0 4 0 2 0 -3 2 5 -1 9 -1 6 1 -7 2 -2 0 -6 1 5 0 -3 2 -2 1 0 3 2 1 -3 1 -3 0 3 2 0 2 -2 0 2 2 -4 0 2 1 -1 1 -3 1 -3 0 2 2 0 1 -4 -1 -1 0 3 1 2 2 1 2 -4 0 -1 -1 -3 -1 1 1 -3 2 5 0 3 0 -6 3 -6 2 -6 1 -3 0 -2 1 -4 3 -5 2 -1 0 -3 0 -4 1 -2 2 -1 2 -1 2 -4 2 0 2 -2 3 -2 2 -3 1 -3 -3 -4 0 -2 -1 0 -3 -3 -4 -1 -2 1 -2 -2 -3 1 -2 -1 -1 4 -3 3 -1 1 -1 2 -2 -3 1 -1 0 -3 0 -2 0 1 -2 1 -2 2 0 4 1 -3 -2 -1 -1 -3 1 -1 -1 3 -2 0 -1 -1 -2 -1 -3 -3 -1 1 -1 -5 -1 -4 -1 -5 1 -5 0 -2 -1 -2 -2 6 0 3 -1 -7 0 -4 -1 1 -1 8 -1 8 -1 1 -1 -5 -1 3 -1 7 -1 3 -1 0 -1 5 0 6 0 5 0 2 0 6 -1 3 1 3 0 3 1 -3 -1 0 -1zM669 409l1 1 3 0 -1 1 -1 1 -3 1 0 -2 1 -1 0 -1zM846 281l3 -1 2 0 1 -1 1 1 -2 1 -3 1 -2 1 0 -1 0 -1zM577 346l1 1 -1 2 0 1 -2 0 0 1 -1 0 -2 -2 1 -2 2 -1 1 -1 1 1zM286 225l0 2 -1 1 -1 1 -1 0 0 -2 1 -1 -1 0 -1 -1 -1 -1 -1 0 -1 1 -1 1 -1 0 0 1 1 1 0 1 -1 0 -1 0 -1 -1 -1 0 0 -1 -1 -1 -1 0 -1 0 0 1 -1 -1 1 -1 0 -1 0 -2 1 0 1 1 -1 1 2 0 1 0 1 0 1 -1 2 0 1 -1 1 0 2 0 1 1 1 1 1 1zM269 218l-1 0 -1 0 0 -1 -1 0 -1 0 -1 0 -1 0 -1 -1 -1 -1 0 -1 -1 -1 -2 -2 1 0 1 0 1 -1 0 -2 1 0 1 0 1 0 1 -1 1 0 0 -1 1 -1 0 1 1 0 0 -1 1 0 1 0 1 -1 0 1 0 2 -1 1 0 1 0 1 0 1 0 2 -1 0 0 1 0 1 -1 1 1 1 0 1zM271 204l-1 1 -1 0 -1 0 0 1 -1 0 0 -1 -1 1 0 1 -1 0 -1 1 -1 0 -1 0 -1 0 0 2 -1 1 -1 0 0 -1 -1 0 0 -2 -2 0 0 -1 -1 0 -1 -1 1 -1 0 -1 1 -1 2 -1 1 0 1 0 1 0 2 0 1 0 0 -1 1 0 0 1 1 -1 1 0 1 1 1 0 1 1 1 1zM254 206l1 1 1 0 0 1 2 0 0 2 -2 0 -1 0 -1 -1 -1 0 -1 0 0 -1 1 -1 1 0 0 -1zM246 206l1 -1 0 -1 1 -3 4 0 0 -1 -1 -1 -1 -1 -1 -1 2 0 0 -2 3 0 2 0 0 3 -1 4 1 0 1 0 1 0 -2 1 -1 1 0 1 -1 1 0 1 -1 0 -1 1 0 1 -1 -1 -2 0 -1 -1 -2 -1zM256 195l1 0 1 -2 1 0 0 1 0 1 -1 1 0 2 0 1 -1 1 -1 2 -1 0 1 -4 0 -3zM343 247l-1 0 -1 -1 -1 1 -1 1 -1 0 -1 1 -1 -1 -2 -1 0 -2 -1 -1 1 -3 1 -1 -1 -2 -1 0 1 -1 -1 -1 -1 0 -2 -2 0 -1 0 -2 2 0 1 -1 -1 -1 0 -1 3 -2 1 1 2 2 0 2 1 0 1 1 2 1 -1 3 -2 1 0 1 0 2 1 2 1 0 0 2 2 3zM349 245l-2 0 -1 0 -1 0 -1 1 1 0 -1 1 -1 0 -2 -3 0 -2 -1 0 -1 -2 0 -2 0 -1 2 -1 1 -3 3 1 2 -1 3 1 -1 3 0 2 1 2 0 1 -1 2 0 1zM319 193l1 0 1 1 -1 1 -2 0 -2 0 0 -1 1 -1 2 0zM288 193l2 0 1 1 0 1 -1 0 -1 1 -2 -1 -1 -1 0 -1 1 0 1 0zM585 324l-2 0 -1 0 -1 0 -1 0 -2 -2 -2 0 -1 -2 1 -1 -2 -1 -3 -3 0 -2 -1 -1 -1 -2 3 0 1 0 1 0 2 -2 2 -2 1 -1 0 -1 2 -1 2 0 0 1 3 0 1 0 0 1 2 0 1 1 0 5 -1 2 0 2 0 1 0 2 -1 3 -3 3zM580 324l-4 2 -3 3 -1 2 -1 1 -1 0 -1 2 0 1 -2 1 -2 -1 -1 -1 -1 0 -2 1 0 1 -2 1 -1 2 -2 0 0 -1 0 -2 -2 -3 0 -1 0 -9 3 0 0 -12 2 0 4 -1 1 2 2 -2 1 0 2 0 1 2 1 1 0 2 3 3 2 1 -1 1 1 2 2 0 2 2zM554 332l-1 12 -2 2 -2 0 -1 0 -2 -1 0 -1 -1 -1 -1 2 -2 -3 -1 -2 -1 -3 0 -3 -1 -4 0 -4 0 -2 -1 -1 -2 -3 -1 -4 -1 -2 -2 -3 0 -3 1 0 2 -1 2 0 2 2 11 -1 2 2 6 0 6 -1 2 -1 2 1 1 0 0 1 -2 0 -1 0 -2 2 -1 -2 -4 1 -2 0 0 12 -3 0 0 9zM454 185l0 -1 11 0 -1 -5 1 -1 3 -1 0 -8 9 0 0 -5 10 8 -4 0 1 14 1 14 0 1 0 2 -11 0 -1 1 -1 -1 -1 1 -2 -1 -1 0 -1 2 0 1 -2 -3 -2 -2 -2 -1 -1 -1 -2 0 -1 1 -1 0 -1 1 0 -2 0 -2 1 -3 0 -3 -1 -1 1 -2 -1 -2 -1 -1zM507 233l-2 0 -1 -2 1 -8 -1 0 0 -2 -1 -1 -1 -1 0 -2 1 0 1 -1 1 -1 1 -1 1 -1 1 0 2 2 0 1 0 2 0 1 0 1 -1 2 -1 1 0 2 0 2 -1 6zM540 179l1 5 1 1 0 1 1 1 0 1 -1 7 0 4 -4 3 -1 4 1 2 0 2 2 0 0 1 -1 1 0 1 -2 -4 -1 0 -2 2 -2 -1 -2 0 -1 0 -1 0 -2 1 -1 0 -4 -1 -1 1 -1 0 -1 -2 -3 -1 -3 0 -1 1 0 2 -1 1 0 3 -2 -2 -1 0 -1 1 0 -2 -3 -1 0 -1 -2 -2 0 -2 0 -1 2 0 1 -2 4 0 2 0 0 -2 2 -3 0 -7 3 -1 8 -7 9 -6 5 1 1 2 2 -1zM540 211l1 2 0 3 0 2 2 3 -2 0 -1 0 -1 -1 0 2 1 2 1 0 1 2 1 2 -1 1 -1 3 -1 1 0 2 0 2 2 2 0 1 1 2 1 1 0 1 0 1 0 2 -2 -1 -2 0 -4 -1 -2 1 -1 -1 -2 0 -4 0 0 -2 -1 -2 -1 -1 -1 -1 0 -1 0 -1 0 -2 2 -3 2 -2 1 0 2 1 2 -1 0 -1 0 -1 1 -2 1 -1 1 -3 1 -2 1 -2 2 -3 0 -1 -1 -1 0 -1 1 -1zM502 217l0 2 1 1 1 1 0 2 1 0 -1 8 1 2 -2 1 -1 -2 0 -2 -1 -1 1 -3 -1 -1 0 -3 0 -2 -1 -2 0 -1 2 0zM462 212l2 0 2 1 2 0 0 1 1 0 1 -1 0 1 1 0 1 1 1 -1 1 -1 1 0 0 1 1 1 1 1 -1 1 0 1 1 0 0 1 1 1 -1 0 0 1 1 2 0 2 -1 1 0 1 0 1 -1 0 -1 1 -1 0 0 -1 0 -1 -1 -2 -1 1 -1 0 0 -1 0 -1 0 -1 -1 -1 -1 -2 -2 0 -1 1 -1 1 0 1 -2 1 -1 -2 -1 -1 -1 -1 -1 -2 -1 -1 1 -1 1 0 1 -1 1 0 0 -1 0 -1 0 -1zM454 213l1 -1 1 0 1 0 5 0 0 1 0 1 0 1 -1 0 -1 1 -1 0 -1 1 -1 -1 -1 0 -1 -1 0 -1 -1 0 0 -1zM477 228l-1 1 1 1 -1 2 1 1 1 0 1 1 0 2 0 3 -1 0 -3 -2 -2 -2 -3 -2 -2 -2 1 -1 0 -1 1 -2 2 -1 1 -1 1 2 0 1 0 1 1 0 1 -1 1 0zM463 224l2 -1 0 -1 1 -1 1 -1 2 0 1 2 1 1 0 1 0 1 0 1 1 0 -2 1 -1 2 0 1 -1 1 -2 -2 -2 -1 0 -2 -1 -2zM576 236l-1 0 -2 0 -2 0 -1 0 0 1 -1 0 -1 -1 -3 2 -2 0 -1 2 -2 -1 -2 0 -2 -1 -2 -1 -1 1 -2 1 0 2 -2 0 -1 0 -2 1 -2 3 0 -1 0 -1 -1 -1 -1 -2 0 -1 -2 -2 0 -2 0 -2 1 -1 1 -3 3 0 0 -1 1 0 0 1 4 -2 1 -1 1 -1 0 -1 1 0 3 0 2 -2 2 -3 1 -2 2 0 0 1 2 2 0 2 0 1 0 1 1 1 2 1 2 2 0 1 1 1 2 2 0 2 2 1 1 1zM551 241l0 2 -1 2 0 2 -1 3 1 2 -1 1 0 1 0 1 -2 2 -1 1 -2 3 0 3 0 1 -2 2 -2 2 -1 -1 0 -1 -1 0 -1 1 -1 0 -1 -1 -1 0 -1 2 -2 -4 2 -1 -1 -2 1 -1 2 -1 0 -1 1 1 3 1 1 -2 0 -2 0 -3 -2 -1 2 -4 -1 -1 -2 0 -1 -1 0 -2 4 1 2 0 2 1 0 -2 2 -3 2 -1 1 0 2 0zM531 245l2 0 1 1 2 -1 0 2 1 1 2 0 1 1 -2 4 2 1 0 3 0 2 -1 2 -3 -1 -1 -1 0 1 -2 1 -1 1 1 2 -2 1 -3 -3 -2 -2 -2 -4 1 -1 0 -1 1 -2 0 -3 1 0 4 0 0 -4zM527 245l4 0 0 4 -4 0 -1 0 1 -4zM585 279l1 1 1 1 2 0 2 1 1 2 1 3 -1 0 -1 3 1 3 -1 1 -1 3 1 1 -8 2 0 3 -2 0 -2 1 0 1 -1 1 -2 2 -2 2 -1 0 -1 0 -3 0 0 -1 -1 0 -2 -1 -2 1 -2 -2 -2 -3 0 -10 6 0 0 -1 0 -1 0 -2 0 -1 0 -1 1 0 0 1 1 0 2 0 1 2 2 0 2 -1 1 2 2 0 1 2 1 1 2 0 0 -3 -1 0 -2 -1 -1 0 1 -4 0 -3 0 -2 1 -2 4 -1 1 0zM591 282l2 1 1 1 1 1 0 5 0 2 0 4 1 0 1 1 1 3 0 4 -1 0 -1 3 -2 -2 0 -3 1 -1 0 -1 -1 -1 -1 0 -2 -1 -1 -1 1 -3 1 -1 -1 -3 1 -3 1 0 -1 -3 -1 -2zM595 290l2 -1 4 1 1 0 1 0 1 -1 2 0 3 -1 2 -2 1 1 0 3 0 3 0 5 0 2 -1 2 -1 2 -2 2 -2 2 -4 1 -3 4 -1 0 -2 3 -1 0 0 3 1 2 0 2 0 1 1 0 -1 3 0 1 0 1 0 1 -1 2 -3 1 -3 1 -1 2 0 1 0 2 -2 0 0 -2 0 -1 0 -1 0 -4 0 -2 -1 -5 3 -3 1 -3 0 -2 0 -1 0 -2 1 -2 0 -5 -1 -1 -2 0 0 -1 -1 0 -3 0 0 -1 0 -3 8 -2 2 1 1 0 1 1 0 1 -1 1 0 3 2 2 1 -3 1 0 0 -4 -1 -3 -1 -1 -1 0 0 -4 0 -2zM586 339l-1 1 -1 1 -2 -2 0 -1 1 -1 1 -1 0 -1 2 1 0 1 0 2zM534 272l1 0 1 0 1 0 8 0 1 2 1 2 0 1 1 2 2 -1 1 0 2 0 1 -2 2 0 0 -1 1 0 0 1 3 0 0 2 1 1 -1 2 1 2 0 1 0 4 1 0 1 0 2 0 1 0 0 1 0 1 0 2 0 1 0 1 -6 0 0 10 2 3 2 2 -6 1 -6 0 -2 -2 -11 1 -2 -2 -2 0 -2 1 -1 0 0 -2 0 -3 1 -2 0 -2 1 -3 1 -1 2 -2 1 -2 0 -2 0 -2 -1 -1 -1 -2 0 -2 0 -1 1 -1 -1 -3 -1 -2 -1 -2 0 -1zM536 268l-1 1 0 1 -1 1 -1 -2 1 -2 1 0 1 1zM585 260l0 2 0 1 0 1 -1 2 -1 1 -2 0 0 -4 0 -1 1 0 1 -2 2 0zM637 293l0 1 1 2 0 4 1 2 -1 1 0 1 -1 -2 -1 1 1 3 -1 1 0 1 -1 2 -1 4 -2 5 -2 6 -1 4 -2 4 -2 1 -3 1 -1 -1 -2 -1 -1 -2 0 -2 -1 -3 0 -2 1 -3 1 0 0 -1 2 -3 0 -2 0 -1 -1 -2 0 -3 1 -2 1 -2 1 0 2 -1 1 -1 1 0 2 -1 2 -2 1 -2 0 -1 1 0 2 -2 0 -2 1 -2 1 2zM594 151l-2 1 1 -1 0 -1 -1 0 1 -2 1 0 0 2 0 1zM454 209l3 0 1 -1 2 1 1 -1 1 1 -1 1 -2 0 -1 -1 -1 1 -1 0 -2 0 0 -1zM637 173l0 -2 0 -2 1 0 1 1 0 1 0 2 -1 1 -1 -1zM628 156l0 1 0 1 1 3 -2 0 0 -2 -3 0 2 -3 2 0zM650 180l0 -2 0 -1 0 -1 1 -1 0 -1 0 -2 1 0 2 3 1 1 2 0 2 1 1 2 1 1 1 0 0 1 -1 2 0 1 -1 1 -1 2 -1 0 0 1 -1 1 1 2 0 1 -2 0 -1 1 0 1 -1 1 -2 0 -1 1 0 1 -1 1 -1 0 -2 1 -1 0 -1 -2 -3 -5 8 -4 1 -6 -1 -2zM795 207l-2 -1 -1 2 -2 -1 0 -2 0 -2 -3 -3 0 -3 -3 -3 -2 0 0 1 -2 0 -1 -1 -2 2 -1 -3 0 -3 -2 0 0 -2 -1 -1 0 -1 2 -2 2 1 -1 -4 1 -1 2 3 2 3 3 0 2 3 -2 1 0 1 3 2 3 3 2 3 3 2 1 3 -1 3zM831 116l1 1 -1 -1 -1 1 0 2 1 2 -1 1 -1 1 -1 1 -1 0 1 2 1 1 2 1 0 1 -1 0 -2 0 0 2 -2 0 -1 -1 0 1 -1 0 -1 -1 -1 0 0 -2 1 0 -1 -1 0 -1 0 -1 -2 0 -1 -1 1 -2 2 -2 0 -2 2 1 2 0 -1 -2 3 -1 1 -2 2 2zM745 163l2 1 0 2 -2 0 -3 0 -1 1 -3 -2 1 -3 2 -1 2 1 1 0 1 1zM672 132l2 0 2 1 1 0 1 -1 1 1 1 -2 1 0 1 0 0 -1 1 -1 1 0 0 1 1 0 0 3 2 1 0 -1 1 0 2 -1 2 0 2 0 1 1 -2 0 -1 1 -3 0 -2 1 -1 1 0 2 1 1 -1 2 0 1 0 1 -3 0 2 2 -2 1 0 2 0 2 -1 1 -1 -1 -2 1 0 1 -2 0 -1 2 0 2 -3 2 -2 -1 0 1 -2 0 -2 0 -5 -1 2 -3 -1 -3 -2 0 0 -2 -2 -3 1 -1 -1 -1 0 -2 1 -4 3 1 1 -1 1 -1 2 0 1 -1 0 -3 2 -1 0 -1 2 1zM676 133l1 -3 -1 -3 -3 -1 1 -1 2 0 1 -2 0 -2 3 0 0 1 1 1 1 0 -1 1 -3 -1 0 2 3 0 4 1 4 0 2 2 2 1 0 1 1 2 -2 0 -2 0 -2 1 -1 0 0 1 -2 -1 0 -3 -1 0 0 -1 -1 0 -1 1 0 1 -1 0 -1 0 -1 2 -1 -1 -1 1 -1 0zM680 116l0 -1 2 0 4 1 0 -2 1 -1 4 1 1 0 4 0 4 1 2 1 1 0 0 1 -3 2 -1 1 -3 0 0 2 -3 0 -2 1 -2 1 1 1 -1 1 -4 0 -4 -1 -3 0 0 -2 3 1 1 -1 2 0 2 -2 -3 -2 -2 1 -2 -1 2 -2 -1 -1zM633 118l1 -1 3 -1 2 1 2 3 2 -1 2 0 0 -1 2 -1 1 -2 4 2 1 2 1 1 3 0 1 0 2 4 3 2 2 1 3 2 4 1 0 2 -2 -1 0 1 -2 1 0 3 -1 1 -2 0 -1 1 -1 1 -3 -1 -1 -3 -2 0 -4 -3 -2 0 -3 -2 -2 0 -1 0 -2 0 -1 2 -2 1 -1 -3 0 -3 -3 -1 1 -2 -2 0 0 -3 3 1 2 -1 -3 -2 -1 -2 -2 1 1 2 -2 -2zM594 147l0 -2 1 -1 1 -2 -1 -1 -1 0 0 -3 0 -1 1 -1 0 -2 1 1 3 -1 2 0 2 0 3 -1 1 0 3 0 -1 2 -2 0 1 3 -1 4 -5 3 -5 3 -3 -1zM951 321l2 2 1 1 -2 1 -1 -1 -1 -2 -2 -1 -1 -3 0 -1 1 0 1 2 1 1 1 1zM942 278l1 1 0 1 -2 -1 -2 -1 -1 -1 1 -1 1 1 2 1zM947 284l-2 -3 0 -2 1 0 0 3 1 2zM945 284l-1 0 -2 0 0 -2 2 1 0 1 1 0zM820 235l0 2 0 2 -1 0 -1 1 -1 -2 1 -1 2 -2zM600 206l0 -1 1 -5 0 -2 1 -1 2 0 1 -2 2 3 1 3 1 2 4 3 2 2 1 2 1 1 2 1 -1 1 -1 -1 -1 -1 -1 -2 -2 -1 0 -1 -3 -1 -2 0 0 -1 -2 1 -2 -1 -1 2 -3 -1zM642 192l3 5 1 2 -2 1 -1 1 0 2 -2 1 -5 1 -2 3 -1 0 -1 0 -2 1 -1 1 -3 0 -1 1 -1 0 0 1 -1 0 -1 0 -2 0 -1 -2 0 -2 0 -1 -1 -2 -1 -1 1 0 -1 -2 1 -1 -1 -1 1 -1 0 -1 1 -2 1 1 1 0 3 0 3 0 1 0 1 1 1 0 2 -4 2 -1 8 -1zM586 139l0 1 1 -1 1 1 1 -1 0 1 -3 1 -1 0 -1 -2 2 0zM568 182l0 6 -3 0 0 2 -11 -7 -11 -6 -3 2 -2 1 -1 -2 -5 -1 -1 -2 -2 -1 -1 0 -1 -2 0 -1 -2 -2 1 -2 0 -2 0 -2 0 -1 0 -3 0 -1 -1 -3 1 -1 1 -1 -1 -1 2 -2 1 -1 1 -1 0 -2 3 1 1 0 3 0 3 2 2 3 2 0 4 1 3 2 1 -1 1 -1 -1 -3 1 -1 2 -2 2 0 3 0 1 2 1 0 1 0 3 1 1 1 -1 1 0 2 0 2 1 2 0 12 1 12zM617 212l1 1 1 -1 0 1 0 1 -1 1 1 1 -1 2 0 -1 -1 0 -2 0 0 -1 0 -1 1 -1 1 -2zM635 216l0 1 0 4 0 1 -1 2 -2 3 -2 0 -9 -4 -1 -1 -1 -2 -1 -1 0 -1 1 -2 1 0 1 2 1 1 1 0 3 -1 3 0 2 -1 2 0 1 -1 1 0zM594 256l-5 0 -4 0 -1 0 -1 1 -1 0 0 -2 1 -2 0 -2 1 -2 1 -1 1 -1 1 -1 -2 -1 1 -4 1 0 2 0 2 -1 2 0 1 -1 2 2 0 2 1 4 -1 2 -1 2 -1 1 0 4zM584 256l2 2 -1 2 -2 0 -1 2 -1 0 0 -2 0 -2 1 -1 1 0 1 -1zM551 115l-1 1 0 -1 -1 2 0 1 0 -1 -1 -1 -1 0 0 -1 0 -2 1 0 0 -1 1 1 1 0 0 1 1 0 0 1zM552 118l0 -1 -1 -1 0 -1 1 -1 0 -1 1 0 0 1 1 0 0 1 1 0 0 1 -1 1 -1 0 0 1 -1 0zM330 218l1 0 1 0 0 2 -3 1 0 -1 1 -1 0 -1zM586 241l-3 -2 -1 -1 -1 1 -1 -1 -1 1 -1 0 -2 -3 -1 -1 -2 -1 0 -2 -2 -2 -1 -1 0 -1 -2 -2 -2 -1 1 0 1 -1 1 -3 0 -1 2 -1 1 1 1 2 1 0 1 0 2 0 3 0 2 -1 0 -1 1 0 2 1 2 0 1 -2 1 -2 0 -2 0 -1 1 0 0 -1 2 1 -1 2 1 2 1 1 1 2 0 1 0 3 0 1 -2 0 -1 2 2 0 1 1 1 2 1 0 2 4 -2 2 -2 2 -1 1 -2 0 -2 1 -2 0 -1 0z","m":{"HK":[810,181],"SG":[788,248]}};
+const $=id=>document.getElementById(id);
+const HIST={SU:"СССР",YU:"Югославия",CS:"Чехословакия",DD:"ГДР"};
+// These codes are not in Unicode regional indicators, so the old stand-ins were a brick, a temple, a star and a hammer.
+const HIST_SVG={
+SU:'<svg viewBox="0 0 90 60" aria-hidden="true"><rect width="90" height="60" fill="#CD0000"/><g fill="#FFD700"><polygon points="22,5 24.6,12.2 32.2,12.2 26.1,16.6 28.5,23.8 22,19.4 15.5,23.8 17.9,16.6 11.8,12.2 19.4,12.2"/><path d="M36.5 27.2c0 7.2-5.7 12.5-12.5 12.5-2.1 0-4.1-.5-5.8-1.3l1.8-3.2a7.5 7.5 0 0 0 4 1.1c4.2 0 7.6-3.4 7.6-8 0-3.2-1.9-5.9-4.6-7l1.4-3.3c4.6 1.7 8.1 5.9 8.1 9.2z"/><path d="M20.5 34.5 11.8 47.2 16 49.5 24.7 36.8z"/><path d="M26.2 28.8 40.5 33.8 39 37.8 24.7 32.8z"/><path d="M31.2 30.8 24.7 45.5 28.5 47 35 32.3z"/></g></svg>',
+YU:'<svg viewBox="0 0 90 60" aria-hidden="true"><rect width="90" height="20" fill="#003893"/><rect y="20" width="90" height="20" fill="#fff"/><rect y="40" width="90" height="20" fill="#c6363c"/><polygon fill="#c6363c" stroke="#fcd116" stroke-width="1.2" stroke-linejoin="round" points="45,16 50,30 64,30 53,38 57,52 45,43 33,52 37,38 26,30 40,30"/></svg>',
+CS:'<svg viewBox="0 0 90 60" aria-hidden="true"><rect width="90" height="30" fill="#fff"/><rect y="30" width="90" height="30" fill="#d7141a"/><path d="M0 0 L42 30 L0 60 Z" fill="#11457e"/></svg>',
+DD:'<svg viewBox="0 0 90 60" aria-hidden="true"><rect width="90" height="20" fill="#000"/><rect y="20" width="90" height="20" fill="#dd0000"/><rect y="40" width="90" height="20" fill="#ffce00"/><g transform="translate(45 30)"><circle r="11" fill="none" stroke="#ffce00" stroke-width="1.4"/><circle r="9.2" fill="none" stroke="#111" stroke-width=".5"/><path fill="#ffce00" d="M-1.2-6.5h2.4v8.2h-2.4z"/><path fill="#ffce00" d="M-5.2-1.2h10.4v2.2h-10.4z"/><path fill="none" stroke="#ffce00" stroke-width="1.3" d="M-4.5 2.5 A5.5 5.5 0 0 0 4.5 2.5"/><path fill="#ffce00" d="M-6.2 3.8 L-4.8 1.2 L-3.4 3.8z M4.8 1.2 L6.2 3.8 L3.4 3.8z"/><circle cx="0" cy="-2.2" r="1.6" fill="#dd0000"/></g></svg>'
+};
+// Локальные SVG исторических государств
+const HIST_FLAG_FILES = {
+  SU: "assets/flags/Flag_of_the_Soviet_Union.svg",
+  YU: "assets/flags/Flag_of_Yugoslavia_(1946-1992).svg",
+  DD: "assets/flags/Flag_of_East_Germany.svg"
+};
 
-let view="home";
-function showView(v){
-  if(v!=="mood"&&window.KGMoodPage)window.KGMoodPage.stop(vm);
-  if(v!=="mood"&&window.KGMoodVibePage)window.KGMoodVibePage.stop();
-  if(v!=="oscar"&&window.KGOscarPage&&window.KGOscarPage.stop)window.KGOscarPage.stop(vo);
-  view=v;
-  if(v!=="collection")rStop();
-  if(D.selected&&["mood","oscar"].includes(D.selected._placement)&&D.selected._placement!==v){
-    const oldTarget=$(D.selected._detailTarget)||(D.selected._placement==="mood"?$("mood-film-detail"):$("oscar-film-detail"));
-    if(oldTarget)oldTarget.replaceChildren();
-    D.selected=null;
+const cname = c => HIST[c] ? uiText(HIST[c]) : interfaceRegionNames.of(c);
+
+const emojiFlag = c =>
+  [...c].map(x => String.fromCodePoint(127397 + x.charCodeAt(0))).join("");
+
+const LOCAL_FLAG_CODES = new Set(COUNTRIES);
+
+function recoverCountryFlag(image) {
+  const code = image.dataset.flagCode;
+  const remote = image.dataset.flagFallback;
+  if (remote) {
+    delete image.dataset.flagFallback;
+    image.src = remote;
+    return;
   }
-  home.style.display=v==="home"?"":"none";
-  sectionNav.style.display=["collections","collection","mood","oscar"].includes(v)?"":"none";
-  vc.style.display=v==="collections"?"":"none";
-  vd.style.display=v==="collection"?"":"none";
-  vm.style.display=v==="mood"?"":"none";
-  vo.style.display=v==="oscar"?"":"none";
-  const act=["collection","mood","oscar"].includes(v)?"collections":v;
-  nav.querySelectorAll("[data-view]").forEach(a=>{a.className=NB+(a.dataset.view===act&&a.dataset.view!=="journey"?NON:NOFF);});
-  const section=v==="collection"?"collections":v;
-  sectionNav.querySelectorAll("[data-collection-route]").forEach(button=>{
-    const active=button.dataset.collectionRoute===section;
-    button.className=`min-w-0 px-1.5 py-2 rounded-lg font-micro-caption text-micro-caption leading-tight ${active?"bg-primary-container text-on-primary-container font-semibold":"text-text-muted hover:text-primary"}`;
-    button.setAttribute("aria-current",String(active));
-  });
-  const sub=document.querySelector("header .flex-col > p");
-  if(sub) sub.textContent=uiText(v==="home"?"Случайная страна · Лучшие фильмы":v==="mood"?"Подборки · По настроению":v==="oscar"?"Подборки · Зал славы Оскара":"Киноглобус — Тематическая Подборка");
-  scrollTo({top:0});
-  if(v==="collections") initCatalog();
-  if(v==="mood"&&(!vm.dataset.ready||vm.dataset.key!==apiKey)){window.KGMoodPage.render(vm,pageDeps);vm.dataset.ready="true";vm.dataset.key=apiKey;}
-  if(v==="mood"&&window.KGMoodVibePage){window.KGMoodVibePage.init(vm,pageDeps);if(window._kgMoodSeen)window.KGMoodVibePage.reset(vm,pageDeps);window._kgMoodSeen=true;}
-  if(v==="oscar"&&(!vo.dataset.ready||vo.dataset.key!==apiKey)){window.KGOscarPage.render(vo,pageDeps);vo.dataset.ready="true";vo.dataset.key=apiKey;}
+
+  if (Object.hasOwn(HIST_SVG, code)) {
+    image.outerHTML = HIST_SVG[code];
+    return;
+  }
+
+  const emoji = document.createElement("span");
+  emoji.className = "flag-emoji";
+  emoji.textContent = emojiFlag(code);
+  image.replaceWith(emoji);
 }
-nav.addEventListener("click",e=>{
-  const a=e.target.closest("[data-view]");if(!a)return;e.preventDefault();
-  if(a.dataset.view==="journey"){$("mapBtn").click();return;}
-  if(a.dataset.view==="history"){window.KGOpenWatchHistory();return;}
-  showView(a.dataset.view);
+
+const flag = (c, wave = true) => {
+  const code = String(c).toUpperCase();
+  if (!/^[A-Z]{2}$/.test(code)) return "";
+
+  let body;
+  if (HIST_FLAG_FILES[code]) {
+    body = `<img class="flag-img" src="${HIST_FLAG_FILES[code]}" data-flag-code="${code}" alt="" onerror="recoverCountryFlag(this)">`;
+  } else if (HIST_SVG[code]) {
+    body = HIST_SVG[code];
+  } else {
+    const file = `${code.toLowerCase()}.svg`;
+    const remote = `https://flagcdn.com/${file}`;
+    const local = LOCAL_FLAG_CODES.has(code);
+    const src = local ? `assets/flags/${file}` : remote;
+    const fallback = local ? ` data-flag-fallback="${remote}"` : "";
+    body = `<img class="flag-img" src="${src}" data-flag-code="${code}"${fallback} alt="" onerror="recoverCountryFlag(this)">`;
+  }
+
+  return wave ? `<span class="wave">${body}</span>` : body;
+};
+// storage (guarded)
+const store={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},
+ set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+function kgBookmarkIds() {
+  const saved = store.get("kgBookmarks",[]);
+  if (!Array.isArray(saved)) return [];
+  return [...new Set(saved.map(Number).filter(id => Number.isSafeInteger(id) && id > 0))];
+}
+function kgIsBookmarked(id) {
+  return kgBookmarkIds().includes(Number(id));
+}
+function kgToggleBookmark(id, film) {
+  id = Number(id);
+  const ids = kgBookmarkIds();
+  const enabled = !ids.includes(id);
+  if (!Number.isSafeInteger(id) || id <= 0) return false;
+  const details = store.get("kgBookmarkFilms",{}) || {};
+  if (enabled && film?.title) {
+    details[id] = {
+      id,title:film.title,original:film.original_title || film.original || "",
+      year:String(film.release_date || film.year || "").slice(0,4),
+      poster:film.poster_path || film.poster || "",cc:film._cc || film._kgCountry || film.cc || ""
+    };
+  } else if (!enabled) delete details[id];
+  store.set("kgBookmarkFilms",details);
+  store.set("kgBookmarks",enabled ? [...ids,id] : ids.filter(bookmark => bookmark !== id));
+  document.querySelectorAll(`[data-kg-bookmark="${id}"]`).forEach(button => paintBookmarkButton(button,enabled));
+  document.dispatchEvent(new CustomEvent("kg-bookmark-change",{detail:{id,enabled}}));
+  return enabled;
+}
+function bookmarkLabel(enabled) {
+  return uiText(enabled ? "Убрать из закладок" : "Сохранить в закладки");
+}
+function paintBookmarkButton(button,enabled) {
+  const label = bookmarkLabel(enabled);
+  button.setAttribute("aria-pressed",String(enabled));
+  button.setAttribute("aria-label",label);
+  button.title = label;
+}
+function kgBookmarkButton(film,position = "") {
+  const id = Number(film?.id);
+  if (!Number.isSafeInteger(id) || id <= 0) return "";
+  const metadata = JSON.stringify({
+    title:film.title || film.original_title || film.original || film.name || "",
+    original:film.original_title || film.original || "",
+    year:String(film.release_date || film.year || "").slice(0,4),
+    poster:film.localizedPoster?.path || film.poster_path || film.poster || "",
+    cc:film._cc || film._kgCountry || film.cc || film.countries?.[0] || ""
+  });
+  const enabled = kgIsBookmarked(id);
+  const label = bookmarkLabel(enabled);
+  return `<button type="button" class="kg-bookmark-button${position ? " kg-bookmark-" + position : ""}" data-kg-bookmark="${id}" data-kg-bookmark-film="${encodeURIComponent(metadata)}" aria-pressed="${enabled}" aria-label="${label}" title="${label}"><span class="material-symbols-outlined" aria-hidden="true">bookmark</span></button>`;
+}
+document.addEventListener("click",event => {
+  const button = event.target.closest("[data-kg-bookmark]");
+  if (!button) return;
+  event.preventDefault();
+  event.stopPropagation();
+  const film = JSON.parse(decodeURIComponent(button.dataset.kgBookmarkFilm));
+  kgToggleBookmark(button.dataset.kgBookmark,film);
+},true);
+const savedFilmLanguage = store.get("kgFilmLanguage", "auto");
+const filmLanguagePreference = ["ru", "en", "original"].includes(savedFilmLanguage) ? savedFilmLanguage : "auto";
+const filmLanguage = filmLanguagePreference === "auto" ? interfaceLanguage : filmLanguagePreference;
+const filmLocale = filmLanguage === "en" ? "en-US" : "ru-RU";
+
+function localizeFilmListItem(film) {
+  if (!film.original_title || (filmLanguage !== "original" && filmLanguage !== film.original_language)) return film;
+  return {...film, title:film.original_title};
+}
+
+function filmTextLanguage(film) {
+  return filmLanguage === "original" ? film.original_language : filmLanguage;
+}
+
+function selectMovieText(movie, field) {
+  const translations = movie.translations?.translations || [];
+  const preferred = filmTextLanguage(movie);
+  if (field === "title" && filmLanguage === "original" && movie.original_title) {
+    return {text:movie.original_title, lang:preferred};
+  }
+  for (const lang of new Set([preferred, "en", "ru", movie.original_language])) {
+    if (!lang) continue;
+    const entry = translations.find(item => item.iso_639_1 === lang && item.data?.[field]?.trim());
+    if (entry) return {text:entry.data[field].trim(), lang};
+    if (field === "title" && lang === movie.original_language && movie.original_title?.trim()) {
+      return {text:movie.original_title.trim(), lang};
+    }
+    if (field === "title" && lang === preferred && filmLanguage !== "original"
+        && movie.title?.trim() && movie.title !== movie.original_title) {
+      return {text:movie.title.trim(), lang};
+    }
+  }
+  const fallback = String(movie[field] || "").trim()
+    || String(translations.find(item => item.data?.[field]?.trim())?.data[field] || "").trim();
+  return {text:fallback, lang:""};
+}
+
+const savedCountryFilters=store.get("countryFilters",[]);
+const countryFilters=new Set((Array.isArray(savedCountryFilters)?savedCountryFilters:[]).filter(c=>COUNTRIES.includes(c)));
+function paintCountryFilters(){
+  const box=$("country-filter-chips"), search=$("country-filter-search");
+  if(!box||!search)return;
+  const query=search.value.trim().toLocaleLowerCase(interfaceLanguage);
+  const rows=COUNTRIES.map(code=>({code,name:cname(code)}))
+    .filter(x=>!query||x.name.toLocaleLowerCase(interfaceLanguage).includes(query)||x.code.toLowerCase().includes(query));
+  box.innerHTML=rows.map(({code,name})=>{
+    const active=countryFilters.has(code);
+    return `<button type="button" data-country-code="${code}" aria-pressed="${active}" class="h-8 px-3 rounded-full border text-label-sm transition-colors ${active?"bg-primary-container text-on-primary-container border-primary-container font-bold":"bg-surface-container text-text-muted border-white/10 hover:text-on-surface"}">${name}</button>`;
+  }).join("")||`<span class="font-micro-caption text-text-muted">${uiText("Страна не найдена")}</span>`;
+  const summary=$("country-filter-summary"),hint=$("country-filter-hint");
+  if(summary)summary.textContent=countryFilters.size?uiText("Выбрано: {count}", {count: countryFilters.size}):uiText("Любая страна");
+  if(hint)hint.textContent=uiText(countryFilters.size?"Поиск идёт по выбранным странам":"Без выбора поиск идёт по всем странам");
+}
+$("country-filter-chips").onclick=e=>{
+  const button=e.target.closest("[data-country-code]");if(!button)return;
+  const code=button.dataset.countryCode;
+  countryFilters.has(code)?countryFilters.delete(code):countryFilters.add(code);
+  updateCountryFilter(countryFilters.has(code) ? code : "");
+};
+$("country-filter-search").addEventListener("input",paintCountryFilters);
+$("country-filter-clear").onclick=()=>{
+  countryFilters.clear();
+  $("country-filter-search").value="";
+  updateCountryFilter();
+};
+function updateCountryFilter(preferredCountry = ""){
+  store.set("countryFilters",[...countryFilters]);
+  paintCountryFilters();
+  paintGo();
+  window.KGUpdateCountryFrame?.(preferredCountry);
+}
+paintCountryFilters();
+let apiKey=store.get("tmdbKey","");
+let seen=new Set(store.get("seen",[]));
+let watched=store.get("watched",[]);
+if(!Array.isArray(watched)) watched=[];
+let visited=store.get("visited",{});
+let lastCC=store.get("lastCC","");
+let fx=store.get("fx",true);
+let showAdult=store.get("showAdult",true);
+let filmSpin=store.get("filmSpin",true);
+const savedReelStyle=store.get("reelStyle","35mm");
+let reelStyle=["cassette","projection"].includes(savedReelStyle)?savedReelStyle:"35mm";
+if(savedReelStyle!==reelStyle)store.set("reelStyle",reelStyle);
+let playMode=store.get("playMode","filters")==="surprise"?"surprise":"filters";
+let surprise=store.get("surprise","light");
+if(!SURPRISE_NOTE[surprise]) surprise="light";
+let themeId=store.get("theme","");
+if(!THEMES.some(t=>t.id===themeId)) themeId="";
+const cache={}; let cur=null; // {cc, pool, film}
+
+const NOGENRE=["adult","worst"];
+const sel=new Set(store.get("cats",[]));
+if(sel.delete("erotic"))sel.add("adult");   // old separate "erotic" category is now part of 18+
+$("chips").innerHTML=`<button class="chip" data-k="any">🌐 Любой жанр</button>`
+ +Object.entries(GENRES).filter(([k])=>k).map(([k,v])=>`<button class="chip" data-k="${k}">${v}</button>`).join("")
+ +`<button class="chip" data-k="worst">📉 Худшие из худших</button>`
+ +`<button class="chip" data-k="adult">🔞 Взрослое кино 18+</button>`;
+function paintChips(){
+  const anyGenre=[...sel].some(k=>!NOGENRE.includes(k));
+  document.querySelectorAll("#chips .chip").forEach(b=>{const k=b.dataset.k;
+    b.setAttribute("aria-pressed",k==="any"?!anyGenre:sel.has(k));});
+  $("adultNote").hidden=!sel.has("adult");
+  $("worstBox").hidden=!sel.has("worst");
+  $("rmin").disabled=sel.has("worst");
+  if($("rmax")) $("rmax").disabled=sel.has("worst");
+  const names=[...sel].map(k=>k==="worst"?uiText("худшие"):k==="adult"?"18+":uiText(GENRES[k]||"")).filter(Boolean);
+  if($("filterSum")) $("filterSum").textContent=names.length?"Категории · "+names.slice(0,3).join(", ")+(names.length>3?"…":""):"Категории";
+  if($("extraSum")) paintExtraSum();
+}
+$("chips").onclick=e=>{const b=e.target.closest(".chip");if(!b)return;const k=b.dataset.k;
+ if(k==="any"){[...sel].forEach(x=>{if(!NOGENRE.includes(x))sel.delete(x)});}
+ else sel.has(k)?sel.delete(k):sel.add(k);
+ store.set("cats",[...sel]);paintChips();};
+paintChips();
+
+$("themes").innerHTML=THEMES.map(t=>`<button type="button" class="chip" data-t="${t.id}">${t.name}</button>`).join("");
+function paintThemes(){
+  document.querySelectorAll("#themes .chip").forEach(b=>{
+    b.setAttribute("aria-pressed", b.dataset.t===themeId);});
+  const t=THEMES.find(x=>x.id===themeId);
+  $("themeSum").textContent=t?"Тематические подборки · "+uiText(t.name):"Тематические подборки";
+}
+const HINTS=["surpriseNote","yearNote","themeNote","topNote","oscarNote"];
+function showHint(id){HINTS.forEach(h=>{const n=$(h);if(n)n.hidden=h!==id;});}
+function hideHints(){HINTS.forEach(h=>{const n=$(h);if(n)n.hidden=true;});}
+function paintExtraSum(){
+  const bits=[];
+  let from=$("year").value, to=$("yearTo").value;
+  if(from&&to&&from>to){const t=from;from=to;to=t;}
+  if(from&&to) bits.push(from+"–"+to);
+  else if(from) bits.push(uiText("с {year}", {year: from}));
+  else if(to) bits.push(uiText("до {limit}", {limit: to}));
+  if($("rmin").value&&!$("rmin").disabled) bits.push(uiText("от {rating}", {rating: $("rmin").value}));
+  if($("rmax").value&&!$("rmax").disabled) bits.push(uiText("до {limit}", {limit: $("rmax").value}));
+  $("extraSum").textContent=bits.length?"Год и оценка · "+bits.join(", "):"Год и оценка";
+}
+$("themes").onclick=e=>{
+  const b=e.target.closest(".chip");if(!b)return;
+  themeId=themeId===b.dataset.t?"":b.dataset.t;
+  store.set("theme",themeId);paintThemes();paintGo();
+  if(themeId) showHint("themeNote"); else hideHints();
+};
+function paintSurprise(){
+  document.querySelectorAll("#surpriseChips .chip").forEach(b=>{
+    b.setAttribute("aria-pressed", playMode==="surprise"&&b.dataset.s===surprise?"true":"false");});
+  $("surpriseNote").textContent=SURPRISE_NOTE[surprise];
+}
+function selectSurpriseScenario(value){
+  if (!Object.hasOwn(SURPRISE_NOTE, value)) return;
+  surprise = value;
+  store.set("surprise", surprise);
+  if (playMode !== "surprise") {
+    $("modeSurprise").click();
+  } else {
+    paintSurprise();
+    showHint("surpriseNote");
+  }
+}
+$("surpriseChips").onclick=e=>{
+  const button = e.target.closest("[data-s]");
+  if (button) selectSurpriseScenario(button.dataset.s);
+};
+function goLabel(){
+  if(countryFilters.size) return uiText("НАЙТИ ФИЛЬМ");
+  if(playMode==="surprise") return "🎲 Удиви меня";
+  const t=THEMES.find(x=>x.id===themeId);
+  return t?"🎲 "+t.name:"🎲 Крутить глобус";
+}
+function paintGo(){ if(!$("go").disabled) $("go").textContent=goLabel(); }
+function applyMode(){
+  const sur=playMode==="surprise";
+  $("btn-mode-filters").setAttribute("aria-pressed",String(!sur));
+  $("btn-mode-surprise").setAttribute("aria-pressed",String(sur));
+  $("surprise-levels-panel").classList.toggle("hidden",!sur);
+  $("modeFilters").setAttribute("aria-pressed", sur?"false":"true");
+  $("modeSurprise").setAttribute("aria-pressed", sur?"true":"false");
+  $("surpriseCard").hidden=!sur;
+  $("filterCard").hidden=sur;
+  $("extraCard").hidden=sur;
+  $("themeCard").hidden=sur;
+  paintSurprise();paintThemes();paintGo();
+}
+$("modeFilters").onclick=()=>{playMode="filters";store.set("playMode",playMode);applyMode();hideHints();};
+$("modeSurprise").onclick=()=>{
+  playMode="surprise";
+  store.set("playMode",playMode);applyMode();
+  showHint("surpriseNote");
+};
+applyMode();
+
+// ---- settings sheet
+const dlg=$("settings");
+function closeSettings(){dlg.close?dlg.close():dlg.removeAttribute("open");}
+const settingsButton = $("gear");
+settingsButton.onclick = () => {
+  if (dlg.open) return;
+  if (dlg.showModal) dlg.showModal();
+  else dlg.setAttribute("open", "");
+};
+document.querySelectorAll('[data-path="nastrojki"]').forEach(link => {
+  link.addEventListener("click", event => {
+    event.preventDefault();
+    settingsButton.click();
+  });
 });
-sectionNav.addEventListener("click",e=>{
-  const button=e.target.closest("[data-collection-route]");
-  if(button)showView(button.dataset.collectionRoute);
-});
+$("sclose").onclick=closeSettings;
+dlg.addEventListener("click",e=>{if(e.target===dlg)closeSettings();});
+// ---- journey: stats of opened countries
+function renderMap(){
+  const watchedCounts=window.KGWatchedCountryCounts?window.KGWatchedCountryCounts():{};
+  const v=c=>"", w=c=>watchedCounts[c]?" w":"", last=c=>c===lastCC&&watchedCounts[c]?" last":"";
+  const op=c=>watchedCounts[c]?' style="opacity:1"':"";
+  $("mapbox").innerHTML=`<svg viewBox="0 0 ${MAP.w} ${MAP.h}" width="100%" role="img" aria-label="${uiText("Карта открытых стран")}">`
+    +`<path class="mo" d="${MAP.o}"/>`
+    +Object.entries(MAP.c).map(([c,d])=>`<path class="mc${v(c)}${w(c)}${last(c)}" data-c="${c}"${op(c)} d="${d}"/>`).join("")
+    +Object.entries(MAP.m).map(([c,[x,y]])=>`<circle class="mc${v(c)}${w(c)}${last(c)}" data-c="${c}"${op(c)} cx="${x}" cy="${y}" r="7"/>`).join("")
+    +`</svg>`;
+}
+$("mapbox").onclick=e=>{
+  const t=e.target.closest("[data-c]");if(!t)return;const c=t.dataset.c;
+  if(window.KGSelectWatchedCountry){window.KGSelectWatchedCountry(c);return;}
+  const count=window.KGWatchedCountryCounts?window.KGWatchedCountryCounts()[c]||0:0;
+  $("minfo").innerHTML=(typeof flag==="function"?flag(c):"🌍")+" "+cname(c)+": "+(count?"просмотрено фильмов "+count:"пока нет отмеченных фильмов");
+};
 
-/* ================= КАТАЛОГ ================= */
-let catBuilt=false,activeCat="all",sortMode="curated";
-let catalogLayout="list",collectionFilmLayout="list";
-
-function layoutSwitch(layout,scope){
-  const modes=[["list","view_list","Списком"],["grid","grid_view","Сеткой"]];
-  return `<div class="flex shrink-0 gap-1 rounded-full bg-surface-container p-0.5">${modes.map(([mode,icon,label])=>`<button type="button" data-kg-layout="${scope}" data-mode="${mode}" aria-label="${uiText(label)}" title="${uiText(label)}" aria-pressed="${mode===layout}" class="w-9 h-9 rounded-full flex items-center justify-center ${mode===layout?"bg-primary-container text-on-primary-container":"text-text-muted hover:text-primary"}"><span class="material-symbols-outlined text-[18px]" aria-hidden="true">${icon}</span></button>`).join("")}</div>`;
+function renderJourney(){
+  renderMap();$("minfo").textContent="Нажми на страну на карте";
+  const counts=window.KGWatchedCountryCounts?window.KGWatchedCountryCounts():{};
+  const open=COUNTRIES.filter(c=>counts[c]).sort((a,b)=>counts[b]-counts[a]);
+  const all=COUNTRIES.length,n=open.length,pct=Math.round(n/all*100);
+  const films=watched.filter(item=>(item.countries||[]).length).length;
+  $("jhead").textContent="Страны просмотренных фильмов: "+n+" из "+all+" ("+pct+"%)";
+  $("jfill").style.width=pct+"%";
+  if(!n){
+    $("jstats").innerHTML="<div>Отмечайте просмотренные фильмы кнопкой «Посмотрел» — и страна производства появится на карте.</div>";
+    $("jopenT").hidden=true;$("jopen").innerHTML="";
+  }else{
+    const top=open[0];
+    $("jstats").innerHTML="<div>🎬 Фильмов отмечено: <b>"+films+"</b></div>"
+      +"<div>🌍 Стран производства: <b>"+n+"</b></div>"
+      +"<div>🏆 Чаще всего: <b>"+flag(top,false)+" "+cname(top)+"</b> ("+counts[top]+")</div>"
+      +(lastCC&&counts[lastCC]?"<div>📍 Последняя страна: <b>"+flag(lastCC,false)+" "+cname(lastCC)+"</b></div>":"");
+    $("jopenT").hidden=false;$("jopenT").textContent="Страны просмотренных фильмов";
+    $("jopen").innerHTML=open.map(c=>'<button type="button" class="pill" data-c="'+c+'">'+flag(c,false)+" "+cname(c)+" · "+counts[c]+"</button>").join("");
+  }
+  const closed=COUNTRIES.filter(c=>!counts[c]);
+  $("jclosedsum").textContent="Ещё не отмечено: "+closed.length;
+  $("jclosed").innerHTML=closed.map(c=>'<span class="pill off">'+flag(c,false)+" "+cname(c)+"</span>").join("");
+  renderWatched();
+  if(window.KGRenderWatchedByCountry)window.KGRenderWatchedByCountry("");
 }
-function syncLayout(root,layout,scope){
-  root.querySelectorAll(`[data-kg-layout="${scope}"]`).forEach(button=>{
-    const active=button.dataset.mode===layout;
-    button.setAttribute("aria-pressed",String(active));
-    ["bg-primary-container","text-on-primary-container"].forEach(name=>button.classList.toggle(name,active));
-    ["text-text-muted","hover:text-primary"].forEach(name=>button.classList.toggle(name,!active));
-  });
-}
-function posterTile(film,buttonAttributes,posterBadge=""){
-  const title=esc(film.title||film.original_title||uiText("Фильм"));
-  const score=Number(film.vote_average)||0;
-  const image=film.localizedPoster?.path||film.poster_path;
-  return `<button type="button" ${buttonAttributes} class="kg-film-grid-tile">
-    <span class="kg-film-grid-poster">${image?`<img class="w-full h-full object-cover" src="${P(image,"w342")}" alt="" loading="lazy">`:'<span class="material-symbols-outlined w-full h-full flex items-center justify-center text-primary-container" aria-hidden="true">movie</span>'}
-    ${posterBadge}${score?`<span class="kg-film-grid-score">${score.toFixed(1)}</span>`:""}</span>
-    <span class="kg-film-grid-title">${title}</span>
-  </button>`;
-}
-function filmGridRows(films,renderRow){
-  let markup="";
-  for(let start=0;start<films.length;start+=3)markup+=renderRow(films.slice(start,start+3));
-  return markup;
-}
-function moodFilmGrid(films,scope){
-  return filmGridRows(films,row=>{
-    const host=`mood-film-detail-${scope}-${row[0].id}`;
-    const cards=row.map(f=>posterTile(f,`data-${scope}-film="${f.id}" data-detail-target="${host}"`)).join("");
-    return `<div class="kg-three-columns kg-film-grid-row">${cards}</div><div id="${host}" class="empty:hidden"></div>`;
-  });
-}
-let catalogScores=new Map();
-
-function dailySeed(){
-  const d=new Date();
-  return d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate();
-}
-function seededShuffle(arr,seed){
-  const a=[...arr];
-  let s=(seed>>>0)||1;
-  const rnd=()=>{
-    s=Math.imul(s^s>>>15,1|s)+(s|0)^(s>>>7);
-    return ((s^s>>>14)>>>0)/4294967296;
+function filmRecord(cc,film){
+  return {
+    id:film.id,title:film.title||"",
+    original:film.original_title&&film.original_title!==film.title?film.original_title:"",
+    year:(film.release_date||"").slice(0,4),
+    poster:film.poster_path||"",cc:cc||"",
+    votes:film.vote_count||0,score:Number(film.vote_average)||0,
+    genres:film.genre_ids||[],
+    overview:(film.overview||"").slice(0,400)
   };
-  for(let i=a.length-1;i>0;i--){
-    const j=Math.floor(rnd()*(i+1));
-    [a[i],a[j]]=[a[j],a[i]];
+}
+function renderWatched(){
+  const box=$("jfilms");
+  if(!watched.length){
+    box.innerHTML='<p class="note" style="margin:0">Постер, год и страна остаются здесь после «Посмотрел».</p>';
+    return;
   }
+  box.innerHTML=watched.map(w=>{
+    const title=esc(w.title||"Фильм");
+    const pic=w.poster?`<img src="https://image.tmdb.org/t/p/w154${w.poster}" alt="${title}" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'ph',textContent:this.alt}))">`:`<span class="ph">${title}</span>`;
+    const where=esc([w.year,w.cc?cname(w.cc):""].filter(Boolean).join(" · "));
+    return `<button type="button" class="jfilm" data-id="${w.id}">${pic}<b>${title}</b><small>${where}</small></button>`;
+  }).join("");
+}
+function showSaved(w){
+  show(w.cc||"US",{films:[],saved:true},{
+    id:w.id,title:w.title,original_title:w.original||"",
+    release_date:w.year?w.year+"-01-01":"",
+    poster_path:w.poster||null,
+    vote_count:w.votes||0,vote_average:w.score||0,
+    genre_ids:w.genres||[],overview:w.overview||""
+  });
+}
+$("jfilms").onclick=e=>{
+  const b=e.target.closest(".jfilm");if(!b)return;
+  const w=watched.find(x=>String(x.id)===b.dataset.id);if(!w)return;
+  closeJ();
+  document.querySelector('body > nav [data-view="home"]')?.click();
+  showSaved(w);
+};
+const jd=$("journey");
+$("mapBtn").onclick=()=>{renderJourney();jd.showModal?jd.showModal():jd.setAttribute("open","");};
+const closeJ=()=>jd.close?jd.close():jd.removeAttribute("open");
+$("jclose").onclick=closeJ;
+jd.addEventListener("click",e=>{if(e.target===jd)closeJ();});
+
+function filmLabel(){$("filmTog").textContent=filmSpin?"Вкл":"Выкл";}
+$("filmTog").onclick=()=>{filmSpin=!filmSpin;store.set("filmSpin",filmSpin);filmLabel();};
+filmLabel();
+function adultVisLabel() {
+  const button = $("adultVis");
+  if (button) button.textContent = showAdult ? "Показаны" : "Скрыты";
+}
+function applyAdultVis(){
+  document.querySelectorAll('.chip[data-k="adult"]').forEach(b=>{b.hidden=!showAdult;});
+  if(!showAdult){sel.delete("adult");store.set("cats",[...sel]);}
+  adultVisLabel();paintChips();
+}
+function toggleAdultGenres() {
+  showAdult = !showAdult;
+  store.set("showAdult",showAdult);
+  applyAdultVis();
+}
+$("adultVis").onclick = toggleAdultGenres;
+applyAdultVis();
+let brandN=0, brandT=0;
+$("brand").onclick=()=>{
+  brandN++;
+  clearTimeout(brandT);
+  brandT=setTimeout(()=>{brandN=0;},1600);
+  if(brandN>=5){brandN=0;sessionStorage.setItem("kgx","1");location.href="extra.html";}
+};
+let keyBuf="";
+addEventListener("keydown",e=>{
+  const tag=e.target&&e.target.tagName;
+  if(tag==="INPUT"||tag==="TEXTAREA"||tag==="SELECT"||e.metaKey||e.ctrlKey||e.altKey) return;
+  if(e.key.length!==1) return;
+  keyBuf=(keyBuf+e.key.toLowerCase()).slice(-5);
+  if(keyBuf==="extra"){sessionStorage.setItem("kgx","1");location.href="extra.html";}
+});
+function setAppTheme(value) {
+  const theme = APP_THEMES.includes(value) ? value : "cinematic";
+  document.documentElement.dataset.kgTheme = theme;
+  store.set("kgAppTheme", theme);
+}
+
+function setAppButtonAccent(value) {
+  const accent = value === "gold" ? "gold" : "cyan";
+  document.documentElement.dataset.kgButtonAccent = accent;
+  store.set("kgButtonAccent", accent);
+}
+
+function getTrailerSubtitles() {
+  const value = store.get("kgTrailerSubtitles", "auto");
+  return ["auto", "ru", "en", "off"].includes(value) ? value : "auto";
+}
+
+window.KGResetSettings = () => {
+  store.set(interfaceLanguageKey, "ru");
+  store.set("kgTrailerSubtitles", "auto");
+  window.KGLegalWatch?.setRegion("auto");
+  store.set("kgFilmLanguage", "auto");
+  setAppTheme("cinematic");
+  setAppButtonAccent("cyan");
+  sel.clear();
+  store.set("cats",[]);
+  countryFilters.clear();
+  store.set("countryFilters",[]);
+  $("country-filter-search").value = "";
+  paintCountryFilters();
+
+  for (const [id,value] of Object.entries({year:"",yearTo:"",rmin:"6",rmax:""})) {
+    $(id).value = value;
+    store.set(id,value);
+  }
+  paintExtraSum();
+
+  snd = "roulette";
+  store.set("snd",snd);
+  const globeSound = $("snd");
+  if (globeSound) globeSound.value = snd;
+  stopFilmReelSound();
+  window.setCinemaReelSound("auto");
+  setSoundVolume(DEFAULT_SOUND_VOLUME);
+
+  fx = true;
+  store.set("fx",fx);
+  fxLabel();
+  filmSpin = true;
+  store.set("filmSpin",filmSpin);
+  filmLabel();
+  window.setCinemaReelStyle("35mm");
+
+  showAdult = true;
+  store.set("showAdult",showAdult);
+  applyAdultVis();
+  themeId = "";
+  store.set("theme",themeId);
+  surprise = "light";
+  store.set("surprise",surprise);
+  $("btn-mode-filters").click();
+  if (filmLanguagePreference !== "auto" || interfaceLanguage !== "ru") location.reload();
+};
+$("resetSettings").onclick = window.KGResetSettings;
+const RATE_OPTS=["5","6","6.5","7","7.5","8","9","10"];
+$("year").value=store.get("year","");
+$("yearTo").value=store.get("yearTo","");
+$("rmin").value=RATE_OPTS.includes(store.get("rmin",""))?store.get("rmin",""):"6";
+$("rmax").value=RATE_OPTS.includes(store.get("rmax",""))?store.get("rmax",""):"";
+$("year").oninput=()=>{store.set("year",$("year").value);paintExtraSum();showHint("yearNote");};
+$("yearTo").oninput=()=>{store.set("yearTo",$("yearTo").value);paintExtraSum();showHint("yearNote");};
+$("rmin").onchange=()=>{store.set("rmin",$("rmin").value);paintExtraSum();showHint("yearNote");};
+$("rmax").onchange=()=>{store.set("rmax",$("rmax").value);paintExtraSum();showHint("yearNote");};
+paintExtraSum();
+function restoreFold(el,key,forceOpen){
+  const saved=store.get(key,null);
+  el.open=saved==null?!!forceOpen:!!saved;
+  el.addEventListener("toggle",()=>store.set(key,el.open));
+}
+// New installs and the first load after this update start with genre filters collapsed.
+// After that, the visitor's own open/closed choice is preserved.
+if(!store.get("foldCatsDefaultApplied",false)){
+  store.set("foldCats",false);
+  store.set("foldCatsDefaultApplied",true);
+}
+restoreFold($("filterCard"),"foldCats",false);
+restoreFold($("extraCard"),"foldExtra",!!($("year").value||$("yearTo").value||$("rmin").value!=="6"||$("rmax").value));
+restoreFold($("themeCard"),"foldTheme",!!themeId);
+$("extraCard").addEventListener("toggle",()=>{
+  if($("extraCard").open) showHint("yearNote");
+  else $("yearNote").hidden=true;
+});
+function showKeyUi(){ $("keyCard").hidden=!!apiKey; }
+function updHist(){
+  const resetButton = $("resetHist");
+  if (resetButton) resetButton.textContent = `Сбросить историю (${seen.size})`;
+}
+showKeyUi();updHist();
+
+$("saveKey").onclick=()=>{const v=$("key").value.trim(); if(!v)return; apiKey=v; store.set("tmdbKey",v); showKeyUi();};
+$("changeKey").onclick=()=>{apiKey="";store.set("tmdbKey","");showKeyUi();closeSettings();};
+$("resetHist").onclick=()=>{if(window.KGClearWatchHistory)window.KGClearWatchHistory();else{seen=new Set();store.set("seen",[]);watched=[];store.set("watched",watched);visited={};lastCC="";store.set("visited",visited);store.set("lastCC","");if(window.KGRefreshWatchedMap)window.KGRefreshWatchedMap();if(window.KGResetWatchedButton)window.KGResetWatchedButton();}updHist();};
+
+async function api(params,options={}){
+  const adult=playMode!=="surprise" && (sel.has("adult") || sel.has("erotic"));
+  const result = await requestTmdb("discover/movie", {
+    language: filmLocale,
+    include_adult: adult ? "true" : "false",
+    sort_by: "vote_average.desc",
+    ...params
+  }, options);
+  if (result.results) result.results = result.results.map(localizeFilmListItem);
+  return result;
+}
+
+async function requestTmdb(endpoint, params, options={}) {
+  const q = new URLSearchParams({api_key: apiKey, ...params});
+  const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),10000);
+  let r;
+  try{r=await fetch("https://api.themoviedb.org/3/"+endpoint+"?"+q,{cache:options.fresh?"no-store":"default",signal:controller.signal});}
+  catch(error){if(error.name==="AbortError")throw new Error("TMDB отвечает слишком долго. Повторите поиск.");throw error;}
+  finally{clearTimeout(timeout);}
+  if(r.status===401) throw new Error("Ключ не подошёл. Проверьте его и введите заново.");
+  if(!r.ok) throw new Error("TMDB недоступен, попробуйте ещё раз.");
+  return r.json();
+}
+
+// Rating pass needs 100 films. Otherwise the same query is sorted by number of reviews.
+async function takePool(base,minCount){
+  const p1=await api({...base,page:1});
+  if((p1.total_results||0)<minCount) return null;
+  const pages=Math.min(p1.total_pages,Math.ceil(MAX_POOL/20));
+  const rest=await Promise.all(Array.from({length:pages-1},(_,i)=>api({...base,page:i+2})));
+  const films=[p1,...rest].flatMap(p=>p.results).slice(0,MAX_POOL);
+  return {films,total:p1.total_results};
+}
+function scoreFloor(o){
+  if(!o||o.worst||o.hard||o.wild) return 0;
+  const n=parseFloat(o.rmin);
+  return n>0?n:6;
+}
+function scoreCeil(o){
+  if(!o||o.worst||o.hard||o.wild) return 0;
+  const n=parseFloat(o.rmax);
+  return n>0?n:0;
+}
+function withScore(got,floor,ceil){
+  if(!got) return null;
+  let films=got.films;
+  if(floor) films=films.filter(f=>Number(f.vote_average)>=floor);
+  if(ceil) films=films.filter(f=>Number(f.vote_average)<=ceil);
+  if((floor||ceil)&&films.length<MIN_POOL) return null;
+  return {...got,films};
+}
+function poolBase(cc,o,t){
+  const base={with_origin_country:cc,"vote_count.gte":t};
+  if(o.g) base.with_genres=o.g;
+  if(o.kw) base.with_keywords=o.kw;
+  if(o.worst){base.sort_by="vote_average.asc";base["vote_average.gte"]=1;base["vote_average.lte"]=4.9;}
+  else{
+    const floor=scoreFloor(o);
+    const ceil=scoreCeil(o);
+    if(floor) base["vote_average.gte"]=floor;
+    if(ceil) base["vote_average.lte"]=ceil;
+  }
+  if(o.y) base["primary_release_date.gte"]=o.y+"-01-01";
+  if(o.yto) base["primary_release_date.lte"]=o.yto+"-12-31";
+  return base;
+}
+async function pageOf(base){
+  const p1=await api({...base,page:1});
+  const pages=Math.min(p1.total_pages||0,500);
+  if(!pages) return null;
+  const page=1+Math.floor(Math.random()*pages);
+  const p=page===1?p1:await api({...base,page});
+  let films=p.results||[];
+  if(!films.length) films=p1.results||[];
+  if(!films.length) return null;
+  return {films,total:p1.total_results};
+}
+// A random year, then any film from it. One year stays inside TMDB's page limit, so nothing in that year is dropped for low votes.
+async function sampleAll(cc){
+  const span=new Date().getFullYear()-1894;
+  const year=()=>1895+Math.floor(Math.random()*span);
+  const dated=y=>({with_origin_country:cc,include_adult:"true",sort_by:"primary_release_date.asc",
+    "primary_release_date.gte":y+"-01-01","primary_release_date.lte":y+"-12-31"});
+  return await pageOf(dated(year()))||await pageOf(dated(year()))
+    ||await pageOf({with_origin_country:cc,include_adult:"true",sort_by:"primary_release_date.asc"});
+}
+async function buildPool(cc,o){
+  if(o.hard){
+    const got=await sampleAll(cc);
+    if(!got) return null;
+    return {films:got.films,votes:0,total:got.total,hard:true};
+  }
+  if(o.wild){
+    const base={with_origin_country:cc,"vote_count.gte":10,sort_by:"popularity.desc"};
+    const p1=await api({...base,page:1});
+    const pages=Math.min(p1.total_pages||0,25);
+    if(!pages) return null;
+    const page=1+Math.floor(Math.random()*pages);
+    const p=page===1?p1:await api({...base,page});
+    let films=p.results||[];
+    if(films.length<3&&page!==1) films=p1.results||[];
+    if(!films.length) return null;
+    return {films,votes:10,total:p1.total_results,wild:true};
+  }
+  if(o.find){
+    const bands=BIG.has(cc)
+      ?[{gte:40,lte:150},{gte:40,lte:350},{gte:40,lte:700}]
+      :[{gte:15,lte:80},{gte:15,lte:200},{gte:15,lte:450}];
+    for(const b of bands){
+      const base={with_origin_country:cc,"vote_count.gte":b.gte,"vote_count.lte":b.lte,"vote_average.gte":7};
+      if(o.g) base.with_genres=o.g;
+      const got=withScore(await takePool(base,MIN_POOL),7);
+      if(got) return {films:got.films,votes:b.gte,vmax:b.lte,total:got.total,find:true,scoreMin:7};
+    }
+    return null;
+  }
+  const floors=o.light?(BIG.has(cc)?[800,200,50]:[200,50,20]):[20];
+  const certList=o.certs||[null];
+  const floor=scoreFloor(o);
+  for(const cert of certList){
+    for(const t of floors){
+      const base=poolBase(cc,o,t);
+      if(cert){base.certification_country=cc;base["certification.gte"]=cert;}
+      const got=withScore(await takePool(base,MAX_POOL),floor,scoreCeil(o));
+      if(got) return {films:got.films,votes:t,total:got.total,worst:!!o.worst,light:!!o.light,byRating:true,scoreMin:floor||""};
+    }
+    const base=poolBase(cc,o,1);
+    if(!o.worst) base.sort_by="vote_count.desc";
+    if(cert){base.certification_country=cc;base["certification.gte"]=cert;}
+    const got=withScore(await takePool(base,MIN_POOL),floor,scoreCeil(o));
+    if(got) return {films:got.films,votes:1,total:got.total,worst:!!o.worst,light:!!o.light,anyVotes:true,scoreMin:floor||""};
+  }
+  return null;
+}
+
+function currentQuery(){
+  if(playMode==="surprise"){
+    if(surprise==="find") return {g:pick(GENRE_IDS),find:true,adult:false,worst:false,rmin:"",rmax:"",y:"",yto:"",theme:"",themeName:""};
+    if(surprise==="wild") return {g:"",wild:true,adult:false,worst:false,rmin:"",rmax:"",y:"",yto:"",theme:"",themeName:""};
+    if(surprise==="hard") return {g:"",hard:true,adult:false,worst:false,rmin:"",rmax:"",y:"",yto:"",theme:"",themeName:""};
+    return {g:pick(GENRE_IDS),light:true,adult:false,worst:false,rmin:"",rmax:"",y:"",yto:"",theme:"",themeName:""};
+  }
+  const theme=THEMES.find(t=>t.id===themeId);
+  const years=yearQuery();
+  return {
+    g:theme?theme.g:[...sel].filter(k=>!NOGENRE.includes(k)).join(","),
+    adult:sel.has("adult"),worst:sel.has("worst"),
+    rmin:sel.has("worst")?"":$("rmin").value,rmax:sel.has("worst")?"":$("rmax").value,
+    y:years.y,yto:years.yto,
+    theme:theme?theme.id:"",themeName:theme?theme.name:"",
+    countries:countryFilters.size?[...countryFilters]:(theme?theme.cc:null)
+  };
+}
+function yearQuery(){
+  let y=String($("year").value||"").trim(), yto=String($("yearTo").value||"").trim();
+  if(y&&yto&&y>yto){const t=y;y=yto;yto=t;}
+  return {y,yto};
+}
+function tagPool(result,q){
+  if(!result) return null;
+  result.genre=q.g||"";
+  result.themeName=q.themeName||"";
+  if(q.light) result.light=true;
+  if(q.find) result.find=true;
+  if(q.wild) result.wild=true;
+  if(q.hard) result.hard=true;
+  return result;
+}
+async function getPool(cc,q){
+  q=q||currentQuery();
+  const key=[cc,q.g,q.adult,q.worst,q.rmin,q.rmax,q.y,q.yto,q.light?"L":"",q.find?"F":"",q.theme||""].join("|");
+  if(!q.wild && !q.hard && key in cache) return cache[key];   // null is cached too: "not enough films"
+  const o={g:q.g,worst:q.worst,rmin:q.rmin,rmax:q.rmax,y:q.y,yto:q.yto,light:q.light,find:q.find,wild:q.wild,hard:q.hard};
+  let result;
+  if(!q.adult) result=await buildPool(cc,o);
+  else{
+    // 18+ = strict age rating of the country OR an erotic theme; two pools merged
+    const [kw,certs]=await Promise.all([eroticKw().catch(()=>""),certCandidates(cc)]);
+    const [byRating,byTheme]=await Promise.all([
+      certs.length?buildPool(cc,{...o,certs}):null,
+      kw?buildPool(cc,{...o,kw}):null]);
+    const parts=[byRating,byTheme].filter(Boolean);
+    if(!parts.length) result=null;
+    else{
+      const ids=new Set();
+      let films=parts.flatMap(p=>p.films).filter(f=>!ids.has(f.id)&&ids.add(f.id));
+      films.sort((a,b)=>q.worst?a.vote_average-b.vote_average:b.vote_average-a.vote_average);
+      films=films.slice(0,MAX_POOL);
+      result=films.length>=MIN_POOL?{films,votes:Math.min(...parts.map(p=>p.votes)),total:films.length,worst:q.worst,anyVotes:parts.every(p=>p.anyVotes),byRating:parts.every(p=>p.byRating),scoreMin:scoreFloor(q)||""}:null;
+    }
+  }
+  result=tagPool(result,q);
+  if(!q.wild && !q.hard) cache[key]=result;
+  return result;
+}
+
+// Keyword ids for erotic films (looked up once from TMDB, OR-combined).
+let kwIds=null;
+async function eroticKw(){
+  if(kwIds) return kwIds;
+  const out=new Set();
+  for(const q of ["erotic","erotic thriller","erotic drama"]){
+    const r=await fetch("https://api.themoviedb.org/3/search/keyword?"+new URLSearchParams({api_key:apiKey,query:q}));
+    const j=await r.json();
+    (j.results||[]).filter(k=>/erotic/i.test(k.name)&&!/horror|animat|anime|hentai/i.test(k.name)).forEach(k=>out.add(k.id));
+  }
+  if(!out.size) throw new Error("Не удалось найти ключевые слова для этой категории.");
+  return kwIds=[...out].join("|");
+}
+
+// Strictest age ratings of a country (e.g. DE: 18; US: R). Tries top two levels.
+let certs=null;
+async function certCandidates(cc){
+  if(cc==="US") return ["R"];
+  try{
+    if(!certs){
+      const r=await fetch("https://api.themoviedb.org/3/certification/movie/list?api_key="+apiKey);
+      certs=(await r.json()).certifications||{};
+    }
+  }catch(e){certs={}}
+  const list=(certs[cc]||[]).slice().sort((a,b)=>b.order-a.order);
+  return list.slice(0,2).map(c=>c.certification);
+}
+
+// ---- sound, vibration, reel animation
+const DEFAULT_SOUND_VOLUME = 100;
+function normalizeSoundVolume(value) {
+  return Number.isFinite(value) ? Math.min(100, Math.max(0, Math.round(value))) : DEFAULT_SOUND_VOLUME;
+}
+let soundVolume = normalizeSoundVolume(store.get("soundVolume", DEFAULT_SOUND_VOLUME));
+let ac = null;
+let soundOutput = null;
+
+function setSoundVolume(value) {
+  soundVolume = normalizeSoundVolume(value);
+  store.set("soundVolume", soundVolume);
+  if (soundOutput && ac.state !== "closed") {
+    soundOutput.gain.setTargetAtTime(soundVolume / 100, ac.currentTime, .008);
+  }
+}
+
+function audio() {
+  try {
+    if (!ac || ac.state === "closed") {
+      ac = new (window.AudioContext || window.webkitAudioContext)();
+      soundOutput = ac.createGain();
+      soundOutput.gain.value = soundVolume / 100;
+      soundOutput.connect(ac.destination);
+    }
+    if (ac.state !== "running") ac.resume().catch(() => {});
+    return ac;
+  } catch (_) {
+    return null;
+  }
+}
+let snd=store.get("snd","roulette");
+let reelSnd = store.get("reelSnd", "auto");
+window.getCinemaReelSound=()=>reelSnd;
+window.setCinemaReelSound = value => {
+  const playing = !!filmReelNodes, previewing = !!reelSoundPreviewFrame;
+  reelSnd = isReelSound(value) ? value : "auto";
+  store.set("reelSnd",reelSnd);
+  if (previewing) previewFilmReelSound();
+  else if (playing) {
+    const frame = filmReelNodes.frameNumber;
+    stopFilmReelSound();
+    startFilmReelSound();
+    if (filmReelNodes) filmReelNodes.frameNumber = frame;
+  }
+};
+const PENTA=[523.25,587.33,659.25,783.99,880,1046.5,1174.66,1318.5];
+function tone(f,d,v,type,delay){
+  if(!ac)return;
+  try{const o=ac.createOscillator(),g=ac.createGain(),t=ac.currentTime+(delay||0);
+    o.type=type||"sine";o.frequency.value=f;
+    g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(v,t+0.008);g.gain.exponentialRampToValueAtTime(0.0001,t+d);
+    o.connect(g);g.connect(soundOutput);o.start(t);o.stop(t+d+0.02);}catch(e){}
+}
+let noiseBuf=null;
+function click(v,freq){          // short filtered noise burst: a wooden/ratchet click
+  if(!ac)return;
+  try{
+    if(!noiseBuf){const n=Math.floor(ac.sampleRate*0.03);noiseBuf=ac.createBuffer(1,n,ac.sampleRate);
+      const d=noiseBuf.getChannelData(0);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*(1-i/n);}
+    const src=ac.createBufferSource(),f=ac.createBiquadFilter(),g=ac.createGain();
+    src.buffer=noiseBuf;f.type="bandpass";f.frequency.value=freq;f.Q.value=1.2;g.gain.value=v;
+    src.connect(f);f.connect(g);g.connect(soundOutput);src.start();
+  }catch(e){}
+}
+// Separate confirmation cue for the selected film.
+function playFilmFoundSound() {
+  if (reelSnd === "off") return;
+  audio();
+  if (!ac) return;
+  click(.12,1850);
+  tone(659.25,.18,.055,"triangle",.025);
+  tone(880,.42,.045,"sine",.105);
+}
+window.playFilmFoundSound = playFilmFoundSound;
+const MARIMBA=[261.63,293.66,329.63,392,440,523.25,587.33,659.25];
+const THROTTLE={roulette:0,bells:110,arcade:55,casino:70,marimba:90,space:60,film:45,orchestra:95,jazz:80,synth:70,chimes:100};let lastT=0;
+function sTick(e){               // e = progress 0..1 (controls pitch)
+  if(snd==="off"||!ac)return;
+  const now=performance.now();if(now-lastT<(THROTTLE[snd]||0))return;lastT=now;
+  const i=Math.min(7,Math.floor(e*8));
+  if(snd==="roulette"){click(0.8,1700+e*900);tone(150+e*40,0.05,0.10,"sine");}
+  else if(snd==="bells"){tone(PENTA[i],0.4,0.08,"sine");}
+  else if(snd==="casino"){tone(1568+e*600,0.09,0.05,"triangle");click(0.4,3200);}
+  else if(snd==="marimba"){tone(MARIMBA[i],0.2,0.14,"sine");tone(MARIMBA[i]*4,0.06,0.04,"sine");}
+  else if(snd==="space"){tone(220+e*660,0.07,0.035,"sawtooth");}
+  else if(snd==="film"){click(0.55,900+e*400);tone(90+e*30,0.04,0.07,"triangle");}
+  else if(snd==="orchestra"){tone(PENTA[i]*0.5,0.35,0.07,"triangle");tone(PENTA[i],0.2,0.04,"sine");}
+  else if(snd==="jazz"){const j=[233.08,277.18,311.13,369.99,415.3,466.16,554.37,622.25];tone(j[i],0.18,0.09,"triangle");tone(j[i]*1.5,0.08,0.03,"sine");}
+  else if(snd==="synth"){tone(110+e*880,0.06,0.05,"sawtooth");tone(220+e*440,0.04,0.03,"square");}
+  else if(snd==="chimes"){tone(PENTA[i]*2,0.5,0.06,"sine");tone(PENTA[i]*4,0.15,0.025,"sine");}
+  else tone(300+e*400,0.05,0.04,"square");
+}
+function sWin(){
+  if(snd==="off"||!ac)return;
+  if(snd==="arcade"){[523,659,784,1047].forEach((f,i)=>tone(f,0.14,0.05,"square",i*0.1));return;}
+  if(snd==="casino"){
+    [1760,2093,2637,2093,2637,3136,2637,3136].forEach((f,i)=>tone(f,0.3,0.05,"triangle",i*0.065));
+    [523.25,659.25,783.99].forEach(f=>tone(f,1.1,0.06,"sine",0.1));return;}
+  if(snd==="marimba"){
+    [261.63,329.63,392,493.88,523.25,659.25].forEach((f,i)=>{tone(f,0.55,0.13,"sine",i*0.08);tone(f*4,0.08,0.04,"sine",i*0.08);});return;}
+  if(snd==="space"){
+    [392,587.33,783.99,1174.66].forEach((f,i)=>{tone(f,1.8,0.05,"sine",i*0.06);tone(f*1.006,1.8,0.04,"sine",i*0.06);});return;}
+  if(snd==="film"){
+    [220,277,330,392,440].forEach((f,i)=>{tone(f,0.4,0.08,"triangle",i*0.07);click(0.35,800+i*120);});
+    tone(110,1.2,0.06,"sine",0.35);return;}
+  if(snd==="orchestra"){
+    [261.63,329.63,392,523.25,659.25,783.99].forEach((f,i)=>{
+      tone(f,1.4,0.08,"triangle",i*0.09);tone(f*2,0.9,0.03,"sine",i*0.09);});return;}
+  if(snd==="jazz"){
+    [233.08,293.66,349.23,415.3,466.16,587.33].forEach((f,i)=>{
+      tone(f,0.7,0.1,"triangle",i*0.1);tone(f*1.5,0.25,0.04,"sine",i*0.1);});return;}
+  if(snd==="synth"){
+    [220,277.18,329.63,440,554.37,659.25].forEach((f,i)=>{
+      tone(f,0.5,0.07,"sawtooth",i*0.08);tone(f*2,0.3,0.03,"square",i*0.08);});return;}
+  if(snd==="chimes"){
+    [523.25,659.25,783.99,1046.5,1318.5,1568].forEach((f,i)=>{
+      tone(f,1.2,0.07,"sine",i*0.12);tone(f*2,0.4,0.025,"sine",i*0.12);});return;}
+  const notes=snd==="bells"?[523.25,659.25,783.99,1046.5,1318.5]:[523.25,659.25,783.99,1046.5];
+  const gap=snd==="bells"?0.1:0.06,len=snd==="bells"?0.8:1.4;
+  notes.forEach((f,i)=>{tone(f,len,0.1,"sine",i*gap);tone(f*2,len*0.6,0.03,"sine",i*gap);});
+}
+// Frame crossings trigger the selected sound. All reel voices share an output
+// so the animation can silence them immediately when it stops.
+let filmReelNodes = null;
+let reelSoundPreviewFrame = 0;
+const reelProfiles = {
+  projector: {duration:.035, noise:{frequency:2050,q:1.3,volume:.28}, motor:{volume:.025}},
+  imax:      {duration:.07,  tone:{type:"sine",from:94,to:46,volume:.17}},
+  camera:    {duration:.048, noise:{frequency:2700,q:2.6,volume:.34}, tone:{type:"triangle",from:230,to:105,volume:.085}},
+  tape:      {duration:.055,  tone:{type:"sine",from:155,to:285,volume:.09}, motor:{volume:.045}},
+  premiere:  {duration:.065,  tone:{type:"triangle",from:660,to:660,volume:.065}},
+  shutter:   {duration:.018, noise:{frequency:4600,q:.8,volume:.39}},
+  editbench: {duration:.065, tone:{type:"square",from:330,to:270,volume:.055}},
+  sixteenmm: {duration:.055, noise:{frequency:940,q:1.8,volume:.32}, motor:{volume:.016}},
+  projector35: {
+    duration:.032, noise:{frequency:2350,q:1.1,volume:.31},
+    tone:{type:"triangle",from:560,to:255,volume:.055},
+    motor:{frequency:1450,volume:.055}
+  },
+  cassetteRewind: {
+    duration:.045, noise:{frequency:1100,q:1.6,volume:.32},
+    tone:{type:"triangle",from:205,to:102,volume:.042},
+    motor:{frequency:510,volume:.16}
+  },
+  paperTickets: {
+    duration:.096, attack:.012, noise:{frequency:3400,q:.65,volume:.24},
+    landing:{duration:.037, noise:{frequency:850,q:1.15,volume:.27}}
+  }
+};
+function isReelSound(value) {
+  return value === "auto" || value === "off" || Object.hasOwn(reelProfiles, value);
+}
+if (!isReelSound(reelSnd)) reelSnd = "auto";
+
+function activeReelProfile() {
+  if (reelSnd !== "auto") return reelProfiles[reelSnd];
+  if (reelStyle === "cassette") return reelProfiles.cassetteRewind;
+  return reelProfiles.projector35;
+}
+function stopFilmReelSound() {
+  cancelAnimationFrame(reelSoundPreviewFrame);
+  reelSoundPreviewFrame = 0;
+  if (!filmReelNodes) return;
+  const {output, frame, landing, voices, motor, motorGain, motorFilter} = filmReelNodes;
+  filmReelNodes = null;
+  output.gain.value = 0;
+  output.disconnect();
+  frame.filter?.disconnect();
+  landing?.filter?.disconnect();
+  motor?.stop();
+  motor?.disconnect();
+  motorGain?.disconnect();
+  motorFilter?.disconnect();
+  for (const voice of voices) voice.stop();
+}
+
+function reelNoise(seconds) {
+  const buffer = ac.createBuffer(1, Math.floor(ac.sampleRate * seconds), ac.sampleRate);
+  const samples = buffer.getChannelData(0);
+  for (let i = 0; i < samples.length; i++) samples[i] = Math.random() * 2 - 1;
+  return buffer;
+}
+
+function startFilmReelSound() {
+  if (reelSoundPreviewFrame) stopFilmReelSound();
+  if (reelSnd === "off" || filmReelNodes) return;
+  audio();
+  if (!ac) return;
+  const profile = activeReelProfile();
+  const output = ac.createGain();
+  output.connect(soundOutput);
+  const prepareFrame = config => {
+    if (!config.noise) return {config};
+    const filter = ac.createBiquadFilter();
+    filter.type = "bandpass";
+    filter.frequency.value = config.noise.frequency;
+    filter.Q.value = config.noise.q;
+    filter.connect(output);
+    return {config, filter, noise:reelNoise(config.duration)};
+  };
+  filmReelNodes = {
+    profile, output, voices:new Set(), frame:prepareFrame(profile), frameNumber:-1,
+    landing:profile.landing ? prepareFrame(profile.landing) : null,
+    motorBuffer:profile.motor ? reelNoise(.65) : null
+  };
+}
+
+function playReelFrame(nodes, level, phase) {
+  const {output, voices} = nodes;
+  const {config:profile, filter, noise} = phase === "land" && nodes.landing ? nodes.landing : nodes.frame;
+  const now = ac.currentTime;
+  const end = now + profile.duration;
+  const strength = .45 + .55 * level;
+  function play(voice, volume, target) {
+    const envelope = ac.createGain();
+    envelope.gain.setValueAtTime(.0001, now);
+    envelope.gain.linearRampToValueAtTime(volume * strength, now + (profile.attack || .003));
+    envelope.gain.exponentialRampToValueAtTime(.0001, end);
+    voice.connect(envelope);
+    envelope.connect(target);
+    voices.add(voice);
+    voice.onended = () => {
+      voices.delete(voice);
+      voice.disconnect();
+      envelope.disconnect();
+    };
+    voice.start(now);
+    voice.stop(end);
+  }
+  if (profile.noise) {
+    const voice = ac.createBufferSource();
+    voice.buffer = noise;
+    play(voice, profile.noise.volume, filter);
+  }
+  if (profile.tone) {
+    const {type, from, to, volume} = profile.tone;
+    const voice = ac.createOscillator();
+    voice.type = type;
+    voice.frequency.setValueAtTime(from, now);
+    voice.frequency.exponentialRampToValueAtTime(to, end);
+    play(voice, volume, output);
+  }
+}
+
+function setFilmReelLevel(level, position, frame = Math.round(position), continuous = true, phase) {
+  if (level <= 0) {
+    stopFilmReelSound();
+    return;
+  }
+  const nodes = filmReelNodes;
+  if (!nodes || ac.state !== "running" || (Number.isFinite(position) && position <= 0)) return;
+  if (continuous && nodes.profile.motor) {
+    if (!nodes.motor) {
+      nodes.motor = ac.createBufferSource();
+      nodes.motorGain = ac.createGain();
+      nodes.motor.buffer = nodes.motorBuffer;
+      nodes.motor.loop = true;
+      nodes.motorGain.gain.value = 0;
+      nodes.motor.connect(nodes.motorGain);
+      const {frequency} = nodes.profile.motor;
+      if (frequency) {
+        nodes.motorFilter = ac.createBiquadFilter();
+        nodes.motorFilter.type = "bandpass";
+        nodes.motorFilter.frequency.value = frequency;
+        nodes.motorFilter.Q.value = .7;
+        nodes.motorFilter.connect(nodes.output);
+      }
+      nodes.motorGain.connect(nodes.motorFilter || nodes.frame.filter || nodes.output);
+      nodes.motor.start();
+    }
+    nodes.motor.playbackRate.setTargetAtTime(.65 + .35 * level, ac.currentTime, .025);
+    nodes.motorGain.gain.setTargetAtTime(nodes.profile.motor.volume * level, ac.currentTime, .015);
+  }
+  if (Number.isFinite(frame)) {
+    if (frame === nodes.frameNumber) return;
+    nodes.frameNumber = frame;
+  } else if (nodes.lastClick !== undefined && ac.currentTime - nodes.lastClick < .1) {
+    // Compatibility with older reel scripts that only report speed.
+    return;
+  }
+  nodes.lastClick = ac.currentTime;
+  playReelFrame(nodes, level, phase);
+}
+document.addEventListener("kg:reel-motion", ({detail}) => {
+  const {level, position, frame, continuous, phase} = detail;
+  setFilmReelLevel(level, position, frame, continuous, phase);
+});
+
+function previewFilmReelSound() {
+  stopFilmReelSound();
+  startFilmReelSound();
+  if (!filmReelNodes) return;
+  const start = performance.now();
+  const step = now => {
+    const progress = Math.min(1, (now - start) / 1800);
+    if (progress >= 1) {
+      setFilmReelLevel(0);
+      return;
+    }
+    const speed = 1 - progress;
+    if (filmReelNodes.landing) {
+      const frame = Math.min(7, Math.floor(progress * 10));
+      const phase = frame % 2 === 0 ? "fly" : "land";
+      setFilmReelLevel(speed * (phase === "fly" ? 1 : .55), frame + 1, frame, false, phase);
+    } else {
+      setFilmReelLevel(speed ** 3, 14 * (1 - speed ** 4));
+    }
+    reelSoundPreviewFrame = requestAnimationFrame(step);
+  };
+  reelSoundPreviewFrame = requestAnimationFrame(step);
+}
+window.startFilmReelSound = startFilmReelSound;
+window.stopFilmReelSound = stopFilmReelSound;
+window.previewFilmReelSound = previewFilmReelSound;
+let globeSoundPreviewTimer;
+function stopGlobeSoundPreview() {
+  clearTimeout(globeSoundPreviewTimer);
+}
+function preview() {
+  stopGlobeSoundPreview();
+  if (snd === "off" || !audio()) return;
+  let index = 0;
+  const step = () => {
+    sTick(index / 10);
+    index++;
+    globeSoundPreviewTimer = setTimeout(index < 6 ? step : sWin, index < 6 ? 120 : 150);
+  };
+  step();
+}
+function buzz(p){if(fx&&navigator.vibrate){try{navigator.vibrate(p)}catch(e){}}}
+function fxLabel() {
+  const button = $("fx");
+  if (button) button.textContent = fx ? "Вкл" : "Выкл";
+}
+function toggleVibration() {
+  fx = !fx;
+  store.set("fx",fx);
+  fxLabel();
+  if (!fx) navigator.vibrate?.(0);
+}
+$("fx").onclick = toggleVibration;
+fxLabel();
+$("snd").value=snd;$("snd").onchange=()=>{snd=$("snd").value;store.set("snd",snd);stopGlobeSoundPreview();};
+
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const RM=matchMedia("(prefers-reduced-motion: reduce)").matches;
+// Vertical flag reel. The opening is a fast blur while the search starts, then a readable cruise, then a slow landing.
+const H=104, FLAG_FAST=14, FLAG_CRUISE=5.2; // row height (px, = --rh) and rows per second
+let seq=[],tIdx=-1,tCC=null,raf=0,pos=0,phase="idle",lastB=null,spinAt=0;
+const FLAG_FAST_MS=1600, FLAG_LAND_MS=3200;
+const flagAt=i=>i===tIdx?tCC:seq[((i%seq.length)+seq.length)%seq.length];
+// The landing row is replaced by the chosen country. Pick a row whose neighbours are other countries, so the same flag is not painted twice in the window.
+function landingIndex(pEnd,cc){
+  const n=seq.length;
+  if(!cc||n<5) return pEnd+1;
+  const at=i=>((i%n)+n)%n;
+  const clear=idx=>{
+    for(let d=-2;d<=2;d++) if(d&&seq[at(idx+d)]===cc) return false;
+    return true;
+  };
+  for(let extra=0;extra<n;extra++) if(clear(pEnd+1+extra)) return pEnd+1+extra;
+  return pEnd+1;
+}
+function drawReel(p){
+  const b=Math.floor(p),f=p-b;
+  if(b!==lastB){lastB=b;$("rcol").innerHTML=[0,1,2,3].map(k=>`<div class="ri">${flag(flagAt(b+k))}</div>`).join("");}
+  $("rcol").style.transform=`translateY(${-f*H}px)`;
+}
+function reelStart(){
+  closePlayer();
+  const r=$("reel");
+  $("result").hidden=true;r.classList.remove("out");r.hidden=false;
+  $("rname").classList.remove("on");$("rname").textContent="";
+  r.scrollIntoView({behavior:RM?"auto":"smooth",block:"nearest"});
+  if(RM){$("rcol").innerHTML='<div class="ri"></div><div class="ri">🌍</div><div class="ri"></div>';return;}
+  seq=shuffle(COUNTRIES);tIdx=-1;tCC=null;lastB=null;
+  pos=Math.floor(Math.random()*seq.length);phase="spin";spinAt=performance.now();
+  $("rcol").classList.add("fast");
+  let t0=performance.now(),lastRow=Math.floor(pos);
+  const step=now=>{if(phase!=="spin")return;const dt=Math.min(.05,(now-t0)/1000);t0=now;
+    const fast=now-spinAt<FLAG_FAST_MS;
+    $("rcol").classList.toggle("fast",fast);
+    pos+=(fast?FLAG_FAST:FLAG_CRUISE)*dt;
+    const row=Math.floor(pos);if(row!==lastRow){lastRow=row;sTick((row%8)/16);}
+    drawReel(pos);raf=requestAnimationFrame(step);};
+  raf=requestAnimationFrame(step);
+}
+function reelAbort(){phase="idle";cancelAnimationFrame(raf);cancelAnimationFrame(raf2);$("reel").hidden=true;$("freel").hidden=true;}
+async function reelLand(cc){
+  const r=$("reel");
+  if(RM){
+    $("rcol").innerHTML=`<div class="ri"></div><div class="ri">${flag(cc)}</div><div class="ri"></div>`;
+    $("rname").textContent=cname(cc);$("rname").classList.add("on");
+    await sleep(500);r.hidden=true;return;
+  }
+  await sleep(Math.max(0,FLAG_FAST_MS-(performance.now()-spinAt)));
+  phase="land";cancelAnimationFrame(raf);
+  const T=FLAG_LAND_MS,p0=pos;
+  let pEnd=Math.ceil(p0+FLAG_CRUISE*(T/1000)/3);   // landing starts at cruise speed, not the opening blur
+  tCC=cc;
+  tIdx=landingIndex(pEnd,cc);                  // target sits below the visible rows, and not beside its own copy
+  pEnd=tIdx-1;
+  $("rcol").classList.remove("fast");
+  await new Promise(res=>{
+    const t0=performance.now();let last=Math.floor(p0);
+    const step=now=>{
+      const t=Math.min(1,(now-t0)/T),e=1-Math.pow(1-t,4);
+      pos=p0+(pEnd-p0)*e;drawReel(pos);
+      const bi=Math.floor(pos);
+      if(bi!==last){last=bi;sTick(0.45+0.55*t);if(t>0.6)buzz(7);}
+      if(t<1)raf=requestAnimationFrame(step);else res();
+    };
+    raf=requestAnimationFrame(step);
+  });
+  $("rname").textContent=cname(cc);$("rname").classList.add("on");
+  const lens=document.querySelector(".rlens");lens.classList.remove("hit");void lens.offsetWidth;lens.classList.add("hit");
+  sWin();buzz([25,50,60]);
+  await sleep(1500);
+  r.classList.add("out");await sleep(500);
+  r.hidden=true;r.classList.remove("out");phase="idle";
+}
+
+// One videos request. include_video_language pulls Russian, English and clips with no language tag.
+const vcache={};
+async function trailerFor(film){
+  const id=film.id;
+  if(id in vcache) return vcache[id];
+  const loadVideos=async langs=>{
+    try{
+      const r=await fetch(`https://api.themoviedb.org/3/movie/${id}/videos?`+new URLSearchParams({
+        api_key:apiKey, include_video_language:langs}),{cache:"no-store"});
+      if(!r.ok)throw new Error(`TMDB videos: ${r.status}`);
+      return (await r.json()).results||[];
+    }catch(e){console.warn("[Kinoglobus] Не удалось загрузить список видео TMDB:",e);return [];}
+  };
+  const score=v=>{
+    const type={Trailer:0,Teaser:1,Clip:2,Featurette:3}[v.type];
+    if(type==null) return 99;
+    const site=v.site==="YouTube"?0:v.site==="Vimeo"?1:9;
+    if(site===9) return 99;
+    const lang=v.iso_639_1==="ru"?0:v.iso_639_1==="en"?1:2;
+    return type*40+(v.official?0:10)+site*4+lang;
+  };
+  const sortVideos=vids=>vids.filter(v=>score(v)<99&&v.key).sort((a,b)=>score(a)-score(b));
+  // Сначала русский, английский и ролики без языка; если пусто, трейлер на языке оригинала фильма
+  let videos=sortVideos(await loadVideos("ru,en,null"));
+  const ol=film.original_language;
+  if(!videos.length&&ol&&ol!=="ru"&&ol!=="en") videos=sortVideos(await loadVideos(ol));
+  const unique=new Map();
+  videos.forEach(v=>unique.set(`${v.site}:${v.key}`,v));
+  const alternatives=[...unique.values()].slice(0,8).map(v=>({
+    site:v.site,key:v.key,name:v.name||"",type:v.type||"",language:v.iso_639_1||"",official:!!v.official
+  }));
+  return vcache[id]=alternatives.length?{...alternatives[0],alternatives}:null;
+}
+let tKey=null;
+function watchUrl(v){return v.site==="Vimeo"?`https://vimeo.com/${v.key}`:`https://www.youtube.com/watch?v=${v.key}`;}
+function embedSrc(v, autoplay = true) {
+  const key = encodeURIComponent(v.key);
+  const subtitles = getTrailerSubtitles();
+  const preferredLanguage = subtitles === "ru" || subtitles === "en" ? subtitles : "";
+  const params = new URLSearchParams({autoplay: autoplay ? "1" : "0"});
+
+  if (v.site === "Vimeo") {
+    if (preferredLanguage) params.set("texttrack", preferredLanguage);
+    if (subtitles === "off") params.set("texttrack", "false");
+    return `https://player.vimeo.com/video/${key}?${params}`;
+  }
+
+  params.set("playsinline", "1");
+  params.set("rel", "0");
+  if (preferredLanguage) {
+    params.set("cc_lang_pref", preferredLanguage);
+    params.set("cc_load_policy", "1");
+  } else if (subtitles === "off") {
+    // YouTube may still use its own saved caption preference.
+    params.set("cc_load_policy", "0");
+  }
+  return `https://www.youtube-nocookie.com/embed/${key}?${params}`;
+}
+const trailerFramePermissions = "autoplay; encrypted-media; fullscreen; picture-in-picture 'none'";
+function closePlayer(){
+  $("player").innerHTML="";$("player").hidden=true;$("ytnote").hidden=true;
+  if(tKey) $("trailer").textContent=uiText("▶ Смотреть трейлер");
+}
+function setTrailer(film){
+  const t=$("trailer");
+  tKey=null;closePlayer();
+  t.disabled=true;t.textContent=uiText("Ищем трейлер…");
+  trailerFor(film).then(k=>{
+    if(!cur||cur.film.id!==film.id) return;
+    if(!k){t.textContent=uiText("Трейлера нет");return;}
+    tKey=k;t.disabled=false;t.textContent=uiText("▶ Смотреть трейлер");
+  }).catch(()=>{if(cur&&cur.film.id===film.id) t.textContent=uiText("Трейлера нет");});
+}
+$("trailer").onclick=()=>{
+  if(!tKey) return;
+  if(!$("player").hidden){closePlayer();return;}
+  $("player").innerHTML=`<iframe src="${embedSrc(tKey)}" allow="${trailerFramePermissions}" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" title="${uiText("Трейлер")}"></iframe>`;
+  $("player").hidden=false;
+  $("ytlink").href=watchUrl(tKey);
+  $("ytlink").textContent=uiText("Открыть на {site}", {site: tKey.site});
+  $("ytnote").hidden=false;
+  $("trailer").textContent="✕ Закрыть трейлер";
+};
+
+// ---- second reel: posters. A short list is repeated so the strip has room to spin and then slow down.
+const FW=92, F_SPEED=7.2;
+const F_SPIN_MS=1900, F_LAND_MS=2800;
+let seqF=[],fTarget=null,fIdx=-1,fLast=null,raf2=0,fSkip=false;
+const esc=t=>String(t||"").replace(/[<>&"]/g,"");
+const fItemAt=i=>i===fIdx?fTarget:(i<0||i>=seqF.length)?{title:"",poster_path:null}:seqF[i];
+function posterStrip(films){
+  const base=[];
+  const ids=new Set();
+  for(const f of shuffle(films)){
+    if(!f||ids.has(f.id)) continue;
+    ids.add(f.id);base.push(f);
+  }
+  if(base.length<2) return null;
+  const need=Math.ceil(F_SPEED*F_SPIN_MS/1000+F_SPEED*(F_LAND_MS/1000)/3+4);
+  if(base.length>=need) return base.slice(0,Math.min(base.length,need+12));
+  const strip=[];
+  for(let i=0;strip.length<need;i++) strip.push(base[i%base.length]);
+  return strip;
+}
+const posterItem=m=>`<div class="pi">${m.poster_path?`<img src="https://image.tmdb.org/t/p/w154${m.poster_path}" alt="">`:`<div class="nop">${esc(m.title)}</div>`}</div>`;
+function drawF(p){
+  const b=Math.floor(p),f=p-b;
+  if(b!==fLast){fLast=b;$("fcol").innerHTML=[0,1,2,3].map(k=>posterItem(fItemAt(b+k))).join("");}
+  $("fcol").style.transform=`translateX(${-f*FW}px)`;
+}
+function preloadPosters(pool,selected){
+  const films=pool.films||[],ordered=selected?[selected,...shuffle(films.filter(f=>f.id!==selected.id))]:shuffle(films);
+  return Promise.all(ordered.filter(f=>f.poster_path).slice(0,8).map(f=>new Promise(r=>{
+    const i=new Image();i.onload=i.onerror=r;i.src="https://image.tmdb.org/t/p/w154"+f.poster_path;})));
+}
+const FILM_REEL_DEFAULT_HTML=$("freel").innerHTML;
+function resetFilmReelSearchView(box=$("freel")){if(box)box.innerHTML=FILM_REEL_DEFAULT_HTML;}
+$("fskip").onclick=()=>{fSkip=true;};
+async function filmReel(pool,film,cc,warm){
+  if(RM) return;
+  if(reelStyle==="projection"){
+    const box=$("freel"),list=pool.films||[],sequence=shuffle(list.filter(f=>f.id!==film.id)).slice(0,18).concat(film);
+    await Promise.race([warm||Promise.resolve(),sleep(500)]);box.innerHTML=window.KGCinemaReel.render({mode:"projection"});box.hidden=false;box.classList.remove("out");
+    window.KGCinemaReel.mountProjectionTrack(box,sequence[0]||film,{country:cname(cc)});box.scrollIntoView({behavior:"smooth",block:"nearest"});startFilmReelSound();
+    const landed=await window.KGCinemaReel.spinProjectionTrack(box,sequence,film,{duration:2100,reducedMotion:RM,shouldSkip:()=>fSkip,meta:{country:cname(cc)}});stopFilmReelSound();if(landed)await sleep(700);box.hidden=true;resetFilmReelSearchView(box);return;
+  }
+  if(reelStyle==="cassette"){
+    const box=$("freel"),list=pool.films||[],sequence=shuffle(list.filter(f=>f.id!==film.id)).slice(0,14).concat(film);
+    await Promise.race([warm||Promise.resolve(),sleep(500)]);box.innerHTML=window.KGCinemaReel.render({mode:"cassette"});box.hidden=false;box.classList.remove("out");
+    window.KGCinemaReel.mountCassetteDeck(box,list,sequence[0]||film,{onOpen:f=>openFilm(f,"home"),onRandom:f=>openFilm(f,"home")});box.scrollIntoView({behavior:"smooth",block:"nearest"});startFilmReelSound();
+    const landed=await window.KGCinemaReel.spinCassetteDeck(box,list,sequence,film,{duration:2100,reducedMotion:RM,shouldSkip:()=>fSkip});stopFilmReelSound();if(landed){await sleep(700);}box.hidden=true;resetFilmReelSearchView(box);return;
+  }
+  const pics=posterStrip(pool.films);
+  if(!pics) return;
+  const box=$("freel");
+  seqF=pics;
+  await Promise.race([warm||Promise.resolve(),sleep(500)]);
+  $("fhead").innerHTML=`${flag(cc)} ${cname(cc)}`;
+  $("fname").textContent="";$("fname").classList.remove("on");
+  fTarget=film;fIdx=-1;fLast=null;fSkip=false;
+  $("fcol").classList.add("fast");
+  box.classList.remove("out");box.hidden=false;
+  box.scrollIntoView({behavior:"smooth",block:"nearest"});
+  const maxEnd=Math.max(1,seqF.length-4);
+  const speed=F_SPEED;
+  await new Promise(res=>{
+    const t0=performance.now(),p0=0;
+    let pos=p0,last=-1,landing=false,pStart=0,pEnd=0,tl=0;
+    const step=now=>{
+      let t=0;
+      if(!landing){
+        pos=p0+speed*(now-t0)/1000;
+        if(now-t0>=F_SPIN_MS||fSkip){
+          landing=true;pStart=Math.min(pos,maxEnd-1);
+          const coast=speed*(F_LAND_MS/1000)/3;
+          pEnd=Math.round(pStart+Math.min(coast,maxEnd-pStart));
+          if(pEnd<=Math.floor(pStart)) pEnd=Math.min(maxEnd,Math.floor(pStart)+1);
+          if(pEnd>maxEnd) pEnd=maxEnd;
+          fIdx=pEnd+1;tl=now;$("fcol").classList.remove("fast");
+        }
+      }
+      if(landing){
+        t=fSkip?1:Math.min(1,(now-tl)/F_LAND_MS);
+        pos=pStart+(pEnd-pStart)*(1-Math.pow(1-t,4));
+      }
+      const row=Math.floor(pos);
+      if(row!==last){last=row;if(landing){sTick(0.45+0.55*t);if(t>0.6)buzz(7);}else sTick((row%8)/16);}
+      drawF(pos);
+      if(landing&&t>=1){res();return;}
+      raf2=requestAnimationFrame(step);
+    };
+    raf2=requestAnimationFrame(step);
+  });
+  $("fname").textContent=film.title;$("fname").classList.add("on");
+  const lens=document.querySelector(".flens");lens.classList.remove("hit");void lens.offsetWidth;lens.classList.add("hit");
+  sWin();buzz([25,50,60]);
+  await sleep(1100);
+  box.classList.add("out");await sleep(450);
+  box.hidden=true;box.classList.remove("out");
+}
+
+// Fisher–Yates shuffle: every ordering is equally likely (unlike sort with a random comparator)
+function shuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
   return a;
 }
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
 
-function spotlightTheme(){return catalogThemes[Math.floor(Date.now()/6048e5)%catalogThemes.length];}
-function cardHtml(t,i){
-  const m=TM[t.id]||["noir","","",""],special=t.id==="suwar";
-  const g0=gnames(t)[0]||"";
-  const top=special?`<div class="kg-catalog-archive flex items-center justify-between mb-2"><span class="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-secondary-container/60 text-secondary font-micro-caption text-micro-caption font-bold"><span class="material-symbols-outlined text-[13px]">history_edu</span>${uiText("АРХИВ ИСЧЕЗНУВШИХ ЭПОХ")}</span><span data-k="r" class="font-micro-caption text-micro-caption text-primary-container font-bold">★ …</span></div>`:"";
-  const rate=special?"":`<span data-k="r" class="px-2 py-0.5 rounded-full bg-primary-container/15 text-primary-container font-micro-caption text-micro-caption font-bold flex-shrink-0">★ …</span>`;
-  const btn=`<button type="button" aria-label="${uiText("Крутить")}" data-act="spin" data-t="${t.id}" class="w-8 h-8 rounded-full bg-surface-container-high hover:bg-primary-container hover:text-on-primary-container text-primary flex items-center justify-center transition-all"><span class="material-symbols-outlined text-[18px]">casino</span></button>`;
-  return `<article class="collection-card relative flex flex-col ${special?"p-4 bg-gradient-to-br from-cinema-velvet-deep/40 via-surface-panel to-surface-panel shadow-[0_6px_24px_rgba(0,0,0,0.6)]":"p-3.5 bg-surface-panel shadow-[0_4px_20px_rgba(0,0,0,0.45)]"} rounded-2xl transition-all active:scale-[0.99] cursor-pointer" data-t="${t.id}" data-cat="${m[0]}" data-i="${i}">
-${top}<div class="kg-catalog-row flex items-start gap-3">
-<div class="kg-film-card-poster relative rounded-lg overflow-hidden shrink-0 bg-surface-container-high"><img data-k="img" alt="${esc(uiText(t.name))}" src="${getThemeCover(t.id)}" class="w-full h-full object-cover transition-opacity duration-500 ${special?"grayscale contrast-125":""} ${getThemeCover(t.id)?"":"opacity-0"}"><span class="absolute bottom-1 right-1 px-1.5 rounded bg-surface-container-lowest/80 text-[10px] font-bold text-primary">${esc(codeOf(t))}</span></div>
-<div class="kg-catalog-text flex flex-col min-w-0 flex-1 justify-between h-28"><div>
-<div class="flex items-center justify-between gap-1"><span class="kg-catalog-region font-micro-caption text-micro-caption text-text-muted flex items-center gap-1 truncate">${flagsOf(t)} ${esc(where(t))}</span>${rate}</div>
-<h4 class="font-headline-sm text-headline-sm text-primary font-bold truncate mt-0.5">${i+1}. ${esc(uiText(t.name))}</h4>
-<p class="kg-catalog-summary font-micro-caption text-micro-caption text-on-surface-variant ${special?"kg-clip2":"truncate"} mt-0.5">${esc(uiText(m[2]))}</p></div>
-<div class="flex items-center justify-between pt-1"><span data-k="cnt" class="font-label-sm text-label-sm text-text-muted truncate">… · ${esc(g0)}</span>${btn}</div>
-</div></div></article>`;
+function joinRu(list){
+  if(list.length<=1) return list[0]||"";
+  if(list.length===2) return list[0]+" и "+list[1];
+  return list.slice(0,-1).join(", ")+" и "+list[list.length-1];
 }
-
-function spotlightHtml(t){
-  const m=TM[t.id]||["noir","","",""];
-  return `<section id="spot" data-t="${t.id}" tabindex="0" aria-label="${esc(uiText("Открыть подборку «{title}»", {title: uiText(t.name)}))}" class="relative w-full rounded-2xl overflow-hidden bg-surface-panel shadow-[0_14px_34px_-10px_rgba(0,0,0,0.85)] cursor-pointer">
-<div data-k="bg" style="background-image: url('${getThemeCover(t.id)}');" class="w-full h-56 bg-cover bg-center relative bg-surface-container-high"><div class="absolute inset-0 bg-gradient-to-t from-surface-panel via-surface-panel/60 to-transparent"></div>
-<div class="absolute top-3 left-3 right-3 flex items-center justify-between"><div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-cinema-velvet-deep text-secondary font-micro-caption text-micro-caption shadow-md"><span class="material-symbols-outlined text-[14px]">local_fire_department</span>${uiText("ХИТ НЕДЕЛИ")}</div>
-<div class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container-lowest/80 backdrop-blur-md text-primary font-label-sm text-label-sm"><span class="material-symbols-outlined text-[15px] text-primary-container" style="font-variation-settings:'FILL' 1;">star</span><span data-k="r">…</span></div></div>
-<div class="absolute bottom-3 left-3.5 right-3.5 flex items-center gap-1.5"><span class="px-2 py-0.5 rounded-full bg-surface-container-high/90 backdrop-blur text-primary font-micro-caption text-micro-caption tracking-wider">${t.cc.map(fl).join(" ")}</span><span class="font-micro-caption text-micro-caption text-text-muted truncate">${esc(t.cc.map(cname).join(", "))}</span></div></div>
-<div class="p-4 flex flex-col gap-2.5"><div class="flex items-baseline justify-between"><h3 class="font-headline-md text-headline-md text-primary font-bold">${esc(uiText(t.name))}</h3><span data-k="cnt" class="font-micro-caption text-micro-caption text-text-muted">…</span></div>
-<p class="font-body-sm text-body-sm text-text-muted kg-clip2">${esc(uiText(m[3]))}</p>
-<div class="flex items-center gap-2 pt-1"><button type="button" data-act="spin" data-t="${t.id}" class="flex-1 h-11 px-4 rounded-xl bg-primary-container text-on-primary-container font-label-md text-label-md flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(255,184,48,0.32)] transition-transform active:scale-95"><span class="material-symbols-outlined text-[20px]">casino</span><span>${uiText("Крутить рулетку")}</span></button>
-<button type="button" aria-label="${uiText("Подробнее")}" data-act="open" data-t="${t.id}" class="w-11 h-11 rounded-xl bg-surface-container-high text-primary flex items-center justify-center transition-colors hover:bg-surface-bright active:scale-95"><span class="material-symbols-outlined text-[20px]">arrow_forward</span></button></div></div></section>`;
+function topCaption(cc,pool,film){
+  const year=(film.release_date||"").slice(0,4);
+  const when=pool.exactYear?`Лучший фильм ${pool.exactYear} года.`
+    :pool.yearSpan?`Лучший фильм за ${pool.yearSpan} годы.`
+    :year?`Лучший фильм ${year} года.`
+    :"Лучший фильм.";
+  const made=(film.origin_country||[]).filter(Boolean);
+  const codes=made.length?made:[cc];
+  const where=joinRu(codes.map(cname).filter(Boolean));
+  const genre=pool.genre&&GENRES[pool.genre]?` Жанр «${GENRES[pool.genre]}».`:"";
+  const head=pool.themeName?pool.themeName+". ":"";
+  return head+when+(where?` Производство: ${where}.`:"")+genre;
 }
-function updateWeeklySpotlight(){
-  const spot=$("spot"),selected=spotlightTheme();
-  if(!spot||spot.dataset.t===selected.id)return;
-  spot.outerHTML=spotlightHtml(selected);
-  paintMeta(selected.id);
+function oscarCaption(cc,film){
+  const year=(film.release_date||"").slice(0,4);
+  const made=(film.origin_country||[]).filter(Boolean);
+  const codes=made.length?made:[cc];
+  const where=joinRu(codes.map(cname).filter(Boolean));
+  return `«Оскар» за лучший фильм${year?`, ${year} год`:""}.`+(where?` Производство: ${where}.`:"");
 }
-
-const CHON="bg-primary-container text-on-primary-container shadow-[0_0_14px_rgba(255,184,48,0.28)]",CHOFF="bg-surface-panel text-text-muted hover:text-on-surface";
-function chipCls(on){return "filter-chip flex items-center gap-1.5 px-3.5 py-2 rounded-full font-label-sm text-label-sm shrink-0 transition-all active:scale-95 "+(on?CHON:CHOFF);}
-
-function buildCatalog(){
-  const counts={};catalogThemes.forEach(t=>counts[cat(t)]=(counts[cat(t)]||0)+1);
-  vc.innerHTML=`
-<section class="flex flex-col gap-space-xs mt-1">
-<div class="flex items-center justify-between"><span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container text-primary-container font-label-sm text-label-sm shadow-[0_0_14px_rgba(255,184,48,0.18)]"><span class="material-symbols-outlined text-[15px]" style="font-variation-settings:'FILL' 1;">auto_awesome</span>${uiText("Кураторский киногид")}</span>
-<span class="font-micro-caption text-micro-caption text-text-muted flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-primary-container animate-pulse"></span>${uiText("{count} доступно", {count: catalogThemes.length})}</span></div>
-<h2 class="font-headline-lg text-headline-lg text-primary tracking-tight">${uiText("Тематические коллекции")}</h2>
-<p class="font-body-sm text-body-sm text-text-muted leading-relaxed">${uiText("{count} авторских киномаршрутов: от азиатского саспенса и скандинавского холода до исторических эпох", {count: catalogThemes.length})}</p>
-<div class="relative w-full mt-2"><div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-text-muted"><span class="material-symbols-outlined text-[20px]">search</span></div>
-<input id="cat-search" type="search" aria-label="${uiText("Поиск по подборкам")}" aria-controls="cat-grid" enterkeyhint="search" autocomplete="off" placeholder="${uiText("Найти подборку, страну или жанр...")}" class="w-full h-12 pl-11 pr-12 rounded-xl bg-surface-container-low text-on-surface placeholder:text-text-muted font-body-sm text-body-sm focus:outline-none focus:bg-surface-container transition-all shadow-[0_4px_16px_rgba(0,0,0,0.4)]">
-<button type="button" id="cat-clear" data-act="clear" aria-label="${uiText("Сбросить поиск")}" style="display:none" class="absolute inset-y-0 right-0 w-12 items-center justify-center text-text-muted hover:text-primary"><span class="material-symbols-outlined text-[18px]" aria-hidden="true">cancel</span></button></div>
-</section>
-<section id="cat-chips" class="flex gap-2 overflow-x-auto pb-1 -mx-gutter-mobile px-gutter-mobile">
-<button type="button" data-f="all" class="${chipCls(true)}"><span>${uiText("Все {count}", {count: catalogThemes.length})}</span></button>
-${Object.keys(CAT).filter(k=>counts[k]).map(k=>`<button type="button" data-f="${k}" class="${chipCls(false)}"><span>${uiText(CAT[k][0])} (${counts[k]})</span></button>`).join("")}</section>
-${spotlightHtml(spotlightTheme())}
-<section class="flex flex-wrap items-center justify-between gap-2"><div class="flex items-center gap-1.5 bg-surface-panel px-3 py-1.5 rounded-xl"><span class="material-symbols-outlined text-[17px] text-text-muted">swap_vert</span>
-<select id="cat-sort" class="bg-transparent text-text-muted font-label-sm text-label-sm focus:outline-none focus:text-primary cursor-pointer"><option class="bg-surface-panel text-on-surface" value="curated">${uiText("По кураторскому списку")}</option><option class="bg-surface-panel text-on-surface" value="rating">${uiText("По рейтингу (высокий)")}</option><option class="bg-surface-panel text-on-surface" value="count">${uiText("По числу фильмов")}</option><option class="bg-surface-panel text-on-surface" value="title">${uiText("По алфавиту")}</option></select></div>
-<button type="button" data-act="random" class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-secondary-container text-on-secondary-container font-label-sm text-label-sm shadow-[0_0_14px_rgba(134,26,69,0.25)] transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"><span class="material-symbols-outlined text-[18px]">casino</span><span>${uiText("Случайная")}</span></button></section>
-<p id="cat-note" class="font-micro-caption text-micro-caption text-text-muted px-1" style="display:none"></p>
-<div class="flex items-center justify-between gap-2"><p id="cat-search-status" role="status" class="font-label-sm text-label-sm text-text-muted px-1"></p>${layoutSwitch(catalogLayout,"catalog")}</div>
-<section id="cat-grid" class="${catalogLayout==="grid"?"kg-three-columns":"flex flex-col gap-3"}">${seededShuffle(catalogThemes,dailySeed()).map((t,i)=>cardHtml(t,i)).join("")}</section>
-<div id="cat-empty" style="display:none" class="flex-col items-center justify-center py-12 px-4 text-center rounded-2xl bg-surface-panel/50"><div class="w-14 h-14 rounded-full bg-surface-container-high flex items-center justify-center text-primary-container mb-3 shadow-[0_0_18px_rgba(255,184,48,0.2)]"><span class="material-symbols-outlined text-[28px]">movie_edit</span></div><h3 class="font-headline-sm text-headline-sm text-primary font-bold">${uiText("Подборка не найдена")}</h3><p class="font-body-sm text-body-sm text-text-muted mt-1 max-w-xs">${uiText("Попробуйте другое слово или выберите «Все», чтобы искать во всём каталоге.")}</p><button type="button" data-act="reset" class="mt-4 px-4 py-2 rounded-xl bg-primary-container text-on-primary-container font-label-sm text-label-sm font-bold shadow-[0_0_12px_rgba(255,184,48,0.25)]">${uiText("Сбросить поиск")}</button></div>`;
-  catBuilt=true;
+function show(cc,pool,film){
+  cur={cc,pool,film};
+  if(typeof paintWatchedButton==="function")paintWatchedButton(bw,!!window.KGIsFilmWatched?.(film.id));
+  $("flag").innerHTML=flag(cc);
+  $("cname").textContent=cname(cc);
+  $("cmeta").textContent=pool.oscar?oscarCaption(cc,film):pool.top1?topCaption(cc,pool,film):poolLine(pool);
+  const po=$("poster");po.classList.remove("ok");po.onload=()=>po.classList.add("ok");
+  if(film.poster_path)po.src="https://image.tmdb.org/t/p/w342"+film.poster_path;else{po.removeAttribute("src");po.classList.add("ok");}
+  $("title").textContent=film.title+(film.original_title&&film.original_title!==film.title?` (${film.original_title})`:"");
+  $("fmeta").textContent=(film.release_date||"").slice(0,4);
+  const genres=genreLine(film);
+  $("fgenre").textContent=genres?"Жанр: "+genres:"";
+  $("tagline").hidden=true;$("tagline").textContent="";
+  paintRating(film.vote_count,film.vote_average);
+  $("crew").hidden=true;$("crew").innerHTML="";
+  $("over").textContent=filmSynopsis(film.overview)||"Описание пока недоступно.";
+  $("again").hidden=!!pool.top1||!!pool.oscar||!!pool.saved;
+  setTrailer(film);
+  paintCrew(film);
+  $("result").hidden=false;
+  [...$("result").children].forEach((c,i)=>c.style.animationDelay=(i*70)+"ms");
+  $("result").classList.remove("pop");void $("result").offsetWidth;$("result").classList.add("pop");
 }
-
-function paintMeta(id){
-  const m=META[id] || (T[id]?.films ? {n:T[id].films.length} : null);if(!m)return;
-  const customArt = getThemeCover(id);
-  document.querySelectorAll(`#view-collections [data-t="${id}"]`).forEach(el=>{
-    if(el.id==="spot"){
-      const bg=el.querySelector('[data-k="bg"]');
-      // Приоритет отдаётся авторской широкоформатной арт-обложке
-      const src=customArt || (m.b?P(m.b,"w780"):P(m.p,"w500"));
-      if(src) bg.style.backgroundImage=`url('${src}')`;
-    }
-    const r=el.querySelector('[data-k="r"]');
-    if(r){const sp=el.id==="spot";r.textContent=sp?(m.r||"—"):(el.dataset.cat==="retro"&&el.classList.contains("collection-card")?"★ "+(m.r||"—"):"★ "+(m.r||"—"));}
-    const c=el.querySelector('[data-k="cnt"]');
-    if(c){const g=gnames(T[id])[0]||"";c.textContent=el.id==="spot"?`${nf(m.n)} ${fw(m.n)}`:`${nf(m.n)} ${fw(m.n)}${g?" · "+g:""}`;}
-    const img=el.querySelector('[data-k="img"]');
-    if(img){
-      // Сохраняем авторскую кураторскую обложку вместо случайного первого постера
-      if(customArt){
-        img.src = customArt;
-        img.classList.remove("opacity-0");
-      } else if(m.p){
-        img.onload=()=>img.classList.remove("opacity-0");
-        img.src=P(m.p,"w185");
-      }
-    }
-  });
-}
-const catalogNormalize=value=>String(value||"").toLowerCase().normalize("NFD")
-  .replace(/\p{M}/gu,"").replace(/[^\p{L}\p{N}]+/gu," ").trim();
-const catalogRegionNames=["ru","en"].map(lang=>new Intl.DisplayNames([lang],{type:"region"}));
-const catalogTitleAliases={jhorror:["Japanese Horror"]};
-function catalogSearchEntry(t){
-  const [,english,subtitle,description]=TM[t.id]||[];
-  const category=CAT[cat(t)]||[],region=REG[t.id]?.[0];
-  const genres=t.g.split(/[|,]/).map(id=>GENRES[id]).filter(Boolean);
-  const countries=t.cc.flatMap(code=>[code,cname(code),...catalogRegionNames.map(names=>names.of(code))]);
-  const films=(t.films||[]).flatMap(f=>[f.title,f.original_title]);
-  return [
-    [[t.name,uiText(t.name),english,...(catalogTitleAliases[t.id]||[])],100],
-    [[...countries,...genres,...genres.map(g=>uiText(g)),region,region&&uiText(region)],55],
-    [films,42],
-    [[category[0],category[0]&&uiText(category[0]),category[1]],32],
-    [[subtitle,description,subtitle&&uiText(subtitle),description&&uiText(description)],18]
-  ].flatMap(([values,weight])=>[...new Set(values.map(catalogNormalize).filter(Boolean))]
-    .map(value=>({value,weight,words:value.split(" ")})));
-}
-let catalogSearchIndex;
-
-// A single insertion, deletion, substitution or transposition in a longer word.
-function catalogOneTypo(a,b){
-  if(a.length<5||Math.abs(a.length-b.length)>1)return false;
-  if(a.length>b.length)[a,b]=[b,a];
-  let i=0;
-  while(i<a.length&&a[i]===b[i])i++;
-  if(a.length!==b.length)return a.slice(i)===b.slice(i+1);
-  return i<a.length&&(a.slice(i+1)===b.slice(i+1)||
-    (a[i]===b[i+1]&&a[i+1]===b[i]&&a.slice(i+2)===b.slice(i+2)));
-}
-function catalogMatch(fields,query,terms){
-  let phrase=0,total=0,approximate=false;
-  for(const {value,weight} of fields){
-    if(value===query)phrase=Math.max(phrase,weight*4);
-    else if(` ${value} `.includes(` ${query} `))phrase=Math.max(phrase,weight*2);
-    else if(value.startsWith(query))phrase=Math.max(phrase,weight);
+function poolLine(pool){
+  const n=pool.films.length;
+  const genre=pool.genre&&GENRES[pool.genre]?`, жанр «${GENRES[pool.genre]}»`:"";
+  if(pool.hard) return "Хардкор: случайный год, любой фильм страны. Без жанра, оценки и порога отзывов, 18+ тоже попадают.";
+  if(pool.wild) return "Полная случайность: без жанра и без порога оценки.";
+  if(pool.find) return `Настоящее открытие${genre}: оценка от 7, голосов от ${pool.votes} до ${pool.vmax}.`;
+  if(pool.light && !pool.anyVotes) return `Лёгкое удивление${genre}: оценка от ${pool.scoreMin||6}, фильмы оценили минимум ${pool.votes} зрителей.`;
+  const head=pool.themeName?pool.themeName+". ":"";
+  if(pool.anyVotes){
+    const base=n>=MAX_POOL
+      ?"Сотни фильмов с устойчивой оценкой не набралось, взяты 100 картин с любым числом отзывов."
+      :`По оценке набралось мало фильмов, взяты ${n} картин с любым числом отзывов.`;
+    return head+(pool.light?"Лёгкое удивление. ":"")+base+(pool.scoreMin?` Оценка не ниже ${pool.scoreMin}.`:"");
   }
-  for(const term of terms){
-    let exact=0,fuzzy=0;
-    for(const {weight,words} of fields){
-      for(const word of words){
-        if(word===term)exact=Math.max(exact,weight);
-        else if(term.length>=2&&word.startsWith(term))exact=Math.max(exact,weight*.75);
-        else if(!exact&&catalogOneTypo(term,word))fuzzy=Math.max(fuzzy,weight*.5);
-      }
-    }
-    if(!exact&&!fuzzy)return null;
-    approximate ||= !exact;
-    total+=exact||fuzzy;
+  if(pool.top1&&pool.exactYear){
+    return head+`Топ-1, ${pool.exactYear}${genre}: лучший фильм этой страны за ${pool.exactYear} год среди картин, которые оценили хотя бы ${pool.votes} зрителей.`;
   }
-  return {score:phrase+total,approximate};
-}
-function filterCatalog(){
-  const input=$("cat-search"),q=catalogNormalize(input.value),cards=[...$("cat-grid").children];
-  const terms=[...new Set(q.split(" "))];
-  const eligible=cards.filter(c=>activeCat==="all"||c.dataset.cat===activeCat);
-  if(q&&!catalogSearchIndex)catalogSearchIndex=new Map(catalogThemes.map(t=>[t.id,catalogSearchEntry(t)]));
-  const matches=q?eligible.map(c=>[c.dataset.t,catalogMatch(catalogSearchIndex.get(c.dataset.t),q,terms)])
-    .filter(([,match])=>match):[];
-  const hasExact=matches.some(([,match])=>!match.approximate);
-  catalogScores=new Map(matches.filter(([,match])=>!hasExact||!match.approximate).map(([id,match])=>[id,match.score]));
-  const visible=new Set(q?catalogScores.keys():eligible.map(c=>c.dataset.t));
-  for(const card of cards)card.style.display=visible.has(card.dataset.t)?"":"none";
-  $("cat-clear").style.display=input.value?"flex":"none";
-  $("spot").style.display=q?"none":"";
-  $("cat-search-status").textContent=q?uiText(hasExact||!visible.size?"Подборок найдено: {count}":"Похожие совпадения: {count}",{count:nf(visible.size)}):"";
-  $("cat-empty").style.display=visible.size?"none":"flex";
-  vc.querySelector('[data-act="random"]').disabled=!visible.size;
-  sortCatalog();
-}
-function sortCatalog(){
-  const grid=$("cat-grid");if(!grid)return;const cards=[...grid.children];
-  cards.sort((a,b)=>{
-    const ma=META[a.dataset.t]||{},mb=META[b.dataset.t]||{};
-    if(sortMode==="rating")return (parseFloat(mb.r)||0)-(parseFloat(ma.r)||0);
-    if(sortMode==="count")return (mb.n||0)-(ma.n||0);
-    if(sortMode==="title")return uiText(T[a.dataset.t].name).localeCompare(uiText(T[b.dataset.t].name),interfaceLanguage);
-    return (catalogScores.get(b.dataset.t)||0)-(catalogScores.get(a.dataset.t)||0)||a.dataset.i-b.dataset.i;
-  });
-  if(cards.some((card,i)=>card!==grid.children[i]))cards.forEach(card=>grid.appendChild(card));
-}
-async function loadAllMeta(force=false){
-  const note=$("cat-note");
-  if(!apiKey){if(note){note.textContent=uiText("Введите ключ TMDB на экране «Глобус», чтобы увидеть число фильмов и рейтинги подборок.");note.style.display="";}return false;}
-  if(note)note.style.display="none";
-  const results=await Promise.allSettled(catalogThemes.map(t=>loadMeta(t,force).then(()=>{if(catBuilt)paintMeta(t.id);})));
-  if(sortMode!=="curated")sortCatalog();
-  return results.every(r=>r.status==="fulfilled");
-}
-function initCatalog(){
-  if(!catBuilt)buildCatalog();
-  updateWeeklySpotlight();
-  catalogThemes.forEach(t=>paintMeta(t.id));
-  if(!dailyRefreshPromise)loadAllMeta();
-}
-vc.addEventListener("input",e=>{
-  if(e.target.id==="cat-search")filterCatalog();
-});
-vc.addEventListener("change",e=>{if(e.target.id==="cat-sort"){sortMode=e.target.value;sortCatalog();}});
-vc.addEventListener("click",e=>{
-  const layout=e.target.closest('[data-kg-layout="catalog"]');
-  if(layout){
-    catalogLayout=layout.dataset.mode;
-    $("cat-grid").className=catalogLayout==="grid"?"kg-three-columns":"flex flex-col gap-3";
-    syncLayout(vc,catalogLayout,"catalog");
-    return;
+  if(pool.top1&&pool.yearSpan){
+    return head+`Топ-1, ${pool.yearSpan}${genre}: лучший фильм этой страны за эти годы среди картин, которые оценили хотя бы ${pool.votes} зрителей.`;
   }
-  const route=e.target.closest("[data-collection-route]");
-  if(route){showView(route.dataset.collectionRoute);return;}
-  const chip=e.target.closest("#cat-chips [data-f]");
-  if(chip){activeCat=chip.dataset.f;vc.querySelectorAll("#cat-chips [data-f]").forEach(c=>c.className=chipCls(c===chip));filterCatalog();return;}
-  const act=e.target.closest("[data-act]");
-  if(act){
-    const a=act.dataset.act;
-    if(a==="spin"){e.stopPropagation();audio();openCollection(act.dataset.t,{spin:true});return;}
-    if(a==="open"){openCollection(act.dataset.t);return;}
-    if(a==="clear"||a==="reset"){
-      const input=$("cat-search");input.value="";
-      if(a==="reset"){activeCat="all";vc.querySelectorAll("#cat-chips [data-f]").forEach(c=>c.className=chipCls(c.dataset.f==="all"));}
-      filterCatalog();input.focus();return;
-    }
-    if(a==="random"){
-      const vis=[...vc.querySelectorAll(".collection-card")].filter(c=>c.style.display!=="none");
-      if(!vis.length)return;
-      const c=pick(vis);c.scrollIntoView({behavior:"smooth",block:"center"});
-      c.classList.add("ring-2","ring-primary-container");setTimeout(()=>c.classList.remove("ring-2","ring-primary-container"),1800);
-      toast(uiText("Выбрано: «{title}»!", {title: uiText(T[c.dataset.t].name)}));return;
-    }
-  }
-  const spot=e.target.closest("#spot");
-  if(spot&&!e.target.closest("[data-act]")){openCollection(spot.dataset.t);return;}
-  const card=e.target.closest(".collection-card");
-  if(card)openCollection(card.dataset.t);
-});
-vc.addEventListener("keydown",e=>{
-  if(e.target.id==="cat-search"){
-    if(e.isComposing||e.keyCode===229)return;
-    if(e.key==="Escape"&&e.target.value){e.preventDefault();e.target.value="";filterCatalog();}
-    if(e.key==="Enter"&&catalogScores.size){
-      e.preventDefault();openCollection([...$("cat-grid").children].find(c=>catalogScores.has(c.dataset.t)).dataset.t);
-    }
-    return;
-  }
-  if(e.target.id!=="spot"||(e.key!=="Enter"&&e.key!==" "))return;
-  e.preventDefault();openCollection(e.target.dataset.t);
-});
+  if(pool.top1) return head+`Топ-1${genre}: лучший фильм страны среди картин, которые оценили хотя бы ${pool.votes} зрителей.`;
+  const rank=pool.worst?"худших":"лучших";
+  const score=pool.scoreMin?`, оценка от ${pool.scoreMin}`:"";
+  const base=n===MAX_POOL
+    ?`Случайный фильм из 100 ${rank} по оценке (не меньше ${pool.votes} отзывов${score}).`
+    :`По оценке нашлось ${n} фильмов (не меньше ${pool.votes} отзывов${score}). Фильм выбран из них.`;
+  return head+base;
+}
+function fmtRuntime(m){
+  const h=Math.floor(m/60), min=m%60;
+  if(h&&min) return uiText("{hours} ч {minutes} мин", {hours: h, minutes: min});
+  if(h) return uiText("{hours} ч", {hours: h});
+  return uiText("{minutes} мин", {minutes: min});
+}
+const moneyFmt=new Intl.NumberFormat(interfaceLanguage,{style:"currency",currency:"USD",maximumFractionDigits:0});
+function money(n){return n?moneyFmt.format(n):"—";}
+const filmSynopsis = text => String(text || "").trim();
+function selectFilmPoster(movie) {
+  const posters = movie.images?.posters || [];
+  const language = filmTextLanguage(movie);
+  const matching = posters.find(image => image.iso_639_1 === language && image.file_path);
+  if (matching) return {path: matching.file_path, showTitle: false};
 
-/* ================= СТРАНИЦА ПОДБОРКИ ================= */
-let D={t:null,all:[],total:0,totals:{},cc:"",sort:"rating",shown:5,selected:null,picked:null};
-async function markPageWatched(film){
-  if(window.KGMarkWatched) return window.KGMarkWatched(film);
-  const details=await filmDetails(film.id).catch(()=>null);
-  const cc=(film.origin_country||[])[0]||(details&&details.countries||[])[0]||"";
-  if(!watched.some(item=>Number(item.id)===Number(film.id))){
-    const record=filmRecord(cc,film);record.countries=cc?[cc]:[];record.productionCountries=(film.origin_country||details?.countries||[]);record.watchedAt=new Date().toISOString();
-    watched.unshift(record);store.set("watched",watched);
-  }
-  seen.add(Number(film.id));store.set("seen",[...seen]);updHist();return true;
+  const neutral = posters.find(image => image.iso_639_1 == null && image.file_path);
+  return {path: neutral?.file_path || movie.backdrop_path || "", showTitle: true};
 }
-function closePageFilm(placement){
-  const selected=D.selected&&D.selected._placement===placement?D.selected:null;
-  if(selected)D.selected=null;
-  const target=$(selected?._detailTarget)||(placement==="mood"?$("mood-film-detail"):$("oscar-film-detail"));
-  if(target)target.replaceChildren();
-}
-const pageDeps={
-  layoutSwitch,
-  syncLayout,
-  moodFilmGrid,
-  posterTile,
-  filmGridRows,
-  sortBar,
-  syncFilmSort,
-  sortCollectionFilms,
-  api:(params)=>api(params),
-  searchKeywords:query=>requestTmdb("search/keyword",{query}),
-  details:id=>filmDetails(id),
-  getFilms:()=>oscarFilms(),
-  hasKey:()=>Boolean(apiKey),
-  countryName:cc=>cname(cc),
-  isWatched:id=>watched.some(item=>item.id===Number(id)),
-  markWatched:film=>markPageWatched(film),
-  openFilm:(film,placement,detailTarget)=>openFilm(film,placement,detailTarget),
-  closeFilm:placement=>closePageFilm(placement),
-  refreshFilm:()=>renderSelectedPanel(),
-  back:()=>showView("collections")
-};
-const CCON="bg-primary-container text-on-primary shadow-[0_0_12px_rgba(255,184,48,0.28)] font-semibold",CCOFF="bg-surface-container text-text-muted hover:text-on-surface";
-const SON="bg-surface-container-high text-primary-fixed font-semibold",SOFF="text-text-muted hover:text-on-surface";
-const ccCls=on=>"h-[34px] px-3 rounded-full font-label-sm text-label-sm flex-shrink-0 transition-colors "+(on?CCON:CCOFF);
-const sCls=on=>"px-2.5 py-1 rounded font-micro-caption text-micro-caption "+(on?SON:SOFF);
 
-const collectionSortModes=[["rating","По рейтингу"],["pop","Популярные"],["new","Свежие"]];
-function sortBar(sort){
-  return `<div class="flex flex-wrap items-center justify-between gap-1.5" data-kg-collection-sorting>
-<span class="font-micro-caption text-micro-caption text-text-muted">${uiText("Сортировка:")}</span><div class="flex flex-wrap items-center gap-1 bg-surface-container-low p-0.5 rounded-lg" role="group" aria-label="${uiText("Сортировка:")}">${collectionSortModes.map(([mode,label])=>
-    `<button type="button" data-kg-film-sort="${mode}" aria-pressed="${mode===sort}" class="${sCls(mode===sort)}">${uiText(label)}</button>`).join("")}</div></div>`;
+function filmPosterMarkup(film, size = "w342") {
+  // Before the localised poster is available, use a still and the selected title.
+  const poster = film.localizedPoster || {path: film.backdrop_path, showTitle: true};
+  const path = /^\/[a-z0-9_.-]+$/i.test(poster.path || "") ? poster.path : "";
+  const title = film.title || film.original_title || uiText("Фильм");
+  const escape = value => String(value).replace(/[&<>"']/g, char =>
+    ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[char]
+  );
+  const alt = poster.showTitle ? "" : escape(uiText("Постер фильма «{title}»", {title}));
+  const image = path
+    ? `<img class="absolute inset-0 w-full h-full object-cover" src="https://image.tmdb.org/t/p/${size}${path}" alt="${alt}" loading="lazy">`
+    : "";
+  const caption = poster.showTitle
+    ? `<span class="absolute inset-x-0 bottom-0 bg-black/80 px-1.5 py-1.5 text-center text-xs font-semibold leading-tight text-white break-words">${escape(title)}</span>`
+    : "";
+  return image + caption;
 }
-function syncFilmSort(root,sort){
-  root.querySelectorAll("[data-kg-film-sort]").forEach(button=>{
-    const active=button.dataset.kgFilmSort===sort;
-    button.className=sCls(active);
-    button.setAttribute("aria-pressed",String(active));
-  });
+
+const detailCache={};
+async function filmDetails(id){
+  if(id in detailCache) return detailCache[id];
+  const r=await fetch("https://api.themoviedb.org/3/movie/"+id+"?"+new URLSearchParams({
+    api_key:apiKey, language:filmLocale, append_to_response:"credits,translations,release_dates,images",
+    include_image_language:"ru,en,null"}),{cache:"no-store"});
+  if(!r.ok) throw new Error("details");
+  const j=await r.json();
+  const crew=j.credits&&j.credits.crew||[];
+  const dirsFull=[...new Map(crew.filter(c=>c.job==="Director"||c.job==="Режиссёр").map(c=>[c.id,{id:c.id,name:c.name,job:c.job}])).values()];
+  const dirs=dirsFull.map(c=>c.name);
+  const writers=[];
+  crew.filter(c=>/screenplay|writer|сценари/i.test(c.job)).forEach(c=>{if(!writers.includes(c.name))writers.push(c.name);});
+  const cast=(j.credits&&j.credits.cast||[]).slice(0,8).map(c=>c.name);
+  const genres=(j.genres||[]).map(g=>g.name).filter(Boolean);
+  const ov = selectMovieText(j, "overview");
+  const tg = selectMovieText(j, "tagline");
+  const rel=(j.release_dates&&j.release_dates.results)||[];
+  const certOf=cc=>{const c=rel.find(x=>x.iso_3166_1===cc);const d=c&&(c.release_dates||[]).find(x=>String(x.certification||"").trim());return d?String(d.certification).trim():"";};
+  const cert=certOf("RU")||certOf("US")||(rel.map(x=>certOf(x.iso_3166_1)).find(Boolean)||"");
+  return detailCache[id]={cert,runtime:j.runtime||0,dirs,dirsFull:dirsFull.map(d=>({...d,photo:(crew.find(c=>c.id===d.id)||{}).profile_path||""})),writers:writers.slice(0,3),cast,castFull:(j.credits&&j.credits.cast||[]).slice(0,10).map(c=>({id:c.id,name:c.name,role:c.character||"",photo:c.profile_path||""})),genres,budget:j.budget||0,revenue:j.revenue||0,
+    title:selectMovieText(j, "title").text, localizedPoster:selectFilmPoster(j), posterPath:j.poster_path || "",
+    tagline:tg.text,taglineLang:tg.lang,overview:ov.text,overviewLang:ov.lang,
+    release:j.release_date||"",originalTitle:j.original_title||"",originalLang:j.original_language||"",
+    companies:(j.production_companies||[]).map(c=>c.name).filter(Boolean).slice(0,3),
+    countries:(j.production_countries||[]).map(c=>c.iso_3166_1).filter(Boolean),
+    votes:j.vote_count||0,average:j.vote_average||0};
 }
-function sortCollectionFilms(films,sort){
-  const compare={
-    rating:(a,b)=>(Number(b.vote_average)||0)-(Number(a.vote_average)||0),
-    pop:(a,b)=>(Number(b.popularity)||0)-(Number(a.popularity)||0),
-    new:(a,b)=>String(b.release_date||"").localeCompare(String(a.release_date||""))
+function genreLine(film){
+  const fromIds=(film.genre_ids||[]).map(id=>GENRES[id]).filter(Boolean);
+  return fromIds.slice(0,4).join(", ");
+}
+const voteFmt=new Intl.NumberFormat("ru-RU");
+function votesWord(n){
+  const m=n%100, k=n%10;
+  if(m>10&&m<20) return "оценок";
+  if(k===1) return "оценка";
+  if(k>1&&k<5) return "оценки";
+  return "оценок";
+}
+function paintRating(votes,average){
+  if(!votes){$("rating").textContent="Нет оценки";return;}
+  $("rating").textContent="★ "+Number(average).toFixed(1)+` · ${voteFmt.format(votes)} ${votesWord(votes)}`;
+}
+function paintCrew(film){
+  const year=(film.release_date||"").slice(0,4);
+  filmDetails(film.id).then(d=>{
+    if(!cur||cur.film.id!==film.id) return;
+    $("fmeta").textContent=[year,d.runtime?fmtRuntime(d.runtime):""].filter(Boolean).join(" · ");
+    paintRating(d.votes,d.average);
+    const genres=(d.genres.length?d.genres:genreLine(film).split(", ").filter(Boolean)).slice(0,4);
+    $("fgenre").textContent=genres.length?"Жанр: "+genres.join(", "):"";
+    const synopsis=d.overview||filmSynopsis(film.overview)||"Описание пока недоступно.";
+    const synopsisLang = d.overviewLang;
+    $("over").textContent=synopsis;
+    const matchingTagline=!!d.tagline&&d.taglineLang===synopsisLang;
+    $("tagline").hidden=!matchingTagline;
+    $("tagline").textContent=matchingTagline?d.tagline:"";
+    const lines=[];
+    const personLink=p=>p&&p.id?`<button type="button" data-kg-person-id="${p.id}" data-kg-person-name="${esc(p.name)}" class="kg-person-link">${esc(p.name)}</button>`:esc(p&&p.name||"");
+    if(d.dirs.length) lines.push(`<div><b>${d.dirs.length>1?"Режиссёры":"Режиссёр"}:</b> ${(d.dirsFull||[]).length?d.dirsFull.map(personLink).join(", "):esc(d.dirs.join(", "))}</div>`);
+    if(d.writers.length) lines.push(`<div><b>Сценарий:</b> ${esc(d.writers.join(", "))}</div>`);
+    if(d.cast.length) lines.push(`<div><b>В ролях:</b> ${(d.castFull||[]).length?d.castFull.slice(0,8).map(personLink).join(", "):esc(d.cast.join(", "))}</div>`);
+    lines.push(`<div><b>Бюджет:</b> ${money(d.budget)}</div>`);
+    lines.push(`<div><b>Сборы:</b> ${money(d.revenue)}</div>`);
+    $("crew").innerHTML=lines.join("");
+    $("crew").hidden=false;
+  }).catch(()=>{});
+}
+
+function fresh(pool,exceptId){return pool.films.filter(f=>!seen.has(f.id)&&f.id!==exceptId)}
+function filmCC(pool,film,fallback){return (pool.byCountry&&pool.byCountry[film.id])||fallback}
+function lockSpin(label){
+  $("go").disabled=true;$("top1").disabled=true;$("oscar").disabled=true;
+  $("go").innerHTML=label;
+}
+function unlockSpin(){
+  $("go").disabled=false;$("top1").disabled=false;$("oscar").disabled=false;
+  $("go").textContent=goLabel();
+  $("top1").textContent="🏆 Топ-1";
+  $("oscar").textContent="🎬 Оскар";
+}
+function topQuery(){
+  const theme=THEMES.find(t=>t.id===themeId);
+  const years=yearQuery();
+  return {
+    g:theme?theme.g:[...sel].filter(k=>!NOGENRE.includes(k)).join(","),
+    adult:sel.has("adult"),worst:sel.has("worst"),
+    rmin:sel.has("worst")?"":$("rmin").value,rmax:sel.has("worst")?"":$("rmax").value,
+    y:years.y,yto:years.yto,
+    theme:theme?theme.id:"",themeName:theme?theme.name:"",
+    countries:countryFilters.size?[...countryFilters]:(theme?theme.cc:null)
   };
-  return [...films].sort(compare[sort]||compare.rating);
 }
-
-function derived(){
-  const a=D.all.filter(f=>!D.cc||f._cc===D.cc);
-  const best=a.slice().sort((x,y)=>weighed(y)-weighed(x))[0];
-  const rest=sortCollectionFilms(a.filter(f=>f!==best),D.sort);
-  return {best,rest};
+function topYear(q){
+  if(q.y&&q.yto&&q.y!==q.yto) return {from:q.y,to:q.yto,exact:"",span:q.y+"–"+q.yto};
+  const one=q.y||q.yto||"";
+  return one?{from:one,to:one,exact:one,span:""}:{from:"",to:"",exact:"",span:""};
 }
-const totalFor=()=>D.cc?(D.totals[D.cc]||0):D.total;
-const byId=id=>D.all.find(f=>String(f.id)===String(id));
-
-function filmItem(f){
-  const y=(f.release_date||"").slice(0,4);
-  const gs=(f.genre_ids||[]).map(i=>GENRES[i]).filter(Boolean).slice(0,2).map(genre=>uiText(genre));
-  const selected=D.selected&&D.selected._placement==="list"&&String(D.selected.id)===String(f.id)?D.selected:null;
-  return `<article class="flex flex-col gap-space-sm p-3 rounded-xl bg-surface-panel shadow-md hover:bg-surface-container-low transition-colors">
-<div class="flex gap-space-sm cursor-pointer" data-act="open" data-id="${f.id}">
-<div class="kg-film-card-poster relative flex-shrink-0 rounded-lg overflow-hidden bg-surface-container-high">${f.poster_path?`<img class="w-full h-full object-cover" loading="lazy" alt="" src="${P(f.poster_path,"w185")}">`:`<div class="w-full h-full flex items-center justify-center text-text-muted"><span class="material-symbols-outlined">movie</span></div>`}
-<span class="absolute top-1 left-1 px-1 py-0.5 rounded bg-surface-panel/90 text-primary-container font-micro-caption text-micro-caption font-bold">${f.vote_average ? Number(f.vote_average).toFixed(1) : "—"} ★</span></div>
-<div class="flex flex-col justify-between flex-1 min-w-0"><div class="flex flex-col gap-0.5">
-<div class="flex items-center justify-between"><span class="font-micro-caption text-micro-caption text-text-muted">${fl(f._cc)} ${esc(cname(f._cc))}${y?" • "+y:""}</span><span data-rt="${f.id}" class="font-micro-caption text-micro-caption px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant">${uiText("— мин")}</span></div>
-<h4 class="font-label-lg text-label-lg text-on-surface font-bold truncate">${esc(f.title)}</h4>
-<p data-dir="${f.id}" class="font-micro-caption text-micro-caption text-text-muted truncate">&nbsp;</p>
-<div class="flex items-center gap-1.5 pt-1">${gs.map(g=>`<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-micro-caption text-micro-caption">${esc(g)}</span>`).join("")}</div></div></div></div>
-${selected?selectedFilmHtml(selected,true):""}</article>`;
+function spinOrder(list){
+  let order=shuffle(list);
+  if(cur&&cur.cc&&order.length>1&&order.includes(cur.cc))
+    order=order.filter(c=>c!==cur.cc).concat(cur.cc);
+  return order;
 }
-function pearlHtml(f,selected=null){
-  const y=(f.release_date||"").slice(0,4);
-  return `<div class="flex flex-col gap-space-xs"><div class="flex items-center gap-1.5 px-1"><span class="material-symbols-outlined text-[18px] text-primary-container">stars</span><h3 class="font-headline-sm text-headline-sm text-primary font-bold">${uiText("Жемчужина коллекции")}</h3></div>
-<div class="relative overflow-hidden rounded-xl bg-surface-panel p-space-md shadow-xl flex flex-col gap-space-md"><div class="flex gap-space-md cursor-pointer" data-act="open" data-id="${f.id}">
-<div class="relative flex-shrink-0 w-28 h-40 rounded-lg overflow-hidden bg-surface-container-high shadow-md">${f.poster_path?`<img class="w-full h-full object-cover" alt="" src="${P(f.poster_path,"w342")}">`:""}
-<div class="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded bg-surface-panel/90 backdrop-blur-md text-primary-container font-label-sm text-label-sm font-bold flex items-center gap-0.5"><span class="material-symbols-outlined text-[13px]" style="font-variation-settings:'FILL' 1;">star</span>${f.vote_average ? Number(f.vote_average).toFixed(1) : "—"}</div></div>
-<div class="flex flex-col justify-between flex-1 min-w-0"><div class="flex flex-col gap-1">
-<div class="flex items-center gap-1.5"><span class="font-micro-caption text-micro-caption px-1.5 rounded bg-surface-container text-on-surface-variant">${fl(f._cc)} ${y}</span><span data-rt="${f.id}" class="font-micro-caption text-micro-caption text-text-muted">${uiText("— мин")}</span></div>
-<h4 class="font-headline-sm text-headline-sm text-on-surface font-bold leading-snug kg-clip2">${esc(f.title)}</h4>
-<p class="font-micro-caption text-micro-caption text-text-muted italic truncate">${f.original_title&&f.original_title!==f.title?esc(f.original_title):"&nbsp;"}</p>
-<p data-dir="${f.id}" class="font-micro-caption text-micro-caption text-on-surface-variant">&nbsp;</p></div>
-<p class="font-body-sm text-body-sm text-text-muted kg-clip2 pt-1">${esc(f.overview||uiText("Описания на русском пока нет."))}</p></div></div>
-${selected?selectedFilmHtml(selected,true):""}</div></div>`;
+function topVotes(cc,q){
+  const span=topYear(q);
+  const bounded=!!(span.from||span.to);
+  const narrow=!span.span;
+  if(q.worst) return bounded?[15]:[30];
+  const big=BIG.has(cc);
+  if(bounded&&narrow) return big?[1000,400,150]:[200,80,40];
+  if(bounded) return big?[1500,600,200]:[250,100,50];
+  return big?[3000,1200,400]:[400,150,60];
 }
-function renderFilms(){
-  const box=$("cl-films");if(!box)return;
-  const {best,rest}=derived();
-  const selectedInList=D.selected&&D.selected._placement==="list";
-  let anchorId=null,anchorTop=0;
-  {const els=[...box.querySelectorAll('[data-act="open"]')];
-   const el=(selectedInList&&els.find(e=>String(e.dataset.id)===String(D.selected.id)))||els.find(e=>e.getBoundingClientRect().bottom>0);
-   if(el){anchorId=el.dataset.id;anchorTop=el.getBoundingClientRect().top;}}
-  const keepScroll=()=>{if(anchorId==null)return;
-    const el=[...box.querySelectorAll('[data-act="open"]')].find(e=>String(e.dataset.id)===String(anchorId));
-    if(el){const d=el.getBoundingClientRect().top-anchorTop;if(d)window.scrollBy(0,d);}};
-  if(!best){box.innerHTML=`<p class="font-body-sm text-body-sm text-text-muted px-1">${uiText("Подходящих фильмов не нашлось.")}</p>`;return;}
-  const list=rest.slice(0,D.shown);
-  const grid=collectionFilmLayout==="grid";
-  const listMarkup=grid?filmGridRows(list,row=>{
-    const selected=selectedInList&&row.some(f=>String(D.selected.id)===String(f.id))?D.selected:null;
-    return `<div class="kg-three-columns kg-film-grid-row" data-collection-grid-row>${row.map(f=>posterTile(f,`data-act="open" data-id="${f.id}"`)).join("")}</div><div data-collection-grid-detail ${selected?"":"hidden"}>${selected?selectedFilmHtml(selected,true):""}</div>`;
-  }):list.map(f=>filmItem(f)).join("");
-  const pearl=pearlHtml(best,selectedInList&&String(D.selected.id)===String(best.id)?D.selected:null);
-  box.innerHTML=pearl+
-  `<div class="flex flex-col gap-space-sm"><div class="flex items-center justify-between gap-2 px-1"><div><h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">${uiText("Отобранные шедевры")}</h3><span class="font-micro-caption text-micro-caption text-text-muted">${uiText("{opened} из {total}", {opened: list.length, total: nf(Math.max(totalFor(),list.length+1))})}</span></div>${layoutSwitch(collectionFilmLayout,"collection")}</div>
-  <div class="flex flex-col gap-space-sm">${listMarkup}</div>
-  ${rest.length>D.shown?`<button type="button" data-act="more" class="w-full py-3 rounded-xl bg-surface-panel hover:bg-surface-container-low text-primary text-center font-label-md text-label-md font-semibold flex items-center justify-center gap-2 transition-colors shadow-sm"><span class="material-symbols-outlined text-[18px]">expand_more</span><span>${uiText("Показать ещё")}</span></button>`:""}</div>`;
-  paintWatchedButtons(box);
-  keepScroll();
-  if (!apiKey) return;
-  [best,...list].forEach(f=>filmDetails(f.id).then(d=>{
-    const rt=vd.querySelectorAll(`[data-rt="${f.id}"]`),dr=vd.querySelectorAll(`[data-dir="${f.id}"]`);
-    rt.forEach(e=>e.textContent=d.runtime?uiText("{minutes} мин", {minutes: d.runtime}):"");
-    dr.forEach(e=>e.innerHTML=(d.dirsFull||[]).length?uiText("Реж.")+" "+d.dirsFull.slice(0,2).map(p=>kgPersonLink(p,"Режиссёр")).join(", "):"");
-  }).catch(()=>{}));
+// A few perfect scores must not beat a film that thousands of people rated.
+function weighed(f){
+  const v=f.vote_count||0, r=Number(f.vote_average)||0, m=800;
+  return (v/(v+m))*r + (m/(v+m))*6.6;
 }
-function trailerThumb(v,f){
-  const src=v&&v.site==="YouTube"?`https://i.ytimg.com/vi/${encodeURIComponent(v.key)}/hqdefault.jpg`:f.backdrop_path?P(f.backdrop_path,"w780"):"";
-  return src?`<img src="${src}" alt="" class="absolute inset-0 w-full h-full object-cover opacity-80" loading="eager" decoding="async" onerror="this.remove()">`:"";
+function fromCountry(f,cc){
+  const list=f.origin_country;
+  return !list||!list.length||list.includes(cc);
 }
-function selectedFilmHtml(f,embedded=false){
-  const year=(f.release_date||"").slice(0,4);
-  const personLink=(p,role)=>p&&p.id?`<button type="button" data-kg-person-id="${p.id}" data-kg-person-name="${esc(p.name)}" data-kg-person-role="${role}" class="kg-person-link">${esc(p.name)}</button>`:esc(p&&p.name||"");
-  const cast=(f.castFull||[]).map(c=>`<button type="button" data-kg-person-id="${c.id||""}" data-kg-person-name="${esc(c.name)}" data-kg-person-role="Актёр" class="kg-person-card flex-shrink-0 w-28 flex flex-col items-center text-center p-2 rounded-xl bg-surface-container-high" ${c.id?"":"disabled"}>
-<div class="w-14 h-14 rounded-full overflow-hidden mb-2 bg-surface-variant shadow-md flex items-center justify-center">${c.photo?`<img class="w-full h-full object-cover" loading="lazy" alt="" src="${P(c.photo,"w185")}">`:'<span class="material-symbols-outlined text-text-muted">person</span>'}</div>
-<span class="font-label-sm text-label-sm text-on-surface font-semibold truncate w-full">${esc(c.name)}</span><span class="font-micro-caption text-micro-caption text-text-muted truncate w-full">${esc(c.role)}</span></button>`).join("");
-  const activeVideo=f._trailer||null;
-  const closeTrailer=f._placement==="home"&&f._trailerPlaying&&activeVideo
-    ?`<button type="button" data-trailer-action="close" data-id="${f.id}" class="self-start inline-flex min-h-11 items-center gap-1.5 rounded-lg bg-surface-container px-3 text-primary hover:bg-surface-container-high font-label-sm text-label-sm"><span class="material-symbols-outlined text-[18px]" aria-hidden="true">expand_less</span>${uiText("Свернуть трейлер")}</button>`
-    :"";
-  const trailerContent=f._trailerPlaying&&activeVideo
-    ?`<iframe src="${embedSrc(activeVideo,true)}" allow="${trailerFramePermissions}" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" title="${esc(uiText("Трейлер {title}", {title: f.title}))}" class="kg-trailer-frame"></iframe>`
-    :activeVideo
-      ?`<button type="button" data-trailer-action="play" data-id="${f.id}" aria-label="${uiText("Воспроизвести трейлер")}" class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-surface-container-high to-canvas-obsidian text-primary-container transition-colors hover:text-primary">${trailerThumb(activeVideo,f)}<span class="relative flex items-center justify-center w-16 h-16 rounded-full bg-black/55 border border-primary-container/60 backdrop-blur-sm"><span class="material-symbols-outlined text-[44px]">play_arrow</span></span></button>`
-      :`<div class="absolute inset-0 flex items-center justify-center text-text-muted font-body-sm text-body-sm">${f._trailerStatus==="missing"?uiText("Трейлер не найден"):uiText("Ищем трейлер…")}</div>`;
-  const oscar=(f._placement==="oscar"||f._placement==="oscar-related")&&window.KGOscarPage&&window.KGOscarPage.info?window.KGOscarPage.info(f):null;
-  const awardRows=Array.isArray(f._oscarAwards)?f._oscarAwards:[];
-  const awardWins=awardRows.filter(a=>a.won).length,awardNominations=awardRows.length-awardWins;
-  const awardsHtml=oscar?(f._oscarAwards===undefined
-    ?`<div class="pt-2 mt-1 border-t border-primary-container/20"><span class="font-micro-caption text-micro-caption text-text-muted">${uiText("Загружаем награды и номинации…")}</span></div>`
-    :awardRows.length
-      ?'<div class="pt-2 mt-1 border-t border-primary-container/20"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary-container text-[18px]">emoji_events</span><span class="font-label-sm text-label-sm text-primary-fixed font-semibold">'+uiText('{count} '+(awardWins===1?'победа':awardWins>1&&awardWins<5?'победы':'побед'), {count: awardWins})+' · '+uiText('{count} '+(awardNominations===1?'номинация':awardNominations>1&&awardNominations<5?'номинации':'номинаций'), {count: awardNominations})+'</span></div><details class="mt-2"><summary class="flex items-center justify-between gap-2 cursor-pointer list-none rounded-lg bg-surface-container px-3 py-2 font-micro-caption text-micro-caption text-primary hover:bg-surface-container-high"><span>'+uiText("Полный список наград")+'</span><span class="material-symbols-outlined text-[16px]">expand_more</span></summary><div class="flex flex-col gap-1 pt-2">'+awardRows.map(a=>'<div class="flex items-start gap-1.5"><span class="material-symbols-outlined text-[16px] shrink-0 '+(a.won?'text-primary-container':'text-text-muted')+'" style="font-variation-settings:\'FILL\' '+(a.won?1:0)+';">'+(a.won?'emoji_events':'circle')+'</span><span class="font-body-sm text-body-sm '+(a.won?'text-on-surface font-semibold':'text-text-muted')+'">'+esc(a.label)+(a.year?' · '+a.year:'')+(a.won?'':uiText(' (номинация)'))+'</span></div>').join('')+'</div></details></div>'
-      :""):"";
-  const oscarBlock=oscar?`<div class="flex items-start gap-3 p-3 rounded-xl bg-gradient-to-br from-cinema-velvet-deep/50 via-surface-container-high to-surface-container-high border border-primary-container/25"><span class="material-symbols-outlined text-primary-container text-[28px] shrink-0" style="font-variation-settings:'FILL' 1;">workspace_premium</span><div class="min-w-0 flex flex-col gap-0.5"><h4 class="font-label-md text-label-md text-primary-fixed font-semibold">${uiText(oscar.best?"Оскар · Лучший фильм":"Лауреат премии «Оскар»")}</h4>${oscar.best?`<p class="font-label-sm text-label-sm text-primary-container font-semibold">${uiText("{number}-я церемония · {year} год", {number: oscar.n, year: oscar.year})}</p><p class="font-body-sm text-body-sm text-text-muted">${uiText("Главная награда Американской киноакадемии. Статуэтку получает лучший фильм года; эта картина вышла в {year} году.", {year: oscar.film})}</p>`:`<p class="font-body-sm text-body-sm text-text-muted">${uiText("Картина входит в список лауреатов Американской киноакадемии{year}.", {year: oscar.film?uiText(" · фильм {year} года", {year: oscar.film}):""})}</p>`}${awardsHtml}</div></div>`:"";
-  const tagline=f.tagline&&f.taglineLang===f.overviewLang?`<p class="font-body-sm text-body-sm text-primary-fixed italic">${esc(f.tagline)}</p>`:"";
-  const watched=!!window.KGIsFilmWatched?.(f.id),title=esc(f.title||uiText("Фильм"));
-  const orig=[f.originalTitle&&f.originalTitle!==f.title?esc(f.originalTitle):"",year?`(${year})`:""].filter(Boolean).join(" ");
-  const countries=(f.countries&&f.countries.length?f.countries:(f._cc?[f._cc]:[])).map(cc=>`${esc(cname(cc))} ${fl(cc)}`).join(" · ");
-  const genres=(f.genres||[]).map(genre => uiText(genre)).join(" · ");
-  const voteCount=Number(f.votes ?? f.vote_count)||0;
-  const votes=voteCount>=1000?(voteCount/1000).toFixed(1)+"k":String(voteCount);
-  const average=Number(f.average ?? f.vote_average)||0;
-  const rating=average>0?`<div class="shrink-0 px-2.5 py-1 rounded-lg bg-primary-container/15 flex items-center gap-1.5"><span class="material-symbols-outlined text-primary-container text-[16px]" style="font-variation-settings:'FILL' 1;">star</span><span class="font-label-sm text-label-sm text-primary">${average.toFixed(1)} TMDB</span><span class="font-micro-caption text-micro-caption text-text-muted">(${votes})</span></div>`:"";
-  const certBadge=f.cert&&!f._trailerPlaying?`<span class="absolute top-3 right-3 px-2 py-0.5 rounded bg-cinema-velvet-deep/90 text-secondary font-label-sm text-label-sm">${esc(f.cert)}</span>`:"";
-  const fact=(label,value,sub)=>`<div class="p-3.5 rounded-xl bg-surface-container flex flex-col gap-1"><span class="font-micro-caption text-micro-caption uppercase text-text-muted">${uiText(label)}</span>${value}${sub?`<span class="font-body-sm text-body-sm text-text-muted">${sub}</span>`:""}</div>`;
-  const loading=f._detailsLoaded?"—":uiText("Загружаем…");
-  const dirName=f.dirs&&f.dirs.length?(f.dirsFull&&f.dirsFull.length?f.dirsFull.map(d=>personLink(d,"Режиссёр")).join(", "):esc(f.dirs.join(", "))):loading;
-  const releaseText=f.release?new Date(f.release+"T00:00:00").toLocaleDateString(interfaceLanguage,{day:"numeric",month:"long",year:"numeric"}):loading;
-  const shell=embedded?"div":"section",shellClass=embedded?"flex flex-col gap-3 pt-3 border-t border-surface-border-subtle scroll-mt-20":"flex flex-col gap-3 p-3.5 rounded-2xl bg-surface-panel border border-primary-container/30 shadow-xl scroll-mt-20";
-  const trailerBox=`<div data-kg-film-trailer class="relative w-full kg-detail-trailer rounded-xl overflow-hidden bg-black border border-primary-container/30" id="cl-inline-trailer">${trailerContent}${certBadge}</div>`;
-  return `<${shell} class="${shellClass}" data-selected-film="${f.id}">
-<div class="flex flex-wrap items-start justify-between gap-2 min-w-0"><div class="flex flex-col min-w-0"><h3 class="font-headline-md text-headline-md text-primary font-bold tracking-tight">${title}</h3>${orig?`<span class="font-body-sm text-body-sm text-text-muted mt-0.5">${orig}</span>`:""}</div>
-<div class="flex items-center gap-1.5 shrink-0">${f.runtime?`<div class="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-surface-container-high"><span class="material-symbols-outlined text-primary-container text-[18px]" style="font-variation-settings:'FILL' 1;">timer</span><span class="font-label-sm text-label-sm text-on-surface">${uiText("{minutes} мин", {minutes: f.runtime})}</span></div>`:""}<button type="button" data-act="close-film" aria-label="${uiText("Свернуть карточку")}" class="w-9 h-9 rounded-full bg-surface-container-high text-text-muted hover:text-primary flex items-center justify-center"><span class="material-symbols-outlined">${embedded?"expand_less":"close"}</span></button></div></div>
-${trailerBox}
-${closeTrailer}
-${window.KGLegalWatch?.markup(f.id)||""}
-${activeVideo?`<a href="${watchUrl(activeVideo)}" target="_blank" rel="noopener noreferrer" class="font-micro-caption text-micro-caption text-primary underline">${esc(uiText("Не воспроизводится? Открыть на {site}", {site: activeVideo.site}))}</a>`:""}
-${rating?`<div class="flex items-center gap-2 overflow-x-auto py-0.5">${rating}</div>`:""}
-<div data-kg-film-actions class="flex flex-wrap items-center gap-1.5">${window.KGWatchedButtonHtml(watched, `data-film-watched="${Number(f.id)}"`)}${kgBookmarkButton(f)}</div>
-${countries||genres?`<div class="flex flex-wrap items-center gap-x-2.5 gap-y-1 font-body-sm text-body-sm text-text-muted">${countries?`<span class="text-on-surface">${countries}</span>`:""}${countries&&genres?"<span>•</span>":""}${genres?`<span class="text-on-surface-variant">${esc(genres)}</span>`:""}</div>`:""}
-<div class="flex items-center gap-2 font-body-sm text-body-sm"><span class="text-text-muted">${uiText("Язык оригинала")}</span><span class="text-on-surface-variant">${f.originalLang?esc(typeof langName==="function"?langName(f.originalLang):f.originalLang):f._detailsLoaded?"—":uiText("Загружаем…")}</span></div>
-${f.tagline&&f.taglineLang===f.overviewLang?`<blockquote class="italic font-headline-sm text-[15px] leading-tight text-primary-fixed-dim/90">«${esc(f.tagline)}»</blockquote>`:""}
-${oscarBlock}
-<div data-kg-film-description class="p-4 rounded-xl bg-surface-container flex flex-col gap-2"><span class="font-label-md text-label-md text-primary-fixed tracking-wide uppercase">${uiText("О фильме")}</span><p class="font-body-md text-body-md text-on-surface leading-relaxed">${esc(f.overview||uiText("Загружаем описание…"))}</p></div>
-<div class="flex flex-col gap-2"><span class="font-label-md text-label-md text-primary-fixed tracking-wide uppercase px-0.5">${uiText("Факты производства")}</span><div class="grid grid-cols-2 gap-2.5">
-${fact("Режиссёр",`<span class="font-label-md text-label-md text-on-surface">${dirName}</span>`)}
-${fact("Выход",`<span class="font-label-md text-label-md text-on-surface">${releaseText}</span>`)}
-${fact("Бюджет",`<span class="font-headline-sm text-headline-sm text-primary">${f._detailsLoaded?moneyText(f.budget):uiText("Загружаем…")}</span>`)}
-${fact("Мировые сборы",`<span class="font-headline-sm text-headline-sm text-primary-container">${f._detailsLoaded?moneyText(f.revenue):uiText("Загружаем…")}</span>`)}
-</div></div>
-<div class="flex flex-col gap-2"><div class="flex items-center justify-between"><span class="font-label-md text-label-md text-primary-fixed tracking-wide uppercase">${uiText("В главных ролях")}</span>${(f.castFull||[]).length?`<span class="font-micro-caption text-micro-caption text-text-muted">${uiText("{count} {unit}", {count: f.castFull.length, unit: f.castFull.length%10===1&&f.castFull.length!==11?"актёр":f.castFull.length%10>1&&f.castFull.length%10<5&&(f.castFull.length<10||f.castFull.length>20)?"актёра":"актёров"})}</span>`:""}</div>${cast?`<div class="flex gap-2.5 overflow-x-auto py-1" style="-webkit-overflow-scrolling:touch">${cast}</div>`:`<p class="font-body-sm text-body-sm text-text-muted">${f._detailsLoaded?uiText("Сведения об актёрах недоступны."):uiText("Загружаем актёров…")}</p>`}</div>
-<section data-kg-related-films data-film-id="${f.id}" data-context-key="${esc(f._kgRelatedContext||"")}" data-placement="${esc(f._placement||"")}" data-detail-target="${esc(f._detailTarget||"")}" data-global-related="${f._kgGlobalRelated||f._placement==="home-europe"?"true":"false"}" class="flex flex-col gap-space-sm"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary-container text-[20px]">movie_filter</span><h3 class="font-headline-sm text-headline-sm text-on-surface">${uiText("Похожие фильмы")}</h3></div><div data-kg-related-list class="flex gap-space-sm overflow-x-auto pb-1"><span class="font-micro-caption text-micro-caption text-text-muted">${uiText("Подбираем фильмы…")}</span></div></section></${shell}>`;
-}
-document.addEventListener("click",e=>{
-  const watchedButton=e.target.closest("[data-film-watched]");
-  if(watchedButton){
-    e.preventDefault();e.stopPropagation();
-    const film=D.selected&&String(D.selected.id)===watchedButton.dataset.filmWatched?D.selected:null;
-    if(!film||watchedButton.dataset.saving==="true"||!window.KGToggleWatched)return;
-    const next=!window.KGIsFilmWatched?.(film.id);watchedButton.dataset.saving="true";
-    window.KGPaintWatchedButton?.(watchedButton,next);
-    Promise.resolve(window.KGToggleWatched({...film,_cc:film._cc||film.cc||""})).then(result=>{if(result!==next)throw new Error("Не удалось обновить отметку просмотра");if(D.selected&&String(D.selected.id)===String(film.id))renderSelectedPanel();}).catch(error=>{console.warn("[Kinoglobus] Не удалось обновить просмотр:",error);watchedButton.dataset.saving="false";window.KGPaintWatchedButton?.(watchedButton,!!window.KGIsFilmWatched?.(film.id));});
-    return;
-  }
-  const action=e.target.closest("[data-trailer-action]");
-  if(!action)return;
-  const selected=D.selected;
-  if(!selected||String(selected.id)!==String(action.dataset.id))return;
-  e.preventDefault();
-  if(action.dataset.trailerAction==="close"&&selected._placement==="home"){
-    selected._trailerPlaying=false;
-    renderSelectedPanel();
-    $("kg-home-feature").querySelector('[data-trailer-action="play"]')?.focus({preventScroll:true});
-    return;
-  }
-  if(action.dataset.trailerAction!=="play" || selected._trailerPlaying)return;
-  selected._trailerPlaying=true;
-  renderSelectedPanel();
-  if(selected._placement==="home"){
-    $("kg-home-feature").querySelector('[data-trailer-action="close"]')?.focus({preventScroll:true});
-  }
-});
-function otherHtml(t){
-  const m=META[t.id]||{};
-  const artCover = getThemeCover(t.id);
-  const imgMarkup = artCover 
-    ? `<img class="w-full h-full object-cover" alt="${esc(uiText(t.name))}" src="${artCover}">`
-    : (m.p ? `<img class="w-full h-full object-cover" alt="" src="${P(m.p,"w185")}">` : "");
-  return `<a href="#" data-act="goto" data-t="${t.id}" class="flex flex-col gap-1.5 p-3 rounded-xl bg-surface-panel hover:bg-surface-container-low min-w-[140px] max-w-[140px] flex-shrink-0 transition-colors shadow-md"><div class="w-full h-20 rounded-lg overflow-hidden bg-surface-container-high" data-oi="${t.id}">${imgMarkup}</div><span class="font-label-sm text-label-sm text-on-surface font-bold truncate">${esc(uiText(t.name))} ${fl(t.cc[0])}</span><span data-oc="${t.id}" class="font-micro-caption text-micro-caption text-text-muted">${m.n?nf(m.n)+" "+fw(m.n):"…"}</span></a>`;
-}
-
-function renderCollection(){
-  const t=D.t,m=TM[t.id]||["noir","","",""];
-  const others=shuffle(catalogThemes.filter(x=>x.id!==t.id)).slice(0,5);
-  vd.innerHTML=`
-<div class="flex items-center justify-between gap-space-sm pt-space-xs"><button type="button" data-act="back" class="flex items-center gap-1.5 text-text-muted hover:text-primary transition-colors py-1"><span class="material-symbols-outlined text-[18px]">arrow_back</span><span class="font-label-sm text-label-sm">${uiText("Все подборки")}</span></button>
-<div class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-high text-primary-fixed shadow-sm"><span class="material-symbols-outlined text-[14px] text-primary-container">${ICON[t.id]||"auto_awesome"}</span><span class="font-micro-caption text-micro-caption font-semibold tracking-wide uppercase">${uiText("Кураторский выбор")}</span></div></div>
-<div class="relative overflow-hidden rounded-xl bg-surface-panel p-space-md shadow-xl"><div class="absolute -right-16 -top-16 w-56 h-56 rounded-full bg-cinema-velvet-glow blur-3xl pointer-events-none"></div><div class="absolute -left-12 -bottom-12 w-48 h-48 rounded-full bg-cinema-amber-glow blur-2xl pointer-events-none"></div>
-<div class="relative flex flex-col gap-space-sm z-10"><div class="flex items-center gap-2"><span class="px-2 py-0.5 rounded-full bg-cinema-velvet-deep text-secondary font-micro-caption text-micro-caption tracking-wider">${uiText(CAT[m[0]][1])}</span><span id="cl-count" class="text-text-muted font-micro-caption text-micro-caption">${uiText("… картин")}</span></div>
-<div class="flex flex-col"><h2 class="font-display-hero-mobile text-display-hero-mobile text-primary font-bold tracking-tight">${esc(uiText(t.name))}</h2><p class="font-label-sm text-label-sm text-on-surface-variant font-medium tracking-wide">${esc(uiText(m[1]))}</p></div>
-<div class="flex flex-wrap items-center gap-1.5 pt-0.5">${t.cc.map(cc=>`<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container-low text-on-surface font-micro-caption text-micro-caption shadow-sm">${fl(cc)} ${esc(cname(cc))}</span>`).join("")}</div>
-<p class="font-body-sm text-body-sm text-text-muted leading-relaxed pt-1">${esc(uiText(m[3]))}</p>
-<div class="flex items-center gap-2 pt-1 flex-wrap">${gnames(t).map(g=>`<span class="px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-micro-caption text-micro-caption">${esc(g)}</span>`).join("")}</div></div></div>
-<div class="flex flex-col gap-space-sm bg-surface-panel p-space-md rounded-xl shadow-lg"><div class="flex items-center justify-between"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary-container text-[20px]">casino</span><span class="font-headline-sm text-headline-sm text-on-surface font-semibold">${uiText("Случайный выбор")}</span></div><span class="font-micro-caption text-micro-caption text-primary-fixed bg-surface-container-high px-2 py-0.5 rounded-full">${uiText(t.films ? "Ручной отбор" : "Рейтинг ≥ 6.5")}</span></div>
-<button type="button" id="cl-spin" data-act="spin" class="relative group w-full py-3.5 px-4 rounded-xl bg-primary-container text-on-primary font-label-lg text-label-lg font-bold flex items-center justify-center gap-2 shadow-[0_0_24px_rgba(255,184,48,0.28)] transition-all active:scale-[0.98] overflow-hidden"><span id="cl-ricon" class="material-symbols-outlined text-[22px]">casino</span><span id="cl-rtext">${uiText("Крутить рулетку")}</span><div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div></button>
-${sortBar(D.sort)}
-<div id="cl-reel" style="display:none" class="flex flex-col gap-space-sm">
-<div id="cl-reel-host"></div>
-<div class="flex items-center justify-between px-1"><span id="cl-fc" class="font-mono text-micro-caption text-primary-fixed font-semibold tracking-wide">${uiText("Кадр 00 / 00")}</span><button type="button" id="cl-skip" data-act="skip" style="display:none" class="font-micro-caption text-micro-caption text-text-muted hover:text-primary underline">${uiText("Пропустить")}</button></div>
-<div id="cl-result"></div></div>
-${t.cc.length>1?`<div class="flex flex-col gap-1.5 pt-1"><span class="font-micro-caption text-micro-caption text-text-muted">${uiText("Фильтр по стране:")}</span><div id="cl-cc" class="flex items-center gap-1.5 overflow-x-auto pb-1"><button type="button" data-act="cc" data-cc="" class="${ccCls(true)}">${uiText("Все страны")}</button>${t.cc.map(cc=>`<button type="button" data-act="cc" data-cc="${cc}" class="${ccCls(false)}">${fl(cc)} ${esc(cname(cc))}</button>`).join("")}</div></div>`:""}
-</div>
-<div id="cl-films" class="flex flex-col gap-space-lg"><p class="font-body-sm text-body-sm text-text-muted px-1 animate-pulse">${uiText("Загружаем подборку…")}</p></div>
-<div class="flex flex-col gap-space-sm pt-space-xs"><div class="flex items-center justify-between px-1"><h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">${uiText("Другие подборки")}</h3><a href="#" data-act="back" class="font-micro-caption text-micro-caption text-primary hover:underline">${uiText("Все {count}", {count: catalogThemes.length})} →</a></div>
-<div id="cl-others" class="flex gap-space-sm overflow-x-auto pb-2">${others.map(otherHtml).join("")}</div>
-<a href="#" data-act="back" class="w-full py-3 rounded-xl bg-surface-panel hover:bg-surface-container-low text-primary text-center font-label-md text-label-md font-semibold flex items-center justify-center gap-2 transition-colors shadow-sm"><span class="material-symbols-outlined text-[18px]">apps</span><span>${uiText("Все {count} подборок Киноглобуса", {count: catalogThemes.length})}</span></a></div>`;
-  // постеры и счётчики «других подборок»
-  others.forEach(o=>loadMeta(o).then(m=>{
-    const a=vd.querySelector(`[data-oc="${o.id}"]`),i=vd.querySelector(`[data-oi="${o.id}"]`);
-    if(a)a.textContent=nf(m.n)+" "+fw(m.n);
-    if(i&&!i.firstChild){
-      const art=getThemeCover(o.id);
-      if(art) i.innerHTML=`<img class="w-full h-full object-cover" alt="" src="${art}">`;
-      else if(m.p) i.innerHTML=`<img class="w-full h-full object-cover" alt="" src="${P(m.p,"w185")}">`;
+async function topOfCountry(cc,q){
+  for(const votes of topVotes(cc,q)){
+    const span=topYear(q);
+    const base=poolBase(cc,{...q,y:span.from,yto:span.to},votes);
+    if(span.exact) base.primary_release_year=span.exact;
+    const pages=[api({...base,page:1})];
+    if((span.from||span.to)&&!q.worst) pages.push(api({...base,page:1,sort_by:"popularity.desc"}));
+    const got=await Promise.all(pages);
+    const floor=scoreFloor(q), ceil=scoreCeil(q);
+    const ids=new Set();
+    let films=[];
+    for(const row of got.flatMap(p=>p.results||[])){
+      if(!row||ids.has(row.id)) continue;
+      const ry=(row.release_date||"").slice(0,4);
+      if(span.from&&ry<span.from) continue;
+      if(span.to&&ry>span.to) continue;
+      if(floor&&Number(row.vote_average)<floor) continue;
+      if(ceil&&Number(row.vote_average)>ceil) continue;
+      if(!fromCountry(row,cc)) continue;
+      ids.add(row.id);
+      films.push(row);
     }
-  }).catch(()=>{}));
+    if(!films.length) continue;
+    if(!q.worst) films.sort((a,b)=>weighed(b)-weighed(a));
+    return tagPool({films:films.slice(0,20),votes,total:films.length,top1:true,exactYear:span.exact,yearSpan:span.span,byRating:true,scoreMin:floor||""},q);
+  }
+  return null;
 }
-
-async function openCollection(id,opt){
-  const t=T[id];if(!t)return;
-  rStop();
-  const cached=themeDataCache.get(themeDataKey(t,2));
-  const initial=cached?.data || (t.films ? curatedData(t.films.map(localizeFilmListItem)) : null);
-  D={t,all:initial?initial.films:[],total:initial?initial.total:0,totals:initial?initial.totals:{},cc:"",sort:"rating",shown:5,selected:null,picked:null};
-  renderCollection();showView("collection");
-  if(initial){
-    $("cl-count").textContent=collectionFilmCount(D.total);
-    renderFilms();
-  }
-  if (!apiKey) {
-    if (t.films && opt?.spin) inPageRoulette();
-    if (!t.films) $("cl-films").innerHTML=`<p class="font-body-sm text-body-sm text-text-muted px-1">${uiText("Введите ключ TMDB на экране «Глобус», чтобы загрузить фильмы подборки.")}</p>`;
-    return;
-  }
+async function spinTop(){
+  $("err").textContent="";
+  if(!apiKey){showKeyUi();$("err").textContent="Сначала введите ключ TMDB.";return;}
+  store.set("year",$("year").value);store.set("yearTo",$("yearTo").value);
+  audio();
+  lockSpin('<span class="spin">🏆</span> Ищем лучший…');
+  reelStart();
   try{
-    const r=await loadTheme(t,2);
-    if(D.t!==t)return;
-    if(r._stale){$("cl-films").insertAdjacentHTML("afterbegin",`<p role="status" class="font-micro-caption text-micro-caption text-text-muted">${uiText("Не удалось обновить данные; показана сохранённая подборка.")}</p>`);return;}
-    D.all=r.films;D.total=r.total;D.totals=r.totals;
-    if (t.films && r.films.some(f => f.vote_count)) saveThemeMeta(t, r);
-    $("cl-count").textContent=collectionFilmCount(r.total);
-    renderFilms();
-    if(opt&&opt.spin)inPageRoulette();
-  }catch(e){
-    if(initial){
-      $("cl-films").insertAdjacentHTML("afterbegin",`<p role="status" class="font-micro-caption text-micro-caption text-text-muted">${uiText("Не удалось обновить данные; показана сохранённая подборка.")}</p>`);
-      console.error("[Kinoglobus] Не удалось обновить подборку:",e);
-    }else $("cl-films").innerHTML=`<p class="font-body-sm text-body-sm text-feedback-error px-1">${esc(uiText(e.message||"Не удалось загрузить подборку."))}</p>`;
-  }
+    const q=topQuery();
+    const order=spinOrder(q.countries||COUNTRIES);
+    const cap=q.y||q.yto||q.countries?Math.min(order.length,40):Math.min(order.length,24);
+    const extra=[];   // фильмы из уже загруженных стран, для вида прокрутки
+    for(let i=0;i<cap;i+=3){
+      const batch=order.slice(i,i+3);
+      const pools=await Promise.all(batch.map(cc=>topOfCountry(cc,q)));
+      pools.forEach(p=>{if(p)extra.push(...p.films);});
+      for(let k=0;k<batch.length;k++){
+        const pool=pools[k];
+        if(!pool||!pool.films.length) continue;
+        if(seen.has(pool.films[0].id)) continue;
+        const film=pool.films[0];
+        const ids=new Set([film.id]);
+        const filler=shuffle(extra.filter(f=>f.poster_path&&!ids.has(f.id)&&ids.add(f.id))).slice(0,40);
+        filler.push(film);
+        await reelLand(batch[k]);
+        show(batch[k],{...pool,films:filler},film);return;
+      }
+    }
+    $("err").textContent=q.y||q.yto
+      ?"За этот период подходящий фильм не нашёлся. Попробуйте другие годы или сбросьте историю."
+      :"Лучший фильм не нашёлся. Смягчите фильтры или сбросьте историю.";
+  }catch(e){$("err").textContent=e.message}
+  finally{reelAbort();unlockSpin();}
 }
 
-function placeListPanel(){
-  const box=$("cl-films");if(!box)return false;
-  const selected = D.selected?._placement === "list" ? D.selected : null;
-  const previews = [...box.querySelectorAll('[data-act="open"]')];
-  const preview = selected && previews.find(item => item.dataset.id === String(selected.id));
-  const card = preview?.parentElement;
-  const top = card?.getBoundingClientRect().top;
-  const rowHost=preview?.closest("[data-collection-grid-row]")?.nextElementSibling;
-  for (const host of box.querySelectorAll("[data-collection-grid-detail]:not([hidden])")) {
-    if(host===rowHost)continue;
-    host.replaceChildren();
-    host.hidden=true;
+const OSCAR_LIST="101353";
+let oscarCache=null;
+async function oscarFilms(){
+  if(oscarCache) return oscarCache;
+  const loadPage=async page=>{
+    const q=new URLSearchParams({api_key:apiKey,language:filmLocale,page:String(page)});
+    const r=await fetch("https://api.themoviedb.org/3/list/"+OSCAR_LIST+"?"+q);
+    if(r.status===401) throw new Error("Ключ не подошёл. Проверьте его и введите заново.");
+    if(!r.ok) throw new Error("Список лауреатов недоступен, попробуйте ещё раз.");
+    return r.json();
+  };
+  const first=await loadPage(1),totalPages=Math.min(first.total_pages||1,8),all=[];
+  all.push(...(first.items||[]).filter(m=>m&&m.id&&m.media_type!=="tv"));
+  for(let start=2;start<=totalPages;start+=4){
+    const pages=Array.from({length:Math.min(4,totalPages-start+1)},(_,i)=>start+i);
+    const results=await Promise.all(pages.map(loadPage));
+    results.forEach(j=>all.push(...(j.items||[]).filter(m=>m&&m.id&&m.media_type!=="tv")));
   }
-
-  const panels = box.querySelectorAll('[data-act="open"] + [data-selected-film]');
-  for (const panel of panels) {
-    if (panel.previousElementSibling !== preview) panel.remove();
-  }
-
-  if (!selected) return true;
-  if (!card) return false;
-  const html = selectedFilmHtml(selected, true);
-  if(rowHost){
-    rowHost.innerHTML=html;
-    rowHost.hidden=false;
-    paintWatchedButtons(rowHost);
-  }else{
-    const panel = preview.nextElementSibling;
-    if (panel?.matches("[data-selected-film]")) panel.outerHTML = html;
-    else preview.insertAdjacentHTML("afterend", html);
-    paintWatchedButtons(preview.nextElementSibling);
-  }
-  const delta = card.getBoundingClientRect().top - top;
-  if (delta) window.scrollBy(0, delta);
-  return true;
-}
-function paintWatchedButtons(container){container?.querySelectorAll("[data-film-watched]").forEach(button=>{const id=button.dataset.filmWatched;window.KGPaintWatchedButton?.(button,!!window.KGIsFilmWatched?.(id));});}
-function renderSelectedPanel(){
-  const selected=D.selected;if(!selected)return;
-  if(selected._trailerPlaying&&document.querySelector(`[data-selected-film="${selected.id}"] #cl-inline-trailer iframe`))return;
-  if(selected._placement==="list"){
-    if(!placeListPanel())renderFilms();return;
-  }
-  const inMoodList=selected._placement==="mood"&&String(selected._detailTarget||"").startsWith("mood-film-detail-");
-  const inOscarList=selected._placement==="oscar"&&/^oscar-(list|feature|grid)-detail-/.test(String(selected._detailTarget||""));
-  const html=selectedFilmHtml(selected,inMoodList||inOscarList||selected._placement==="oscar-related"||selected._placement==="person-related"||selected._placement==="search");
-  if(selected._placement==="mood"||selected._placement==="oscar"||selected._placement==="related"||selected._placement==="oscar-related"||selected._placement==="person-related"||selected._placement==="search"){
-    const target=$(selected._detailTarget)||(selected._placement==="mood"?$("mood-film-detail"):$("oscar-film-detail"));
-    if(target){target.innerHTML=html;paintWatchedButtons(target);}
-    return;
-  }
-  if(selected._placement==="home"){
-    const film=homeEditorial.films.find(f=>String(f.id)===String(selected.id));
-    if(film){
-      homeEditorial.featureDetails={...homeEditorial.featureDetails,...selected};
-      renderHomeFeature(film,homeEditorial.featureDetails,selected);
-    }
-    return;
-  }
-  if(selected._placement==="home-europe"){
-    const detail=$("kg-home-europe-detail");
-    if(detail){detail.innerHTML=html;detail.hidden=false;paintWatchedButtons(detail);}
-    return;
-  }
-  if(selected._placement==="roulette"){
-    const result=$("cl-result");if(result){result.innerHTML=html;paintWatchedButtons(result);}
-    return;
-  }
-  renderFilms();
-}
-function openFilm(f,placement="list",detailTarget=null,{autoplayTrailer=false}={}){
-  if(D.selected&&D.selected._placement===placement&&String(D.selected.id)===String(f.id)&&D.selected._detailTarget===detailTarget){
-    if(placement==="mood"||placement==="oscar")closePageFilm(placement);
-    else if(placement==="home-europe")window.KGScrollToFilmStart?.($("kg-home-europe-detail"));
-    else if(placement==="related"||placement==="oscar-related"||placement==="person-related"||placement==="search"){ $(detailTarget)?.replaceChildren();D.selected=null; }
-    else{D.selected=null;if(placement==="list"&&!placeListPanel())renderFilms();}
-    return;
-  }
-  if(D.selected&&D.selected._placement.startsWith("home")&&D.selected._placement!==placement){
-    const oldDetail=$(D.selected._placement==="home"?"kg-home-film-detail":"kg-home-europe-detail");
-      oldDetail?.replaceChildren();if(oldDetail)oldDetail.hidden=true;
-    if(D.selected._placement==="home"){D.selected=null;renderHomeEditorial();}
-  }
-  if(placement==="list")$("cl-result").innerHTML="";
-  if(placement==="home-europe")$("kg-home-europe-detail").hidden=false;
-  let personModalScrollRestore=null;
-  if(D.selected&&D.selected._placement===placement&&D.selected._detailTarget&&D.selected._detailTarget!==detailTarget){
-    const previousTarget=$(D.selected._detailTarget),nextTarget=detailTarget?$(detailTarget):null;
-    // Keep the selected film card when opening one of its nested recommendations.
-    if(previousTarget&&(!nextTarget||!previousTarget.contains(nextTarget))){
-      const personDialog=placement==="person-related"?document.querySelector("#kg-person-modal .kgpi-modal"):null;
-      if(personDialog)personModalScrollRestore=personDialog.scrollTop;
-      previousTarget.replaceChildren();
-    }
-  }
-  const relatedPool=f._kgGlobalRelated?null:Array.isArray(f._kgRelatedPool)?f._kgRelatedPool:(placement==="list"||placement==="roulette"?D.all:placement==="home-europe"?null:placement.startsWith("home")?homeEditorial.films:null);
-  const relatedContext=relatedPool&&relatedPool.length?`${placement}:${D.t&&D.t.id||"all"}:${detailTarget||""}`:"";
-  if(relatedContext&&window.KGFilmInteractions)window.KGFilmInteractions.registerPool(relatedContext,relatedPool);
-  // Every newly opened item starts in the same poster-first state. A related
-  // recommendation must never inherit an already playing YouTube iframe.
-  D.selected={...f,_cc:f._cc||(f.origin_country||[])[0]||"",_placement:placement,_detailTarget:detailTarget,_kgRelatedContext:relatedContext,overview:filmSynopsis(f.overview)||uiText("Загружаем описание…"),_trailerPlaying:false,_trailerStatus:apiKey?"loading":"missing",_detailsLoaded:!apiKey};
-  const selected=D.selected;
-  if(placement==="roulette"||placement==="home"||placement==="home-europe"||placement==="mood"||placement==="oscar"||placement==="related"||placement==="oscar-related"||placement==="person-related"||placement==="search")renderSelectedPanel();else if(!placeListPanel())renderFilms();
-  if(personModalScrollRestore!==null){const dialog=document.querySelector("#kg-person-modal .kgpi-modal");requestAnimationFrame(()=>{if(dialog?.isConnected)dialog.scrollTop=personModalScrollRestore;});}
-  const panel=detailTarget?$(detailTarget):placement==="roulette"?$("cl-result")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="home"?$("kg-home-feature")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="home-europe"?$("kg-home-europe-detail")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="mood"?$("mood-film-detail")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="oscar"?$("oscar-film-detail")?.querySelector(`[data-selected-film="${f.id}"]`):vd.querySelector(`[data-selected-film="${f.id}"]`);
-  const inlineCollectionCard = placement === "list" ||
-    (placement === "mood" && detailTarget?.startsWith("mood-film-detail-")) ||
-    (placement === "oscar" && /^oscar-(list|feature|grid)-detail-/.test(detailTarget || ""));
-  if(placement!=="related"&&!inlineCollectionCard)requestAnimationFrame(()=>requestAnimationFrame(()=>{
-    if (D.selected !== selected) return;
-    if (placement === "home-europe") {
-      // The film card is replaced as its metadata loads, but its container stays in place.
-      const detail = $("kg-home-europe-detail");
-      window.KGScrollToFilmStart(detail);
-      return;
-    }
-    const reelResult = placement === "roulette" || detailTarget === "oscar-reel-detail" ||
-      String(detailTarget || "").startsWith("mood-roulette-winner-detail-");
-    if (reelResult && window.KGScrollToFilmStart) {
-      window.KGScrollToFilmStart(placement === "roulette" ? $("cl-result") : panel);
-      return;
-    }
-    const trailer=panel?.querySelector("[data-kg-film-trailer]");
-    const target=trailer||panel;
-    if(placement==="person-related"&&target&&window.KGScrollPersonModalToFilm)window.KGScrollPersonModalToFilm(target);
-    else if(placement==="search"&&target&&window.KGGlobalSearchScrollToFilm)window.KGGlobalSearchScrollToFilm(target);
-    else if(target&&window.KGScrollToFilmDescription)window.KGScrollToFilmDescription(target);
-    else target?.scrollIntoView({behavior:"smooth",block:"start"});
+  const films = new Map(all.map(film => [Number(film.id), film]));
+  // Best Picture winners from the 2021–2026 Academy Awards missing from the TMDB list.
+  const recentWinners = [
+    581734, // Nomadland
+    776503, // CODA
+    545611, // Everything Everywhere All at Once
+    872585, // Oppenheimer
+    1064213, // Anora
+    1054867 // One Battle After Another
+  ];
+  const missing = recentWinners.filter(id => !films.get(id)?.release_date);
+  const query = new URLSearchParams({api_key: apiKey, language: filmLocale});
+  const recent = await Promise.allSettled(missing.map(async id => {
+    const response = await fetch(`https://api.themoviedb.org/3/movie/${id}?${query}`);
+    if (!response.ok) throw new Error(`TMDB movie ${id}: ${response.status}`);
+    const movie = await response.json();
+    if (Number(movie.id) !== id || !movie.release_date) throw new Error(`TMDB movie ${id}: missing release date`);
+    return {...movie, genre_ids: (movie.genres || []).map(genre => genre.id)};
   }));
-  if (!apiKey) return;
-  const detailsReady = filmDetails(f.id).then(details=>{
-    if(D.selected!==selected)return;
-    selected.title=details.title||f.title;
-    selected.localizedPoster=details.localizedPoster;
-    selected.overview=details.overview||filmSynopsis(f.overview)||uiText("Описание пока недоступно.");
-    selected.overviewLang=details.overviewLang;
-    selected.runtime=details.runtime;
-    selected.dirs=details.dirs;selected.dirsFull=details.dirsFull;
-    selected.castFull=details.castFull;
-    selected.budget=details.budget;
-    selected.revenue=details.revenue;
-    selected._cc=(f.origin_country||[])[0]||(details.countries||[])[0]||selected._cc||"";
-    selected.tagline=details.tagline;
-    selected.taglineLang=details.taglineLang;
-    selected.cert=details.cert;selected.genres=details.genres;selected.countries=details.countries;
-    selected.originalTitle=details.originalTitle;selected.originalLang=details.originalLang;selected.release=details.release;
-    selected.votes=details.votes;selected.average=details.average;
-    selected._detailsLoaded=true;
-    if(placement==="home")homeEditorial.featureDetails={...homeEditorial.featureDetails,...selected};
-    renderSelectedPanel();
-  }).catch(error=>{
-    if(D.selected!==selected)return;
-    selected.overview=filmSynopsis(f.overview)||uiText("Не удалось загрузить описание.");
-    selected.overviewLang="";
-    selected._detailsLoaded=true;
-    renderSelectedPanel();
-    console.error("[Kinoglobus] Не удалось загрузить сведения о фильме:",error);
-  });
-  trailerFor(f).then(async trailer=>{
-    if (autoplayTrailer && trailer) await detailsReady;
-    if(D.selected!==selected)return;
-    selected._trailer=trailer;
-    selected._trailerPlaying=Boolean(autoplayTrailer && trailer);
-    selected._trailerStatus=trailer?"ready":"missing";
-    renderSelectedPanel();
-  }).catch(e=>{
-    if(D.selected!==selected)return;
-    selected._trailerStatus="missing";
-    renderSelectedPanel();
-    console.error("[Kinoglobus] Не удалось загрузить трейлер:",e);
-  });
-  if((placement==="oscar"||placement==="oscar-related")&&window.KGOscarPage&&window.KGOscarPage.awards){
-    window.KGOscarPage.awards(f).then(list=>{selected._oscarAwards=list;if(D.selected===selected)renderSelectedPanel();})
-      .catch(e=>{selected._oscarAwards=[];if(D.selected===selected)renderSelectedPanel();console.warn("[Kinoglobus] Награды Wikidata недоступны:",e);});
+  for (const result of recent) {
+    if (result.status === "fulfilled") films.set(Number(result.value.id), result.value);
   }
+  if (!films.size) throw new Error("Список лауреатов пуст.");
+  const localized = [...films.values()].map(localizeFilmListItem);
+  if (recent.every(result => result.status === "fulfilled")) oscarCache = localized;
+  return localized;
 }
-window.KGOpenFilmFromRelated=(film,placement,detailTarget,options)=>openFilm(film,placement||"home-europe",detailTarget||null,options);
-window.KGCloseFilmFromRelated=detailTarget=>{if(D.selected&&["related","oscar-related","person-related","search"].includes(D.selected._placement)&&D.selected._detailTarget===detailTarget)D.selected=null;$(detailTarget)?.replaceChildren();};
+async function spinOscar(){
+  $("err").textContent="";
+  if(!apiKey){showKeyUi();$("err").textContent="Сначала введите ключ TMDB.";return;}
+  audio();
+  lockSpin('<span class="spin">🎬</span> Ищем «Оскар»…');
+  reelStart();
+  try{
+    const left=(await oscarFilms()).filter(f=>!seen.has(f.id));
+    if(!left.length){$("err").textContent="Все лауреаты из списка уже в истории. Сбросьте историю, чтобы смотреть их снова.";return;}
+    const film=pick(left);
+    let cc=(film.origin_country&&film.origin_country[0])||"US";
+    try{
+      const q=new URLSearchParams({api_key:apiKey,language:filmLocale});
+      const r=await fetch("https://api.themoviedb.org/3/movie/"+film.id+"?"+q);
+      if(r.ok){
+        const d=await r.json();
+        const origins=(d.origin_country&&d.origin_country.length)?d.origin_country
+          :(d.production_countries||[]).map(c=>c.iso_3166_1).filter(Boolean);
+        if(origins.length){film.origin_country=origins;cc=origins[0];}
+        if(d.title) film.title=localizeFilmListItem(d).title;
+        if(d.original_title) film.original_title=d.original_title;
+        if(d.overview) film.overview=filmSynopsis(d.overview);
+        if(d.release_date) film.release_date=d.release_date;
+        if(d.poster_path) film.poster_path=d.poster_path;
+        film.vote_average=d.vote_average;
+        film.vote_count=d.vote_count;
+        film.genre_ids=d.genres?d.genres.map(g=>g.id):(film.genre_ids||[]);
+      }
+    }catch(e){}
+    await reelLand(cc);
+    const all=await oscarFilms();
+// для прокрутки плёнки берём 40 случайных лауреатов с постерами + сам выпавший фильм
+const reelFilms=shuffle(all.filter(f=>f.poster_path&&f.id!==film.id)).slice(0,40);
+reelFilms.push(film);
+show(cc,{films:reelFilms,oscar:true,votes:film.vote_count||0,total:all.length},film);
+  }catch(e){$("err").textContent=e.message}
+  finally{reelAbort();unlockSpin();}
+}
 
-/* ---------- рулетка с плёнкой прямо в подборке ---------- */
-const R={busy:false,token:0,raf:0,skip:false};
-const STEP=90,PAD=8,CELL=80;          // шаг ячейки, левый отступ, ширина постера
-const wait=ms=>new Promise(r=>setTimeout(r,ms));
-const snd=fn=>{try{fn();}catch(e){}};
-const p2=n=>(n<10?"0":"")+n;
-const rW=()=>{const t=$("cl-track");return (t&&t.clientWidth)||320;};
-const rX=i=>PAD+i*STEP+CELL/2-rW()/2;  // сдвиг ленты, при котором ячейка i стоит под рамкой
-function rCell(f,i,cls){
-  const t=f?esc(f.title):"",y=f&&f.release_date?f.release_date.slice(0,4):"";
-  const inner=!f?'<div class="nop"><span class="material-symbols-outlined" style="font-size:22px;opacity:.35">movie</span></div>'
-    :f.poster_path?`<img alt="${t}" draggable="false" src="${P(f.poster_path,"w185")}">`:`<div class="nop">${t}</div>`;
-  return `<div class="kgr-cell ${cls||""}">${inner}${f&&y?`<span class="yr">${y}</span>`:""}</div>`;
-}
-function rMount(list,idx,cls){
-  const tr=$("cl-track");if(!tr)return null;
-  const run=document.createElement("div");run.className="kgr-run";
-  run.innerHTML=list.map((f,i)=>rCell(f,i,i===idx?cls:"")).join("");
-  tr.innerHTML="";tr.appendChild(run);
-  run.style.transform=`translateX(${-rX(idx)}px)`;
-  return run;
-}
-function setBtn(on){
-  const ic=$("cl-ricon"),tx=$("cl-rtext"),b=$("cl-spin");
-  if(!ic||!tx)return;
-  ic.classList.toggle("animate-spin",on);
-  tx.textContent=on?uiText("Плёнка крутится…"):(D.picked?uiText("Крутить ещё раз"):uiText("Крутить рулетку"));
-  if(b){b.disabled=on;b.style.opacity=on?".75":"";}
-  const sk=$("cl-skip");if(sk)sk.style.display=on?"":"none";
-}
-function rStop(){
-  R.token++;cancelAnimationFrame(R.raf);R.busy=false;
-  snd(()=>stopFilmReelSound());
-  setBtn(false);
-}
-function finishPick(film,token){
-  if(token!==R.token||!R.busy)return;
-  R.busy=false;D.picked=film;setBtn(false);
-  snd(()=>playFilmFoundSound());
-  window.KGCinemaReel?.presentTicket($("cl-reel"),film,{country:cname(film._cc||D.cc||D.t.cc[0])});
-  window.KGCinemaReel?.updateIMAX(document.getElementById("kg-imax-stage"),film,{country:cname(film._cc||D.cc||D.t.cc[0]),state:"ФИЛЬМ В КАДРЕ"});
-  openFilm(film,"roulette");
-}
-async function inPageRoulette(){
-  if(R.busy)return;
-  if(!D.all.length){toast("Подборка ещё загружается","movie");return;}
-  const inCc=f=>!D.cc||f._cc===D.cc;
-  const pool=D.all.filter(f=>inCc(f)&&!seen.has(f.id));
-  if(!pool.length){toast("Все фильмы из выборки уже в истории","history");return;}
-  const film=pick(pool);
-  const others=shuffle(D.all.filter(f=>inCc(f)&&f.id!==film.id&&(f.poster_path||D.t.films)));
-  const token=++R.token;R.busy=true;R.skip=false;D.picked=null;D.selected=null;
-  renderFilms();
-  $("cl-reel").style.display="";$("cl-result").innerHTML="";
-  $("cl-reel-host").innerHTML = window.KGCinemaReel.render({trackId:"cl-track",frameId:"cl-frame"});
-  setBtn(true);
-  try{audio();}catch(e){}
-  $("cl-reel").scrollIntoView({behavior:"smooth",block:"center"});
-  if(!others.length||RM){                      // мало постеров или отключена анимация: сразу показываем выбор
-    if(window.KGCinemaReel?.isProjectionMode?.()){
-      const landed=await window.KGCinemaReel.spinProjectionTrack($("cl-reel"),[film],film,{duration:350,reducedMotion:true,cancelled:()=>token!==R.token,meta:{country:cname(film._cc||D.cc||D.t.cc[0])}});
-      if(landed&&token===R.token){$("cl-fc").textContent=uiText("Фильм найден");finishPick(film,token);}return;
+async function spin(countryCode = ""){
+  if ($("go").disabled) return;
+  $("err").textContent="";
+  if(!apiKey){showKeyUi();$("err").textContent="Сначала введите ключ TMDB.";return;}
+  store.set("year",$("year").value);store.set("yearTo",$("yearTo").value);
+  audio();
+  const q=currentQuery();
+  const manualCountries=countryCode ? [countryCode] : [...countryFilters];
+  const frameOnly=manualCountries.length > 0;
+  if (frameOnly) q.countries=manualCountries;
+  lockSpin(frameOnly ? uiText("Ищем фильм…") : '<span class="spin">🌍</span> Крутим…', frameOnly);
+  try{
+    if (frameOnly) {
+      closePlayer();
+      window.KGFrameSelectedCountry(manualCountries[0],manualCountries);
+    } else reelStart();
+    const order=shuffle(q.countries||COUNTRIES);
+    const cap=q.countries?order.length:Math.min(order.length,18);
+    for(let i=0;i<cap;i+=3){   // проверяем небольшими параллельными партиями, чтобы поиск оставался отзывчивым
+      const batch=order.slice(i,i+3);
+      if (!frameOnly) lockSpin(`<span class="spin">🌍</span> Проверяем страны ${i+1}–${Math.min(i+batch.length,cap)} из ${cap}…`);
+      const pools=await Promise.all(batch.map(cc=>getPool(cc,q).catch(error=>{console.warn("[Kinoglobus] country search",cc,error);return null;})));
+      for(let k=0;k<batch.length;k++){
+        const pool=pools[k];
+        if(!pool) continue;                   // too few films
+        const left=fresh(pool);
+        if(!left.length) continue;            // everything here already watched
+        const film=pick(left);
+        const warm=preloadPosters(pool,film);
+        if (frameOnly) window.KGFrameSelectedCountry(batch[k]);
+        else await reelLand(batch[k]);
+        await filmReel(pool,film,batch[k],warm);
+        show(batch[k],pool,film);return;
+      }
     }
-  if(window.KGCinemaReel?.isCassetteMode?.()){
-      const eligible=D.all.filter(inCc),landed=await window.KGCinemaReel.spinCassetteDeck($("cl-reel"),eligible,[film],film,{duration:350,reducedMotion:true,cancelled:()=>token!==R.token,onOpen:f=>openFilm(f,"roulette")});
-      if(landed&&token===R.token){$("cl-fc").textContent=uiText("Фильм выбран");finishPick(film,token);}return;
+    $("err").textContent="Подходящих фильмов не нашлось. Смягчите фильтры или сбросьте историю.";
+  }catch(e){$("err").textContent=e.message}
+  finally{if (!frameOnly) reelAbort();unlockSpin();}
+}
+
+$("go").onclick=()=>{hideHints();spin();};
+$("top1").onclick=()=>{showHint("topNote");spinTop();};
+$("oscar").onclick=()=>{showHint("oscarNote");spinOscar();};
+$("again").onclick=async()=>{
+  if(!cur||cur.pool.top1) return;
+  $("err").textContent="";
+  closePlayer();
+  $("again").disabled=true;
+  try{
+    if(window.KGScrollBeforeAgain)await window.KGScrollBeforeAgain();
+    let pool=cur.pool;
+    if(pool.hard){
+      const next=await getPool(cur.cc,{g:"",hard:true,adult:false,worst:false,rmin:"",y:"",theme:"",themeName:""});
+      if(next) pool=next;
     }
-    if(window.KGCinemaReel?.isTicketMode?.()){
-      const landed=await window.KGCinemaReel.animateTicketDeck($("cl-reel"),[film],film,{reducedMotion:true,meta:{country:cname(film._cc||D.cc||D.t.cc[0])},cancelled:()=>token!==R.token});
-      if(landed&&token===R.token){$("cl-fc").textContent="Билет найден";finishPick(film,token);}return;
-    }
-    rMount([film],0,"chosen");$("cl-fc").textContent=uiText("Кадр 01 / 01");
-    finishPick(film,token);return;
+    const left=fresh(pool,cur.film.id);
+    if(!left.length){$("err").textContent="Больше фильмов из этой страны нет. Крутите глобус заново.";return;}
+    const film=pool.top1?left[0]:pick(left);
+    const cc=filmCC(pool,film,cur.cc);
+    if(!RM){audio();$("result").hidden=true;await filmReel(pool,film,cc,preloadPosters(pool));}
+    show(cc,pool,film);
+  }catch(e){$("err").textContent=e.message}
+  finally{$("again").disabled=false;$("freel").hidden=true;}
+};
+$("seen").onclick=()=>markCurrentFilm($("seen"));
+
+</script>
+<script>
+// ========== Bridge v6: дизайн + движок TMDB ==========
+(function(){
+const $=id=>document.getElementById(id);
+const G=window.KinoglobusGlobe;
+if(!G){console.error("[Kinoglobus] globe not ready");return;}
+const GEO={US:[37.7,-98],GB:[54,-2],FR:[46.2,2.2],DE:[51.2,10.4],IT:[41.9,12.5],ES:[40.4,-3.7],JP:[36,138],KR:[36.5,127.8],CN:[35,103],HK:[22.3,114.2],TW:[23.7,121],IN:[20.6,78.9],RU:[60,100],CA:[56,-106],AU:[-25,134],MX:[23,-102],BR:[-14,-51],AR:[-34,-64],CL:[-35,-71],CO:[4,-74],SE:[62,15],DK:[56,10],NO:[62,10],FI:[64,26],IS:[65,-18],PL:[52,19],CZ:[50,15],HU:[47,19],RO:[46,25],GR:[39,22],TR:[39,35],IR:[32,53],IL:[31,35],EG:[26,30],ZA:[-29,24],TH:[15,100],VN:[16,108],ID:[-2,118],PH:[13,122],MY:[4,102],SG:[1.3,103.8],NL:[52.1,5.3],BE:[50.5,4.5],AT:[47.5,14.5],CH:[47,8],PT:[39.4,-8],IE:[53,-8],NZ:[-41,174],UA:[49,32],GE:[42,43.5],AM:[40,45],KZ:[48,67],UZ:[41,64],LB:[34,36],SA:[24,45],AE:[24,54],TN:[34,9],DZ:[28,3],NG:[10,8],KE:[0,38],GH:[8,-1],ET:[9,40],CU:[22,-80],PE:[-10,-76],VE:[7,-66],EC:[-1,-78],UY:[-33,-56],CR:[10,-84],DO:[19,-70],LV:[57,25],LT:[55,24],EE:[59,25],SK:[49,20],SI:[46,15],HR:[45,16],BA:[44,18],RS:[44,21],BG:[43,25],MK:[42,22],AL:[41,20],BY:[53,28],MD:[47,29],AZ:[40,48],IQ:[33,44],JO:[31,36],PK:[30,70],BD:[24,90],LK:[7,81],NP:[28,84],MN:[46,105],KH:[13,105],MM:[22,96],LU:[50,6],MA:[32,-6],BO:[-17,-65],PY:[-23,-58],SN:[14,-14],BF:[12,-1.5],ML:[17,-3],CI:[7.5,-5.5],SU:[60,90],YU:[44,20],CS:[49,17],DD:[52,13]};
+
+// ---------- CSS для диалогов и карты ----------
+const st=document.createElement("style");
+st.textContent=`
+.kg-dlg{border:1px solid rgb(var(--kg-surface-border-subtle));border-radius:20px;background:rgb(var(--kg-surface-panel));color:#e8e0ea;padding:0;width:min(92vw,480px);max-height:88vh;font-family:'Plus Jakarta Sans',sans-serif}
+.kg-dlg::backdrop{background:rgba(7,6,10,.82);backdrop-filter:blur(6px)}
+.kg-in{padding:18px;display:flex;flex-direction:column;gap:12px;overflow:auto;max-height:88vh}
+.kg-h{font-family:'Noto Serif',serif;font-weight:700;color:#ffdca8;font-size:18px}
+.kg-sub{font-weight:700;color:#ffdca8;font-size:13px;margin-top:4px}
+.kg-row{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:14px}
+.kg-btn{padding:8px 14px;border-radius:12px;background:rgb(var(--kg-surface-container-high));color:#ffdca8;font-weight:700;font-size:13px;border:1px solid rgba(255,184,48,.25)}
+.kg-btn.danger{color:#ff8d7a}
+.kg-dlg select{background:rgb(var(--kg-surface-container-lowest));color:#e8e0ea;border-radius:10px;padding:8px;border:1px solid rgb(var(--kg-surface-border-subtle))}
+.kg-bar{height:8px;background:rgb(var(--kg-surface-container-high));border-radius:99px;overflow:hidden}
+#jfill{display:block;height:100%;width:0;background:linear-gradient(90deg,#ff4e20,#ffc107)}
+#mapbox{overflow:auto;border-radius:12px;background:rgb(var(--kg-surface-container-lowest))}#mapbox svg{display:block}
+.mo{fill:rgb(var(--kg-surface-container-low))}.mc{fill:rgb(var(--kg-surface-container-high));stroke:rgb(var(--kg-canvas-obsidian));stroke-width:.6;cursor:pointer;transition:fill .2s,stroke .2s}.mc.v{fill:#ffb830}.mc.w{fill:#d89120;stroke:#ffe1a1;stroke-width:1.6;filter:drop-shadow(0 0 2px rgba(255,184,48,.7))}.mc.last{fill:#ff4e20}.mc.w.last{fill:#d89120;stroke:#fff0c3}
+.pill{display:inline-block;padding:4px 10px;margin:2px;border-radius:99px;background:rgb(var(--kg-surface-container-high));font-size:12px}.pill.off{opacity:.45}
+#jfilms{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.jfilm{display:flex;flex-direction:column;gap:3px;text-align:left;font-size:11px;color:#e8e0ea}
+.jfilm img,.jfilm .ph{width:100%;aspect-ratio:2/3;object-fit:cover;border-radius:8px;background:rgb(var(--kg-surface-container-high));font-size:10px;padding:4px}
+.jfilm small{color:#b3a79a}
+/* Единый контейнер флагов */
+.wave {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5em;
+  height: 1em;
+  flex: 0 0 1.5em;
+  vertical-align: middle;
+  line-height: 0;
+  overflow: hidden;
+}
+
+/* SVG и изображения флагов */
+.wave svg,
+.wave img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Флаг в главной карточке */
+#hero-country-flag svg,
+#hero-country-flag img {
+  width: 2em;
+  height: 1.4em;
+  object-fit: contain;
+}
+
+/* Флаг в карточке найденного фильма */
+#discovery-flag svg,
+#discovery-flag img {
+  width: 1.5em;
+  height: 1em;
+  object-fit: contain;
+  vertical-align: middle;
+}
+#film-reel-window{position:relative;height:150px;overflow:hidden;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 13%,#000 87%,transparent);mask-image:linear-gradient(90deg,transparent,#000 13%,#000 87%,transparent)}
+#film-reel-track{position:absolute;inset:0;overflow:hidden}
+#film-reel-track .run{position:absolute;left:0;top:0;height:100%;display:flex;align-items:center;gap:10px;padding-left:8px;will-change:transform}
+#film-reel-track .run.fast{filter:blur(1.4px) brightness(1.08)}
+.film-cell{box-sizing:border-box;pointer-events:none;user-select:none;position:relative;flex:none;width:80px;height:112px;border-radius:6px;overflow:hidden;background:rgb(var(--kg-surface-container));border:1px solid rgb(var(--kg-surface-border));padding:0;opacity:.62;transition:opacity .45s,transform .45s,box-shadow .45s,filter .35s;color:#b3a79a;font-size:10px;line-height:1.2}
+.film-cell img{width:100%;height:100%;object-fit:cover;display:block}
+.film-cell .nop{width:100%;height:100%;display:flex;align-items:center;justify-content:center;text-align:center;padding:4px}
+.film-cell.spinning{opacity:.92}
+.film-cell.chosen{opacity:1;transform:scale(1.07);box-shadow:0 0 22px rgba(255,184,48,.55)}
+.film-cell .yr{position:absolute;left:0;right:0;bottom:0;background:rgba(0,0,0,.78);font:600 9px/1.4 ui-monospace,monospace;text-align:center;color:#b3a79a}
+#film-center-frame{position:absolute;left:50%;top:50%;width:94px;height:128px;transform:translate(-50%,-50%);z-index:5;pointer-events:none;border:2px solid #ffb830;border-radius:10px;box-shadow:0 0 18px rgba(255,184,48,.5),inset 0 0 14px rgba(255,184,48,.22)}
+#film-center-frame::before,#film-center-frame::after{content:"";position:absolute;left:50%;transform:translateX(-50%);border:6px solid transparent}
+#film-center-frame::before{top:-9px;border-top:7px solid #ffb830;border-bottom:0}
+#film-center-frame::after{bottom:-9px;border-bottom:7px solid #ffb830;border-top:0}
+#cinema-35mm-reel-section,#cl-result,#oscar-reel-detail,[id^="mood-roulette-winner-detail-"]{overflow-anchor:none}
+#btn-mode-filters,#btn-mode-surprise{border:1px solid rgb(var(--kg-surface-border-subtle));color:#b3a7b7;background:rgb(var(--kg-surface-container))}
+.kg-mode-choice[aria-pressed="false"]:hover{color:#e8e0ea}
+#btn-mode-filters[aria-pressed="true"],#btn-mode-surprise[aria-pressed="true"]{color:#fff;border-color:#ffffff33;box-shadow:0 4px 18px #ff5e5e44,inset 0 1px #ffffff33}
+#btn-mode-filters[aria-pressed="true"]{background:linear-gradient(135deg,#ff4e20,#ff8c00)}
+#btn-mode-surprise[aria-pressed="true"]{background:linear-gradient(135deg,#861a45,#ff4e78)}
+#film-details.veiled{display:none}
+#film-trailer-box{filter:none!important;opacity:1!important}
+.kg-film-card-poster{width:80px;height:112px;flex:none}
+.kg-trailer-frame{position:absolute;inset:0;display:block;width:100%;height:100%;border:0}
+#film-trailer-stage{aspect-ratio:16/9;isolation:isolate}
+#film-trailer-box [hidden]{display:none!important}
+#err{color:#ff8d7a;font-size:12px;text-align:center;width:100%;margin-top:6px;z-index:10}
+`;
+document.head.appendChild(st);
+
+// ---------- Единый визуальный режим киноленты для всех экранов ----------
+function mainReelMarkup(){
+  const common={shellClass:"relative w-full rounded-xl bg-canvas-obsidian border border-primary-container/30 overflow-hidden shadow-[inset_0_2px_12px_rgba(0,0,0,0.95)] my-2 p-1",prefix:"film-reel",windowId:"film-reel-window",trackId:"film-reel-track",runClass:"run",frameId:"film-center-frame",includeRun:false};
+  return window.KGCinemaReel.render({...common,mode:reelStyle});
+}
+// ---------- Новая секция «Кинолента» (подменяет старую карточку) ----------
+const CARD_HTML=`
+<section class="w-full rounded-2xl bg-surface-panel/95 p-3.5 shadow-2xl relative overflow-hidden border border-primary-container/25 backdrop-blur-xl" id="cinema-35mm-reel-section">
+<div class="flex items-center justify-between mb-2.5 px-0.5">
+<div class="flex items-center gap-2 min-w-0">
+<div class="w-7 h-7 rounded-lg bg-surface-container flex items-center justify-center border border-primary-container/30 text-primary shadow-[0_0_8px_rgba(255,184,48,0.25)] flex-shrink-0"><span class="material-symbols-outlined text-[17px]">movie</span></div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5"><span class="font-label-sm text-label-sm font-bold text-on-surface uppercase tracking-wider" id="reel-format-title">${uiText(reelStyle==="cassette"?"Кассетная дека · 3D Cover Flow":reelStyle==="projection"?"Проекционный тракт · 35 мм":"Кинолента 35-мм")}</span></div>
+<span class="font-micro-caption text-[11px] text-text-muted truncate" id="discovery-timestamp">Крутите глобус, и здесь появится находка</span>
+</div></div>
+<div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-high/90 border border-primary-container/25 shadow-sm flex-shrink-0"><span class="material-symbols-outlined text-primary-container text-[14px]">confirmation_number</span><span class="font-mono text-micro-caption text-primary-fixed font-semibold tracking-wide" id="reel-frame-counter">Кадр 00 / 00</span></div>
+</div>
+<div id="film-reel-host">${mainReelMarkup()}</div>
+<div class="veiled flex flex-col mt-2.5 pt-2 border-t border-surface-border-subtle/80" id="film-details">
+<div class="flex items-start justify-between gap-2">
+<div class="kg-film-card-poster relative rounded-lg overflow-hidden bg-surface-container-high shadow-md border border-primary-container/20">
+<span class="absolute inset-0 flex items-center justify-center text-primary-container"><span class="material-symbols-outlined text-[32px]">movie</span></span>
+<div class="absolute inset-0" id="discovery-poster"></div>
+</div>
+<div class="min-w-0 flex-1">
+<div class="flex items-center gap-1.5 flex-wrap"><h3 class="font-headline-sm text-headline-sm font-bold text-on-surface" id="discovery-title">Крутите глобус</h3><span class="text-micro-caption text-text-muted font-body-sm" id="discovery-year"></span><span id="oscar-badge" style="display:none" class="px-1.5 rounded bg-surface-container text-secondary text-micro-caption font-semibold flex items-center gap-1 border border-secondary/25"><span class="material-symbols-outlined text-[12px]">workspace_premium</span>Оскар</span></div>
+<p class="font-label-sm text-label-sm text-primary-fixed mt-0.5 flex items-center gap-1"><span id="discovery-country">—</span><span id="discovery-flag">🌍</span><span class="text-text-muted truncate" id="discovery-genres">· кино</span></p>
+<div class="mt-1.5 flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
+<span class="text-primary-fixed font-label-sm text-label-sm">★ <b id="discovery-rating">—</b></span><span class="font-micro-caption text-micro-caption text-text-muted" id="discovery-votes">TMDB</span>
+</div>
+<div class="flex flex-wrap items-center gap-1.5 mt-2" id="film-actions">
+${window.KGWatchedButtonHtml(false, 'id="btn-watched"')}
+<span id="discovery-bookmark"></span>
+<button type="button" id="discovery-add-note" class="inline-flex items-center gap-1 rounded-lg bg-surface-container-high px-2 py-2 text-primary font-label-sm text-label-sm hover:brightness-110"><span class="material-symbols-outlined text-[16px]" aria-hidden="true">edit_note</span><span data-note-label>${uiText("Добавить запись")}</span></button>
+</div>
+<p class="font-body-sm text-body-sm text-primary-fixed mt-1" style="font-style:italic" id="film-tagline" hidden></p>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-text-muted leading-relaxed mt-2" id="discovery-desc">Выберите страну и фильм, и здесь появится описание.</p>
+<p class="font-micro-caption text-[11px] text-text-muted mt-0.5" id="discovery-desc-lang" style="opacity:.75" hidden></p>
+<div class="mt-2" id="film-people"></div>
+<div class="mt-2.5" id="film-trailer-box" hidden>
+<div class="relative w-full rounded-xl overflow-hidden bg-black border border-primary-container/30 shadow-md" id="film-trailer-stage">
+<div class="absolute inset-0" id="film-trailer-preview"><img class="w-full h-full object-cover opacity-80" id="film-trailer-thumbnail" alt="" loading="lazy"><div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-black/20"></div><button type="button" id="film-trailer-play" class="absolute inset-0 flex items-center justify-center text-white disabled:opacity-40" aria-label="Воспроизвести трейлер" disabled><span class="w-16 h-16 rounded-full bg-primary-container/95 text-on-primary shadow-[0_0_32px_rgba(255,184,48,.45)] flex items-center justify-center transition-transform hover:scale-110"><span class="material-symbols-outlined text-[40px]">play_arrow</span></span></button><span class="absolute bottom-3 left-3 right-3 text-center font-label-sm text-label-sm text-white drop-shadow-lg" id="film-trailer-status">Ищем трейлер…</span></div>
+<div class="absolute inset-0" id="film-trailer-player" hidden></div>
+</div>
+<div class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1.5">
+<button type="button" id="film-trailer-close" class="inline-flex min-h-9 items-center gap-1 rounded-lg px-2 text-primary hover:bg-surface-container-high font-label-sm text-label-sm" hidden><span class="material-symbols-outlined text-[16px]" aria-hidden="true">close</span><span>Закрыть трейлер</span></button>
+<div class="font-micro-caption text-[11px] text-text-muted" id="film-trailer-note" hidden><span>Не воспроизводится? <a id="film-trailer-link" target="_blank" rel="noopener noreferrer" class="text-primary underline">Открыть на YouTube</a></span></div>
+</div>
+<div id="discovery-legal-watch"></div>
+</div>
+<div class="mt-2.5 pt-2 border-t border-surface-border/50" id="film-more">
+<div class="grid gap-1 font-body-sm text-body-sm mt-1" id="film-facts"></div>
+<div class="flex flex-wrap items-center gap-2 mt-2">
+<button class="py-2 px-3 rounded-xl bg-primary-container text-on-primary-container font-label-sm text-label-sm font-semibold flex items-center justify-center gap-1 hover:brightness-110 transition-all active:scale-95 cursor-pointer" id="btn-spin-another-film" title="Найти другой фильм из этой страны" type="button"><span class="material-symbols-outlined text-[16px]">autorenew</span><span>Крутить ещё раз</span></button>
+</div>
+</div>
+<div id="discovery-related"></div>
+</div>
+</section>`;
+{const old=$("cinema-35mm-reel-section")||$("recent-discovery-card");if(old){old.outerHTML=CARD_HTML;localizeInterfaceMarkup($("film-details"));}}
+
+
+// ---------- Диалог настроек ----------
+const dlgS=$("settings"), sndSel=$("snd");
+document.body.appendChild(dlgS);dlgS.className="kg-dlg";
+const inS=document.createElement("div");inS.className="kg-in";
+inS.innerHTML='<div class="kg-h">Настройки</div>';
+const row=(label,el)=>{const r=document.createElement("div");r.className="kg-row";r.innerHTML=`<span>${label}</span>`;r.appendChild(el);inS.appendChild(r);};
+[["fx","Вибрация"],["adultVis","Жанр 18+ в списке"]].forEach(([id,l])=>{$(id).className="kg-btn";row(l,$(id));});
+row("Звук рулетки",sndSel);
+const btns=[["changeKey","Сменить ключ TMDB",""],["resetHist","Сбросить историю","danger"],["resetSettings","Сбросить настройки","danger"],["sclose","Закрыть",""]];
+btns.forEach(([id,t,c])=>{const b=$(id);if(id!=="resetHist")b.textContent=t;b.className="kg-btn "+c;b.style.width="100%";inS.appendChild(b);});
+dlgS.innerHTML="";dlgS.appendChild(inS);
+
+// ---------- Диалог «Моё путешествие» ----------
+const dlgJ=$("journey");
+const J={};["jhead","jfill","mapbox","minfo","jstats","jopenT","jopen","jclosed","jclosedsum","jfilmsT","jfilms","jclose"].forEach(id=>J[id]=$(id));
+document.body.appendChild(dlgJ);dlgJ.className="kg-dlg";
+const inJ=document.createElement("div");inJ.className="kg-in";
+const bar=document.createElement("div");bar.className="kg-bar";bar.appendChild(J.jfill);
+J.jopenT.textContent="Открытые страны";J.jopenT.className="kg-sub";J.jopenT.style.display="block";
+J.jfilmsT.textContent="Просмотренные фильмы";J.jfilmsT.className="kg-sub";J.jfilmsT.style.display="block";
+const det=document.createElement("details");const sm=document.createElement("summary");sm.appendChild(J.jclosedsum);sm.style.cursor="pointer";det.append(sm,J.jclosed);
+J.jclose.textContent="Закрыть";J.jclose.className="kg-btn";J.jclose.style.width="100%";J.jhead.className="kg-h";
+dlgJ.innerHTML="";
+inJ.append(J.jhead,bar,J.mapbox,J.minfo,J.jstats,J.jopenT,J.jopen,det,J.jfilmsT,J.jfilms,J.jclose);
+dlgJ.appendChild(inJ);
+
+// ---------- Поля оценки (в скрытом движке была только одна опция) ----------
+const RO=["5","6","6.5","7","7.5","8","9","10"];
+$("rmin").innerHTML=RO.map(v=>`<option value="${v}">${v}</option>`).join("");
+$("rmax").innerHTML='<option value=""></option>'+RO.map(v=>`<option value="${v}">${v}</option>`).join("");
+$("rmin").value=RO.includes(store.get("rmin",""))?store.get("rmin",""):"6";
+$("rmax").value=RO.includes(store.get("rmax",""))?store.get("rmax",""):"";
+
+// ---------- Подключение к дизайну: чипы, подборки, оценка, годы ----------
+const filterButtons=[$("genre-filter-button"), $("country-filter-button")];
+filterButtons.forEach(button=>{
+  button.addEventListener("click",()=>{
+    const shouldOpen=button.getAttribute("aria-expanded")==="false";
+    filterButtons.forEach(toggle=>{
+      const open=toggle===button&&shouldOpen;
+      toggle.setAttribute("aria-expanded",String(open));
+      $(toggle.getAttribute("aria-controls")).hidden=!open;
+    });
+  });
+});
+const yearRatingFilter=$("year-rating-filter"), themeFilter=$("theme-filter");
+const gBox=$("genre-filter-chips"), rBox=yearRatingFilter.querySelector(".overflow-x-auto"), tBox=themeFilter.lastElementChild;
+const BASE="h-[34px] px-3.5 rounded-full font-label-sm text-label-sm flex items-center gap-1 transition-all ";
+function pills(box,sel,attr){
+  box.innerHTML="";
+  document.querySelectorAll(sel).forEach(h=>{
+    const b=document.createElement("button");b.type="button";b.textContent=uiText(h.textContent);b._h=h;
+    b.dataset.kgFilterPill="";
+    b.onclick=()=>h.click();box.appendChild(b);
+  });
+}
+pills(gBox,"#chips .chip");pills(tBox,"#themes .chip");
+rBox.innerHTML="";
+[["5","5.0"],["6","6.0"],["7","7.0"],["7.5","7.5"],["8","8.0+"]].forEach(([v,l])=>{
+  const b=document.createElement("button");b.type="button";b.dataset.v=v;b.textContent=l;
+  b.onclick=()=>{$("rmin").value=v;$("rmin").dispatchEvent(new Event("change"));syncDesign();};
+  rBox.appendChild(b);
+});
+const sChips=[...document.querySelectorAll(".surprise-chip")];
+$("surpriseChips").innerHTML=["light","find","wild","hard"].map(s=>`<button class="chip" data-s="${s}"></button>`).join("");
+sChips.forEach((c,i)=>c.addEventListener("click",()=>$("surpriseChips").children[i].click()));
+const yi=[...yearRatingFilter.querySelectorAll('input[type="number"]')];
+[[yi[0],"year","1920"],[yi[1],"yearTo","2026"]].forEach(([inp,id,def])=>inp.addEventListener("input",()=>{
+  const v=inp.value.trim(),e=$(id);e.value=(v===""||v===def)?"":v;e.dispatchEvent(new Event("input"));}));
+
+function plural(n){const m=n%100,k=n%10;return (k===1&&m!==11)?"страна":(k>1&&k<5&&(m<12||m>14))?"страны":"стран";}
+function spinLabel(){
+  if(countryFilters.size) return uiText("НАЙТИ ФИЛЬМ");
+  if(playMode==="surprise") return uiText("УДИВИ МЕНЯ");
+  const t=THEMES.find(x=>x.id===themeId);return t?uiText(t.name).toLocaleUpperCase(interfaceLanguage):uiText("КРУТИТЬ ГЛОБУС");
+}
+function sumText(id,prefix){const t=$(id).textContent;return t.startsWith(prefix+" · ")?t.slice(prefix.length+3):uiText("Любой");}
+function syncDesign(){
+  const paint=box=>[...box.children].forEach(b=>{
+    const on=b._h.getAttribute("aria-pressed")==="true";b.style.display=b._h.hidden?"none":"";
+    b.setAttribute("aria-pressed",String(on));
+    b.className=BASE+(on?"text-canvas-obsidian font-bold border border-white/20":"bg-surface-container text-text-muted hover:text-on-surface");
+    b.style.background=on?"linear-gradient(135deg,#ff4e20,#ff9500 50%,#ffc107)":"";
+    b.style.boxShadow=on?"0 2px 14px rgba(255,115,0,.4)":"";
+  });
+  paint(gBox);paint(tBox);
+  [...rBox.children].forEach(b=>{const on=$("rmin").value===b.dataset.v&&!$("rmin").disabled;
+    b.className="flex-1 py-1.5 px-2 rounded-lg font-label-sm text-label-sm "+(on?"bg-primary-container text-on-primary-container font-bold":"bg-surface-container text-text-muted");});
+  sChips.forEach((c,i)=>{const on=["light","find","wild","hard"][i]===surprise;
+    c.setAttribute("aria-pressed", String(on));
+    c.style.background=on?"rgb(var(--kg-surface-container-high))":"rgb(var(--kg-surface-panel))";c.style.color=on?"#ffdca8":"#e8e0ea";c.style.boxShadow=on?"0 0 10px rgba(255,184,48,.25)":"";});
+  const d=$("surprise-description-text");if(d)d.textContent=uiText(SURPRISE_NOTE[surprise]);
+  $("genre-filter-summary").textContent=sumText("filterSum","Категории");
+  $("year-rating-filter-summary").textContent=sumText("extraSum","Год и оценка");
+  const themeSummary=sumText("themeSum","Тематические подборки");
+  $("theme-filter-summary").textContent=themeSummary===uiText("Любой")?uiText("Готовые сеты"):themeSummary;
+  if(document.activeElement!==yi[0])yi[0].value=$("year").value||"1920";
+  if(document.activeElement!==yi[1])yi[1].value=$("yearTo").value||"2026";
+  const cnt=document.querySelector('header a[data-path="moe-puteshestvie"] span:last-child');
+  if(cnt){const wc=window.KGWatchedCountryCounts?window.KGWatchedCountryCounts():{};cnt.textContent=Object.keys(wc).length+"/"+COUNTRIES.length;}
+  const sb=$("btn-spin-roulette");if(sb&&!sb.disabled){const t=sb.querySelector("#btn-spin-text span:last-child");if(t)t.textContent=spinLabel();}
+}
+["paintChips","paintThemes","paintSurprise","paintExtraSum","paintGo","updHist"].forEach(n=>{
+  const f=window[n];if(typeof f!=="function")return;
+  window[n]=function(){const r=f.apply(this,arguments);try{syncDesign()}catch(e){console.warn(e)}return r;};
+});
+
+// ---------- Баннер ключа TMDB ----------
+function refreshKey(){const b=$("tmdb-key-banner");if(b)b.classList.toggle("hidden",!!apiKey);}
+$("tmdb-key-save").addEventListener("click",()=>{
+  const v=$("tmdb-key-input").value.trim(),e=$("tmdb-key-err");
+  if(!v){e.textContent=uiText("Вставь ключ");e.classList.remove("hidden");return;}
+  apiKey=v;store.set("tmdbKey",v);showKeyUi();refreshKey();e.classList.add("hidden");$("tmdb-key-input").value="";
+});
+const _ck=$("changeKey").onclick;
+$("changeKey").onclick=()=>{_ck();refreshKey();};
+refreshKey();
+
+// ---------- Глобус вместо барабана флагов ----------
+const heroHist = c => {
+  const el = $("hero-country-flag");
+  if (!el || !c) return;
+  el.innerHTML = flag(c.id, false);
+};
+const hero = (c, step) => {
+  G.updateHolographicView(c, step);
+  heroHist(c);
+};
+function gc(cc) {
+  const g = GEO[cc] || [20, 0];
+  return {
+    id: cc,
+    name: cname(cc),
+    flag: flag(cc, false),
+    reg: "КИНОРАДАР",
+    films: "—",
+    dirs: "Ищем фильм…",
+    lat: g[0],
+    lon: g[1],
+    movie: null
+  };
+}
+let scanOn=false,scanT=0,scanAt=0,landed=false,tmr=[];
+let focusedCC="";   // страна, на которой глобус уже стоит в фокусе с флажком (чтобы «другой фильм» не крутил планету заново)
+const SCAN_MIN_MS=3500;   // минимум времени «поиска» до остановки (мс)
+const LAND_STEPS=[220,300,400,540,720,950];   // замедление перед остановкой
+function activeTheme(){
+  const t=THEMES.find(x=>x.id===themeId);
+  return t&&t.cc&&t.cc.length?t:null;
+}
+// Подборка уже знает страну: только световая точка, без прокрутки глобуса и без флажка.
+function pinLight(cc){
+  const w=gc(cc);
+  scanOn=false;clearTimeout(scanT);
+  G.isSpinning=false;
+  G.currentCountry=w;focusedCC=cc;landed=true;
+  G.showSingleBeacon(w);
+  G.orientGlobeToCountry(w,false,0.08,G.CAMERA_DIST_FOCUS,false);
+  hero(w,false);
+}
+function frameSelectedCountry(code){
+  scanOn=false;
+  clearTimeout(scanT);
+  tmr.forEach(clearTimeout);
+  tmr=[];
+  G.isSpinning=false;
+  focusedCC=code;
+  landed=true;
+  const country=gc(code);
+  G.frameCountry(country);
+  hero(country,false);
+}
+window.KGFrameSelectedCountry=(code, candidates=[])=>{
+  frameSelectedCountry(candidates.includes(focusedCC) ? focusedCC : code);
+};
+window.KGUpdateCountryFrame=function(preferredCountry){
+  syncDesign();
+  if ($("go").disabled) return;
+  const lastSelected = preferredCountry || [...countryFilters].at(-1);
+  if (!lastSelected) {
+    focusedCC = "";
+    G.dollyBack(G.currentCountry);
+    G.hideMarks();
+  } else if (preferredCountry || !countryFilters.has(focusedCC)) frameSelectedCountry(lastSelected);
+};
+function setSpinUi(on, frameOnly=false){
+  const b=$("btn-spin-roulette"),t=$("btn-spin-text"),s=$("btn-spin-secondary-icon"),sb=$("roulette-status-badge");
+  const known=frameOnly||!!activeTheme();
+  b.disabled=on;b.classList.toggle("brightness-125",on);
+  t.innerHTML=on
+    ?(known?'<span class="material-symbols-outlined text-[22px]">movie</span><span>'+uiText("ИЩЕМ ФИЛЬМ...")+'</span>'
+      :'<span class="material-symbols-outlined text-[22px] animate-spin">sensors</span><span>'+uiText("ПОИСК СТРАНЫ...")+'</span>')
+    :'<span class="material-symbols-outlined text-[22px] text-canvas-obsidian font-bold">casino</span><span>'+spinLabel()+'</span>';
+  s.classList.toggle("animate-spin",on&&!known);
+  sb.textContent=on?uiText(frameOnly?"Ищем фильм…":known?"Подборка":"Сканирование...")
+    :uiText("{count} {unit} онлайн", {count: COUNTRIES.length, unit: plural(COUNTRIES.length)});
+  sb.className=on?"font-micro-caption text-micro-caption px-2.5 py-0.5 rounded-full bg-primary-container text-on-primary-container font-bold"
+    :"font-micro-caption text-micro-caption px-2.5 py-0.5 rounded-full bg-surface-container-high/90 text-primary-fixed border border-primary-container/20";
+}
+const _lock=window.lockSpin,_unlock=window.unlockSpin;
+window.lockSpin=function(label,frameOnly){_lock(label);setSpinUi(true,frameOnly);};
+window.unlockSpin=function(){_unlock();setSpinUi(false);};
+window.reelStart=function(){
+  closePlayer();tmr.forEach(clearTimeout);tmr=[];landed=false;focusedCC="";
+  const theme=activeTheme();
+  if(theme){
+    scanOn=false;
+    G.isSpinning=false;
+    G.hideMarks();
+    if(theme.cc.length===1) pinLight(theme.cc[0]);
+    return;
   }
-  const NEED=26,T=4600,TAIL=6,seq=[];
+  scanOn=true;scanAt=performance.now();
+  G.beginScan();                       // как в дизайне: маяки и флаг скрыты, камера на обзорной дистанции
+  const loop=()=>{if(!scanOn)return;const c=gc(pick(COUNTRIES));
+    G.orientGlobeToCountry(c,false,0.22,G.CAMERA_DIST_SPIN,false);G.flashBeacon(c);hero(c,true);sTick(Math.random());buzz(8);scanT=setTimeout(loop,170);};
+  loop();
+};
+window.reelLand=async function(cc){
+  if(activeTheme()){pinLight(cc);return;}
+  await sleep(Math.max(0,SCAN_MIN_MS-(performance.now()-scanAt)));
+  scanOn=false;clearTimeout(scanT);
+  for(const d of LAND_STEPS){
+    const c=gc(pick(COUNTRIES.filter(x=>x!==cc)));
+    G.orientGlobeToCountry(c,false,0.22,G.CAMERA_DIST_SPIN,false);G.flashBeacon(c);hero(c,true);sTick(.4+Math.random()*.4);await sleep(d);
+  }
+  const w=gc(cc);G.currentCountry=w;focusedCC=cc;
+  G.showSingleBeacon(w);                                              // маяк только у выпавшей страны
+  G.orientGlobeToCountry(w,false,0.055,G.CAMERA_DIST_FOCUS,true);     // 3D-флажок на стране
+  hero(w,false);G.triggerWinnerCelebration(w);buzz([25,50,60]);
+  landed=true;
+  tmr.push(setTimeout(()=>{G.dollyBack(w);
+    tmr.push(setTimeout(()=>{G.isSpinning=false;},800));},2400));
+  await sleep(400);
+};
+window.reelAbort=function(){
+  scanOn=false;clearTimeout(scanT);
+  if(!landed){focusedCC="";G.isSpinning=false;const c=G.currentCountry;G.orientGlobeToCountry(c,false,0.035,G.CAMERA_DIST_DEFAULT,false);G.hideMarks();hero(c,false);}
+};
+window.filmReel=async function(){};   // в дизайне барабана постеров нет
+
+// ---------- Карточка «Кинолента 35-мм»: данные ----------
+const card=$("cinema-35mm-reel-section");
+const bw=$("btn-watched");
+const paintWatchedButton=window.KGPaintWatchedButton;
+const ag=$("btn-spin-another-film");
+const set=(id,t)=>{const e=$(id);if(e)e.textContent=t;};
+const pad=n=>(n<10?"0":"")+n;
+const STEP=90,PAD=8,CELL=80;     // шаг ячейки, левый отступ, ширина постера
+let strip={list:[],pool:null,cc:"",idx:-1,busy:false},runEl=null;
+let trackEl=$("film-reel-track");
+const trackW=()=>trackEl?.clientWidth||320;
+const centerX=i=>PAD+i*STEP+CELL/2-trackW()/2;   // сдвиг ленты, при котором ячейка i стоит точно под рамкой
+function cellHTML(f,i,cls){
+  const t=f?esc(f.title):"";
+  const y=f&&f.release_date?f.release_date.slice(0,4):"";
+  const inner=!f?'<div class="nop"><span class="material-symbols-outlined" style="font-size:22px;opacity:.35">movie</span></div>'
+    :f.poster_path?`<img alt="${t}" draggable="false" src="https://image.tmdb.org/t/p/w185${f.poster_path}">`
+    :`<div class="nop">${t}</div>`;
+  return `<div data-i="${i}" class="film-cell ${cls||""}">${inner}${f&&y?`<span class="yr">${y}</span>`:""}</div>`;
+}
+function mountRun(list,idx,cls){
+  runEl=document.createElement("div");runEl.className="run";
+  runEl.innerHTML=list.map((f,i)=>cellHTML(f,i,i===idx?cls:"")).join("");
+  trackEl.innerHTML="";trackEl.appendChild(runEl);
+  runEl.style.transform=`translateX(${-centerX(idx)}px)`;
+}
+// Пустая плёнка: рамка по центру видна сразу, ещё до первого поиска
+function renderBlank(){
+  strip={list:[],pool:null,cc:"",idx:-1,busy:false};
+  if(!["cassette","projection"].includes(reelStyle))mountRun(new Array(9).fill(null),4,"");
+  if(reelStyle==="cassette")window.KGCinemaReel.mountCassetteDeck($("film-reel-host"),[],null,{onOpen:f=>openFilm(f,"home")});
+  if(reelStyle==="projection")window.KGCinemaReel.mountProjectionTrack($("film-reel-host"),null);
+  set("reel-frame-counter","Кадр 00 / 00");
+}
+function renderStatic(pool,film,cc){      // готовая лента без прокрутки: выбранный фильм под рамкой
+  let list=(pool.films&&pool.films.length)?pool.films:[film];
+  let i=list.findIndex(f=>f.id===film.id);
+  if(i<0){list=[film];i=0;}
+  strip={list,pool,cc,idx:i,busy:false};
+  if(reelStyle==="cassette")window.KGCinemaReel.mountCassetteDeck($("film-reel-host"),list,film,{onOpen:f=>openFilm(f,"home"),onRandom:f=>openFilm(f,"home")});
+  else if(reelStyle==="projection")window.KGCinemaReel.mountProjectionTrack($("film-reel-host"),film,{country:cname(cc)});
+  else mountRun(list,i,"chosen");
+  set("reel-frame-counter",`Кадр ${pad(i+1)} / ${list.length}`);
+}
+window.setCinemaReelStyle=function(style){
+  const next=["cassette","projection"].includes(style)?style:"35mm";
+  if(next===reelStyle)return;
+  const selectedFilm=cur?.film||(strip.idx>=0?strip.list?.[strip.idx]:null),selectedPool=cur?.pool||strip.pool,selectedCountry=cur?.cc||strip.cc;
+  stopReel();
+  reelStyle=next;store.set("reelStyle",next);
+  filmSpin=true;store.set("filmSpin",true);filmLabel();
+  const title=$("reel-format-title");if(title)title.textContent=uiText(next==="cassette"?"Кассетная дека · 3D Cover Flow":next==="projection"?"Проекционный тракт · 35 мм":"Кинолента 35-мм");
+  const host=$("film-reel-host");if(!host)return;
+  host.innerHTML=mainReelMarkup();
+  trackEl=$("film-reel-track");runEl=null;
+  if(selectedFilm)renderStatic(selectedPool||{films:[selectedFilm]},selectedFilm,selectedCountry||"");else renderBlank();
+};
+function recenter(){if(runEl&&!strip.busy&&strip.idx>=0)runEl.style.transform=`translateX(${-centerX(strip.idx)}px)`;}
+window.addEventListener("resize",recenter);
+renderBlank();
+
+const loaded=new Set();
+function loadPoster(f){
+  return new Promise(r=>{
+    if(!f.poster_path||loaded.has(f.poster_path))return r();
+    const i=new Image();i.onload=i.onerror=()=>{loaded.add(f.poster_path);r();};
+    i.src="https://image.tmdb.org/t/p/w185"+f.poster_path;
+  });
+}
+const warmPosters=(pool,selected)=>{
+  const films=pool.films||[],ordered=selected?[selected,...shuffle(films.filter(f=>f.id!==selected.id))]:shuffle(films);
+  return Promise.all(ordered.slice(0,8).map(loadPoster));
+};
+let spinCancel=null,spinTimer=0,reelScrollFrame=0,finishReelScroll=null;
+function stopReel(){
+  clearTimeout(spinTimer);
+  spinCancel?.();spinCancel=null;
+  if(reelScrollFrame){cancelAnimationFrame(reelScrollFrame);reelScrollFrame=0;finishReelScroll?.();finishReelScroll=null;}
+  strip.busy=false;
+  stopFilmReelSound();
+}
+function scrollToFilmReel(element, duration = 620) {
+  if (!element?.getClientRects().length) return Promise.resolve();
+  if (reelScrollFrame) {
+    cancelAnimationFrame(reelScrollFrame);
+    reelScrollFrame = 0;
+    finishReelScroll?.();
+    finishReelScroll = null;
+  }
+  const header = document.querySelector("header.fixed");
+  const targetTop = () => {
+    const visibleTop = Math.max(0,header?.getBoundingClientRect().bottom || 0);
+    return Math.max(0,window.scrollY + element.getBoundingClientRect().top - visibleTop - 8);
+  };
+  const start = window.scrollY;
+  if (RM || Math.abs(targetTop()-start) < 2) {
+    window.scrollTo({top:targetTop(),behavior:"instant"});
+    return Promise.resolve();
+  }
+  const started = performance.now();
+  return new Promise(resolve => {
+    finishReelScroll = resolve;
+    const step = now => {
+      const progress = Math.min(1,(now-started)/duration);
+      const easing = progress * progress * (3-2*progress);
+      const visible = element.getClientRects().length > 0;
+      if (visible) window.scrollTo({top:start+(targetTop()-start)*easing,behavior:"instant"});
+      if (progress < 1 && visible) {
+        reelScrollFrame = requestAnimationFrame(step);
+        return;
+      }
+      reelScrollFrame = 0;
+      finishReelScroll = null;
+      resolve();
+    };
+    reelScrollFrame = requestAnimationFrame(step);
+  });
+}
+window.KGScrollToFilmStart = scrollToFilmReel;
+window.KGScrollBeforeAgain=()=>scrollToFilmReel($("film-reel-host")||card);
+const detailsEl=$("film-details");
+
+async function spinReel(pool,film,cc){
+  const others=shuffle((pool.films||[]).filter(f=>f.id!==film.id));
+  if(reelStyle==="projection"){
+    if(!cur||cur.film.id!==film.id)return;
+    const host=$("film-reel-host"),all=pool.films||[],seq=[];for(let i=0;i<24;i++)seq.push(others.length?others[i%others.length]:film);seq.push(film);
+    window.KGCinemaReel.mountProjectionTrack(host,seq[0],{country:cname(cc)});set("reel-frame-counter","Кадры проектора запускаются…");startFilmReelSound();
+    const landed=await window.KGCinemaReel.spinProjectionTrack(host,seq,film,{duration:3900,reducedMotion:RM,cancelled:()=>!cur||cur.film.id!==film.id,shouldSkip:()=>fSkip,meta:{country:cname(cc)},onFrame:(_f,i)=>set("reel-frame-counter","Кадр "+pad(i+1)+" / "+pad(seq.length))});stopFilmReelSound();
+    if(!landed||!cur||cur.film.id!==film.id)return;const k=all.findIndex(f=>f.id===film.id);set("reel-frame-counter","Фильм "+pad((k<0?0:k)+1)+" / "+pad(all.length));buzz([25,50,60]);reveal(film,pool);return;
+  }
+  if(reelStyle==="cassette"){
+    if(!cur||cur.film.id!==film.id)return;
+    const host=$("film-reel-host"),all=pool.films||[],seq=[];for(let i=0;i<20;i++)seq.push(others.length?others[i%others.length]:film);seq.push(film);
+    startFilmReelSound();const landed=await window.KGCinemaReel.spinCassetteDeck(host,seq,seq,film,{duration:3900,reducedMotion:RM,cancelled:()=>!cur||cur.film.id!==film.id,onOpen:f=>openFilm(f,"home"),onRandom:f=>openFilm(f,"home"),onFrame:(_f,i)=>set("reel-frame-counter","Кассета "+pad(i+1)+" / "+pad(seq.length))});stopFilmReelSound();
+    if(!landed||!cur||cur.film.id!==film.id)return;const k=all.findIndex(f=>f.id===film.id);set("reel-frame-counter","Фильм "+pad((k<0?0:k)+1)+" / "+pad(all.length));buzz([25,50,60]);reveal(film,pool);return;
+  }
+  if(!others.length||RM){renderStatic(pool,film,cc);reveal(film,pool);return;}
+  const NEED=26,T=4600,TAIL=6;
+  const seq=[];
   for(let i=0;i<NEED;i++)seq.push(others[i%others.length]);
   seq.push(film);
   for(let i=0;i<TAIL;i++)seq.push(others[(i+2)%others.length]);
-  await Promise.race([Promise.all(seq.filter(f=>f.poster_path).map(f=>new Promise(r=>{const im=new Image();im.onload=im.onerror=r;im.src=P(f.poster_path,"w185");}))),wait(2500)]);
-  if(token!==R.token)return;
-  if(window.KGCinemaReel?.isProjectionMode?.()){
-    const total=D.all.filter(inCc).length;$("cl-fc").textContent=uiText("Проектор запускается…");snd(()=>startFilmReelSound());
-    const landed=await window.KGCinemaReel.spinProjectionTrack($("cl-reel"),seq,film,{duration:T,meta:{country:cname(film._cc||D.cc||D.t.cc[0])},cancelled:()=>token!==R.token,shouldSkip:()=>R.skip,onFrame:(_candidate,index)=>{if(token===R.token)$("cl-fc").textContent=uiText("Кадр {current} / {total}", {current: p2(index+1), total: p2(seq.length)});}});
-    if(token!==R.token)return;
-    snd(()=>stopFilmReelSound());if(!landed)return;const all=D.all.filter(inCc),k=all.findIndex(f=>f.id===film.id);$("cl-fc").textContent=uiText("Фильм {current} / {total}", {current: p2((k<0?0:k)+1), total: p2(all.length||total)});snd(()=>buzz([25,50,60]));finishPick(film,token);return;
-  }
-  if(window.KGCinemaReel?.isCassetteMode?.()){
-    const eligible=D.all.filter(inCc);$("cl-fc").textContent=uiText("Кассета перематывается…");snd(()=>startFilmReelSound());
-    const landed=await window.KGCinemaReel.spinCassetteDeck($("cl-reel"),eligible,seq,film,{duration:T,cancelled:()=>token!==R.token,shouldSkip:()=>R.skip,onOpen:f=>openFilm(f,"roulette"),onFrame:(_f,index)=>{if(token===R.token)$("cl-fc").textContent=uiText("Фильм {current} / {total}", {current: p2(index+1), total: p2(seq.length)});}});
-    if(token!==R.token)return;
-    snd(()=>stopFilmReelSound());if(!landed)return;const all=D.all.filter(inCc),k=all.findIndex(f=>f.id===film.id);$("cl-fc").textContent=uiText("Фильм {current} / {total}", {current: p2((k<0?0:k)+1), total: p2(all.length)});snd(()=>buzz([25,50,60]));finishPick(film,token);return;
-  }
-  if(window.KGCinemaReel?.isTicketMode?.()){
-    const total=D.all.filter(inCc).length;$(`cl-fc`).textContent="Билеты перемешиваются…";
-    snd(()=>startFilmReelSound());
-    const landed=await window.KGCinemaReel.animateTicketDeck($("cl-reel"),seq,film,{duration:T,meta:{country:cname(film._cc||D.cc||D.t.cc[0])},cancelled:()=>token!==R.token,shouldSkip:()=>R.skip,onFrame:(_candidate,index,total)=>{if(token===R.token)$(`cl-fc`).textContent=`Билет ${p2(index+1)} / ${p2(total)}`;}});
-    if(token!==R.token)return;
-    snd(()=>stopFilmReelSound());if(!landed)return;
-    const all=D.all.filter(inCc),k=all.findIndex(f=>f.id===film.id);$("cl-fc").textContent=`Билет ${p2((k<0?0:k)+1)} / ${p2(all.length||total)}`;
-    snd(()=>buzz([25,50,60]));finishPick(film,token);return;
-  }
-  const run=rMount(seq,NEED,"");
-  if(!run){R.busy=false;return;}
-  [...run.children].forEach(c=>c.classList.add("spin"));
-  const total=D.all.filter(inCc).length;
-  $("cl-fc").textContent="Кадр -- / "+p2(total);
-  snd(()=>startFilmReelSound());
-  const x0=rX(0),x1=rX(NEED);
-  run.style.transform=`translateX(${-x0}px)`;run.classList.add("fast");
-  const t0=performance.now();
-  const step=now=>{
-    if(token!==R.token)return;
-    const t=R.skip?1:Math.min(1,(now-t0)/T);
-    const x=x0+(x1-x0)*(1-Math.pow(1-t,4)),left=x1-x;
-    run.style.transform=`translateX(${-x}px)`;
-    if(t>.4)run.classList.remove("fast");
-    if(!(t>=1||left<.75)){
-      snd(()=>setFilmReelLevel(Math.pow(1-t,3),Math.abs(x-x0)/STEP));
-      R.raf=requestAnimationFrame(step);return;
-    }
-    snd(()=>stopFilmReelSound());
-    run.style.transform=`translateX(${-rX(NEED)}px)`;
-    [...run.children].forEach((c,i)=>{c.classList.remove("spin");c.classList.toggle("chosen",i===NEED);});
-    const fr=$("cl-frame");fr.classList.remove("hit");void fr.offsetWidth;fr.classList.add("hit");
-    const all=D.all.filter(inCc),k=all.findIndex(f=>f.id===film.id);
-    $("cl-fc").textContent=uiText("Кадр {current} / {total}", {current: p2((k<0?0:k)+1), total: p2(all.length)});
-    snd(()=>buzz([25,50,60]));
-    finishPick(film,token);
-  };
-  R.raf=requestAnimationFrame(step);
-}
-window.addEventListener("resize",()=>{
-  const run=document.querySelector("#cl-track .kgr-run");if(!run||R.busy)return;
-  const i=[...run.children].findIndex(c=>c.classList.contains("chosen"));
-  if(i>=0)run.style.transform=`translateX(${-rX(i)}px)`;
-});
-vd.addEventListener("click",e=>{
-  const sort=e.target.closest("[data-kg-film-sort]");
-  if(sort){
-    if(D.sort===sort.dataset.kgFilmSort)return;
-    D.sort=sort.dataset.kgFilmSort;
-    syncFilmSort(vd,D.sort);
-    renderFilms();
-    return;
-  }
-  const layout=e.target.closest('[data-kg-layout="collection"]');
-  if(layout){
-    if(collectionFilmLayout===layout.dataset.mode)return;
-    collectionFilmLayout=layout.dataset.mode;
-    if(D.selected?._placement==="list")D.selected._trailerPlaying=false;
-    renderFilms();
-    vd.querySelector(`[data-kg-layout="collection"][data-mode="${collectionFilmLayout}"]`)?.focus({preventScroll:true});
-    return;
-  }
-  const el=e.target.closest("[data-act]");if(!el)return;
-  const a=el.dataset.act;
-  if(a==="close-film"){
-    const placement=D.selected&&D.selected._placement;
-    D.selected=null;
-    if(placement==="roulette")$("cl-result").innerHTML="";
-    else if(!placeListPanel())renderFilms();
-    return;
-  }
-  if(a==="back"){e.preventDefault();showView("collections");return;}
-  if(a==="goto"){e.preventDefault();openCollection(el.dataset.t);return;}
-  if(a==="spin"){inPageRoulette();return;}
-  if(a==="skip"){R.skip=true;return;}
-  if(a==="cc"){
-    if (D.cc === el.dataset.cc) return;
-    D.cc = el.dataset.cc;
-    D.shown = 5;
-    D.selected = null;
-    D.picked = null;
-    rStop();
-    $("cl-reel").style.display = "none";
-    $("cl-reel-host").replaceChildren();
-    $("cl-result").replaceChildren();
-    vd.querySelectorAll("#cl-cc [data-act=cc]").forEach(b=>b.className=ccCls(b===el));
-    renderFilms();return;
-  }
-  if(a==="more"){D.shown+=5;renderFilms();return;}
-  const f=byId(el.dataset.id);if(!f)return;
-  if(a==="trailer"){e.stopPropagation();openFilm(f);return;}
-  if(a==="open")openFilm(f);
-});
-
-// старая кнопка «Подборки» из bridge v6 теперь ведёт в каталог
-document.querySelectorAll('[data-path="podborki-i-zhanry"]').forEach(a=>a.addEventListener("click",e=>{e.preventDefault();showView("collections");}));
-// «Тематические коллекции» убраны с главного экрана: подборки теперь только в разделе «Подборки»
-const themeAcc=[...document.querySelectorAll("details")].find(d=>{const m=d.querySelector("summary");return m&&m.textContent.includes(uiText("Тематические коллекции"));})||document.querySelectorAll("details")[2];
-if(themeAcc)themeAcc.style.display="none";
-// ранее выбранная тема больше не должна незаметно фильтровать глобус
-if(themeId){themeId="";store.set("theme","");try{paintThemes();paintGo();}catch(e){}}
-// плёнка «Кинолента 35-мм» на главной скрыта, пока ей не пользуются: появляется, когда найден фильм
-const reelCard=$("cinema-35mm-reel-section");
-if(reelCard)reelCard.style.display="none";
-const _showFilm=window.show;
-if(typeof _showFilm==="function")window.show=function(){if(reelCard)reelCard.style.display="";return _showFilm.apply(this,arguments);};
-
-/* ---------- Главная: редакционная карточка и европейская палитра ---------- */
-const HOME_EUROPE=["FR","IT","ES","DE","GB","PL","SE","DK","NO","FI","PT","NL","BE","IE"];
-const homeEditorial={films:[],details:new Set(),directorData:new Map(),loadedKey:"",token:0,loading:false,pending:null,observer:null,scrollAnchorId:null};
-const homeEditorialRoot=$("kg-home-editorial");
-function homeFilmYear(f){return (f.release_date||"").slice(0,4);}
-function homeFeatureMarkup(f,d,expandedFilm=null){
-  const title=esc(d?.title||f.title||f.original_title||uiText("Фильм"));
-  const year=homeFilmYear(f);
-  const rating=Number(f.vote_average)||0;
-  const synopsis=(d&&d.overview)||filmSynopsis(f.overview)||uiText("Описание пока недоступно.");
-  const poster=filmPosterMarkup({...f, title:d?.title || f.title, localizedPoster:d?.localizedPoster});
-  const isExpanded=expandedFilm&&String(expandedFilm.id)===String(f.id);
-  return `<p class="font-micro-caption text-micro-caption uppercase tracking-wider text-primary font-bold mb-2">${uiText("Выбор дня · Программа № {number}", {number: homeDayNumber()})}</p>
-<div class="relative flex gap-3.5 items-start">
-<div class="kg-day-poster relative shrink-0 rounded-lg overflow-hidden shadow-md bg-surface-container-lowest">${poster}<span class="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded bg-surface-container-lowest/90 text-primary-container font-label-sm text-label-sm font-bold shadow">★ ${rating.toFixed(1)}</span></div>
-<div class="min-w-0 flex-1">
-<h3 class="font-headline-sm text-headline-sm text-on-surface font-bold leading-snug">${title}</h3>
-${year?`<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">${year}</p>`:""}
-<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed mt-2 kg-clip3">${esc(synopsis)}</p>
-</div>
-<button type="button" data-home-act="open" data-id="${f.id}" aria-expanded="${Boolean(isExpanded)}" aria-label="${isExpanded?uiText("Свернуть карточку"):esc(uiText("Открыть фильм {title}", {title:d?.title||f.title||f.original_title||uiText("Фильм")}))}" class="absolute inset-0 z-[1] flex justify-end items-end rounded-lg cursor-pointer text-primary"><span class="material-symbols-outlined" aria-hidden="true">${isExpanded?"expand_less":"expand_more"}</span></button>
-</div>
-${isExpanded?`<div class="mt-3">${selectedFilmHtml(expandedFilm,true)}</div>`:""}`;
-}
-function renderHomeFeature(film,details,selected){
-  const feature=$("kg-home-feature");
-  if(selected?._trailerPlaying&&feature.querySelector(`[data-selected-film="${selected.id}"] iframe`))return;
-  feature.innerHTML=homeFeatureMarkup(film,details,selected);
-  if(selected)paintWatchedButtons(feature);
-}
-function closeHomeFeature(){
-  const film=homeEditorial.films.find(f=>String(f.id)===String(D.selected?.id));
-  D.selected=null;
-  if(!film)return;
-  renderHomeFeature(film,homeEditorial.featureDetails,null);
-  const summary=$("kg-home-feature").querySelector('[data-home-act="open"]');
-  summary?.focus({preventScroll:true});
-  if(summary&&window.KGScrollToFilmStart)window.KGScrollToFilmStart(summary);
-}
-function homeDayNumber(){
-  const now=new Date();
-  return Math.floor((Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),now.getUTCDate())-Date.UTC(now.getUTCFullYear(),0,0))/86400000);
-}
-function homeFilmCard(f){
-  const title=esc(f.title||f.original_title||uiText("Фильм")),year=homeFilmYear(f);
-  const details=homeEditorial.directorData.get(f.id);
-  const credit=details&&details.dirs&&details.dirs.length?details.dirs[0]:cname(f._cc);
-  const poster=f.poster_path?`<img class="w-full h-full object-cover" src="${P(f.poster_path,"w342")}" alt="${uiText("Постер фильма «{title}»", {title})}" loading="lazy">`:'<span class="material-symbols-outlined text-primary-container text-[32px]">movie</span>';
-  return `<div class="relative kg-home-film-wrap"><button type="button" data-home-act="open" data-home-meta="${f.id}" data-id="${f.id}" class="w-full rounded-xl bg-surface-container-high p-2 shadow-md text-left">
-<span class="relative w-full h-44 rounded-lg overflow-hidden mb-1.5 bg-surface-container-lowest flex items-center justify-center block">${poster}<span class="absolute bottom-1 right-1 px-1.5 py-0.5 rounded bg-surface-container-lowest/90 font-micro-caption text-micro-caption text-primary-container font-bold">★ ${(Number(f.vote_average)||0).toFixed(1)}</span></span>
-<span class="font-label-sm text-label-sm font-bold text-on-surface block truncate">${title}</span>
-<span class="font-micro-caption text-micro-caption text-on-surface-variant block truncate" data-home-director="${f.id}">${esc(credit)}${year?" · "+year:""}</span></button></div>`;
-}
-function renderHomeEditorial(){
-  if(!homeEditorialRoot)return;
-  const carousel=$("kg-home-europe");
-  const scrollLeft=carousel.scrollLeft,anchor=homeEditorial.scrollAnchorId&&carousel.querySelector(`[data-home-meta="${homeEditorial.scrollAnchorId}"]`),anchorTop=anchor?anchor.getBoundingClientRect().top:null;
-  const films=homeEditorial.films;
-  if(!films.length)return;
-  const dayIndex=(homeDayNumber()-1)%films.length,featured=films[dayIndex];
-  const selected=D.selected&&D.selected._placement==="home"&&String(D.selected.id)===String(featured.id)?D.selected:null;
-  renderHomeFeature(featured,homeEditorial.featureDetails||null,selected);
-  carousel.innerHTML=films.map(homeFilmCard).join("");
-  carousel.scrollLeft=scrollLeft;
-  if(anchorTop!==null)requestAnimationFrame(()=>{
-    const restored=carousel.querySelector(`[data-home-meta="${homeEditorial.scrollAnchorId}"]`);
-    if(restored)window.scrollBy(0,restored.getBoundingClientRect().top-anchorTop);
-  });
-  homeEditorial.observer?.disconnect();
-  if("IntersectionObserver"in window){
-    [...carousel.querySelectorAll("[data-home-meta]")].slice(0,4).forEach(card=>loadHomeDirector(card.dataset.homeMeta));
-    homeEditorial.observer=new IntersectionObserver(entries=>entries.forEach(entry=>{
-      if(!entry.isIntersecting)return;
-      const card=entry.target;homeEditorial.observer.unobserve(card);
-      loadHomeDirector(card.dataset.homeMeta);
-    }),{root:carousel,rootMargin:"80px"});
-    carousel.querySelectorAll("[data-home-meta]").forEach(card=>homeEditorial.observer.observe(card));
-  }else{
-    [...carousel.querySelectorAll("[data-home-meta]")].slice(0,4).forEach(card=>loadHomeDirector(card.dataset.homeMeta));
-  }
-  if(!homeEditorial.details.has(featured.id)){
-    homeEditorial.details.add(featured.id);
-    trailerFor(featured).catch(()=>{});
-    filmDetails(featured.id).then(d=>{
-      if(!homeEditorial.films.length||homeEditorial.films[dayIndex].id!==featured.id)return;
-      homeEditorial.featureDetails=d;homeEditorial.directorData.set(featured.id,d);
-      const selected=D.selected&&D.selected._placement==="home"&&String(D.selected.id)===String(featured.id)?D.selected:null;
-      renderHomeFeature(featured,d,selected);
-      const credit=document.querySelector(`[data-home-director="${featured.id}"]`);
-      if(credit&&d.dirs.length)credit.innerHTML=[d.dirsFull&&d.dirsFull[0]?kgPersonLink(d.dirsFull[0],"Режиссёр"):esc(d.dirs[0]),homeFilmYear(featured)].filter(Boolean).join(" · ");
-    }).catch(e=>{homeEditorial.details.delete(featured.id);console.warn("[Kinoglobus] Не удалось загрузить данные фильма дня:",e);});
-  }
-}
-async function loadHomeDirector(id){
-  if(homeEditorial.details.has(Number(id)))return;
-  homeEditorial.details.add(Number(id));
-  const f=homeEditorial.films.find(x=>String(x.id)===String(id));
-  if(!f)return;
-  try{
-    const d=await filmDetails(f.id),target=document.querySelector(`[data-home-director="${f.id}"]`);
-    homeEditorial.directorData.set(f.id,d);
-    if(target)target.innerHTML=[d.dirsFull&&d.dirsFull[0]?kgPersonLink(d.dirsFull[0],"Режиссёр"):esc(d.dirs[0]||cname(f._cc)),homeFilmYear(f)].filter(Boolean).join(" · ");
-    const featureIndex=(homeDayNumber()-1)%homeEditorial.films.length;
-    if(homeEditorial.films[featureIndex]?.id===f.id){
-      homeEditorial.featureDetails=d;
-      const selected=D.selected&&D.selected._placement==="home"&&String(D.selected.id)===String(f.id)?D.selected:null;
-      renderHomeFeature(f,d,selected);
-    }
-  }catch(e){
-    homeEditorial.details.delete(f.id);
-    const featureIndex=(homeDayNumber()-1)%homeEditorial.films.length;
-    if(homeEditorial.films[featureIndex]?.id===f.id){
-      const emptyDetails={dirs:[],genres:[],companies:[],runtime:0,tagline:"",overview:""};
-      homeEditorial.featureDetails=emptyDetails;
-      const selected=D.selected&&D.selected._placement==="home"&&String(D.selected.id)===String(f.id)?D.selected:null;
-      renderHomeFeature(f,emptyDetails,selected);
-    }
-    console.warn("[Kinoglobus] Не удалось загрузить режиссёра:",e);
-  }
-}
-function renderHomeEditorialMessage(message,action){
-  $("kg-home-feature").innerHTML=`<p class="font-micro-caption text-micro-caption text-primary font-bold uppercase tracking-wider">${uiText("Выбор дня")}</p><p role="status" class="font-body-sm text-body-sm text-text-muted mt-2">${esc(uiText(message))}</p>${action?`<button type="button" data-home-act="${action}" class="mt-3 px-3 py-2 rounded-lg bg-surface-container-highest text-primary-container font-label-sm text-label-sm font-semibold">${uiText(action==="set-key"?"Добавить ключ TMDB":"Повторить загрузку")}</button>`:""}`;
-  $("kg-home-europe").innerHTML=`<p class="font-body-sm text-body-sm text-text-muted py-2">${uiText("Фильмы появятся после загрузки данных.")}</p>`;
-}
-async function loadHomeEditorial(force=false){
-  if(homeEditorial.loading)return homeEditorial.pending;
-  if(!apiKey){if(!homeEditorial.films.length)renderHomeEditorialMessage("Добавьте ключ TMDB, чтобы загрузить фильм и подборку европейского кино.","set-key");return false;}
-  if(!force&&homeEditorial.loadedKey===apiKey)return true;
-  const token=++homeEditorial.token,oldByCountry=new Map(homeEditorial.films.map(f=>[f._cc,f]));
-  homeEditorial.loading=true;
-  if(!homeEditorial.films.length)renderHomeEditorialMessage("Загружаем фильмы и данные TMDB…");
-  const pending=(async()=>{
-    const results=await Promise.allSettled(HOME_EUROPE.map(async cc=>{
-      let response=await api({with_origin_country:cc,sort_by:"popularity.desc","vote_count.gte":30,include_adult:"false",page:1},{fresh:force});
-      let films=response.results||[];
-      if(!films.length){
-        response=await api({with_origin_country:cc,sort_by:"popularity.desc","vote_count.gte":1,include_adult:"false",page:1},{fresh:force});
-        films=response.results||[];
-      }
-      return films.length?{...films[0],_cc:cc}:null;
-    }));
-    if(token!==homeEditorial.token)return false;
-    results.forEach((result,i)=>{if(result.status==="rejected")console.warn(`[Kinoglobus] Не удалось загрузить фильмы ${HOME_EUROPE[i]}:`,result.reason);});
-    const succeeded=results.some(result=>result.status==="fulfilled");
-    const byCountry=new Map();
-    results.forEach((result,i)=>{
-      if(result.status==="fulfilled"){if(result.value)byCountry.set(HOME_EUROPE[i],result.value);}
-      else if(oldByCountry.has(HOME_EUROPE[i]))byCountry.set(HOME_EUROPE[i],oldByCountry.get(HOME_EUROPE[i]));
+  if(!cur||cur.film.id!==film.id)return;
+  window.KGCinemaReel.prepareTicket($("film-reel-host"));
+  strip={list:seq,pool,cc,idx:NEED,busy:true};
+  mountRun(seq,NEED,"");
+  [...runEl.children].forEach(c=>c.classList.add("spinning"));
+  set("reel-frame-counter","Кадр -- / "+pad(pool.films.length));
+  startFilmReelSound();
+  const x0=centerX(0),x1=centerX(NEED);
+  const completed=await new Promise(resolve=>{
+    spinCancel=window.KGCinemaReel.spin({
+      run:runEl,root:null,startX:x0,endX:x1,duration:T,stepWidth:STEP,
+      chosenIndex:NEED,reducedMotion:RM,
+      onStep:(row,progress)=>{
+        if(progress>.6)buzz(7);
+      },
+      onProgress:()=>{if(!cur||cur.film.id!==film.id)spinCancel?.();},
+      onFinish:()=>resolve(true),
+      onCancel:()=>resolve(false)
     });
-    const films=HOME_EUROPE.map(cc=>byCountry.get(cc)).filter(Boolean);
-    if(!succeeded||!films.length){
-      const error=results.find(result=>result.status==="rejected");
-      if(!homeEditorial.films.length)renderHomeEditorialMessage(error&&error.reason&&error.reason.message||"Не удалось загрузить европейские фильмы.","retry");
-      return false;
-    }
-    homeEditorial.films=films;
-    homeEditorial.loadedKey=apiKey;
-    homeEditorial.details.clear();homeEditorial.directorData.clear();homeEditorial.featureDetails=null;
-    store.set("kgHomeEditorial",{films,language:filmLanguage,ts:Date.now()});
-    renderHomeEditorial();
-    return results.every(result=>result.status==="fulfilled");
-  })();
-  homeEditorial.pending=pending;
-  try{return await pending;}finally{
-    if(homeEditorial.pending===pending){homeEditorial.pending=null;homeEditorial.loading=false;}
-  }
-}
-homeEditorialRoot.addEventListener("click",async e=>{
-  const detailAction=e.target.closest("#kg-home-feature [data-act],#kg-home-europe-detail [data-act]");
-  if(detailAction){
-    e.stopPropagation();
-    if(detailAction.dataset.act==="close-film"){
-      const placement=D.selected&&D.selected._placement;
-      if(placement==="home"){
-        closeHomeFeature();
-      }else{
-        if(placement&&placement.startsWith("home"))D.selected=null;
-        const container=detailAction.closest("#kg-home-europe-detail");
-        if(container){container.replaceChildren();container.hidden=true;}
-      }
-
-    }
-    return;
-  }
-  if(e.target.closest("[data-trailer-action]"))return;
-  const button=e.target.closest("[data-home-act]");
-  if(!button)return;
-  e.stopPropagation();
-  const action=button.dataset.homeAct;
-  if(action==="set-key"){
-    const banner=$("tmdb-key-banner");banner.classList.remove("hidden");banner.scrollIntoView({behavior:"smooth",block:"center"});$("tmdb-key-input").focus();return;
-  }
-  if(action==="retry"){homeEditorial.loadedKey="";loadHomeEditorial();return;}
-  const film=homeEditorial.films.find(f=>String(f.id)===button.dataset.id);
-  if(!film)return;
-  if(action==="open"){
-    if(button.dataset.homeMeta){homeEditorial.scrollAnchorId=String(film.id);openFilm(film,"home-europe");}
-    else if(D.selected?._placement==="home"&&String(D.selected.id)===String(film.id))closeHomeFeature();
-    else openFilm(film,"home");
-    return;
-  }
-  if(action==="trailer"){
-    openFilm(film,"home");
-    return;
-  }
-  if(action==="share"){
-    try{
-      const info={title:film.title||film.original_title||"Фильм",text:"Посмотри этот фильм в Kinoglobus",url:`https://www.themoviedb.org/movie/${film.id}`};
-      if(navigator.share)await navigator.share(info);
-      else if(navigator.clipboard&&navigator.clipboard.writeText){await navigator.clipboard.writeText(info.url);toast("Ссылка скопирована","link");}
-      else throw new Error("Поделиться из этого браузера не удалось.");
-    }catch(error){
-      if(error.name!=="AbortError"){console.error("[Kinoglobus] Не удалось поделиться фильмом:",error);toast("Не удалось поделиться фильмом","share");}
-    }
-  }
-});
-$("kg-home-europe-link").addEventListener("click",()=>{
-  const carousel=$("kg-home-europe");carousel.scrollTo({left:carousel.scrollWidth,behavior:"smooth"});
-});
-async function settleWithLimit(items,limit,work){
-  const results=new Array(items.length);let next=0;
-  await Promise.all(Array.from({length:Math.min(limit,items.length)},async()=>{
-    while(next<items.length){
-      const index=next++;
-      try{results[index]={status:"fulfilled",value:await work(items[index],index)};}
-      catch(reason){results[index]={status:"rejected",reason};}
-    }
-  }));
-  return results;
-}
-async function refreshAllCollections(forceAll=false){
-  const results=await settleWithLimit(catalogThemes,4,async t=>{
-    if (t.films) return themeDataCache.get(themeDataKey(t,2))?.data || curatedData(t.films.map(localizeFilmListItem));
-    const cached=themeDataCache.get(themeDataKey(t,2));
-    if(!forceAll&&cached&&cached.date===localDateKey()&&Date.now()-cached.ts<DAY_MS)return cached.data;
-    const data=await loadTheme(t,2,true);
-    if(data._stale)throw new Error("Сохранённые данные подборки не удалось обновить.");
-    const firstPage=themeDataCache.get(themeDataKey(t,1))?.data;
-    if(firstPage){saveThemeMeta(t,firstPage);if(catBuilt)paintMeta(t.id);}
-    return data;
   });
-  if(sortMode!=="curated")sortCatalog();
-  const activeIndex=view==="collection"&&D.t?catalogThemes.findIndex(t=>t.id===D.t.id):-1;
-  if(activeIndex>=0){
-    const result=results[activeIndex];
-    if(result.status==="fulfilled"){
-      const t=D.t,r=result.value;
-      D.all=r.films;D.total=r.total;D.totals=r.totals;
-      $("cl-count").textContent=collectionFilmCount(r.total);
-      renderFilms();
-    }
+  spinCancel=null;
+  if(!completed||!cur||cur.film.id!==film.id){strip.busy=false;stopFilmReelSound();return;}
+  strip.busy=false;
+  stopFilmReelSound();
+  const k=pool.films.findIndex(f=>f.id===film.id);
+  set("reel-frame-counter",`Кадр ${pad((k<0?0:k)+1)} / ${pad(pool.films.length)}`);
+  buzz([25,50,60]);
+  reveal(film,pool);
+}
+
+function reveal(film,pool){
+  if (!detailsEl.classList.contains("veiled")) return;
+  detailsEl.classList.remove("veiled");
+  playFilmFoundSound();
+  set("hero-country-master",$("discovery-title").textContent);
+  scrollToFilmReel(detailsEl);
+}
+
+// Единый блок легального просмотра используется во всех карточках фильма.
+function showProviders(film){
+  const box=$("discovery-legal-watch");if(!box)return;
+  box.innerHTML=window.KGLegalWatch?.markup(film.id)||"";
+}
+function setVotes(votes){
+  const vl=$("discovery-votes");
+  if(vl)vl.textContent="TMDB"+(votes?" · "+(votes>=1000?(votes/1000).toFixed(1)+"k":votes):"");
+}
+
+// ---------- Описание и подробности фильма ----------
+const langName=l=>{try{return l?new Intl.DisplayNames([interfaceLanguage],{type:"language"}).of(l):"";}catch(e){return l||"";}};
+const moneyOrNo=n=>n?moneyFmt.format(n):uiText("нет данных");
+function factRow(k,v){
+  return v?`<div class="flex gap-2"><span class="text-text-muted flex-shrink-0" style="min-width:104px">${k}</span><span class="text-on-surface min-w-0" style="overflow-wrap:anywhere">${esc(v)}</span></div>`:"";
+}
+function synopsisHTML(text,note){
+  return `<div class="p-3.5 rounded-xl bg-surface-container flex flex-col gap-2">
+    <div class="flex items-center gap-1.5 text-primary"><span class="material-symbols-outlined text-[18px]">auto_stories</span><h3 class="font-headline-sm text-headline-sm">${uiText("Синопсис")}</h3></div>
+    <p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">${esc(text)}</p>
+    ${note?`<p class="font-micro-caption text-micro-caption text-text-muted">${esc(note)}</p>`:""}
+  </div>`;
+}
+function renderExtra(film,d){
+  const cc=cur?cur.cc:"";
+  const year=(film.release_date||"").slice(0,4);
+  const text=d.overview||filmSynopsis(film.overview)||uiText("Описание пока недоступно.");
+  const preferredLanguage = filmTextLanguage({original_language:d.originalLang});
+  const note = d.overview && d.overviewLang && d.overviewLang !== preferredLanguage
+    ? uiText("Показано доступное описание. Язык: {language}.", {language: langName(d.overviewLang)})
+    : "";
+  set("discovery-desc",text);
+  $("discovery-desc-lang").textContent=note;
+  $("discovery-desc-lang").hidden=!note;
+  const tg=$("film-tagline");
+  const matchingTagline=!!d.tagline&&d.taglineLang===d.overviewLang;
+  tg.textContent=matchingTagline?"«"+d.tagline+"»":"";tg.hidden=!matchingTagline;
+
+  // создатели
+  const card=(label,val,main)=>val?`<div class="p-2.5 rounded-xl bg-surface-container-high flex flex-col min-w-0">
+    <span class="font-micro-caption text-micro-caption text-text-muted">${label}</span>
+    <span class="font-label-md text-label-md ${main?"text-primary":"text-on-surface"} mt-0.5" style="overflow-wrap:anywhere">${esc(val)}</span></div>`:"";
+  const dirsHtml=(d.dirsFull||[]).length?d.dirsFull.map(p=>`<button type="button" data-kg-person-id="${p.id}" data-kg-person-name="${esc(p.name)}" data-kg-person-role="Режиссёр" class="kg-person-link">${esc(p.name)}</button>`).join(", "):esc((d.dirs||[]).join(", "));
+  const directorCard=dirsHtml?`<div class="p-2.5 rounded-xl bg-surface-container-high flex flex-col min-w-0"><span class="font-micro-caption text-micro-caption text-text-muted">${uiText(d.dirs.length>1?"Режиссёры":"Режиссёр")}</span><span class="font-label-md text-label-md text-primary mt-0.5" style="overflow-wrap:anywhere">${dirsHtml}</span></div>`:"";
+  const crew=[directorCard,card(uiText("Сценарий"),d.writers.join(", "),false)].filter(Boolean);
+
+  // актёры
+  const cast=(d.castFull||[]).map(c=>`<button type="button" data-kg-person-id="${c.id||""}" data-kg-person-name="${esc(c.name)}" data-kg-person-role="Актёр" class="kg-person-card flex-shrink-0 w-28 flex flex-col items-center text-center p-2 rounded-xl bg-surface-container-high" ${c.id?"":"disabled"}>
+    <div class="w-14 h-14 rounded-full overflow-hidden mb-2 bg-surface-variant shadow-md flex items-center justify-center">
+      ${c.photo?`<img class="w-full h-full object-cover" loading="lazy" alt="" src="https://image.tmdb.org/t/p/w185${c.photo}">`:'<span class="material-symbols-outlined text-text-muted">person</span>'}
+    </div>
+    <span class="font-label-sm text-label-sm text-on-surface font-semibold truncate w-full">${esc(c.name)}</span>
+    <span class="font-micro-caption text-micro-caption text-text-muted truncate w-full">${esc(c.role)}</span></button>`).join("");
+
+  const people=(crew.length||cast)?`<div class="flex flex-col gap-2">
+    <div class="flex items-center justify-between"><h3 class="font-headline-sm text-headline-sm text-on-surface">${uiText("Создатели и актёры")}</h3>
+      <span class="font-micro-caption text-micro-caption text-text-muted">${esc([cc?cname(cc):"",year].filter(Boolean).join(" · "))}</span></div>
+    ${crew.length?`<div class="grid ${crew.length>1?"grid-cols-2":"grid-cols-1"} gap-2">${crew.join("")}</div>`:""}
+    ${cast?`<div class="flex gap-2.5 overflow-x-auto py-1" style="-webkit-overflow-scrolling:touch">${cast}</div>`:""}
+  </div>`:"";
+  const related=document.getElementById("discovery-related");
+  if(related)related.innerHTML=`<section data-kg-related-films data-film-id="${film.id}" data-context-key="discovery-current" data-placement="discovery" class="flex flex-col gap-2 mt-3 pt-3 border-t border-surface-border-subtle"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary-container text-[20px]">movie_filter</span><h3 class="font-headline-sm text-headline-sm text-primary">${uiText("Похожие фильмы")}</h3></div><div data-kg-related-list class="flex gap-2 overflow-x-auto pb-1"><span class="text-xs text-text-muted">${uiText("Подбираем фильмы…")}</span></div></section>`;
+
+  // остальные факты
+  let when="";
+  if(d.release){const t=new Date(d.release+"T00:00:00");when=isNaN(t)?d.release:t.toLocaleDateString(interfaceLanguage,{day:"numeric",month:"long",year:"numeric"});}
+  const facts=[
+    ["Длительность",d.runtime?fmtRuntime(d.runtime):"",0],["Дата выхода",when,0],
+    ["Бюджет",moneyOrNo(d.budget),0],["Сборы",moneyOrNo(d.revenue),0],
+    ["Студии",d.companies.join(", "),1],["Страны",d.countries.map(cname).filter(Boolean).join(", "),1],
+    ["Оригинальное название",d.originalTitle&&d.originalTitle!==film.title?d.originalTitle:"",1],
+    ["Язык оригинала",langName(d.originalLang),0]
+  ].filter(f=>f[1]).map(([k,v,wide])=>`<div class="p-2.5 rounded-xl bg-surface-container-high flex flex-col min-w-0 ${wide?"col-span-2":""}">
+    <span class="font-micro-caption text-micro-caption text-text-muted">${uiText(k)}</span>
+    <span class="font-label-md text-label-md text-on-surface mt-0.5" style="overflow-wrap:anywhere">${esc(v)}</span></div>`).join("");
+
+  // страна и прогресс
+  const countryCounts=window.KGWatchedCountryCounts?window.KGWatchedCountryCounts():{};const n=countryCounts[cc]||0,open=Object.keys(countryCounts).length,all=COUNTRIES.length,pct=Math.round(open/all*100);
+  const tag=uiText(cur&&cur.pool.oscar?"ОСКАР":cur&&cur.pool.top1?"ТОП-1":"НАХОДКА");
+  const country=cc?`<div class="p-3.5 rounded-xl bg-surface-container-high flex flex-col gap-2.5">
+    <div class="flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2 min-w-0"><div class="w-7 h-7 rounded-full bg-cinema-velvet-deep flex items-center justify-center text-secondary flex-shrink-0"><span class="material-symbols-outlined text-[16px]">travel_explore</span></div>
+        <span class="font-label-md text-label-md text-primary font-bold truncate">${esc(uiText("Кинематограф: {country}", {country: cname(cc)}))}</span></div>
+      <span class="px-2 py-0.5 rounded-full bg-surface-panel text-primary-fixed font-micro-caption text-micro-caption font-bold flex-shrink-0">${tag}</span></div>
+    <p class="font-body-sm text-body-sm text-on-surface-variant">${uiText("Отмечено фильмов из этой страны:")} <strong class="text-primary font-bold">${n}</strong>. ${uiText("Открыто стран:")} <strong class="text-primary font-bold">${esc(uiText("{opened} из {total}", {opened: open, total: all}))}</strong>.</p>
+    <div class="w-full bg-surface-variant/70 rounded-full h-2 overflow-hidden"><div class="bg-primary-container h-full rounded-full transition-all duration-500" style="width:${pct}%"></div></div>
+    <div class="flex items-center justify-between text-text-muted"><span class="font-micro-caption text-micro-caption">${esc(uiText("Прогресс: {percent}%", {percent: pct}))}</span>
+      <button type="button" data-kg="passport" class="inline-flex items-center gap-1 font-micro-caption text-micro-caption text-primary hover:underline"><span>${uiText("Смотреть паспорт")}</span><span class="material-symbols-outlined text-[12px]">chevron_right</span></button></div>
+  </div>`:"";
+
+  const fx=$("film-facts");
+  fx.className="flex flex-col gap-3 mt-2";
+  $("film-people").innerHTML=people;
+  fx.innerHTML=(facts?`<div class="grid grid-cols-2 gap-2">${facts}</div>`:"")+country;
+}
+$("film-facts").addEventListener("click",e=>{if(e.target.closest('[data-kg="passport"]'))$("mapBtn").click();});
+
+// ---------- Трейлер прямо в приложении ----------
+let ftKey=null;
+function closeFilmTrailer(){
+  $("film-trailer-player").innerHTML="";$("film-trailer-player").hidden=true;
+  $("film-trailer-preview").hidden=false;$("film-trailer-close").hidden=true;
+  $("film-trailer-note").hidden=!ftKey;
+}
+{ // любое закрытие старого плеера (новая прокрутка, «другой фильм») закрывает и новый
+  const _closePlayer=window.closePlayer;
+  window.closePlayer=function(){_closePlayer();closeFilmTrailer();};
+}
+function playFilmTrailer(){
+  const player = $("film-trailer-player");
+  if (!ftKey || !player.hidden) return;
+  player.innerHTML=`<iframe src="${embedSrc(ftKey)}" allow="${trailerFramePermissions}" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" title="${uiText("Трейлер")}" class="kg-trailer-frame"></iframe>`;
+  player.hidden=false;
+  $("film-trailer-preview").hidden=true;
+  $("film-trailer-close").hidden=false;
+  $("film-trailer-note").hidden=false;
+  $("film-trailer-link").href=watchUrl(ftKey);
+  $("film-trailer-link").textContent=uiText("Открыть на {site}", {site: ftKey.site});
+}
+$("film-trailer-play").addEventListener("click",playFilmTrailer);
+$("film-trailer-close").addEventListener("click",event=>{event.preventDefault();event.stopPropagation();closeFilmTrailer();});
+
+const _show=window.show;
+window.show=function(cc,pool,film){
+  if (reelSnd !== "off") audio();
+  const fromSpin=G.isSpinning;
+  _show(cc,pool,film);
+  if(window.KGFilmInteractions)window.KGFilmInteractions.registerPool("discovery-current",pool.films||[]);
+  window.KGShowRelatedDiscoveryFilm=related=>window.show(cc,pool,related);
+  const w=gc(cc);
+  set("hero-country-films",pool.oscar?uiText("Оскар"):pool.top1?uiText("Топ-1"):uiText("{count} в выборке", {count: pool.films.length}));
+  set("hero-country-master",uiText("Ищем фильм…"));
+  // «Другой фильм» из той же страны: глобус уже стоит на ней, крутить и приближать его заново не нужно
+  const sameCountry=!G.isSpinning&&focusedCC===cc;
+  if(!G.isSpinning&&!sameCountry){   // фильм из истории или из другой страны: показать страну
+    focusedCC=cc;
+    G.currentCountry=w;G.showSingleBeacon(w);G.orientGlobeToCountry(w,false,0.055,G.CAMERA_DIST_FOCUS,true);hero(w,false);
+    set("hero-country-films",pool.oscar?uiText("Оскар"):pool.top1?uiText("Топ-1"):uiText("{count} в выборке", {count: pool.films.length}));set("hero-country-master",uiText("Ищем фильм…"));
+    tmr.forEach(clearTimeout);tmr=[];
+    tmr.push(setTimeout(()=>G.dollyBack(w),2400));
   }
-  return results.every(r=>r.status==="fulfilled");
-}
-function localDateKey(date=new Date()){
-  return [date.getFullYear(),String(date.getMonth()+1).padStart(2,"0"),String(date.getDate()).padStart(2,"0")].join("-");
-}
-function dailyRefreshDue(){
-  const last=Number(store.get("kgDailyRefreshAt",0));
-  return !last||Date.now()-last>=DAY_MS||store.get("kgDailyRefreshDate","")!==localDateKey();
-}
-let dailyRefreshPromise=null,dailyAttemptAt=0;
-async function refreshDailyData(force=false,ignoreCooldown=false){
-  if(!apiKey||(!force&&!dailyRefreshDue()))return false;
-  if(dailyRefreshPromise)return dailyRefreshPromise;
-  if(!ignoreCooldown&&Date.now()-dailyAttemptAt<15*60*1000)return false;
-  dailyAttemptAt=Date.now();
-  const pending=(async()=>{
-    if(typeof window.invalidateFilmDataCaches==="function")window.invalidateFilmDataCaches();
-    const results=await Promise.all([
-      loadHomeEditorial(true),
-      refreshAllCollections(force)
-    ]);
-    if(results.every(Boolean)){
-      const now=Date.now();
-      store.set("kgDailyRefreshAt",now);
-      store.set("kgDailyRefreshDate",localDateKey());
-      return true;
+  const y=(film.release_date||"").slice(0,4),votes=film.vote_count||0;
+  set("discovery-title",film.title||"");set("discovery-year",y?"("+y+")":"");
+  const poster=$("discovery-poster");
+  poster.innerHTML = filmPosterMarkup(film);
+  $("film-trailer-box").hidden=false;
+  $("film-trailer-thumbnail").src=film.poster_path?`https://image.tmdb.org/t/p/w780${film.poster_path}`:"";
+  $("film-trailer-play").disabled=true;
+  $("film-trailer-status").textContent=uiText("Ищем трейлер…");
+  $("film-trailer-status").hidden=false;
+  set("discovery-country",cname(cc));$("discovery-flag").innerHTML=flag(cc,false);
+  set("discovery-genres","· "+(genreLine(film).split(", ").map(genre => uiText(genre)).join(", ")||uiText("кино")));
+  set("discovery-desc",filmSynopsis(film.overview)||uiText("Ищем описание…"));
+  $("discovery-desc-lang").hidden=true;$("film-tagline").hidden=true;
+  $("film-people").innerHTML=`<span class="text-text-muted">${uiText("Загружаем режиссёра и актёров…")}</span>`;
+  $("film-facts").innerHTML=`<span class="text-text-muted">${uiText("Загружаем подробности…")}</span>`;
+  set("discovery-rating",votes?Number(film.vote_average).toFixed(1):"—");setVotes(votes);
+  set("discovery-timestamp",pool.oscar?uiText("Лауреат «Оскара»"):pool.top1?uiText("Топ-1 страны"):pool.worst?uiText("Из худших"):uiText("Случайная находка · {country}", {country: cname(cc)}));
+  $("oscar-badge").style.display=pool.oscar?"":"none";
+  detailsEl.classList.add("veiled");
+  renderBlank();                 // название и рейтинг скрыты до остановки плёнки, спойлера нет
+  filmDetails(film.id).then(d=>{
+    if(!cur||cur.film.id!==film.id)return;
+    const g=(d.genres.length?d.genres:genreLine(film).split(", ")).filter(Boolean).slice(0,3).map(genre => uiText(genre)).join(", ");
+    set("discovery-genres","· "+[g,d.runtime?uiText("{minutes} мин", {minutes: d.runtime}):""].filter(Boolean).join(" · "));
+    if(d.votes){set("discovery-rating",Number(d.average).toFixed(1));setVotes(d.votes);}
+    if (d.title) {
+      set("discovery-title", d.title);
+      if (!detailsEl.classList.contains("veiled") && focusedCC === cc) set("hero-country-master", d.title);
     }
-    console.warn("[Kinoglobus] Ежедневное обновление выполнено частично; сохранённые данные оставлены.");
-    setTimeout(()=>refreshDailyData(),15*60*1000);
-    return false;
-  })();
-  dailyRefreshPromise=pending;
-  try{return await pending;}finally{if(dailyRefreshPromise===pending)dailyRefreshPromise=null;}
-}
-function checkDailyRefresh(){updateWeeklySpotlight();if(dailyRefreshDue())refreshDailyData();}
-function scheduleDailyRefresh(){
-  const now=new Date(),next=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1,0,0,5);
-  const weekBoundary=(Math.floor(Date.now()/6048e5)+1)*6048e5;
-  setTimeout(()=>{checkDailyRefresh();scheduleDailyRefresh();},Math.max(1000,Math.min(next.getTime(),weekBoundary)-Date.now()));
-}
-document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")checkDailyRefresh();});
-window.addEventListener("pageshow",checkDailyRefresh);
-window.addEventListener("focus",checkDailyRefresh);
-const refreshForNewKey=()=>{
-  homeEditorial.loadedKey="";
-  if(view==="mood"){vm.dataset.key="";showView("mood");}
-  if(view==="oscar"){vo.dataset.key="";showView("oscar");}
-  refreshDailyData(true,true);
+    $("discovery-bookmark").innerHTML = kgBookmarkButton({...film,title:d.title || film.title,localizedPoster:d.localizedPoster,_cc:cur.cc});
+    poster.innerHTML = filmPosterMarkup({...film, title:d.title || film.title, localizedPoster:d.localizedPoster});
+    renderExtra({...film, title:d.title || film.title},d);
+  }).catch(()=>{
+    if(!cur||cur.film.id!==film.id)return;
+    set("discovery-desc",filmSynopsis(film.overview)||uiText("Не удалось загрузить описание."));
+    $("film-people").innerHTML=`<span class="text-text-muted">${uiText("Сведения о режиссёре и актёрах сейчас недоступны.")}</span>`;
+    $("film-facts").innerHTML=`<span class="text-text-muted">${uiText("Подробности сейчас недоступны.")}</span>`;
+  });
+  const alreadyWatched=!!window.KGIsFilmWatched?.(film.id);
+  bw.dataset.saving="false";
+  paintWatchedButton(bw,alreadyWatched);
+  $("discovery-bookmark").innerHTML = kgBookmarkButton({...film,_cc:cur.cc});
+  paintDiscoveryNote();
+  ag.style.display=$("again").hidden?"none":"";
+  ftKey=null;closeFilmTrailer();
+  trailerFor(film).then(k=>{
+    if(!cur||cur.film.id!==film.id)return;
+    ftKey=k;
+    if(k){
+      $("film-trailer-play").disabled=false;
+      $("film-trailer-note").hidden=false;
+      $("film-trailer-status").hidden=true;
+      if(k.site==="YouTube")$("film-trailer-thumbnail").src=`https://img.youtube.com/vi/${encodeURIComponent(k.key)}/hqdefault.jpg`;
+      $("film-trailer-link").href=watchUrl(k);$("film-trailer-link").textContent=uiText("Открыть на {site}", {site: k.site});
+    }else{$("film-trailer-status").hidden=false;$("film-trailer-status").textContent=uiText("Трейлер не найден");}
+  });
+  showProviders(film);
+  stopReel();warmPosters(pool,film);
+  const selection = cur;
+  spinTimer=setTimeout(async()=>{
+    try{
+      await scrollToFilmReel(card, fromSpin ? 620 : 500);
+      if(cur!==selection)return;
+      await spinReel(pool,film,cc);
+    }catch(e){console.warn('[Kinoglobus] reel',e);if(cur===selection){stopFilmReelSound();renderStatic(pool,film,cc);reveal(film,pool);}}
+  },0);
 };
-$("tmdb-key-save").addEventListener("click",refreshForNewKey);
-$("saveKey").addEventListener("click",()=>setTimeout(refreshForNewKey,0));
-document.addEventListener("kg:watched-change",()=>{if(D.selected)renderSelectedPanel();});
-const savedHome=store.get("kgHomeEditorial",null);
-if(savedHome&&(savedHome.language||"ru")===filmLanguage&&Array.isArray(savedHome.films)&&savedHome.films.length){
-  homeEditorial.films=savedHome.films;
-  homeEditorial.loadedKey=apiKey;
-  renderHomeEditorial();
+async function markCurrentFilm(button){
+  if(!cur||!window.KGMarkWatched||button?.dataset.saving==="true")return;
+  const film={...cur.film,_cc:cur.cc},next=!window.KGIsFilmWatched?.(film.id);
+  if(button){button.dataset.saving="true";paintWatchedButton(button,next);}
+  try{const result=await window.KGToggleWatched(film);if(result!==next)throw new Error("Не удалось обновить отметку просмотра");paintWatchedButton(bw,next);bw.dataset.saving="false";syncDesign();}
+  catch(error){if(button){button.dataset.saving="false";paintWatchedButton(button,!!window.KGIsFilmWatched?.(film.id));}console.warn("[Kinoglobus] Не удалось обновить просмотр:",error);}
 }
-if(dailyRefreshDue())refreshDailyData();
-else if(!homeEditorial.films.length)loadHomeEditorial();
-scheduleDailyRefresh();
-showView("home");
-window.KINOGLOBUS_THEME_COVERS = THEME_COVERS;
-console.info("[Kinoglobus] v8 collections ready + theme covers");
+function paintDiscoveryNote(){
+  const hasNote = window.KGHasCinemaDiaryNote?.(cur?.film.id);
+  $("discovery-add-note").querySelector("[data-note-label]").textContent =
+    uiText(hasNote ? "Редактировать запись" : "Добавить запись");
+}
+$("discovery-add-note").addEventListener("click", () => {
+  if (!cur) return;
+  const {film, cc} = cur;
+  const details = detailCache[film.id];
+  window.KGOpenCinemaDiaryNote?.({
+    ...film, _cc:cc, title:details?.title || film.title,
+    localizedPoster:details?.localizedPoster || film.localizedPoster
+  });
+});
+document.addEventListener("kg:diary-note-change", paintDiscoveryNote);
+bw.addEventListener("click",()=>markCurrentFilm(bw));
+ag.addEventListener("click",()=>$("again").click());
+
+// ---------- Кнопки глобуса ----------
+const clone=el=>{const n=el.cloneNode(true);el.replaceWith(n);return n;};
+clone($("btn-spin-roulette")).addEventListener("click",()=>{
+  refreshKey();
+  if(!apiKey){const b=$("tmdb-key-banner");b.classList.remove("hidden");b.scrollIntoView({behavior:"smooth",block:"center"});return;}
+  $("go").click();
+});
+const needKey=fn=>()=>{if(!apiKey){refreshKey();$("tmdb-key-banner").scrollIntoView({behavior:"smooth",block:"center"});return;}fn();};
+clone($("btn-top-one")).addEventListener("click",needKey(()=>$("top1").click()));
+clone($("btn-oscar-laureate")).addEventListener("click",needKey(()=>$("oscar").click()));
+$("btn-top-one").parentNode.after($("err"));
+$("btn-mode-filters").addEventListener("click",()=>$("modeFilters").click());
+$("btn-mode-surprise").addEventListener("click",()=>$("modeSurprise").click());
+
+// ---------- Навигация ----------
+const go=(sel,fn)=>document.querySelectorAll(`[data-path="${sel}"]`).forEach(a=>a.addEventListener("click",e=>{e.preventDefault();fn();}));
+go("moe-puteshestvie",()=>$("mapBtn").click());
+go("istoriya-posmotrel",()=>window.KGOpenWatchHistory());
+go("globus-random",()=>scrollTo({top:0,behavior:"smooth"}));
+go("podborki-i-zhanry",()=>{themeFilter.open=true;themeFilter.scrollIntoView({behavior:"smooth",block:"start"});});
+
+// ---------- Старт ----------
+G.orientGlobeToCountry(G.currentCountry,true,0.08,G.CAMERA_DIST_DEFAULT,false);G.hideMarks();
+applyMode();
+syncDesign();setSpinUi(false);
+if (countryFilters.size) frameSelectedCountry([...countryFilters].at(-1));
+window.KGCountryApp={
+  countries:()=>COUNTRIES.slice(),
+  watched:()=>watched.slice(),
+  counts:()=>window.KGWatchedCountryCounts?window.KGWatchedCountryCounts():{},
+  countryName:cname,
+  countryFlag:code=>flag(code,false),
+  key:()=>apiKey,
+  getCountryFilms:async(code,page=1)=>api({with_origin_country:code,sort_by:"popularity.desc","vote_count.gte":10,include_adult:"false",page}),
+  getFilmDetails:filmDetails,
+  showCountryOnGlobe:code=>{closeJ();const country=gc(code);G.currentCountry=country;focusedCC=code;G.showSingleBeacon(country);G.orientGlobeToCountry(country,false,0.055,G.CAMERA_DIST_FOCUS,true);hero(country,false);setTimeout(()=>G.dollyBack(country),1800);window.scrollTo({top:0,behavior:"smooth"});},
+  searchCountry:async code=>{if(!apiKey){closeJ();showKeyUi();$("tmdb-key-banner").scrollIntoView({behavior:"smooth",block:"center"});return;}closeJ();await spin(code);}
+};
+console.info("[Kinoglobus] Bridge v6 ready");
 })();
+</script>
+
+<script src="globe-visuals.js?v=3"></script>
+<script src="watch-history.js?v=11"></script>
+<script src="country-pages.js?v=28"></script>
+<script src="profile-page.js?v=7"></script>
+<script src="cinema-diary.js?v=6"></script>
+<script src="profile-editor.js?v=1"></script>
+<script src="login-page.js?v=3"></script>
+<script src="password-recovery.js?v=2"></script>
+<script src="recovery-code.js?v=1"></script>
+<script src="account-page.js?v=6"></script>
+<script src="mood-vibe-additions.js?v=2"></script>
+<script src="mood-page.js?v=41"></script>
+<script src="mood-vibe-page.js?v=28"></script>
+<script src="oscar-page.js?v=44"></script>
+<script src="oscar-design.js?v=23"></script>
+<script src="curated-collections.js?v=1"></script>
+<script src="collections.js?v=101"></script>
+<script src="film-interactions.js?v=21"></script>
+<script src="legal-watch.js?v=6"></script>
+<script src="global-search.js?v=7"></script>
+<script src="home-releases.js?v=8"></script>
+<script src="settings-page.js?v=47"></script>
+
+</body></html>

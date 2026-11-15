@@ -231,7 +231,7 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
       return;
     }
     if(e.target.closest("[data-mood-back]")){deps.back();return;}
-    if(e.target.closest('[data-act="close-film"]')){deps.closeFilm("mood");return;}
+    if(e.target.closest('[data-act="close-film"]')){deps.closeFilm("mood",true);return;}
     const ownerCard=e.target.closest(".mood-card");
     if(ownerCard&&ownerCard.dataset.moodCard!==state.mood&&!e.target.closest("[data-mood-select]")&&e.target.closest("[data-mood-workbench]"))selectMood(ownerCard.dataset.moodCard,root,deps);
     const select=e.target.closest("[data-mood-select]");
@@ -273,7 +273,7 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
     const film=e.target.closest("[data-mood-film]");
     if(film){
       const item=state.films.find(f=>String(f.id)===film.dataset.moodFilm);
-      if(item)deps.openFilm({...item,_kgRelatedPool:filtered()},"mood",film.dataset.detailTarget||"mood-roulette-detail");
+      if(item)deps.openFilm({...item,_kgRelatedPool:filtered()},"mood",film.dataset.detailTarget||"mood-roulette-detail",{opener:film});
     }
   }
   async function launch(root,deps){

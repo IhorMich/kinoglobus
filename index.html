@@ -1,7 +1,13 @@
-<!DOCTYPE html><html class="dark" lang="ru" data-kg-button-accent="cyan"><head><meta charset="utf-8"><link rel="stylesheet" href="app-theme.css?v=8">
-<script src="interface-en.js?v=34"></script>
+<!DOCTYPE html><html class="dark" lang="ru" data-kg-button-accent="cyan"><head><meta charset="utf-8"><link rel="stylesheet" href="app-theme.css?v=9">
+<script src="interface-en.js?v=35"></script>
 <script src="interface-i18n.js?v=2"></script>
 <script>
+function readPaletteColor(token, asNumber = false) {
+  const channels = getComputedStyle(document.documentElement).getPropertyValue(token).trim();
+  if (!asNumber) return `rgb(${channels})`;
+  const [red, green, blue] = channels.split(/\s+/).map(Number);
+  return (red << 16) | (green << 8) | blue;
+}
 const APP_THEMES = ["cinematic", "oled", "golden-age"];
 try {
   if (JSON.parse(localStorage.getItem("kgButtonAccent")) === "gold") {
@@ -13,7 +19,7 @@ try {
   if (APP_THEMES.includes(savedTheme)) document.documentElement.dataset.kgTheme = savedTheme;
 } catch (_) {}
 </script><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"><meta content="mobile_tab" name="shell-type"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,600;0,700;1,400&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "surface-container-lowest": "rgb(var(--kg-surface-container-lowest) / <alpha-value>)", "text-muted": "rgb(var(--kg-text-muted) / <alpha-value>)", "tertiary": "#e6e1d8", "on-tertiary": "#32302a", "on-primary-container": "rgb(var(--kg-on-primary-container) / <alpha-value>)", "on-primary-fixed-variant": "rgb(var(--kg-on-primary-fixed-variant) / <alpha-value>)", "background": "rgb(var(--kg-surface) / <alpha-value>)", "on-background": "#e8e0ea", "on-tertiary-fixed": "#1d1c16", "surface-bright": "rgb(var(--kg-surface-bright) / <alpha-value>)", "outline": "#9e8e7a", "surface": "rgb(var(--kg-surface) / <alpha-value>)", "on-error": "#690005", "surface-border-subtle": "rgb(var(--kg-surface-border-subtle) / <alpha-value>)", "on-secondary-fixed-variant": "#861a45", "secondary": "#ffb1c5", "surface-variant": "rgb(var(--kg-surface-container-highest))", "on-primary": "rgb(var(--kg-on-primary) / <alpha-value>)", "surface-tint": "#ffba3a", "tertiary-fixed": "#e7e2d9", "on-surface-variant": "rgb(var(--kg-on-surface-variant) / <alpha-value>)", "on-tertiary-fixed-variant": "#494740", "on-secondary": "#65002f", "inverse-primary": "#7e5700", "surface-dim": "rgb(var(--kg-surface) / <alpha-value>)", "inverse-surface": "#e8e0ea", "on-error-container": "#ffdad6", "error": "#ffb4ab", "feedback-error": "#ff8d7a", "surface-panel": "rgb(var(--kg-surface-panel) / <alpha-value>)", "primary-fixed-dim": "rgb(var(--kg-primary-fixed-dim) / <alpha-value>)", "secondary-fixed-dim": "#ffb1c5", "cinema-amber-glow": "rgb(var(--kg-cinema-amber-glow) / .28)", "tertiary-fixed-dim": "#cac6be", "secondary-fixed": "#ffd9e1", "outline-variant": "#514534", "on-secondary-fixed": "#3f001a", "on-secondary-container": "#ff96b3", "primary": "rgb(var(--kg-primary) / <alpha-value>)", "inverse-on-surface": "#332f37", "primary-container": "rgb(var(--kg-primary-container) / <alpha-value>)", "on-primary-fixed": "rgb(var(--kg-on-primary-fixed) / <alpha-value>)", "surface-container-highest": "rgb(var(--kg-surface-container-highest) / <alpha-value>)", "surface-container": "rgb(var(--kg-surface-container) / <alpha-value>)", "surface-container-high": "rgb(var(--kg-surface-container-high) / <alpha-value>)", "cinema-velvet-glow": "rgb(var(--kg-cinema-velvet-glow) / .35)", "surface-border": "rgb(var(--kg-surface-border) / <alpha-value>)", "surface-container-low": "rgb(var(--kg-surface-container-low) / <alpha-value>)", "on-surface": "rgb(var(--kg-on-surface) / <alpha-value>)", "on-tertiary-container": "#54524b", "cinema-velvet-deep": "rgb(var(--kg-cinema-velvet) / <alpha-value>)", "error-container": "#93000a", "secondary-container": "#861a45", "tertiary-container": "#c9c5bc", "primary-fixed": "rgb(var(--kg-primary-fixed) / <alpha-value>)", "canvas-obsidian": "rgb(var(--kg-canvas-obsidian) / <alpha-value>)" }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, spacing: { "space-xs": "0.25rem", "gutter-mobile": "0.75rem", "space-sm": "0.5rem", "margin": "1.5rem", "gutter": "1rem", "space-md": "0.875rem", "space-xl": "2rem", "margin-mobile": "1rem", "space-lg": "1.25rem" }, fontFamily: { "label-sm": ["Plus Jakarta Sans"], "body-md": ["Plus Jakarta Sans"], "micro-caption": ["Plus Jakarta Sans"], "display-hero-mobile": ["Noto Serif"], "label-lg": ["Plus Jakarta Sans"], "body-sm": ["Plus Jakarta Sans"], "headline-md": ["Noto Serif"], "headline-sm": ["Noto Serif"], "display-hero": ["Noto Serif"], "label-md": ["Plus Jakarta Sans"], "body-lg": ["Plus Jakarta Sans"], "headline-lg": ["Noto Serif"] }, fontSize: { "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }], "body-md": ["15px", { "lineHeight": "22px", "fontWeight": "400" }], "micro-caption": ["11px", { "lineHeight": "14px", "fontWeight": "500" }], "display-hero-mobile": ["26px", { "lineHeight": "30px", "letterSpacing": "-0.01em", "fontWeight": "700" }], "label-lg": ["16px", { "lineHeight": "20px", "fontWeight": "700" }], "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }], "headline-md": ["20px", { "lineHeight": "24px", "fontWeight": "600" }], "headline-sm": ["18px", { "lineHeight": "22px", "fontWeight": "600" }], "display-hero": ["34px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "label-md": ["14px", { "lineHeight": "18px", "letterSpacing": "0.01em", "fontWeight": "600" }], "body-lg": ["18px", { "lineHeight": "26px", "fontWeight": "400" }], "headline-lg": ["24px", { "lineHeight": "28px", "fontWeight": "700" }] } } } };</script><style>@layer base{html,body{width:100vw;margin:0;padding:0;background-color:rgb(var(--kg-canvas-obsidian));color:#e8e0ea;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 0.5rem);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><style>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "white": "rgb(var(--kg-white) / <alpha-value>)", "black": "rgb(var(--kg-black) / <alpha-value>)", "success": "rgb(var(--kg-success) / <alpha-value>)", "success-strong": "rgb(var(--kg-success-strong) / <alpha-value>)", "surface-container-lowest": "rgb(var(--kg-surface-container-lowest) / <alpha-value>)", "text-muted": "rgb(var(--kg-text-muted) / <alpha-value>)", "tertiary": "rgb(var(--kg-tertiary) / <alpha-value>)", "on-tertiary": "rgb(var(--kg-on-tertiary) / <alpha-value>)", "on-primary-container": "rgb(var(--kg-on-primary-container) / <alpha-value>)", "on-primary-fixed-variant": "rgb(var(--kg-on-primary-fixed-variant) / <alpha-value>)", "background": "rgb(var(--kg-surface) / <alpha-value>)", "on-background": "rgb(var(--kg-on-surface) / <alpha-value>)", "on-tertiary-fixed": "rgb(var(--kg-on-tertiary-fixed) / <alpha-value>)", "surface-bright": "rgb(var(--kg-surface-bright) / <alpha-value>)", "outline": "rgb(var(--kg-outline) / <alpha-value>)", "surface": "rgb(var(--kg-surface) / <alpha-value>)", "on-error": "rgb(var(--kg-on-error) / <alpha-value>)", "surface-border-subtle": "rgb(var(--kg-surface-border-subtle) / <alpha-value>)", "on-secondary-fixed-variant": "rgb(var(--kg-secondary-container) / <alpha-value>)", "secondary": "rgb(var(--kg-secondary) / <alpha-value>)", "surface-variant": "rgb(var(--kg-surface-container-highest))", "on-primary": "rgb(var(--kg-on-primary) / <alpha-value>)", "surface-tint": "rgb(var(--kg-surface-tint) / <alpha-value>)", "tertiary-fixed": "rgb(var(--kg-tertiary-fixed) / <alpha-value>)", "on-surface-variant": "rgb(var(--kg-on-surface-variant) / <alpha-value>)", "on-tertiary-fixed-variant": "rgb(var(--kg-on-tertiary-fixed-variant) / <alpha-value>)", "on-secondary": "rgb(var(--kg-on-secondary) / <alpha-value>)", "inverse-primary": "rgb(var(--kg-inverse-primary) / <alpha-value>)", "surface-dim": "rgb(var(--kg-surface) / <alpha-value>)", "inverse-surface": "rgb(var(--kg-on-surface) / <alpha-value>)", "on-error-container": "rgb(var(--kg-on-error-container) / <alpha-value>)", "error": "rgb(var(--kg-error) / <alpha-value>)", "feedback-error": "rgb(var(--kg-feedback-error) / <alpha-value>)", "surface-panel": "rgb(var(--kg-surface-panel) / <alpha-value>)", "primary-fixed-dim": "rgb(var(--kg-primary-fixed-dim) / <alpha-value>)", "secondary-fixed-dim": "rgb(var(--kg-secondary) / <alpha-value>)", "cinema-amber-glow": "rgb(var(--kg-cinema-amber-glow) / .28)", "tertiary-fixed-dim": "rgb(var(--kg-tertiary-fixed-dim) / <alpha-value>)", "secondary-fixed": "rgb(var(--kg-secondary-fixed) / <alpha-value>)", "outline-variant": "rgb(var(--kg-outline-variant) / <alpha-value>)", "on-secondary-fixed": "rgb(var(--kg-on-secondary-fixed) / <alpha-value>)", "on-secondary-container": "rgb(var(--kg-on-secondary-container) / <alpha-value>)", "primary": "rgb(var(--kg-primary) / <alpha-value>)", "inverse-on-surface": "rgb(var(--kg-inverse-on-surface) / <alpha-value>)", "primary-container": "rgb(var(--kg-primary-container) / <alpha-value>)", "on-primary-fixed": "rgb(var(--kg-on-primary-fixed) / <alpha-value>)", "surface-container-highest": "rgb(var(--kg-surface-container-highest) / <alpha-value>)", "surface-container": "rgb(var(--kg-surface-container) / <alpha-value>)", "surface-container-high": "rgb(var(--kg-surface-container-high) / <alpha-value>)", "cinema-velvet-glow": "rgb(var(--kg-cinema-velvet-glow) / .35)", "surface-border": "rgb(var(--kg-surface-border) / <alpha-value>)", "surface-container-low": "rgb(var(--kg-surface-container-low) / <alpha-value>)", "on-surface": "rgb(var(--kg-on-surface) / <alpha-value>)", "on-tertiary-container": "rgb(var(--kg-on-tertiary-container) / <alpha-value>)", "cinema-velvet-deep": "rgb(var(--kg-cinema-velvet) / <alpha-value>)", "error-container": "rgb(var(--kg-error-container) / <alpha-value>)", "secondary-container": "rgb(var(--kg-secondary-container) / <alpha-value>)", "tertiary-container": "rgb(var(--kg-tertiary-container) / <alpha-value>)", "primary-fixed": "rgb(var(--kg-primary-fixed) / <alpha-value>)", "canvas-obsidian": "rgb(var(--kg-canvas-obsidian) / <alpha-value>)" }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, spacing: { "space-xs": "0.25rem", "gutter-mobile": "0.75rem", "space-sm": "0.5rem", "margin": "1.5rem", "gutter": "1rem", "space-md": "0.875rem", "space-xl": "2rem", "margin-mobile": "1rem", "space-lg": "1.25rem" }, fontFamily: { "label-sm": ["Plus Jakarta Sans"], "body-md": ["Plus Jakarta Sans"], "micro-caption": ["Plus Jakarta Sans"], "display-hero-mobile": ["Noto Serif"], "label-lg": ["Plus Jakarta Sans"], "body-sm": ["Plus Jakarta Sans"], "headline-md": ["Noto Serif"], "headline-sm": ["Noto Serif"], "display-hero": ["Noto Serif"], "label-md": ["Plus Jakarta Sans"], "body-lg": ["Plus Jakarta Sans"], "headline-lg": ["Noto Serif"] }, fontSize: { "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }], "body-md": ["15px", { "lineHeight": "22px", "fontWeight": "400" }], "micro-caption": ["11px", { "lineHeight": "14px", "fontWeight": "500" }], "display-hero-mobile": ["26px", { "lineHeight": "30px", "letterSpacing": "-0.01em", "fontWeight": "700" }], "label-lg": ["16px", { "lineHeight": "20px", "fontWeight": "700" }], "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }], "headline-md": ["20px", { "lineHeight": "24px", "fontWeight": "600" }], "headline-sm": ["18px", { "lineHeight": "22px", "fontWeight": "600" }], "display-hero": ["34px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "label-md": ["14px", { "lineHeight": "18px", "letterSpacing": "0.01em", "fontWeight": "600" }], "body-lg": ["18px", { "lineHeight": "26px", "fontWeight": "400" }], "headline-lg": ["24px", { "lineHeight": "28px", "fontWeight": "700" }] } } } };</script><style>@layer base{html,body{width:100vw;margin:0;padding:0;background-color:rgb(var(--kg-canvas-obsidian));color:rgb(var(--kg-on-surface));}body{overscroll-behavior:none;}.pb-safe{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 0.5rem);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><style>
     body {
       min-height: max(884px, 100dvh);
     }
@@ -51,9 +57,9 @@ try {
       0% { transform: translateX(-100%); }
       100% { transform: translateX(200%); }
     }
-  </style><script src="cinema-reel.js?v=38"></script><link rel="stylesheet" href="watched-button.css?v=4">
+  </style><script src="cinema-reel.js?v=39"></script><link rel="stylesheet" href="watched-button.css?v=5">
 <script src="watched-button.js?v=3"></script>
-<link rel="stylesheet" href="settings-page.css?v=5">
+<link rel="stylesheet" href="settings-page.css?v=6">
 </head><body class="bg-canvas-obsidian font-body-md text-on-surface flex flex-col min-h-screen relative">
 <!-- Atmospheric Living Theater Background Layer with Floating Posters -->
 <div class="fixed inset-0 pointer-events-none overflow-hidden -z-10 select-none">
@@ -91,7 +97,7 @@ try {
 <!-- Dark Vignette Overlay for Crisp Readability of Forefront Elements -->
 <div class="absolute inset-0 bg-gradient-to-b from-canvas-obsidian via-canvas-obsidian/85 to-canvas-obsidian"></div>
 </div>
-<header class="fixed top-0 w-full z-50 pt-safe bg-surface-panel/85 backdrop-blur-xl shadow-[0_4px_24px_rgba(7,6,10,0.85)]"><div class="h-20 px-gutter-mobile flex items-center justify-between gap-space-sm max-w-[520px] mx-auto"><div class="flex items-center gap-space-sm min-w-0 flex-1"><div class="relative flex-shrink-0"><div class="w-11 h-11 rounded-full p-[2px] bg-gradient-to-tr from-cinema-velvet-deep via-primary-container to-primary flex items-center justify-center shadow-[0_0_12px_rgba(255,184,48,0.28)]"><span class="material-symbols-outlined text-primary-fixed text-[24px]">public</span></div></div><div class="flex flex-col min-w-0"><div class="flex items-center gap-space-xs"><h1 class="font-headline-sm text-headline-sm font-bold tracking-tight text-primary drop-shadow-[0_0_14px_rgba(255,184,48,0.35)] truncate">Киноглобус</h1><span class="px-1.5 py-0.5 rounded-full bg-cinema-velvet-deep/70 text-secondary font-micro-caption text-micro-caption tracking-wider border-none">PRO</span></div><p class="font-micro-caption text-micro-caption text-text-muted truncate">Случайная страна · Лучшие фильмы</p></div></div><div class="flex items-center gap-space-xs flex-shrink-0"><button type="button" data-kg-search-open aria-label="Поиск фильмов, актёров и режиссёров" title="Поиск" class="w-9 h-9 flex items-center justify-center rounded-full text-primary-fixed hover:bg-surface-container-high border border-primary-container/20"><span class="material-symbols-outlined text-[20px]">search</span></button><a class="flex items-center gap-1.5 h-9 px-3 rounded-full bg-surface-container-high/90 text-primary-fixed border border-primary-container/20 transition-all active:scale-95 shadow-[0_0_10px_rgba(255,184,48,0.15)] hover:border-primary-container/50" data-path="moe-puteshestvie" href="#" title="Моё путешествие"><span class="material-symbols-outlined text-[16px] text-primary-container">explore</span><span class="font-label-sm text-label-sm font-bold text-primary-fixed tracking-wide">42/104</span></a><a aria-label="Настройки" class="w-9 h-9 flex items-center justify-center rounded-full text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all active:scale-95" data-path="nastrojki" href="#"><span class="material-symbols-outlined text-[20px]">settings</span></a><button id="kg-account-open" type="button" aria-label="Открыть профиль и регистрацию" title="Профиль" class="kg-account-avatar ml-0.5"><img alt="" class="w-8 h-8 rounded-full object-cover border border-primary-container/30 shadow-[0_0_8px_rgba(255,184,48,0.25)]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCdLg3sLBvV5C2sZ07bWRzHNAJmJaRmEX2Goq4C0MdemCoCPam7pZebU2QLXvbPIGiROKivIg5-BQrwLFBR1jND7Mm3QCBX2sm4c6mKTZKsJ7cM956ZwqniQ_ajzjh6Qt_hjTIbhqP2tu4tuNyBCe34OM_6Ei49zUEcke8sVmNKfalQmBXxvFY3w6gj0wjWsHNoh97ZLOMjX3FT4nK7mMo6yYR__VDDQb7D8fbOucu4"></button></div></div></header><main class="flex flex-col relative w-full pt-20 pb-28 bg-transparent min-h-screen max-w-[520px] mx-auto"><div class="flex flex-col w-full px-margin-mobile space-y-space-lg select-none">
+<header class="fixed top-0 w-full z-50 pt-safe bg-surface-panel/85 backdrop-blur-xl shadow-[0_4px_24px_rgb(var(--kg-canvas-obsidian)/0.85)]"><div class="h-20 px-gutter-mobile flex items-center justify-between gap-space-sm max-w-[520px] mx-auto"><div class="flex items-center gap-space-sm min-w-0 flex-1"><div class="relative flex-shrink-0"><div class="w-11 h-11 rounded-full p-[2px] bg-gradient-to-tr from-cinema-velvet-deep via-primary-container to-primary flex items-center justify-center shadow-[0_0_12px_rgb(var(--kg-primary-container)/0.28)]"><span class="material-symbols-outlined text-primary-fixed text-[24px]">public</span></div></div><div class="flex flex-col min-w-0"><div class="flex items-center gap-space-xs"><h1 class="font-headline-sm text-headline-sm font-bold tracking-tight text-primary drop-shadow-[0_0_14px_rgb(var(--kg-primary-container)/0.35)] truncate">Киноглобус</h1><span class="px-1.5 py-0.5 rounded-full bg-cinema-velvet-deep/70 text-secondary font-micro-caption text-micro-caption tracking-wider border-none">PRO</span></div><p class="font-micro-caption text-micro-caption text-text-muted truncate">Случайная страна · Лучшие фильмы</p></div></div><div class="flex items-center gap-space-xs flex-shrink-0"><button type="button" data-kg-search-open aria-label="Поиск фильмов, актёров и режиссёров" title="Поиск" class="w-9 h-9 flex items-center justify-center rounded-full text-primary-fixed hover:bg-surface-container-high border border-primary-container/20"><span class="material-symbols-outlined text-[20px]">search</span></button><a class="flex items-center gap-1.5 h-9 px-3 rounded-full bg-surface-container-high/90 text-primary-fixed border border-primary-container/20 transition-all active:scale-95 shadow-[0_0_10px_rgb(var(--kg-primary-container)/0.15)] hover:border-primary-container/50" data-path="moe-puteshestvie" href="#" title="Моё путешествие"><span class="material-symbols-outlined text-[16px] text-primary-container">explore</span><span class="font-label-sm text-label-sm font-bold text-primary-fixed tracking-wide">42/104</span></a><a aria-label="Настройки" class="w-9 h-9 flex items-center justify-center rounded-full text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all active:scale-95" data-path="nastrojki" href="#"><span class="material-symbols-outlined text-[20px]">settings</span></a><button id="kg-account-open" type="button" aria-label="Открыть профиль и регистрацию" title="Профиль" class="kg-account-avatar ml-0.5"><img alt="" class="w-8 h-8 rounded-full object-cover border border-primary-container/30 shadow-[0_0_8px_rgb(var(--kg-primary-container)/0.25)]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCdLg3sLBvV5C2sZ07bWRzHNAJmJaRmEX2Goq4C0MdemCoCPam7pZebU2QLXvbPIGiROKivIg5-BQrwLFBR1jND7Mm3QCBX2sm4c6mKTZKsJ7cM956ZwqniQ_ajzjh6Qt_hjTIbhqP2tu4tuNyBCe34OM_6Ei49zUEcke8sVmNKfalQmBXxvFY3w6gj0wjWsHNoh97ZLOMjX3FT4nK7mMo6yYR__VDDQb7D8fbOucu4"></button></div></div></header><main class="flex flex-col relative w-full pt-20 pb-28 bg-transparent min-h-screen max-w-[520px] mx-auto"><div class="flex flex-col w-full px-margin-mobile space-y-space-lg select-none">
 <!-- 1. Mode Switcher Segmented Control -->
 <section class="w-full">
 <div class="p-1 rounded-full bg-surface-container-low shadow-inner flex items-center gap-1"><button class="kg-mode-choice flex-1 py-2.5 px-4 rounded-full font-label-md text-label-md transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer" id="btn-mode-filters" aria-pressed="false" type="button"><span class="material-symbols-outlined text-[18px]">tune</span><span class="">Свои фильтры</span></button><button class="kg-mode-choice flex-1 py-2.5 px-4 rounded-full font-label-md text-label-md transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer" id="btn-mode-surprise" aria-pressed="false" type="button"><span class="material-symbols-outlined text-[18px] text-secondary">auto_awesome</span><span class="">Удиви меня</span></button></div>
@@ -124,7 +130,7 @@ try {
 <span class="">Лёгкое удивление</span>
 <span class="material-symbols-outlined text-[16px] text-text-muted">emoji_objects</span>
 </button>
-<button class="surprise-chip py-2.5 px-3 rounded-xl bg-surface-container-high text-primary-fixed font-label-sm text-label-sm text-left flex items-center justify-between transition-all duration-150 active:scale-95 shadow-[0_0_10px_rgba(255,184,48,0.2)]" type="button">
+<button class="surprise-chip py-2.5 px-3 rounded-xl bg-surface-container-high text-primary-fixed font-label-sm text-label-sm text-left flex items-center justify-between transition-all duration-150 active:scale-95 shadow-[0_0_10px_rgb(var(--kg-primary-container)/0.2)]" type="button">
 <span class="">Настоящее открытие</span>
 <span class="material-symbols-outlined text-[16px] text-primary-container">explore</span>
 </button>
@@ -142,7 +148,7 @@ try {
     </p>
 </section>
 <!-- 3. PHOTOREALISTIC EARTH CINE-GLOBE & RADAR SECTION -->
-<section class="relative w-full rounded-2xl bg-gradient-to-b from-surface-panel via-surface-panel/95 to-surface-container-lowest shadow-[0_8px_36px_rgba(7,6,10,0.95)] p-space-md flex flex-col items-center overflow-hidden border border-surface-border-subtle/80 backdrop-blur-2xl" id="roulette-section">
+<section class="relative w-full rounded-2xl bg-gradient-to-b from-surface-panel via-surface-panel/95 to-surface-container-lowest shadow-[0_8px_36px_rgb(var(--kg-canvas-obsidian)/0.95)] p-space-md flex flex-col items-center overflow-hidden border border-surface-border-subtle/80 backdrop-blur-2xl" id="roulette-section">
 <!-- Ambient Holographic Nebula Flares -->
 <div class="absolute -top-16 -left-16 w-52 h-52 rounded-full bg-cinema-velvet-glow blur-3xl pointer-events-none opacity-80"></div>
 <div class="absolute -bottom-16 -right-16 w-56 h-56 rounded-full bg-cinema-amber-glow blur-3xl pointer-events-none opacity-90"></div>
@@ -154,12 +160,12 @@ try {
 <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-container opacity-75"></span>
 <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary-container" id="roulette-status-dot"></span>
 </span>
-<span class="font-label-sm text-label-sm text-primary-fixed uppercase tracking-wider font-bold drop-shadow-[0_0_8px_rgba(255,184,48,0.4)]">Кинорадар стран</span>
+<span class="font-label-sm text-label-sm text-primary-fixed uppercase tracking-wider font-bold drop-shadow-[0_0_8px_rgb(var(--kg-primary-container)/0.4)]">Кинорадар стран</span>
 <span class="text-[10px] px-1.5 py-0.2 rounded bg-surface-container text-text-muted font-mono tracking-tighter" id="radar-freq">SAT·40.4°N</span>
 </div>
 <div class="flex items-center gap-2">
 <span class="w-1.5 h-1.5 rounded-full bg-primary/40 transition-colors bg-primary" id="tick-spark"></span>
-<span class="font-micro-caption text-micro-caption px-2.5 py-0.5 rounded-full bg-surface-container-high/90 text-primary-fixed border border-primary-container/20 shadow-[0_0_10px_rgba(255,184,48,0.15)]" id="roulette-status-badge">104 страны онлайн</span>
+<span class="font-micro-caption text-micro-caption px-2.5 py-0.5 rounded-full bg-surface-container-high/90 text-primary-fixed border border-primary-container/20 shadow-[0_0_10px_rgb(var(--kg-primary-container)/0.15)]" id="roulette-status-badge">104 страны онлайн</span>
 </div>
 </div>
 <!-- Photorealistic Earth Space Viewport Card -->
@@ -175,13 +181,13 @@ try {
 <canvas class="w-full h-full block touch-none cursor-grab active:cursor-grabbing" id="earth-webgl-canvas"></canvas>
 </div>
 <!-- Selected Country Holographic Display Card: reveals selected country details with golden radiance -->
-<div class="relative z-30 flex flex-col items-center justify-center px-4 pt-2 pb-3 transition-all duration-300 w-full max-w-[320px] text-center pointer-events-none mt-auto" id="hero-hologram-display" style="filter: drop-shadow(rgba(255, 184, 48, 0.5) 0px 0px 20px);"><div class="relative w-15 h-15 rounded-2xl p-[2px] bg-gradient-to-tr from-cinema-velvet-deep via-primary-container to-primary shadow-[0_0_28px_rgba(255,184,48,0.7)] flex items-center justify-center backdrop-blur-md mb-1.5 transition-transform" id="hologram-flag-orb"><div class="w-full h-full rounded-[14px] bg-surface-container-lowest/90 flex items-center justify-center overflow-hidden relative shadow-[0_0_16px_rgba(255,184,48,0.4)]"><div class="absolute inset-0 bg-gradient-to-b from-white/15 via-transparent to-transparent pointer-events-none"></div><span class="text-3xl drop-shadow-[0_4px_16px_rgba(0,0,0,0.8)] select-none transition-all duration-150" id="hero-country-flag">🇪🇸</span></div><div class="absolute -bottom-1 inset-x-3 h-2 bg-primary-container/70 blur-sm rounded-full"></div></div><div class="inline-flex items-center gap-1 px-3 py-0.5 rounded-full bg-[#20152a]/95 border border-primary-container/50 text-primary-container font-micro-caption mb-1 shadow-[0_0_12px_rgba(255,184,48,0.3)]"><span class="text-primary text-[10px]">✪</span><span class="font-bold tracking-wider uppercase text-amber-200">ВЫПАЛА СТРАНА</span></div><h2 class="font-headline-lg text-headline-lg font-bold text-primary tracking-tight leading-tight drop-shadow-[0_0_16px_rgba(255,215,120,0.45)] truncate max-w-[260px]" id="hero-country-name">Испания</h2><div class="flex items-center gap-1.5 mt-1"><span class="px-2.5 py-0.5 rounded-full bg-surface-container-high/90 text-primary-fixed font-micro-caption text-micro-caption tracking-wider uppercase border border-primary-container/20" id="hero-country-region">ЮЖНАЯ ЕВРОПА</span><span class="px-2.5 py-0.5 rounded-full bg-cinema-velvet-deep/70 text-secondary font-micro-caption text-micro-caption tracking-wider" id="hero-country-films">295 лент</span></div><div class="flex items-center gap-1 text-text-muted font-micro-caption text-micro-caption mt-1.5 opacity-90"><span class="material-symbols-outlined text-[13px] text-primary-container">movie</span><span class="truncate max-w-[250px]" id="hero-country-master">Педро Альмодовар · Гильермо дель Торо</span></div></div></div>
+<div class="relative z-30 flex flex-col items-center justify-center px-4 pt-2 pb-3 transition-all duration-300 w-full max-w-[320px] text-center pointer-events-none mt-auto" id="hero-hologram-display" style="filter: drop-shadow(rgb(var(--kg-primary-container)/0.5) 0px 0px 20px);"><div class="relative w-15 h-15 rounded-2xl p-[2px] bg-gradient-to-tr from-cinema-velvet-deep via-primary-container to-primary shadow-[0_0_28px_rgb(var(--kg-primary-container)/0.7)] flex items-center justify-center backdrop-blur-md mb-1.5 transition-transform" id="hologram-flag-orb"><div class="w-full h-full rounded-[14px] bg-surface-container-lowest/90 flex items-center justify-center overflow-hidden relative shadow-[0_0_16px_rgb(var(--kg-primary-container)/0.4)]"><div class="absolute inset-0 bg-gradient-to-b from-white/15 via-transparent to-transparent pointer-events-none"></div><span class="text-3xl drop-shadow-[0_4px_16px_rgb(var(--kg-black)/0.8)] select-none transition-all duration-150" id="hero-country-flag">🇪🇸</span></div><div class="absolute -bottom-1 inset-x-3 h-2 bg-primary-container/70 blur-sm rounded-full"></div></div><div class="inline-flex items-center gap-1 px-3 py-0.5 rounded-full bg-[rgb(var(--kg-violet-surface-01))]/95 border border-primary-container/50 text-primary-container font-micro-caption mb-1 shadow-[0_0_12px_rgb(var(--kg-primary-container)/0.3)]"><span class="text-primary text-[10px]">✪</span><span class="font-bold tracking-wider uppercase text-primary-fixed">ВЫПАЛА СТРАНА</span></div><h2 class="font-headline-lg text-headline-lg font-bold text-primary tracking-tight leading-tight drop-shadow-[0_0_16px_rgb(var(--kg-accent-warm)/0.45)] truncate max-w-[260px]" id="hero-country-name">Испания</h2><div class="flex items-center gap-1.5 mt-1"><span class="px-2.5 py-0.5 rounded-full bg-surface-container-high/90 text-primary-fixed font-micro-caption text-micro-caption tracking-wider uppercase border border-primary-container/20" id="hero-country-region">ЮЖНАЯ ЕВРОПА</span><span class="px-2.5 py-0.5 rounded-full bg-cinema-velvet-deep/70 text-secondary font-micro-caption text-micro-caption tracking-wider" id="hero-country-films">295 лент</span></div><div class="flex items-center gap-1 text-text-muted font-micro-caption text-micro-caption mt-1.5 opacity-90"><span class="material-symbols-outlined text-[13px] text-primary-container">movie</span><span class="truncate max-w-[250px]" id="hero-country-master">Педро Альмодовар · Гильермо дель Торо</span></div></div></div>
 <!-- Tactile Primary CTA Button: 'Крутить глобус' -->
 <div class="w-full mt-3.5 z-10">
-<button class="relative w-full py-4 px-6 rounded-2xl text-canvas-obsidian font-headline-sm text-[17px] font-bold tracking-wider uppercase flex items-center justify-between shadow-[0_8px_32px_rgba(255,115,0,0.45)] transition-all duration-200 hover:brightness-110 active:scale-[0.97] overflow-hidden group select-none cursor-pointer border border-white/20" id="btn-spin-roulette" style="background: linear-gradient(135deg, rgb(255, 78, 32) 0%, rgb(255, 140, 0) 48%, rgb(255, 193, 7) 100%); box-shadow: rgba(255, 115, 0, 0.45) 0px 8px 30px, rgba(255, 255, 255, 0.4) 0px 1px 1px inset;" type="button"><span class="w-9 h-9 rounded-xl bg-black/20 flex items-center justify-center text-lg select-none">🎲</span><span class="font-bold tracking-wide text-canvas-obsidian drop-shadow-[0_1px_1px_rgba(255,255,255,0.4)] flex items-center gap-2" id="btn-spin-text"><span class="material-symbols-outlined text-[22px] text-canvas-obsidian font-bold transition-transform duration-300" id="btn-spin-icon">casino</span><span class="">КРУТИТЬ ГЛОБУС</span></span><span class="w-9 h-9 rounded-xl flex items-center justify-center text-xl text-black select-none font-bold transition-transform duration-300 group-hover:rotate-180" id="btn-spin-secondary-icon">↻</span><div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/35 to-transparent -translate-x-full animate-[shimmerMove_2.5s_infinite]"></div></button>
+<button class="relative w-full py-4 px-6 rounded-2xl text-canvas-obsidian font-headline-sm text-[17px] font-bold tracking-wider uppercase flex items-center justify-between shadow-[0_8px_32px_rgb(var(--kg-action-shadow)/0.45)] transition-all duration-200 hover:brightness-110 active:scale-[0.97] overflow-hidden group select-none cursor-pointer border border-white/20" id="btn-spin-roulette" style="background: linear-gradient(135deg, rgb(var(--kg-accent-edge)) 0%, rgb(var(--kg-accent-strong)) 48%, rgb(var(--kg-action-gradient-end)) 100%); box-shadow: rgb(var(--kg-action-shadow)/0.45) 0px 8px 30px, rgb(var(--kg-white)/0.4) 0px 1px 1px inset;" type="button"><span class="w-9 h-9 rounded-xl bg-black/20 flex items-center justify-center text-lg select-none">🎲</span><span class="font-bold tracking-wide text-canvas-obsidian drop-shadow-[0_1px_1px_rgb(var(--kg-white)/0.4)] flex items-center gap-2" id="btn-spin-text"><span class="material-symbols-outlined text-[22px] text-canvas-obsidian font-bold transition-transform duration-300" id="btn-spin-icon">casino</span><span class="">КРУТИТЬ ГЛОБУС</span></span><span class="w-9 h-9 rounded-xl flex items-center justify-center text-xl text-black select-none font-bold transition-transform duration-300 group-hover:rotate-180" id="btn-spin-secondary-icon">↻</span><div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/35 to-transparent -translate-x-full animate-[shimmerMove_2.5s_infinite]"></div></button>
 </div>
 <!-- Secondary Quick-Action Cinema Launchers -->
-<div class="w-full grid grid-cols-2 gap-2 mt-2.5 z-10"><button class="py-2.5 px-3 rounded-xl text-on-surface hover:text-primary font-label-sm text-label-sm flex items-center justify-center gap-2 transition-all duration-200 active:scale-95 cursor-pointer backdrop-blur-md border border-primary-container/25 shadow-[0_4px_16px_rgba(0,0,0,0.4)] hover:border-primary-container/50 hover:shadow-[0_0_14px_rgba(255,184,48,0.25)]" id="btn-top-one" style="background: linear-gradient(rgba(38, 30, 48, 0.85) 0%, rgba(22, 18, 28, 0.95) 100%);" type="button"><span class="material-symbols-outlined text-[18px] text-primary-container">military_tech</span><span class="font-medium">Топ-1 всех времён</span></button><button class="py-2.5 px-3 rounded-xl text-on-surface hover:text-secondary font-label-sm text-label-sm flex items-center justify-center gap-2 transition-all duration-200 active:scale-95 cursor-pointer backdrop-blur-md border border-secondary/25 shadow-[0_4px_16px_rgba(0,0,0,0.4)] hover:border-secondary/50 hover:shadow-[0_0_14px_rgba(255,177,197,0.25)]" id="btn-oscar-laureate" style="background: linear-gradient(rgba(48, 22, 38, 0.85) 0%, rgba(28, 14, 24, 0.95) 100%);" type="button"><span class="material-symbols-outlined text-[18px] text-secondary">hotel_class</span><span class="font-medium">Лауреат Оскар</span></button></div>
+<div class="w-full grid grid-cols-2 gap-2 mt-2.5 z-10"><button class="py-2.5 px-3 rounded-xl text-on-surface hover:text-primary font-label-sm text-label-sm flex items-center justify-center gap-2 transition-all duration-200 active:scale-95 cursor-pointer backdrop-blur-md border border-primary-container/25 shadow-[0_4px_16px_rgb(var(--kg-black)/0.4)] hover:border-primary-container/50 hover:shadow-[0_0_14px_rgb(var(--kg-primary-container)/0.25)]" id="btn-top-one" style="background: linear-gradient(rgb(var(--kg-neutral-78)/0.85) 0%, rgb(var(--kg-neutral-38)/0.95) 100%);" type="button"><span class="material-symbols-outlined text-[18px] text-primary-container">military_tech</span><span class="font-medium">Топ-1 всех времён</span></button><button class="py-2.5 px-3 rounded-xl text-on-surface hover:text-secondary font-label-sm text-label-sm flex items-center justify-center gap-2 transition-all duration-200 active:scale-95 cursor-pointer backdrop-blur-md border border-secondary/25 shadow-[0_4px_16px_rgb(var(--kg-black)/0.4)] hover:border-secondary/50 hover:shadow-[0_0_14px_rgb(var(--kg-secondary)/0.25)]" id="btn-oscar-laureate" style="background: linear-gradient(rgb(var(--kg-violet-surface-02)/0.85) 0%, rgb(var(--kg-neutral-29)/0.95) 100%);" type="button"><span class="material-symbols-outlined text-[18px] text-secondary">hotel_class</span><span class="font-medium">Лауреат Оскар</span></button></div>
 </section>
 <!-- Главные фильтры -->
 <section class="w-full flex flex-col gap-2.5">
@@ -205,7 +211,7 @@ try {
 </div>
 <div id="genre-filter-panel" class="rounded-xl bg-surface-panel shadow-sm p-3.5" hidden>
 <div id="genre-filter-chips" class="flex flex-wrap gap-2">
-<button class="genre-pill h-[34px] px-4 rounded-full font-label-sm text-label-sm flex items-center gap-1 text-canvas-obsidian font-bold cursor-pointer border border-white/20 transition-all" style="background: linear-gradient(135deg, rgb(255, 78, 32) 0%, rgb(255, 149, 0) 50%, rgb(255, 193, 7) 100%); box-shadow: rgba(255, 115, 0, 0.4) 0px 2px 14px, rgba(255, 255, 255, 0.35) 0px 1px 0px inset;" type="button"><span class="">🌐 Любой жанр</span></button>
+<button class="genre-pill h-[34px] px-4 rounded-full font-label-sm text-label-sm flex items-center gap-1 text-canvas-obsidian font-bold cursor-pointer border border-white/20 transition-all" style="background: linear-gradient(135deg, rgb(var(--kg-accent-edge)) 0%, rgb(var(--kg-accent-strong)) 50%, rgb(var(--kg-action-gradient-end)) 100%); box-shadow: rgb(var(--kg-action-shadow)/0.4) 0px 2px 14px, rgb(var(--kg-white)/0.35) 0px 1px 0px inset;" type="button"><span class="">🌐 Любой жанр</span></button>
 <button class="genre-pill h-[34px] px-3.5 rounded-full font-label-sm text-label-sm flex items-center gap-1 bg-surface-container text-text-muted hover:text-on-surface" type="button">
 <span class="">Боевик</span>
 </button>
@@ -271,7 +277,7 @@ try {
 <label class="font-micro-caption text-micro-caption text-text-muted mb-1.5">Минимальная оценка зрителей</label>
 <div class="flex items-center justify-between gap-1.5 overflow-x-auto pb-1">
 <button class="flex-1 py-1.5 px-2 rounded-lg bg-surface-container font-label-sm text-label-sm text-text-muted hover:text-on-surface" type="button">5.0</button>
-<button class="flex-1 py-1.5 px-2 rounded-lg bg-primary-container text-on-primary-container font-label-sm text-label-sm shadow-[0_0_8px_rgba(255,184,48,0.25)] font-bold" type="button">6.0</button>
+<button class="flex-1 py-1.5 px-2 rounded-lg bg-primary-container text-on-primary-container font-label-sm text-label-sm shadow-[0_0_8px_rgb(var(--kg-primary-container)/0.25)] font-bold" type="button">6.0</button>
 <button class="flex-1 py-1.5 px-2 rounded-lg bg-surface-container font-label-sm text-label-sm text-text-muted hover:text-on-surface" type="button">7.0</button>
 <button class="flex-1 py-1.5 px-2 rounded-lg bg-surface-container font-label-sm text-label-sm text-text-muted hover:text-on-surface" type="button">7.5</button>
 <button class="flex-1 py-1.5 px-2 rounded-lg bg-surface-container font-label-sm text-label-sm text-text-muted hover:text-on-surface" type="button">8.0+</button>
@@ -311,7 +317,7 @@ try {
 </details>
 </section>
 <!-- 5. Active / Recent Discovery Mini-Card Banner -->
-<section class="w-full rounded-2xl bg-surface-panel p-3.5 shadow-xl relative overflow-hidden transition-all duration-300 border border-surface-border-subtle" id="recent-discovery-card"><div class="flex items-center justify-between mb-2.5"><div class="flex items-center gap-1.5"><span class="material-symbols-outlined text-primary-container text-[16px]">history_edu</span><span class="font-micro-caption text-micro-caption text-text-muted uppercase tracking-wider font-semibold">Последняя находка</span></div><span class="font-micro-caption text-micro-caption text-primary-fixed font-medium" id="discovery-timestamp">#1 по рейтингу</span></div><div class="flex gap-3"><div class="relative w-20 h-28 rounded-lg overflow-hidden flex-shrink-0 bg-surface-container-high shadow-md"><img alt="Постер фильма" class="w-full h-full object-cover transition-opacity duration-300" id="discovery-poster" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCpkySIT3QFOrvaTrn_y3e9VU2oJXCOiXlq4gTLB2lruBr4zze6OOCSX4ly_tDA8-zMStZ3ymPns5xeDFmrV8gX0MGNY_McudquZZMMYeeZN8R0iNYKkP35pdycV3BcxA8ot4M-ve0cbgCdLZwE971O4I8elJaULWCr-vmaDWzqdmskz5GvRBIqCPqPM35WWOKSwoUbQT4BunQfy9yBuT1CKDD6ef4ISV7wyD5Gu0jR"><div class="absolute bottom-1 right-1 px-1.5 py-0.5 rounded bg-surface-container-lowest/85 font-micro-caption text-micro-caption font-bold text-primary-fixed" id="discovery-rating">8.2</div></div><div class="flex flex-col justify-between flex-1 min-w-0 py-0.5"><div><div class="flex items-center gap-1.5"><h3 class="font-headline-sm text-headline-sm font-bold text-on-surface truncate" id="discovery-title">Лабиринт Фавна</h3><span class="text-micro-caption text-text-muted font-body-sm" id="discovery-year">(2006)</span></div><p class="font-label-sm text-label-sm text-primary-fixed mt-0.5 flex items-center gap-1"><span class="" id="discovery-country">Испания</span><span class="" id="discovery-flag">🇪🇸</span><span class="text-text-muted truncate" id="discovery-genres">· Фэнтези, Драма · 118 мин</span></p><p class="font-body-sm text-body-sm text-text-muted line-clamp-2 mt-1" id="discovery-desc">Испания 1944 года: одинокая девочка находит тайный древний лабиринт и сказочного Фавна.</p></div><div class="flex items-center gap-2 mt-2"><button class="flex-1 py-2 px-3 rounded-xl text-white font-label-sm text-label-sm font-bold flex items-center justify-center gap-1.5 transition-all duration-150 hover:brightness-110 active:scale-95 cursor-pointer border border-white/20 shadow-[0_4px_16px_rgba(255,77,77,0.35)]" style="background: linear-gradient(135deg, rgb(255, 59, 48) 0%, rgb(255, 107, 34) 50%, rgb(245, 158, 11) 100%); box-shadow: rgba(255, 77, 77, 0.35) 0px 4px 18px, rgba(255, 255, 255, 0.3) 0px 1px 0px inset;" type="button"><span class="material-symbols-outlined text-[18px]">play_arrow</span><span class="truncate">Смотреть трейлер</span></button></div></div></div></section>
+<section class="w-full rounded-2xl bg-surface-panel p-3.5 shadow-xl relative overflow-hidden transition-all duration-300 border border-surface-border-subtle" id="recent-discovery-card"><div class="flex items-center justify-between mb-2.5"><div class="flex items-center gap-1.5"><span class="material-symbols-outlined text-primary-container text-[16px]">history_edu</span><span class="font-micro-caption text-micro-caption text-text-muted uppercase tracking-wider font-semibold">Последняя находка</span></div><span class="font-micro-caption text-micro-caption text-primary-fixed font-medium" id="discovery-timestamp">#1 по рейтингу</span></div><div class="flex gap-3"><div class="relative w-20 h-28 rounded-lg overflow-hidden flex-shrink-0 bg-surface-container-high shadow-md"><img alt="Постер фильма" class="w-full h-full object-cover transition-opacity duration-300" id="discovery-poster" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCpkySIT3QFOrvaTrn_y3e9VU2oJXCOiXlq4gTLB2lruBr4zze6OOCSX4ly_tDA8-zMStZ3ymPns5xeDFmrV8gX0MGNY_McudquZZMMYeeZN8R0iNYKkP35pdycV3BcxA8ot4M-ve0cbgCdLZwE971O4I8elJaULWCr-vmaDWzqdmskz5GvRBIqCPqPM35WWOKSwoUbQT4BunQfy9yBuT1CKDD6ef4ISV7wyD5Gu0jR"><div class="absolute bottom-1 right-1 px-1.5 py-0.5 rounded bg-surface-container-lowest/85 font-micro-caption text-micro-caption font-bold text-primary-fixed" id="discovery-rating">8.2</div></div><div class="flex flex-col justify-between flex-1 min-w-0 py-0.5"><div><div class="flex items-center gap-1.5"><h3 class="font-headline-sm text-headline-sm font-bold text-on-surface truncate" id="discovery-title">Лабиринт Фавна</h3><span class="text-micro-caption text-text-muted font-body-sm" id="discovery-year">(2006)</span></div><p class="font-label-sm text-label-sm text-primary-fixed mt-0.5 flex items-center gap-1"><span class="" id="discovery-country">Испания</span><span class="" id="discovery-flag">🇪🇸</span><span class="text-text-muted truncate" id="discovery-genres">· Фэнтези, Драма · 118 мин</span></p><p class="font-body-sm text-body-sm text-text-muted line-clamp-2 mt-1" id="discovery-desc">Испания 1944 года: одинокая девочка находит тайный древний лабиринт и сказочного Фавна.</p></div><div class="flex items-center gap-2 mt-2"><button class="flex-1 py-2 px-3 rounded-xl text-white font-label-sm text-label-sm font-bold flex items-center justify-center gap-1.5 transition-all duration-150 hover:brightness-110 active:scale-95 cursor-pointer border border-white/20 shadow-[0_4px_16px_rgb(var(--kg-rose-05)/0.35)]" style="background: linear-gradient(135deg, rgb(var(--kg-rose-02)) 0%, rgb(var(--kg-warm-text-07)) 50%, rgb(var(--kg-accent-strong)) 100%); box-shadow: rgb(var(--kg-rose-05)/0.35) 0px 4px 18px, rgb(var(--kg-white)/0.3) 0px 1px 0px inset;" type="button"><span class="material-symbols-outlined text-[18px]">play_arrow</span><span class="truncate">Смотреть трейлер</span></button></div></div></div></section>
 <div id="kg-home-releases" class="w-full flex flex-col gap-7 pt-1"></div>
 <div id="kg-home-editorial" class="w-full flex flex-col gap-3">
   <article id="kg-home-feature" class="w-full rounded-xl bg-surface-container-high shadow-xl p-3.5">
@@ -702,10 +708,30 @@ localizeInterfaceMarkup(document.querySelector("main"));
       }
       return "";
     }
+    const globeAccentMaterials = new Map();
+    const globeAccentColors = new Map();
+
+    function globeAccentMaterial(token, options) {
+      if (!globeAccentColors.has(token)) globeAccentColors.set(token, readPaletteColor(token, true));
+      const material = new THREE.MeshBasicMaterial({...options, color: globeAccentColors.get(token)});
+      globeAccentMaterials.set(material, token);
+      return material;
+    }
+
+    window.addEventListener('kg-palette-change', () => {
+      for (const token of globeAccentColors.keys()) globeAccentColors.set(token, readPaletteColor(token, true));
+      for (const [material, token] of globeAccentMaterials) material.color.setHex(globeAccentColors.get(token));
+      for (const group of countryOutlineByCode.values()) {
+        const [glow, core] = group.userData.visualMaterials;
+        glow.color.setHex(readPaletteColor('--kg-globe-outline-glow', true));
+        core.color.setHex(readPaletteColor('--kg-globe-outline-core', true));
+      }
+    });
+
     function addCountryHalo(feature) {
       if (!countryOutlineGroup || !window.THREE || !window.KGGlobeVisuals) return;
       const code=feature.properties.iso_a2;
-      const group=window.KGGlobeVisuals.createCountryOutline(THREE,feature,latLonToVector3,{radius:1.289,glowColor:0xffbd62,coreColor:0xffe6b5,glowRadius:.0048,coreRadius:.00135});
+      const group=window.KGGlobeVisuals.createCountryOutline(THREE,feature,latLonToVector3,{radius:1.289,glowColor:readPaletteColor('--kg-globe-outline-glow', true),coreColor:readPaletteColor('--kg-globe-outline-core', true),glowRadius:.0048,coreRadius:.00135});
       group.name="watched-country-outline-"+code;
       countryOutlineGroup.add(group);
       countryOutlineByCode.set(code,group);
@@ -783,14 +809,14 @@ localizeInterfaceMarkup(document.querySelector("main"));
       const ctx = canvas.getContext('2d');
 
       // Rounded banner background
-      ctx.fillStyle = '#1c1626';
+      ctx.fillStyle = readPaletteColor('--kg-globe-flag-surface');
       ctx.fillRect(0, 0, 256, 160);
 
       // Gold border
       const borderGrad = ctx.createLinearGradient(0, 0, 256, 160);
-      borderGrad.addColorStop(0, '#ffdca8');
-      borderGrad.addColorStop(0.5, '#ffb830');
-      borderGrad.addColorStop(1, '#9e6200');
+      borderGrad.addColorStop(0, readPaletteColor('--kg-primary'));
+      borderGrad.addColorStop(0.5, readPaletteColor('--kg-primary-container'));
+      borderGrad.addColorStop(1, readPaletteColor('--kg-accent-deep'));
       ctx.strokeStyle = borderGrad;
       ctx.lineWidth = 6;
       ctx.strokeRect(3, 3, 250, 154);
@@ -817,7 +843,7 @@ localizeInterfaceMarkup(document.querySelector("main"));
       }
 
       // Country Name
-      ctx.fillStyle = '#ffdca8';
+      ctx.fillStyle = readPaletteColor('--kg-primary');
       ctx.font = 'bold 20px "Plus Jakarta Sans", sans-serif';
       ctx.fillText((country.name || '').toUpperCase(), 128, 134);
 
@@ -918,8 +944,7 @@ function update3DCountryFlag(country, popAnimation = false) {
 
     // 1. Ядро (яркая точка на поверхности)
     const coreGeo = new THREE.SphereGeometry(0.028, 16, 16);
-    const coreMat = new THREE.MeshBasicMaterial({
-      color: 0xffe08a,
+    const coreMat = globeAccentMaterial('--kg-globe-pin-core', {
       transparent: true,
       opacity: 1
     });
@@ -930,8 +955,7 @@ function update3DCountryFlag(country, popAnimation = false) {
     const beamHeight = 0.55;
     const beamGeo = new THREE.CylinderGeometry(0.006, 0.018, beamHeight, 12, 1, true);
     beamGeo.translate(0, beamHeight / 2, 0);
-    const beamMat = new THREE.MeshBasicMaterial({
-      color: 0xffc857,
+    const beamMat = globeAccentMaterial('--kg-globe-pin-beam', {
       transparent: true,
       opacity: 0.55,
       depthWrite: false,
@@ -943,8 +967,7 @@ function update3DCountryFlag(country, popAnimation = false) {
 
     // 3. Мягкое свечение у основания
     const glowGeo = new THREE.SphereGeometry(0.07, 16, 16);
-    const glowMat = new THREE.MeshBasicMaterial({
-      color: 0xffb830,
+    const glowMat = globeAccentMaterial('--kg-primary-container', {
       transparent: true,
       opacity: 0.35,
       depthWrite: false
@@ -957,8 +980,7 @@ function update3DCountryFlag(country, popAnimation = false) {
     const makeRing = (name, size) => {
       const geo = new THREE.RingGeometry(size * 0.7, size, 32);
       geo.rotateX(-Math.PI / 2);
-      const mat = new THREE.MeshBasicMaterial({
-        color: 0xffc857,
+      const mat = globeAccentMaterial('--kg-globe-pin-beam', {
         transparent: true,
         opacity: 0.7,
         side: THREE.DoubleSide,
@@ -974,8 +996,7 @@ function update3DCountryFlag(country, popAnimation = false) {
 // 5. Мягкая подсветка «территории» страны
 const areaGeo = new THREE.CircleGeometry(0.16, 32);
 areaGeo.rotateX(-Math.PI / 2);
-const areaMat = new THREE.MeshBasicMaterial({
-  color: 0xffc857,
+const areaMat = globeAccentMaterial('--kg-globe-pin-beam', {
   transparent: true,
   opacity: 0.22,
   side: THREE.DoubleSide,
@@ -989,8 +1010,7 @@ flagPinGroup.add(areaMesh);
 // Тонкое кольцо-контур зоны
 const areaRingGeo = new THREE.RingGeometry(0.145, 0.165, 48);
 areaRingGeo.rotateX(-Math.PI / 2);
-const areaRingMat = new THREE.MeshBasicMaterial({
-  color: 0xffe08a,
+const areaRingMat = globeAccentMaterial('--kg-globe-pin-core', {
   transparent: true,
   opacity: 0.7,
   side: THREE.DoubleSide,
@@ -1043,12 +1063,12 @@ rotatingGroup.add(flagPinGroup);
       const pos = latLonToVector3(item.lat, item.lon, 1.422);
       const normal = pos.clone().normalize();
 
-      const dotMat = new THREE.MeshBasicMaterial({ color: 0xffcc44, transparent: true, opacity: 0 });
+      const dotMat = globeAccentMaterial('--kg-globe-beacon-dot', { transparent: true, opacity: 0 });
       const dotMesh = new THREE.Mesh(beaconGeo.dotGeo, dotMat);
       dotMesh.position.copy(pos);
       holder.add(dotMesh);
 
-      const ringMat = new THREE.MeshBasicMaterial({ color: 0xffa500, side: THREE.DoubleSide, transparent: true, opacity: 0 });
+      const ringMat = globeAccentMaterial('--kg-globe-beacon-ring', { side: THREE.DoubleSide, transparent: true, opacity: 0 });
       const ringMesh = new THREE.Mesh(beaconGeo.pulseRingGeo, ringMat);
       ringMesh.position.copy(pos);
       const up = new THREE.Vector3(0, 0, 1);
@@ -1112,14 +1132,14 @@ rotatingGroup.add(flagPinGroup);
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
       // Cinema Lighting: Soft ambient & directional space lighting without blinding specular hotspot
-      const dirLight = new THREE.DirectionalLight(0xffedd4, 1.15);
+      const dirLight = new THREE.DirectionalLight(readPaletteColor('--kg-globe-sunlight', true), 1.15);
       dirLight.position.set(4, 2, 4);
       scene.add(dirLight);
 
-      const ambLight = new THREE.AmbientLight(0x687d9c, 0.24);
+      const ambLight = new THREE.AmbientLight(readPaletteColor('--kg-globe-ambient-light', true), 0.24);
       scene.add(ambLight);
 
-      const hemiLight = new THREE.HemisphereLight(0xdce6ff, 0x121622, 0.22);
+      const hemiLight = new THREE.HemisphereLight(readPaletteColor('--kg-globe-sky-light', true), readPaletteColor('--kg-globe-ground-light', true), 0.22);
       scene.add(hemiLight);
 
       // Hierarchical Setup for True 3D Axial Tilt (23.4°) & Rotation:
@@ -1144,14 +1164,14 @@ rotatingGroup.add(flagPinGroup);
 
         // Natural ocean colors for the offline fallback texture.
         const oceanGrad = ctx.createLinearGradient(0, 0, 0, 1024);
-        oceanGrad.addColorStop(0, '#081a36');
-        oceanGrad.addColorStop(0.5, '#2f5f9c');
-        oceanGrad.addColorStop(1, '#081a36');
+        oceanGrad.addColorStop(0, readPaletteColor('--kg-globe-ocean-shadow'));
+        oceanGrad.addColorStop(0.5, readPaletteColor('--kg-globe-ocean-light'));
+        oceanGrad.addColorStop(1, readPaletteColor('--kg-globe-ocean-shadow'));
         ctx.fillStyle = oceanGrad;
         ctx.fillRect(0, 0, 2048, 1024);
 
         // Continental shapes & topography
-        ctx.fillStyle = '#265432';
+        ctx.fillStyle = readPaletteColor('--kg-globe-land');
         function drawBlob(x, y, w, h) {
           ctx.beginPath();
           ctx.ellipse(x, y, w, h, 0, 0, Math.PI * 2);
@@ -1162,20 +1182,20 @@ rotatingGroup.add(flagPinGroup);
         // Europe
         drawBlob(1050, 290, 110, 75);
         // Africa
-        ctx.fillStyle = '#61542f';
+        ctx.fillStyle = readPaletteColor('--kg-globe-terrain-sand');
         drawBlob(1070, 480, 150, 180);
         // North America
-        ctx.fillStyle = '#2e5b38';
+        ctx.fillStyle = readPaletteColor('--kg-globe-terrain-forest');
         drawBlob(460, 310, 180, 130);
         // South America
-        ctx.fillStyle = '#245230';
+        ctx.fillStyle = readPaletteColor('--kg-globe-terrain-grass');
         drawBlob(570, 640, 120, 200);
         // Australia
-        ctx.fillStyle = '#6f5734';
+        ctx.fillStyle = readPaletteColor('--kg-globe-terrain-mountain');
         drawBlob(1580, 710, 110, 80);
 
         // Soft cloud wisps overlay
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.22)';
+        ctx.fillStyle = readPaletteColor('--kg-globe-cloud-texture');
         for (let i = 0; i < 40; i++) {
           const cx = Math.random() * 2048;
           const cy = Math.random() * 1024;
@@ -1233,7 +1253,7 @@ rotatingGroup.add(flagPinGroup);
       // Atmospheric cloud layer
       const cloudsGeo = new THREE.SphereGeometry(earthRadius + 0.012, 48, 48);
       const cloudsMat = new THREE.MeshLambertMaterial({
-        color: 0xffffff,
+        color: readPaletteColor('--kg-white', true),
         transparent: true,
         opacity: 0.18,
         blending: THREE.AdditiveBlending,
@@ -1525,7 +1545,7 @@ if (areaRing) {
       countrySequence.push(finalWinner);
 
       spinBtn.disabled = true;
-      spinBtn.classList.add('brightness-125', 'shadow-[0_0_36px_rgba(255,184,48,0.8)]');
+      spinBtn.classList.add('brightness-125', 'shadow-[0_0_36px_rgb(var(--kg-primary-container)/0.8)]');
       if (spinIcon) {
         spinIcon.textContent = 'sensors';
         spinIcon.classList.add('animate-spin');
@@ -1537,7 +1557,7 @@ if (areaRing) {
 
       if (statusBadge) {
         statusBadge.textContent = uiText("Сканирование...");
-        statusBadge.className = 'font-micro-caption text-micro-caption px-2.5 py-0.5 rounded-full bg-primary-container text-on-primary-container font-bold shadow-[0_0_12px_rgba(255,184,48,0.5)]';
+        statusBadge.className = 'font-micro-caption text-micro-caption px-2.5 py-0.5 rounded-full bg-primary-container text-on-primary-container font-bold shadow-[0_0_12px_rgb(var(--kg-primary-container)/0.5)]';
       }
 
       let stepIndex = 0;
@@ -1553,7 +1573,7 @@ if (areaRing) {
           triggerWinnerCelebration(finalWinner);
 
           spinBtn.disabled = false;
-          spinBtn.classList.remove('brightness-125', 'shadow-[0_0_36px_rgba(255,184,48,0.8)]');
+          spinBtn.classList.remove('brightness-125', 'shadow-[0_0_36px_rgb(var(--kg-primary-container)/0.8)]');
           if (spinText) {
             spinText.innerHTML = '<span class="material-symbols-outlined text-[22px] text-canvas-obsidian font-bold transition-transform duration-300" id="btn-spin-icon">casino</span><span>КРУТИТЬ ГЛОБУС</span>';
           }
@@ -1561,7 +1581,7 @@ if (areaRing) {
 
           if (statusBadge) {
             statusBadge.textContent = uiText("104 страны онлайн");
-            statusBadge.className = 'font-micro-caption text-micro-caption px-2.5 py-0.5 rounded-full bg-surface-container-high/90 text-primary-fixed border border-primary-container/20 shadow-[0_0_10px_rgba(255,184,48,0.15)]';
+            statusBadge.className = 'font-micro-caption text-micro-caption px-2.5 py-0.5 rounded-full bg-surface-container-high/90 text-primary-fixed border border-primary-container/20 shadow-[0_0_10px_rgb(var(--kg-primary-container)/0.15)]';
           }
 
           zoomResetTimeout = setTimeout(() => {
@@ -1631,8 +1651,8 @@ if (areaRing) {
           p.style.boxShadow = '';
         });
         pill.className = 'genre-pill h-[34px] px-4 rounded-full font-label-sm text-label-sm flex items-center gap-1 text-canvas-obsidian font-bold cursor-pointer border border-white/20 transition-all';
-        pill.style.background = 'linear-gradient(135deg, rgb(255, 78, 32) 0%, rgb(255, 149, 0) 50%, rgb(255, 193, 7) 100%)';
-        pill.style.boxShadow = 'rgba(255, 115, 0, 0.4) 0px 2px 14px, rgba(255, 255, 255, 0.35) 0px 1px 0px inset';
+        pill.style.background = 'linear-gradient(135deg, rgb(var(--kg-accent-edge)) 0%, rgb(var(--kg-accent-strong)) 50%, rgb(var(--kg-action-gradient-end)) 100%)';
+        pill.style.boxShadow = 'rgb(var(--kg-action-shadow)/0.4) 0px 2px 14px, rgb(var(--kg-white)/0.35) 0px 1px 0px inset';
       });
     });
 
@@ -2218,12 +2238,14 @@ function setAppTheme(value) {
   const theme = APP_THEMES.includes(value) ? value : "cinematic";
   document.documentElement.dataset.kgTheme = theme;
   store.set("kgAppTheme", theme);
+  window.dispatchEvent(new Event("kg-palette-change"));
 }
 
 function setAppButtonAccent(value) {
   const accent = value === "gold" ? "gold" : "cyan";
   document.documentElement.dataset.kgButtonAccent = accent;
   store.set("kgButtonAccent", accent);
+  window.dispatchEvent(new Event("kg-palette-change"));
 }
 
 function getTrailerSubtitles() {
@@ -3615,24 +3637,24 @@ const GEO={US:[37.7,-98],GB:[54,-2],FR:[46.2,2.2],DE:[51.2,10.4],IT:[41.9,12.5],
 // ---------- CSS для диалогов и карты ----------
 const st=document.createElement("style");
 st.textContent=`
-.kg-dlg{border:1px solid rgb(var(--kg-surface-border-subtle));border-radius:20px;background:rgb(var(--kg-surface-panel));color:#e8e0ea;padding:0;width:min(92vw,480px);max-height:88vh;font-family:'Plus Jakarta Sans',sans-serif}
-.kg-dlg::backdrop{background:rgba(7,6,10,.82);backdrop-filter:blur(6px)}
+.kg-dlg{border:1px solid rgb(var(--kg-surface-border-subtle));border-radius:20px;background:rgb(var(--kg-surface-panel));color:rgb(var(--kg-on-surface));padding:0;width:min(92vw,480px);max-height:88vh;font-family:'Plus Jakarta Sans',sans-serif}
+.kg-dlg::backdrop{background:rgb(var(--kg-canvas-obsidian)/.82);backdrop-filter:blur(6px)}
 .kg-in{padding:18px;display:flex;flex-direction:column;gap:12px;overflow:auto;max-height:88vh}
-.kg-h{font-family:'Noto Serif',serif;font-weight:700;color:#ffdca8;font-size:18px}
-.kg-sub{font-weight:700;color:#ffdca8;font-size:13px;margin-top:4px}
+.kg-h{font-family:'Noto Serif',serif;font-weight:700;color:rgb(var(--kg-primary));font-size:18px}
+.kg-sub{font-weight:700;color:rgb(var(--kg-primary));font-size:13px;margin-top:4px}
 .kg-row{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:14px}
-.kg-btn{padding:8px 14px;border-radius:12px;background:rgb(var(--kg-surface-container-high));color:#ffdca8;font-weight:700;font-size:13px;border:1px solid rgba(255,184,48,.25)}
-.kg-btn.danger{color:#ff8d7a}
-.kg-dlg select{background:rgb(var(--kg-surface-container-lowest));color:#e8e0ea;border-radius:10px;padding:8px;border:1px solid rgb(var(--kg-surface-border-subtle))}
+.kg-btn{padding:8px 14px;border-radius:12px;background:rgb(var(--kg-surface-container-high));color:rgb(var(--kg-primary));font-weight:700;font-size:13px;border:1px solid rgb(var(--kg-primary-container)/.25)}
+.kg-btn.danger{color:rgb(var(--kg-feedback-error))}
+.kg-dlg select{background:rgb(var(--kg-surface-container-lowest));color:rgb(var(--kg-on-surface));border-radius:10px;padding:8px;border:1px solid rgb(var(--kg-surface-border-subtle))}
 .kg-bar{height:8px;background:rgb(var(--kg-surface-container-high));border-radius:99px;overflow:hidden}
-#jfill{display:block;height:100%;width:0;background:linear-gradient(90deg,#ff4e20,#ffc107)}
+#jfill{display:block;height:100%;width:0;background:linear-gradient(90deg,rgb(var(--kg-accent-edge)),rgb(var(--kg-action-gradient-end)))}
 #mapbox{overflow:auto;border-radius:12px;background:rgb(var(--kg-surface-container-lowest))}#mapbox svg{display:block}
-.mo{fill:rgb(var(--kg-surface-container-low))}.mc{fill:rgb(var(--kg-surface-container-high));stroke:rgb(var(--kg-canvas-obsidian));stroke-width:.6;cursor:pointer;transition:fill .2s,stroke .2s}.mc.v{fill:#ffb830}.mc.w{fill:#d89120;stroke:#ffe1a1;stroke-width:1.6;filter:drop-shadow(0 0 2px rgba(255,184,48,.7))}.mc.last{fill:#ff4e20}.mc.w.last{fill:#d89120;stroke:#fff0c3}
+.mo{fill:rgb(var(--kg-surface-container-low))}.mc{fill:rgb(var(--kg-surface-container-high));stroke:rgb(var(--kg-canvas-obsidian));stroke-width:.6;cursor:pointer;transition:fill .2s,stroke .2s}.mc.v{fill:rgb(var(--kg-primary-container))}.mc.w{fill:rgb(var(--kg-accent-strong));stroke:rgb(var(--kg-primary));stroke-width:1.6;filter:drop-shadow(0 0 2px rgb(var(--kg-primary-container)/.7))}.mc.last{fill:rgb(var(--kg-accent-edge))}.mc.w.last{fill:rgb(var(--kg-accent-strong));stroke:rgb(var(--kg-primary))}
 .pill{display:inline-block;padding:4px 10px;margin:2px;border-radius:99px;background:rgb(var(--kg-surface-container-high));font-size:12px}.pill.off{opacity:.45}
 #jfilms{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.jfilm{display:flex;flex-direction:column;gap:3px;text-align:left;font-size:11px;color:#e8e0ea}
+.jfilm{display:flex;flex-direction:column;gap:3px;text-align:left;font-size:11px;color:rgb(var(--kg-on-surface))}
 .jfilm img,.jfilm .ph{width:100%;aspect-ratio:2/3;object-fit:cover;border-radius:8px;background:rgb(var(--kg-surface-container-high));font-size:10px;padding:4px}
-.jfilm small{color:#b3a79a}
+.jfilm small{color:rgb(var(--kg-text-muted))}
 /* Единый контейнер флагов */
 .wave {
   display: inline-flex;
@@ -3672,39 +3694,39 @@ st.textContent=`
   vertical-align: middle;
 }
 #film-reel-window{position:relative;height:150px;overflow:hidden;
-  -webkit-mask-image:linear-gradient(90deg,transparent,#000 13%,#000 87%,transparent);mask-image:linear-gradient(90deg,transparent,#000 13%,#000 87%,transparent)}
+  -webkit-mask-image:linear-gradient(90deg,transparent,rgb(var(--kg-black)) 13%,rgb(var(--kg-black)) 87%,transparent);mask-image:linear-gradient(90deg,transparent,rgb(var(--kg-black)) 13%,rgb(var(--kg-black)) 87%,transparent)}
 #film-reel-track{position:absolute;inset:0;overflow:hidden}
 #film-reel-track .run{position:absolute;left:0;top:0;height:100%;display:flex;align-items:center;gap:10px;padding-left:8px;will-change:transform}
 #film-reel-track .run.fast{filter:blur(1.4px) brightness(1.08)}
-.film-cell{box-sizing:border-box;pointer-events:none;user-select:none;position:relative;flex:none;width:80px;height:112px;border-radius:6px;overflow:hidden;background:rgb(var(--kg-surface-container));border:1px solid rgb(var(--kg-surface-border));padding:0;opacity:.62;transition:opacity .45s,transform .45s,box-shadow .45s,filter .35s;color:#b3a79a;font-size:10px;line-height:1.2}
+.film-cell{box-sizing:border-box;pointer-events:none;user-select:none;position:relative;flex:none;width:80px;height:112px;border-radius:6px;overflow:hidden;background:rgb(var(--kg-surface-container));border:1px solid rgb(var(--kg-surface-border));padding:0;opacity:.62;transition:opacity .45s,transform .45s,box-shadow .45s,filter .35s;color:rgb(var(--kg-text-muted));font-size:10px;line-height:1.2}
 .film-cell img{width:100%;height:100%;object-fit:cover;display:block}
 .film-cell .nop{width:100%;height:100%;display:flex;align-items:center;justify-content:center;text-align:center;padding:4px}
 .film-cell.spinning{opacity:.92}
-.film-cell.chosen{opacity:1;transform:scale(1.07);box-shadow:0 0 22px rgba(255,184,48,.55)}
-.film-cell .yr{position:absolute;left:0;right:0;bottom:0;background:rgba(0,0,0,.78);font:600 9px/1.4 ui-monospace,monospace;text-align:center;color:#b3a79a}
-#film-center-frame{position:absolute;left:50%;top:50%;width:94px;height:128px;transform:translate(-50%,-50%);z-index:5;pointer-events:none;border:2px solid #ffb830;border-radius:10px;box-shadow:0 0 18px rgba(255,184,48,.5),inset 0 0 14px rgba(255,184,48,.22)}
+.film-cell.chosen{opacity:1;transform:scale(1.07);box-shadow:0 0 22px rgb(var(--kg-primary-container)/.55)}
+.film-cell .yr{position:absolute;left:0;right:0;bottom:0;background:rgb(var(--kg-black)/.78);font:600 9px/1.4 ui-monospace,monospace;text-align:center;color:rgb(var(--kg-text-muted))}
+#film-center-frame{position:absolute;left:50%;top:50%;width:94px;height:128px;transform:translate(-50%,-50%);z-index:5;pointer-events:none;border:2px solid rgb(var(--kg-primary-container));border-radius:10px;box-shadow:0 0 18px rgb(var(--kg-primary-container)/.5),inset 0 0 14px rgb(var(--kg-primary-container)/.22)}
 #film-center-frame::before,#film-center-frame::after{content:"";position:absolute;left:50%;transform:translateX(-50%);border:6px solid transparent}
-#film-center-frame::before{top:-9px;border-top:7px solid #ffb830;border-bottom:0}
-#film-center-frame::after{bottom:-9px;border-bottom:7px solid #ffb830;border-top:0}
+#film-center-frame::before{top:-9px;border-top:7px solid rgb(var(--kg-primary-container));border-bottom:0}
+#film-center-frame::after{bottom:-9px;border-bottom:7px solid rgb(var(--kg-primary-container));border-top:0}
 #cinema-35mm-reel-section,#cl-result,#oscar-reel-detail,[id^="mood-roulette-winner-detail-"]{overflow-anchor:none}
-#btn-mode-filters,#btn-mode-surprise{border:1px solid rgb(var(--kg-surface-border-subtle));color:#b3a7b7;background:rgb(var(--kg-surface-container))}
-.kg-mode-choice[aria-pressed="false"]:hover{color:#e8e0ea}
-#btn-mode-filters[aria-pressed="true"],#btn-mode-surprise[aria-pressed="true"]{color:#fff;border-color:#ffffff33;box-shadow:0 4px 18px #ff5e5e44,inset 0 1px #ffffff33}
-#btn-mode-filters[aria-pressed="true"]{background:linear-gradient(135deg,#ff4e20,#ff8c00)}
-#btn-mode-surprise[aria-pressed="true"]{background:linear-gradient(135deg,#861a45,#ff4e78)}
+#btn-mode-filters,#btn-mode-surprise{border:1px solid rgb(var(--kg-surface-border-subtle));color:rgb(var(--kg-neutral-119));background:rgb(var(--kg-surface-container))}
+.kg-mode-choice[aria-pressed="false"]:hover{color:rgb(var(--kg-on-surface))}
+#btn-mode-filters[aria-pressed="true"],#btn-mode-surprise[aria-pressed="true"]{color:rgb(var(--kg-white));border-color:rgb(var(--kg-white)/0.2);box-shadow:0 4px 18px rgb(var(--kg-rose-07)/0.26667),inset 0 1px rgb(var(--kg-white)/0.2)}
+#btn-mode-filters[aria-pressed="true"]{background:linear-gradient(135deg,rgb(var(--kg-accent-edge)),rgb(var(--kg-accent-strong)))}
+#btn-mode-surprise[aria-pressed="true"]{background:linear-gradient(135deg,rgb(var(--kg-secondary-container)),rgb(var(--kg-rose-06)))}
 #film-details.veiled{display:none}
 #film-trailer-box{filter:none!important;opacity:1!important}
 .kg-film-card-poster{width:80px;height:112px;flex:none}
 .kg-trailer-frame{position:absolute;inset:0;display:block;width:100%;height:100%;border:0}
 #film-trailer-stage{aspect-ratio:16/9;isolation:isolate}
 #film-trailer-box [hidden]{display:none!important}
-#err{color:#ff8d7a;font-size:12px;text-align:center;width:100%;margin-top:6px;z-index:10}
+#err{color:rgb(var(--kg-feedback-error));font-size:12px;text-align:center;width:100%;margin-top:6px;z-index:10}
 `;
 document.head.appendChild(st);
 
 // ---------- Единый визуальный режим киноленты для всех экранов ----------
 function mainReelMarkup(){
-  const common={shellClass:"relative w-full rounded-xl bg-canvas-obsidian border border-primary-container/30 overflow-hidden shadow-[inset_0_2px_12px_rgba(0,0,0,0.95)] my-2 p-1",prefix:"film-reel",windowId:"film-reel-window",trackId:"film-reel-track",runClass:"run",frameId:"film-center-frame",includeRun:false};
+  const common={shellClass:"relative w-full rounded-xl bg-canvas-obsidian border border-primary-container/30 overflow-hidden shadow-[inset_0_2px_12px_rgb(var(--kg-black)/0.95)] my-2 p-1",prefix:"film-reel",windowId:"film-reel-window",trackId:"film-reel-track",runClass:"run",frameId:"film-center-frame",includeRun:false};
   return window.KGCinemaReel.render({...common,mode:reelStyle});
 }
 // ---------- Новая секция «Кинолента» (подменяет старую карточку) ----------
@@ -3712,7 +3734,7 @@ const CARD_HTML=`
 <section class="w-full rounded-2xl bg-surface-panel/95 p-3.5 shadow-2xl relative overflow-hidden border border-primary-container/25 backdrop-blur-xl" id="cinema-35mm-reel-section">
 <div class="flex items-center justify-between mb-2.5 px-0.5">
 <div class="flex items-center gap-2 min-w-0">
-<div class="w-7 h-7 rounded-lg bg-surface-container flex items-center justify-center border border-primary-container/30 text-primary shadow-[0_0_8px_rgba(255,184,48,0.25)] flex-shrink-0"><span class="material-symbols-outlined text-[17px]">movie</span></div>
+<div class="w-7 h-7 rounded-lg bg-surface-container flex items-center justify-center border border-primary-container/30 text-primary shadow-[0_0_8px_rgb(var(--kg-primary-container)/0.25)] flex-shrink-0"><span class="material-symbols-outlined text-[17px]">movie</span></div>
 <div class="flex flex-col min-w-0">
 <div class="flex items-center gap-1.5"><span class="font-label-sm text-label-sm font-bold text-on-surface uppercase tracking-wider" id="reel-format-title">${uiText(reelStyle==="cassette"?"Кассетная дека · 3D Cover Flow":reelStyle==="projection"?"Проекционный тракт · 35 мм":"Кинолента 35-мм")}</span></div>
 <span class="font-micro-caption text-[11px] text-text-muted truncate" id="discovery-timestamp">Крутите глобус, и здесь появится находка</span>
@@ -3745,7 +3767,7 @@ ${window.KGWatchedButtonHtml(false, 'id="btn-watched"')}
 <div class="mt-2" id="film-people"></div>
 <div class="mt-2.5" id="film-trailer-box" hidden>
 <div class="relative w-full rounded-xl overflow-hidden bg-black border border-primary-container/30 shadow-md" id="film-trailer-stage">
-<div class="absolute inset-0" id="film-trailer-preview"><img class="w-full h-full object-cover opacity-80" id="film-trailer-thumbnail" alt="" loading="lazy"><div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-black/20"></div><button type="button" id="film-trailer-play" class="absolute inset-0 flex items-center justify-center text-white disabled:opacity-40" aria-label="Воспроизвести трейлер" disabled><span class="w-16 h-16 rounded-full bg-primary-container/95 text-on-primary shadow-[0_0_32px_rgba(255,184,48,.45)] flex items-center justify-center transition-transform hover:scale-110"><span class="material-symbols-outlined text-[40px]">play_arrow</span></span></button><span class="absolute bottom-3 left-3 right-3 text-center font-label-sm text-label-sm text-white drop-shadow-lg" id="film-trailer-status">Ищем трейлер…</span></div>
+<div class="absolute inset-0" id="film-trailer-preview"><img class="w-full h-full object-cover opacity-80" id="film-trailer-thumbnail" alt="" loading="lazy"><div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-black/20"></div><button type="button" id="film-trailer-play" class="absolute inset-0 flex items-center justify-center text-white disabled:opacity-40" aria-label="Воспроизвести трейлер" disabled><span class="w-16 h-16 rounded-full bg-primary-container/95 text-on-primary shadow-[0_0_32px_rgb(var(--kg-primary-container)/.45)] flex items-center justify-center transition-transform hover:scale-110"><span class="material-symbols-outlined text-[40px]">play_arrow</span></span></button><span class="absolute bottom-3 left-3 right-3 text-center font-label-sm text-label-sm text-white drop-shadow-lg" id="film-trailer-status">Ищем трейлер…</span></div>
 <div class="absolute inset-0" id="film-trailer-player" hidden></div>
 </div>
 <div class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1.5">
@@ -3848,15 +3870,15 @@ function syncDesign(){
     const on=b._h.getAttribute("aria-pressed")==="true";b.style.display=b._h.hidden?"none":"";
     b.setAttribute("aria-pressed",String(on));
     b.className=BASE+(on?"text-canvas-obsidian font-bold border border-white/20":"bg-surface-container text-text-muted hover:text-on-surface");
-    b.style.background=on?"linear-gradient(135deg,#ff4e20,#ff9500 50%,#ffc107)":"";
-    b.style.boxShadow=on?"0 2px 14px rgba(255,115,0,.4)":"";
+    b.style.background=on?"linear-gradient(135deg,rgb(var(--kg-accent-edge)),rgb(var(--kg-accent-strong)) 50%,rgb(var(--kg-action-gradient-end)))":"";
+    b.style.boxShadow=on?"0 2px 14px rgb(var(--kg-action-shadow)/.4)":"";
   });
   paint(gBox);paint(tBox);
   [...rBox.children].forEach(b=>{const on=$("rmin").value===b.dataset.v&&!$("rmin").disabled;
     b.className="flex-1 py-1.5 px-2 rounded-lg font-label-sm text-label-sm "+(on?"bg-primary-container text-on-primary-container font-bold":"bg-surface-container text-text-muted");});
   sChips.forEach((c,i)=>{const on=["light","find","wild","hard"][i]===surprise;
     c.setAttribute("aria-pressed", String(on));
-    c.style.background=on?"rgb(var(--kg-surface-container-high))":"rgb(var(--kg-surface-panel))";c.style.color=on?"#ffdca8":"#e8e0ea";c.style.boxShadow=on?"0 0 10px rgba(255,184,48,.25)":"";});
+    c.style.background=on?"rgb(var(--kg-surface-container-high))":"rgb(var(--kg-surface-panel))";c.style.color=on?"rgb(var(--kg-primary))":"rgb(var(--kg-on-surface))";c.style.boxShadow=on?"0 0 10px rgb(var(--kg-primary-container)/.25)":"";});
   const d=$("surprise-description-text");if(d)d.textContent=uiText(SURPRISE_NOTE[surprise]);
   $("genre-filter-summary").textContent=sumText("filterSum","Категории");
   $("year-rating-filter-summary").textContent=sumText("extraSum","Год и оценка");
@@ -4463,27 +4485,27 @@ console.info("[Kinoglobus] Bridge v6 ready");
 })();
 </script>
 
-<script src="globe-visuals.js?v=3"></script>
+<script src="globe-visuals.js?v=4"></script>
 <script src="watch-history.js?v=11"></script>
-<script src="country-pages.js?v=28"></script>
-<script src="profile-page.js?v=7"></script>
-<script src="cinema-diary.js?v=6"></script>
-<script src="profile-editor.js?v=1"></script>
-<script src="login-page.js?v=3"></script>
-<script src="password-recovery.js?v=2"></script>
-<script src="recovery-code.js?v=1"></script>
-<script src="account-page.js?v=6"></script>
+<script src="country-pages.js?v=29"></script>
+<script src="profile-page.js?v=8"></script>
+<script src="cinema-diary.js?v=7"></script>
+<script src="profile-editor.js?v=2"></script>
+<script src="login-page.js?v=4"></script>
+<script src="password-recovery.js?v=3"></script>
+<script src="recovery-code.js?v=2"></script>
+<script src="account-page.js?v=7"></script>
 <script src="mood-vibe-additions.js?v=2"></script>
-<script src="mood-page.js?v=41"></script>
-<script src="mood-vibe-page.js?v=28"></script>
-<script src="oscar-page.js?v=44"></script>
-<script src="oscar-design.js?v=23"></script>
+<script src="mood-page.js?v=42"></script>
+<script src="mood-vibe-page.js?v=29"></script>
+<script src="oscar-page.js?v=45"></script>
+<script src="oscar-design.js?v=24"></script>
 <script src="curated-collections.js?v=1"></script>
-<script src="collections.js?v=101"></script>
-<script src="film-interactions.js?v=21"></script>
-<script src="legal-watch.js?v=6"></script>
-<script src="global-search.js?v=7"></script>
+<script src="collections.js?v=102"></script>
+<script src="film-interactions.js?v=22"></script>
+<script src="legal-watch.js?v=7"></script>
+<script src="global-search.js?v=8"></script>
 <script src="home-releases.js?v=8"></script>
-<script src="settings-page.js?v=47"></script>
+<script src="settings-page.js?v=48"></script>
 
 </body></html>

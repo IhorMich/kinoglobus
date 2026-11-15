@@ -21,8 +21,8 @@
     .kg-login-scroll {flex:1;min-height:0;overflow:auto;padding:8px 5% calc(24px + env(safe-area-inset-bottom,0px))}
     .kg-login-intro {
       padding:clamp(16px,5vw,26px);border-radius:18px;
-      background:radial-gradient(ellipse at top right,#ffb83016,transparent 65%),
-        radial-gradient(ellipse at bottom left,#861a4529,transparent 62%),rgb(var(--kg-surface-container-low));
+      background:radial-gradient(ellipse at top right,rgb(var(--kg-primary-container)/0.08627),transparent 65%),
+        radial-gradient(ellipse at bottom left,rgb(var(--kg-secondary-container)/0.16078),transparent 62%),rgb(var(--kg-surface-container-low));
     }
     .kg-login-pill {
       display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border-radius:99px;
@@ -39,7 +39,7 @@
     #kg-login .kg-login-field input {width:100%;min-width:0;padding:13px 0;background:transparent;border:0;box-shadow:none;color:inherit;font:inherit}
     #kg-login .kg-login-field input::placeholder {color:rgb(var(--kg-text-muted))}
     .kg-login-primary,.kg-login-biometrics {width:100%;display:flex;align-items:center;justify-content:center;gap:8px;min-height:49px;padding:8px 12px;border-radius:99px;font-weight:700}
-    .kg-login-primary {background:linear-gradient(110deg,#ffbd40,#ffb32b);color:#281900;font-family:'Noto Serif',serif}
+    .kg-login-primary {background:linear-gradient(110deg,rgb(var(--kg-primary-container)),rgb(var(--kg-primary-container)));color:rgb(var(--kg-on-primary-fixed));font-family:'Noto Serif',serif}
     .kg-login-biometrics {background:rgb(var(--kg-surface-container));color:rgb(var(--kg-on-surface))}
     #kg-login button:focus-visible,#kg-login input:focus-visible {outline:2px solid rgb(var(--kg-primary));outline-offset:2px}
   `;

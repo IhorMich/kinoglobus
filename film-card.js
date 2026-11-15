@@ -43,7 +43,8 @@ function markup(f, {closable = true, inline = false} = {}) {
   const loading=f._detailsLoaded?"—":uiText("Загружаем…");
   const dirName=f.dirs&&f.dirs.length?(f.dirsFull&&f.dirsFull.length?f.dirsFull.map(d=>personLink(d,"Режиссёр")).join(", "):esc(f.dirs.join(", "))):loading;
   const releaseText=f.release?new Date(f.release+"T00:00:00").toLocaleDateString(interfaceLanguage,{day:"numeric",month:"long",year:"numeric"}):loading;
-  const poster = filmPosterMarkup({...f,localizedPoster:f.localizedPoster || {path:f.poster_path || f.backdrop_path,showTitle:true}}, "w500") || '<span class="material-symbols-outlined">movie</span>';
+  const poster = filmPosterMarkup({...f,localizedPoster:f.localizedPoster || {path:f.poster_path || f.backdrop_path,showTitle:true}}, "w342") || '<span class="material-symbols-outlined" aria-hidden="true">movie</span>';
+  const diaryLabel = esc(noteLabel(f.id));
   const preview = video
     ? `<button type="button" data-trailer-action="play" aria-label="${uiText("Воспроизвести трейлер")}" class="absolute inset-0 grid place-items-center text-primary-container">${trailerThumb(video,f)}<span class="relative grid place-items-center w-16 h-16 rounded-full bg-black/55 border border-primary-container/60"><span class="material-symbols-outlined text-[44px]" aria-hidden="true">play_arrow</span></span></button>`
     : `<div role="status" class="absolute inset-0 grid place-items-center px-3 text-center text-text-muted">${uiText(f._trailerStatus==="missing" ? "Трейлер не найден" : "Ищем трейлер…")}</div>`;
@@ -53,17 +54,20 @@ function markup(f, {closable = true, inline = false} = {}) {
     : "";
   return `<section class="kg-film-detail" ${inline ? "data-kg-inline-film" : ""} data-selected-film="${Number(f.id)}">
 <div data-film-part="summary" class="kg-film-detail-summary">
-<div class="kg-film-detail-poster">${poster}</div>
-<div class="min-w-0">
+<div class="kg-film-detail-meta">
 <h3 class="font-headline-md text-headline-md text-primary font-bold break-words" data-kg-film-title>${title}</h3>
 ${orig? `<p class="text-body-sm text-text-muted">${orig}</p>` : ""}
 <p class="mt-1 text-body-sm text-on-surface-variant">${[countries,esc(genres),f.runtime?uiText("{minutes} мин",{minutes:f.runtime}):""].filter(Boolean).join(" · ")}</p>
 ${rating ? `<div class="mt-2 flex" data-kg-film-rating>${rating}</div>` : ""}
+<div data-kg-film-actions class="kg-film-detail-actions">
+${window.KGWatchedButtonHtml(watched, `data-film-watched="${Number(f.id)}"`)}
+${kgBookmarkButton(f)}
+<button type="button" data-kg-film-note aria-label="${diaryLabel}" title="${diaryLabel}"><span class="material-symbols-outlined" aria-hidden="true">add</span></button>
 </div>
+</div>
+<div class="kg-film-detail-poster">${poster}</div>
 ${closable ? `<button type="button" data-act="close-film" aria-label="${uiText("Свернуть карточку")}" class="kg-film-detail-close"><span class="material-symbols-outlined" aria-hidden="true">close</span></button>` : ""}
 </div>
-<div data-film-part="actions" data-kg-film-actions class="flex flex-wrap items-center gap-2">${window.KGWatchedButtonHtml(watched, `data-film-watched="${Number(f.id)}"`)}${kgBookmarkButton(f)}
-<button type="button" data-kg-film-note class="inline-flex min-h-10 items-center gap-1 rounded-lg bg-surface-container-high px-2.5 text-primary font-label-sm text-label-sm"><span class="material-symbols-outlined text-[17px]" aria-hidden="true">edit_note</span><span data-note-label>${noteLabel(f.id)}</span></button></div>
 <div data-film-part="description" data-kg-film-description class="p-4 rounded-xl bg-surface-container flex flex-col gap-2"><h4 class="font-label-md text-label-md text-primary-fixed">${uiText("О фильме")}</h4>
 ${f.tagline&&f.taglineLang===f.overviewLang ? `<blockquote class="italic text-primary-fixed">«${esc(f.tagline)}»</blockquote>` : ""}
 <p class="text-body-md text-on-surface leading-relaxed">${esc(f.overview)}</p>${languageNote ? `<small class="text-text-muted">${esc(languageNote)}</small>` : ""}</div>
@@ -98,11 +102,60 @@ style.textContent = `
 article:has(>[data-oscar-detail-host]>.kg-film-detail),article:has(>[id^="mood-film-detail-"]>.kg-film-detail){padding-inline:0}
 #kg-home-feature:has(>.kg-film-detail){padding:0;background:none;box-shadow:none}
 #kg-home-feature:has(>.kg-film-detail)>p{padding-inline:2px}
-.kg-film-detail-summary{display:grid;grid-template-columns:clamp(68px,22vw,112px) minmax(0,1fr);align-items:start;position:relative;gap:12px}
-.kg-film-detail-summary:has(.kg-film-detail-poster img){grid-template-columns:minmax(0,1fr)}
-.kg-film-detail-summary:has(.kg-film-detail-close) h3{padding-right:40px}
+.kg-film-detail-summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(72px, 30%, 120px);
+  align-items: start;
+  position: relative;
+  gap: 12px;
+}
+.kg-film-detail-meta {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.kg-film-detail-meta [data-kg-film-rating] > div {
+  min-width: 0;
+  flex-wrap: wrap;
+}
+.kg-film-detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+}
+.kg-film-detail .kg-film-detail-actions > button {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: 10px;
+}
+.kg-film-detail-actions [data-kg-film-note] {
+  border: 1px solid rgb(var(--kg-primary)/.32);
+  background: rgb(var(--kg-surface-container-high));
+  color: rgb(var(--kg-primary));
+}
+.kg-film-detail-actions .kg-watched-button > span {
+  display: none;
+}
+.kg-film-detail-actions .kg-watched-icon {
+  width: 21px;
+  height: 21px;
+}
+.kg-film-detail .kg-film-detail-actions button.kg-watched-button[aria-pressed="true"] {
+  border-color: rgb(var(--kg-primary));
+  background: rgb(var(--kg-primary));
+  color: rgb(var(--kg-canvas-obsidian));
+}
+.kg-film-detail .kg-film-detail-actions .kg-bookmark-button .material-symbols-outlined {
+  color: inherit;
+}
+.kg-film-detail-actions > button:focus-visible {
+  outline: 2px solid rgb(var(--kg-primary));
+  outline-offset: 2px;
+}
 .kg-film-detail-poster{display:grid;place-items:center;position:relative;overflow:hidden;aspect-ratio:2/3;border-radius:9px;background:rgb(var(--kg-surface-container-high));color:rgb(var(--kg-primary))}
-.kg-film-detail-poster:has(img){width:min(100%,224px);justify-self:center}
 .kg-film-detail-close{position:absolute;right:0;top:0;z-index:1;display:grid;place-items:center;width:36px;height:36px;border-radius:50%;color:rgb(var(--kg-text-muted));background:rgb(var(--kg-surface-container-high))}
 .kg-detail-trailer{position:relative;width:100%;aspect-ratio:16/9;background:rgb(var(--kg-black));overflow:hidden;isolation:isolate}
 .kg-film-detail [hidden]{display:none!important}
@@ -312,10 +365,13 @@ function paintWatched() {
     window.KGPaintWatchedButton?.(button,!!window.KGIsFilmWatched?.(button.dataset.filmWatched)));
 }
 document.addEventListener("kg:watched-change",paintWatched);
-document.addEventListener("kg:diary-note-change",event=>{
-  document.querySelectorAll(".kg-film-detail [data-note-label]").forEach(label=>{
-    const id=label.closest("[data-selected-film]").dataset.selectedFilm;
-    if (id===String(event.detail.id)) label.textContent=noteLabel(id);
+document.addEventListener("kg:diary-note-change", event => {
+  document.querySelectorAll(".kg-film-detail [data-kg-film-note]").forEach(button => {
+    const id = button.closest("[data-selected-film]").dataset.selectedFilm;
+    if (id !== String(event.detail.id)) return;
+    const label = noteLabel(id);
+    button.setAttribute("aria-label", label);
+    button.title = label;
   });
 });
 window.KGFilmCard={markup, createModel, hydrate, mount, update, playTrailer, stopTrailers, openDialog, savedFilm};

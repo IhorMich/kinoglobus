@@ -10,20 +10,20 @@ const st=document.createElement("style");
 st.textContent=".kgf{display:inline-flex;align-items:center;vertical-align:middle}.kgf img.flag-img{width:1.25em;height:.9em;object-fit:cover;border-radius:2px}.kgf svg{width:1.25em;height:.9em}.kgf .wave{width:auto;height:auto;flex:none}.kg-clip2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}";
 document.head.appendChild(st);
 const st2=document.createElement("style");
-st2.textContent=`.kgr-win{position:relative;height:150px;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 13%,#000 87%,transparent);mask-image:linear-gradient(90deg,transparent,#000 13%,#000 87%,transparent)}
+st2.textContent=`.kgr-win{position:relative;height:150px;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,rgb(var(--kg-black)) 13%,rgb(var(--kg-black)) 87%,transparent);mask-image:linear-gradient(90deg,transparent,rgb(var(--kg-black)) 13%,rgb(var(--kg-black)) 87%,transparent)}
 #cat-search::-webkit-search-cancel-button{display:none}
 .kgr-track{position:absolute;inset:0;overflow:hidden}
 .kgr-run{position:absolute;left:0;top:0;height:100%;display:flex;align-items:center;gap:10px;padding-left:8px;will-change:transform}
 .kgr-run.fast{filter:blur(1.4px) brightness(1.08)}
-.kgr-cell{box-sizing:border-box;position:relative;flex:none;width:80px;height:112px;border-radius:6px;overflow:hidden;background:rgb(var(--kg-surface-container));border:1px solid rgb(var(--kg-surface-border));opacity:.62;transition:opacity .45s,transform .45s,box-shadow .45s;color:#b3a79a;font-size:10px;line-height:1.2;pointer-events:none;user-select:none}
+.kgr-cell{box-sizing:border-box;position:relative;flex:none;width:80px;height:112px;border-radius:6px;overflow:hidden;background:rgb(var(--kg-surface-container));border:1px solid rgb(var(--kg-surface-border));opacity:.62;transition:opacity .45s,transform .45s,box-shadow .45s;color:rgb(var(--kg-text-muted));font-size:10px;line-height:1.2;pointer-events:none;user-select:none}
 .kgr-cell img{width:100%;height:100%;object-fit:cover;display:block}
 .kgr-cell .nop{width:100%;height:100%;display:flex;align-items:center;justify-content:center;text-align:center;padding:4px}
 .kgr-cell.spin{opacity:.92}
-.kgr-cell.chosen{opacity:1;transform:scale(1.07);box-shadow:0 0 22px rgba(255,184,48,.55)}
-.kgr-cell .yr{position:absolute;left:0;right:0;bottom:0;background:rgba(0,0,0,.78);font:600 9px/1.4 ui-monospace,monospace;text-align:center;color:#b3a79a}
-.kgr-frame{position:absolute;left:50%;top:50%;width:94px;height:128px;transform:translate(-50%,-50%);z-index:5;pointer-events:none;border:2px solid #ffb830;border-radius:10px;box-shadow:0 0 18px rgba(255,184,48,.5),inset 0 0 14px rgba(255,184,48,.22)}
+.kgr-cell.chosen{opacity:1;transform:scale(1.07);box-shadow:0 0 22px rgb(var(--kg-primary-container)/.55)}
+.kgr-cell .yr{position:absolute;left:0;right:0;bottom:0;background:rgb(var(--kg-black)/.78);font:600 9px/1.4 ui-monospace,monospace;text-align:center;color:rgb(var(--kg-text-muted))}
+.kgr-frame{position:absolute;left:50%;top:50%;width:94px;height:128px;transform:translate(-50%,-50%);z-index:5;pointer-events:none;border:2px solid rgb(var(--kg-primary-container));border-radius:10px;box-shadow:0 0 18px rgb(var(--kg-primary-container)/.5),inset 0 0 14px rgb(var(--kg-primary-container)/.22)}
 .kgr-frame.hit{animation:kgrHit 1s cubic-bezier(.2,.8,.25,1)}
-@keyframes kgrHit{0%{box-shadow:0 0 0 0 rgba(255,184,48,.8),inset 0 0 14px rgba(255,184,48,.22)}45%{box-shadow:0 0 38px 8px rgba(255,184,48,.75),inset 0 0 22px rgba(255,184,48,.4)}100%{box-shadow:0 0 18px rgba(255,184,48,.5),inset 0 0 14px rgba(255,184,48,.22)}}
+@keyframes kgrHit{0%{box-shadow:0 0 0 0 rgb(var(--kg-primary-container)/.8),inset 0 0 14px rgb(var(--kg-primary-container)/.22)}45%{box-shadow:0 0 38px 8px rgb(var(--kg-primary-container)/.75),inset 0 0 22px rgb(var(--kg-primary-container)/.4)}100%{box-shadow:0 0 18px rgb(var(--kg-primary-container)/.5),inset 0 0 14px rgb(var(--kg-primary-container)/.22)}}
 .kgr-rise{animation:kgrRise .6s cubic-bezier(.2,.7,.2,1) both}
 @keyframes kgrRise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 .kg-clip3{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
@@ -40,7 +40,7 @@ st2.textContent=`.kgr-win{position:relative;height:150px;overflow:hidden;-webkit
 .kg-film-grid-tile:focus-visible{outline:2px solid rgb(var(--kg-primary));outline-offset:3px;border-radius:.5rem}
 .kg-film-grid-poster{box-sizing:border-box;position:relative;display:block;width:100%;aspect-ratio:2/3;overflow:hidden;border-radius:clamp(10px,3vw,16px);background:rgb(var(--kg-surface-container-high));border:1px solid rgb(var(--kg-on-surface) / .10)}
 .kg-film-grid-poster>img,#cat-grid.kg-three-columns .kg-film-card-poster>img{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover}
-.kg-film-grid-score{position:absolute;top:.45rem;right:.45rem;padding:.13rem .42rem;border-radius:.65rem;background:rgb(0 0 0 / .74);color:#fff;font-size:.78rem;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.4}
+.kg-film-grid-score{position:absolute;top:.45rem;right:.45rem;padding:.13rem .42rem;border-radius:.65rem;background:rgb(var(--kg-black)/.74);color:rgb(var(--kg-white));font-size:.78rem;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.4}
 .kg-film-grid-title{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;overflow-wrap:anywhere;min-height:2.7em;margin-top:.5rem;padding-inline:.125rem;color:rgb(var(--kg-on-surface));font-size:.875rem;font-weight:500;line-height:1.35}
 .kg-film-grid-tile:hover .kg-film-grid-title{color:rgb(var(--kg-primary))}
 .kg-three-columns .kg-catalog-row{flex-direction:column;gap:.25rem}
@@ -197,7 +197,7 @@ const flagsOf=t=>t.cc.slice(0,3).map(fl).join(" ");
 function toast(msg,icon){
   let el=$("kg-toast");
   if(!el){el=document.createElement("div");el.id="kg-toast";el.className="fixed bottom-20 left-1/2 -translate-x-1/2 max-w-[90vw] z-50 pointer-events-none opacity-0 transition-opacity duration-300";document.body.appendChild(el);}
-  el.innerHTML=`<div class="flex items-center gap-2 px-4 py-2.5 rounded-full bg-surface-panel text-on-surface font-label-sm text-label-sm shadow-[0_8px_24px_rgba(0,0,0,0.9)]"><span class="material-symbols-outlined text-primary-container text-[18px]">${icon||"casino"}</span><span>${esc(uiText(msg))}</span></div>`;
+  el.innerHTML=`<div class="flex items-center gap-2 px-4 py-2.5 rounded-full bg-surface-panel text-on-surface font-label-sm text-label-sm shadow-[0_8px_24px_rgb(var(--kg-black)/0.9)]"><span class="material-symbols-outlined text-primary-container text-[18px]">${icon||"casino"}</span><span>${esc(uiText(msg))}</span></div>`;
   el.style.opacity="1";clearTimeout(el._t);el._t=setTimeout(()=>el.style.opacity="0",2200);
 }
 
@@ -320,9 +320,9 @@ sectionNav.innerHTML='<div class="grid grid-cols-3 gap-1.5 rounded-xl bg-surface
 home.after(sectionNav);sectionNav.after(vc);vc.after(vd);vd.after(vm);vm.after(vo);
 
 const NB="flex flex-col items-center justify-center gap-1 min-w-[64px] h-12 transition-all active:scale-95 ";
-const NON="text-primary-container font-bold drop-shadow-[0_0_12px_rgba(255,184,48,0.45)]",NOFF="text-text-muted";
+const NON="text-primary-container font-bold drop-shadow-[0_0_12px_rgb(var(--kg-primary-container)/0.45)]",NOFF="text-text-muted";
 const nav=document.createElement("nav");
-nav.className="fixed bottom-0 w-full z-50 pb-safe bg-surface-panel/90 backdrop-blur-xl shadow-[0_-4px_24px_rgba(7,6,10,0.9)]";
+nav.className="fixed bottom-0 w-full z-50 pb-safe bg-surface-panel/90 backdrop-blur-xl shadow-[0_-4px_24px_rgb(var(--kg-canvas-obsidian)/0.9)]";
 nav.innerHTML='<div class="flex justify-around items-center h-16 max-w-[520px] mx-auto px-gutter-mobile">'+
 [["home","casino","Глобус"],["collections","movie_filter","Подборки"],["journey","travel_explore","Путешествие"],["history","history_toggle_off","История"]]
 .map(([v,i,l])=>`<a href="#" data-view="${v}" class="${NB}${NOFF}"><span class="material-symbols-outlined text-[22px]">${i}</span><span class="font-micro-caption text-micro-caption tracking-tight">${uiText(l)}</span></a>`).join("")+"</div>";
@@ -438,7 +438,7 @@ function cardHtml(t,i){
   const top=special?`<div class="kg-catalog-archive flex items-center justify-between mb-2"><span class="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-secondary-container/60 text-secondary font-micro-caption text-micro-caption font-bold"><span class="material-symbols-outlined text-[13px]">history_edu</span>${uiText("АРХИВ ИСЧЕЗНУВШИХ ЭПОХ")}</span><span data-k="r" class="font-micro-caption text-micro-caption text-primary-container font-bold">★ …</span></div>`:"";
   const rate=special?"":`<span data-k="r" class="px-2 py-0.5 rounded-full bg-primary-container/15 text-primary-container font-micro-caption text-micro-caption font-bold flex-shrink-0">★ …</span>`;
   const btn=`<button type="button" aria-label="${uiText("Крутить")}" data-act="spin" data-t="${t.id}" class="w-8 h-8 rounded-full bg-surface-container-high hover:bg-primary-container hover:text-on-primary-container text-primary flex items-center justify-center transition-all"><span class="material-symbols-outlined text-[18px]">casino</span></button>`;
-  return `<article class="collection-card relative flex flex-col ${special?"p-4 bg-gradient-to-br from-cinema-velvet-deep/40 via-surface-panel to-surface-panel shadow-[0_6px_24px_rgba(0,0,0,0.6)]":"p-3.5 bg-surface-panel shadow-[0_4px_20px_rgba(0,0,0,0.45)]"} rounded-2xl transition-all active:scale-[0.99] cursor-pointer" data-t="${t.id}" data-cat="${m[0]}" data-i="${i}">
+  return `<article class="collection-card relative flex flex-col ${special?"p-4 bg-gradient-to-br from-cinema-velvet-deep/40 via-surface-panel to-surface-panel shadow-[0_6px_24px_rgb(var(--kg-black)/0.6)]":"p-3.5 bg-surface-panel shadow-[0_4px_20px_rgb(var(--kg-black)/0.45)]"} rounded-2xl transition-all active:scale-[0.99] cursor-pointer" data-t="${t.id}" data-cat="${m[0]}" data-i="${i}">
 ${top}<div class="kg-catalog-row flex items-start gap-3">
 <div class="kg-film-card-poster relative rounded-lg overflow-hidden shrink-0 bg-surface-container-high"><img data-k="img" alt="${esc(uiText(t.name))}" src="${getThemeCover(t.id)}" class="w-full h-full object-cover transition-opacity duration-500 ${special?"grayscale contrast-125":""} ${getThemeCover(t.id)?"":"opacity-0"}"><span class="absolute bottom-1 right-1 px-1.5 rounded bg-surface-container-lowest/80 text-[10px] font-bold text-primary">${esc(codeOf(t))}</span></div>
 <div class="kg-catalog-text flex flex-col min-w-0 flex-1 justify-between h-28"><div>
@@ -451,14 +451,14 @@ ${top}<div class="kg-catalog-row flex items-start gap-3">
 
 function spotlightHtml(t){
   const m=TM[t.id]||["noir","","",""];
-  return `<section id="spot" data-t="${t.id}" tabindex="0" aria-label="${esc(uiText("Открыть подборку «{title}»", {title: uiText(t.name)}))}" class="relative w-full rounded-2xl overflow-hidden bg-surface-panel shadow-[0_14px_34px_-10px_rgba(0,0,0,0.85)] cursor-pointer">
+  return `<section id="spot" data-t="${t.id}" tabindex="0" aria-label="${esc(uiText("Открыть подборку «{title}»", {title: uiText(t.name)}))}" class="relative w-full rounded-2xl overflow-hidden bg-surface-panel shadow-[0_14px_34px_-10px_rgb(var(--kg-black)/0.85)] cursor-pointer">
 <div data-k="bg" style="background-image: url('${getThemeCover(t.id)}');" class="w-full h-56 bg-cover bg-center relative bg-surface-container-high"><div class="absolute inset-0 bg-gradient-to-t from-surface-panel via-surface-panel/60 to-transparent"></div>
 <div class="absolute top-3 left-3 right-3 flex items-center justify-between"><div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-cinema-velvet-deep text-secondary font-micro-caption text-micro-caption shadow-md"><span class="material-symbols-outlined text-[14px]">local_fire_department</span>${uiText("ХИТ НЕДЕЛИ")}</div>
 <div class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container-lowest/80 backdrop-blur-md text-primary font-label-sm text-label-sm"><span class="material-symbols-outlined text-[15px] text-primary-container" style="font-variation-settings:'FILL' 1;">star</span><span data-k="r">…</span></div></div>
 <div class="absolute bottom-3 left-3.5 right-3.5 flex items-center gap-1.5"><span class="px-2 py-0.5 rounded-full bg-surface-container-high/90 backdrop-blur text-primary font-micro-caption text-micro-caption tracking-wider">${t.cc.map(fl).join(" ")}</span><span class="font-micro-caption text-micro-caption text-text-muted truncate">${esc(t.cc.map(cname).join(", "))}</span></div></div>
 <div class="p-4 flex flex-col gap-2.5"><div class="flex items-baseline justify-between"><h3 class="font-headline-md text-headline-md text-primary font-bold">${esc(uiText(t.name))}</h3><span data-k="cnt" class="font-micro-caption text-micro-caption text-text-muted">…</span></div>
 <p class="font-body-sm text-body-sm text-text-muted kg-clip2">${esc(uiText(m[3]))}</p>
-<div class="flex items-center gap-2 pt-1"><button type="button" data-act="spin" data-t="${t.id}" class="flex-1 h-11 px-4 rounded-xl bg-primary-container text-on-primary-container font-label-md text-label-md flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(255,184,48,0.32)] transition-transform active:scale-95"><span class="material-symbols-outlined text-[20px]">casino</span><span>${uiText("Крутить рулетку")}</span></button>
+<div class="flex items-center gap-2 pt-1"><button type="button" data-act="spin" data-t="${t.id}" class="flex-1 h-11 px-4 rounded-xl bg-primary-container text-on-primary-container font-label-md text-label-md flex items-center justify-center gap-2 shadow-[0_0_20px_rgb(var(--kg-primary-container)/0.32)] transition-transform active:scale-95"><span class="material-symbols-outlined text-[20px]">casino</span><span>${uiText("Крутить рулетку")}</span></button>
 <button type="button" aria-label="${uiText("Подробнее")}" data-act="open" data-t="${t.id}" class="w-11 h-11 rounded-xl bg-surface-container-high text-primary flex items-center justify-center transition-colors hover:bg-surface-bright active:scale-95"><span class="material-symbols-outlined text-[20px]">arrow_forward</span></button></div></div></section>`;
 }
 function updateWeeklySpotlight(){
@@ -468,19 +468,19 @@ function updateWeeklySpotlight(){
   paintMeta(selected.id);
 }
 
-const CHON="bg-primary-container text-on-primary-container shadow-[0_0_14px_rgba(255,184,48,0.28)]",CHOFF="bg-surface-panel text-text-muted hover:text-on-surface";
+const CHON="bg-primary-container text-on-primary-container shadow-[0_0_14px_rgb(var(--kg-primary-container)/0.28)]",CHOFF="bg-surface-panel text-text-muted hover:text-on-surface";
 function chipCls(on){return "filter-chip flex items-center gap-1.5 px-3.5 py-2 rounded-full font-label-sm text-label-sm shrink-0 transition-all active:scale-95 "+(on?CHON:CHOFF);}
 
 function buildCatalog(){
   const counts={};catalogThemes.forEach(t=>counts[cat(t)]=(counts[cat(t)]||0)+1);
   vc.innerHTML=`
 <section class="flex flex-col gap-space-xs mt-1">
-<div class="flex items-center justify-between"><span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container text-primary-container font-label-sm text-label-sm shadow-[0_0_14px_rgba(255,184,48,0.18)]"><span class="material-symbols-outlined text-[15px]" style="font-variation-settings:'FILL' 1;">auto_awesome</span>${uiText("Кураторский киногид")}</span>
+<div class="flex items-center justify-between"><span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container text-primary-container font-label-sm text-label-sm shadow-[0_0_14px_rgb(var(--kg-primary-container)/0.18)]"><span class="material-symbols-outlined text-[15px]" style="font-variation-settings:'FILL' 1;">auto_awesome</span>${uiText("Кураторский киногид")}</span>
 <span class="font-micro-caption text-micro-caption text-text-muted flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-primary-container animate-pulse"></span>${uiText("{count} доступно", {count: catalogThemes.length})}</span></div>
 <h2 class="font-headline-lg text-headline-lg text-primary tracking-tight">${uiText("Тематические коллекции")}</h2>
 <p class="font-body-sm text-body-sm text-text-muted leading-relaxed">${uiText("{count} авторских киномаршрутов: от азиатского саспенса и скандинавского холода до исторических эпох", {count: catalogThemes.length})}</p>
 <div class="relative w-full mt-2"><div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-text-muted"><span class="material-symbols-outlined text-[20px]">search</span></div>
-<input id="cat-search" type="search" aria-label="${uiText("Поиск по подборкам")}" aria-controls="cat-grid" enterkeyhint="search" autocomplete="off" placeholder="${uiText("Найти подборку, страну или жанр...")}" class="w-full h-12 pl-11 pr-12 rounded-xl bg-surface-container-low text-on-surface placeholder:text-text-muted font-body-sm text-body-sm focus:outline-none focus:bg-surface-container transition-all shadow-[0_4px_16px_rgba(0,0,0,0.4)]">
+<input id="cat-search" type="search" aria-label="${uiText("Поиск по подборкам")}" aria-controls="cat-grid" enterkeyhint="search" autocomplete="off" placeholder="${uiText("Найти подборку, страну или жанр...")}" class="w-full h-12 pl-11 pr-12 rounded-xl bg-surface-container-low text-on-surface placeholder:text-text-muted font-body-sm text-body-sm focus:outline-none focus:bg-surface-container transition-all shadow-[0_4px_16px_rgb(var(--kg-black)/0.4)]">
 <button type="button" id="cat-clear" data-act="clear" aria-label="${uiText("Сбросить поиск")}" style="display:none" class="absolute inset-y-0 right-0 w-12 items-center justify-center text-text-muted hover:text-primary"><span class="material-symbols-outlined text-[18px]" aria-hidden="true">cancel</span></button></div>
 </section>
 <section id="cat-chips" class="flex gap-2 overflow-x-auto pb-1 -mx-gutter-mobile px-gutter-mobile">
@@ -489,11 +489,11 @@ ${Object.keys(CAT).filter(k=>counts[k]).map(k=>`<button type="button" data-f="${
 ${spotlightHtml(spotlightTheme())}
 <section class="flex flex-wrap items-center justify-between gap-2"><div class="flex items-center gap-1.5 bg-surface-panel px-3 py-1.5 rounded-xl"><span class="material-symbols-outlined text-[17px] text-text-muted">swap_vert</span>
 <select id="cat-sort" class="bg-transparent text-text-muted font-label-sm text-label-sm focus:outline-none focus:text-primary cursor-pointer"><option class="bg-surface-panel text-on-surface" value="curated">${uiText("По кураторскому списку")}</option><option class="bg-surface-panel text-on-surface" value="rating">${uiText("По рейтингу (высокий)")}</option><option class="bg-surface-panel text-on-surface" value="count">${uiText("По числу фильмов")}</option><option class="bg-surface-panel text-on-surface" value="title">${uiText("По алфавиту")}</option></select></div>
-<button type="button" data-act="random" class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-secondary-container text-on-secondary-container font-label-sm text-label-sm shadow-[0_0_14px_rgba(134,26,69,0.25)] transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"><span class="material-symbols-outlined text-[18px]">casino</span><span>${uiText("Случайная")}</span></button></section>
+<button type="button" data-act="random" class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-secondary-container text-on-secondary-container font-label-sm text-label-sm shadow-[0_0_14px_rgb(var(--kg-secondary-container)/0.25)] transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"><span class="material-symbols-outlined text-[18px]">casino</span><span>${uiText("Случайная")}</span></button></section>
 <p id="cat-note" class="font-micro-caption text-micro-caption text-text-muted px-1" style="display:none"></p>
 <div class="flex items-center justify-between gap-2"><p id="cat-search-status" role="status" class="font-label-sm text-label-sm text-text-muted px-1"></p>${layoutSwitch(catalogLayout,"catalog")}</div>
 <section id="cat-grid" class="${catalogLayout==="grid"?"kg-three-columns":"flex flex-col gap-3"}">${seededShuffle(catalogThemes,dailySeed()).map((t,i)=>cardHtml(t,i)).join("")}</section>
-<div id="cat-empty" style="display:none" class="flex-col items-center justify-center py-12 px-4 text-center rounded-2xl bg-surface-panel/50"><div class="w-14 h-14 rounded-full bg-surface-container-high flex items-center justify-center text-primary-container mb-3 shadow-[0_0_18px_rgba(255,184,48,0.2)]"><span class="material-symbols-outlined text-[28px]">movie_edit</span></div><h3 class="font-headline-sm text-headline-sm text-primary font-bold">${uiText("Подборка не найдена")}</h3><p class="font-body-sm text-body-sm text-text-muted mt-1 max-w-xs">${uiText("Попробуйте другое слово или выберите «Все», чтобы искать во всём каталоге.")}</p><button type="button" data-act="reset" class="mt-4 px-4 py-2 rounded-xl bg-primary-container text-on-primary-container font-label-sm text-label-sm font-bold shadow-[0_0_12px_rgba(255,184,48,0.25)]">${uiText("Сбросить поиск")}</button></div>`;
+<div id="cat-empty" style="display:none" class="flex-col items-center justify-center py-12 px-4 text-center rounded-2xl bg-surface-panel/50"><div class="w-14 h-14 rounded-full bg-surface-container-high flex items-center justify-center text-primary-container mb-3 shadow-[0_0_18px_rgb(var(--kg-primary-container)/0.2)]"><span class="material-symbols-outlined text-[28px]">movie_edit</span></div><h3 class="font-headline-sm text-headline-sm text-primary font-bold">${uiText("Подборка не найдена")}</h3><p class="font-body-sm text-body-sm text-text-muted mt-1 max-w-xs">${uiText("Попробуйте другое слово или выберите «Все», чтобы искать во всём каталоге.")}</p><button type="button" data-act="reset" class="mt-4 px-4 py-2 rounded-xl bg-primary-container text-on-primary-container font-label-sm text-label-sm font-bold shadow-[0_0_12px_rgb(var(--kg-primary-container)/0.25)]">${uiText("Сбросить поиск")}</button></div>`;
   catBuilt=true;
 }
 
@@ -712,7 +712,7 @@ const pageDeps={
   refreshFilm:()=>renderSelectedPanel(),
   back:()=>showView("collections")
 };
-const CCON="bg-primary-container text-on-primary shadow-[0_0_12px_rgba(255,184,48,0.28)] font-semibold",CCOFF="bg-surface-container text-text-muted hover:text-on-surface";
+const CCON="bg-primary-container text-on-primary shadow-[0_0_12px_rgb(var(--kg-primary-container)/0.28)] font-semibold",CCOFF="bg-surface-container text-text-muted hover:text-on-surface";
 const SON="bg-surface-container-high text-primary-fixed font-semibold",SOFF="text-text-muted hover:text-on-surface";
 const ccCls=on=>"h-[34px] px-3 rounded-full font-label-sm text-label-sm flex-shrink-0 transition-colors "+(on?CCON:CCOFF);
 const sCls=on=>"px-2.5 py-1 rounded font-micro-caption text-micro-caption "+(on?SON:SOFF);
@@ -927,7 +927,7 @@ function renderCollection(){
 <p class="font-body-sm text-body-sm text-text-muted leading-relaxed pt-1">${esc(uiText(m[3]))}</p>
 <div class="flex items-center gap-2 pt-1 flex-wrap">${gnames(t).map(g=>`<span class="px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-micro-caption text-micro-caption">${esc(g)}</span>`).join("")}</div></div></div>
 <div class="flex flex-col gap-space-sm bg-surface-panel p-space-md rounded-xl shadow-lg"><div class="flex items-center justify-between"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary-container text-[20px]">casino</span><span class="font-headline-sm text-headline-sm text-on-surface font-semibold">${uiText("Случайный выбор")}</span></div><span class="font-micro-caption text-micro-caption text-primary-fixed bg-surface-container-high px-2 py-0.5 rounded-full">${uiText(t.films ? "Ручной отбор" : "Рейтинг ≥ 6.5")}</span></div>
-<button type="button" id="cl-spin" data-act="spin" class="relative group w-full py-3.5 px-4 rounded-xl bg-primary-container text-on-primary font-label-lg text-label-lg font-bold flex items-center justify-center gap-2 shadow-[0_0_24px_rgba(255,184,48,0.28)] transition-all active:scale-[0.98] overflow-hidden"><span id="cl-ricon" class="material-symbols-outlined text-[22px]">casino</span><span id="cl-rtext">${uiText("Крутить рулетку")}</span><div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div></button>
+<button type="button" id="cl-spin" data-act="spin" class="relative group w-full py-3.5 px-4 rounded-xl bg-primary-container text-on-primary font-label-lg text-label-lg font-bold flex items-center justify-center gap-2 shadow-[0_0_24px_rgb(var(--kg-primary-container)/0.28)] transition-all active:scale-[0.98] overflow-hidden"><span id="cl-ricon" class="material-symbols-outlined text-[22px]">casino</span><span id="cl-rtext">${uiText("Крутить рулетку")}</span><div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div></button>
 ${sortBar(D.sort)}
 <div id="cl-reel" style="display:none" class="flex flex-col gap-space-sm">
 <div id="cl-reel-host"></div>

@@ -43,7 +43,7 @@
 
   const style = document.createElement("style");
   style.textContent = `
-    #kg-diary,#kg-diary-note {background:rgb(var(--kg-surface));color:rgb(var(--kg-on-surface));border:0;color-scheme:dark;font:14px/1.5 'Noto Serif',serif}
+    #kg-diary,#kg-diary-note {background:rgb(var(--kg-surface));color:rgb(var(--kg-on-surface));border:0;color-scheme:dark;font:14px/1.5 var(--kg-font-interface)}
     #kg-diary {position:fixed;inset:0;width:min(100%,520px);max-width:none;height:100dvh;max-height:100dvh;margin:auto;padding:0;overflow:hidden}
     #kg-diary::backdrop,#kg-diary-note::backdrop {background:rgb(var(--kg-canvas-obsidian) / .9)}
     #kg-diary [hidden] {display:none}

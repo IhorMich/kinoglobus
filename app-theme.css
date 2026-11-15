@@ -2,6 +2,12 @@
   --kg-canvas-obsidian: 7 6 10;
   --kg-primary: 255 220 168;
   --kg-primary-container: 255 184 48;
+  --kg-primary-fixed: 255 222 173;
+  --kg-primary-fixed-dim: 255 186 58;
+  --kg-on-primary: 67 44 0;
+  --kg-on-primary-container: 110 75 0;
+  --kg-on-primary-fixed: 40 25 0;
+  --kg-on-primary-fixed-variant: 96 65 0;
   --kg-on-surface: 232 224 234;
   --kg-on-surface-variant: 213 196 173;
   --kg-text-muted: 179 167 154;
@@ -59,4 +65,63 @@
   --kg-cinema-velvet: 74 24 22;
   --kg-cinema-velvet-glow: 124 44 30;
   --kg-cinema-amber-glow: 245 178 62;
+}
+
+/* The button accent can be changed independently of the screen theme. */
+:root[data-kg-button-accent="cyan"] :is(button, a, [role="button"], [role="checkbox"]) {
+  --kg-primary: 72 239 239;
+  --kg-primary-container: 0 210 211;
+  --kg-primary-fixed: 86 249 249;
+  --kg-primary-fixed-dim: 38 220 221;
+  --kg-on-primary: 0 55 55;
+  --kg-on-primary-container: 0 55 55;
+  --kg-on-primary-fixed: 0 32 32;
+  --kg-on-primary-fixed-variant: 0 55 55;
+  --kg-cinema-amber-glow: 0 210 211;
+}
+
+:root[data-kg-button-accent="cyan"] :is(
+  #btn-spin-roulette, .genre-pill[style*="rgb(255, 78, 32)"],
+  button.kg-watched-button[aria-pressed="true"],
+  .kgc-btn:not(.secondary), .kgc-catalog-action.primary,
+  .kg-login-primary, .kga-submit, .kg-recovery-submit,
+  button.kg-profile-button.gold, .kg-profile-tabs button[aria-pressed="true"]
+) {
+  background: linear-gradient(110deg, #00d2d3, #48efef) !important;
+  color: #003737 !important;
+  border-color: rgb(72 239 239 / .5);
+  box-shadow: 0 5px 18px rgb(0 210 211 / .24), inset 0 1px #ffffff38 !important;
+}
+
+:root[data-kg-button-accent="cyan"] .kgc-filter button.active {
+  background-color: #00d2d3;
+  color: #003737;
+}
+
+:root[data-kg-button-accent="cyan"] :is(
+  .kg-btn:not(.danger), .kgc-btn.secondary, .kgc-icon, .kgc-icon-action,
+  .kgc-catalog-view button[aria-pressed="true"], .kga-back, .kga-mode,
+  .kga-foot button, .kg-recovery-footer button, .kg-code-footer button,
+  .kg-code-delivery button, .kgc-country-tab.active,
+  .kg-watched-button[aria-pressed="false"]:hover,
+  .kg-watched-button[aria-pressed="false"] .kg-watched-icon
+) {
+  color: #48efef;
+}
+
+:root[data-kg-button-accent="cyan"] .kgc-country-tab.active {
+  background: linear-gradient(155deg, #171c25, #163032);
+  border-color: #48efef;
+  box-shadow: inset 0 0 0 1px rgb(72 239 239 / .25);
+}
+
+:root[data-kg-button-accent="cyan"] :is(button, a, [role="button"]):focus-visible {
+  outline-color: #48efef;
+}
+
+:root[data-kg-button-accent="cyan"] :is(button, a, [role="button"]):is(
+  [class*="rgba(255,184,"], [class*="rgba(255,220,"], [class*="rgba(255,115,"]
+) {
+  --tw-shadow-color: rgb(0 210 211 / .28);
+  --tw-shadow: var(--tw-shadow-colored);
 }

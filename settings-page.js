@@ -200,7 +200,8 @@
 <span class="text-[9px] text-primary-container" data-kgs-theme-current hidden>Выбрано</span>
 </button>
 </div>
-<div class="flex flex-wrap items-center justify-between gap-2" role="group" aria-label="Акцент приложения">
+<p data-kgs-theme-accent class="font-label-sm text-label-sm text-on-surface" hidden>Синий акцент включён в тему</p>
+<div data-kgs-accent-picker class="flex flex-wrap items-center justify-between gap-2" role="group" aria-label="Акцент приложения">
 <span class="font-label-sm text-label-sm text-on-surface">Акцент приложения</span>
 <div class="grid w-full grid-cols-2 gap-1 rounded-lg bg-surface-container-lowest p-1">
 <button type="button" class="flex items-center gap-1.5 rounded-md px-2 py-1.5 font-label-sm text-label-sm text-on-surface aria-pressed:bg-surface-container-high" data-kgs-button-accent="blue" aria-pressed="false"><span class="w-3 h-3 shrink-0 rounded-full bg-[rgb(var(--kg-swatch-blue))]" aria-hidden="true"></span>Синий</button>
@@ -480,6 +481,9 @@ ${[["light","Лёгкое"],["find","Открытие"],["wild","Случайн�
   });
   function syncTheme() {
     const theme = document.documentElement.dataset.kgTheme || DEFAULT_APP_THEME;
+    const usesThemeAccent = theme === DEFAULT_APP_THEME;
+    $("[data-kgs-theme-accent]").hidden = !usesThemeAccent;
+    $("[data-kgs-accent-picker]").hidden = usesThemeAccent;
     themeButtons.forEach(button => {
       const selected = button.dataset.kgsTheme === theme;
       button.setAttribute("aria-pressed", String(selected));
@@ -490,7 +494,6 @@ ${[["light","Лёгкое"],["find","Открытие"],["wild","Случайн�
   themeButtons.forEach(button => {
     button.addEventListener("click", () => {
       setAppTheme(button.dataset.kgsTheme);
-      if (button.dataset.kgsTheme === DEFAULT_APP_THEME) setAppButtonAccent(DEFAULT_APP_ACCENT);
       syncButtonAccent();
       syncTheme();
     });

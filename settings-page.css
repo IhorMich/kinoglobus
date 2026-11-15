@@ -19,7 +19,7 @@
   overflow: hidden;
   color-scheme: dark;
   background: rgb(var(--kg-canvas-obsidian));
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: var(--kg-font-interface);
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -93,7 +93,7 @@
 
 .kgs-reel-choice[aria-checked="true"] .kgs-reel-title {
   color: rgb(var(--kg-accent-text));
-  font-family: "Noto Serif", serif;
+  font-family: var(--kg-font-heading);
   font-weight: 700;
   letter-spacing: .025em;
 }

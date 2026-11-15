@@ -509,10 +509,11 @@
   --kg-filter-selection-glow: var(--kg-selection-glow);
   --kg-globe-outline-glow: var(--kg-primary);
   --kg-globe-beacon-ring: var(--kg-primary);
-  --kg-action-gradient: linear-gradient(145deg, #4C65C7 0%, rgb(var(--kg-primary-container)) 52%, #30459A 100%);
-  --kg-action-gradient-pressed: linear-gradient(145deg, #3D54AD, rgb(var(--kg-accent-deep)));
-  --kg-action-elevation: 0 5px 20px rgb(var(--kg-action-shadow)/.32), inset 0 1px rgb(var(--kg-white)/.20);
-  --kg-action-elevation-pressed: 0 2px 9px rgb(var(--kg-action-shadow)/.20), inset 0 1px rgb(var(--kg-white)/.10);
+  --kg-action-gradient: linear-gradient(145deg, #F3F6FC 0%, #BFC9DA 46%, #8596B2 100%);
+  --kg-action-gradient-pressed: linear-gradient(145deg, #D4DDEB 0%, #A5B2C8 46%, #7285A3 100%);
+  --kg-action-ink: var(--kg-canvas-obsidian);
+  --kg-action-elevation: 0 5px 20px rgb(var(--kg-action-shadow)/.32), inset 0 1px rgb(var(--kg-white)/.65);
+  --kg-action-elevation-pressed: 0 2px 9px rgb(var(--kg-action-shadow)/.20), inset 0 1px rgb(var(--kg-white)/.25);
   --kg-filter-selection-background: rgb(var(--kg-primary-container));
   --kg-on-surface: var(--kg-white);
   --kg-on-surface-variant: 137 149 170;
@@ -739,7 +740,7 @@
   background: var(--kg-action-gradient);
   box-shadow: var(--kg-action-elevation);
   border-color: rgb(var(--kg-surface-border));
-  color: rgb(var(--kg-white));
+  color: rgb(var(--kg-action-ink));
 }
 
 :root[data-kg-theme="midnight"] :is(
@@ -752,6 +753,11 @@
 }
 
 :root[data-kg-theme="midnight"] :is(#btn-spin-roulette, [data-vibe-spin]):hover:not(:disabled) {
+  filter: none;
+}
+
+:root[data-kg-theme="midnight"] #btn-spin-text {
+  color: inherit;
   filter: none;
 }
 

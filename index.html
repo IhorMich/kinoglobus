@@ -1,4 +1,4 @@
-<!DOCTYPE html><html class="dark" lang="ru" data-kg-button-accent="cyan"><head><meta charset="utf-8"><link rel="stylesheet" href="app-theme.css?v=7">
+<!DOCTYPE html><html class="dark" lang="ru" data-kg-button-accent="cyan"><head><meta charset="utf-8"><link rel="stylesheet" href="app-theme.css?v=8">
 <script src="interface-en.js?v=34"></script>
 <script src="interface-i18n.js?v=2"></script>
 <script>
@@ -3818,6 +3818,7 @@ function pills(box,sel,attr){
   box.innerHTML="";
   document.querySelectorAll(sel).forEach(h=>{
     const b=document.createElement("button");b.type="button";b.textContent=uiText(h.textContent);b._h=h;
+    b.dataset.kgFilterPill="";
     b.onclick=()=>h.click();box.appendChild(b);
   });
 }
@@ -3845,6 +3846,7 @@ function sumText(id,prefix){const t=$(id).textContent;return t.startsWith(prefix
 function syncDesign(){
   const paint=box=>[...box.children].forEach(b=>{
     const on=b._h.getAttribute("aria-pressed")==="true";b.style.display=b._h.hidden?"none":"";
+    b.setAttribute("aria-pressed",String(on));
     b.className=BASE+(on?"text-canvas-obsidian font-bold border border-white/20":"bg-surface-container text-text-muted hover:text-on-surface");
     b.style.background=on?"linear-gradient(135deg,#ff4e20,#ff9500 50%,#ffc107)":"";
     b.style.boxShadow=on?"0 2px 14px rgba(255,115,0,.4)":"";

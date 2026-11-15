@@ -57,7 +57,7 @@
     #kg-recovery .kg-recovery-input input {min-width:0;flex:1;padding:12px 0;border:0;background:transparent;color:rgb(var(--kg-on-surface));font:inherit;font-size:16px;box-shadow:none;outline:none}
     #kg-recovery .kg-recovery-input input::placeholder {color:rgb(var(--kg-warm-text-11))}
     .kg-recovery-input:focus-within {outline:2px solid rgb(var(--kg-primary));outline-offset:2px}
-    .kg-recovery-valid {color:rgb(var(--kg-primary-container));font-variation-settings:'FILL' 1}
+    .kg-recovery-valid {color:rgb(var(--kg-accent-text));font-variation-settings:'FILL' 1}
     .kg-recovery-valid[hidden] {display:none}
     .kg-recovery-advice {display:flex;align-items:flex-start;gap:8px;padding:12px;border-radius:12px;background:rgb(var(--kg-surface-container))}
     .kg-recovery-advice .kg-recovery-tile {width:32px;height:32px}

@@ -16,7 +16,7 @@
     .kg-login-brand {
       display:flex;align-items:center;gap:6px;padding:7px 10px;border-radius:99px;
       background:rgb(var(--kg-surface-container));color:rgb(var(--kg-primary));
-      font:700 clamp(14px,4vw,23px)/1.2 'Noto Serif',serif;
+      font:700 clamp(14px,4vw,23px)/1.2 var(--kg-font-heading);
     }
     .kg-login-scroll {flex:1;min-height:0;overflow:auto;padding:8px 5% calc(24px + env(safe-area-inset-bottom,0px))}
     .kg-login-intro {
@@ -28,8 +28,8 @@
       display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border-radius:99px;
       background:rgb(var(--kg-surface-container-high));font-size:12px;font-weight:700;
     }
-    .kg-login-intro h1 {font:700 clamp(27px,7vw,43px)/1.17 'Noto Serif',serif;margin:15px 0 10px}
-    .kg-login-intro p {font:400 clamp(14px,3.8vw,17px)/1.6 'Noto Serif',serif;color:rgb(var(--kg-on-surface-variant))}
+    .kg-login-intro h1 {font:700 clamp(27px,7vw,43px)/1.17 var(--kg-font-heading);margin:15px 0 10px}
+    .kg-login-intro p {font:400 clamp(14px,3.8vw,17px)/1.6 var(--kg-font-interface);color:rgb(var(--kg-on-surface-variant))}
     .kg-login-providers {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:24px 0 14px}
     .kg-login-providers button {display:grid;justify-items:center;gap:5px;padding:11px 3px;border-radius:13px;background:rgb(var(--kg-surface-container));font-size:12px;font-weight:700}
     .kg-login-divider {display:flex;align-items:center;gap:10px;color:rgb(var(--kg-text-muted));font-size:11px;font-weight:700;text-transform:uppercase;text-align:center}
@@ -39,7 +39,7 @@
     #kg-login .kg-login-field input {width:100%;min-width:0;padding:13px 0;background:transparent;border:0;box-shadow:none;color:inherit;font:inherit}
     #kg-login .kg-login-field input::placeholder {color:rgb(var(--kg-text-muted))}
     .kg-login-primary,.kg-login-biometrics {width:100%;display:flex;align-items:center;justify-content:center;gap:8px;min-height:49px;padding:8px 12px;border-radius:99px;font-weight:700}
-    .kg-login-primary {background:linear-gradient(110deg,rgb(var(--kg-primary-container)),rgb(var(--kg-primary-container)));color:rgb(var(--kg-on-primary-fixed));font-family:'Noto Serif',serif}
+    .kg-login-primary {background:linear-gradient(110deg,rgb(var(--kg-primary-container)),rgb(var(--kg-primary-container)));color:rgb(var(--kg-on-primary-fixed));font-family:var(--kg-font-interface)}
     .kg-login-biometrics {background:rgb(var(--kg-surface-container));color:rgb(var(--kg-on-surface))}
     #kg-login button:focus-visible,#kg-login input:focus-visible {outline:2px solid rgb(var(--kg-primary));outline-offset:2px}
   `;

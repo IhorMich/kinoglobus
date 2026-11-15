@@ -14,22 +14,22 @@ button.kg-watched-button {
   border: 1px solid rgb(var(--kg-surface-border-subtle));
   border-radius: 12px;
   background: rgb(var(--kg-surface-container-high));
-  color: #e8e0ea;
+  color: rgb(var(--kg-on-surface));
   font: 600 12px/16px "Plus Jakarta Sans", system-ui, sans-serif;
   cursor: pointer;
   transition: color .15s, background-color .15s, box-shadow .15s, transform .15s;
 }
 
 button.kg-watched-button[aria-pressed="true"] {
-  border-color: #ffdeadb3;
-  background: linear-gradient(110deg, #ffb830, #ffdda0);
-  box-shadow: 0 5px 18px #ffb8303d, inset 0 1px #ffffff38;
-  color: #432c00;
+  border-color: rgb(var(--kg-primary-fixed)/0.70196);
+  background: linear-gradient(110deg, rgb(var(--kg-primary-container)), rgb(var(--kg-primary)));
+  box-shadow: 0 5px 18px rgb(var(--kg-primary-container)/0.23922), inset 0 1px rgb(var(--kg-white)/0.21961);
+  color: rgb(var(--kg-on-primary));
 }
 
 .kg-watched-button[aria-pressed="false"]:hover,
 .kg-watched-button[aria-pressed="false"] .kg-watched-icon {
-  color: #ffb830;
+  color: rgb(var(--kg-primary-container));
 }
 
 .kg-watched-button .kg-watched-icon {
@@ -39,7 +39,7 @@ button.kg-watched-button[aria-pressed="true"] {
 }
 
 .kg-watched-button:focus-visible {
-  outline: 2px solid #ffb830;
+  outline: 2px solid rgb(var(--kg-primary-container));
   outline-offset: 2px;
 }
 

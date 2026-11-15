@@ -396,11 +396,10 @@
     const select = card.querySelector("[data-film-select]");
     const id = String(film.id);
     select.dataset.filmSelect = id;
-    select.setAttribute("aria-expanded",String(id === selectedFilm));
+    select.setAttribute("aria-label",uiText("Открыть фильм {title}",{title:filmName(film)}));
     const action = card.querySelector(".kg-diary-film-action");
     action.id = "kg-diary-film-action-" + id;
-    select.setAttribute("aria-controls",action.id);
-    action.hidden = id !== selectedFilm;
+    action.hidden = false;
     const edit = action.querySelector("button");
     edit.dataset.edit = id;
     edit.textContent = uiText(Object.hasOwn(notes,id) ? "Редактировать запись" : "Добавить запись");
@@ -702,12 +701,8 @@
       return;
     }
     if (filmSelect) {
-      selectedFilm = selectedFilm === filmSelect ? "" : filmSelect;
-      dialog.querySelectorAll("[data-film-select]").forEach(card => {
-        const expanded = card.dataset.filmSelect === selectedFilm;
-        card.setAttribute("aria-expanded",String(expanded));
-        document.getElementById(card.getAttribute("aria-controls")).hidden = !expanded;
-      });
+      const entry=currentList().find(item=>String(item.film.id)===filmSelect);
+      if(entry) window.KGFilmCard.openDialog(window.KGFilmCard.savedFilm(entry.film),button);
       return;
     }
     if (button.hasAttribute("data-add")) openNote(selectedFilm);

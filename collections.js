@@ -34,6 +34,18 @@ st2.textContent=`.kgr-win{position:relative;height:150px;overflow:hidden;-webkit
 #kg-home-feature .kg-day-poster{width:44%;max-width:192px;aspect-ratio:2/3}
 #kg-home-feature .kg-detail-trailer{max-height:none}
 #kg-home-feature .kg-day-poster .kg-bookmark-button{z-index:2}
+.kg-three-columns{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.5rem;align-items:start}
+.kg-three-columns .kg-catalog-row{flex-direction:column;gap:.25rem}
+.kg-three-columns .collection-card{padding:.5rem;min-width:0;height:100%}
+.kg-three-columns .kg-catalog-row .kg-film-card-poster{width:100%;height:auto;aspect-ratio:4/3}
+.kg-three-columns .kg-catalog-text{width:100%;height:auto;gap:.25rem}
+.kg-three-columns .kg-catalog-text h4{white-space:normal;overflow-wrap:anywhere;font-size:.82rem;line-height:1.25;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;min-height:3.1em}
+.kg-three-columns .kg-catalog-summary,.kg-three-columns .kg-catalog-region{display:none}
+.kg-three-columns .kg-catalog-archive > span:first-child{font-size:0;gap:0}
+#mood-cards.kg-three-columns .mood-card [data-mood-select]{height:auto;aspect-ratio:3/4;min-height:7rem}
+#mood-cards.kg-three-columns .kg-mood-cover-copy{left:.4rem;right:.4rem;bottom:.4rem}
+#mood-cards.kg-three-columns .mood-title{font-size:.82rem;line-height:1.2;overflow-wrap:anywhere}
+#mood-cards.kg-three-columns .mood-radio,#mood-cards.kg-three-columns .kg-mood-secondary{display:none}
 @media(prefers-reduced-motion:reduce){.kgr-rise{animation:none}}`;
 document.head.appendChild(st2);
 
@@ -354,6 +366,44 @@ sectionNav.addEventListener("click",e=>{
 
 /* ================= КАТАЛОГ ================= */
 let catBuilt=false,activeCat="all",sortMode="curated";
+let catalogLayout="list",collectionFilmLayout="list";
+
+function layoutSwitch(layout,scope){
+  const modes=[["list","view_list","Списком"],["grid","grid_view","Сеткой"]];
+  return `<div class="flex shrink-0 gap-1 rounded-full bg-surface-container p-0.5">${modes.map(([mode,icon,label])=>`<button type="button" data-kg-layout="${scope}" data-mode="${mode}" aria-label="${uiText(label)}" title="${uiText(label)}" aria-pressed="${mode===layout}" class="w-9 h-9 rounded-full flex items-center justify-center ${mode===layout?"bg-primary-container text-on-primary-container":"text-text-muted hover:text-primary"}"><span class="material-symbols-outlined text-[18px]" aria-hidden="true">${icon}</span></button>`).join("")}</div>`;
+}
+function syncLayout(root,layout,scope){
+  root.querySelectorAll(`[data-kg-layout="${scope}"]`).forEach(button=>{
+    const active=button.dataset.mode===layout;
+    button.setAttribute("aria-pressed",String(active));
+    ["bg-primary-container","text-on-primary-container"].forEach(name=>button.classList.toggle(name,active));
+    ["text-text-muted","hover:text-primary"].forEach(name=>button.classList.toggle(name,!active));
+  });
+}
+function posterTile(film,buttonAttributes){
+  const title=esc(film.title||film.original_title||uiText("Фильм"));
+  const year=String(film.release_date||"").slice(0,4);
+  const score=Number(film.vote_average)||0;
+  const image=film.localizedPoster?.path||film.poster_path;
+  return `<div class="kg-bookmark-card min-w-0"><button type="button" ${buttonAttributes} class="flex w-full min-w-0 flex-col gap-1 text-left">
+    <span class="relative block w-full aspect-[2/3] overflow-hidden rounded-lg bg-surface-container-high shadow-md">${image?`<img class="w-full h-full object-cover" src="${P(image,"w342")}" alt="" loading="lazy">`:'<span class="material-symbols-outlined w-full h-full flex items-center justify-center text-primary-container" aria-hidden="true">movie</span>'}
+    ${score?`<span class="absolute bottom-1 left-1 px-1 rounded bg-canvas-obsidian/85 text-primary font-micro-caption text-micro-caption">★ ${score.toFixed(1)}</span>`:""}</span>
+    <span class="font-label-sm text-label-sm text-on-surface font-semibold leading-snug kg-clip2">${title}</span>
+    ${year?`<span class="font-micro-caption text-micro-caption text-text-muted">${esc(year)}</span>`:""}
+  </button>${kgBookmarkButton(film,"corner")}</div>`;
+}
+function filmGridRows(films,renderRow){
+  let markup="";
+  for(let start=0;start<films.length;start+=3)markup+=renderRow(films.slice(start,start+3));
+  return markup;
+}
+function moodFilmGrid(films,scope){
+  return filmGridRows(films,row=>{
+    const host=`mood-film-detail-${scope}-${row[0].id}`;
+    const cards=row.map(f=>posterTile(f,`data-${scope}-film="${f.id}" data-detail-target="${host}"`)).join("");
+    return `<div class="kg-three-columns">${cards}</div><div id="${host}" class="empty:hidden"></div>`;
+  });
+}
 let catalogScores=new Map();
 
 function dailySeed(){
@@ -378,16 +428,16 @@ function spotlightTheme(){return catalogThemes[Math.floor(Date.now()/6048e5)%cat
 function cardHtml(t,i){
   const m=TM[t.id]||["noir","","",""],special=t.id==="suwar";
   const g0=gnames(t)[0]||"";
-  const top=special?`<div class="flex items-center justify-between mb-2"><span class="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-secondary-container/60 text-secondary font-micro-caption text-micro-caption font-bold"><span class="material-symbols-outlined text-[13px]">history_edu</span>${uiText("АРХИВ ИСЧЕЗНУВШИХ ЭПОХ")}</span><span data-k="r" class="font-micro-caption text-micro-caption text-primary-container font-bold">★ …</span></div>`:"";
+  const top=special?`<div class="kg-catalog-archive flex items-center justify-between mb-2"><span class="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-secondary-container/60 text-secondary font-micro-caption text-micro-caption font-bold"><span class="material-symbols-outlined text-[13px]">history_edu</span>${uiText("АРХИВ ИСЧЕЗНУВШИХ ЭПОХ")}</span><span data-k="r" class="font-micro-caption text-micro-caption text-primary-container font-bold">★ …</span></div>`:"";
   const rate=special?"":`<span data-k="r" class="px-2 py-0.5 rounded-full bg-primary-container/15 text-primary-container font-micro-caption text-micro-caption font-bold flex-shrink-0">★ …</span>`;
   const btn=`<button type="button" aria-label="${uiText("Крутить")}" data-act="spin" data-t="${t.id}" class="w-8 h-8 rounded-full bg-surface-container-high hover:bg-primary-container hover:text-on-primary-container text-primary flex items-center justify-center transition-all"><span class="material-symbols-outlined text-[18px]">casino</span></button>`;
   return `<article class="collection-card relative flex flex-col ${special?"p-4 bg-gradient-to-br from-cinema-velvet-deep/40 via-surface-panel to-surface-panel shadow-[0_6px_24px_rgba(0,0,0,0.6)]":"p-3.5 bg-surface-panel shadow-[0_4px_20px_rgba(0,0,0,0.45)]"} rounded-2xl transition-all active:scale-[0.99] cursor-pointer" data-t="${t.id}" data-cat="${m[0]}" data-i="${i}">
-${top}<div class="flex items-start gap-3">
+${top}<div class="kg-catalog-row flex items-start gap-3">
 <div class="kg-film-card-poster relative rounded-lg overflow-hidden shrink-0 bg-surface-container-high"><img data-k="img" alt="${esc(uiText(t.name))}" src="${getThemeCover(t.id)}" class="w-full h-full object-cover transition-opacity duration-500 ${special?"grayscale contrast-125":""} ${getThemeCover(t.id)?"":"opacity-0"}"><span class="absolute bottom-1 right-1 px-1.5 rounded bg-surface-container-lowest/80 text-[10px] font-bold text-primary">${esc(codeOf(t))}</span></div>
-<div class="flex flex-col min-w-0 flex-1 justify-between h-28"><div>
-<div class="flex items-center justify-between gap-1"><span class="font-micro-caption text-micro-caption text-text-muted flex items-center gap-1 truncate">${flagsOf(t)} ${esc(where(t))}</span>${rate}</div>
+<div class="kg-catalog-text flex flex-col min-w-0 flex-1 justify-between h-28"><div>
+<div class="flex items-center justify-between gap-1"><span class="kg-catalog-region font-micro-caption text-micro-caption text-text-muted flex items-center gap-1 truncate">${flagsOf(t)} ${esc(where(t))}</span>${rate}</div>
 <h4 class="font-headline-sm text-headline-sm text-primary font-bold truncate mt-0.5">${i+1}. ${esc(uiText(t.name))}</h4>
-<p class="font-micro-caption text-micro-caption text-on-surface-variant ${special?"kg-clip2":"truncate"} mt-0.5">${esc(uiText(m[2]))}</p></div>
+<p class="kg-catalog-summary font-micro-caption text-micro-caption text-on-surface-variant ${special?"kg-clip2":"truncate"} mt-0.5">${esc(uiText(m[2]))}</p></div>
 <div class="flex items-center justify-between pt-1"><span data-k="cnt" class="font-label-sm text-label-sm text-text-muted truncate">… · ${esc(g0)}</span>${btn}</div>
 </div></div></article>`;
 }
@@ -430,12 +480,12 @@ function buildCatalog(){
 <button type="button" data-f="all" class="${chipCls(true)}"><span>${uiText("Все {count}", {count: catalogThemes.length})}</span></button>
 ${Object.keys(CAT).filter(k=>counts[k]).map(k=>`<button type="button" data-f="${k}" class="${chipCls(false)}"><span>${uiText(CAT[k][0])} (${counts[k]})</span></button>`).join("")}</section>
 ${spotlightHtml(spotlightTheme())}
-<section class="flex items-center justify-between gap-2"><div class="flex items-center gap-1.5 bg-surface-panel px-3 py-1.5 rounded-xl"><span class="material-symbols-outlined text-[17px] text-text-muted">swap_vert</span>
+<section class="flex flex-wrap items-center justify-between gap-2"><div class="flex items-center gap-1.5 bg-surface-panel px-3 py-1.5 rounded-xl"><span class="material-symbols-outlined text-[17px] text-text-muted">swap_vert</span>
 <select id="cat-sort" class="bg-transparent text-text-muted font-label-sm text-label-sm focus:outline-none focus:text-primary cursor-pointer"><option class="bg-surface-panel text-on-surface" value="curated">${uiText("По кураторскому списку")}</option><option class="bg-surface-panel text-on-surface" value="rating">${uiText("По рейтингу (высокий)")}</option><option class="bg-surface-panel text-on-surface" value="count">${uiText("По числу фильмов")}</option><option class="bg-surface-panel text-on-surface" value="title">${uiText("По алфавиту")}</option></select></div>
 <button type="button" data-act="random" class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-secondary-container text-on-secondary-container font-label-sm text-label-sm shadow-[0_0_14px_rgba(134,26,69,0.25)] transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"><span class="material-symbols-outlined text-[18px]">casino</span><span>${uiText("Случайная")}</span></button></section>
 <p id="cat-note" class="font-micro-caption text-micro-caption text-text-muted px-1" style="display:none"></p>
-<p id="cat-search-status" role="status" class="font-label-sm text-label-sm text-text-muted px-1 empty:!hidden"></p>
-<section id="cat-grid" class="flex flex-col gap-3">${seededShuffle(catalogThemes,dailySeed()).map((t,i)=>cardHtml(t,i)).join("")}</section>
+<div class="flex items-center justify-between gap-2"><p id="cat-search-status" role="status" class="font-label-sm text-label-sm text-text-muted px-1"></p>${layoutSwitch(catalogLayout,"catalog")}</div>
+<section id="cat-grid" class="${catalogLayout==="grid"?"kg-three-columns":"flex flex-col gap-3"}">${seededShuffle(catalogThemes,dailySeed()).map((t,i)=>cardHtml(t,i)).join("")}</section>
 <div id="cat-empty" style="display:none" class="flex-col items-center justify-center py-12 px-4 text-center rounded-2xl bg-surface-panel/50"><div class="w-14 h-14 rounded-full bg-surface-container-high flex items-center justify-center text-primary-container mb-3 shadow-[0_0_18px_rgba(255,184,48,0.2)]"><span class="material-symbols-outlined text-[28px]">movie_edit</span></div><h3 class="font-headline-sm text-headline-sm text-primary font-bold">${uiText("Подборка не найдена")}</h3><p class="font-body-sm text-body-sm text-text-muted mt-1 max-w-xs">${uiText("Попробуйте другое слово или выберите «Все», чтобы искать во всём каталоге.")}</p><button type="button" data-act="reset" class="mt-4 px-4 py-2 rounded-xl bg-primary-container text-on-primary-container font-label-sm text-label-sm font-bold shadow-[0_0_12px_rgba(255,184,48,0.25)]">${uiText("Сбросить поиск")}</button></div>`;
   catBuilt=true;
 }
@@ -568,6 +618,13 @@ vc.addEventListener("input",e=>{
 });
 vc.addEventListener("change",e=>{if(e.target.id==="cat-sort"){sortMode=e.target.value;sortCatalog();}});
 vc.addEventListener("click",e=>{
+  const layout=e.target.closest('[data-kg-layout="catalog"]');
+  if(layout){
+    catalogLayout=layout.dataset.mode;
+    $("cat-grid").className=catalogLayout==="grid"?"kg-three-columns":"flex flex-col gap-3";
+    syncLayout(vc,catalogLayout,"catalog");
+    return;
+  }
   const route=e.target.closest("[data-collection-route]");
   if(route){showView(route.dataset.collectionRoute);return;}
   const chip=e.target.closest("#cat-chips [data-f]");
@@ -627,6 +684,9 @@ function closePageFilm(placement){
   if(target)target.replaceChildren();
 }
 const pageDeps={
+  layoutSwitch,
+  syncLayout,
+  moodFilmGrid,
   api:(params)=>api(params),
   searchKeywords:query=>requestTmdb("search/keyword",{query}),
   details:id=>filmDetails(id),
@@ -697,10 +757,15 @@ function renderFilms(){
     if(el){const d=el.getBoundingClientRect().top-anchorTop;if(d)window.scrollBy(0,d);}};
   if(!best){box.innerHTML=`<p class="font-body-sm text-body-sm text-text-muted px-1">${uiText("Подходящих фильмов не нашлось.")}</p>`;return;}
   const list=rest.slice(0,D.shown);
+  const grid=collectionFilmLayout==="grid";
+  const listMarkup=grid?filmGridRows(list,row=>{
+    const selected=selectedInList&&row.some(f=>String(D.selected.id)===String(f.id))?D.selected:null;
+    return `<div class="kg-three-columns" data-collection-grid-row>${row.map(f=>posterTile(f,`data-act="open" data-id="${f.id}"`)).join("")}</div><div data-collection-grid-detail ${selected?"":"hidden"}>${selected?selectedFilmHtml(selected,true):""}</div>`;
+  }):list.map(f=>filmItem(f)).join("");
   const pearl=pearlHtml(best,selectedInList&&String(D.selected.id)===String(best.id)?D.selected:null);
   box.innerHTML=pearl+
-  `<div class="flex flex-col gap-space-sm"><div class="flex items-center justify-between px-1"><h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">${uiText("Отобранные шедевры")}</h3><span class="font-micro-caption text-micro-caption text-text-muted">${uiText("{opened} из {total}", {opened: list.length, total: nf(Math.max(totalFor(),list.length+1))})}</span></div>
-  <div class="flex flex-col gap-space-sm">${list.map(f=>filmItem(f)).join("")}</div>
+  `<div class="flex flex-col gap-space-sm"><div class="flex items-center justify-between gap-2 px-1"><div><h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">${uiText("Отобранные шедевры")}</h3><span class="font-micro-caption text-micro-caption text-text-muted">${uiText("{opened} из {total}", {opened: list.length, total: nf(Math.max(totalFor(),list.length+1))})}</span></div>${layoutSwitch(collectionFilmLayout,"collection")}</div>
+  <div class="flex flex-col gap-space-sm">${listMarkup}</div>
   ${rest.length>D.shown?`<button type="button" data-act="more" class="w-full py-3 rounded-xl bg-surface-panel hover:bg-surface-container-low text-primary text-center font-label-md text-label-md font-semibold flex items-center justify-center gap-2 transition-colors shadow-sm"><span class="material-symbols-outlined text-[18px]">expand_more</span><span>${uiText("Показать ещё")}</span></button>`:""}</div>`;
   paintWatchedButtons(box);
   keepScroll();
@@ -890,6 +955,12 @@ function placeListPanel(){
   const preview = selected && previews.find(item => item.dataset.id === String(selected.id));
   const card = preview?.parentElement;
   const top = card?.getBoundingClientRect().top;
+  const rowHost=preview?.closest("[data-collection-grid-row]")?.nextElementSibling;
+  for (const host of box.querySelectorAll("[data-collection-grid-detail]:not([hidden])")) {
+    if(host===rowHost)continue;
+    host.replaceChildren();
+    host.hidden=true;
+  }
 
   const panels = box.querySelectorAll('[data-act="open"] + [data-selected-film]');
   for (const panel of panels) {
@@ -899,10 +970,16 @@ function placeListPanel(){
   if (!selected) return true;
   if (!card) return false;
   const html = selectedFilmHtml(selected, true);
-  const panel = preview.nextElementSibling;
-  if (panel?.matches("[data-selected-film]")) panel.outerHTML = html;
-  else preview.insertAdjacentHTML("afterend", html);
-  paintWatchedButtons(preview.nextElementSibling);
+  if(rowHost){
+    rowHost.innerHTML=html;
+    rowHost.hidden=false;
+    paintWatchedButtons(rowHost);
+  }else{
+    const panel = preview.nextElementSibling;
+    if (panel?.matches("[data-selected-film]")) panel.outerHTML = html;
+    else preview.insertAdjacentHTML("afterend", html);
+    paintWatchedButtons(preview.nextElementSibling);
+  }
   const delta = card.getBoundingClientRect().top - top;
   if (delta) window.scrollBy(0, delta);
   return true;
@@ -1180,6 +1257,15 @@ window.addEventListener("resize",()=>{
   if(i>=0)run.style.transform=`translateX(${-rX(i)}px)`;
 });
 vd.addEventListener("click",e=>{
+  const layout=e.target.closest('[data-kg-layout="collection"]');
+  if(layout){
+    if(collectionFilmLayout===layout.dataset.mode)return;
+    collectionFilmLayout=layout.dataset.mode;
+    if(D.selected?._placement==="list")D.selected._trailerPlaying=false;
+    renderFilms();
+    vd.querySelector(`[data-kg-layout="collection"][data-mode="${collectionFilmLayout}"]`)?.focus({preventScroll:true});
+    return;
+  }
   const el=e.target.closest("[data-act]");if(!el)return;
   const a=el.dataset.act;
   if(a==="close-film"){

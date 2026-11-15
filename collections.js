@@ -11,6 +11,7 @@ st.textContent=".kgf{display:inline-flex;align-items:center;vertical-align:middl
 document.head.appendChild(st);
 const st2=document.createElement("style");
 st2.textContent=`.kgr-win{position:relative;height:150px;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 13%,#000 87%,transparent);mask-image:linear-gradient(90deg,transparent,#000 13%,#000 87%,transparent)}
+#cat-search::-webkit-search-cancel-button{display:none}
 .kgr-track{position:absolute;inset:0;overflow:hidden}
 .kgr-run{position:absolute;left:0;top:0;height:100%;display:flex;align-items:center;gap:10px;padding-left:8px;will-change:transform}
 .kgr-run.fast{filter:blur(1.4px) brightness(1.08)}
@@ -350,6 +351,7 @@ sectionNav.addEventListener("click",e=>{
 
 /* ================= КАТАЛОГ ================= */
 let catBuilt=false,activeCat="all",sortMode="curated";
+let catalogScores=new Map();
 
 function dailySeed(){
   const d=new Date();
@@ -418,8 +420,8 @@ function buildCatalog(){
 <h2 class="font-headline-lg text-headline-lg text-primary tracking-tight">${uiText("Тематические коллекции")}</h2>
 <p class="font-body-sm text-body-sm text-text-muted leading-relaxed">${uiText("{count} авторских киномаршрутов: от азиатского саспенса и скандинавского холода до исторических эпох", {count: catalogThemes.length})}</p>
 <div class="relative w-full mt-2"><div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-text-muted"><span class="material-symbols-outlined text-[20px]">search</span></div>
-<input id="cat-search" type="search" placeholder="${uiText("Найти подборку, страну или жанр...")}" class="w-full h-12 pl-11 pr-10 rounded-xl bg-surface-container-low text-on-surface placeholder:text-text-muted font-body-sm text-body-sm focus:outline-none focus:bg-surface-container transition-all shadow-[0_4px_16px_rgba(0,0,0,0.4)]">
-<div id="cat-clear" data-act="clear" style="display:none" class="absolute inset-y-0 right-0 pr-3 items-center cursor-pointer text-text-muted hover:text-primary"><span class="material-symbols-outlined text-[18px]">cancel</span></div></div>
+<input id="cat-search" type="search" aria-label="${uiText("Поиск по подборкам")}" aria-controls="cat-grid" enterkeyhint="search" autocomplete="off" placeholder="${uiText("Найти подборку, страну или жанр...")}" class="w-full h-12 pl-11 pr-12 rounded-xl bg-surface-container-low text-on-surface placeholder:text-text-muted font-body-sm text-body-sm focus:outline-none focus:bg-surface-container transition-all shadow-[0_4px_16px_rgba(0,0,0,0.4)]">
+<button type="button" id="cat-clear" data-act="clear" aria-label="${uiText("Сбросить поиск")}" style="display:none" class="absolute inset-y-0 right-0 w-12 items-center justify-center text-text-muted hover:text-primary"><span class="material-symbols-outlined text-[18px]" aria-hidden="true">cancel</span></button></div>
 </section>
 <section id="cat-chips" class="flex gap-2 overflow-x-auto pb-1 -mx-gutter-mobile px-gutter-mobile">
 <button type="button" data-f="all" class="${chipCls(true)}"><span>${uiText("Все {count}", {count: catalogThemes.length})}</span></button>
@@ -429,8 +431,9 @@ ${spotlightHtml(spotlightTheme())}
 <select id="cat-sort" class="bg-transparent text-text-muted font-label-sm text-label-sm focus:outline-none focus:text-primary cursor-pointer"><option class="bg-surface-panel text-on-surface" value="curated">${uiText("По кураторскому списку")}</option><option class="bg-surface-panel text-on-surface" value="rating">${uiText("По рейтингу (высокий)")}</option><option class="bg-surface-panel text-on-surface" value="count">${uiText("По числу фильмов")}</option><option class="bg-surface-panel text-on-surface" value="title">${uiText("По алфавиту")}</option></select></div>
 <button type="button" data-act="random" class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-secondary-container text-on-secondary-container font-label-sm text-label-sm shadow-[0_0_14px_rgba(134,26,69,0.25)] transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"><span class="material-symbols-outlined text-[18px]">casino</span><span>${uiText("Случайная")}</span></button></section>
 <p id="cat-note" class="font-micro-caption text-micro-caption text-text-muted px-1" style="display:none"></p>
+<p id="cat-search-status" role="status" class="font-label-sm text-label-sm text-text-muted px-1 empty:!hidden"></p>
 <section id="cat-grid" class="flex flex-col gap-3">${seededShuffle(catalogThemes,dailySeed()).map((t,i)=>cardHtml(t,i)).join("")}</section>
-<div id="cat-empty" style="display:none" class="flex-col items-center justify-center py-12 px-4 text-center rounded-2xl bg-surface-panel/50"><div class="w-14 h-14 rounded-full bg-surface-container-high flex items-center justify-center text-primary-container mb-3 shadow-[0_0_18px_rgba(255,184,48,0.2)]"><span class="material-symbols-outlined text-[28px]">movie_edit</span></div><h3 class="font-headline-sm text-headline-sm text-primary font-bold">${uiText("Подборка не найдена")}</h3><p class="font-body-sm text-body-sm text-text-muted mt-1 max-w-xs">Попробуйте другое ключевое слово или выберите «${uiText("Все {count}", {count: catalogThemes.length})}», чтобы сбросить фильтр.</p><button type="button" data-act="reset" class="mt-4 px-4 py-2 rounded-xl bg-primary-container text-on-primary-container font-label-sm text-label-sm font-bold shadow-[0_0_12px_rgba(255,184,48,0.25)]">${uiText("Сбросить поиск")}</button></div>`;
+<div id="cat-empty" style="display:none" class="flex-col items-center justify-center py-12 px-4 text-center rounded-2xl bg-surface-panel/50"><div class="w-14 h-14 rounded-full bg-surface-container-high flex items-center justify-center text-primary-container mb-3 shadow-[0_0_18px_rgba(255,184,48,0.2)]"><span class="material-symbols-outlined text-[28px]">movie_edit</span></div><h3 class="font-headline-sm text-headline-sm text-primary font-bold">${uiText("Подборка не найдена")}</h3><p class="font-body-sm text-body-sm text-text-muted mt-1 max-w-xs">${uiText("Попробуйте другое слово или выберите «Все», чтобы искать во всём каталоге.")}</p><button type="button" data-act="reset" class="mt-4 px-4 py-2 rounded-xl bg-primary-container text-on-primary-container font-label-sm text-label-sm font-bold shadow-[0_0_12px_rgba(255,184,48,0.25)]">${uiText("Сбросить поиск")}</button></div>`;
   catBuilt=true;
 }
 
@@ -461,17 +464,76 @@ function paintMeta(id){
     }
   });
 }
+const catalogNormalize=value=>String(value||"").toLowerCase().normalize("NFD")
+  .replace(/\p{M}/gu,"").replace(/[^\p{L}\p{N}]+/gu," ").trim();
+const catalogRegionNames=["ru","en"].map(lang=>new Intl.DisplayNames([lang],{type:"region"}));
+const catalogTitleAliases={jhorror:["Japanese Horror"]};
+function catalogSearchEntry(t){
+  const [,english,subtitle,description]=TM[t.id]||[];
+  const category=CAT[cat(t)]||[],region=REG[t.id]?.[0];
+  const genres=t.g.split(/[|,]/).map(id=>GENRES[id]).filter(Boolean);
+  const countries=t.cc.flatMap(code=>[code,cname(code),...catalogRegionNames.map(names=>names.of(code))]);
+  const films=(t.films||[]).flatMap(f=>[f.title,f.original_title]);
+  return [
+    [[t.name,uiText(t.name),english,...(catalogTitleAliases[t.id]||[])],100],
+    [[...countries,...genres,...genres.map(g=>uiText(g)),region,region&&uiText(region)],55],
+    [films,42],
+    [[category[0],category[0]&&uiText(category[0]),category[1]],32],
+    [[subtitle,description,subtitle&&uiText(subtitle),description&&uiText(description)],18]
+  ].flatMap(([values,weight])=>[...new Set(values.map(catalogNormalize).filter(Boolean))]
+    .map(value=>({value,weight,words:value.split(" ")})));
+}
+let catalogSearchIndex;
+
+// A single insertion, deletion, substitution or transposition in a longer word.
+function catalogOneTypo(a,b){
+  if(a.length<5||Math.abs(a.length-b.length)>1)return false;
+  if(a.length>b.length)[a,b]=[b,a];
+  let i=0;
+  while(i<a.length&&a[i]===b[i])i++;
+  if(a.length!==b.length)return a.slice(i)===b.slice(i+1);
+  return i<a.length&&(a.slice(i+1)===b.slice(i+1)||
+    (a[i]===b[i+1]&&a[i+1]===b[i]&&a.slice(i+2)===b.slice(i+2)));
+}
+function catalogMatch(fields,query,terms){
+  let phrase=0,total=0,approximate=false;
+  for(const {value,weight} of fields){
+    if(value===query)phrase=Math.max(phrase,weight*4);
+    else if(` ${value} `.includes(` ${query} `))phrase=Math.max(phrase,weight*2);
+    else if(value.startsWith(query))phrase=Math.max(phrase,weight);
+  }
+  for(const term of terms){
+    let exact=0,fuzzy=0;
+    for(const {weight,words} of fields){
+      for(const word of words){
+        if(word===term)exact=Math.max(exact,weight);
+        else if(term.length>=2&&word.startsWith(term))exact=Math.max(exact,weight*.75);
+        else if(!exact&&catalogOneTypo(term,word))fuzzy=Math.max(fuzzy,weight*.5);
+      }
+    }
+    if(!exact&&!fuzzy)return null;
+    approximate ||= !exact;
+    total+=exact||fuzzy;
+  }
+  return {score:phrase+total,approximate};
+}
 function filterCatalog(){
-  const q=($("cat-search").value||"").toLowerCase().trim();
-  let vis=0;
-  vc.querySelectorAll(".collection-card").forEach(c=>{
-    const t=T[c.dataset.t],m=TM[t.id]||[];
-    const hay=[t.name,uiText(t.name),m[1],m[2],uiText(m[2]||""),t.cc.map(cname).join(" "),gnames(t).join(" ")].join(" ").toLowerCase();
-    const ok=(activeCat==="all"||c.dataset.cat===activeCat)&&(!q||hay.includes(q));
-    c.style.display=ok?"":"none";if(ok)vis++;
-  });
-  $("cat-empty").style.display=vis?"none":"flex";
-  vc.querySelector('[data-act="random"]').disabled = vis === 0;
+  const input=$("cat-search"),q=catalogNormalize(input.value),cards=[...$("cat-grid").children];
+  const terms=[...new Set(q.split(" "))];
+  const eligible=cards.filter(c=>activeCat==="all"||c.dataset.cat===activeCat);
+  if(q&&!catalogSearchIndex)catalogSearchIndex=new Map(catalogThemes.map(t=>[t.id,catalogSearchEntry(t)]));
+  const matches=q?eligible.map(c=>[c.dataset.t,catalogMatch(catalogSearchIndex.get(c.dataset.t),q,terms)])
+    .filter(([,match])=>match):[];
+  const hasExact=matches.some(([,match])=>!match.approximate);
+  catalogScores=new Map(matches.filter(([,match])=>!hasExact||!match.approximate).map(([id,match])=>[id,match.score]));
+  const visible=new Set(q?catalogScores.keys():eligible.map(c=>c.dataset.t));
+  for(const card of cards)card.style.display=visible.has(card.dataset.t)?"":"none";
+  $("cat-clear").style.display=input.value?"flex":"none";
+  $("spot").style.display=q?"none":"";
+  $("cat-search-status").textContent=q?uiText(hasExact||!visible.size?"Подборок найдено: {count}":"Похожие совпадения: {count}",{count:nf(visible.size)}):"";
+  $("cat-empty").style.display=visible.size?"none":"flex";
+  vc.querySelector('[data-act="random"]').disabled=!visible.size;
+  sortCatalog();
 }
 function sortCatalog(){
   const grid=$("cat-grid");if(!grid)return;const cards=[...grid.children];
@@ -480,8 +542,9 @@ function sortCatalog(){
     if(sortMode==="rating")return (parseFloat(mb.r)||0)-(parseFloat(ma.r)||0);
     if(sortMode==="count")return (mb.n||0)-(ma.n||0);
     if(sortMode==="title")return uiText(T[a.dataset.t].name).localeCompare(uiText(T[b.dataset.t].name),interfaceLanguage);
-    return a.dataset.i-b.dataset.i;
-  }).forEach(c=>grid.appendChild(c));
+    return (catalogScores.get(b.dataset.t)||0)-(catalogScores.get(a.dataset.t)||0)||a.dataset.i-b.dataset.i;
+  });
+  if(cards.some((card,i)=>card!==grid.children[i]))cards.forEach(card=>grid.appendChild(card));
 }
 async function loadAllMeta(force=false){
   const note=$("cat-note");
@@ -498,7 +561,7 @@ function initCatalog(){
   if(!dailyRefreshPromise)loadAllMeta();
 }
 vc.addEventListener("input",e=>{
-  if(e.target.id==="cat-search"){$("cat-clear").style.display=e.target.value?"flex":"none";filterCatalog();}
+  if(e.target.id==="cat-search")filterCatalog();
 });
 vc.addEventListener("change",e=>{if(e.target.id==="cat-sort"){sortMode=e.target.value;sortCatalog();}});
 vc.addEventListener("click",e=>{
@@ -511,7 +574,11 @@ vc.addEventListener("click",e=>{
     const a=act.dataset.act;
     if(a==="spin"){e.stopPropagation();audio();openCollection(act.dataset.t,{spin:true});return;}
     if(a==="open"){openCollection(act.dataset.t);return;}
-    if(a==="clear"||a==="reset"){$("cat-search").value="";$("cat-clear").style.display="none";activeCat="all";vc.querySelectorAll("#cat-chips [data-f]").forEach(c=>c.className=chipCls(c.dataset.f==="all"));filterCatalog();return;}
+    if(a==="clear"||a==="reset"){
+      const input=$("cat-search");input.value="";
+      if(a==="reset"){activeCat="all";vc.querySelectorAll("#cat-chips [data-f]").forEach(c=>c.className=chipCls(c.dataset.f==="all"));}
+      filterCatalog();input.focus();return;
+    }
     if(a==="random"){
       const vis=[...vc.querySelectorAll(".collection-card")].filter(c=>c.style.display!=="none");
       if(!vis.length)return;
@@ -526,6 +593,14 @@ vc.addEventListener("click",e=>{
   if(card)openCollection(card.dataset.t);
 });
 vc.addEventListener("keydown",e=>{
+  if(e.target.id==="cat-search"){
+    if(e.isComposing||e.keyCode===229)return;
+    if(e.key==="Escape"&&e.target.value){e.preventDefault();e.target.value="";filterCatalog();}
+    if(e.key==="Enter"&&catalogScores.size){
+      e.preventDefault();openCollection([...$("cat-grid").children].find(c=>catalogScores.has(c.dataset.t)).dataset.t);
+    }
+    return;
+  }
   if(e.target.id!=="spot"||(e.key!=="Enter"&&e.key!==" "))return;
   e.preventDefault();openCollection(e.target.dataset.t);
 });

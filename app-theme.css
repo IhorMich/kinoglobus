@@ -360,11 +360,16 @@
   --kg-cinema-velvet-glow: var(--kg-secondary);
   --kg-nav-active: 53 200 255;
   --kg-nav-inactive: 139 147 165;
+  --kg-quick-action-background: rgb(var(--kg-primary-container));
   --kg-extra-background-dark: var(--kg-canvas-obsidian);
   --kg-extra-panel-dark: var(--kg-surface-panel);
   --kg-extra-ink-dark: var(--kg-on-surface);
   --kg-extra-muted-dark: var(--kg-text-muted);
   --kg-extra-border-dark: var(--kg-surface-border);
+}
+
+[data-kgs-accent-picker][hidden] {
+  display: none;
 }
 
 :root[data-kg-theme="midnight"] :is(h1,h2,h3,h4).text-primary {
@@ -498,6 +503,33 @@
 
 :root[data-kg-button-accent="blue"] :is(#btn-spin-roulette, #btn-spin-text) {
   color: rgb(var(--kg-white));
+}
+
+:root[data-kg-theme="midnight"] :is(
+  #btn-top-one, #btn-oscar-laureate,
+  button.kg-mode-choice[aria-pressed="true"],
+  button.kg-watched-button[aria-pressed="true"],
+  button.bg-primary-container, button.from-primary-container
+) {
+  background-color: rgb(var(--kg-primary-container));
+  background-image: none;
+  border-color: rgb(var(--kg-surface-border));
+  box-shadow: 0 4px 16px rgb(var(--kg-action-shadow)/.28);
+  color: rgb(var(--kg-white));
+}
+
+:root[data-kg-theme="midnight"] :is(#btn-top-one, #btn-oscar-laureate) .material-symbols-outlined {
+  color: rgb(var(--kg-primary));
+}
+
+:root[data-kg-theme="midnight"] :is(
+  #btn-top-one, #btn-oscar-laureate,
+  button.kg-mode-choice[aria-pressed="true"],
+  button.kg-watched-button[aria-pressed="true"],
+  button.bg-primary-container, button.from-primary-container
+):active:not(:disabled) {
+  --kg-quick-action-background: rgb(var(--kg-accent-deep));
+  background-color: rgb(var(--kg-accent-deep));
 }
 
 /* Общие связи для пользовательских акцентов. */

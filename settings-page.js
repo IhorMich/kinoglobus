@@ -79,9 +79,7 @@
 <span class="text-[10px] text-text-muted font-micro-caption flex items-center gap-1.5">
 <span class="text-text-muted">■</span> Архив открытий
           </span>
-<span class="text-xs font-semibold text-primary-container mt-0.5" data-kgs-count>
-            1 / 104 стран
-          </span>
+<span class="text-xs font-semibold text-primary-container mt-0.5" data-kgs-count></span>
 </div>
 </div>
 </section>
@@ -358,7 +356,7 @@ ${[["light","Лёгкое"],["find","Открытие"],["wild","Случайн�
 <div class="space-y-1.5">
 <div class="flex items-center justify-between text-xs">
 <span class="font-bold text-on-surface uppercase font-micro-caption">ПРОГРЕСС ИССЛЕДОВАТЕЛЯ</span>
-<span class="font-micro-caption font-bold text-primary-container" data-kgs-count>1 / 104 СТРАН</span>
+<span class="font-micro-caption font-bold text-primary-container" data-kgs-count></span>
 </div>
 <div class="w-full h-2 rounded-full bg-surface-container-high overflow-hidden">
 <div class="h-full bg-gradient-to-r from-primary-fixed-dim to-primary-container rounded-full kgs-gold-shadow" data-kgs-progress></div>
@@ -513,13 +511,13 @@ ${[["light","Лёгкое"],["find","Открытие"],["wild","Случайн�
       node.classList.toggle("kgs-missing-key", !hasKey);
     });
     $("#kgs-token").placeholder = hasKey ? "••••••••••••••••••••••••••••••••" : uiText("Введите ключ TMDB");
-    const opened = Object.keys(visited || {}).length, total = COUNTRIES.length;
+    const opened = countOpenedCountries(visited || {}), total = COUNTRIES.length;
     const count = uiText("{opened} / {total} стран", {opened, total});
     dialog.querySelectorAll("[data-kgs-count]").forEach((node) => { node.textContent = count; });
     $("[data-kgs-progress-label]").textContent = uiText("Открыто стран: {count}", {count: opened});
     $("[data-kgs-left]").textContent = uiText("Осталось {count}", {count: Math.max(0, total - opened)});
     $("[data-kgs-progress]").style.width = `${Math.round(opened/total*100)}%`;
-    $("[data-kgs-warning]").textContent = uiText("Очистка истории снимет отметки со всех {count} открытых стран и просмотренных фильмов.", {count: opened});
+    $("[data-kgs-warning]").textContent = uiText("Очистка истории снимет отметки со всех {count} открытых стран и просмотренных фильмов.", {count: Object.keys(visited || {}).length});
     const globeMuted = snd === "off";
     $("[data-kgs-globe-sound-status]").textContent = globeMuted ? uiText("Без звука") : uiText("Активно");
     $("[data-kgs-preview]").disabled = globeMuted;

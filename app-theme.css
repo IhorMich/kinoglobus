@@ -1,19 +1,31 @@
+/* Палитра KinoGlobus. Основные настройки темы и акцента находятся в этом файле. */
 :root {
   --kg-canvas-obsidian: 7 6 10;
+  /* Акцент. RGB-каналы через пробел, без rgb(). */
+  --kg-swatch-gold: 255 184 48;
+  --kg-swatch-cyan: 0 210 211;
   --kg-primary: 255 220 168;
-  --kg-primary-container: 255 184 48;
+  --kg-primary-container: var(--kg-swatch-gold);
   --kg-primary-fixed: 255 222 173;
   --kg-primary-fixed-dim: 255 186 58;
   --kg-on-primary: 67 44 0;
   --kg-on-primary-container: 110 75 0;
   --kg-on-primary-fixed: 40 25 0;
   --kg-on-primary-fixed-variant: 96 65 0;
+  --kg-accent-deep: 158 98 0;
+  --kg-accent-strong: 255 149 0;
+  --kg-accent-muted: 183 141 74;
+  --kg-accent-warm: 241 202 130;
+  --kg-accent-soft: 255 237 204;
+  --kg-accent-edge: 255 78 32;
+
+  /* Поверхности и текст. */
   --kg-on-surface: 232 224 234;
   --kg-on-surface-variant: 213 196 173;
   --kg-text-muted: 179 167 154;
   --kg-cinema-velvet: 76 5 25;
   --kg-cinema-velvet-glow: 131 24 67;
-  --kg-cinema-amber-glow: 255 184 48;
+  --kg-cinema-amber-glow: var(--kg-primary-container);
   --kg-surface: 21 18 25;
   --kg-surface-container-lowest: 16 13 20;
   --kg-surface-panel: 28 24 34;
@@ -24,9 +36,303 @@
   --kg-surface-bright: 60 56 64;
   --kg-surface-border-subtle: 58 49 64;
   --kg-surface-border: 35 31 46;
+
+  /* Цвета компонентов, дополнительных экранов и глобуса. */
+  --kg-surface-tint: 255 186 58;
+  --kg-inverse-primary: 126 87 0;
+  --kg-action-gradient-end: 255 193 7;
+  --kg-action-shadow: 255 115 0;
+  --kg-accent-bright: 255 215 0;
+  --kg-secondary: 255 177 197;
+  --kg-secondary-fixed: 255 217 225;
+  --kg-on-secondary: 101 0 47;
+  --kg-secondary-container: 134 26 69;
+  --kg-on-secondary-container: 255 150 179;
+  --kg-on-secondary-fixed: 63 0 26;
+  --kg-success: 52 211 153;
+  --kg-success-strong: 16 185 129;
+  --kg-error: 255 180 171;
+  --kg-feedback-error: 255 141 122;
+  --kg-error-container: 147 0 10;
+  --kg-on-error: 105 0 5;
+  --kg-on-error-container: 255 218 214;
+  --kg-tertiary: 230 225 216;
+  --kg-tertiary-fixed: 231 226 217;
+  --kg-tertiary-fixed-dim: 202 198 190;
+  --kg-tertiary-container: 201 197 188;
+  --kg-on-tertiary: 50 48 42;
+  --kg-on-tertiary-fixed: 29 28 22;
+  --kg-on-tertiary-fixed-variant: 73 71 64;
+  --kg-on-tertiary-container: 84 82 75;
+  --kg-outline: 158 142 122;
+  --kg-outline-variant: 81 69 52;
+  --kg-inverse-on-surface: 51 47 55;
+  --kg-white: 255 255 255;
+  --kg-black: 0 0 0;
+  --kg-extra-background-light: 238 242 243;
+  --kg-extra-ink-light: 16 37 43;
+  --kg-extra-muted-light: 91 112 119;
+  --kg-extra-border-light: 211 221 224;
+  --kg-extra-background-dark: 14 26 31;
+  --kg-extra-panel-dark: 22 39 46;
+  --kg-extra-ink-dark: 232 240 242;
+  --kg-extra-muted-dark: 143 165 172;
+  --kg-extra-border-dark: 37 57 63;
+  --kg-extra-accent-light: 184 110 0;
+  --kg-extra-on-accent-dark: 26 18 0;
+  --kg-globe-outline-glow: 255 189 98;
+  --kg-globe-outline-core: 255 230 181;
+  --kg-globe-pin-core: 255 224 138;
+  --kg-globe-pin-beam: 255 200 87;
+  --kg-globe-beacon-dot: 255 204 68;
+  --kg-globe-beacon-ring: 255 165 0;
+  --kg-globe-sunlight: 255 237 212;
+  --kg-globe-ambient-light: 104 125 156;
+  --kg-globe-sky-light: 220 230 255;
+  --kg-globe-ground-light: 18 22 34;
+  --kg-globe-flag-surface: 28 22 38;
+  --kg-globe-ocean-shadow: 8 26 54;
+  --kg-globe-ocean-light: 47 95 156;
+  --kg-globe-land: 38 84 50;
+  --kg-globe-terrain-sand: 97 84 47;
+  --kg-globe-terrain-forest: 46 91 56;
+  --kg-globe-terrain-grass: 36 82 48;
+  --kg-globe-terrain-mountain: 111 87 52;
+  --kg-globe-cloud-texture: 255 255 255 / .22;
+  --kg-cool-highlight-01: 187 216 255;
+  --kg-cool-highlight-02: 198 216 255;
+  --kg-cool-surface-01: 40 48 59;
+  --kg-green-01: 14 68 41;
+  --kg-green-02: 16 112 56;
+  --kg-green-03: 49 89 76;
+  --kg-green-04: 52 133 102;
+  --kg-green-05: 38 167 124;
+  --kg-green-06: 0 224 84;
+  --kg-green-07: 74 155 123;
+  --kg-green-08: 55 185 141;
+  --kg-green-09: 65 189 145;
+  --kg-green-10: 53 213 154;
+  --kg-green-11: 68 209 159;
+  --kg-green-12: 67 214 160;
+  --kg-green-13: 85 201 150;
+  --kg-green-14: 87 199 155;
+  --kg-green-15: 102 220 168;
+  --kg-green-16: 107 224 178;
+  --kg-green-17: 106 240 189;
+  --kg-green-18: 184 225 206;
+  --kg-neutral-01: 5 4 8;
+  --kg-neutral-02: 5 6 8;
+  --kg-neutral-03: 5 5 9;
+  --kg-neutral-04: 9 7 12;
+  --kg-neutral-05: 8 9 13;
+  --kg-neutral-06: 9 10 13;
+  --kg-neutral-07: 8 10 15;
+  --kg-neutral-08: 9 10 14;
+  --kg-neutral-09: 8 10 16;
+  --kg-neutral-10: 9 11 16;
+  --kg-neutral-11: 10 12 17;
+  --kg-neutral-12: 11 11 16;
+  --kg-neutral-13: 12 11 17;
+  --kg-neutral-14: 22 14 6;
+  --kg-neutral-15: 11 13 19;
+  --kg-neutral-16: 13 13 18;
+  --kg-neutral-17: 11 13 21;
+  --kg-neutral-18: 17 17 17;
+  --kg-neutral-19: 14 16 21;
+  --kg-neutral-20: 15 16 21;
+  --kg-neutral-21: 17 14 22;
+  --kg-neutral-22: 16 16 21;
+  --kg-neutral-23: 16 16 22;
+  --kg-neutral-24: 16 17 22;
+  --kg-neutral-25: 16 18 23;
+  --kg-neutral-26: 17 16 24;
+  --kg-neutral-27: 17 18 23;
+  --kg-neutral-28: 25 14 27;
+  --kg-neutral-29: 28 14 24;
+  --kg-neutral-30: 17 19 26;
+  --kg-neutral-31: 16 19 28;
+  --kg-neutral-32: 17 19 27;
+  --kg-neutral-33: 28 23 16;
+  --kg-neutral-34: 16 21 29;
+  --kg-neutral-35: 17 20 29;
+  --kg-neutral-36: 20 21 26;
+  --kg-neutral-37: 21 20 26;
+  --kg-neutral-38: 22 18 28;
+  --kg-neutral-39: 23 19 27;
+  --kg-neutral-40: 26 16 30;
+  --kg-neutral-41: 20 23 28;
+  --kg-neutral-42: 21 21 27;
+  --kg-neutral-43: 23 19 29;
+  --kg-neutral-44: 21 22 28;
+  --kg-neutral-45: 23 21 28;
+  --kg-neutral-46: 24 23 28;
+  --kg-neutral-47: 32 27 19;
+  --kg-neutral-48: 22 25 30;
+  --kg-neutral-49: 23 25 29;
+  --kg-neutral-50: 33 20 30;
+  --kg-neutral-51: 23 25 31;
+  --kg-neutral-52: 21 24 34;
+  --kg-neutral-53: 23 23 32;
+  --kg-neutral-54: 27 23 32;
+  --kg-neutral-55: 22 27 34;
+  --kg-neutral-56: 37 19 35;
+  --kg-neutral-57: 22 25 35;
+  --kg-neutral-58: 23 25 35;
+  --kg-neutral-59: 37 26 21;
+  --kg-neutral-60: 29 26 33;
+  --kg-neutral-61: 25 25 35;
+  --kg-neutral-62: 24 27 37;
+  --kg-neutral-63: 39 23 37;
+  --kg-neutral-64: 33 27 37;
+  --kg-neutral-65: 36 28 32;
+  --kg-neutral-66: 33 27 38;
+  --kg-neutral-67: 26 32 40;
+  --kg-neutral-68: 33 27 39;
+  --kg-neutral-69: 33 30 36;
+  --kg-neutral-70: 27 30 40;
+  --kg-neutral-71: 33 29 38;
+  --kg-neutral-72: 29 30 39;
+  --kg-neutral-73: 41 29 27;
+  --kg-neutral-74: 41 41 28;
+  --kg-neutral-75: 38 38 38;
+  --kg-neutral-76: 36 35 42;
+  --kg-neutral-77: 38 35 42;
+  --kg-neutral-78: 38 30 48;
+  --kg-neutral-79: 41 34 46;
+  --kg-neutral-80: 39 39 43;
+  --kg-neutral-81: 41 36 46;
+  --kg-neutral-82: 34 38 49;
+  --kg-neutral-83: 48 42 37;
+  --kg-neutral-84: 52 45 34;
+  --kg-neutral-85: 37 39 51;
+  --kg-neutral-86: 38 42 53;
+  --kg-neutral-87: 52 48 42;
+  --kg-neutral-88: 48 41 54;
+  --kg-neutral-89: 48 42 53;
+  --kg-neutral-90: 52 45 56;
+  --kg-neutral-91: 57 49 46;
+  --kg-neutral-92: 52 48 58;
+  --kg-neutral-93: 51 52 58;
+  --kg-neutral-94: 48 51 62;
+  --kg-neutral-95: 52 52 58;
+  --kg-neutral-96: 57 48 62;
+  --kg-neutral-97: 56 51 62;
+  --kg-neutral-98: 81 69 80;
+  --kg-neutral-99: 69 75 84;
+  --kg-neutral-100: 82 82 82;
+  --kg-neutral-101: 75 82 90;
+  --kg-neutral-102: 97 97 97;
+  --kg-neutral-103: 86 97 109;
+  --kg-neutral-104: 89 101 117;
+  --kg-neutral-105: 104 112 122;
+  --kg-neutral-106: 119 119 119;
+  --kg-neutral-107: 109 119 131;
+  --kg-neutral-108: 138 128 103;
+  --kg-neutral-109: 112 121 134;
+  --kg-neutral-110: 128 128 128;
+  --kg-neutral-111: 136 126 138;
+  --kg-neutral-112: 152 143 130;
+  --kg-neutral-113: 147 136 148;
+  --kg-neutral-114: 156 149 137;
+  --kg-neutral-115: 157 149 136;
+  --kg-neutral-116: 169 160 149;
+  --kg-neutral-117: 169 162 152;
+  --kg-neutral-118: 169 157 170;
+  --kg-neutral-119: 179 167 183;
+  --kg-neutral-120: 185 177 165;
+  --kg-neutral-121: 182 169 176;
+  --kg-neutral-122: 184 178 168;
+  --kg-neutral-123: 196 192 184;
+  --kg-neutral-124: 198 194 188;
+  --kg-neutral-125: 210 217 223;
+  --kg-neutral-126: 217 220 224;
+  --kg-neutral-127: 229 227 237;
+  --kg-neutral-128: 245 232 235;
+  --kg-neutral-129: 253 251 247;
+  --kg-red-01: 77 20 29;
+  --kg-rose-01: 192 57 43;
+  --kg-rose-02: 255 59 48;
+  --kg-rose-03: 215 97 98;
+  --kg-rose-04: 233 86 86;
+  --kg-rose-05: 255 77 77;
+  --kg-rose-06: 255 78 120;
+  --kg-rose-07: 255 94 94;
+  --kg-rose-08: 242 139 130;
+  --kg-rose-09: 255 157 157;
+  --kg-rose-10: 255 184 201;
+  --kg-rose-11: 255 217 219;
+  --kg-rose-12: 255 217 223;
+  --kg-violet-surface-01: 32 21 42;
+  --kg-violet-surface-02: 48 22 38;
+  --kg-violet-surface-03: 51 35 54;
+  --kg-violet-surface-04: 73 22 45;
+  --kg-violet-surface-05: 86 28 41;
+  --kg-violet-surface-06: 82 54 73;
+  --kg-violet-surface-07: 106 72 91;
+  --kg-warm-surface-01: 32 26 10;
+  --kg-warm-surface-02: 33 23 11;
+  --kg-warm-surface-03: 32 24 13;
+  --kg-warm-surface-04: 33 27 13;
+  --kg-warm-surface-05: 48 32 0;
+  --kg-warm-surface-06: 49 33 0;
+  --kg-warm-surface-07: 37 29 18;
+  --kg-warm-surface-08: 42 33 19;
+  --kg-warm-surface-09: 61 40 0;
+  --kg-warm-surface-10: 51 36 16;
+  --kg-warm-surface-11: 48 35 26;
+  --kg-warm-surface-12: 48 37 26;
+  --kg-warm-surface-13: 51 39 25;
+  --kg-warm-surface-14: 58 42 23;
+  --kg-warm-surface-15: 57 37 27;
+  --kg-warm-surface-16: 77 55 16;
+  --kg-warm-surface-17: 73 56 23;
+  --kg-warm-surface-18: 68 48 34;
+  --kg-warm-surface-19: 70 59 43;
+  --kg-warm-surface-20: 85 64 28;
+  --kg-warm-surface-21: 85 59 29;
+  --kg-warm-surface-22: 81 64 44;
+  --kg-warm-surface-23: 86 63 48;
+  --kg-warm-surface-24: 85 67 50;
+  --kg-warm-surface-25: 110 53 27;
+  --kg-warm-surface-26: 81 70 57;
+  --kg-warm-surface-27: 106 63 36;
+  --kg-warm-surface-28: 91 80 62;
+  --kg-warm-surface-29: 118 104 68;
+  --kg-warm-surface-30: 120 103 68;
+  --kg-warm-surface-31: 124 112 86;
+  --kg-warm-text-01: 169 137 72;
+  --kg-warm-text-02: 147 134 101;
+  --kg-warm-text-03: 146 135 103;
+  --kg-warm-text-04: 169 153 103;
+  --kg-warm-text-05: 174 157 109;
+  --kg-warm-text-06: 169 155 117;
+  --kg-warm-text-07: 255 107 34;
+  --kg-warm-text-08: 170 156 128;
+  --kg-warm-text-09: 166 154 134;
+  --kg-warm-text-10: 167 155 133;
+  --kg-warm-text-11: 170 154 136;
+  --kg-warm-text-12: 197 180 125;
+  --kg-warm-text-13: 183 168 145;
+  --kg-warm-text-14: 183 168 148;
+  --kg-warm-text-15: 189 176 154;
+  --kg-warm-text-16: 196 182 155;
+  --kg-warm-text-17: 197 185 159;
+  --kg-warm-text-18: 213 201 165;
+  --kg-warm-text-19: 211 195 175;
+  --kg-warm-text-20: 210 199 177;
+  --kg-warm-text-21: 215 201 175;
+  --kg-warm-text-22: 238 230 206;
+  --kg-warm-text-23: 238 229 214;
+  --kg-warm-text-24: 238 232 216;
+  --kg-warm-text-25: 238 229 217;
+  --kg-warm-text-26: 238 228 219;
+  --kg-warm-text-27: 247 232 213;
+  --kg-warm-text-28: 241 231 220;
+  --kg-warm-text-29: 244 238 224;
 }
 
 :root[data-kg-theme="oled"] {
+  color-scheme: dark;
   --kg-canvas-obsidian: 0 0 0;
   --kg-surface: 8 8 9;
   --kg-surface-container-lowest: 5 5 6;
@@ -38,10 +344,6 @@
   --kg-surface-bright: 51 51 55;
   --kg-surface-border-subtle: 53 53 56;
   --kg-surface-border: 33 33 36;
-}
-
-:root[data-kg-theme="oled"] {
-  color-scheme: dark;
 }
 
 :root[data-kg-theme="golden-age"] {
@@ -64,106 +366,40 @@
   --kg-text-muted: 195 170 136;
   --kg-cinema-velvet: 74 24 22;
   --kg-cinema-velvet-glow: 124 44 30;
-  --kg-cinema-amber-glow: 245 178 62;
 }
 
-/* The button accent can be changed independently of the screen theme. */
-:root[data-kg-button-accent="cyan"] :is(button, a, [role="button"], [role="checkbox"], select, input[type="checkbox"], input[type="range"], summary) {
+
+/* Бирюзовый акцент совместим со всеми фонами. */
+:root[data-kg-button-accent="cyan"] {
   --kg-primary: 72 239 239;
-  --kg-primary-container: 0 210 211;
+  --kg-primary-container: var(--kg-swatch-cyan);
   --kg-primary-fixed: 86 249 249;
   --kg-primary-fixed-dim: 38 220 221;
   --kg-on-primary: 0 55 55;
   --kg-on-primary-container: 0 55 55;
   --kg-on-primary-fixed: 0 32 32;
   --kg-on-primary-fixed-variant: 0 55 55;
-  --kg-cinema-amber-glow: 0 210 211;
+  --kg-accent-deep: 0 103 107;
+  --kg-accent-strong: 0 177 183;
+  --kg-accent-muted: 72 151 151;
+  --kg-accent-warm: 100 209 206;
+  --kg-accent-soft: 190 255 251;
+  --kg-accent-edge: 0 135 151;
+  --kg-surface-tint: var(--kg-primary-fixed-dim);
+  --kg-inverse-primary: var(--kg-accent-deep);
+  --kg-action-gradient-end: var(--kg-primary-fixed);
+  --kg-action-shadow: var(--kg-primary-container);
+  --kg-accent-bright: var(--kg-primary-fixed);
+  --kg-extra-accent-light: var(--kg-accent-deep);
+  --kg-extra-on-accent-dark: var(--kg-on-primary-fixed);
+  --kg-globe-outline-glow: var(--kg-primary-container);
+  --kg-globe-outline-core: var(--kg-primary-fixed);
+  --kg-globe-pin-core: var(--kg-primary-fixed);
+  --kg-globe-pin-beam: var(--kg-primary-fixed-dim);
+  --kg-globe-beacon-dot: var(--kg-primary-fixed-dim);
+  --kg-globe-beacon-ring: var(--kg-accent-strong);
 }
 
-:root[data-kg-button-accent="cyan"] :is(
-  #btn-spin-roulette, #btn-mode-filters[aria-pressed="true"],
-  .genre-pill[style*="rgb(255, 78, 32)"], [data-kg-filter-pill][aria-pressed="true"],
-  button.kg-watched-button[aria-pressed="true"],
-  .kgc-btn:not(.secondary), .kgc-catalog-action.primary,
-  .kgc-catalog-pill[aria-pressed="true"], .kgc-catalog-head .kgc-catalog-profile,
-  .kg-login-primary, .kga-submit, .kg-recovery-submit,
-  button.kg-profile-button.gold, .kg-profile-tabs button[aria-pressed="true"],
-  .kg-cassette-transport button[data-kg-cassette-random]
-) {
-  background: linear-gradient(110deg, #00d2d3, #48efef) !important;
-  color: #003737 !important;
-  border-color: rgb(72 239 239 / .5);
-  box-shadow: 0 5px 18px rgb(0 210 211 / .24), inset 0 1px #ffffff38 !important;
-}
-
-:root[data-kg-button-accent="cyan"] .kgc-filter button.active {
-  background-color: #00d2d3;
-  color: #003737;
-}
-
-:root[data-kg-button-accent="cyan"] :is(
-  .kg-btn:not(.danger), .kgc-btn.secondary, .kgc-icon, .kgc-icon-action,
-  .kgc-catalog-view button[aria-pressed="true"], .kga-back, .kga-mode,
-  .kgc-account-icon, .kgc-back-profile, .kgc-film-save, .kgc-country-pill.has,
-  .kgc-catalog-link, .kgc-catalog-action:not(.primary), .kgc-inline-person,
-  .kg-person-link, .kgs-icon, .kgs-detail-back, .kg-recovery-preview,
-  .kg-imax-controls button, .kg-cassette-actions button,
-  .kg-cassette-transport button, .kg-cassette-footer button,
-  .kga-foot button, .kg-recovery-footer button, .kg-code-footer button,
-  .kg-code-delivery button, .kgc-country-tab.active,
-  .kg-watched-button[aria-pressed="false"]:hover,
-  .kg-watched-button[aria-pressed="false"] .kg-watched-icon
-) {
-  color: #48efef;
-}
-
-:root[data-kg-button-accent="cyan"] :is(
-  .kg-btn:not(.danger), .kgc-btn.secondary, .kgc-catalog-link,
-  .kgc-country-pill.has, .kgs-result:hover, .kgs-result.is-active,
-  .kgw-service:hover, .kgw-service:focus-visible, .kg-imax-controls button,
-  .kg-ticket-tear[aria-pressed="true"], button.kg-cassette-card.active
-) {
-  border-color: rgb(72 239 239 / .45);
-}
-
-:root[data-kg-button-accent="cyan"] :is(.kg-person-link, .kgc-inline-person) {
-  text-decoration-color: rgb(72 239 239 / .4);
-}
-
-:root[data-kg-button-accent="cyan"] .surprise-chip[aria-pressed="true"] {
-  color: #48efef !important;
-  box-shadow: 0 0 10px rgb(0 210 211 / .25) !important;
-}
-
-:root[data-kg-button-accent="cyan"] .kga-check input {
-  accent-color: #00d2d3;
-}
-
-:root[data-kg-button-accent="cyan"] button.kg-cassette-card.active {
-  box-shadow: 0 0 0 1px rgb(72 239 239 / .35), 0 0 24px rgb(0 210 211 / .2);
-}
-
-:root[data-kg-button-accent="cyan"] .kgc-country-tab.active {
-  background: linear-gradient(155deg, #171c25, #163032);
-  border-color: #48efef;
-  box-shadow: inset 0 0 0 1px rgb(72 239 239 / .25);
-}
-
-:root[data-kg-button-accent="cyan"] :is(button, a, [role="button"], select, summary):focus-visible {
-  outline-color: #48efef !important;
-}
-
-:root[data-kg-button-accent="cyan"] a[data-view] .material-symbols-outlined {
-  --tw-drop-shadow: drop-shadow(0 0 8px rgb(0 210 211 / .25));
-}
-
-:root[data-kg-button-accent="cyan"] a[data-view].text-primary-container {
-  --tw-drop-shadow: drop-shadow(0 0 12px rgb(0 210 211 / .45));
-}
-
-:root[data-kg-button-accent="cyan"] :is(button, a, [role="button"]):is(
-  [class*="rgba(255,184,"], [class*="rgba(255,220,"], [class*="rgba(255,115,"]
-) {
-  --tw-shadow-color: rgb(0 210 211 / .28);
-  --tw-shadow: var(--tw-shadow-colored);
+:where(button, a, [role="button"], select, summary):focus-visible {
+  outline-color: rgb(var(--kg-primary));
 }

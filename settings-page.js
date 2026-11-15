@@ -176,9 +176,14 @@
 <span class="text-primary-container text-sm">✦</span>
 <h2 class="font-headline-sm text-headline-sm text-primary">Тема и визуальный стиль</h2>
 </div>
-<span class="text-[10px] uppercase font-micro-caption px-2 py-0.5 rounded-full bg-primary-container/10 text-primary-container border border-primary-container/30">3 темы доступны</span>
+<span class="text-[10px] uppercase font-micro-caption px-2 py-0.5 rounded-full bg-primary-container/10 text-primary-container border border-primary-container/30">4 темы доступны</span>
 </div>
-<div class="grid grid-cols-3 gap-2" role="group" aria-label="Тема оформления">
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-2" role="group" aria-label="Тема оформления">
+<button class="theme-card relative rounded-xl p-2.5 bg-surface-container-lowest border border-surface-border-subtle flex flex-col items-center justify-between min-h-[104px] w-full" type="button" data-kgs-theme="midnight" aria-pressed="false">
+<span aria-hidden="true" class="material-symbols-outlined text-primary mt-1">dark_mode</span>
+<span class="text-[10px] font-semibold text-on-surface uppercase leading-tight theme-title">Синяя ночь</span>
+<span class="text-[9px] text-primary-container" data-kgs-theme-current hidden>Выбрано</span>
+</button>
 <button class="theme-card relative rounded-xl p-2.5 bg-surface-container-lowest border border-surface-border-subtle flex flex-col items-center justify-between min-h-[104px] w-full" type="button" data-kgs-theme="cinematic" aria-pressed="false">
 <span aria-hidden="true" class="text-primary-container mt-1 text-base">🎞</span>
 <span class="text-[10px] font-semibold text-on-surface uppercase leading-tight theme-title">Кинематографичная</span>
@@ -198,6 +203,7 @@
 <div class="flex flex-wrap items-center justify-between gap-2" role="group" aria-label="Акцент приложения">
 <span class="font-label-sm text-label-sm text-on-surface">Акцент приложения</span>
 <div class="grid w-full grid-cols-2 gap-1 rounded-lg bg-surface-container-lowest p-1">
+<button type="button" class="flex items-center gap-1.5 rounded-md px-2 py-1.5 font-label-sm text-label-sm text-on-surface aria-pressed:bg-surface-container-high" data-kgs-button-accent="blue" aria-pressed="false"><span class="w-3 h-3 shrink-0 rounded-full bg-[rgb(var(--kg-swatch-blue))]" aria-hidden="true"></span>Синий</button>
 <button type="button" class="flex items-center gap-1.5 rounded-md px-2 py-1.5 font-label-sm text-label-sm text-on-surface aria-pressed:bg-surface-container-high" data-kgs-button-accent="cyan" aria-pressed="false"><span class="w-3 h-3 rounded-full bg-[rgb(var(--kg-swatch-cyan))]" aria-hidden="true"></span>Бирюза</button>
 <button type="button" class="flex items-center gap-1.5 rounded-md px-2 py-1.5 font-label-sm text-label-sm text-on-surface aria-pressed:bg-surface-container-high" data-kgs-button-accent="gold" aria-pressed="false"><span class="w-3 h-3 rounded-full bg-[rgb(var(--kg-swatch-gold))]" aria-hidden="true"></span>Золото</button>
 <button type="button" class="flex items-center gap-1.5 rounded-md px-2 py-1.5 font-label-sm text-label-sm text-on-surface aria-pressed:bg-surface-container-high" data-kgs-button-accent="lavender" aria-pressed="false"><span class="w-3 h-3 shrink-0 rounded-full bg-[rgb(var(--kg-swatch-lavender))]" aria-hidden="true"></span>Лаванда</button>
@@ -473,7 +479,7 @@ ${[["light","Лёгкое"],["find","Открытие"],["wild","Случайн�
     });
   });
   function syncTheme() {
-    const theme = document.documentElement.dataset.kgTheme || "cinematic";
+    const theme = document.documentElement.dataset.kgTheme || DEFAULT_APP_THEME;
     themeButtons.forEach(button => {
       const selected = button.dataset.kgsTheme === theme;
       button.setAttribute("aria-pressed", String(selected));
@@ -484,6 +490,8 @@ ${[["light","Лёгкое"],["find","Открытие"],["wild","Случайн�
   themeButtons.forEach(button => {
     button.addEventListener("click", () => {
       setAppTheme(button.dataset.kgsTheme);
+      if (button.dataset.kgsTheme === DEFAULT_APP_THEME) setAppButtonAccent(DEFAULT_APP_ACCENT);
+      syncButtonAccent();
       syncTheme();
     });
   });

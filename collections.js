@@ -30,9 +30,7 @@ st2.textContent=`.kgr-win{position:relative;height:150px;overflow:hidden;-webkit
 .kg-home-europe{scrollbar-width:none;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
 .kg-home-europe::-webkit-scrollbar{display:none}
 .kg-home-film-wrap{flex:0 0 9rem;scroll-snap-align:start}
-[data-selected-film]{min-width:0;max-width:100%}.kg-detail-trailer{box-sizing:border-box;width:100%;max-width:100%;height:auto;aspect-ratio:16/9;min-height:0;max-height:min(56dvh,320px);flex:none;overflow:hidden;contain:layout paint}.kg-detail-trailer iframe{position:absolute;inset:0;width:100%;height:100%;max-width:100%;border:0}
 #kg-home-feature .kg-day-poster{width:44%;max-width:192px;aspect-ratio:2/3}
-#kg-home-feature .kg-detail-trailer{max-height:none}
 .kg-three-columns{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.5rem;align-items:start}
 .kg-film-grid-row{column-gap:clamp(10px,3.3vw,14px);padding-bottom:.55rem}
 #view-collection .kg-film-grid-row{margin-inline:-4px}
@@ -330,16 +328,13 @@ document.body.appendChild(nav);
 
 let view="home";
 function showView(v){
+  if(v!==view) window.KGFilmCard.stopTrailers();
   if(v!=="mood"&&window.KGMoodPage)window.KGMoodPage.stop(vm);
   if(v!=="mood"&&window.KGMoodVibePage)window.KGMoodVibePage.stop();
   if(v!=="oscar"&&window.KGOscarPage&&window.KGOscarPage.stop)window.KGOscarPage.stop(vo);
   view=v;
   if(v!=="collection")rStop();
-  if(D.selected&&["mood","oscar"].includes(D.selected._placement)&&D.selected._placement!==v){
-    const oldTarget=$(D.selected._detailTarget)||(D.selected._placement==="mood"?$("mood-film-detail"):$("oscar-film-detail"));
-    if(oldTarget)oldTarget.replaceChildren();
-    D.selected=null;
-  }
+  if(D.selected) closeInlineFilm(D.selected,false);
   home.style.display=v==="home"?"":"none";
   sectionNav.style.display=["collections","collection","mood","oscar"].includes(v)?"":"none";
   vc.style.display=v==="collections"?"":"none";
@@ -684,11 +679,8 @@ async function markPageWatched(film){
   }
   seen.add(Number(film.id));store.set("seen",[...seen]);updHist();return true;
 }
-function closePageFilm(placement){
-  const selected=D.selected&&D.selected._placement===placement?D.selected:null;
-  if(selected)D.selected=null;
-  const target=$(selected?._detailTarget)||(placement==="mood"?$("mood-film-detail"):$("oscar-film-detail"));
-  if(target)target.replaceChildren();
+function closePageFilm(placement, restoreFocus = false){
+  if(D.selected?._placement===placement) closeInlineFilm(D.selected,restoreFocus);
 }
 const pageDeps={
   layoutSwitch,
@@ -707,8 +699,8 @@ const pageDeps={
   countryName:cc=>cname(cc),
   isWatched:id=>watched.some(item=>item.id===Number(id)),
   markWatched:film=>markPageWatched(film),
-  openFilm:(film,placement,detailTarget)=>openFilm(film,placement,detailTarget),
-  closeFilm:placement=>closePageFilm(placement),
+  openFilm:(film,placement,detailTarget,options)=>openFilm(film,placement,detailTarget,options),
+  closeFilm:(placement,restoreFocus)=>closePageFilm(placement,restoreFocus),
   refreshFilm:()=>renderSelectedPanel(),
   back:()=>showView("collections")
 };
@@ -752,8 +744,8 @@ function filmItem(f){
   const y=(f.release_date||"").slice(0,4);
   const gs=(f.genre_ids||[]).map(i=>GENRES[i]).filter(Boolean).slice(0,2).map(genre=>uiText(genre));
   const selected=D.selected&&D.selected._placement==="list"&&String(D.selected.id)===String(f.id)?D.selected:null;
-  return `<article class="flex flex-col gap-space-sm p-3 rounded-xl bg-surface-panel shadow-md hover:bg-surface-container-low transition-colors">
-<div class="flex gap-space-sm cursor-pointer" data-act="open" data-id="${f.id}">
+  return `<article class="kg-film-list-shell flex flex-col gap-space-sm p-3 rounded-xl bg-surface-panel shadow-md hover:bg-surface-container-low transition-colors">
+<div class="flex gap-space-sm cursor-pointer" role="button" tabindex="0" data-act="open" data-id="${f.id}">
 <div class="kg-film-card-poster relative flex-shrink-0 rounded-lg overflow-hidden bg-surface-container-high">${f.poster_path?`<img class="w-full h-full object-cover" loading="lazy" alt="" src="${P(f.poster_path,"w185")}">`:`<div class="w-full h-full flex items-center justify-center text-text-muted"><span class="material-symbols-outlined">movie</span></div>`}
 <span class="absolute top-1 left-1 px-1 py-0.5 rounded bg-surface-panel/90 text-primary-container font-micro-caption text-micro-caption font-bold">${f.vote_average ? Number(f.vote_average).toFixed(1) : "—"} ★</span></div>
 <div class="flex flex-col justify-between flex-1 min-w-0"><div class="flex flex-col gap-0.5">
@@ -761,12 +753,12 @@ function filmItem(f){
 <h4 class="font-label-lg text-label-lg text-on-surface font-bold truncate">${esc(f.title)}</h4>
 <p data-dir="${f.id}" class="font-micro-caption text-micro-caption text-text-muted truncate">&nbsp;</p>
 <div class="flex items-center gap-1.5 pt-1">${gs.map(g=>`<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-micro-caption text-micro-caption">${esc(g)}</span>`).join("")}</div></div></div></div>
-${selected?selectedFilmHtml(selected,true):""}</article>`;
+${selected?selectedFilmHtml(selected):""}</article>`;
 }
 function pearlHtml(f,selected=null){
   const y=(f.release_date||"").slice(0,4);
   return `<div class="flex flex-col gap-space-xs"><div class="flex items-center gap-1.5 px-1"><span class="material-symbols-outlined text-[18px] text-primary-container">stars</span><h3 class="font-headline-sm text-headline-sm text-primary font-bold">${uiText("Жемчужина коллекции")}</h3></div>
-<div class="relative overflow-hidden rounded-xl bg-surface-panel p-space-md shadow-xl flex flex-col gap-space-md"><div class="flex gap-space-md cursor-pointer" data-act="open" data-id="${f.id}">
+<div class="kg-film-list-shell relative overflow-hidden rounded-xl bg-surface-panel p-space-md shadow-xl flex flex-col gap-space-md"><div class="flex gap-space-md cursor-pointer" role="button" tabindex="0" data-act="open" data-id="${f.id}">
 <div class="relative flex-shrink-0 w-28 h-40 rounded-lg overflow-hidden bg-surface-container-high shadow-md">${f.poster_path?`<img class="w-full h-full object-cover" alt="" src="${P(f.poster_path,"w342")}">`:""}
 <div class="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded bg-surface-panel/90 backdrop-blur-md text-primary-container font-label-sm text-label-sm font-bold flex items-center gap-0.5"><span class="material-symbols-outlined text-[13px]" style="font-variation-settings:'FILL' 1;">star</span>${f.vote_average ? Number(f.vote_average).toFixed(1) : "—"}</div></div>
 <div class="flex flex-col justify-between flex-1 min-w-0"><div class="flex flex-col gap-1">
@@ -775,7 +767,7 @@ function pearlHtml(f,selected=null){
 <p class="font-micro-caption text-micro-caption text-text-muted italic truncate">${f.original_title&&f.original_title!==f.title?esc(f.original_title):"&nbsp;"}</p>
 <p data-dir="${f.id}" class="font-micro-caption text-micro-caption text-on-surface-variant">&nbsp;</p></div>
 <p class="font-body-sm text-body-sm text-text-muted kg-clip2 pt-1">${esc(f.overview||uiText("Описания на русском пока нет."))}</p></div></div>
-${selected?selectedFilmHtml(selected,true):""}</div></div>`;
+${selected?selectedFilmHtml(selected):""}</div></div>`;
 }
 function renderFilms(){
   const box=$("cl-films");if(!box)return;
@@ -793,7 +785,7 @@ function renderFilms(){
   const grid=collectionFilmLayout==="grid";
   const listMarkup=grid?filmGridRows(list,row=>{
     const selected=selectedInList&&row.some(f=>String(D.selected.id)===String(f.id))?D.selected:null;
-    return `<div class="kg-three-columns kg-film-grid-row" data-collection-grid-row>${row.map(f=>posterTile(f,`data-act="open" data-id="${f.id}"`)).join("")}</div><div data-collection-grid-detail ${selected?"":"hidden"}>${selected?selectedFilmHtml(selected,true):""}</div>`;
+    return `<div class="kg-three-columns kg-film-grid-row" data-collection-grid-row>${row.map(f=>posterTile(f,`data-act="open" data-id="${f.id}"`)).join("")}</div><div data-collection-grid-detail ${selected?"":"hidden"}>${selected?selectedFilmHtml(selected):""}</div>`;
   }):list.map(f=>filmItem(f)).join("");
   const pearl=pearlHtml(best,selectedInList&&String(D.selected.id)===String(best.id)?D.selected:null);
   box.innerHTML=pearl+
@@ -809,102 +801,21 @@ function renderFilms(){
     dr.forEach(e=>e.innerHTML=(d.dirsFull||[]).length?uiText("Реж.")+" "+d.dirsFull.slice(0,2).map(p=>kgPersonLink(p,"Режиссёр")).join(", "):"");
   }).catch(()=>{}));
 }
-function trailerThumb(v,f){
-  const src=v&&v.site==="YouTube"?`https://i.ytimg.com/vi/${encodeURIComponent(v.key)}/hqdefault.jpg`:f.backdrop_path?P(f.backdrop_path,"w780"):"";
-  return src?`<img src="${src}" alt="" class="absolute inset-0 w-full h-full object-cover opacity-80" loading="eager" decoding="async" onerror="this.remove()">`:"";
+function selectedFilmHtml(f) {
+  return window.KGFilmCard.markup(f, {inline:true});
 }
-function selectedFilmHtml(f,embedded=false){
-  const year=(f.release_date||"").slice(0,4);
-  const personLink=(p,role)=>p&&p.id?`<button type="button" data-kg-person-id="${p.id}" data-kg-person-name="${esc(p.name)}" data-kg-person-role="${role}" class="kg-person-link">${esc(p.name)}</button>`:esc(p&&p.name||"");
-  const cast=(f.castFull||[]).map(c=>`<button type="button" data-kg-person-id="${c.id||""}" data-kg-person-name="${esc(c.name)}" data-kg-person-role="Актёр" class="kg-person-card flex-shrink-0 w-28 flex flex-col items-center text-center p-2 rounded-xl bg-surface-container-high" ${c.id?"":"disabled"}>
-<div class="w-14 h-14 rounded-full overflow-hidden mb-2 bg-surface-variant shadow-md flex items-center justify-center">${c.photo?`<img class="w-full h-full object-cover" loading="lazy" alt="" src="${P(c.photo,"w185")}">`:'<span class="material-symbols-outlined text-text-muted">person</span>'}</div>
-<span class="font-label-sm text-label-sm text-on-surface font-semibold truncate w-full">${esc(c.name)}</span><span class="font-micro-caption text-micro-caption text-text-muted truncate w-full">${esc(c.role)}</span></button>`).join("");
-  const activeVideo=f._trailer||null;
-  const closeTrailer=f._placement==="home"&&f._trailerPlaying&&activeVideo
-    ?`<button type="button" data-trailer-action="close" data-id="${f.id}" class="self-start inline-flex min-h-11 items-center gap-1.5 rounded-lg bg-surface-container px-3 text-primary hover:bg-surface-container-high font-label-sm text-label-sm"><span class="material-symbols-outlined text-[18px]" aria-hidden="true">expand_less</span>${uiText("Свернуть трейлер")}</button>`
-    :"";
-  const trailerContent=f._trailerPlaying&&activeVideo
-    ?`<iframe src="${embedSrc(activeVideo,true)}" allow="${trailerFramePermissions}" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" title="${esc(uiText("Трейлер {title}", {title: f.title}))}" class="kg-trailer-frame"></iframe>`
-    :activeVideo
-      ?`<button type="button" data-trailer-action="play" data-id="${f.id}" aria-label="${uiText("Воспроизвести трейлер")}" class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-surface-container-high to-canvas-obsidian text-primary-container transition-colors hover:text-primary">${trailerThumb(activeVideo,f)}<span class="relative flex items-center justify-center w-16 h-16 rounded-full bg-black/55 border border-primary-container/60 backdrop-blur-sm"><span class="material-symbols-outlined text-[44px]">play_arrow</span></span></button>`
-      :`<div class="absolute inset-0 flex items-center justify-center text-text-muted font-body-sm text-body-sm">${f._trailerStatus==="missing"?uiText("Трейлер не найден"):uiText("Ищем трейлер…")}</div>`;
-  const oscar=(f._placement==="oscar"||f._placement==="oscar-related")&&window.KGOscarPage&&window.KGOscarPage.info?window.KGOscarPage.info(f):null;
-  const awardRows=Array.isArray(f._oscarAwards)?f._oscarAwards:[];
-  const awardWins=awardRows.filter(a=>a.won).length,awardNominations=awardRows.length-awardWins;
-  const awardsHtml=oscar?(f._oscarAwards===undefined
-    ?`<div class="pt-2 mt-1 border-t border-primary-container/20"><span class="font-micro-caption text-micro-caption text-text-muted">${uiText("Загружаем награды и номинации…")}</span></div>`
-    :awardRows.length
-      ?'<div class="pt-2 mt-1 border-t border-primary-container/20"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary-container text-[18px]">emoji_events</span><span class="font-label-sm text-label-sm text-primary-fixed font-semibold">'+uiText('{count} '+(awardWins===1?'победа':awardWins>1&&awardWins<5?'победы':'побед'), {count: awardWins})+' · '+uiText('{count} '+(awardNominations===1?'номинация':awardNominations>1&&awardNominations<5?'номинации':'номинаций'), {count: awardNominations})+'</span></div><details class="mt-2"><summary class="flex items-center justify-between gap-2 cursor-pointer list-none rounded-lg bg-surface-container px-3 py-2 font-micro-caption text-micro-caption text-primary hover:bg-surface-container-high"><span>'+uiText("Полный список наград")+'</span><span class="material-symbols-outlined text-[16px]">expand_more</span></summary><div class="flex flex-col gap-1 pt-2">'+awardRows.map(a=>'<div class="flex items-start gap-1.5"><span class="material-symbols-outlined text-[16px] shrink-0 '+(a.won?'text-primary-container':'text-text-muted')+'" style="font-variation-settings:\'FILL\' '+(a.won?1:0)+';">'+(a.won?'emoji_events':'circle')+'</span><span class="font-body-sm text-body-sm '+(a.won?'text-on-surface font-semibold':'text-text-muted')+'">'+esc(a.label)+(a.year?' · '+a.year:'')+(a.won?'':uiText(' (номинация)'))+'</span></div>').join('')+'</div></details></div>'
-      :""):"";
-  const oscarBlock=oscar?`<div class="flex items-start gap-3 p-3 rounded-xl bg-gradient-to-br from-cinema-velvet-deep/50 via-surface-container-high to-surface-container-high border border-primary-container/25"><span class="material-symbols-outlined text-primary-container text-[28px] shrink-0" style="font-variation-settings:'FILL' 1;">workspace_premium</span><div class="min-w-0 flex flex-col gap-0.5"><h4 class="font-label-md text-label-md text-primary-fixed font-semibold">${uiText(oscar.best?"Оскар · Лучший фильм":"Лауреат премии «Оскар»")}</h4>${oscar.best?`<p class="font-label-sm text-label-sm text-primary-container font-semibold">${uiText("{number}-я церемония · {year} год", {number: oscar.n, year: oscar.year})}</p><p class="font-body-sm text-body-sm text-text-muted">${uiText("Главная награда Американской киноакадемии. Статуэтку получает лучший фильм года; эта картина вышла в {year} году.", {year: oscar.film})}</p>`:`<p class="font-body-sm text-body-sm text-text-muted">${uiText("Картина входит в список лауреатов Американской киноакадемии{year}.", {year: oscar.film?uiText(" · фильм {year} года", {year: oscar.film}):""})}</p>`}${awardsHtml}</div></div>`:"";
-  const tagline=f.tagline&&f.taglineLang===f.overviewLang?`<p class="font-body-sm text-body-sm text-primary-fixed italic">${esc(f.tagline)}</p>`:"";
-  const watched=!!window.KGIsFilmWatched?.(f.id),title=esc(f.title||uiText("Фильм"));
-  const orig=[f.originalTitle&&f.originalTitle!==f.title?esc(f.originalTitle):"",year?`(${year})`:""].filter(Boolean).join(" ");
-  const countries=(f.countries&&f.countries.length?f.countries:(f._cc?[f._cc]:[])).map(cc=>`${esc(cname(cc))} ${fl(cc)}`).join(" · ");
-  const genres=(f.genres||[]).map(genre => uiText(genre)).join(" · ");
-  const voteCount=Number(f.votes ?? f.vote_count)||0;
-  const votes=voteCount>=1000?(voteCount/1000).toFixed(1)+"k":String(voteCount);
-  const average=Number(f.average ?? f.vote_average)||0;
-  const rating=average>0?`<div class="shrink-0 px-2.5 py-1 rounded-lg bg-primary-container/15 flex items-center gap-1.5"><span class="material-symbols-outlined text-primary-container text-[16px]" style="font-variation-settings:'FILL' 1;">star</span><span class="font-label-sm text-label-sm text-primary">${average.toFixed(1)} TMDB</span><span class="font-micro-caption text-micro-caption text-text-muted">(${votes})</span></div>`:"";
-  const certBadge=f.cert&&!f._trailerPlaying?`<span class="absolute top-3 right-3 px-2 py-0.5 rounded bg-cinema-velvet-deep/90 text-secondary font-label-sm text-label-sm">${esc(f.cert)}</span>`:"";
-  const fact=(label,value,sub)=>`<div class="p-3.5 rounded-xl bg-surface-container flex flex-col gap-1"><span class="font-micro-caption text-micro-caption uppercase text-text-muted">${uiText(label)}</span>${value}${sub?`<span class="font-body-sm text-body-sm text-text-muted">${sub}</span>`:""}</div>`;
-  const loading=f._detailsLoaded?"—":uiText("Загружаем…");
-  const dirName=f.dirs&&f.dirs.length?(f.dirsFull&&f.dirsFull.length?f.dirsFull.map(d=>personLink(d,"Режиссёр")).join(", "):esc(f.dirs.join(", "))):loading;
-  const releaseText=f.release?new Date(f.release+"T00:00:00").toLocaleDateString(interfaceLanguage,{day:"numeric",month:"long",year:"numeric"}):loading;
-  const shell=embedded?"div":"section",shellClass=embedded?"flex flex-col gap-3 pt-3 border-t border-surface-border-subtle scroll-mt-20":"flex flex-col gap-3 p-3.5 rounded-2xl bg-surface-panel border border-primary-container/30 shadow-xl scroll-mt-20";
-  const trailerBox=`<div data-kg-film-trailer class="relative w-full kg-detail-trailer rounded-xl overflow-hidden bg-black border border-primary-container/30" id="cl-inline-trailer">${trailerContent}${certBadge}</div>`;
-  return `<${shell} class="${shellClass}" data-selected-film="${f.id}">
-<div class="flex flex-wrap items-start justify-between gap-2 min-w-0"><div class="flex flex-col min-w-0"><h3 class="font-headline-md text-headline-md text-primary font-bold tracking-tight">${title}</h3>${orig?`<span class="font-body-sm text-body-sm text-text-muted mt-0.5">${orig}</span>`:""}</div>
-<div class="flex items-center gap-1.5 shrink-0">${f.runtime?`<div class="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-surface-container-high"><span class="material-symbols-outlined text-primary-container text-[18px]" style="font-variation-settings:'FILL' 1;">timer</span><span class="font-label-sm text-label-sm text-on-surface">${uiText("{minutes} мин", {minutes: f.runtime})}</span></div>`:""}<button type="button" data-act="close-film" aria-label="${uiText("Свернуть карточку")}" class="w-9 h-9 rounded-full bg-surface-container-high text-text-muted hover:text-primary flex items-center justify-center"><span class="material-symbols-outlined">${embedded?"expand_less":"close"}</span></button></div></div>
-${trailerBox}
-${closeTrailer}
-${window.KGLegalWatch?.markup(f.id)||""}
-${activeVideo?`<a href="${watchUrl(activeVideo)}" target="_blank" rel="noopener noreferrer" class="font-micro-caption text-micro-caption text-primary underline">${esc(uiText("Не воспроизводится? Открыть на {site}", {site: activeVideo.site}))}</a>`:""}
-${rating?`<div class="flex items-center gap-2 overflow-x-auto py-0.5">${rating}</div>`:""}
-<div data-kg-film-actions class="flex flex-wrap items-center gap-1.5">${window.KGWatchedButtonHtml(watched, `data-film-watched="${Number(f.id)}"`)}${kgBookmarkButton(f)}</div>
-${countries||genres?`<div class="flex flex-wrap items-center gap-x-2.5 gap-y-1 font-body-sm text-body-sm text-text-muted">${countries?`<span class="text-on-surface">${countries}</span>`:""}${countries&&genres?"<span>•</span>":""}${genres?`<span class="text-on-surface-variant">${esc(genres)}</span>`:""}</div>`:""}
-<div class="flex items-center gap-2 font-body-sm text-body-sm"><span class="text-text-muted">${uiText("Язык оригинала")}</span><span class="text-on-surface-variant">${f.originalLang?esc(typeof langName==="function"?langName(f.originalLang):f.originalLang):f._detailsLoaded?"—":uiText("Загружаем…")}</span></div>
-${f.tagline&&f.taglineLang===f.overviewLang?`<blockquote class="italic font-headline-sm text-[15px] leading-tight text-primary-fixed-dim/90">«${esc(f.tagline)}»</blockquote>`:""}
-${oscarBlock}
-<div data-kg-film-description class="p-4 rounded-xl bg-surface-container flex flex-col gap-2"><span class="font-label-md text-label-md text-primary-fixed tracking-wide uppercase">${uiText("О фильме")}</span><p class="font-body-md text-body-md text-on-surface leading-relaxed">${esc(f.overview||uiText("Загружаем описание…"))}</p></div>
-<div class="flex flex-col gap-2"><span class="font-label-md text-label-md text-primary-fixed tracking-wide uppercase px-0.5">${uiText("Факты производства")}</span><div class="grid grid-cols-2 gap-2.5">
-${fact("Режиссёр",`<span class="font-label-md text-label-md text-on-surface">${dirName}</span>`)}
-${fact("Выход",`<span class="font-label-md text-label-md text-on-surface">${releaseText}</span>`)}
-${fact("Бюджет",`<span class="font-headline-sm text-headline-sm text-primary">${f._detailsLoaded?moneyText(f.budget):uiText("Загружаем…")}</span>`)}
-${fact("Мировые сборы",`<span class="font-headline-sm text-headline-sm text-primary-container">${f._detailsLoaded?moneyText(f.revenue):uiText("Загружаем…")}</span>`)}
-</div></div>
-<div class="flex flex-col gap-2"><div class="flex items-center justify-between"><span class="font-label-md text-label-md text-primary-fixed tracking-wide uppercase">${uiText("В главных ролях")}</span>${(f.castFull||[]).length?`<span class="font-micro-caption text-micro-caption text-text-muted">${uiText("{count} {unit}", {count: f.castFull.length, unit: f.castFull.length%10===1&&f.castFull.length!==11?"актёр":f.castFull.length%10>1&&f.castFull.length%10<5&&(f.castFull.length<10||f.castFull.length>20)?"актёра":"актёров"})}</span>`:""}</div>${cast?`<div class="flex gap-2.5 overflow-x-auto py-1" style="-webkit-overflow-scrolling:touch">${cast}</div>`:`<p class="font-body-sm text-body-sm text-text-muted">${f._detailsLoaded?uiText("Сведения об актёрах недоступны."):uiText("Загружаем актёров…")}</p>`}</div>
-<section data-kg-related-films data-film-id="${f.id}" data-context-key="${esc(f._kgRelatedContext||"")}" data-placement="${esc(f._placement||"")}" data-detail-target="${esc(f._detailTarget||"")}" data-global-related="${f._kgGlobalRelated||f._placement==="home-europe"?"true":"false"}" class="flex flex-col gap-space-sm"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary-container text-[20px]">movie_filter</span><h3 class="font-headline-sm text-headline-sm text-on-surface">${uiText("Похожие фильмы")}</h3></div><div data-kg-related-list class="flex gap-space-sm overflow-x-auto pb-1"><span class="font-micro-caption text-micro-caption text-text-muted">${uiText("Подбираем фильмы…")}</span></div></section></${shell}>`;
+
+function inlineFilmCard(film) {
+  const card = document.querySelector(`[data-kg-inline-film][data-selected-film="${Number(film.id)}"]`);
+  return card;
 }
-document.addEventListener("click",e=>{
-  const watchedButton=e.target.closest("[data-film-watched]");
-  if(watchedButton){
-    e.preventDefault();e.stopPropagation();
-    const film=D.selected&&String(D.selected.id)===watchedButton.dataset.filmWatched?D.selected:null;
-    if(!film||watchedButton.dataset.saving==="true"||!window.KGToggleWatched)return;
-    const next=!window.KGIsFilmWatched?.(film.id);watchedButton.dataset.saving="true";
-    window.KGPaintWatchedButton?.(watchedButton,next);
-    Promise.resolve(window.KGToggleWatched({...film,_cc:film._cc||film.cc||""})).then(result=>{if(result!==next)throw new Error("Не удалось обновить отметку просмотра");if(D.selected&&String(D.selected.id)===String(film.id))renderSelectedPanel();}).catch(error=>{console.warn("[Kinoglobus] Не удалось обновить просмотр:",error);watchedButton.dataset.saving="false";window.KGPaintWatchedButton?.(watchedButton,!!window.KGIsFilmWatched?.(film.id));});
-    return;
-  }
-  const action=e.target.closest("[data-trailer-action]");
-  if(!action)return;
-  const selected=D.selected;
-  if(!selected||String(selected.id)!==String(action.dataset.id))return;
-  e.preventDefault();
-  if(action.dataset.trailerAction==="close"&&selected._placement==="home"){
-    selected._trailerPlaying=false;
-    renderSelectedPanel();
-    $("kg-home-feature").querySelector('[data-trailer-action="play"]')?.focus({preventScroll:true});
-    return;
-  }
-  if(action.dataset.trailerAction!=="play" || selected._trailerPlaying)return;
-  selected._trailerPlaying=true;
-  renderSelectedPanel();
-  if(selected._placement==="home"){
-    $("kg-home-feature").querySelector('[data-trailer-action="close"]')?.focus({preventScroll:true});
-  }
-});
+window.KGInlineFilmModel = card => D.selected && card.hasAttribute("data-kg-inline-film") &&
+  card.dataset.selectedFilm === String(D.selected.id) ? D.selected : null;
+
+function restoreFilmOpener(film) {
+  if (film?._opener?.isConnected) film._opener.focus({preventScroll:true});
+}
+
 function otherHtml(t){
   const m=META[t.id]||{};
   const artCover = getThemeCover(t.id);
@@ -1021,16 +932,15 @@ function placeListPanel(){
   return true;
 }
 function paintWatchedButtons(container){container?.querySelectorAll("[data-film-watched]").forEach(button=>{const id=button.dataset.filmWatched;window.KGPaintWatchedButton?.(button,!!window.KGIsFilmWatched?.(id));});}
-function renderSelectedPanel(){
+function renderSelectedPanel(refresh = false){
   const selected=D.selected;if(!selected)return;
-  if(selected._trailerPlaying&&document.querySelector(`[data-selected-film="${selected.id}"] #cl-inline-trailer iframe`))return;
+  const current=refresh && inlineFilmCard(selected);
+  if(current){window.KGFilmCard.update(current,selected);return;}
   if(selected._placement==="list"){
     if(!placeListPanel())renderFilms();return;
   }
-  const inMoodList=selected._placement==="mood"&&String(selected._detailTarget||"").startsWith("mood-film-detail-");
-  const inOscarList=selected._placement==="oscar"&&/^oscar-(list|feature|grid)-detail-/.test(String(selected._detailTarget||""));
-  const html=selectedFilmHtml(selected,inMoodList||inOscarList||selected._placement==="oscar-related"||selected._placement==="person-related"||selected._placement==="search");
-  if(selected._placement==="mood"||selected._placement==="oscar"||selected._placement==="related"||selected._placement==="oscar-related"||selected._placement==="person-related"||selected._placement==="search"){
+  const html=selectedFilmHtml(selected);
+  if(selected._detailTarget && (selected._placement==="mood"||selected._placement==="oscar"||selected._placement==="related")){
     const target=$(selected._detailTarget)||(selected._placement==="mood"?$("mood-film-detail"):$("oscar-film-detail"));
     if(target){target.innerHTML=html;paintWatchedButtons(target);}
     return;
@@ -1054,114 +964,67 @@ function renderSelectedPanel(){
   }
   renderFilms();
 }
-function openFilm(f,placement="list",detailTarget=null,{autoplayTrailer=false}={}){
-  if(D.selected&&D.selected._placement===placement&&String(D.selected.id)===String(f.id)&&D.selected._detailTarget===detailTarget){
-    if(placement==="mood"||placement==="oscar")closePageFilm(placement);
-    else if(placement==="home-europe")window.KGScrollToFilmStart?.($("kg-home-europe-detail"));
-    else if(placement==="related"||placement==="oscar-related"||placement==="person-related"||placement==="search"){ $(detailTarget)?.replaceChildren();D.selected=null; }
-    else{D.selected=null;if(placement==="list"&&!placeListPanel())renderFilms();}
+function openFilm(f,placement="list",detailTarget=null,{opener=document.activeElement}={}){
+  const previous = D.selected;
+  if (previous && previous._placement === placement && String(previous.id) === String(f.id) && previous._detailTarget === detailTarget) {
+    closeInlineFilm(previous);
     return;
   }
-  if(D.selected&&D.selected._placement.startsWith("home")&&D.selected._placement!==placement){
-    const oldDetail=$(D.selected._placement==="home"?"kg-home-film-detail":"kg-home-europe-detail");
-      oldDetail?.replaceChildren();if(oldDetail)oldDetail.hidden=true;
-    if(D.selected._placement==="home"){D.selected=null;renderHomeEditorial();}
-  }
-  if(placement==="list")$("cl-result").innerHTML="";
+  window.KGFilmCard.stopTrailers();
+  if (previous) closeInlineFilm(previous, false);
+  if(placement==="list")$("cl-result").replaceChildren();
   if(placement==="home-europe")$("kg-home-europe-detail").hidden=false;
-  let personModalScrollRestore=null;
-  if(D.selected&&D.selected._placement===placement&&D.selected._detailTarget&&D.selected._detailTarget!==detailTarget){
-    const previousTarget=$(D.selected._detailTarget),nextTarget=detailTarget?$(detailTarget):null;
-    // Keep the selected film card when opening one of its nested recommendations.
-    if(previousTarget&&(!nextTarget||!previousTarget.contains(nextTarget))){
-      const personDialog=placement==="person-related"?document.querySelector("#kg-person-modal .kgpi-modal"):null;
-      if(personDialog)personModalScrollRestore=personDialog.scrollTop;
-      previousTarget.replaceChildren();
-    }
-  }
   const relatedPool=f._kgGlobalRelated?null:Array.isArray(f._kgRelatedPool)?f._kgRelatedPool:(placement==="list"||placement==="roulette"?D.all:placement==="home-europe"?null:placement.startsWith("home")?homeEditorial.films:null);
   const relatedContext=relatedPool&&relatedPool.length?`${placement}:${D.t&&D.t.id||"all"}:${detailTarget||""}`:"";
   if(relatedContext&&window.KGFilmInteractions)window.KGFilmInteractions.registerPool(relatedContext,relatedPool);
-  // Every newly opened item starts in the same poster-first state. A related
-  // recommendation must never inherit an already playing YouTube iframe.
-  D.selected={...f,_cc:f._cc||(f.origin_country||[])[0]||"",_placement:placement,_detailTarget:detailTarget,_kgRelatedContext:relatedContext,overview:filmSynopsis(f.overview)||uiText("Загружаем описание…"),_trailerPlaying:false,_trailerStatus:apiKey?"loading":"missing",_detailsLoaded:!apiKey};
-  const selected=D.selected;
-  if(placement==="roulette"||placement==="home"||placement==="home-europe"||placement==="mood"||placement==="oscar"||placement==="related"||placement==="oscar-related"||placement==="person-related"||placement==="search")renderSelectedPanel();else if(!placeListPanel())renderFilms();
-  if(personModalScrollRestore!==null){const dialog=document.querySelector("#kg-person-modal .kgpi-modal");requestAnimationFrame(()=>{if(dialog?.isConnected)dialog.scrollTop=personModalScrollRestore;});}
-  const panel=detailTarget?$(detailTarget):placement==="roulette"?$("cl-result")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="home"?$("kg-home-feature")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="home-europe"?$("kg-home-europe-detail")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="mood"?$("mood-film-detail")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="oscar"?$("oscar-film-detail")?.querySelector(`[data-selected-film="${f.id}"]`):vd.querySelector(`[data-selected-film="${f.id}"]`);
-  const inlineCollectionCard = placement === "list" ||
-    (placement === "mood" && detailTarget?.startsWith("mood-film-detail-")) ||
-    (placement === "oscar" && /^oscar-(list|feature|grid)-detail-/.test(detailTarget || ""));
-  if(placement!=="related"&&!inlineCollectionCard)requestAnimationFrame(()=>requestAnimationFrame(()=>{
+  const selected = D.selected = window.KGFilmCard.createModel(f,{
+    _placement:placement, _detailTarget:detailTarget, _opener:opener, _openerScroll:window.scrollY, _kgRelatedContext:relatedContext,
+    _oscarContext:placement==="oscar"
+  });
+  renderSelectedPanel();
+  requestAnimationFrame(()=>{
     if (D.selected !== selected) return;
-    if (placement === "home-europe") {
-      // The film card is replaced as its metadata loads, but its container stays in place.
-      const detail = $("kg-home-europe-detail");
-      window.KGScrollToFilmStart(detail);
-      return;
-    }
-    const reelResult = placement === "roulette" || detailTarget === "oscar-reel-detail" ||
-      String(detailTarget || "").startsWith("mood-roulette-winner-detail-");
-    if (reelResult && window.KGScrollToFilmStart) {
-      window.KGScrollToFilmStart(placement === "roulette" ? $("cl-result") : panel);
-      return;
-    }
-    const trailer=panel?.querySelector("[data-kg-film-trailer]");
-    const target=trailer||panel;
-    if(placement==="person-related"&&target&&window.KGScrollPersonModalToFilm)window.KGScrollPersonModalToFilm(target);
-    else if(placement==="search"&&target&&window.KGGlobalSearchScrollToFilm)window.KGGlobalSearchScrollToFilm(target);
-    else if(target&&window.KGScrollToFilmDescription)window.KGScrollToFilmDescription(target);
-    else target?.scrollIntoView({behavior:"smooth",block:"start"});
-  }));
-  if (!apiKey) return;
-  const detailsReady = filmDetails(f.id).then(details=>{
-    if(D.selected!==selected)return;
-    selected.title=details.title||f.title;
-    selected.localizedPoster=details.localizedPoster;
-    selected.overview=details.overview||filmSynopsis(f.overview)||uiText("Описание пока недоступно.");
-    selected.overviewLang=details.overviewLang;
-    selected.runtime=details.runtime;
-    selected.dirs=details.dirs;selected.dirsFull=details.dirsFull;
-    selected.castFull=details.castFull;
-    selected.budget=details.budget;
-    selected.revenue=details.revenue;
-    selected._cc=(f.origin_country||[])[0]||(details.countries||[])[0]||selected._cc||"";
-    selected.tagline=details.tagline;
-    selected.taglineLang=details.taglineLang;
-    selected.cert=details.cert;selected.genres=details.genres;selected.countries=details.countries;
-    selected.originalTitle=details.originalTitle;selected.originalLang=details.originalLang;selected.release=details.release;
-    selected.votes=details.votes;selected.average=details.average;
-    selected._detailsLoaded=true;
-    if(placement==="home")homeEditorial.featureDetails={...homeEditorial.featureDetails,...selected};
-    renderSelectedPanel();
-  }).catch(error=>{
-    if(D.selected!==selected)return;
-    selected.overview=filmSynopsis(f.overview)||uiText("Не удалось загрузить описание.");
-    selected.overviewLang="";
-    selected._detailsLoaded=true;
-    renderSelectedPanel();
-    console.error("[Kinoglobus] Не удалось загрузить сведения о фильме:",error);
+    const panel = inlineFilmCard(selected);
+    if (panel) window.KGScrollToFilmStart(panel);
   });
-  trailerFor(f).then(async trailer=>{
-    if (autoplayTrailer && trailer) await detailsReady;
-    if(D.selected!==selected)return;
-    selected._trailer=trailer;
-    selected._trailerPlaying=Boolean(autoplayTrailer && trailer);
-    selected._trailerStatus=trailer?"ready":"missing";
-    renderSelectedPanel();
-  }).catch(e=>{
-    if(D.selected!==selected)return;
-    selected._trailerStatus="missing";
-    renderSelectedPanel();
-    console.error("[Kinoglobus] Не удалось загрузить трейлер:",e);
-  });
-  if((placement==="oscar"||placement==="oscar-related")&&window.KGOscarPage&&window.KGOscarPage.awards){
-    window.KGOscarPage.awards(f).then(list=>{selected._oscarAwards=list;if(D.selected===selected)renderSelectedPanel();})
-      .catch(e=>{selected._oscarAwards=[];if(D.selected===selected)renderSelectedPanel();console.warn("[Kinoglobus] Награды Wikidata недоступны:",e);});
+  window.KGFilmCard.hydrate(selected,f,()=>renderSelectedPanel(true),()=>D.selected===selected);
+}
+
+function closeInlineFilm(film = D.selected, restoreFocus = true) {
+  if (!film || film !== D.selected) return;
+  const panel = inlineFilmCard(film);
+  window.KGFilmCard.stopTrailers(panel?.parentElement || document);
+  D.selected = null;
+  if (film._placement === "home") {
+    const featured = homeEditorial.films.find(item=>String(item.id)===String(film.id));
+    if (featured) renderHomeFeature(featured,homeEditorial.featureDetails,null);
+    const button = $("kg-home-feature").querySelector('[data-home-act="open"]');
+    if (restoreFocus && button) {
+      button.focus({preventScroll:true});
+      if (panel) window.KGRestoreFilmScroll(film._openerScroll);
+    }
+    return;
+  }
+  if (film._placement === "list") { if (!placeListPanel()) renderFilms(); }
+  else {
+    const target = film._detailTarget ? $(film._detailTarget) :
+      film._placement === "roulette" ? $("cl-result") : $("kg-home-europe-detail");
+    target?.replaceChildren();
+    if (target?.id==="kg-home-europe-detail") target.hidden=true;
+  }
+  if (restoreFocus) {
+    restoreFilmOpener(film);
+    if (panel && film._opener?.isConnected && film._opener !== document.body) {
+      window.KGRestoreFilmScroll(film._openerScroll);
+    }
   }
 }
-window.KGOpenFilmFromRelated=(film,placement,detailTarget,options)=>openFilm(film,placement||"home-europe",detailTarget||null,options);
-window.KGCloseFilmFromRelated=detailTarget=>{if(D.selected&&["related","oscar-related","person-related","search"].includes(D.selected._placement)&&D.selected._detailTarget===detailTarget)D.selected=null;$(detailTarget)?.replaceChildren();};
+
+window.KGOpenFilmFromRelated=(film,placement,detailTarget,options)=>openFilm(film,placement,detailTarget,options);
+window.KGCloseFilmFromRelated=(detailTarget,restoreFocus=false)=>{
+  if (D.selected && D.selected._detailTarget===detailTarget) closeInlineFilm(D.selected,restoreFocus);
+  else $(detailTarget)?.replaceChildren();
+};
 
 /* ---------- рулетка с плёнкой прямо в подборке ---------- */
 const R={busy:false,token:0,raf:0,skip:false};
@@ -1299,6 +1162,12 @@ window.addEventListener("resize",()=>{
   const i=[...run.children].findIndex(c=>c.classList.contains("chosen"));
   if(i>=0)run.style.transform=`translateX(${-rX(i)}px)`;
 });
+vd.addEventListener("keydown",event=>{
+  if ((event.key==="Enter" || event.key===" ") && event.target.matches('[role="button"][data-act="open"]')) {
+    event.preventDefault();
+    event.target.click();
+  }
+});
 vd.addEventListener("click",e=>{
   const sort=e.target.closest("[data-kg-film-sort]");
   if(sort){
@@ -1312,20 +1181,14 @@ vd.addEventListener("click",e=>{
   if(layout){
     if(collectionFilmLayout===layout.dataset.mode)return;
     collectionFilmLayout=layout.dataset.mode;
-    if(D.selected?._placement==="list")D.selected._trailerPlaying=false;
+    if(D.selected?._placement==="list") closeInlineFilm(D.selected,false);
     renderFilms();
     vd.querySelector(`[data-kg-layout="collection"][data-mode="${collectionFilmLayout}"]`)?.focus({preventScroll:true});
     return;
   }
   const el=e.target.closest("[data-act]");if(!el)return;
   const a=el.dataset.act;
-  if(a==="close-film"){
-    const placement=D.selected&&D.selected._placement;
-    D.selected=null;
-    if(placement==="roulette")$("cl-result").innerHTML="";
-    else if(!placeListPanel())renderFilms();
-    return;
-  }
+  if(a==="close-film"){closeInlineFilm();return;}
   if(a==="back"){e.preventDefault();showView("collections");return;}
   if(a==="goto"){e.preventDefault();openCollection(el.dataset.t);return;}
   if(a==="spin"){inPageRoulette();return;}
@@ -1346,7 +1209,7 @@ vd.addEventListener("click",e=>{
   if(a==="more"){D.shown+=5;renderFilms();return;}
   const f=byId(el.dataset.id);if(!f)return;
   if(a==="trailer"){e.stopPropagation();openFilm(f);return;}
-  if(a==="open")openFilm(f);
+  if(a==="open")openFilm(f,"list",null,{opener:el});
 });
 
 // старая кнопка «Подборки» из bridge v6 теперь ведёт в каталог
@@ -1374,7 +1237,9 @@ function homeFeatureMarkup(f,d,expandedFilm=null){
   const synopsis=(d&&d.overview)||filmSynopsis(f.overview)||uiText("Описание пока недоступно.");
   const poster=filmPosterMarkup({...f, title:d?.title || f.title, localizedPoster:d?.localizedPoster});
   const isExpanded=expandedFilm&&String(expandedFilm.id)===String(f.id);
-  return `<p class="font-micro-caption text-micro-caption uppercase tracking-wider text-primary font-bold mb-2">${uiText("Выбор дня · Программа № {number}", {number: homeDayNumber()})}</p>
+  const label = `<p class="font-micro-caption text-micro-caption uppercase tracking-wider text-primary font-bold mb-2">${uiText("Выбор дня · Программа № {number}", {number: homeDayNumber()})}</p>`;
+  if (isExpanded) return label + selectedFilmHtml(expandedFilm);
+  return `${label}
 <div class="relative flex gap-3.5 items-start">
 <div class="kg-day-poster relative shrink-0 rounded-lg overflow-hidden shadow-md bg-surface-container-lowest">${poster}<span class="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded bg-surface-container-lowest/90 text-primary-container font-label-sm text-label-sm font-bold shadow">★ ${rating.toFixed(1)}</span></div>
 <div class="min-w-0 flex-1">
@@ -1383,23 +1248,17 @@ ${year?`<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">${ye
 <p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed mt-2 kg-clip3">${esc(synopsis)}</p>
 </div>
 <button type="button" data-home-act="open" data-id="${f.id}" aria-expanded="${Boolean(isExpanded)}" aria-label="${isExpanded?uiText("Свернуть карточку"):esc(uiText("Открыть фильм {title}", {title:d?.title||f.title||f.original_title||uiText("Фильм")}))}" class="absolute inset-0 z-[1] flex justify-end items-end rounded-lg cursor-pointer text-primary"><span class="material-symbols-outlined" aria-hidden="true">${isExpanded?"expand_less":"expand_more"}</span></button>
-</div>
-${isExpanded?`<div class="mt-3">${selectedFilmHtml(expandedFilm,true)}</div>`:""}`;
+</div>`;
 }
 function renderHomeFeature(film,details,selected){
   const feature=$("kg-home-feature");
-  if(selected?._trailerPlaying&&feature.querySelector(`[data-selected-film="${selected.id}"] iframe`))return;
+  const mounted = selected && feature.querySelector(`[data-selected-film="${selected.id}"]`);
+  if(mounted){window.KGFilmCard.update(mounted,selected);return;}
   feature.innerHTML=homeFeatureMarkup(film,details,selected);
   if(selected)paintWatchedButtons(feature);
 }
 function closeHomeFeature(){
-  const film=homeEditorial.films.find(f=>String(f.id)===String(D.selected?.id));
-  D.selected=null;
-  if(!film)return;
-  renderHomeFeature(film,homeEditorial.featureDetails,null);
-  const summary=$("kg-home-feature").querySelector('[data-home-act="open"]');
-  summary?.focus({preventScroll:true});
-  if(summary&&window.KGScrollToFilmStart)window.KGScrollToFilmStart(summary);
+  if(D.selected?._placement==="home") closeInlineFilm();
 }
 function homeDayNumber(){
   const now=new Date();
@@ -1533,17 +1392,7 @@ homeEditorialRoot.addEventListener("click",async e=>{
   const detailAction=e.target.closest("#kg-home-feature [data-act],#kg-home-europe-detail [data-act]");
   if(detailAction){
     e.stopPropagation();
-    if(detailAction.dataset.act==="close-film"){
-      const placement=D.selected&&D.selected._placement;
-      if(placement==="home"){
-        closeHomeFeature();
-      }else{
-        if(placement&&placement.startsWith("home"))D.selected=null;
-        const container=detailAction.closest("#kg-home-europe-detail");
-        if(container){container.replaceChildren();container.hidden=true;}
-      }
-
-    }
+    if(detailAction.dataset.act==="close-film") closeInlineFilm();
     return;
   }
   if(e.target.closest("[data-trailer-action]"))return;
@@ -1558,9 +1407,9 @@ homeEditorialRoot.addEventListener("click",async e=>{
   const film=homeEditorial.films.find(f=>String(f.id)===button.dataset.id);
   if(!film)return;
   if(action==="open"){
-    if(button.dataset.homeMeta){homeEditorial.scrollAnchorId=String(film.id);openFilm(film,"home-europe");}
+    if(button.dataset.homeMeta){homeEditorial.scrollAnchorId=String(film.id);openFilm(film,"home-europe",null,{opener:button});}
     else if(D.selected?._placement==="home"&&String(D.selected.id)===String(film.id))closeHomeFeature();
-    else openFilm(film,"home");
+    else openFilm(film,"home",null,{opener:button});
     return;
   }
   if(action==="trailer"){
@@ -1665,7 +1514,7 @@ const refreshForNewKey=()=>{
 };
 $("tmdb-key-save").addEventListener("click",refreshForNewKey);
 $("saveKey").addEventListener("click",()=>setTimeout(refreshForNewKey,0));
-document.addEventListener("kg:watched-change",()=>{if(D.selected)renderSelectedPanel();});
+
 const savedHome=store.get("kgHomeEditorial",null);
 if(savedHome&&(savedHome.language||"ru")===filmLanguage&&Array.isArray(savedHome.films)&&savedHome.films.length){
   homeEditorial.films=savedHome.films;

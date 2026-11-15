@@ -7,7 +7,7 @@
   dialog.className = "kgs-dialog text-on-surface";
   dialog.setAttribute("aria-labelledby", "kgs-title");
   dialog.innerHTML = `
-<header class="w-full bg-surface-panel/85 shadow-[0_4px_24px_rgba(7,6,10,0.85)] border-b border-surface-border-subtle px-4 pt-3 pb-3 transition-colors duration-300" data-purpose="top-navigation">
+<header class="w-full bg-surface-panel/85 shadow-[0_4px_24px_rgb(var(--kg-canvas-obsidian)/0.85)] border-b border-surface-border-subtle px-4 pt-3 pb-3 transition-colors duration-300" data-purpose="top-navigation">
 <div class="flex items-center justify-between">
 <button aria-label="Назад" data-kgs-close autofocus class="w-10 h-10 rounded-full flex items-center justify-center bg-surface-container border border-surface-border-subtle active:scale-95 transition-all text-on-surface-variant hover:text-primary-container hover:border-primary-container/40" type="button">
 <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -133,14 +133,14 @@
 <span class="text-primary-container text-sm">◉</span>
 <h2 class="font-headline-sm text-headline-sm text-primary">Связь с фильмографией TMDB</h2>
 </div>
-<span class="text-[9px] font-micro-caption font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" data-kgs-api-badge>
+<span class="text-[9px] font-micro-caption font-semibold px-2 py-0.5 rounded-full bg-success-strong/10 text-success border border-success-strong/20" data-kgs-api-badge>
           КЛЮЧ СОХРАНЁН
         </span>
 </div>
 <div class="space-y-1.5">
 <div class="flex items-center justify-between text-[10px] font-micro-caption">
 <span class="text-text-muted font-bold uppercase tracking-wider">BEARER TOKEN / V3 AUTH</span>
-<span class="text-emerald-400 font-medium" data-kgs-lamp></span>
+<span class="text-success font-medium" data-kgs-lamp></span>
 </div>
 <div class="flex items-center gap-2">
 <div class="relative flex-1">
@@ -195,11 +195,11 @@
 <span class="text-[9px] text-primary-container" data-kgs-theme-current hidden>Выбрано</span>
 </button>
 </div>
-<div class="flex flex-wrap items-center justify-between gap-2" role="group" aria-label="Цвет кнопок">
-<span class="font-label-sm text-label-sm text-on-surface">Цвет кнопок</span>
+<div class="flex flex-wrap items-center justify-between gap-2" role="group" aria-label="Акцент приложения">
+<span class="font-label-sm text-label-sm text-on-surface">Акцент приложения</span>
 <div class="flex gap-1 rounded-lg bg-surface-container-lowest p-1">
-<button type="button" class="flex items-center gap-1.5 rounded-md px-2 py-1.5 font-label-sm text-label-sm text-on-surface aria-pressed:bg-surface-container-high" data-kgs-button-accent="cyan" aria-pressed="false"><span class="w-3 h-3 rounded-full bg-[#00d2d3]" aria-hidden="true"></span>Бирюза</button>
-<button type="button" class="flex items-center gap-1.5 rounded-md px-2 py-1.5 font-label-sm text-label-sm text-on-surface aria-pressed:bg-surface-container-high" data-kgs-button-accent="gold" aria-pressed="false"><span class="w-3 h-3 rounded-full bg-[#ffb830]" aria-hidden="true"></span>Золото</button>
+<button type="button" class="flex items-center gap-1.5 rounded-md px-2 py-1.5 font-label-sm text-label-sm text-on-surface aria-pressed:bg-surface-container-high" data-kgs-button-accent="cyan" aria-pressed="false"><span class="w-3 h-3 rounded-full bg-[rgb(var(--kg-swatch-cyan))]" aria-hidden="true"></span>Бирюза</button>
+<button type="button" class="flex items-center gap-1.5 rounded-md px-2 py-1.5 font-label-sm text-label-sm text-on-surface aria-pressed:bg-surface-container-high" data-kgs-button-accent="gold" aria-pressed="false"><span class="w-3 h-3 rounded-full bg-[rgb(var(--kg-swatch-gold))]" aria-hidden="true"></span>Золото</button>
 </div></div>
 <div class="pt-2 border-t border-surface-border-subtle flex items-center justify-between gap-3">
 <div>

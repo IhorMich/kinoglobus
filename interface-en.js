@@ -1713,5 +1713,7 @@ window.KGInterfaceDictionaries.en = Object.freeze({
   "Фильм №{id}": "Film #{id}",
   "В закладках пока нет фильмов.": "No bookmarked films yet.",
   "Сначала добавьте фильм в закладки.": "Bookmark a film first.",
-  "Редактировать запись": "Edit entry"
+  "Редактировать запись": "Edit entry",
+  "Записи": "Entries",
+  "Записей пока нет.": "No entries yet."
 });

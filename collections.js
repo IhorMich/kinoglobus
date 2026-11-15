@@ -34,6 +34,13 @@ st2.textContent=`.kgr-win{position:relative;height:150px;overflow:hidden;-webkit
 #kg-home-feature .kg-day-poster{width:44%;max-width:192px;aspect-ratio:2/3}
 #kg-home-feature .kg-detail-trailer{max-height:none}
 .kg-three-columns{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.5rem;align-items:start}
+.kg-film-grid-row{column-gap:clamp(.55rem,3vw,.9rem);padding-bottom:.55rem}
+.kg-film-grid-tile{display:flex;flex-direction:column;gap:.5rem;width:100%;min-width:0;text-align:left}
+.kg-film-grid-tile:focus-visible{outline:2px solid rgb(var(--kg-primary));outline-offset:3px;border-radius:.5rem}
+.kg-film-grid-poster{position:relative;display:block;width:100%;aspect-ratio:2/3;overflow:hidden;border-radius:clamp(10px,3vw,16px);background:rgb(var(--kg-surface-container-high));border:1px solid rgb(var(--kg-on-surface) / .10)}
+.kg-film-grid-score{position:absolute;top:.45rem;right:.45rem;padding:.13rem .42rem;border-radius:.65rem;background:rgb(0 0 0 / .74);color:#fff;font-size:.78rem;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.4}
+.kg-film-grid-title{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;overflow-wrap:anywhere;min-height:2.7em;padding-inline:.125rem;color:rgb(var(--kg-on-surface));font-size:.875rem;font-weight:500;line-height:1.35}
+.kg-film-grid-tile:hover .kg-film-grid-title{color:rgb(var(--kg-primary))}
 .kg-three-columns .kg-catalog-row{flex-direction:column;gap:.25rem}
 .kg-three-columns .collection-card{padding:.5rem;min-width:0;height:100%}
 .kg-three-columns .kg-catalog-row .kg-film-card-poster{width:100%;height:auto;aspect-ratio:4/3}
@@ -379,17 +386,15 @@ function syncLayout(root,layout,scope){
     ["text-text-muted","hover:text-primary"].forEach(name=>button.classList.toggle(name,!active));
   });
 }
-function posterTile(film,buttonAttributes){
+function posterTile(film,buttonAttributes,posterBadge=""){
   const title=esc(film.title||film.original_title||uiText("Фильм"));
-  const year=String(film.release_date||"").slice(0,4);
   const score=Number(film.vote_average)||0;
   const image=film.localizedPoster?.path||film.poster_path;
-  return `<div class="kg-bookmark-card min-w-0"><button type="button" ${buttonAttributes} class="flex w-full min-w-0 flex-col gap-1 text-left">
-    <span class="relative block w-full aspect-[2/3] overflow-hidden rounded-lg bg-surface-container-high shadow-md">${image?`<img class="w-full h-full object-cover" src="${P(image,"w342")}" alt="" loading="lazy">`:'<span class="material-symbols-outlined w-full h-full flex items-center justify-center text-primary-container" aria-hidden="true">movie</span>'}
-    ${score?`<span class="absolute bottom-1 left-1 px-1 rounded bg-canvas-obsidian/85 text-primary font-micro-caption text-micro-caption">★ ${score.toFixed(1)}</span>`:""}</span>
-    <span class="font-label-sm text-label-sm text-on-surface font-semibold leading-snug kg-clip2">${title}</span>
-    ${year?`<span class="font-micro-caption text-micro-caption text-text-muted">${esc(year)}</span>`:""}
-  </button></div>`;
+  return `<button type="button" ${buttonAttributes} class="kg-film-grid-tile">
+    <span class="kg-film-grid-poster">${image?`<img class="w-full h-full object-cover" src="${P(image,"w342")}" alt="" loading="lazy">`:'<span class="material-symbols-outlined w-full h-full flex items-center justify-center text-primary-container" aria-hidden="true">movie</span>'}
+    ${posterBadge}${score?`<span class="kg-film-grid-score">${score.toFixed(1)}</span>`:""}</span>
+    <span class="kg-film-grid-title">${title}</span>
+  </button>`;
 }
 function filmGridRows(films,renderRow){
   let markup="";
@@ -400,7 +405,7 @@ function moodFilmGrid(films,scope){
   return filmGridRows(films,row=>{
     const host=`mood-film-detail-${scope}-${row[0].id}`;
     const cards=row.map(f=>posterTile(f,`data-${scope}-film="${f.id}" data-detail-target="${host}"`)).join("");
-    return `<div class="kg-three-columns">${cards}</div><div id="${host}" class="empty:hidden"></div>`;
+    return `<div class="kg-three-columns kg-film-grid-row">${cards}</div><div id="${host}" class="empty:hidden"></div>`;
   });
 }
 let catalogScores=new Map();
@@ -686,6 +691,8 @@ const pageDeps={
   layoutSwitch,
   syncLayout,
   moodFilmGrid,
+  posterTile,
+  filmGridRows,
   sortBar,
   syncFilmSort,
   sortCollectionFilms,
@@ -783,7 +790,7 @@ function renderFilms(){
   const grid=collectionFilmLayout==="grid";
   const listMarkup=grid?filmGridRows(list,row=>{
     const selected=selectedInList&&row.some(f=>String(D.selected.id)===String(f.id))?D.selected:null;
-    return `<div class="kg-three-columns" data-collection-grid-row>${row.map(f=>posterTile(f,`data-act="open" data-id="${f.id}"`)).join("")}</div><div data-collection-grid-detail ${selected?"":"hidden"}>${selected?selectedFilmHtml(selected,true):""}</div>`;
+    return `<div class="kg-three-columns kg-film-grid-row" data-collection-grid-row>${row.map(f=>posterTile(f,`data-act="open" data-id="${f.id}"`)).join("")}</div><div data-collection-grid-detail ${selected?"":"hidden"}>${selected?selectedFilmHtml(selected,true):""}</div>`;
   }):list.map(f=>filmItem(f)).join("");
   const pearl=pearlHtml(best,selectedInList&&String(D.selected.id)===String(best.id)?D.selected:null);
   box.innerHTML=pearl+
@@ -1047,6 +1054,7 @@ function renderSelectedPanel(){
 function openFilm(f,placement="list",detailTarget=null,{autoplayTrailer=false}={}){
   if(D.selected&&D.selected._placement===placement&&String(D.selected.id)===String(f.id)&&D.selected._detailTarget===detailTarget){
     if(placement==="mood"||placement==="oscar")closePageFilm(placement);
+    else if(placement==="home-europe")window.KGScrollToFilmStart?.($("kg-home-europe-detail"));
     else if(placement==="related"||placement==="oscar-related"||placement==="person-related"||placement==="search"){ $(detailTarget)?.replaceChildren();D.selected=null; }
     else{D.selected=null;if(placement==="list"&&!placeListPanel())renderFilms();}
     return;
@@ -1083,6 +1091,12 @@ function openFilm(f,placement="list",detailTarget=null,{autoplayTrailer=false}={
     (placement === "oscar" && /^oscar-(list|feature|grid)-detail-/.test(detailTarget || ""));
   if(placement!=="related"&&!inlineCollectionCard)requestAnimationFrame(()=>requestAnimationFrame(()=>{
     if (D.selected !== selected) return;
+    if (placement === "home-europe") {
+      // The film card is replaced as its metadata loads, but its container stays in place.
+      const detail = $("kg-home-europe-detail");
+      window.KGScrollToFilmStart(detail);
+      return;
+    }
     const reelResult = placement === "roulette" || detailTarget === "oscar-reel-detail" ||
       String(detailTarget || "").startsWith("mood-roulette-winner-detail-");
     if (reelResult && window.KGScrollToFilmStart) {

@@ -80,7 +80,7 @@
   window.KGRefreshWatchedMap = () => {
     if (typeof renderMap === 'function') renderMap();
     window.KGRenderWatchedByCountry('');
-    const countryCount=Object.keys(window.KGWatchedCountryCounts()).length;
+    const countryCount = countOpenedCountries(window.KGWatchedCountryCounts());
     const badge=document.querySelector('header a[data-path="moe-puteshestvie"] span:last-child');
     if(badge)badge.textContent=countryCount+'/'+COUNTRIES.length;
     const globe=window.KinoglobusGlobe;

@@ -5,7 +5,7 @@
     #kg-recovery-code {
       position:fixed;inset:0;margin:0 auto;width:min(100%,520px);max-width:none;
       height:100dvh;max-height:100dvh;overflow:hidden;padding:0;border:0;
-      background:rgb(var(--kg-surface));color:rgb(var(--kg-on-surface));font:14px/1.45 'Noto Serif',serif;color-scheme:dark;
+      background:rgb(var(--kg-surface));color:rgb(var(--kg-on-surface));font:14px/1.45 var(--kg-font-interface);color-scheme:dark;
     }
     #kg-recovery-code::backdrop {background:rgb(var(--kg-surface-container-lowest)/0.90196);backdrop-filter:blur(8px)}
     #kg-recovery-code [hidden] {display:none}

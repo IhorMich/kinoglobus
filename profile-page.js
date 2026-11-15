@@ -265,7 +265,7 @@
       card.querySelector("strong").textContent = uiText(film.title);
       card.querySelector(".kg-profile-meta").textContent = film.year;
       const savedFilm = watched.find(item => item.title === film.title && String(item.year || "") === film.year);
-      card.querySelector(".kg-profile-frame").insertAdjacentHTML("beforeend",kgBookmarkButton(savedFilm,"corner"));
+      card.insertAdjacentHTML("beforeend",kgBookmarkButton(savedFilm));
       shelf.append(card);
     }
     dialog.querySelector("[data-profile-film-count]").textContent = format.format(watched.length);

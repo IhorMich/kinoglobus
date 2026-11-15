@@ -3276,7 +3276,7 @@ async function filmDetails(id){
   const certOf=cc=>{const c=rel.find(x=>x.iso_3166_1===cc);const d=c&&(c.release_dates||[]).find(x=>String(x.certification||"").trim());return d?String(d.certification).trim():"";};
   const cert=certOf("RU")||certOf("US")||(rel.map(x=>certOf(x.iso_3166_1)).find(Boolean)||"");
   return detailCache[id]={cert,runtime:j.runtime||0,dirs,dirsFull:dirsFull.map(d=>({...d,photo:(crew.find(c=>c.id===d.id)||{}).profile_path||""})),writers:writers.slice(0,3),cast,castFull:(j.credits&&j.credits.cast||[]).slice(0,10).map(c=>({id:c.id,name:c.name,role:c.character||"",photo:c.profile_path||""})),genres,budget:j.budget||0,revenue:j.revenue||0,
-    title:selectMovieText(j, "title").text, localizedPoster:selectFilmPoster(j),
+    title:selectMovieText(j, "title").text, localizedPoster:selectFilmPoster(j), posterPath:j.poster_path || "",
     tagline:tg.text,taglineLang:tg.lang,overview:ov.text,overviewLang:ov.lang,
     release:j.release_date||"",originalTitle:j.original_title||"",originalLang:j.original_language||"",
     companies:(j.production_companies||[]).map(c=>c.name).filter(Boolean).slice(0,3),
@@ -4433,7 +4433,7 @@ console.info("[Kinoglobus] Bridge v6 ready");
 
 <script src="globe-visuals.js?v=3"></script>
 <script src="watch-history.js?v=10"></script>
-<script src="country-pages.js?v=26"></script>
+<script src="country-pages.js?v=27"></script>
 <script src="profile-page.js?v=6"></script>
 <script src="cinema-diary.js?v=5"></script>
 <script src="profile-editor.js?v=1"></script>

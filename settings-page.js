@@ -195,6 +195,12 @@
 <span class="text-[9px] text-primary-container" data-kgs-theme-current hidden>Выбрано</span>
 </button>
 </div>
+<div class="flex flex-wrap items-center justify-between gap-2" role="group" aria-label="Цвет кнопок">
+<span class="font-label-sm text-label-sm text-on-surface">Цвет кнопок</span>
+<div class="flex gap-1 rounded-lg bg-surface-container-lowest p-1">
+<button type="button" class="flex items-center gap-1.5 rounded-md px-2 py-1.5 font-label-sm text-label-sm text-on-surface aria-pressed:bg-surface-container-high" data-kgs-button-accent="cyan" aria-pressed="false"><span class="w-3 h-3 rounded-full bg-[#00d2d3]" aria-hidden="true"></span>Бирюза</button>
+<button type="button" class="flex items-center gap-1.5 rounded-md px-2 py-1.5 font-label-sm text-label-sm text-on-surface aria-pressed:bg-surface-container-high" data-kgs-button-accent="gold" aria-pressed="false"><span class="w-3 h-3 rounded-full bg-[#ffb830]" aria-hidden="true"></span>Золото</button>
+</div></div>
 <div class="pt-2 border-t border-surface-border-subtle flex items-center justify-between gap-3">
 <div>
 <div class="text-xs font-bold text-primary-container uppercase tracking-tight font-micro-caption">КИНЕМАТОГРАФИЧЕСКИЕ ПЕРЕХОДЫ</div>
@@ -451,6 +457,19 @@ ${[["light","Лёгкое"],["find","Открытие"],["wild","Случайн�
   });
 
   const themeButtons = dialog.querySelectorAll("[data-kgs-theme]");
+  const buttonAccents = dialog.querySelectorAll("[data-kgs-button-accent]");
+  function syncButtonAccent() {
+    const current = document.documentElement.dataset.kgButtonAccent;
+    buttonAccents.forEach(button => {
+      button.setAttribute("aria-pressed", String(button.dataset.kgsButtonAccent === current));
+    });
+  }
+  buttonAccents.forEach(button => {
+    button.addEventListener("click", () => {
+      setAppButtonAccent(button.dataset.kgsButtonAccent);
+      syncButtonAccent();
+    });
+  });
   function syncTheme() {
     const theme = document.documentElement.dataset.kgTheme || "cinematic";
     themeButtons.forEach(button => {
@@ -472,6 +491,7 @@ ${[["light","Лёгкое"],["find","Открытие"],["wild","Случайн�
     trailerSubtitlesSelect.value = getTrailerSubtitles();
     syncVolume();
     syncTheme();
+    syncButtonAccent();
     const hasKey = !!apiKey;
     $("[data-kgs-status]").textContent = hasKey ? uiText("Ключ сохранён") : uiText("Ключ не добавлен");
     $("[data-kgs-api-badge]").textContent = hasKey ? uiText("КЛЮЧ СОХРАНЁН") : uiText("НУЖЕН КЛЮЧ");

@@ -60,8 +60,6 @@
     #journey.kg-dlg{width:min(100vw,520px);max-width:100vw;height:100dvh;max-height:100dvh;border-radius:0;background:rgb(var(--kg-surface-container-lowest));border-color:rgb(var(--kg-surface-border-subtle))}
     #journey .kg-in{padding:0;gap:0;height:100dvh;max-height:100dvh;overflow:auto;scroll-behavior:smooth}
     #journey .kg-country-legacy{display:none!important}
-    #kg-country-film-dialog{width:min(100vw,520px);max-width:100vw;max-height:100dvh;margin:auto;overflow:auto;overscroll-behavior:contain}
-    #kg-country-film-dialog .kgc-head{z-index:10}
     #kg-country-app{font-family:'Plus Jakarta Sans',sans-serif;color:rgb(var(--kg-on-surface));min-height:100%;background:radial-gradient(ellipse at 90% 14%,rgb(var(--kg-secondary-container)/.17),transparent 34%),rgb(var(--kg-surface-container-lowest))}
     .kgc-head{height:60px;padding:0 16px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:5;background:rgb(var(--kg-surface)/.92);backdrop-filter:blur(18px);border-bottom:1px solid rgb(var(--kg-primary)/.08)}
     .kgc-icon{border:0;background:transparent;color:rgb(var(--kg-primary));width:36px;height:40px;font-size:24px;cursor:pointer}.kgc-head-title{min-width:0;flex:1}.kgc-head-title b{font:600 17px 'Noto Serif',serif;color:rgb(var(--kg-primary));display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.kgc-head-title small,.kgc-muted{color:rgb(var(--kg-text-muted));font-size:11px}
@@ -194,57 +192,10 @@
     const {counts,countries}=data();
     return countries.slice().sort((a,b)=>(counts[b]||0)-(counts[a]||0)||app.countryName(a).localeCompare(app.countryName(b),'ru'));
   };
-  const filmDialog = document.createElement('dialog');
-  filmDialog.id = 'kg-country-film-dialog';
-  filmDialog.className = 'kg-dlg';
-  filmDialog.setAttribute('aria-labelledby', 'kg-country-film-heading');
-  filmDialog.innerHTML = `
-    <header class="kgc-head">
-      <button type="button" class="kgc-icon" data-country-film-back aria-label="${uiText("Назад")}">
-        <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
-      </button>
-      <div class="kgc-head-title"><b id="kg-country-film-heading">${uiText("Фильм")}</b></div>
-    </header>
-    <div id="kg-country-film-detail" class="kgc-pad"></div>`;
-  dialog.appendChild(filmDialog);
-  const filmDetail = filmDialog.querySelector('#kg-country-film-detail');
-  const filmBackButton = filmDialog.querySelector('[data-country-film-back]');
-  let filmOpener = null;
-
   function openMovie(film, opener, autoplayTrailer = false) {
-    if (!dialog.open || filmDialog.open || !window.KGOpenFilmFromRelated) return;
-    filmOpener = opener;
-    window.KGOpenFilmFromRelated({
-      ...film,
-      _cc: film.origin_country?.[0] || film._kgCountry || '',
-      _kgGlobalRelated: true,
-      originalTitle: film.original_title,
-      average: film.vote_average,
-      votes: film.vote_count
-    }, 'related', filmDetail.id, {autoplayTrailer});
-    filmDialog.showModal();
-    filmDialog.scrollTop = 0;
-    filmBackButton.focus({preventScroll:true});
+    if (!dialog.open) return;
+    window.KGFilmCard.openDialog({...window.KGFilmCard.savedFilm(film), _kgGlobalRelated:true},opener,{autoplayTrailer});
   }
-
-  filmDialog.addEventListener('click', event => {
-    if (event.target === filmDialog || event.target.closest('[data-country-film-back]')) {
-      filmDialog.close();
-      return;
-    }
-    const closeButton = event.target.closest('[data-act="close-film"]');
-    if (!closeButton) return;
-    const related = closeButton.closest('[data-kg-related-detail]');
-    if (related) window.KGCloseFilmFromRelated?.(related.id);
-    else filmDialog.close();
-  });
-  filmDialog.addEventListener('close', () => {
-    if (filmDialog.open) return;
-    filmDetail.querySelectorAll('[data-kg-related-detail]').forEach(panel => window.KGCloseFilmFromRelated?.(panel.id));
-    window.KGCloseFilmFromRelated?.(filmDetail.id);
-    if (dialog.open && filmOpener?.isConnected) filmOpener.focus({preventScroll:true});
-    filmOpener = null;
-  });
 
   async function loadLatestPoster(film, slot) {
     const image = new Image();
@@ -799,7 +750,7 @@
     root.hidden = true;
     historyView.hidden = false;
     window.KGRenderWatchedByCountry('');
-    if (!dialog.open) dialog.showModal();
+    if (!dialog.open) {window.KGFilmCard.stopTrailers();dialog.showModal();}
     shell.scrollTo({top:0,behavior:'instant'});
     historyView.querySelector('[data-atlas-close]').focus({preventScroll:true});
   }
@@ -817,7 +768,7 @@
   if(mapButton)mapButton.onclick=function(event){originalMapClick?.call(this,event);showAtlas();};
   document.addEventListener('click',event=>{
     const target=event.target.closest('[data-open-country],[data-atlas-back],[data-atlas-close],[data-country-search],[data-open-map],[data-open-globe],[data-atlas-scroll-map],[data-country-filter],[data-load-more],[data-country-scroll],[data-country-globe],[data-country-favorite],[data-country-share],[data-kga-account],[data-film-id],[data-open-saved]');
-    if(!target || !dialog.contains(target) || filmDialog.contains(target))return;
+    if(!target || !dialog.contains(target))return;
     if(target.dataset.openCountry){country(target.dataset.openCountry);return;}
     if(target.hasAttribute('data-atlas-back')){
       if(passportFromCatalog) showCatalog(true);
@@ -891,7 +842,6 @@
   }
   dialog.addEventListener('close', () => {
     if (dialog.open) return;
-    if (filmDialog.open) filmDialog.close();
     root.dataset.page = '';
     root.hidden = false;
     historyView.hidden = true;
@@ -899,8 +849,7 @@
   function openSharedPassport() {
     const code = /^#country-([a-z]{2})$/i.exec(location.hash)?.[1].toUpperCase();
     if (!code || !app.countries().includes(code)) return;
-    if (filmDialog.open) filmDialog.close();
-    if (!dialog.open) dialog.showModal();
+    if (!dialog.open) {window.KGFilmCard.stopTrailers();dialog.showModal();}
     showAtlas();
     country(code);
   }

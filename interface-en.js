@@ -356,6 +356,7 @@ window.KGInterfaceDictionaries.en = Object.freeze({
   "Трейлер": "Trailer",
   "Воспроизвести трейлер": "Play trailer",
   "Закрыть трейлер": "Close trailer",
+  "Свернуть трейлер": "Collapse trailer",
   "Трейлер не найден": "Trailer unavailable",
   "Трейлера нет": "Trailer unavailable",
   "Ищем трейлер…": "Looking for a trailer…",

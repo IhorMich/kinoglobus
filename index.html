@@ -1,5 +1,5 @@
-<!DOCTYPE html><html class="dark" lang="ru" data-kg-button-accent="cyan"><head><meta charset="utf-8"><link rel="stylesheet" href="app-theme.css?v=9">
-<script src="interface-en.js?v=35"></script>
+<!DOCTYPE html><html class="dark" lang="ru" data-kg-button-accent="cyan"><head><meta charset="utf-8"><link rel="stylesheet" href="app-theme.css?v=10">
+<script src="interface-en.js?v=36"></script>
 <script src="interface-i18n.js?v=2"></script>
 <script>
 function readPaletteColor(token, asNumber = false) {
@@ -9,10 +9,10 @@ function readPaletteColor(token, asNumber = false) {
   return (red << 16) | (green << 8) | blue;
 }
 const APP_THEMES = ["cinematic", "oled", "golden-age"];
+const APP_ACCENTS = ["cyan", "gold", "lavender", "coral"];
 try {
-  if (JSON.parse(localStorage.getItem("kgButtonAccent")) === "gold") {
-    document.documentElement.dataset.kgButtonAccent = "gold";
-  }
+  const savedAccent = JSON.parse(localStorage.getItem("kgButtonAccent"));
+  if (APP_ACCENTS.includes(savedAccent)) document.documentElement.dataset.kgButtonAccent = savedAccent;
 } catch (_) {}
 try {
   const savedTheme = JSON.parse(localStorage.getItem("kgAppTheme"));
@@ -2242,7 +2242,7 @@ function setAppTheme(value) {
 }
 
 function setAppButtonAccent(value) {
-  const accent = value === "gold" ? "gold" : "cyan";
+  const accent = APP_ACCENTS.includes(value) ? value : "cyan";
   document.documentElement.dataset.kgButtonAccent = accent;
   store.set("kgButtonAccent", accent);
   window.dispatchEvent(new Event("kg-palette-change"));
@@ -4506,6 +4506,6 @@ console.info("[Kinoglobus] Bridge v6 ready");
 <script src="legal-watch.js?v=7"></script>
 <script src="global-search.js?v=8"></script>
 <script src="home-releases.js?v=8"></script>
-<script src="settings-page.js?v=48"></script>
+<script src="settings-page.js?v=49"></script>
 
 </body></html>

@@ -97,7 +97,7 @@
       </span>
       <span class="font-label-md text-label-md text-on-surface group-hover:text-primary leading-snug line-clamp-2">${escape(title(film))}</span>
       <span class="font-micro-caption text-micro-caption text-text-muted">${escape(releaseDate(film))}</span>
-    </button>${kgBookmarkButton(film, "poster")}</div>`;
+    </button></div>`;
   }
 
   const railClass = "flex gap-3.5 overflow-x-auto snap-x -mx-margin-mobile px-margin-mobile py-1";

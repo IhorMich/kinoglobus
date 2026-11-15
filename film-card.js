@@ -43,7 +43,7 @@ function markup(f, {closable = true, inline = false} = {}) {
   const loading=f._detailsLoaded?"—":uiText("Загружаем…");
   const dirName=f.dirs&&f.dirs.length?(f.dirsFull&&f.dirsFull.length?f.dirsFull.map(d=>personLink(d,"Режиссёр")).join(", "):esc(f.dirs.join(", "))):loading;
   const releaseText=f.release?new Date(f.release+"T00:00:00").toLocaleDateString(interfaceLanguage,{day:"numeric",month:"long",year:"numeric"}):loading;
-  const poster = filmPosterMarkup({...f,localizedPoster:f.localizedPoster || {path:f.poster_path || f.backdrop_path,showTitle:true}}, "w342") || '<span class="material-symbols-outlined">movie</span>';
+  const poster = filmPosterMarkup({...f,localizedPoster:f.localizedPoster || {path:f.poster_path || f.backdrop_path,showTitle:true}}, "w500") || '<span class="material-symbols-outlined">movie</span>';
   const preview = video
     ? `<button type="button" data-trailer-action="play" aria-label="${uiText("Воспроизвести трейлер")}" class="absolute inset-0 grid place-items-center text-primary-container">${trailerThumb(video,f)}<span class="relative grid place-items-center w-16 h-16 rounded-full bg-black/55 border border-primary-container/60"><span class="material-symbols-outlined text-[44px]" aria-hidden="true">play_arrow</span></span></button>`
     : `<div role="status" class="absolute inset-0 grid place-items-center px-3 text-center text-text-muted">${uiText(f._trailerStatus==="missing" ? "Трейлер не найден" : "Ищем трейлер…")}</div>`;
@@ -99,9 +99,11 @@ article:has(>[data-oscar-detail-host]>.kg-film-detail),article:has(>[id^="mood-f
 #kg-home-feature:has(>.kg-film-detail){padding:0;background:none;box-shadow:none}
 #kg-home-feature:has(>.kg-film-detail)>p{padding-inline:2px}
 .kg-film-detail-summary{display:grid;grid-template-columns:clamp(68px,22vw,112px) minmax(0,1fr);align-items:start;position:relative;gap:12px}
+.kg-film-detail-summary:has(.kg-film-detail-poster img){grid-template-columns:minmax(0,1fr)}
 .kg-film-detail-summary:has(.kg-film-detail-close) h3{padding-right:40px}
 .kg-film-detail-poster{display:grid;place-items:center;position:relative;overflow:hidden;aspect-ratio:2/3;border-radius:9px;background:rgb(var(--kg-surface-container-high));color:rgb(var(--kg-primary))}
-.kg-film-detail-close{position:absolute;right:0;top:0;display:grid;place-items:center;width:36px;height:36px;border-radius:50%;color:rgb(var(--kg-text-muted));background:rgb(var(--kg-surface-container-high))}
+.kg-film-detail-poster:has(img){width:min(100%,224px);justify-self:center}
+.kg-film-detail-close{position:absolute;right:0;top:0;z-index:1;display:grid;place-items:center;width:36px;height:36px;border-radius:50%;color:rgb(var(--kg-text-muted));background:rgb(var(--kg-surface-container-high))}
 .kg-detail-trailer{position:relative;width:100%;aspect-ratio:16/9;background:rgb(var(--kg-black));overflow:hidden;isolation:isolate}
 .kg-film-detail [hidden]{display:none!important}
 .kg-film-detail [data-film-part="providers"]:not(:has(.kgw-row:not([hidden]))),.kg-film-detail [data-film-part="awards"]:empty{display:none}

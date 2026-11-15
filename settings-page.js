@@ -197,9 +197,11 @@
 </div>
 <div class="flex flex-wrap items-center justify-between gap-2" role="group" aria-label="Акцент приложения">
 <span class="font-label-sm text-label-sm text-on-surface">Акцент приложения</span>
-<div class="flex gap-1 rounded-lg bg-surface-container-lowest p-1">
+<div class="grid w-full grid-cols-2 gap-1 rounded-lg bg-surface-container-lowest p-1">
 <button type="button" class="flex items-center gap-1.5 rounded-md px-2 py-1.5 font-label-sm text-label-sm text-on-surface aria-pressed:bg-surface-container-high" data-kgs-button-accent="cyan" aria-pressed="false"><span class="w-3 h-3 rounded-full bg-[rgb(var(--kg-swatch-cyan))]" aria-hidden="true"></span>Бирюза</button>
 <button type="button" class="flex items-center gap-1.5 rounded-md px-2 py-1.5 font-label-sm text-label-sm text-on-surface aria-pressed:bg-surface-container-high" data-kgs-button-accent="gold" aria-pressed="false"><span class="w-3 h-3 rounded-full bg-[rgb(var(--kg-swatch-gold))]" aria-hidden="true"></span>Золото</button>
+<button type="button" class="flex items-center gap-1.5 rounded-md px-2 py-1.5 font-label-sm text-label-sm text-on-surface aria-pressed:bg-surface-container-high" data-kgs-button-accent="lavender" aria-pressed="false"><span class="w-3 h-3 shrink-0 rounded-full bg-[rgb(var(--kg-swatch-lavender))]" aria-hidden="true"></span>Лаванда</button>
+<button type="button" class="flex items-center gap-1.5 rounded-md px-2 py-1.5 font-label-sm text-label-sm text-on-surface aria-pressed:bg-surface-container-high" data-kgs-button-accent="coral" aria-pressed="false"><span class="w-3 h-3 shrink-0 rounded-full bg-[rgb(var(--kg-swatch-coral))]" aria-hidden="true"></span>Коралл</button>
 </div></div>
 <div class="pt-2 border-t border-surface-border-subtle flex items-center justify-between gap-3">
 <div>

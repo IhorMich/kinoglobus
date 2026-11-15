@@ -1229,6 +1229,8 @@ window.KGInterfaceDictionaries.en = Object.freeze({
   "Золотой Голливуд ({count})": "Golden Age of Hollywood ({count})",
   "{decade}0-е": "{decade}0s",
   "Все эпохи": "All eras",
+  "Выбрать эпоху": "Choose an era",
+  "Показать все фильмы": "Show all films",
   "КИНОГЛОБУС · OSCAR WINNERS": "KINOGLOBUS · OSCAR WINNERS",
   "Статуэтка Оскара": "Oscar statuette",
   "Зал славы Оскара": "Oscars Hall of Fame",

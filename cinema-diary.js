@@ -19,6 +19,7 @@
     ["history","history_edu","История"],["settings","tune","Настройки"]];
   let entries = [];
   let bookmarks = [];
+  let editorEntries = [];
   let source = "watched";
   let selectedFilm = "";
   let bookmarkLoad = 0;
@@ -85,8 +86,8 @@
     .kg-diary-legend span::before {content:"";display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;background:rgb(var(--kg-surface-container-high))}
     .kg-diary-legend span:nth-child(2)::before {background:rgb(var(--kg-primary) / .4)}
     .kg-diary-legend span:nth-child(3)::before {background:rgb(var(--kg-primary))}
-    .kg-diary-sources {display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:4px;border-radius:12px;background:rgb(var(--kg-surface-container-lowest))}
-    .kg-diary-sources button {min-height:40px;padding:5px;border-radius:8px;font-weight:700}
+    .kg-diary-sources {display:flex;flex-wrap:wrap;gap:6px;padding:4px;border-radius:12px;background:rgb(var(--kg-surface-container-lowest))}
+    .kg-diary-sources button {flex:1 0 auto;min-height:40px;padding:5px;border-radius:8px;font-weight:700}
     .kg-diary-sources button[aria-pressed=true] {background:rgb(var(--kg-primary));color:rgb(var(--kg-canvas-obsidian))}
     .kg-diary-select-film {display:block;width:100%;text-align:start;border-radius:8px}
     .kg-diary-select-film .kg-diary-film {align-items:start}
@@ -190,6 +191,7 @@
         <div class="kg-diary-sources" role="group" aria-label="Списки фильмов">
           <button type="button" data-source="watched" aria-pressed="true" aria-controls="kg-diary-entries">Просмотренные</button>
           <button type="button" data-source="bookmarks" aria-pressed="false" aria-controls="kg-diary-entries">Закладки</button>
+          <button type="button" data-source="notes" aria-pressed="false" aria-controls="kg-diary-entries">Записи</button>
         </div>
         <div class="kg-diary-tabs" role="group" aria-label="Фильтры дневника"></div>
         <div id="kg-diary-entries" data-entries></div>
@@ -299,7 +301,19 @@
   }
 
   const filmName = film => film.title || film.original || uiText("Фильм №{id}",{id:film.id});
-  const currentList = () => source === "bookmarks" ? bookmarks : entries;
+  function savedNotes() {
+    const films = new Map(entries.map(entry => [String(entry.film.id), entry.film]));
+    const saved = store.get("kgBookmarkFilms", {}) || {};
+    return Object.entries(notes).map(([id, note]) => makeEntry({
+      ...(note.film || saved[id] || films.get(id)),
+      id: Number(id)
+    })).sort((a, b) => b.key.localeCompare(a.key));
+  }
+
+  function currentList() {
+    if (source === "notes") return savedNotes();
+    return source === "bookmarks" ? bookmarks : entries;
+  }
 
   async function refreshBookmarks() {
     const load = ++bookmarkLoad;
@@ -423,7 +437,7 @@
     const totals = {
       watched:entries.length, countries:new Set(entries.map(entry => entry.code).filter(Boolean)).size,
       rating:ratings.length ? ratings.reduce((sum,rating) => sum + rating,0)/ratings.length : null,
-      notes:entries.filter(entry => entry.note.text).length
+      notes:Object.values(notes).filter(note => note.text).length
     };
     for (const [key,value] of Object.entries(totals)) {
       dialog.querySelector(`[data-stat="${key}"]`).textContent = value === null ? "—" : number.format(value);
@@ -470,22 +484,24 @@
   }
 
   function renderList() {
-    calendar.hidden = source === "bookmarks";
-    rhythm.closest("section").hidden = source === "bookmarks";
+    const showHistory = source === "watched";
+    calendar.hidden = !showHistory;
+    rhythm.closest("section").hidden = !showHistory;
     const tabs = dialog.querySelector(".kg-diary-tabs");
-    tabs.hidden = source === "bookmarks";
+    tabs.hidden = !showHistory;
     tabs.innerHTML = collections.map(([key,title]) =>
       `<button type="button" data-filter="${key}" aria-pressed="${key === filter}">${uiText(title)} (${number.format(entries.filter(entry => matches(entry,key)).length)})</button>`).join("");
 
     const list = dialog.querySelector("[data-entries]");
     list.replaceChildren();
-    if (source === "bookmarks") {
-      if (bookmarks.length) {
+    if (!showHistory) {
+      const films = currentList();
+      if (films.length) {
         const section = document.createElement("section");
         section.className = "kg-diary-group";
-        section.append(...bookmarks.map(filmCard));
+        section.append(...films.map(filmCard));
         list.append(section);
-      } else showEmpty(list,"В закладках пока нет фильмов.");
+      } else showEmpty(list, source === "notes" ? "Записей пока нет." : "В закладках пока нет фильмов.");
       return;
     }
     const groups = new Map();
@@ -526,7 +542,7 @@
   }
 
   function fillNote() {
-    const entry = currentList().find(item => String(item.film.id) === fields.film.value);
+    const entry = editorEntries.find(item => String(item.film.id) === fields.film.value);
     if (!entry) return;
     const draft = (store.get(draftKey,{}) || {})[fields.film.value];
     const note = draft || entry.note;
@@ -562,12 +578,13 @@
     };
   }
 
-  function openNote(id = "") {
-    const films = currentList();
+  function openNote(id = "", films = currentList()) {
     if (!films.length) {
-      showStatus(source === "bookmarks" ? "Сначала добавьте фильм в закладки." : "Сначала отметьте фильм как просмотренный.");
+      showStatus(source === "notes" ? "Записей пока нет." :
+        source === "bookmarks" ? "Сначала добавьте фильм в закладки." : "Сначала отметьте фильм как просмотренный.");
       return;
     }
+    editorEntries = films;
     fields.film.replaceChildren(...films.map(({film}) => new Option(filmName(film),film.id)));
     fields.film.value = id || String(films[0].film.id);
     fillNote();
@@ -612,7 +629,12 @@
   form.addEventListener("submit",event => {
     event.preventDefault();
     const id = fields.film.value;
-    const next = {...(store.get(notesKey,{}) || {}),[id]:entryValues()};
+    const film = editorEntries.find(entry => String(entry.film.id) === id)?.film;
+    if (!film) return;
+    const {title, original, year, poster, cc} = film;
+    const next = {...(store.get(notesKey,{}) || {}),[id]:{
+      ...entryValues(), film:{id:Number(id), title, original, year, poster, cc:film.countries?.[0] || cc}
+    }};
     try {
       localStorage.setItem(notesKey,JSON.stringify(next));
     } catch {
@@ -625,6 +647,11 @@
       store.set(draftKey,drafts);
     }
     notes = next;
+    document.dispatchEvent(new CustomEvent("kg:diary-note-change", {detail:{id}}));
+    if (!dialog.open) {
+      noteDialog.close();
+      return;
+    }
     const scroll = dialog.querySelector(".kg-diary-scroll");
     const scrollTop = scroll.scrollTop;
     selectedFilm = id;
@@ -716,6 +743,16 @@
     // Removing the card also removes the focused button.
     dialog.querySelector('[data-source="bookmarks"]').focus({preventScroll:true});
   });
+
+  window.KGHasCinemaDiaryNote = id => Object.hasOwn(store.get(notesKey,{}) || {}, String(id));
+  window.KGOpenCinemaDiaryNote = film => {
+    const id = Number(film?.id);
+    if (noteDialog.open || !Number.isSafeInteger(id) || id <= 0) return;
+    notes = store.get(notesKey,{}) || {};
+    const record = filmRecord(film._cc, film);
+    record.poster = film.localizedPoster?.path || record.poster;
+    openNote(String(id), [makeEntry(record)]);
+  };
 
   window.KGOpenCinemaDiary = ({avatar, closeParent: onNavigate, initialSource} = {}) => {
     closeParent = onNavigate;

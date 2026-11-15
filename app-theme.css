@@ -4,6 +4,8 @@
   /* Акцент. RGB-каналы через пробел, без rgb(). */
   --kg-swatch-gold: 255 184 48;
   --kg-swatch-cyan: 0 210 211;
+  --kg-swatch-lavender: 167 139 250;
+  --kg-swatch-coral: 255 130 110;
   --kg-primary: 255 220 168;
   --kg-primary-container: var(--kg-swatch-gold);
   --kg-primary-fixed: 255 222 173;
@@ -385,6 +387,44 @@
   --kg-accent-warm: 100 209 206;
   --kg-accent-soft: 190 255 251;
   --kg-accent-edge: 0 135 151;
+}
+
+:root[data-kg-button-accent="lavender"] {
+  --kg-primary: 196 181 253;
+  --kg-primary-container: var(--kg-swatch-lavender);
+  --kg-primary-fixed: 221 214 254;
+  --kg-primary-fixed-dim: 178 155 252;
+  --kg-on-primary: 38 22 72;
+  --kg-on-primary-container: 38 22 72;
+  --kg-on-primary-fixed: 27 15 55;
+  --kg-on-primary-fixed-variant: 44 29 80;
+  --kg-accent-deep: 99 67 167;
+  --kg-accent-strong: 167 139 250;
+  --kg-accent-muted: 145 122 191;
+  --kg-accent-warm: 186 166 244;
+  --kg-accent-soft: 237 229 255;
+  --kg-accent-edge: 153 115 246;
+}
+
+:root[data-kg-button-accent="coral"] {
+  --kg-primary: 255 168 153;
+  --kg-primary-container: var(--kg-swatch-coral);
+  --kg-primary-fixed: 255 194 181;
+  --kg-primary-fixed-dim: 255 147 128;
+  --kg-on-primary: 65 24 19;
+  --kg-on-primary-container: 65 24 19;
+  --kg-on-primary-fixed: 50 17 12;
+  --kg-on-primary-fixed-variant: 79 32 25;
+  --kg-accent-deep: 162 60 47;
+  --kg-accent-strong: 251 126 107;
+  --kg-accent-muted: 190 112 98;
+  --kg-accent-warm: 250 156 136;
+  --kg-accent-soft: 255 224 214;
+  --kg-accent-edge: 238 105 90;
+}
+
+/* Общие связи для пользовательских акцентов. */
+:root:is([data-kg-button-accent="cyan"], [data-kg-button-accent="lavender"], [data-kg-button-accent="coral"]) {
   --kg-surface-tint: var(--kg-primary-fixed-dim);
   --kg-inverse-primary: var(--kg-accent-deep);
   --kg-action-gradient-end: var(--kg-primary-fixed);

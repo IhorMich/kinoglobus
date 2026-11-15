@@ -35,7 +35,7 @@
       position:fixed;inset:0;margin:0 auto;width:min(100%,520px);max-width:none;
       height:100dvh;max-height:100dvh;overflow:hidden;border:0;padding:0;
       background:rgb(var(--kg-surface));color:rgb(var(--kg-on-surface));
-      font:14px/1.5 'Noto Serif',serif;color-scheme:dark;
+      font:14px/1.5 var(--kg-font-interface);color-scheme:dark;
     }
     #kg-profile-editor::backdrop {background:rgb(var(--kg-canvas-obsidian) / .92)}
     #kg-profile-editor [hidden] {display:none}

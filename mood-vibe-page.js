@@ -393,7 +393,7 @@ ${deps.sortBar(state.sort)}
       return;
     }
     if(e.target.closest("[data-vibe-all]")){closeVibe(root,deps);window.scrollTo({top:0});return;}
-    if(e.target.closest('[data-act="close-film"]')){deps.closeFilm("mood");return;}
+    if(e.target.closest('[data-act="close-film"]')){deps.closeFilm("mood",true);return;}
     const goto=e.target.closest("[data-vibe-goto]");
     if(goto){openMood(goto.dataset.vibeGoto,root,deps);return;}
     const country=e.target.closest("[data-vibe-country]");
@@ -419,7 +419,7 @@ ${deps.sortBar(state.sort)}
       const item=state.films.find(f=>String(f.id)===film.dataset.vibeFilm);
       if(item){
         const top=film.getBoundingClientRect().top;
-        deps.openFilm({...item,_kgRelatedPool:filtered()},"mood",film.dataset.detailTarget);
+        deps.openFilm({...item,_kgRelatedPool:filtered()},"mood",film.dataset.detailTarget,{opener:film});
         const fix=()=>{if(film.isConnected){const d=film.getBoundingClientRect().top-top;if(Math.abs(d)>1)window.scrollBy(0,d);}};
         fix();requestAnimationFrame(fix);
       }

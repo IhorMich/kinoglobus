@@ -4041,7 +4041,7 @@ function stopReel(){
   strip.busy=false;
   stopFilmReelSound();
 }
-function scrollToFilmReel(element, duration = 620) {
+function scrollToFilmReel(element, duration = 620, {target = () => element, downOnly = false} = {}) {
   if (!element?.getClientRects().length) return Promise.resolve();
   if (reelScrollFrame) {
     cancelAnimationFrame(reelScrollFrame);
@@ -4050,11 +4050,13 @@ function scrollToFilmReel(element, duration = 620) {
     finishReelScroll = null;
   }
   const header = document.querySelector("header.fixed");
+  const start = window.scrollY;
   const targetTop = () => {
     const visibleTop = Math.max(0,header?.getBoundingClientRect().bottom || 0);
-    return Math.max(0,window.scrollY + element.getBoundingClientRect().top - visibleTop - 8);
+    const anchor = target() || element;
+    const top = window.scrollY + anchor.getBoundingClientRect().top - visibleTop - 8;
+    return Math.max(downOnly ? start : 0, top);
   };
-  const start = window.scrollY;
   if (RM || Math.abs(targetTop()-start) < 2) {
     window.scrollTo({top:targetTop(),behavior:"instant"});
     return Promise.resolve();
@@ -4066,7 +4068,10 @@ function scrollToFilmReel(element, duration = 620) {
       const progress = Math.min(1,(now-started)/duration);
       const easing = progress * progress * (3-2*progress);
       const visible = element.getClientRects().length > 0;
-      if (visible) window.scrollTo({top:start+(targetTop()-start)*easing,behavior:"instant"});
+      if (visible) {
+        const top = start + (targetTop() - start) * easing;
+        window.scrollTo({top:downOnly ? Math.max(window.scrollY, top) : top,behavior:"instant"});
+      }
       if (progress < 1 && visible) {
         reelScrollFrame = requestAnimationFrame(step);
         return;
@@ -4281,7 +4286,7 @@ console.info("[Kinoglobus] Bridge v6 ready");
 <script src="oscar-design.js?v=25"></script>
 <script src="curated-collections.js?v=1"></script>
 <script src="film-card.js?v=4"></script>
-<script src="collections.js?v=105"></script>
+<script src="collections.js?v=106"></script>
 <script src="film-interactions.js?v=24"></script>
 <script src="legal-watch.js?v=7"></script>
 <script src="global-search.js?v=11"></script>

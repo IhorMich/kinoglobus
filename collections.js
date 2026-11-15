@@ -808,8 +808,8 @@ function selectedFilmHtml(f) {
 }
 
 function inlineFilmCard(film) {
-  const card = document.querySelector(`[data-kg-inline-film][data-selected-film="${Number(film.id)}"]`);
-  return card;
+  const root = film._placement === "list" ? $("cl-films") : document;
+  return root?.querySelector(`[data-kg-inline-film][data-selected-film="${Number(film.id)}"]`);
 }
 window.KGInlineFilmModel = card => D.selected && card.hasAttribute("data-kg-inline-film") &&
   card.dataset.selectedFilm === String(D.selected.id) ? D.selected : null;
@@ -977,6 +977,10 @@ function openFilm(f,placement="list",detailTarget=null,{opener=document.activeEl
     closeInlineFilm(previous);
     return;
   }
+  const listAnchor = placement === "list"
+    ? opener?.closest("[data-collection-grid-row], .kg-film-list-shell")
+    : null;
+  const anchorTop = listAnchor?.getBoundingClientRect().top;
   window.KGFilmCard.stopTrailers();
   if (previous) closeInlineFilm(previous, false);
   if(placement==="list")$("cl-result").replaceChildren();
@@ -989,10 +993,22 @@ function openFilm(f,placement="list",detailTarget=null,{opener=document.activeEl
     _oscarContext:placement==="oscar"
   });
   renderSelectedPanel();
+  if (listAnchor?.isConnected) {
+    const shift = listAnchor.getBoundingClientRect().top - anchorTop;
+    window.KGRestoreFilmScroll(window.scrollY + shift);
+  }
   requestAnimationFrame(()=>{
     if (D.selected !== selected) return;
     const panel = inlineFilmCard(selected);
-    if (panel) window.KGScrollToFilmStart(panel);
+    if (!panel) return;
+    if (placement === "list") {
+      window.KGScrollToFilmStart(panel, 620, {
+        target: () => panel.querySelector("[data-kg-film-description]"),
+        downOnly: true,
+      });
+    } else {
+      window.KGScrollToFilmStart(panel);
+    }
   });
   window.KGFilmCard.hydrate(selected,f,()=>renderSelectedPanel(true),()=>D.selected===selected);
 }

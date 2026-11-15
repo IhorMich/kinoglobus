@@ -65,7 +65,7 @@
       const code = (item.countries || [])[0] || '';
       const place = code && typeof cname === 'function' ? cname(code) : '';
       const subtitle = escHtml([item.year, place].filter(Boolean).join(' · '));
-      return `<div class="kg-bookmark-card"><button type="button" class="jfilm" data-id="${escHtml(item.id)}">${poster}<b>${title}</b><small>${subtitle}</small></button>${kgBookmarkButton(item, "corner")}</div>`;
+      return `<div class="kg-bookmark-card"><button type="button" class="jfilm" data-id="${escHtml(item.id)}">${poster}<b>${title}</b><small>${subtitle}</small></button></div>`;
     }).join('');
   };
 

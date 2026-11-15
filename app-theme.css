@@ -68,7 +68,7 @@
 }
 
 /* The button accent can be changed independently of the screen theme. */
-:root[data-kg-button-accent="cyan"] :is(button, a, [role="button"], [role="checkbox"]) {
+:root[data-kg-button-accent="cyan"] :is(button, a, [role="button"], [role="checkbox"], select, input[type="checkbox"], input[type="range"], summary) {
   --kg-primary: 72 239 239;
   --kg-primary-container: 0 210 211;
   --kg-primary-fixed: 86 249 249;
@@ -81,11 +81,14 @@
 }
 
 :root[data-kg-button-accent="cyan"] :is(
-  #btn-spin-roulette, .genre-pill[style*="rgb(255, 78, 32)"],
+  #btn-spin-roulette, #btn-mode-filters[aria-pressed="true"],
+  .genre-pill[style*="rgb(255, 78, 32)"], [data-kg-filter-pill][aria-pressed="true"],
   button.kg-watched-button[aria-pressed="true"],
   .kgc-btn:not(.secondary), .kgc-catalog-action.primary,
+  .kgc-catalog-pill[aria-pressed="true"], .kgc-catalog-head .kgc-catalog-profile,
   .kg-login-primary, .kga-submit, .kg-recovery-submit,
-  button.kg-profile-button.gold, .kg-profile-tabs button[aria-pressed="true"]
+  button.kg-profile-button.gold, .kg-profile-tabs button[aria-pressed="true"],
+  .kg-cassette-transport button[data-kg-cassette-random]
 ) {
   background: linear-gradient(110deg, #00d2d3, #48efef) !important;
   color: #003737 !important;
@@ -101,6 +104,11 @@
 :root[data-kg-button-accent="cyan"] :is(
   .kg-btn:not(.danger), .kgc-btn.secondary, .kgc-icon, .kgc-icon-action,
   .kgc-catalog-view button[aria-pressed="true"], .kga-back, .kga-mode,
+  .kgc-account-icon, .kgc-back-profile, .kgc-film-save, .kgc-country-pill.has,
+  .kgc-catalog-link, .kgc-catalog-action:not(.primary), .kgc-inline-person,
+  .kg-person-link, .kgs-icon, .kgs-detail-back, .kg-recovery-preview,
+  .kg-imax-controls button, .kg-cassette-actions button,
+  .kg-cassette-transport button, .kg-cassette-footer button,
   .kga-foot button, .kg-recovery-footer button, .kg-code-footer button,
   .kg-code-delivery button, .kgc-country-tab.active,
   .kg-watched-button[aria-pressed="false"]:hover,
@@ -109,14 +117,48 @@
   color: #48efef;
 }
 
+:root[data-kg-button-accent="cyan"] :is(
+  .kg-btn:not(.danger), .kgc-btn.secondary, .kgc-catalog-link,
+  .kgc-country-pill.has, .kgs-result:hover, .kgs-result.is-active,
+  .kgw-service:hover, .kgw-service:focus-visible, .kg-imax-controls button,
+  .kg-ticket-tear[aria-pressed="true"], button.kg-cassette-card.active
+) {
+  border-color: rgb(72 239 239 / .45);
+}
+
+:root[data-kg-button-accent="cyan"] :is(.kg-person-link, .kgc-inline-person) {
+  text-decoration-color: rgb(72 239 239 / .4);
+}
+
+:root[data-kg-button-accent="cyan"] .surprise-chip[aria-pressed="true"] {
+  color: #48efef !important;
+  box-shadow: 0 0 10px rgb(0 210 211 / .25) !important;
+}
+
+:root[data-kg-button-accent="cyan"] .kga-check input {
+  accent-color: #00d2d3;
+}
+
+:root[data-kg-button-accent="cyan"] button.kg-cassette-card.active {
+  box-shadow: 0 0 0 1px rgb(72 239 239 / .35), 0 0 24px rgb(0 210 211 / .2);
+}
+
 :root[data-kg-button-accent="cyan"] .kgc-country-tab.active {
   background: linear-gradient(155deg, #171c25, #163032);
   border-color: #48efef;
   box-shadow: inset 0 0 0 1px rgb(72 239 239 / .25);
 }
 
-:root[data-kg-button-accent="cyan"] :is(button, a, [role="button"]):focus-visible {
-  outline-color: #48efef;
+:root[data-kg-button-accent="cyan"] :is(button, a, [role="button"], select, summary):focus-visible {
+  outline-color: #48efef !important;
+}
+
+:root[data-kg-button-accent="cyan"] a[data-view] .material-symbols-outlined {
+  --tw-drop-shadow: drop-shadow(0 0 8px rgb(0 210 211 / .25));
+}
+
+:root[data-kg-button-accent="cyan"] a[data-view].text-primary-container {
+  --tw-drop-shadow: drop-shadow(0 0 12px rgb(0 210 211 / .45));
 }
 
 :root[data-kg-button-accent="cyan"] :is(button, a, [role="button"]):is(

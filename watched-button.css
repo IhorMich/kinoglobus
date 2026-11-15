@@ -15,7 +15,7 @@ button.kg-watched-button {
   border-radius: 12px;
   background: rgb(var(--kg-surface-container-high));
   color: rgb(var(--kg-on-surface));
-  font: 600 12px/16px "Plus Jakarta Sans", system-ui, sans-serif;
+  font: 600 12px/16px var(--kg-font-interface);
   cursor: pointer;
   transition: color .15s, background-color .15s, box-shadow .15s, transform .15s;
 }
@@ -29,7 +29,7 @@ button.kg-watched-button[aria-pressed="true"] {
 
 .kg-watched-button[aria-pressed="false"]:hover,
 .kg-watched-button[aria-pressed="false"] .kg-watched-icon {
-  color: rgb(var(--kg-primary-container));
+  color: rgb(var(--kg-accent-text));
 }
 
 .kg-watched-button .kg-watched-icon {

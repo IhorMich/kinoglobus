@@ -43,7 +43,7 @@
     .kg-code-slot::before {top:8px}
     .kg-code-slot::after {bottom:8px}
     .kg-code-slot[data-current] {background:rgb(var(--kg-surface-container-high));box-shadow:0 0 18px var(--halo)}
-    .kg-code-slot[data-current]::before,.kg-code-slot[data-current]::after {color:rgb(var(--kg-primary-container));opacity:1}
+    .kg-code-slot[data-current]::before,.kg-code-slot[data-current]::after {color:rgb(var(--kg-accent-text));opacity:1}
     .kg-code-slot[data-current] span {width:9px;height:26px;border-radius:2px;background:rgb(var(--kg-primary-container))}
     .kg-code-digits:focus-within .kg-code-slot[data-current],
     .kg-code-digits:focus-within:not(:has([data-current])) .kg-code-slot:last-child {outline:2px solid rgb(var(--kg-primary));outline-offset:2px}

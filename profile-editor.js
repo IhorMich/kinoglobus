@@ -54,7 +54,7 @@
     .kg-edit-toolbar h1 {line-height:1.15}
     .kg-edit-scroll {min-height:0;flex:1;overflow:auto;overscroll-behavior:contain}
     .kg-edit-form {display:flex;flex-direction:column;min-height:0;flex:1}
-    .kg-edit-nav {justify-content:space-around;padding:5px 2% calc(5px + env(safe-area-inset-bottom,0px));box-shadow:0 -6px 24px #0005}
+    .kg-edit-nav {justify-content:space-around;padding:5px 2% calc(5px + env(safe-area-inset-bottom,0px));box-shadow:0 -6px 24px rgb(var(--kg-black)/0.33333)}
     .kg-edit-nav button {display:grid;justify-items:center;align-content:center;gap:3px;font-size:11px;color:rgb(var(--kg-on-surface-variant))}
     #kg-profile-editor button:focus-visible,#kg-profile-editor input:focus-visible,#kg-profile-editor textarea:focus-visible {
       outline:2px solid rgb(var(--kg-primary));outline-offset:2px;
@@ -68,7 +68,7 @@
       padding:12px 22px calc(22px + env(safe-area-inset-bottom,0px));
       animation:kgEditSheetIn .3s ease-out both;
     }
-    #kg-edit-sheet::backdrop {background:#000b;backdrop-filter:blur(8px);animation:kgEditBackdrop .3s ease-out both}
+    #kg-edit-sheet::backdrop {background:rgb(var(--kg-black)/0.73333);backdrop-filter:blur(8px);animation:kgEditBackdrop .3s ease-out both}
     #kg-edit-sheet[data-closing] {animation:kgEditSheetOut .3s ease-in both}
     #kg-edit-sheet[data-closing]::backdrop {animation:kgEditBackdropOut .3s ease-in both}
     @keyframes kgEditSheetIn {from {transform:translateY(100%)} to {transform:translateY(0)}}
@@ -82,27 +82,27 @@
     .kg-edit-panel,.kg-edit-panel form {display:grid;gap:10px}
     .kg-edit-panel p {color:rgb(var(--kg-on-surface-variant))}
     .kg-edit-panel button,.kg-edit-panel input {padding:9px;border-radius:9px;background:rgb(var(--kg-surface-container-high));color:rgb(var(--kg-primary))}
-    .kg-edit-panel .kg-edit-discard {background:#561c29;color:#ffd9df}
+    .kg-edit-panel .kg-edit-discard {background:rgb(var(--kg-violet-surface-05));color:rgb(var(--kg-rose-12))}
     .kg-edit-panel button:disabled {opacity:.35}
     .kg-edit-shelf-row {display:flex;align-items:center;gap:8px}
     .kg-edit-shelf-row b {flex:1}
     .kg-edit-poster {position:relative;aspect-ratio:2/3;overflow:hidden;border-radius:6px;background:rgb(var(--kg-surface-container-highest));display:grid;place-items:center}
     .kg-edit-poster img {width:100%;height:100%;object-fit:cover}
-    .kg-edit-poster > span:first-of-type:not(.material-symbols-outlined) {position:absolute;top:5px;left:5px;background:#110e16c9;padding:0 4px;border-radius:4px;color:rgb(var(--kg-primary))}
-    .kg-edit-poster button {position:absolute;top:5px;right:5px;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:#93000a;color:#ffd9db}
+    .kg-edit-poster > span:first-of-type:not(.material-symbols-outlined) {position:absolute;top:5px;left:5px;background:rgb(var(--kg-neutral-21)/0.78824);padding:0 4px;border-radius:4px;color:rgb(var(--kg-primary))}
+    .kg-edit-poster button {position:absolute;top:5px;right:5px;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:rgb(var(--kg-error-container));color:rgb(var(--kg-rose-11))}
     .kg-edit-poster button .material-symbols-outlined,.kg-edit-chip .material-symbols-outlined {font-size:16px}
     .kg-edit-chips {display:flex;flex-wrap:wrap;gap:7px}
     .kg-edit-chip {display:inline-flex;align-items:center;gap:5px;padding:5px 9px;border-radius:99px;background:rgb(var(--kg-surface-container-low));color:rgb(var(--kg-on-surface-variant));font-size:12px;transition:background-color .2s,color .2s}
-    .kg-edit-chip[aria-pressed=true] {background:rgb(var(--kg-primary));color:#432c00}
+    .kg-edit-chip[aria-pressed=true] {background:rgb(var(--kg-primary));color:rgb(var(--kg-on-primary))}
     .kg-edit-switch {appearance:none;flex:none;width:44px;height:24px;border-radius:99px;border:0;background:rgb(var(--kg-surface-container-highest));padding:3px;cursor:pointer;transition:background-color .2s}
     .kg-edit-switch::before {content:"";display:block;width:18px;height:18px;border-radius:50%;background:rgb(var(--kg-on-surface));transition:transform .2s}
     .kg-edit-switch:checked {background:rgb(var(--kg-primary))}
-    .kg-edit-switch:checked::before {transform:translateX(20px);background:#432c00}
+    .kg-edit-switch:checked::before {transform:translateX(20px);background:rgb(var(--kg-on-primary))}
     .kg-edit-toast {
       position:absolute;z-index:2;top:calc(66px + env(safe-area-inset-top,0px));left:5%;width:90%;
       pointer-events:none;display:flex;align-items:center;gap:10px;padding:12px;border-radius:12px;
       background:rgb(var(--kg-surface-container-high));border:1px solid rgb(var(--kg-primary) / .4);
-      color:rgb(var(--kg-primary));box-shadow:0 10px 35px #0009;opacity:0;
+      color:rgb(var(--kg-primary));box-shadow:0 10px 35px rgb(var(--kg-black)/0.6);opacity:0;
       transform:translateY(-24px) scale(.95);transition:opacity .5s ease-out,transform .5s ease-out;
     }
     .kg-edit-toast[data-show] {opacity:1;transform:none}
@@ -112,7 +112,7 @@
     #kg-profile-editor #saveChangesBtn[data-phase="saving"] #btnStateSaving,
     #kg-profile-editor #saveChangesBtn[data-phase="saved"] #btnStateSuccess {display:flex}
     #kg-profile-editor #saveChangesBtn[data-phase=saving] {animation:kgEditGlow 1.2s ease-in-out infinite}
-    #kg-profile-editor #saveChangesBtn[data-phase=saved] {background:linear-gradient(100deg,#0e4429,#107038 58%,rgb(var(--kg-primary-container)));color:white}
+    #kg-profile-editor #saveChangesBtn[data-phase=saved] {background:linear-gradient(100deg,rgb(var(--kg-green-01)),rgb(var(--kg-green-02)) 58%,rgb(var(--kg-primary-container)));color:rgb(var(--kg-white))}
     .kg-edit-reel {animation:kgEditSpin .9s cubic-bezier(.4,0,.2,1) infinite}
     .kg-edit-check {animation:kgEditCheck .35s cubic-bezier(.175,.885,.32,1.275) both}
     .kg-edit-dot {animation:kgEditDot 2s ease-in-out infinite}
@@ -269,7 +269,7 @@
 </div>
 <div class="flex flex-col gap-space-sm pt-space-xs pb-space-lg">
 <div class="flex items-center justify-center gap-1.5 py-1 text-on-surface-variant text-[11px]">
-<span class="w-2 h-2 rounded-full bg-[#00e054] kg-edit-dot transition-all duration-300" id="syncDot"></span>
+<span class="w-2 h-2 rounded-full bg-[rgb(var(--kg-green-06))] kg-edit-dot transition-all duration-300" id="syncDot"></span>
 <span id="syncText">Тестовый профиль · Изменения хранятся в этой сессии</span>
 </div>
 <button class="relative overflow-hidden w-full py-3.5 rounded-full bg-primary text-on-primary font-label-lg text-label-lg flex items-center justify-center gap-2 shadow-[0_4px_24px_rgb(var(--kg-primary)/0.3)] hover:bg-primary-container active:scale-95 transition-all duration-300 cursor-pointer select-none" id="saveChangesBtn" type="submit">

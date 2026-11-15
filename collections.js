@@ -31,6 +31,9 @@ st2.textContent=`.kgr-win{position:relative;height:150px;overflow:hidden;-webkit
 .kg-home-europe::-webkit-scrollbar{display:none}
 .kg-home-film-wrap{flex:0 0 9rem;scroll-snap-align:start}
 [data-selected-film]{min-width:0;max-width:100%}.kg-detail-trailer{box-sizing:border-box;width:100%;max-width:100%;height:auto;aspect-ratio:16/9;min-height:0;max-height:min(56dvh,320px);flex:none;overflow:hidden;contain:layout paint}.kg-detail-trailer iframe{position:absolute;inset:0;width:100%;height:100%;max-width:100%;border:0}
+#kg-home-feature .kg-day-poster{width:44%;max-width:192px;aspect-ratio:2/3}
+#kg-home-feature .kg-detail-trailer{max-height:none}
+#kg-home-feature .kg-day-poster .kg-bookmark-button{z-index:2}
 @media(prefers-reduced-motion:reduce){.kgr-rise{animation:none}}`;
 document.head.appendChild(st2);
 
@@ -719,6 +722,9 @@ function selectedFilmHtml(f,embedded=false){
 <div class="w-14 h-14 rounded-full overflow-hidden mb-2 bg-surface-variant shadow-md flex items-center justify-center">${c.photo?`<img class="w-full h-full object-cover" loading="lazy" alt="" src="${P(c.photo,"w185")}">`:'<span class="material-symbols-outlined text-text-muted">person</span>'}</div>
 <span class="font-label-sm text-label-sm text-on-surface font-semibold truncate w-full">${esc(c.name)}</span><span class="font-micro-caption text-micro-caption text-text-muted truncate w-full">${esc(c.role)}</span></button>`).join("");
   const activeVideo=f._trailer||null;
+  const closeTrailer=f._placement==="home"&&f._trailerPlaying&&activeVideo
+    ?`<button type="button" data-trailer-action="close" data-id="${f.id}" class="self-start inline-flex min-h-11 items-center gap-1.5 rounded-lg bg-surface-container px-3 text-primary hover:bg-surface-container-high font-label-sm text-label-sm"><span class="material-symbols-outlined text-[18px]" aria-hidden="true">expand_less</span>${uiText("Свернуть трейлер")}</button>`
+    :"";
   const trailerContent=f._trailerPlaying&&activeVideo
     ?`<iframe src="${embedSrc(activeVideo,true)}" allow="${trailerFramePermissions}" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" title="${esc(uiText("Трейлер {title}", {title: f.title}))}" class="kg-trailer-frame"></iframe>`
     :activeVideo
@@ -751,6 +757,7 @@ function selectedFilmHtml(f,embedded=false){
 <div class="flex flex-wrap items-start justify-between gap-2 min-w-0"><div class="flex flex-col min-w-0"><h3 class="font-headline-md text-headline-md text-primary font-bold tracking-tight">${title}</h3>${orig?`<span class="font-body-sm text-body-sm text-text-muted mt-0.5">${orig}</span>`:""}</div>
 <div class="flex items-center gap-1.5 shrink-0">${f.runtime?`<div class="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-surface-container-high"><span class="material-symbols-outlined text-primary-container text-[18px]" style="font-variation-settings:'FILL' 1;">timer</span><span class="font-label-sm text-label-sm text-on-surface">${uiText("{minutes} мин", {minutes: f.runtime})}</span></div>`:""}${kgBookmarkButton(f)}<button type="button" data-act="close-film" aria-label="${uiText("Свернуть карточку")}" class="w-9 h-9 rounded-full bg-surface-container-high text-text-muted hover:text-primary flex items-center justify-center"><span class="material-symbols-outlined">${embedded?"expand_less":"close"}</span></button></div></div>
 ${trailerBox}
+${closeTrailer}
 ${window.KGLegalWatch?.markup(f.id)||""}
 ${activeVideo?`<a href="${watchUrl(activeVideo)}" target="_blank" rel="noopener noreferrer" class="font-micro-caption text-micro-caption text-primary underline">${esc(uiText("Не воспроизводится? Открыть на {site}", {site: activeVideo.site}))}</a>`:""}
 ${rating?`<div class="flex items-center gap-2 overflow-x-auto py-0.5">${rating}</div>`:""}
@@ -785,9 +792,18 @@ document.addEventListener("click",e=>{
   const selected=D.selected;
   if(!selected||String(selected.id)!==String(action.dataset.id))return;
   e.preventDefault();
+  if(action.dataset.trailerAction==="close"&&selected._placement==="home"){
+    selected._trailerPlaying=false;
+    renderSelectedPanel();
+    $("kg-home-feature").querySelector('[data-trailer-action="play"]')?.focus({preventScroll:true});
+    return;
+  }
   if(action.dataset.trailerAction!=="play" || selected._trailerPlaying)return;
   selected._trailerPlaying=true;
   renderSelectedPanel();
+  if(selected._placement==="home"){
+    $("kg-home-feature").querySelector('[data-trailer-action="close"]')?.focus({preventScroll:true});
+  }
 });
 function otherHtml(t){
   const m=META[t.id]||{};
@@ -910,7 +926,7 @@ function renderSelectedPanel(){
     const film=homeEditorial.films.find(f=>String(f.id)===String(selected.id));
     if(film){
       homeEditorial.featureDetails={...homeEditorial.featureDetails,...selected};
-      $("kg-home-feature").innerHTML=homeFeatureMarkup(film,homeEditorial.featureDetails,selected);paintWatchedButtons($("kg-home-feature"));
+      renderHomeFeature(film,homeEditorial.featureDetails,selected);
     }
     return;
   }
@@ -1223,16 +1239,32 @@ function homeFeatureMarkup(f,d,expandedFilm=null){
   const synopsis=(d&&d.overview)||filmSynopsis(f.overview)||uiText("Описание пока недоступно.");
   const poster=filmPosterMarkup({...f, title:d?.title || f.title, localizedPoster:d?.localizedPoster});
   const isExpanded=expandedFilm&&String(expandedFilm.id)===String(f.id);
-  return `<article data-home-act="open" data-id="${f.id}" class="w-full rounded-xl bg-surface-container-high shadow-xl p-3.5 cursor-pointer">
-<p class="font-micro-caption text-micro-caption uppercase tracking-wider text-primary font-bold mb-2">${uiText("Выбор дня · Программа № {number}", {number: homeDayNumber()})}</p>
-<div class="flex gap-3.5 items-start">
-<div class="relative w-28 h-40 shrink-0 rounded-lg overflow-hidden shadow-md bg-surface-container-lowest flex items-center justify-center">${poster}<span class="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded bg-surface-container-lowest/90 text-primary-container font-label-sm text-label-sm font-bold shadow">★ ${rating.toFixed(1)}</span>${kgBookmarkButton({...f,title:d?.title || f.title, localizedPoster:d?.localizedPoster}, "corner")}</div>
+  return `<p class="font-micro-caption text-micro-caption uppercase tracking-wider text-primary font-bold mb-2">${uiText("Выбор дня · Программа № {number}", {number: homeDayNumber()})}</p>
+<div class="relative flex gap-3.5 items-start">
+<div class="kg-day-poster relative shrink-0 rounded-lg overflow-hidden shadow-md bg-surface-container-lowest">${poster}<span class="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded bg-surface-container-lowest/90 text-primary-container font-label-sm text-label-sm font-bold shadow">★ ${rating.toFixed(1)}</span>${kgBookmarkButton({...f,title:d?.title || f.title, localizedPoster:d?.localizedPoster}, "corner")}</div>
 <div class="min-w-0 flex-1">
 <h3 class="font-headline-sm text-headline-sm text-on-surface font-bold leading-snug">${title}</h3>
 ${year?`<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">${year}</p>`:""}
 <p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed mt-2 kg-clip3">${esc(synopsis)}</p>
-</div></div>
-${isExpanded?selectedFilmHtml(expandedFilm,true):""}</article>`;
+</div>
+<button type="button" data-home-act="open" data-id="${f.id}" aria-expanded="${Boolean(isExpanded)}" aria-label="${isExpanded?uiText("Свернуть карточку"):esc(uiText("Открыть фильм {title}", {title:d?.title||f.title||f.original_title||uiText("Фильм")}))}" class="absolute inset-0 z-[1] flex justify-end items-end rounded-lg cursor-pointer text-primary"><span class="material-symbols-outlined" aria-hidden="true">${isExpanded?"expand_less":"expand_more"}</span></button>
+</div>
+${isExpanded?`<div class="mt-3">${selectedFilmHtml(expandedFilm,true)}</div>`:""}`;
+}
+function renderHomeFeature(film,details,selected){
+  const feature=$("kg-home-feature");
+  if(selected?._trailerPlaying&&feature.querySelector(`[data-selected-film="${selected.id}"] iframe`))return;
+  feature.innerHTML=homeFeatureMarkup(film,details,selected);
+  if(selected)paintWatchedButtons(feature);
+}
+function closeHomeFeature(){
+  const film=homeEditorial.films.find(f=>String(f.id)===String(D.selected?.id));
+  D.selected=null;
+  if(!film)return;
+  renderHomeFeature(film,homeEditorial.featureDetails,null);
+  const summary=$("kg-home-feature").querySelector('[data-home-act="open"]');
+  summary?.focus({preventScroll:true});
+  if(summary&&window.KGScrollToFilmStart)window.KGScrollToFilmStart(summary);
 }
 function homeDayNumber(){
   const now=new Date();
@@ -1250,13 +1282,13 @@ function homeFilmCard(f){
 }
 function renderHomeEditorial(){
   if(!homeEditorialRoot)return;
-  const feature=$("kg-home-feature"),carousel=$("kg-home-europe");
+  const carousel=$("kg-home-europe");
   const scrollLeft=carousel.scrollLeft,anchor=homeEditorial.scrollAnchorId&&carousel.querySelector(`[data-home-meta="${homeEditorial.scrollAnchorId}"]`),anchorTop=anchor?anchor.getBoundingClientRect().top:null;
   const films=homeEditorial.films;
   if(!films.length)return;
   const dayIndex=(homeDayNumber()-1)%films.length,featured=films[dayIndex];
   const selected=D.selected&&D.selected._placement==="home"&&String(D.selected.id)===String(featured.id)?D.selected:null;
-  feature.innerHTML=homeFeatureMarkup(featured,homeEditorial.featureDetails||null,selected);
+  renderHomeFeature(featured,homeEditorial.featureDetails||null,selected);
   carousel.innerHTML=films.map(homeFilmCard).join("");
   carousel.scrollLeft=scrollLeft;
   if(anchorTop!==null)requestAnimationFrame(()=>{
@@ -1282,7 +1314,7 @@ function renderHomeEditorial(){
       if(!homeEditorial.films.length||homeEditorial.films[dayIndex].id!==featured.id)return;
       homeEditorial.featureDetails=d;homeEditorial.directorData.set(featured.id,d);
       const selected=D.selected&&D.selected._placement==="home"&&String(D.selected.id)===String(featured.id)?D.selected:null;
-      feature.innerHTML=homeFeatureMarkup(featured,d,selected);
+      renderHomeFeature(featured,d,selected);
       const credit=document.querySelector(`[data-home-director="${featured.id}"]`);
       if(credit&&d.dirs.length)credit.innerHTML=[d.dirsFull&&d.dirsFull[0]?kgPersonLink(d.dirsFull[0],"Режиссёр"):esc(d.dirs[0]),homeFilmYear(featured)].filter(Boolean).join(" · ");
     }).catch(e=>{homeEditorial.details.delete(featured.id);console.warn("[Kinoglobus] Не удалось загрузить данные фильма дня:",e);});
@@ -1301,7 +1333,7 @@ async function loadHomeDirector(id){
     if(homeEditorial.films[featureIndex]?.id===f.id){
       homeEditorial.featureDetails=d;
       const selected=D.selected&&D.selected._placement==="home"&&String(D.selected.id)===String(f.id)?D.selected:null;
-      $("kg-home-feature").innerHTML=homeFeatureMarkup(f,d,selected);
+      renderHomeFeature(f,d,selected);
     }
   }catch(e){
     homeEditorial.details.delete(f.id);
@@ -1310,7 +1342,7 @@ async function loadHomeDirector(id){
       const emptyDetails={dirs:[],genres:[],companies:[],runtime:0,tagline:"",overview:""};
       homeEditorial.featureDetails=emptyDetails;
       const selected=D.selected&&D.selected._placement==="home"&&String(D.selected.id)===String(f.id)?D.selected:null;
-      $("kg-home-feature").innerHTML=homeFeatureMarkup(f,emptyDetails,selected);
+      renderHomeFeature(f,emptyDetails,selected);
     }
     console.warn("[Kinoglobus] Не удалось загрузить режиссёра:",e);
   }
@@ -1369,7 +1401,7 @@ homeEditorialRoot.addEventListener("click",async e=>{
     if(detailAction.dataset.act==="close-film"){
       const placement=D.selected&&D.selected._placement;
       if(placement==="home"){
-        D.selected=null;renderHomeEditorial();
+        closeHomeFeature();
       }else{
         if(placement&&placement.startsWith("home"))D.selected=null;
         const container=detailAction.closest("#kg-home-europe-detail");
@@ -1392,6 +1424,7 @@ homeEditorialRoot.addEventListener("click",async e=>{
   if(!film)return;
   if(action==="open"){
     if(button.dataset.homeMeta){homeEditorial.scrollAnchorId=String(film.id);openFilm(film,"home-europe");}
+    else if(D.selected?._placement==="home"&&String(D.selected.id)===String(film.id))closeHomeFeature();
     else openFilm(film,"home");
     return;
   }

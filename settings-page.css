@@ -92,7 +92,7 @@
 }
 
 .kgs-reel-choice[aria-checked="true"] .kgs-reel-title {
-  color: rgb(var(--kg-primary-container));
+  color: rgb(var(--kg-accent-text));
   font-family: "Noto Serif", serif;
   font-weight: 700;
   letter-spacing: .025em;

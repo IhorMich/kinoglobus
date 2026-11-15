@@ -1,5 +1,5 @@
 <!DOCTYPE html><html class="dark" lang="ru"><head><meta charset="utf-8"><link rel="stylesheet" href="app-theme.css?v=6">
-<script src="interface-en.js?v=28"></script>
+<script src="interface-en.js?v=29"></script>
 <script src="interface-i18n.js?v=2"></script>
 <script>
 const APP_THEMES = ["cinematic", "oled", "golden-age"];
@@ -3721,6 +3721,11 @@ const CARD_HTML=`
 <div class="mt-1.5 flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
 <span class="text-primary-fixed font-label-sm text-label-sm">★ <b id="discovery-rating">—</b></span><span class="font-micro-caption text-micro-caption text-text-muted" id="discovery-votes">TMDB</span>
 </div>
+<div class="flex flex-wrap items-center gap-1.5 mt-2" id="film-actions">
+${window.KGWatchedButtonHtml(false, 'id="btn-watched"')}
+<span id="discovery-bookmark"></span>
+<button type="button" id="discovery-add-note" class="inline-flex items-center gap-1 rounded-lg bg-surface-container-high px-2 py-2 text-primary font-label-sm text-label-sm hover:brightness-110"><span class="material-symbols-outlined text-[16px]" aria-hidden="true">edit_note</span><span data-note-label>${uiText("Добавить запись")}</span></button>
+</div>
 <p class="font-body-sm text-body-sm text-primary-fixed mt-1" style="font-style:italic" id="film-tagline" hidden></p>
 </div>
 </div>
@@ -3740,9 +3745,7 @@ const CARD_HTML=`
 </div>
 <div class="mt-2.5 pt-2 border-t border-surface-border/50" id="film-more">
 <div class="grid gap-1 font-body-sm text-body-sm mt-1" id="film-facts"></div>
-<div class="flex flex-wrap items-center gap-2 mt-2" id="film-actions">
-${window.KGWatchedButtonHtml(false, 'id="btn-watched"')}
-<span id="discovery-bookmark"></span>
+<div class="flex flex-wrap items-center gap-2 mt-2">
 <button class="py-2 px-3 rounded-xl bg-primary-container text-on-primary-container font-label-sm text-label-sm font-semibold flex items-center justify-center gap-1 hover:brightness-110 transition-all active:scale-95 cursor-pointer" id="btn-spin-another-film" title="Найти другой фильм из этой страны" type="button"><span class="material-symbols-outlined text-[16px]">autorenew</span><span>Крутить ещё раз</span></button>
 </div>
 </div>
@@ -4355,6 +4358,7 @@ window.show=function(cc,pool,film){
   bw.dataset.saving="false";
   paintWatchedButton(bw,alreadyWatched);
   $("discovery-bookmark").innerHTML = kgBookmarkButton({...film,_cc:cur.cc});
+  paintDiscoveryNote();
   ag.style.display=$("again").hidden?"none":"";
   ftKey=null;closeFilmTrailer();
   trailerFor(film).then(k=>{
@@ -4386,6 +4390,21 @@ async function markCurrentFilm(button){
   try{const result=await window.KGToggleWatched(film);if(result!==next)throw new Error("Не удалось обновить отметку просмотра");paintWatchedButton(bw,next);bw.dataset.saving="false";syncDesign();}
   catch(error){if(button){button.dataset.saving="false";paintWatchedButton(button,!!window.KGIsFilmWatched?.(film.id));}console.warn("[Kinoglobus] Не удалось обновить просмотр:",error);}
 }
+function paintDiscoveryNote(){
+  const hasNote = window.KGHasCinemaDiaryNote?.(cur?.film.id);
+  $("discovery-add-note").querySelector("[data-note-label]").textContent =
+    uiText(hasNote ? "Редактировать запись" : "Добавить запись");
+}
+$("discovery-add-note").addEventListener("click", () => {
+  if (!cur) return;
+  const {film, cc} = cur;
+  const details = detailCache[film.id];
+  window.KGOpenCinemaDiaryNote?.({
+    ...film, _cc:cc, title:details?.title || film.title,
+    localizedPoster:details?.localizedPoster || film.localizedPoster
+  });
+});
+document.addEventListener("kg:diary-note-change", paintDiscoveryNote);
 bw.addEventListener("click",()=>markCurrentFilm(bw));
 ag.addEventListener("click",()=>$("again").click());
 
@@ -4435,7 +4454,7 @@ console.info("[Kinoglobus] Bridge v6 ready");
 <script src="watch-history.js?v=10"></script>
 <script src="country-pages.js?v=27"></script>
 <script src="profile-page.js?v=6"></script>
-<script src="cinema-diary.js?v=5"></script>
+<script src="cinema-diary.js?v=6"></script>
 <script src="profile-editor.js?v=1"></script>
 <script src="login-page.js?v=3"></script>
 <script src="password-recovery.js?v=2"></script>

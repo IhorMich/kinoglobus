@@ -43,7 +43,7 @@ window.KGInterfaceDictionaries.en = Object.freeze({
   "Изменить ключ": "Change key",
   "Проверить связь": "Test connection",
   "Тема и визуальный стиль": "Theme and appearance",
-  "Цвет кнопок": "Button color",
+  "Акцент приложения": "App accent",
   "Бирюза": "Turquoise",
   "Золото": "Gold",
   "3 темы доступны": "3 themes available",

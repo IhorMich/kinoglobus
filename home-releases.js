@@ -2,8 +2,9 @@
 (() => {
   const root = document.getElementById("kg-home-releases");
   const sections = [
-    {id: "digital", icon: "high_quality", title: "Новинки в качестве", subtitle: "Уже в цифровом релизе", more: "Все новинки", type: "4", days: 60, limit: 6},
-    {id: "cinema", icon: "theaters", title: "Сейчас в кинотеатрах", subtitle: "Недавние премьеры на большом экране", type: "3|2", days: 21, limit: 7}
+    {id: "digital", icon: "high_quality", title: "Новинки в качестве", subtitle: "Уже в цифровом релизе", more: "Все новинки", type: "4", from: -60, to: 0, limit: 6},
+    {id: "cinema", icon: "theaters", title: "Сейчас в кинотеатрах", subtitle: "Недавние премьеры на большом экране", theatrical: true, type: "3|2", from: -21, to: 0, limit: 7},
+    {id: "upcoming", icon: "theaters", title: "Скоро в кинотеатрах", subtitle: "Премьеры на ближайшие 30 дней", theatrical: true, type: "3|2", from: 1, to: 30, limit: 7}
   ].map(section => ({...section, films: [], expanded: false}));
   const escape = value => String(value ?? "").replace(/[&<>"']/g, char =>
     ({"&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"})[char]
@@ -11,9 +12,9 @@
   const copy = (source, params) => escape(uiText(source, params));
   const icon = name => `<span class="material-symbols-outlined text-[18px]" aria-hidden="true">${name}</span>`;
   const title = film => film.title || film.original_title || uiText("Фильм");
-  const day = daysAgo => {
-    const date = new Date();
-    date.setDate(date.getDate() - daysAgo);
+  const day = (today, offset) => {
+    const date = new Date(today);
+    date.setDate(date.getDate() + offset);
     const month = String(date.getMonth()+1).padStart(2,"0");
     return `${date.getFullYear()}-${month}-${String(date.getDate()).padStart(2,"0")}`;
   };
@@ -48,7 +49,11 @@
       </div>
       <div id="kg-release-${section.id}-feed"></div>
       <div id="kg-release-${section.id}-detail"></div>`;
-    root.appendChild(element);
+    if (section.id === "upcoming") {
+      document.getElementById("kg-home-feature").after(element);
+    } else {
+      root.appendChild(element);
+    }
     section.element = element;
     section.feed = element.querySelector(`#kg-release-${section.id}-feed`);
     section.moreButton = element.querySelector("[data-release-action=expand]");
@@ -63,8 +68,8 @@
       } else if (action === "retry") {
         loadSection(section, context);
       } else if (action === "expand") {
-        if (section.id === "cinema") {
-          expandCinema(section, button);
+        if (section.theatrical) {
+          expandTheatrical(section, button);
         } else {
           section.expanded = !section.expanded;
           render(section);
@@ -97,7 +102,7 @@
 
   const railClass = "flex gap-3.5 overflow-x-auto snap-x -mx-margin-mobile px-margin-mobile py-1";
 
-  function cinemaMore(section) {
+  function theatricalMore(section) {
     if (section.visible >= section.films.length && section.page >= section.totalPages) return "";
     return `<button type="button" data-release-action="expand"
       class="grid w-40 shrink-0 snap-start self-start aspect-[2/3] place-items-center rounded-xl bg-surface-container-lowest border border-surface-border-subtle text-primary font-label-md text-label-md hover:bg-surface-container-high focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary">
@@ -105,7 +110,7 @@
     </button>`;
   }
 
-  async function expandCinema(section, button) {
+  async function expandTheatrical(section, button) {
     const current = context;
     const start = section.visible;
     const rail = button.parentElement;
@@ -136,7 +141,7 @@
     const previous = button.previousElementSibling;
     button.insertAdjacentHTML("beforebegin", section.films.slice(start).map(film => posterCard(film, false)).join(""));
     const firstAdded = previous?.nextElementSibling;
-    button.insertAdjacentHTML("afterend", cinemaMore(section));
+    button.insertAdjacentHTML("afterend", theatricalMore(section));
     const nextButton = button.nextElementSibling;
     button.remove();
     const next = firstAdded && firstAdded !== button ? firstAdded : nextButton;
@@ -162,8 +167,8 @@
       message(section, "За этот период в выбранном регионе релизов нет.");
       return;
     }
-    if (section.id === "cinema") {
-      feed.innerHTML = `<div class="${railClass}">${films.slice(0, section.visible).map(film => posterCard(film, false)).join("")}${cinemaMore(section)}</div>`;
+    if (section.theatrical) {
+      feed.innerHTML = `<div class="${railClass}">${films.slice(0, section.visible).map(film => posterCard(film, false)).join("")}${theatricalMore(section)}</div>`;
       return;
     }
     moreButton.hidden = films.length <= limit;
@@ -186,8 +191,8 @@
     try {
       const params = {
         language: filmLocale, region: current.region, include_adult: "false",
-        with_release_type: section.type, "release_date.gte": day(section.days),
-        "release_date.lte": day(0), sort_by: "popularity.desc"
+        with_release_type: section.type, "release_date.gte": day(current.today, section.from),
+        "release_date.lte": day(current.today, section.to), sort_by: "popularity.desc"
       };
       const result = await requestTmdb("discover/movie", params);
       if (context !== current) return;
@@ -197,12 +202,12 @@
       section.totalPages = Math.min(result.total_pages || 1, 500);
       section.visible = section.limit;
       render(section);
-      const featured = section.id === "cinema" ? section.films.slice(0, 1) : section.films.slice(0, 3);
+      const featured = section.films.slice(0, section.theatrical ? 1 : 3);
       await Promise.allSettled(featured.map(async film => {
         const details = await filmDetails(film.id);
         if (context !== current) return;
         Object.assign(film, {title:details.title || film.title, localizedPoster:details.localizedPoster});
-        if (section.id === "cinema") {
+        if (section.theatrical) {
           const card = section.feed.querySelector(`[data-release-action="film"][data-id="${film.id}"]`)?.parentElement;
           if (card && !card.contains(document.activeElement)) card.outerHTML = posterCard(film, false);
         }
@@ -220,9 +225,11 @@
 
   function refresh() {
     const region = window.KGLegalWatch.getEffectiveRegion();
-    if (context?.key === apiKey && context.region === region) return;
+    const today = new Date();
+    const dateKey = day(today, 0);
+    if (context?.key === apiKey && context.region === region && context.dateKey === dateKey) return;
     closeDetails();
-    context = {key:apiKey, region, regionName:interfaceRegionNames.of(region)};
+    context = {key:apiKey, region, regionName:interfaceRegionNames.of(region), today, dateKey};
     for (const section of sections) {
       section.expanded = false;
       section.films = [];
@@ -235,5 +242,8 @@
 
   document.getElementById("tmdb-key-save").addEventListener("click", refresh);
   document.getElementById("settings").addEventListener("close", refresh);
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) refresh();
+  });
   refresh();
 })();

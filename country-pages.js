@@ -109,6 +109,7 @@
     #kg-watch-history .jfilm:focus-visible{outline:2px solid #ffdca8;outline-offset:2px}
     .kgc-catalog-link{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;margin:10px 0;padding:9px 10px;border:1px solid #ffdca832;border-radius:10px;background:rgb(var(--kg-surface-container-high));color:#ffdca8;text-align:left;font-weight:600;cursor:pointer}
     .kgc-catalog-link:hover{border-color:#ffdca8}
+    .kgc-poster-placeholder{display:grid;place-items:center;text-align:center;color:#b3a79a;font-size:11px}
     .kgc-mini[data-open-catalog],.kgc-mini[data-atlas-history]{border:1px solid transparent;text-align:center;cursor:pointer;color:inherit}
     .kgc-mini[data-open-catalog]:is(:hover,:focus-visible),.kgc-mini[data-atlas-history]:is(:hover,:focus-visible){border-color:#ffdca8}
     .kgc-overview-open{position:absolute;inset:0;width:100%;height:100%;border:0;border-radius:inherit;background:transparent;cursor:pointer}
@@ -245,6 +246,32 @@
     filmOpener = null;
   });
 
+  async function loadLatestPoster(film, slot) {
+    const image = new Image();
+    image.className = 'kgc-poster';
+    image.alt = '';
+    const tried = new Set();
+
+    async function show(path) {
+      if (!slot.isConnected || !/^\/[a-z0-9_.-]+$/i.test(path || '') || tried.has(path)) return false;
+      tried.add(path);
+      image.src = poster({poster_path:path}, 'w185');
+      try {
+        await image.decode();
+      } catch (_) {
+        return false;
+      }
+      if (slot.isConnected) slot.replaceChildren(image);
+      return true;
+    }
+
+    if (await show(film.poster || film.poster_path)) return;
+    if (!slot.isConnected || !app.key()) return;
+    const details = await app.getFilmDetails(film.id).catch(() => null);
+    if (await show(details?.posterPath)) return;
+    await show(details?.localizedPoster?.path);
+  }
+
   function atlas(){
     parkAtlasMap();
     root.dataset.page='atlas';
@@ -273,7 +300,7 @@
       <div class="kgc-section"><h3>${uiText("🏆 Чаще всего в зале")}</h3><span class="kgc-chip neutral">${uiText("Лидер кинопутешествия")}</span></div>
       ${leader?`<button class="kgc-pad" data-open-country="${leader}" style="display:block;width:100%;text-align:left;border:0;background:transparent;padding-top:0"><div class="kgc-panel kgc-country-hero">${flagBackdrop(leader)}<div class="kgc-hero-content"><div class="kgc-chips"><span class="kgc-chip">${flag(leader)} ${uiText("Сеансов: {count}", {count: fmt(counts[leader])})}</span><span class="kgc-chip neutral">${uiText("№ {rank} в ваших открытиях", {rank: String(ordered.indexOf(leader)+1).padStart(2,'0')})}</span></div><h2 class="kgc-country-name">${esc(app.countryName(leader))}</h2><p class="kgc-blurb">${uiText("Ваша личная кинематографическая карта этой страны. Откройте паспорт, чтобы увидеть отмеченные фильмы.")}</p></div></div></button>`:`<div class="kgc-pad" style="padding-top:0"><div class="kgc-panel"><div class="kgc-title">${uiText("Ваше первое кинооткрытие")}</div><p class="kgc-muted">${uiText("Отметьте просмотренный фильм — и страна его производства появится в атласе.")}</p><button class="kgc-btn secondary" data-open-map>${uiText("Перейти к глобусу　↗")}</button></div></div>`}
       <div class="kgc-section"><h3>${uiText("◎ Последнее открытие")}</h3><span class="kgc-muted">${latest?new Date(latest.watchedAt||Date.now()).toLocaleDateString(interfaceLanguage):uiText("История пока пуста")}</span></div>
-      ${latest?`<div class="kg-bookmark-card"><button data-open-saved="${esc(latest.id)}" class="kgc-pad" style="display:block;width:100%;text-align:left;border:0;background:transparent;padding-top:0"><div class="kgc-panel kgc-feature">${poster(latest,'w185')?`<img class="kgc-poster" src="${poster(latest,'w185')}" alt="">`:'<div class="kgc-poster"></div>'}<span class="kgc-latest-copy"><span class="kgc-chip">${uiText("Просмотрено")}</span><b class="kgc-filmname">${esc(latest.title||uiText("Фильм"))}</b><small class="kgc-muted">${esc([latest.year,latestCountry?app.countryName(latestCountry):''].filter(Boolean).join(' · '))}</small></span></div></button>${kgBookmarkButton(latest,"hero")}</div>`:`<div class="kgc-pad" style="padding-top:0"><div class="kgc-empty">${uiText("Здесь появится последний фильм, который вы отметили как просмотренный.")}</div></div>`}
+      ${latest?`<div class="kg-bookmark-card"><button data-open-saved="${esc(latest.id)}" class="kgc-pad" style="display:block;width:100%;text-align:left;border:0;background:transparent;padding-top:0"><div class="kgc-panel kgc-feature"><span data-kgc-latest-poster><span class="kgc-poster kgc-poster-placeholder">${uiText("Нет постера")}</span></span><span class="kgc-latest-copy"><span class="kgc-chip">${uiText("Просмотрено")}</span><b class="kgc-filmname">${esc(latest.title||uiText("Фильм"))}</b><small class="kgc-muted">${esc([latest.year,latestCountry?app.countryName(latestCountry):''].filter(Boolean).join(' · '))}</small></span></div></button>${kgBookmarkButton(latest,"hero")}</div>`:`<div class="kgc-pad" style="padding-top:0"><div class="kgc-empty">${uiText("Здесь появится последний фильм, который вы отметили как просмотренный.")}</div></div>`}
       <div class="kgc-section"><h3>${uiText("🌐 Атлас кинолокаций")}</h3><span class="kgc-muted">${uiText("{count} отмечено", {count: opened})}</span></div>
       <div class="kgc-pad" style="padding-top:0"><div class="kgc-panel kgc-map"><div id="kg-country-map-host"></div><div class="kgc-map-controls"><span class="kgc-muted" style="flex:1">${uiText("Нажмите на отмеченную страну")}</span><button class="kgc-btn secondary" data-open-globe>${uiText("Вернуться к 3D-глобусу")}</button></div></div></div>
       ${seenCountries.length?`<div class="kgc-section"><h3>${uiText("Открытые страны")}</h3><span class="kgc-muted">${seenCountries.length}</span></div><div class="kgc-pad" style="padding-top:0"><div class="kgc-country-list">${seenCountries.map(c=>`<button class="kgc-country-pill has" data-open-country="${c}">${flag(c)} ${esc(app.countryName(c))} · ${counts[c]}</button>`).join('')}</div></div>`:''}
@@ -281,6 +308,7 @@
       <div class="kgc-foot"><button class="kgc-btn secondary" data-atlas-close style="width:100%">${uiText("Закрыть атлас")}</button></div>`;
     const mapHost=root.querySelector('#kg-country-map-host');
     if (mapHost) mapHost.append(map);
+    if (latest) loadLatestPoster(latest, root.querySelector('[data-kgc-latest-poster]'));
   }
 
   const catalogRegions = {

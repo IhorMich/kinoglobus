@@ -43,7 +43,9 @@ function markup(f, {closable = true, inline = false} = {}) {
   const loading=f._detailsLoaded?"—":uiText("Загружаем…");
   const dirName=f.dirs&&f.dirs.length?(f.dirsFull&&f.dirsFull.length?f.dirsFull.map(d=>personLink(d,"Режиссёр")).join(", "):esc(f.dirs.join(", "))):loading;
   const releaseText=f.release?new Date(f.release+"T00:00:00").toLocaleDateString(interfaceLanguage,{day:"numeric",month:"long",year:"numeric"}):loading;
-  const poster = filmPosterMarkup({...f,localizedPoster:f.localizedPoster || {path:f.poster_path || f.backdrop_path,showTitle:true}}, "w342") || '<span class="material-symbols-outlined" aria-hidden="true">movie</span>';
+  const posterPath = f.localizedPoster?.path || f.poster_path || f.backdrop_path;
+  const poster = filmPosterMarkup({...f, localizedPoster: {path: posterPath, showTitle: false}}, "w342")
+    || '<span class="material-symbols-outlined" aria-hidden="true">movie</span>';
   const diaryLabel = esc(noteLabel(f.id));
   const preview = video
     ? `<button type="button" data-trailer-action="play" aria-label="${uiText("Воспроизвести трейлер")}" class="absolute inset-0 grid place-items-center text-primary-container">${trailerThumb(video,f)}<span class="relative grid place-items-center w-16 h-16 rounded-full bg-black/55 border border-primary-container/60"><span class="material-symbols-outlined text-[44px]" aria-hidden="true">play_arrow</span></span></button>`
@@ -54,6 +56,7 @@ function markup(f, {closable = true, inline = false} = {}) {
     : "";
   return `<section class="kg-film-detail" ${inline ? "data-kg-inline-film" : ""} data-selected-film="${Number(f.id)}">
 <div data-film-part="summary" class="kg-film-detail-summary">
+<div class="kg-film-detail-poster">${poster}</div>
 <div class="kg-film-detail-meta">
 <h3 class="font-headline-md text-headline-md text-primary font-bold break-words" data-kg-film-title>${title}</h3>
 ${orig? `<p class="text-body-sm text-text-muted">${orig}</p>` : ""}
@@ -65,7 +68,6 @@ ${kgBookmarkButton(f)}
 <button type="button" data-kg-film-note aria-label="${diaryLabel}" title="${diaryLabel}"><span class="material-symbols-outlined" aria-hidden="true">add</span></button>
 </div>
 </div>
-<div class="kg-film-detail-poster">${poster}</div>
 ${closable ? `<button type="button" data-act="close-film" aria-label="${uiText("Свернуть карточку")}" class="kg-film-detail-close"><span class="material-symbols-outlined" aria-hidden="true">close</span></button>` : ""}
 </div>
 <div data-film-part="description" data-kg-film-description class="p-4 rounded-xl bg-surface-container flex flex-col gap-2"><h4 class="font-label-md text-label-md text-primary-fixed">${uiText("О фильме")}</h4>
@@ -104,7 +106,7 @@ article:has(>[data-oscar-detail-host]>.kg-film-detail),article:has(>[id^="mood-f
 #kg-home-feature:has(>.kg-film-detail)>p{padding-inline:2px}
 .kg-film-detail-summary {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) clamp(72px, 30%, 120px);
+  grid-template-columns: clamp(80px, 34%, 136px) minmax(0, 1fr);
   align-items: start;
   position: relative;
   gap: 12px;
@@ -112,6 +114,9 @@ article:has(>[data-oscar-detail-host]>.kg-film-detail),article:has(>[id^="mood-f
 .kg-film-detail-meta {
   min-width: 0;
   overflow-wrap: anywhere;
+}
+.kg-film-detail-summary:has(.kg-film-detail-close) [data-kg-film-title] {
+  padding-inline-end: 42px;
 }
 .kg-film-detail-meta [data-kg-film-rating] > div {
   min-width: 0;

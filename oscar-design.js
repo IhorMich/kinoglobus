@@ -182,92 +182,18 @@
           if(t)t.scrollIntoView({behavior:"smooth",block:"center"});return;
         }
         if(e.target.closest("[data-kgo-avatar]")){window.KGOpenAccountPage?.("register");return;}
-        const w=e.target.closest("[data-kgo-watch]");
-        if(w&&d){const f=cardFilm[w.dataset.kgoWatch];if(f){if(w.dataset.saving==="true"||!window.KGToggleWatched)return;const next=!d.isWatched?.(f.id);w.dataset.saving="true";window.KGPaintWatchedButton?.(w,next);try{const result=await window.KGToggleWatched(f);if(result!==next)throw new Error("Не удалось обновить отметку просмотра");d.refreshFilm();}catch(err){w.dataset.saving="false";window.KGPaintWatchedButton?.(w,!!d.isWatched?.(f.id));d.refreshFilm();}}return;}
-        const sh=e.target.closest("[data-kgo-share]");
-        if(sh){
-          const url="https://www.themoviedb.org/movie/"+sh.dataset.kgoShare,lab=sh.querySelector("span:last-child"),old=lab.textContent;
-          try{if(navigator.share)await navigator.share({title:sh.dataset.title,text:uiText("Смотри в Киноглобусе: {title}", {title: sh.dataset.title}),url});else{await navigator.clipboard.writeText(url);lab.textContent=uiText("Ссылка скопирована");setTimeout(()=>{lab.textContent=old;},1800);}}catch(err){}
-          return;
-        }
         const o=e.target.closest("[data-kgo-open]");
         if(o&&d){
           const k=o.dataset.kgoOpen;
           try{
             const f=reg[k]||(hasKey()?await findFilm(k):null);
-            if(f){reg[k]=f;d.openFilm(f,"oscar",o.dataset.kgoTarget);}
+            if(f){reg[k]=f;d.openFilm(f,"oscar",o.dataset.kgoTarget,{opener:o});}
           }catch(err){console.warn("[Kinoglobus] oscar-design:",err);}
         }
       });
     }
     hydrate(root);
   }
-
-  // ---------- карточка фильма для страницы «Оскар» (подключается одной строкой в collections.js) ----------
-  const cardFilm={};
-  const money=new Intl.NumberFormat(interfaceLanguage,{style:"currency",currency:"USD",maximumFractionDigits:0});
-  const plural=(n,a,b,c)=>{if(interfaceLanguage==="en")return n===1?a:c;const m=n%100,k=n%10;return k===1&&m!==11?a:(k>1&&k<5&&(m<12||m>14))?b:c;};
-  const isBP=a=>/(best picture|лучший фильм)\s*$/i.test(String(a.label).trim());
-  window.KGOscarCard=function(f){
-    const deps=window.__kgoDeps||{};
-    cardFilm[f.id]=f;
-    const info=KG.info(f)||{},aw=f._oscarAwards;
-    const wins=aw?aw.filter(a=>a.won):[],noms=aw?aw.filter(a=>!a.won):[];
-    const year=String(f.release_date||"").slice(0,4),title=esc(f.title||uiText("Фильм"));
-    const bg=f.backdrop_path;
-    const watched=deps.isWatched?deps.isWatched(f.id):false;
-    const rate=Number(f.average||f.vote_average)||0;
-    const countries=(f.countries||[]).map(c=>cname(c)).filter(Boolean).slice(0,2).join(", ");
-    const meta=[countries,year,f.runtime?uiText("{minutes} мин", {minutes: f.runtime}):""].filter(Boolean).join(" • ");
-    const badge=(cls,t)=>`<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full ${cls} font-label-sm text-label-sm shadow-md">${uiText(t)}</span>`;
-    const tag=f.tagline&&f.taglineLang===f.overviewLang?`<p class="font-body-sm text-body-sm text-primary italic opacity-90">«${esc(f.tagline)}»</p>`:"";
-    // трейлер
-    const v=f._trailer;
-    const thumb=v&&v.site==="YouTube"?`https://i.ytimg.com/vi/${encodeURIComponent(v.key)}/hqdefault.jpg`:(bg?`https://image.tmdb.org/t/p/w780${bg}`:"");
-    const trailer=f._trailerPlaying&&v
-      ?`<iframe src="${embedSrc(v,true)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" title="${uiText("Трейлер {title}", {title})}" style="position:absolute;inset:0;width:100%;height:100%;border:0"></iframe>`
-      :v?`<button type="button" data-trailer-action="play" data-id="${f.id}" aria-label="${uiText("Воспроизвести трейлер")}" class="absolute inset-0 flex items-center justify-center bg-surface-container-lowest">${thumb?`<img src="${thumb}" alt="" class="absolute inset-0 w-full h-full object-cover opacity-80" onerror="this.remove()">`:""}<span class="relative w-14 h-14 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center shadow-[0_0_24px_rgb(var(--kg-primary-container)/0.5)]"><span class="material-symbols-outlined text-[32px] ml-1" style="font-variation-settings:'FILL' 1;">play_arrow</span></span></button>`
-      :`<div class="absolute inset-0 flex items-center justify-center text-text-muted font-body-sm text-body-sm">${f._trailerStatus==="missing"?uiText("Трейлер не найден"):uiText("Ищем трейлер…")}</div>`;
-    // награды
-    const winList=aw?wins.filter(a=>!(info.best&&isBP(a))):[];
-    const winRow=a=>`<div class="flex items-center gap-3 p-2 rounded-lg bg-surface-container/60"><span class="material-symbols-outlined text-primary text-[20px]" style="font-variation-settings:'FILL' 1;">emoji_events</span><div class="flex flex-col min-w-0"><span class="font-label-sm text-label-sm text-on-surface font-semibold">${esc(a.label)}</span>${a.year?`<span class="font-micro-caption text-micro-caption text-text-muted">${a.year}</span>`:""}</div></div>`;
-    const awardsBody=aw===undefined?`<p class="font-micro-caption text-micro-caption text-text-muted">${uiText("Загружаем награды из Wikidata…")}</p>`
-      :(winList.length?`<div class="grid grid-cols-1 gap-space-xs">${winList.map(winRow).join("")}</div>`:(!info.best?`<p class="font-micro-caption text-micro-caption text-text-muted">${uiText("Подробности наград в Wikidata не найдены.")}</p>`:""));
-    const nomBody=noms.length?`<details class="rounded-lg bg-surface-container-lowest/60 px-3 py-2"><summary class="font-label-sm text-label-sm text-text-muted cursor-pointer">${uiText("Номинации ({count})", {count: noms.length})}</summary><div class="flex flex-col gap-1 pt-2">${noms.map(a=>`<span class="font-micro-caption text-micro-caption text-text-muted">• ${esc(a.label)}${a.year?" · "+a.year:""}</span>`).join("")}</div></details>`:"";
-    const winsBadge=wins.length?`<span class="px-2 py-0.5 rounded-full bg-primary-container/20 text-primary-container font-label-sm text-label-sm font-bold shrink-0">${uiText("{count} "+plural(wins.length,"победа","победы","побед"), {count: wins.length})}</span>`:"";
-    const ribbon=info.best?uiText("{number}-я церемония вручения", {number: info.n}):uiText("Лауреат премии «Оскар»");
-    const ribbonSub=info.best?uiText("Церемония {year} года • фильм {film} года", {year: info.year, film: info.film||year}):(year?uiText("Фильм {year} года", {year}):"");
-    const bestBlock=info.best?`<div class="rounded-lg bg-surface-container-lowest/80 p-space-sm flex items-start gap-3"><div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center shrink-0 shadow-md"><span class="material-symbols-outlined text-on-primary-container text-[22px]">trophy</span></div><div class="flex flex-col min-w-0"><span class="font-label-md text-label-md text-primary font-bold">${uiText("Лучший фильм года")}</span><p class="font-body-sm text-body-sm text-text-muted mt-0.5">${uiText("Главная награда Американской киноакадемии.")}</p></div></div>`:"";
-    const oscar=`<div class="relative overflow-hidden rounded-xl bg-gradient-to-br from-cinema-velvet-deep via-surface-panel to-surface-container-high p-space-md shadow-xl"><div class="absolute -right-10 -bottom-10 w-44 h-44 rounded-full bg-primary-container/15 blur-2xl pointer-events-none"></div><div class="relative z-10 flex flex-col gap-space-md"><div class="flex items-center justify-between gap-2"><div class="flex items-center gap-2 min-w-0"><span class="material-symbols-outlined text-primary-container text-[26px] shrink-0" style="font-variation-settings:'FILL' 1;">workspace_premium</span><div class="min-w-0"><span class="font-label-sm text-label-sm text-primary tracking-wider uppercase font-bold block">${ribbon}</span><span class="font-micro-caption text-micro-caption text-text-muted">${ribbonSub}</span></div></div>${winsBadge}</div>${bestBlock}${awardsBody}${nomBody}</div></div>`;
-    // кнопки
-    const watchBtn=window.KGWatchedButtonHtml(watched, `data-kgo-watch="${Number(f.id)}"`);
-    const shareBtn=`<button type="button" data-kgo-share="${f.id}" data-title="${title}" class="w-full py-2.5 px-space-sm rounded-lg bg-surface-panel text-on-surface hover:text-primary font-label-sm text-label-sm flex items-center justify-center gap-1.5 transition-colors"><span class="material-symbols-outlined text-[18px]">share</span><span>${uiText("Поделиться")}</span></button>`;
-    // люди
-    const dirs=(f.dirs||[]).length?`<div class="p-2.5 rounded-xl bg-surface-container-high flex flex-col"><span class="font-micro-caption text-micro-caption text-text-muted">${uiText(f.dirs.length>1?"Режиссёры":"Режиссёр")}</span><span class="font-label-md text-label-md text-primary mt-0.5">${esc(f.dirs.join(", "))}</span></div>`:"";
-    const cast=(f.castFull||[]).map(c=>`<div class="flex flex-col items-center text-center w-24 shrink-0 gap-1.5"><div class="w-16 h-16 rounded-full overflow-hidden bg-surface-container shadow-md flex items-center justify-center">${c.photo?`<img class="w-full h-full object-cover" loading="lazy" alt="" src="https://image.tmdb.org/t/p/w185${c.photo}">`:'<span class="material-symbols-outlined text-text-muted">person</span>'}</div><span class="font-label-sm text-label-sm text-on-surface font-semibold line-clamp-1 w-full">${esc(c.name)}</span><span class="font-micro-caption text-micro-caption text-text-muted line-clamp-1 w-full">${esc(c.role)}</span></div>`).join("");
-    const people=dirs||cast?`<div class="flex flex-col gap-space-sm"><h3 class="font-headline-sm text-headline-sm text-on-surface">${uiText("Создатели и актёры")}</h3>${dirs}${cast?`<div class="flex gap-space-sm overflow-x-auto pb-1" style="-webkit-overflow-scrolling:touch">${cast}</div>`:""}</div>`:"";
-    // где смотреть
-    const where=window.KGLegalWatch?.markup(f.id)||"";
-    // факты
-    const when=f.release?new Date(f.release+"T00:00:00").toLocaleDateString(interfaceLanguage,{day:"numeric",month:"long",year:"numeric"}):"";
-    const fact=(l,v2)=>v2?`<div class="p-3 rounded-xl bg-surface-container flex flex-col gap-0.5"><span class="font-micro-caption text-micro-caption uppercase text-text-muted">${uiText(l)}</span><span class="font-label-md text-label-md text-on-surface">${esc(v2)}</span></div>`:"";
-    const facts=[fact("Выход",when),fact("Бюджет",f.budget>0?money.format(f.budget):""),fact("Сборы",f.revenue>0?money.format(f.revenue):""),fact("Страны",(f.countries||[]).map(c=>cname(c)).join(", "))].join("");
-    return `<section data-selected-film="${f.id}" class="flex flex-col gap-space-md rounded-2xl overflow-hidden bg-surface border border-primary-container/20 shadow-xl pb-space-md scroll-mt-20">
-<div class="relative w-full aspect-[16/11] bg-surface-container-lowest">${bg?`<div class="absolute inset-0 bg-cover bg-center" style="background-image:url('https://image.tmdb.org/t/p/w780${bg}')"></div>`:""}<div class="absolute inset-0 bg-gradient-to-t from-surface via-surface/60 to-transparent"></div>
-<button type="button" data-act="close-film" aria-label="${uiText("Свернуть карточку")}" class="absolute top-3 right-3 w-9 h-9 rounded-full bg-surface-panel/90 backdrop-blur-md text-text-muted hover:text-primary flex items-center justify-center z-10"><span class="material-symbols-outlined">close</span></button>
-<div class="absolute bottom-4 left-4 right-4 flex items-end justify-between gap-space-sm z-10"><div class="flex flex-col gap-1 min-w-0"><div class="flex items-center gap-1.5 flex-wrap">${wins.length?badge("bg-primary-container text-on-primary-container",`<span class="material-symbols-outlined text-[15px]" style="font-variation-settings:'FILL' 1;">military_tech</span>${uiText("{count} "+plural(wins.length,"ОСКАР","ОСКАРА","ОСКАРОВ"), {count: wins.length})}`):""}${rate?badge("bg-surface-panel/90 backdrop-blur-md text-primary",`<span class="material-symbols-outlined text-[14px]" style="font-variation-settings:'FILL' 1;">star</span>${rate.toFixed(1)} TMDB`):""}${f.cert?badge("bg-secondary-container text-on-secondary-container",esc(f.cert)):""}</div>${meta?`<p class="font-micro-caption text-micro-caption text-on-surface-variant uppercase tracking-widest pt-1">${esc(meta)}</p>`:""}</div>
-</div></div>
-<div class="px-margin-mobile flex flex-col gap-space-md">
-<div class="flex flex-col gap-1 min-w-0"><div class="flex items-baseline justify-between gap-2"><h3 class="font-display-hero-mobile text-display-hero-mobile text-on-surface font-bold tracking-tight">${uiText(title)}</h3>${f.originalTitle&&f.originalTitle!==f.title?`<span class="font-body-sm text-body-sm text-text-muted text-right">${esc(f.originalTitle)}</span>`:""}</div>${tag}</div>
-<div data-kg-film-actions class="flex flex-wrap items-center gap-1.5">${watchBtn}${kgBookmarkButton(f)}</div>
-${oscar}
-${shareBtn}
-<div class="flex flex-col gap-space-xs"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-[20px]">smart_display</span><h3 class="font-headline-sm text-headline-sm text-on-surface">${uiText("Официальный трейлер")}</h3></div><div id="cl-inline-trailer" class="relative w-full kg-detail-trailer rounded-xl overflow-hidden bg-black shadow-md">${trailer}</div>${v?`<a href="${watchUrl(v)}" target="_blank" rel="noopener noreferrer" class="font-micro-caption text-micro-caption text-primary underline">${uiText("Не воспроизводится? Открыть на {site}", {site: esc(v.site)})}</a>`:""}</div>
-${where}
-<div class="flex flex-col gap-2 rounded-xl bg-surface-panel p-space-md shadow-sm"><h3 class="font-headline-sm text-headline-sm text-primary">${uiText("Сюжет картины")}</h3><p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">${esc(f.overview||uiText("Загружаем описание…"))}</p></div>
-${people}${facts?`<div class="grid grid-cols-2 gap-2.5">${facts}</div>`:""}
-</div></section>`;
-  };
 
   const baseRender=KG.render;
   KG.render=function(root,deps){

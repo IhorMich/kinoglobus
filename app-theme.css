@@ -1,5 +1,8 @@
 /* Палитра KinoGlobus. Основные настройки темы и акцента находятся в этом файле. */
 :root {
+  --kg-font-interface: "Inter", system-ui, sans-serif;
+  --kg-font-heading: "Noto Serif", Georgia, serif;
+
   --kg-canvas-obsidian: 7 6 10;
   /* Акцент. RGB-каналы через пробел, без rgb(). */
   --kg-swatch-gold: 255 184 48;
@@ -497,23 +500,23 @@
   --kg-surface-border-subtle: var(--kg-surface-border);
   --kg-outline-variant: var(--kg-surface-border);
   --kg-heading: 242 245 255;
-  --kg-primary: 130 160 255;
-  --kg-primary-container: 64 88 181;
+  --kg-primary: 53 200 255;
+  --kg-primary-container: var(--kg-swatch-blue);
   --kg-primary-fixed: var(--kg-primary);
   --kg-accent-text: var(--kg-primary);
-  --kg-accent-deep: 40 59 134;
-  --kg-accent-muted: 109 132 197;
+  --kg-accent-deep: 16 82 214;
+  --kg-accent-muted: var(--kg-text-muted);
   --kg-accent-warm: var(--kg-primary);
   --kg-action-shadow: var(--kg-primary-container);
   --kg-selection-glow: var(--kg-primary);
   --kg-filter-selection-glow: var(--kg-selection-glow);
   --kg-globe-outline-glow: var(--kg-primary);
   --kg-globe-beacon-ring: var(--kg-primary);
-  --kg-action-gradient: linear-gradient(145deg, #F3F6FC 0%, #BFC9DA 46%, #8596B2 100%);
-  --kg-action-gradient-pressed: linear-gradient(145deg, #D4DDEB 0%, #A5B2C8 46%, #7285A3 100%);
-  --kg-action-ink: var(--kg-canvas-obsidian);
-  --kg-action-elevation: 0 5px 20px rgb(var(--kg-action-shadow)/.32), inset 0 1px rgb(var(--kg-white)/.65);
-  --kg-action-elevation-pressed: 0 2px 9px rgb(var(--kg-action-shadow)/.20), inset 0 1px rgb(var(--kg-white)/.25);
+  --kg-action-gradient: linear-gradient(145deg, rgb(var(--kg-primary-container)) 0% 24%, rgb(var(--kg-accent-deep)) 60%, #0B3387 100%);
+  --kg-action-gradient-pressed: linear-gradient(145deg, rgb(var(--kg-accent-deep)), #082760);
+  --kg-action-ink: var(--kg-on-surface);
+  --kg-action-elevation: 0 5px 20px rgb(var(--kg-action-shadow)/.32), inset 0 1px rgb(var(--kg-white)/.20);
+  --kg-action-elevation-pressed: 0 2px 9px rgb(var(--kg-action-shadow)/.20), inset 0 1px rgb(var(--kg-white)/.10);
   --kg-filter-selection-background: rgb(var(--kg-primary-container));
   --kg-on-surface: var(--kg-white);
   --kg-on-surface-variant: 137 149 170;
@@ -527,7 +530,7 @@
   --kg-cinema-amber-glow: var(--kg-selection-glow);
   --kg-nav-active: var(--kg-primary);
   --kg-nav-inactive: 139 147 165;
-  --kg-quick-action-background: rgb(var(--kg-surface-container-high));
+  --kg-quick-action-background: rgb(var(--kg-primary-container));
   --kg-extra-background-dark: var(--kg-canvas-obsidian);
   --kg-extra-panel-dark: var(--kg-surface-panel);
   --kg-extra-ink-dark: var(--kg-on-surface);
@@ -673,7 +676,7 @@
   --kg-warm-text-29: var(--kg-heading);
 }
 
-:root[data-kg-theme="midnight"] :is(h1,h2,h3,h4).text-primary {
+:root[data-kg-theme="midnight"] :is(h1, h2, h3, h4) {
   color: rgb(var(--kg-heading));
 }
 
@@ -681,8 +684,16 @@
   color: rgb(var(--kg-accent-text));
 }
 
+:root[data-kg-theme="midnight"] .material-symbols-outlined:not(.text-feedback-error, .text-error, .text-success) {
+  color: rgb(var(--kg-primary));
+}
+
 :root[data-kg-theme="midnight"] nav [data-view] {
   color: rgb(var(--kg-nav-inactive));
+}
+
+:root[data-kg-theme="midnight"] nav [data-view] .material-symbols-outlined {
+  color: inherit;
 }
 
 :root[data-kg-theme="midnight"] nav [data-view].text-primary-container {
@@ -692,15 +703,12 @@
 
 :root[data-kg-theme="midnight"] :is(#btn-top-one, #btn-oscar-laureate) {
   border-color: rgb(var(--kg-surface-border));
+  box-shadow: 0 4px 14px rgb(var(--kg-action-shadow)/.25);
   color: rgb(var(--kg-on-surface));
 }
 
-:root[data-kg-theme="midnight"] :is(#btn-top-one, #btn-oscar-laureate) .material-symbols-outlined {
-  color: rgb(var(--kg-primary));
-}
-
 :root[data-kg-theme="midnight"] :is(#btn-top-one, #btn-oscar-laureate):active:not(:disabled) {
-  --kg-quick-action-background: rgb(var(--kg-surface-container-highest));
+  --kg-quick-action-background: rgb(var(--kg-accent-deep));
 }
 
 :root[data-kg-theme="midnight"] :is(#btn-mode-filters, #btn-mode-surprise)[aria-pressed="true"],
@@ -710,6 +718,7 @@
   background-color: rgb(var(--kg-primary-container));
   background-image: none;
   border-color: rgb(var(--kg-surface-border));
+  box-shadow: 0 4px 14px rgb(var(--kg-action-shadow)/.25);
   color: rgb(var(--kg-white));
 }
 
@@ -762,7 +771,7 @@
 }
 
 :root[data-kg-theme="midnight"] :is(#btn-spin-text .material-symbols-outlined, #btn-spin-secondary-icon) {
-  color: inherit;
+  color: rgb(var(--kg-primary));
 }
 
 :root[data-kg-theme="midnight"] #btn-spin-roulette .kg-spin-shimmer {
@@ -780,6 +789,10 @@
   color: rgb(var(--kg-nav-inactive));
 }
 
+:root[data-kg-theme="midnight"] #kg-profile .kg-profile-nav button .material-symbols-outlined {
+  color: inherit;
+}
+
 :root[data-kg-theme="midnight"] #kg-profile :is(.kg-profile-button.gold, .kg-profile-tabs button[aria-pressed="true"]) {
   background: rgb(var(--kg-primary-container));
   color: rgb(var(--kg-white));
@@ -791,4 +804,12 @@
 
 :root[data-kg-theme="midnight"] #kg-profile .kg-profile-tabs button[aria-pressed="true"] {
   box-shadow: 0 0 12px rgb(var(--kg-selection-glow)/.25);
+}
+
+body {
+  font-family: var(--kg-font-interface);
+}
+
+:where(h1, h2, h3, h4) {
+  font-family: var(--kg-font-heading);
 }

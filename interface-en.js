@@ -50,6 +50,7 @@ window.KGInterfaceDictionaries.en = Object.freeze({
   "Коралл": "Coral",
   "4 темы доступны": "4 themes available",
   "Синяя ночь": "Midnight Blue",
+  "Синий акцент включён в тему": "This theme includes a blue accent",
   "Синий": "Blue",
   "Тема оформления": "App theme",
   "Кинематографичная": "Cinematic",

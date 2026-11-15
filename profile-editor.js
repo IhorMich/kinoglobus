@@ -416,6 +416,7 @@
 
   function showShelf(slot) {
     const choices = watched.map(film => ({
+      id:film.id, poster:film.poster, cc:film.cc, original:film.original,
       title:film.title || film.original || "", year:String(film.year || ""), ratio:"",
       image: /^\/[\w.-]+$/.test(film.poster || "") ? `https://image.tmdb.org/t/p/w342${film.poster}` : ""
     })).filter(film => film.title);

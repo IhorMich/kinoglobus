@@ -28,8 +28,8 @@
 
   let activeDetail = "";
   let context;
-  function closeDetails() {
-    if (activeDetail) window.KGCloseFilmFromRelated(activeDetail);
+  function closeDetails(restoreFocus = false) {
+    if (activeDetail) window.KGCloseFilmFromRelated(activeDetail,restoreFocus);
     activeDetail = "";
   }
 
@@ -62,7 +62,7 @@
       const button = event.target.closest("[data-release-action], [data-act=close-film]");
       if (!button) return;
       const action = button.dataset.releaseAction;
-      if (button.dataset.act === "close-film") { closeDetails(); return; }
+      if (button.dataset.act === "close-film") { closeDetails(true); return; }
       if (action === "key") {
         document.getElementById("tmdb-key-input").focus();
       } else if (action === "retry") {
@@ -79,9 +79,7 @@
         if (!film) return;
         if (activeDetail !== section.detailId) closeDetails();
         activeDetail = section.detailId;
-        window.KGOpenFilmFromRelated({...film, _kgGlobalRelated:true}, "related", activeDetail);
-        const card = document.getElementById(activeDetail)?.firstElementChild;
-        if (card) window.KGScrollToFilmDescription?.(card);
+        window.KGOpenFilmFromRelated({...film, _kgGlobalRelated:true}, "related", activeDetail,{opener:button});
       }
     });
   }

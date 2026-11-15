@@ -224,6 +224,7 @@
 
   const defaultShelf = dialog.querySelector("[data-profile-shelf]").innerHTML;
   const label = dialog.querySelector("[data-profile-shelf-label]");
+  const shelfFilms = new Map();
   const defaultShelfLabel = label.textContent;
 
   function renderProfile() {
@@ -252,6 +253,7 @@
       }
     }
     const shelf = dialog.querySelector("[data-profile-shelf]");
+    shelfFilms.clear();
     shelf.innerHTML = profile.shelf ? "" : defaultShelf;
     label.textContent = profile.shelf ? uiText("Топ-4") : defaultShelfLabel;
     for (const film of profile.shelf || []) {
@@ -264,8 +266,20 @@
       card.querySelector(".kg-profile-frame small").textContent = film.ratio;
       card.querySelector("strong").textContent = uiText(film.title);
       card.querySelector(".kg-profile-meta").textContent = film.year;
-      const savedFilm = watched.find(item => item.title === film.title && String(item.year || "") === film.year);
-      card.insertAdjacentHTML("beforeend",kgBookmarkButton(savedFilm));
+      const savedFilm = watched.find(item => film.id ? Number(item.id)===Number(film.id) :
+        item.title===film.title && String(item.year || "")===String(film.year || ""));
+      const linkFilm = savedFilm || (film.id ? film : null);
+      if (linkFilm) {
+        shelfFilms.set(String(linkFilm.id),linkFilm);
+        const opener=document.createElement("button");
+        opener.type="button";
+        opener.className="block w-full text-left";
+        opener.dataset.profileFilm=String(linkFilm.id);
+        opener.setAttribute("aria-label",uiText("Открыть фильм {title}",{title:film.title}));
+        opener.append(...card.childNodes);
+        card.append(opener);
+        card.insertAdjacentHTML("beforeend",kgBookmarkButton(linkFilm));
+      }
       shelf.append(card);
     }
     dialog.querySelector("[data-profile-film-count]").textContent = format.format(watched.length);
@@ -283,6 +297,10 @@
   }
 
   dialog.addEventListener("click", async event => {
+    const opener=event.target.closest("[data-profile-film]");
+    const film=opener && shelfFilms.get(opener.dataset.profileFilm);
+    if(film){window.KGFilmCard.openDialog(window.KGFilmCard.savedFilm(film),opener);return;}
+
     const action = event.target.closest("[data-profile-action]")?.dataset.profileAction;
     const tab = event.target.closest("[data-profile-tab]")?.dataset.profileTab;
     if (tab) selectTab(tab);

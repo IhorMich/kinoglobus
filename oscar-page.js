@@ -88,13 +88,11 @@
     state.films.forEach(f=>{const y=yearOf(f);if(!y)return;const id=decadeOf(y);groups.set(id,(groups.get(id)||0)+1);});
     return [...groups].sort(([a],[b])=>a==="gold"?1:b==="gold"?-1:Number(b)-Number(a));
   }
-  function eraName(){return state.decade==="all"?uiText("Все эпохи"):state.decade==="gold"?uiText("Золотой Голливуд"):uiText("{decade}0-е", {decade: state.decade.slice(0,3)});}
   const filmsWord=n=>{if(interfaceLanguage==="en")return n===1?"film":"films";const a=n%100,b=n%10;return a>10&&a<15?"фильмов":b===1?"фильм":b>1&&b<5?"фильма":"фильмов";};
   function poolFilms(){return state.decade==="all"?state.films:state.films.filter(f=>decadeOf(yearOf(f))===state.decade);}
   function updateEra(root){
-    const n=poolFilms().length,total=root.querySelector("#oscar-total"),era=root.querySelector("#oscar-list-era");
+    const n=poolFilms().length,total=root.querySelector("#oscar-total");
     if(total)total.textContent=`${n} ${filmsWord(n)}`;
-    if(era)era.textContent=eraName();
   }
   function render(root,deps){
     stopSpin(root);
@@ -125,11 +123,14 @@
 <div class="flex items-center justify-between mb-2"><div class="flex items-center gap-2"><div class="w-7 h-7 rounded-lg bg-primary-container/20 flex items-center justify-center text-primary"><span class="material-symbols-outlined text-[18px]">public</span></div><span class="font-headline-sm text-headline-sm text-on-surface">${uiText("География триумфов")}</span></div><span class="font-micro-caption text-micro-caption text-primary" id="oscar-country-total">${uiText("Считаем страны…")}</span></div>
 <p class="font-body-sm text-body-sm text-text-muted mb-space-sm">${uiText("Страны производства в первых 24 фильмах списка лауреатов.")}</p><div class="flex flex-wrap gap-1.5 mb-3" id="oscar-countries"><span class="font-micro-caption text-micro-caption text-text-muted">${uiText("Загружаем данные о странах…")}</span></div>
 <div class="flex flex-col gap-1"><div class="flex items-center justify-between text-micro-caption font-micro-caption"><span class="text-text-muted">${uiText("Прогресс просмотра лауреатов")}</span><span class="text-primary font-semibold" id="oscar-progress">${uiText("0 из 0 (0%)")}</span></div><div class="w-full h-1.5 rounded-full bg-surface-container-highest overflow-hidden"><div class="h-full bg-gradient-to-r from-primary-container to-secondary rounded-full transition-all" id="oscar-progress-bar" style="width:0%"></div></div></div></div></section>
-<section class="px-gutter-mobile mt-space-lg mb-space-lg"><div class="flex items-center justify-between mb-space-sm"><div class="flex items-center gap-1.5"><span class="material-symbols-outlined text-primary text-[20px]">movie_filter</span><h2 class="font-headline-sm text-headline-sm text-on-surface">${uiText("Легендарные триумфаторы")}</h2></div><span class="font-label-sm text-label-sm text-primary flex items-center gap-0.5"><span id="oscar-list-era">${uiText("Все эпохи")}</span> <span class="material-symbols-outlined text-[16px]">swap_vert</span></span></div><div class="flex flex-col gap-2 mb-space-sm" id="oscar-toolbar"></div>
-<div class="flex flex-col gap-space-sm" id="oscar-list"></div><button type="button" class="w-full mt-2 py-2.5 rounded-xl bg-surface-container text-primary font-label-md text-label-md" id="oscar-more" hidden>${uiText("Показать ещё")}</button><p class="font-body-sm text-body-sm text-feedback-error mt-2" id="oscar-error" role="status" hidden></p><button type="button" class="mt-2 px-3 py-2 rounded-lg bg-surface-container-high text-primary font-label-sm text-label-sm" id="oscar-retry" hidden>${uiText("Повторить загрузку")}</button></section>
+<section class="px-gutter-mobile mt-space-lg mb-space-lg"><div class="flex flex-wrap items-center justify-between gap-2 mb-space-sm"><div class="flex items-center gap-1.5"><span class="material-symbols-outlined text-primary text-[20px]">movie_filter</span><h2 class="font-headline-sm text-headline-sm text-on-surface">${uiText("Легендарные триумфаторы")}</h2></div><select id="oscar-list-era" aria-label="${uiText("Выбрать эпоху")}" aria-controls="oscar-list" class="max-w-full min-h-10 rounded-lg border border-surface-border-subtle bg-surface-container px-2 font-label-sm text-label-sm text-primary cursor-pointer" disabled><option value="all">${uiText("Все эпохи")}</option></select></div><div class="flex flex-col gap-2 mb-space-sm" id="oscar-toolbar"></div>
+<p id="oscar-list-count" class="font-micro-caption text-micro-caption text-text-muted mb-2" role="status"></p><div class="flex flex-col gap-space-sm" id="oscar-list"></div><div class="flex flex-wrap gap-2 mt-2"><button type="button" class="flex-1 px-3 py-2.5 rounded-xl bg-surface-container text-primary font-label-md text-label-md" id="oscar-more" hidden>${uiText("Показать ещё")}</button><button type="button" class="flex-1 px-3 py-2.5 rounded-xl bg-surface-container text-primary font-label-md text-label-md" id="oscar-show-all" hidden>${uiText("Показать все фильмы")}</button></div><p class="font-body-sm text-body-sm text-feedback-error mt-2" id="oscar-error" role="status" hidden></p><button type="button" class="mt-2 px-3 py-2 rounded-lg bg-surface-container-high text-primary font-label-sm text-label-sm" id="oscar-retry" hidden>${uiText("Повторить загрузку")}</button></section>
 </div>`;
     if(boundRoot!==root){
       root.addEventListener("click",e=>handleClick(e,root,deps));
+      root.addEventListener("change",e=>{
+        if(e.target.id==="oscar-list-era")selectEra(e.target.value,root,deps);
+      });
       root.addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&e.target.matches&&e.target.matches("[role=button][data-oscar-open]")){e.preventDefault();e.target.click();}});
       document.addEventListener("kg:watched-change",()=>{if(root.isConnected)renderProgress(root,deps);});
       boundRoot=root;
@@ -170,11 +171,23 @@
     }finally{if(token===state.request)state.loading=false;}
   }
   function renderDecades(root){
-    const options=decadeOptions(),counts=Object.fromEntries(options);
+    const options=decadeOptions();
     root.querySelector("#oscar-decades").innerHTML=[["all",state.films.length],...options].map(([id,count])=>{
       const selected=id===state.decade;
-      return `<button type="button" class="decade-chip shrink-0 px-3.5 py-1.5 rounded-full ${selected?"bg-primary-container text-on-primary-container shadow-md font-semibold":"bg-surface-container text-text-muted font-medium"} font-label-sm text-label-sm transition-all hover:text-on-surface" data-decade="${id}">${decadeLabel(id,count)}</button>`;
+      return `<button type="button" class="decade-chip shrink-0 px-3.5 py-1.5 rounded-full ${selected?"bg-primary-container text-on-primary-container shadow-md font-semibold":"bg-surface-container text-text-muted font-medium"} font-label-sm text-label-sm transition-all hover:text-on-surface" data-decade="${id}" aria-pressed="${selected}">${decadeLabel(id,count)}</button>`;
     }).join("");
+    const select=root.querySelector("#oscar-list-era");
+    select.innerHTML=`<option value="all">${uiText("Все эпохи")}</option>`+options.map(([id,count])=>
+      `<option value="${id}">${decadeLabel(id,count)}</option>`
+    ).join("");
+    select.value=state.decade;
+    select.disabled=false;
+  }
+  function selectEra(era,root,deps){
+    state.decade=era;
+    renderDecades(root);
+    updateEra(root);
+    relist(root,deps);
   }
   function renderFeature(root,deps){
     const f=state.feature;if(!f)return;
@@ -240,8 +253,7 @@ ${kgBookmarkButton(f,"hero")}<div id="oscar-feature-detail-${f.id}" data-oscar-d
     const chip=(attrs,on,inner)=>`<button type="button" ${attrs} aria-pressed="${on}" class="shrink-0 px-3 py-1.5 rounded-full ${on?chipOn:chipOff} font-label-sm text-label-sm transition-all flex items-center gap-1">${inner}</button>`;
     const views=[["list","view_list","Списком"],["grid","grid_view","Сеткой"]].map(([id,ic,label])=>`<button type="button" data-oscar-view="${id}" aria-label="${uiText(label)}" aria-pressed="${state.view===id}" class="w-8 h-8 rounded-full flex items-center justify-center ${state.view===id?"bg-primary-container text-on-primary-container":"text-text-muted"}"><span class="material-symbols-outlined text-[18px]">${ic}</span></button>`).join("");
     box.innerHTML=`<div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">${SORTS.map(([id,label])=>chip(`data-oscar-sort="${id}"`,state.sort===id,uiText(label))).join("")}</div>
-<div class="flex items-center gap-2 flex-wrap">${chip('data-oscar-filter="best"',state.onlyBest,icon("workspace_premium")+uiText("Лучший фильм"))}${chip('data-oscar-filter="unseen"',state.onlyUnseen,icon("visibility_off")+uiText("Непросмотренные"))}${canGroup()?chip('data-oscar-filter="group"',state.group,icon("view_timeline")+uiText("По десятилетиям")):""}<div class="ml-auto flex items-center gap-1 rounded-full bg-surface-container p-0.5">${views}</div></div>
-<p class="font-micro-caption text-micro-caption text-text-muted" id="oscar-list-count"></p>`;
+<div class="flex items-center gap-2 flex-wrap">${chip('data-oscar-filter="best"',state.onlyBest,icon("workspace_premium")+uiText("Лучший фильм"))}${chip('data-oscar-filter="unseen"',state.onlyUnseen,icon("visibility_off")+uiText("Непросмотренные"))}${canGroup()?chip('data-oscar-filter="group"',state.group,icon("view_timeline")+uiText("По десятилетиям")):""}<div class="ml-auto flex items-center gap-1 rounded-full bg-surface-container p-0.5">${views}</div></div>`;
   }
   // любое изменение сортировки/фильтров/вида: закрыть раскрытую карточку списка и перерисовать с первой страницы
   function relist(root,deps){
@@ -302,9 +314,11 @@ ${info.best?`<span class="block font-micro-caption text-micro-caption text-prima
     if(count)count.textContent=all.length?uiText("Показано {shown} из {total}", {shown: shownList.length, total: all.length}):"";
     const more=root.querySelector("#oscar-more");
     more.hidden=state.shown>=all.length;
+    root.querySelector("#oscar-show-all").hidden=more.hidden;
     if(deps.refreshFilm)deps.refreshFilm();
     if(state.view==="list"){
-    const detailsQueue=shownList.filter(f=>!f._details&&!f._detailsLoading);
+    const preload=state.shown===Infinity?shownList.slice(0,pageSize()):shownList;
+    const detailsQueue=preload.filter(f=>!f._details&&!f._detailsLoading);
     if(detailsQueue.length){
       const request=state.request;
       detailsQueue.forEach(f=>{f._detailsLoading=true;});
@@ -324,8 +338,9 @@ ${info.best?`<span class="block font-micro-caption text-micro-caption text-prima
     if(e.target.closest("[data-oscar-back]")){deps.back();return;}
     if(e.target.closest('[data-act="close-film"]')){deps.closeFilm("oscar");return;}
     const decade=e.target.closest("[data-decade]");
-    if(decade){state.decade=decade.dataset.decade;renderDecades(root);relist(root,deps);updateEra(root);return;}
+    if(decade){selectEra(decade.dataset.decade,root,deps);return;}
     if(e.target.closest("#oscar-more")){state.shown+=pageSize();renderList(root,deps);return;}
+    if(e.target.closest("#oscar-show-all")){state.shown=Infinity;renderList(root,deps);return;}
     if(e.target.closest("#oscar-retry")){load(root,deps);return;}
     if(e.target.closest("[data-oscar-skip]")){state.skipSpin=true;return;}
     const sortBtn=e.target.closest("[data-oscar-sort]");
@@ -334,7 +349,7 @@ ${info.best?`<span class="block font-micro-caption text-micro-caption text-prima
     if(filterBtn){const k=filterBtn.dataset.oscarFilter;if(k==="best")state.onlyBest=!state.onlyBest;else if(k==="unseen")state.onlyUnseen=!state.onlyUnseen;else state.group=!state.group;relist(root,deps);return;}
     const viewBtn=e.target.closest("[data-oscar-view]");
     if(viewBtn){if(state.view!==viewBtn.dataset.oscarView){state.view=viewBtn.dataset.oscarView;relist(root,deps);}return;}
-    if(e.target.closest("[data-oscar-reset]")){state.onlyBest=false;state.onlyUnseen=false;relist(root,deps);return;}
+    if(e.target.closest("[data-oscar-reset]")){state.onlyBest=false;state.onlyUnseen=false;selectEra("all",root,deps);return;}
     if(e.target.closest("[data-oscar-reel-close]")){closeReel(root,deps);return;}
     if(e.target.closest("#oscar-roulette")){
       audio();

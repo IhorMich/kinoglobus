@@ -1441,6 +1441,8 @@ window.KGInterfaceDictionaries.en = Object.freeze({
   "Все новинки": "All new releases",
   "Сейчас в кинотеатрах": "In cinemas now",
   "Недавние премьеры на большом экране": "Recent theatrical releases",
+  "Скоро в кинотеатрах": "Coming to cinemas",
+  "Премьеры на ближайшие 30 дней": "Theatrical releases over the next 30 days",
   "Ещё": "More",
   "Цифровой релиз": "Digital release",
   "Премьера недели": "Premiere of the week",

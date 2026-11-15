@@ -65,7 +65,7 @@
     .kg-diary-stat p {display:flex;justify-content:space-between;align-items:center;gap:5px}
     .kg-diary-stat strong {font-size:24px;font-weight:700}
     .kg-diary-stat .material-symbols-outlined {font-size:17px;color:rgb(var(--kg-primary))}
-    .kg-diary-stat:nth-child(2n) .material-symbols-outlined {color:#c6d8ff}
+    .kg-diary-stat:nth-child(2n) .material-symbols-outlined {color:rgb(var(--kg-cool-highlight-02))}
     .kg-diary-actions,.kg-diary-row {display:flex;align-items:center;gap:8px}
     .kg-diary-actions button,.kg-diary-actions input,.kg-diary-edit,.kg-diary-route {border-radius:10px;background:rgb(var(--kg-surface-container-high));min-height:40px;padding:6px 10px}
     .kg-diary-actions .kg-diary-primary,.kg-diary-primary {background:rgb(var(--kg-primary));color:rgb(var(--kg-canvas-obsidian));font-weight:700}

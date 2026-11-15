@@ -5,7 +5,7 @@
   const image=(path,size="w342")=>path?`https://image.tmdb.org/t/p/${size}${path}`:"";
   const esc=value=>String(value||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   async function tmdb(path,params={},language="ru-RU"){
-    let key="";try{key=apiKey||"";}catch{}
+    let key="";try{key=apiKey||"";}catch{}ф
     if(!key)throw new Error("Нужен ключ TMDB");
     const query=new URLSearchParams({...params,api_key:key,language});
     const response=await fetch(`https://api.themoviedb.org/3/${path}?${query}`);

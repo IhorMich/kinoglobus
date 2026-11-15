@@ -340,7 +340,7 @@ ${info.best?`<span class="block font-micro-caption text-micro-caption text-prima
   }
   function handleClick(e,root,deps){
     if(e.target.closest("[data-oscar-back]")){deps.back();return;}
-    if(e.target.closest('[data-act="close-film"]')){deps.closeFilm("oscar");return;}
+    if(e.target.closest('[data-act="close-film"]')){deps.closeFilm("oscar",true);return;}
     const decade=e.target.closest("[data-decade]");
     if(decade){selectEra(decade.dataset.decade,root,deps);return;}
     if(e.target.closest("#oscar-more")){state.shown+=pageSize();renderList(root,deps);return;}
@@ -371,7 +371,7 @@ ${info.best?`<span class="block font-micro-caption text-micro-caption text-prima
       if(f){
         const host=open.closest("article")?.querySelector("[data-oscar-detail-host]");
         const target=open.dataset.oscarHost||host?.id||(open.closest("#oscar-reel")?"oscar-reel-detail":"oscar-film-detail");
-        deps.openFilm({...f,_kgRelatedPool:state.films},"oscar",target);
+        deps.openFilm({...f,_kgRelatedPool:state.films},"oscar",target,{opener:open});
       }
       return;
     }

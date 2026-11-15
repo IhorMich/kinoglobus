@@ -660,7 +660,7 @@ function filmItem(f){
   const gs=(f.genre_ids||[]).map(i=>GENRES[i]).filter(Boolean).slice(0,2).map(genre=>uiText(genre));
   const selected=D.selected&&D.selected._placement==="list"&&String(D.selected.id)===String(f.id)?D.selected:null;
   return `<article class="flex flex-col gap-space-sm p-3 rounded-xl bg-surface-panel shadow-md hover:bg-surface-container-low transition-colors">
-<div class="flex gap-space-sm cursor-pointer" data-act="open" data-id="${f.id}" ${selected ? 'style="display:none"' : ""}>
+<div class="flex gap-space-sm cursor-pointer" data-act="open" data-id="${f.id}">
 <div class="kg-film-card-poster relative flex-shrink-0 rounded-lg overflow-hidden bg-surface-container-high">${f.poster_path?`<img class="w-full h-full object-cover" loading="lazy" alt="" src="${P(f.poster_path,"w185")}">`:`<div class="w-full h-full flex items-center justify-center text-text-muted"><span class="material-symbols-outlined">movie</span></div>`}
 <span class="absolute top-1 left-1 px-1 py-0.5 rounded bg-surface-panel/90 text-primary-container font-micro-caption text-micro-caption font-bold">${f.vote_average ? Number(f.vote_average).toFixed(1) : "—"} ★</span>${kgBookmarkButton(f, "corner")}</div>
 <div class="flex flex-col justify-between flex-1 min-w-0"><div class="flex flex-col gap-0.5">
@@ -673,7 +673,7 @@ ${selected?selectedFilmHtml(selected,true):""}</article>`;
 function pearlHtml(f,selected=null){
   const y=(f.release_date||"").slice(0,4);
   return `<div class="flex flex-col gap-space-xs"><div class="flex items-center gap-1.5 px-1"><span class="material-symbols-outlined text-[18px] text-primary-container">stars</span><h3 class="font-headline-sm text-headline-sm text-primary font-bold">${uiText("Жемчужина коллекции")}</h3></div>
-<div class="relative overflow-hidden rounded-xl bg-surface-panel p-space-md shadow-xl flex flex-col gap-space-md"><div class="flex gap-space-md cursor-pointer" data-act="open" data-id="${f.id}" ${selected ? 'style="display:none"' : ""}>
+<div class="relative overflow-hidden rounded-xl bg-surface-panel p-space-md shadow-xl flex flex-col gap-space-md"><div class="flex gap-space-md cursor-pointer" data-act="open" data-id="${f.id}">
 <div class="relative flex-shrink-0 w-28 h-40 rounded-lg overflow-hidden bg-surface-container-high shadow-md">${f.poster_path?`<img class="w-full h-full object-cover" alt="" src="${P(f.poster_path,"w342")}">`:""}
 <div class="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded bg-surface-panel/90 backdrop-blur-md text-primary-container font-label-sm text-label-sm font-bold flex items-center gap-0.5"><span class="material-symbols-outlined text-[13px]" style="font-variation-settings:'FILL' 1;">star</span>${f.vote_average ? Number(f.vote_average).toFixed(1) : "—"}</div>${kgBookmarkButton(f, "corner")}</div>
 <div class="flex flex-col justify-between flex-1 min-w-0"><div class="flex flex-col gap-1">
@@ -695,7 +695,7 @@ function renderFilms(){
   const keepScroll=()=>{if(anchorId==null)return;
     const el=[...box.querySelectorAll('[data-act="open"]')].find(e=>String(e.dataset.id)===String(anchorId));
     if(el){const d=el.getBoundingClientRect().top-anchorTop;if(d)window.scrollBy(0,d);}};
-  if(!best){box.innerHTML=(selectedInList?selectedFilmHtml(D.selected):"")+`<p class="font-body-sm text-body-sm text-text-muted px-1">${uiText("Подходящих фильмов не нашлось.")}</p>`;paintWatchedButtons(box);return;}
+  if(!best){box.innerHTML=`<p class="font-body-sm text-body-sm text-text-muted px-1">${uiText("Подходящих фильмов не нашлось.")}</p>`;return;}
   const list=rest.slice(0,D.shown);
   const pearl=pearlHtml(best,selectedInList&&String(D.selected.id)===String(best.id)?D.selected:null);
   box.innerHTML=pearl+
@@ -891,7 +891,6 @@ function placeListPanel(){
   const card = preview?.parentElement;
   const top = card?.getBoundingClientRect().top;
 
-  for (const item of previews) item.style.display = item === preview ? "none" : "";
   const panels = box.querySelectorAll('[data-act="open"] + [data-selected-film]');
   for (const panel of panels) {
     if (panel.previousElementSibling !== preview) panel.remove();
@@ -902,7 +901,8 @@ function placeListPanel(){
   const html = selectedFilmHtml(selected, true);
   const panel = preview.nextElementSibling;
   if (panel?.matches("[data-selected-film]")) panel.outerHTML = html;
-  else card.insertAdjacentHTML("beforeend", html);
+  else preview.insertAdjacentHTML("afterend", html);
+  paintWatchedButtons(preview.nextElementSibling);
   const delta = card.getBoundingClientRect().top - top;
   if (delta) window.scrollBy(0, delta);
   return true;
@@ -975,11 +975,14 @@ function openFilm(f,placement="list",detailTarget=null,{autoplayTrailer=false}={
   if(placement==="roulette"||placement==="home"||placement==="home-europe"||placement==="mood"||placement==="oscar"||placement==="related"||placement==="oscar-related"||placement==="person-related"||placement==="search")renderSelectedPanel();else if(!placeListPanel())renderFilms();
   if(personModalScrollRestore!==null){const dialog=document.querySelector("#kg-person-modal .kgpi-modal");requestAnimationFrame(()=>{if(dialog?.isConnected)dialog.scrollTop=personModalScrollRestore;});}
   const panel=detailTarget?$(detailTarget):placement==="roulette"?$("cl-result")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="home"?$("kg-home-feature")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="home-europe"?$("kg-home-europe-detail")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="mood"?$("mood-film-detail")?.querySelector(`[data-selected-film="${f.id}"]`):placement==="oscar"?$("oscar-film-detail")?.querySelector(`[data-selected-film="${f.id}"]`):vd.querySelector(`[data-selected-film="${f.id}"]`);
-  if(placement!=="related")requestAnimationFrame(()=>requestAnimationFrame(()=>{
+  const inlineCollectionCard = placement === "list" ||
+    (placement === "mood" && detailTarget?.startsWith("mood-film-detail-")) ||
+    (placement === "oscar" && /^oscar-(list|feature|grid)-detail-/.test(detailTarget || ""));
+  if(placement!=="related"&&!inlineCollectionCard)requestAnimationFrame(()=>requestAnimationFrame(()=>{
     if (D.selected !== selected) return;
     const reelResult = placement === "roulette" || detailTarget === "oscar-reel-detail" ||
       String(detailTarget || "").startsWith("mood-roulette-winner-detail-");
-    if ((reelResult || placement === "list") && window.KGScrollToFilmStart) {
+    if (reelResult && window.KGScrollToFilmStart) {
       window.KGScrollToFilmStart(placement === "roulette" ? $("cl-result") : panel);
       return;
     }
@@ -1183,7 +1186,7 @@ vd.addEventListener("click",e=>{
     const placement=D.selected&&D.selected._placement;
     D.selected=null;
     if(placement==="roulette")$("cl-result").innerHTML="";
-    else renderFilms();
+    else if(!placeListPanel())renderFilms();
     return;
   }
   if(a==="back"){e.preventDefault();showView("collections");return;}

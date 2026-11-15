@@ -41,6 +41,8 @@ st2.textContent=`.kgr-win{position:relative;height:150px;overflow:hidden;-webkit
 .kg-film-grid-score{position:absolute;top:.45rem;right:.45rem;padding:.13rem .42rem;border-radius:.65rem;background:rgb(var(--kg-black)/.74);color:rgb(var(--kg-white));font-size:.78rem;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.4}
 .kg-film-grid-title{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;overflow-wrap:anywhere;min-height:2.7em;margin-top:.5rem;padding-inline:.125rem;color:rgb(var(--kg-on-surface));font-size:.875rem;font-weight:500;line-height:1.35}
 .kg-film-grid-tile:hover .kg-film-grid-title{color:rgb(var(--kg-primary))}
+#cl-films .kg-film-list-shell > [data-act="open"]:has(+ .kg-film-detail){display:none}
+#cl-films .kg-film-grid-tile[aria-expanded="true"] .kg-film-grid-poster{visibility:hidden}
 #cat-grid.kg-three-columns{column-gap:clamp(10px,3.3vw,14px)}
 #cat-grid.kg-three-columns .collection-card{padding:0;min-width:0;background:none;box-shadow:none}
 #cat-grid.kg-three-columns .kg-catalog-row{display:grid;grid-template-columns:minmax(0,1fr);gap:.4rem}
@@ -785,7 +787,7 @@ function renderFilms(){
   const grid=collectionFilmLayout==="grid";
   const listMarkup=grid?filmGridRows(list,row=>{
     const selected=selectedInList&&row.some(f=>String(D.selected.id)===String(f.id))?D.selected:null;
-    return `<div class="kg-three-columns kg-film-grid-row" data-collection-grid-row>${row.map(f=>posterTile(f,`data-act="open" data-id="${f.id}"`)).join("")}</div><div data-collection-grid-detail ${selected?"":"hidden"}>${selected?selectedFilmHtml(selected):""}</div>`;
+    return `<div class="kg-three-columns kg-film-grid-row" data-collection-grid-row>${row.map(f=>posterTile(f,`data-act="open" data-id="${f.id}" aria-expanded="${String(f.id) === String(selected?.id)}"`)).join("")}</div><div data-collection-grid-detail ${selected?"":"hidden"}>${selected?selectedFilmHtml(selected):""}</div>`;
   }):list.map(f=>filmItem(f)).join("");
   const pearl=pearlHtml(best,selectedInList&&String(D.selected.id)===String(best.id)?D.selected:null);
   box.innerHTML=pearl+
@@ -900,6 +902,11 @@ function placeListPanel(){
   const selected = D.selected?._placement === "list" ? D.selected : null;
   const previews = [...box.querySelectorAll('[data-act="open"]')];
   const preview = selected && previews.find(item => item.dataset.id === String(selected.id));
+  for (const tile of previews) {
+    if (tile.classList.contains("kg-film-grid-tile")) {
+      tile.setAttribute("aria-expanded", String(tile === preview));
+    }
+  }
   const card = preview?.parentElement;
   const top = card?.getBoundingClientRect().top;
   const rowHost=preview?.closest("[data-collection-grid-row]")?.nextElementSibling;

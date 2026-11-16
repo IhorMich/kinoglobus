@@ -1,4 +1,4 @@
-/* Moven: Explore email recovery screen based on the supplied Stitch design. */
+/* Moven email recovery screen based on the supplied Stitch design. */
 (() => {
   const styles = document.createElement("style");
   styles.textContent = `
@@ -92,7 +92,7 @@
     <div class="kg-recovery-shell">
       <header class="kg-recovery-header">
         <button class="kg-recovery-back" type="button" data-kg-recovery-login aria-label="Назад" autofocus>${icon("arrow_back_ios_new", 22)}</button>
-        <span class="kg-recovery-brand"><img class="kg-brand-mark" src="assets/branding/moven-icon-192.png" width="24" height="24" alt="">Moven: Explore</span>
+        <span class="kg-recovery-brand"><img class="kg-brand-mark" src="assets/branding/moven-icon-192.png" width="24" height="24" alt="">Moven</span>
         <div class="kg-recovery-header-right">
           <button type="button" data-kg-recovery-register>Регистрация</button>
           <span class="kg-recovery-avatar">${icon("person", 18)}</span>

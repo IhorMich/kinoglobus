@@ -93,7 +93,7 @@
     <div class="kg-recovery-shell">
       <header class="kg-recovery-header">
         <button class="kg-recovery-back" type="button" aria-label="Назад" data-email autofocus>${icon("arrow_back_ios_new", 22)}</button>
-        <span class="kg-recovery-brand kg-code-brand"><img class="kg-brand-mark" src="assets/branding/moven-icon-192.png" width="24" height="24" alt="">Moven: Explore</span>
+        <span class="kg-recovery-brand kg-code-brand"><img class="kg-brand-mark" src="assets/branding/moven-icon-192.png" width="24" height="24" alt="">Moven</span>
         <div class="kg-recovery-header-right">
           <button type="button" aria-label="Помощь с кодом" data-help>${icon("verified_user")}</button>
           <span class="kg-recovery-avatar">${icon("person", 18)}</span>

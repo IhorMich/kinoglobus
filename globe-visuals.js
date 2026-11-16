@@ -1,4 +1,4 @@
-/* Country outline visuals for the interactive Moven: Explore Earth. */
+/* Country outline visuals for the interactive Moven Earth. */
 (() => {
   function subdivideRing(ring,maxDegrees=2.1) {
     const result=[];

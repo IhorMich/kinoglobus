@@ -1,4 +1,4 @@
-/* Shared visual markup for every film reel in Moven: Explore. */
+/* Shared visual markup for every film reel in Moven. */
 (function(){
   const SEARCH_REEL_DURATION = 4600;
   const SEARCH_REEL_STEPS = 26;
@@ -31,16 +31,16 @@
   const reelMode=()=>{try{const mode=JSON.parse(localStorage.getItem("reelStyle")||'"35mm"');return ["cassette","projection"].includes(mode)?mode:"35mm";}catch{return"35mm";}};
   const ticketEscape=html;
   function ticketMarkup(film={},meta={}){
-    const title=film.title||film.original_title||"Фильм из Moven: Explore",original=film.original_title&&film.original_title!==title?film.original_title:"ПРЕМЬЕРНЫЙ СЕАНС";
+    const title=film.title||film.original_title||"Фильм из Moven",original=film.original_title&&film.original_title!==title?film.original_title:"ПРЕМЬЕРНЫЙ СЕАНС";
     const year=(film.release_date||"").slice(0,4)||"—",rating=Number(film.vote_average)>0?Number(film.vote_average).toFixed(1):"—";
     const poster=film.poster_path?`https://image.tmdb.org/t/p/w500${film.poster_path}`:"";
-    const runtime=film.runtime?`${film.runtime} МИН`:(meta.runtime||"СЕАНС Moven: Explore"),country=meta.country||film._cc||"МИРОВОЙ КИНЕМАТОГРАФ";
+    const runtime=film.runtime?`${film.runtime} МИН`:(meta.runtime||"СЕАНС Moven"),country=meta.country||film._cc||"МИРОВОЙ КИНЕМАТОГРАФ";
     const overview=film.overview||"Билет в следующий фильм уже найден. Откройте карточку фильма, чтобы посмотреть описание и трейлер.";
     const serial=`KG-${String(film.id||"000000").replace(/\D/g,"").slice(-6).padStart(6,"0")}-${year}`;
-    return `<section class="kg-ticket" data-kg-ticket-card><div class="kg-ticket-top"><span>Moven: Explore <i>·</i> ПРЕМЬЕРНЫЙ АРХИВ</span><span class="kg-ticket-edition">ЗОЛОТОЙ БИЛЕТ</span></div>
-      <div class="kg-ticket-body"><div class="kg-ticket-poster">${poster?`<img src="${poster}" alt="Постер фильма «${ticketEscape(title)}»" loading="lazy">`:`<div class="kg-ticket-no-poster">Moven: Explore<br>PREMIÈRE</div>`}<span>${year} <b>·</b> TMDB</span></div>
+    return `<section class="kg-ticket" data-kg-ticket-card><div class="kg-ticket-top"><span>Moven <i>·</i> ПРЕМЬЕРНЫЙ АРХИВ</span><span class="kg-ticket-edition">ЗОЛОТОЙ БИЛЕТ</span></div>
+      <div class="kg-ticket-body"><div class="kg-ticket-poster">${poster?`<img src="${poster}" alt="Постер фильма «${ticketEscape(title)}»" loading="lazy">`:`<div class="kg-ticket-no-poster">Moven<br>PREMIÈRE</div>`}<span>${year} <b>·</b> TMDB</span></div>
       <div class="kg-ticket-info"><div class="kg-ticket-kicker">${ticketEscape(country)} <span>·</span> ${ticketEscape(year)}</div><h2>${ticketEscape(title)}</h2><div class="kg-ticket-original">${ticketEscape(original)}</div>${film.director?`<div class="kg-ticket-director">Режиссёр · ${ticketEscape(film.director)}</div>`:""}<p class="kg-ticket-synopsis">${ticketEscape(overview)}</p><div class="kg-ticket-stats"><span><small>TMDB</small><b>★ ${rating} / 10</b></span><span><small>СЕАНС</small><b>${ticketEscape(runtime)}</b></span><span><small>АРХИВ</small><b>№ ${ticketEscape(String(film.id||"—"))}</b></span></div>${film.award?`<div class="kg-ticket-award">✦ ${ticketEscape(film.award)}</div>`:""}</div></div>
-      <div class="kg-ticket-foot"><span class="kg-ticket-code-inline"><i class="kg-ticket-bars" aria-hidden="true"></i><small>${serial}</small></span><span class="kg-ticket-valid">АРХИВ Moven: Explore</span></div></section>`;
+      <div class="kg-ticket-foot"><span class="kg-ticket-code-inline"><i class="kg-ticket-bars" aria-hidden="true"></i><small>${serial}</small></span><span class="kg-ticket-valid">АРХИВ Moven</span></div></section>`;
   }
   function renderTicket(film,meta){return ticketMarkup(film,meta);}
   function presentTicket(container,film,meta={}){
@@ -237,7 +237,7 @@
           emitReelMotion(searchReelSpeed(p), distance, n);
           if(n!==last){last=n;const index=((Math.round(position)%state.films.length)+state.films.length)%state.films.length,film=state.films[index]||winner;state.index=index;const counter=mounted.counter;if(counter)counter.textContent=`${String(index+1).padStart(2,"0")} / ${String(state.films.length).padStart(2,"0")}`;options.onFrame?.(film,n,steps+1);}
           requestAnimationFrame(frame);
-        }catch(error){console.error("[Moven: Explore] Cassette animation failed",error);resolve(finish(false));}
+        }catch(error){console.error("[Moven] Cassette animation failed",error);resolve(finish(false));}
       };requestAnimationFrame(frame);
     });
   }

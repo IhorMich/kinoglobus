@@ -1,13 +1,14 @@
 <!DOCTYPE html><html class="dark" lang="ru" data-kg-theme="midnight" data-kg-button-accent="blue"><head><meta charset="utf-8">
-<title>Moven: Explore</title>
+<title>Moven</title>
 <link rel="icon" type="image/png" sizes="32x32" href="assets/branding/moven-icon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="assets/branding/moven-icon-180.png">
-<link rel="manifest" href="moven.webmanifest">
-<meta name="application-name" content="Moven: Explore">
+<link rel="manifest" href="moven.webmanifest?v=2">
+<meta name="application-name" content="Moven">
+<meta name="apple-mobile-web-app-title" content="Moven">
 <meta name="description" content="Explore the world of cinema">
-<link rel="stylesheet" href="app-theme.css?v=47">
+<link rel="stylesheet" href="app-theme.css?v=48">
 <script src="steel-motion.js?v=4" defer></script>
-<script src="interface-en.js?v=47"></script>
+<script src="interface-en.js?v=48"></script>
 <script src="interface-i18n.js?v=2"></script>
 <script src="catalog-safety.js?v=1"></script>
 <script>
@@ -48,7 +49,7 @@ try {
     .hint-float {
       animation: hintPulse 2.8s ease-in-out infinite;
     }
-  </style><script src="cinema-reel.js?v=45"></script><link rel="stylesheet" href="watched-button.css?v=7">
+  </style><script src="cinema-reel.js?v=46"></script><link rel="stylesheet" href="watched-button.css?v=7">
 <script src="watched-button.js?v=3"></script>
 <link rel="stylesheet" href="settings-page.css?v=10">
 </head><body class="bg-canvas-obsidian font-body-md text-on-surface flex flex-col min-h-screen relative">
@@ -308,7 +309,7 @@ try {
 </div>
 </div>
 
-<!-- Bridge elements for Moven: Explore engine (visually hidden) -->
+<!-- Bridge elements for Moven engine (visually hidden) -->
 <div id="kg-bridge" style="position:absolute;width:0;height:0;overflow:hidden;opacity:0;pointer-events:none" aria-hidden="true">
   <button id="go"></button>
   <button id="top1"></button>
@@ -687,7 +688,7 @@ localizeInterfaceMarkup(document.querySelector("main"));
         countryBoundaryFeatures=Array.isArray(data.features)?data.features:[];
         updateWatchedCountryOutlines([...watchedCountryIds]);
       } catch(error) {
-        console.warn("[Moven: Explore] Не удалось загрузить границы стран",error);
+        console.warn("[Moven] Не удалось загрузить границы стран",error);
       }
     }
 
@@ -1216,7 +1217,7 @@ rotatingGroup.add(flagPinGroup);
         },
         undefined,
         (error) => {
-          console.warn('[Moven: Explore] Не удалось загрузить текстуру Земли; оставляем запасную поверхность.', error);
+          console.warn('[Moven] Не удалось загрузить текстуру Земли; оставляем запасную поверхность.', error);
         }
       );
 
@@ -1513,7 +1514,7 @@ rotatingGroup.add(flagPinGroup);
 
 </script>
 <script>
-// ========== Moven: Explore engine (TMDB, filters, history) ==========
+// ========== Moven engine (TMDB, filters, history) ==========
 
 const GENRES={"":"Любой жанр",28:"Боевик",12:"Приключения",16:"Мультфильм",35:"Комедия",80:"Криминал",99:"Документальный",18:"Драма",10751:"Семейный",14:"Фэнтези",36:"История",27:"Ужасы",9648:"Детектив",10402:"Музыка",10749:"Мелодрама",878:"Фантастика",53:"Триллер",10752:"Военный",37:"Вестерн"};
 const COUNTRIES=["US","GB","FR","DE","IT","ES","JP","KR","CN","HK","TW","IN","RU","CA","AU","MX","BR","AR","CL","CO","PE","CU","SE","DK","NO","FI","IS","PL","CZ","HU","RO","BG","RS","GR","TR","IR","IL","LB","EG","MA","NG","ZA","TH","VN","ID","PH","MY","SG","PK","KZ","UA","GE","AM","NL","BE","AT","CH","PT","IE","NZ","UY","VE","EC","BO","PY","CR","DO","LV","LT","EE","SK","SI","HR","BA","MK","AL","BY","MD","AZ","UZ","IQ","JO","SA","AE","TN","DZ","SN","KE","GH","ET","BF","ML","CI","BD","LK","NP","MN","KH","MM","LU"];
@@ -2821,7 +2822,7 @@ async function trailerFor(film){
         api_key:apiKey, include_video_language:langs}),{cache:"no-store"});
       if(!r.ok)throw new Error(`TMDB videos: ${r.status}`);
       return (await r.json()).results||[];
-    }catch(e){console.warn("[Moven: Explore] Не удалось загрузить список видео TMDB:",e);return [];}
+    }catch(e){console.warn("[Moven] Не удалось загрузить список видео TMDB:",e);return [];}
   };
   const score=v=>{
     if (v.official !== true || !movieCatalog.allowsTrailer(v)) return 99;
@@ -3421,7 +3422,7 @@ async function spin(countryCode = ""){
     for(let i=0;i<cap;i+=3){   // проверяем небольшими параллельными партиями, чтобы поиск оставался отзывчивым
       const batch=order.slice(i,i+3);
       if (!filmOnly) lockSpin(`<span class="spin">🌍</span> Проверяем страны ${i+1}–${Math.min(i+batch.length,cap)} из ${cap}…`);
-      const pools=await Promise.all(batch.map(cc=>getPool(cc,q).catch(error=>{console.warn("[Moven: Explore] country search",cc,error);return null;})));
+      const pools=await Promise.all(batch.map(cc=>getPool(cc,q).catch(error=>{console.warn("[Moven] country search",cc,error);return null;})));
       for(let k=0;k<batch.length;k++){
         const pool=pools[k];
         if(!pool) continue;                   // too few films
@@ -3474,7 +3475,7 @@ $("seen").onclick=()=>markCurrentFilm($("seen"));
 (function(){
 const $=id=>document.getElementById(id);
 const G=window.MovenGlobe;
-if(!G){console.error("[Moven: Explore] globe not ready");return;}
+if(!G){console.error("[Moven] globe not ready");return;}
 const GEO={US:[37.7,-98],GB:[54,-2],FR:[46.2,2.2],DE:[51.2,10.4],IT:[41.9,12.5],ES:[40.4,-3.7],JP:[36,138],KR:[36.5,127.8],CN:[35,103],HK:[22.3,114.2],TW:[23.7,121],IN:[20.6,78.9],RU:[60,100],CA:[56,-106],AU:[-25,134],MX:[23,-102],BR:[-14,-51],AR:[-34,-64],CL:[-35,-71],CO:[4,-74],SE:[62,15],DK:[56,10],NO:[62,10],FI:[64,26],IS:[65,-18],PL:[52,19],CZ:[50,15],HU:[47,19],RO:[46,25],GR:[39,22],TR:[39,35],IR:[32,53],IL:[31,35],EG:[26,30],ZA:[-29,24],TH:[15,100],VN:[16,108],ID:[-2,118],PH:[13,122],MY:[4,102],SG:[1.3,103.8],NL:[52.1,5.3],BE:[50.5,4.5],AT:[47.5,14.5],CH:[47,8],PT:[39.4,-8],IE:[53,-8],NZ:[-41,174],UA:[49,32],GE:[42,43.5],AM:[40,45],KZ:[48,67],UZ:[41,64],LB:[34,36],SA:[24,45],AE:[24,54],TN:[34,9],DZ:[28,3],NG:[10,8],KE:[0,38],GH:[8,-1],ET:[9,40],CU:[22,-80],PE:[-10,-76],VE:[7,-66],EC:[-1,-78],UY:[-33,-56],CR:[10,-84],DO:[19,-70],LV:[57,25],LT:[55,24],EE:[59,25],SK:[49,20],SI:[46,15],HR:[45,16],BA:[44,18],RS:[44,21],BG:[43,25],MK:[42,22],AL:[41,20],BY:[53,28],MD:[47,29],AZ:[40,48],IQ:[33,44],JO:[31,36],PK:[30,70],BD:[24,90],LK:[7,81],NP:[28,84],MN:[46,105],KH:[13,105],MM:[22,96],LU:[50,6],MA:[32,-6],BO:[-17,-65],PY:[-23,-58],SN:[14,-14],BF:[12,-1.5],ML:[17,-3],CI:[7.5,-5.5],SU:[60,90],YU:[44,20],CS:[49,17],DD:[52,13]};
 
 // ---------- CSS для диалогов и карты ----------
@@ -4109,7 +4110,7 @@ window.show=function(cc,pool,film){
       await scrollToFilmReel(card, fromSpin ? 620 : 500);
       if(cur!==selection||reelStyle!==displayStyle)return;
       await spinReel(pool,film,cc);
-    }catch(e){console.warn('[Moven: Explore] reel',e);if(cur===selection){stopFilmReelSound();renderStatic(pool,film,cc);reveal(film,pool);}}
+    }catch(e){console.warn('[Moven] reel',e);if(cur===selection){stopFilmReelSound();renderStatic(pool,film,cc);reveal(film,pool);}}
   },0);
 };
 document.addEventListener("kg:watched-change",()=>{
@@ -4155,33 +4156,33 @@ window.KGCountryApp={
   showCountryOnGlobe:code=>{closeJ();const country=gc(code);G.currentCountry=country;focusedCC=code;G.showSingleBeacon(country);G.orientGlobeToCountry(country,false,0.055,G.CAMERA_DIST_FOCUS,true);hero(country);setTimeout(()=>G.dollyBack(country),1800);window.scrollTo({top:0,behavior:"smooth"});},
   searchCountry:async code=>{if(!apiKey){closeJ();showKeyUi();$("tmdb-key-banner").scrollIntoView({behavior:"smooth",block:"center"});return;}closeJ();await spin(code);}
 };
-console.info("[Moven: Explore] Bridge v6 ready");
+console.info("[Moven] Bridge v6 ready");
 })();
 </script>
 
-<script src="globe-visuals.js?v=5"></script>
+<script src="globe-visuals.js?v=6"></script>
 <script src="watch-history.js?v=16"></script>
-<script src="country-pages.js?v=36"></script>
-<script src="profile-page.js?v=15"></script>
-<script src="cinema-diary.js?v=14"></script>
-<script src="profile-editor.js?v=8"></script>
-<script src="login-page.js?v=8"></script>
-<script src="password-recovery.js?v=8"></script>
-<script src="recovery-code.js?v=7"></script>
-<script src="account-page.js?v=12"></script>
+<script src="country-pages.js?v=37"></script>
+<script src="profile-page.js?v=16"></script>
+<script src="cinema-diary.js?v=15"></script>
+<script src="profile-editor.js?v=9"></script>
+<script src="login-page.js?v=9"></script>
+<script src="password-recovery.js?v=9"></script>
+<script src="recovery-code.js?v=8"></script>
+<script src="account-page.js?v=13"></script>
 <script src="mood-vibe-additions.js?v=2"></script>
-<script src="mood-page.js?v=45"></script>
+<script src="mood-page.js?v=46"></script>
 <script src="mood-vibe-page.js?v=31"></script>
-<script src="oscar-page.js?v=50"></script>
-<script src="oscar-design.js?v=27"></script>
+<script src="oscar-page.js?v=51"></script>
+<script src="oscar-design.js?v=28"></script>
 <script src="curated-collections.js?v=2"></script>
-<script src="film-card.js?v=8"></script>
-<script src="collections.js?v=120"></script>
-<script src="film-interactions.js?v=28"></script>
+<script src="film-card.js?v=9"></script>
+<script src="collections.js?v=121"></script>
+<script src="film-interactions.js?v=29"></script>
 <script src="legal-watch.js?v=8"></script>
-<script src="global-search.js?v=18"></script>
+<script src="global-search.js?v=19"></script>
 <script src="home-releases.js?v=9"></script>
-<script src="settings-page.js?v=62"></script>
+<script src="settings-page.js?v=63"></script>
 <script>
 (() => {
   const earth = document.getElementById("earth-canvas-container");

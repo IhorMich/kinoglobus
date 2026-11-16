@@ -156,7 +156,7 @@
     <div class="kg-diary-shell">
       <header class="kg-diary-header">
         <button type="button" data-back aria-label="Назад" autofocus>${icon("arrow_back_ios_new")}</button>
-        <strong><img class="kg-brand-mark" src="assets/branding/moven-icon-192.png" width="24" height="24" alt=""> Moven: Explore</strong>
+        <strong><img class="kg-brand-mark" src="assets/branding/moven-icon-192.png" width="24" height="24" alt=""> Moven</strong>
         <button type="button" data-route="search" aria-label="Поиск">${icon("search")}</button>
         <img data-diary-portrait alt="" hidden>
       </header>

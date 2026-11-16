@@ -99,7 +99,7 @@
     state.sort="new";state.onlyBest=false;state.onlyUnseen=false;state.group=true;state.view="list";
     state.films=[];state.decade="all";state.shown=6;state.feature=null;state.featureDetails=null;state.selected=null;state.loaded=false;
     root.innerHTML=`<div class="flex flex-col w-full pb-safe">
-    <div class="flex items-center justify-between px-gutter-mobile pt-2"><button type="button" data-oscar-back class="w-11 h-11 -ml-1.5 flex items-center gap-1.5 text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined text-[22px]">arrow_back</span><span class="font-label-sm text-label-sm">${uiText("Подборки")}</span></button><span class="font-micro-caption text-micro-caption text-text-muted">${uiText("Moven: Explore · OSCAR WINNERS")}</span></div>
+    <div class="flex items-center justify-between px-gutter-mobile pt-2"><button type="button" data-oscar-back class="w-11 h-11 -ml-1.5 flex items-center gap-1.5 text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined text-[22px]">arrow_back</span><span class="font-label-sm text-label-sm">${uiText("Подборки")}</span></button><span class="font-micro-caption text-micro-caption text-text-muted">${uiText("Moven · OSCAR WINNERS")}</span></div>
 <div class="relative w-full px-gutter-mobile pt-space-md"><div class="relative overflow-hidden rounded-2xl bg-gradient-to-b from-surface-container-high via-surface-panel to-surface-container-lowest p-space-lg shadow-xl shadow-canvas-obsidian/80">
 <div class="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-cinema-amber-glow blur-3xl pointer-events-none"></div><div class="absolute -bottom-16 -left-12 w-44 h-44 rounded-full bg-cinema-velvet-glow blur-3xl pointer-events-none"></div>
 <div class="relative flex flex-col items-center text-center">
@@ -163,7 +163,7 @@
       state.feature=state.films[(day-1+state.films.length)%state.films.length];
       renderDecades(root);renderFeature(root,deps);renderToolbar(root);renderList(root,deps);renderProgress(root,deps);
       loadFeatureDetails(root,deps);
-      loadCountries(root,deps).catch(error=>console.warn("[Moven: Explore] Не удалось загрузить географию лауреатов:",error));
+      loadCountries(root,deps).catch(error=>console.warn("[Moven] Не удалось загрузить географию лауреатов:",error));
     }catch(e){
       if(token!==state.request)return;
       error.textContent=e.message||uiText("Не удалось загрузить список лауреатов.");
@@ -210,7 +210,7 @@
   async function loadFeatureDetails(root,deps){
     const f=state.feature;if(!f)return;
     try{state.featureDetails=await detailFor(deps,f.id);renderFeature(root,deps);}
-    catch(e){console.warn("[Moven: Explore] Не удалось загрузить сведения о лауреате дня:",e);}
+    catch(e){console.warn("[Moven] Не удалось загрузить сведения о лауреате дня:",e);}
   }
   async function loadCountries(root,deps){
     const request=state.request,films=state.films.slice(0,12),counts=new Map();
@@ -358,7 +358,7 @@ ${info.best?`<span class="block font-micro-caption text-micro-caption text-prima
     if(e.target.closest("#oscar-roulette")){
       audio();
       spinReel(root,deps).catch(error=>{
-        console.error("[Moven: Explore] Случайный поиск Оскара завершился ошибкой:",error);
+        console.error("[Moven] Случайный поиск Оскара завершился ошибкой:",error);
         state.spinning=false;state.skipSpin=false;sound("stopFilmReelSound");setLaunch(root,false);
         const status=root.querySelector("#oscar-error");if(status){status.textContent=uiText("Не удалось завершить поиск. Нажмите ещё раз.");status.hidden=false;}
       });

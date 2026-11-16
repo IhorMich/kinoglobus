@@ -47,7 +47,7 @@
         }
         const r=root.querySelector(`[data-kgo-rate="${k}"]`);
         if(r&&f.vote_average)r.textContent="★ "+Number(f.vote_average).toFixed(1)+" TMDB";
-      }catch(e){console.warn("[Moven: Explore] oscar-design:",k,e);}
+      }catch(e){console.warn("[Moven] oscar-design:",k,e);}
     }));
     await Promise.all([...root.querySelectorAll("[data-kgo-person]")].map(async el=>{
       try{
@@ -188,7 +188,7 @@
           try{
             const f=reg[k]||(hasKey()?await findFilm(k):null);
             if(f){reg[k]=f;d.openFilm(f,"oscar",o.dataset.kgoTarget,{opener:o});}
-          }catch(err){console.warn("[Moven: Explore] oscar-design:",err);}
+          }catch(err){console.warn("[Moven] oscar-design:",err);}
         }
       });
     }

@@ -6,7 +6,7 @@
   const root=document.createElement("div");root.id="kg-global-search";root.hidden=true;
   const emptySearch = `
     <div class="kgs-empty">
-      <h2>${uiText("Поиск в Moven: Explorer")}</h2>
+      <h2>${uiText("Поиск в Moven")}</h2>
       <p>${uiText("Найди фильм, режиссёра или актёра")}</p>
     </div>`;
   root.innerHTML = `

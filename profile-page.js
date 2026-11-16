@@ -1,4 +1,4 @@
-/* Profile view for the local Moven: Explore demo session. */
+/* Profile view for the local Moven demo session. */
 (() => {
   let profile = null;
   const artwork = [
@@ -108,7 +108,7 @@
     <div class="kg-profile-shell">
       <header class="kg-profile-header">
         <button type="button" data-profile-back aria-label="Назад" autofocus>${icon("arrow_back_ios_new")}</button>
-        <div class="kg-profile-brand"><img class="kg-brand-mark" src="assets/branding/moven-icon-192.png" width="24" height="24" alt=""> Moven: Explore<small>Личный кабинет</small></div>
+        <div class="kg-profile-brand"><img class="kg-brand-mark" src="assets/branding/moven-icon-192.png" width="24" height="24" alt=""> Moven<small>Личный кабинет</small></div>
         <button type="button" data-profile-action="search" aria-label="Поиск">${icon("search")}</button>
         <button type="button" data-profile-logout aria-label="Выйти">${icon("logout")}</button>
         ${still(0)}
@@ -121,7 +121,7 @@
             <div>
               <h1 id="kg-profile-title"></h1>
               <p class="kg-profile-handle" data-profile-handle></p>
-              <div class="kg-profile-pills"><span class="kg-profile-pill">Демо-профиль</span><span class="kg-profile-pill" data-profile-club-badge>Moven: Explore Club</span><span data-profile-badges class="contents"></span></div>
+              <div class="kg-profile-pills"><span class="kg-profile-pill">Демо-профиль</span><span class="kg-profile-pill" data-profile-club-badge>Moven Club</span><span data-profile-badges class="contents"></span></div>
             </div>
           </div>
           <p class="kg-profile-copy" data-profile-bio></p>
@@ -185,7 +185,7 @@
           </article>
         </section>
         <section class="kg-profile-card kg-profile-club" data-profile-club>
-          <div class="kg-profile-head"><h2>Moven: Explore Club Gold</h2><span class="kg-profile-pill">Скоро</span></div>
+          <div class="kg-profile-head"><h2>Moven Club Gold</h2><span class="kg-profile-pill">Скоро</span></div>
           <p class="kg-profile-copy">Премиальный доступ к плёночным реставрациям</p>
           <div class="kg-profile-actions">
             <span class="kg-profile-button gold">Управление подпиской</span>
@@ -334,7 +334,7 @@
       const sharedProfile = profile;
       const text = [profile.name, profile.bio].filter(Boolean).join("\n");
       try {
-        if (navigator.share) await navigator.share({ title: "Moven: Explore", text });
+        if (navigator.share) await navigator.share({ title: "Moven", text });
         else {
           await navigator.clipboard.writeText(text);
           if (profile !== sharedProfile || !dialog.open) return;

@@ -1,4 +1,4 @@
-// Moven: Explore settings, adapted from the Stitch settings screen.
+// Moven settings, adapted from the Stitch settings screen.
 (function () {
   const dialog = document.getElementById("settings");
   if (!dialog) return;
@@ -18,7 +18,7 @@
 <div id="kgs-title" class="font-headline-sm text-base text-primary font-semibold leading-tight">
           Настройки
         </div>
-<p class="text-[11px] text-text-muted font-medium tracking-tight"><img class="kg-brand-mark" src="assets/branding/moven-icon-192.png" width="24" height="24" alt=""> Настройки Moven: Explore</p>
+<p class="text-[11px] text-text-muted font-medium tracking-tight"><img class="kg-brand-mark" src="assets/branding/moven-icon-192.png" width="24" height="24" alt=""> Настройки Moven</p>
 </div>
 </div>
 </header>

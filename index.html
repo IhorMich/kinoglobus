@@ -590,7 +590,7 @@ localizeInterfaceMarkup(document.querySelector("main"));
     const blendForFrames = (blend, frames) => 1 - Math.pow(1 - blend, frames);
     // One timed turn owns the rotation until it reaches its target or is cancelled.
     let turnDone = null, globeAnimationReady = false;
-    let turnMs, turnStart, turnX, turnY, turnDX, turnDY, turnBase, turnEase;
+    let turnMs, turnStart, turnX, turnY, turnDX, turnDY, turnBase, turnEase, turnSettles;
     let camera;
     let targetRotY = 0;
     let countryFramed = false;
@@ -1025,11 +1025,12 @@ rotatingGroup.add(flagPinGroup);
       done(false);
     }
 
-    function turnToScanCountry(country, duration, speed, zoom, showFlag = false) {
-      orientGlobeToCountry(country, false, speed, zoom, showFlag);
+    function turnToScanCountry(country, duration, speed, zoom, settle = false) {
+      orientGlobeToCountry(country, false, speed, zoom, false);
       if (!globeAnimationReady) return new Promise(resolve => setTimeout(resolve, duration, true));
       turnStart = performance.now();
       turnMs = duration;
+      turnSettles = settle;
       turnX = currentRotX;
       turnY = currentRotY;
       turnDX = targetRotX - turnX;
@@ -1042,7 +1043,10 @@ rotatingGroup.add(flagPinGroup);
     function advanceRotation(now, frames) {
       if (turnDone) {
         const ms = Math.max(0, now - turnStart);
-        const progress = ms >= turnMs ? 1 : (1 - Math.pow(turnBase, ms * 0.06)) * turnEase;
+        const time = Math.min(1, ms / turnMs);
+        const progress = turnSettles
+          ? time * time * (3 - 2 * time)
+          : time >= 1 ? 1 : (1 - Math.pow(turnBase, ms * 0.06)) * turnEase;
         currentRotX = turnX + turnDX * progress;
         currentRotY = turnY + turnDY * progress;
         if (progress === 1) {
@@ -1483,11 +1487,12 @@ rotatingGroup.add(flagPinGroup);
       orientGlobeToCountry,
       turnToScanCountry,
       cancelScanTurn,
-      frameCountry(country) {
+      frameCountry(country, alreadyOriented = false) {
         countryFramed = true;
         currentCountry = country;
         showSingleBeacon(country);
-        orientGlobeToCountry(country, true, 0.065, focusDist, true);
+        if (alreadyOriented) update3DCountryFlag(country, true);
+        else orientGlobeToCountry(country, true, 0.065, focusDist, true);
       },
       updateHolographicView,
       triggerWinnerCelebration,
@@ -3551,6 +3556,8 @@ st.textContent=`
 #btn-mode-surprise[aria-pressed="false"]:hover{color:rgb(var(--kg-on-surface))}
 #btn-mode-surprise[aria-pressed="true"]{color:rgb(var(--kg-white));box-shadow:0 4px 18px rgb(var(--kg-rose-07)/0.26667)}
 #btn-mode-surprise[aria-pressed="true"]{background:linear-gradient(135deg,rgb(var(--kg-secondary-container)),rgb(var(--kg-rose-06)))}
+#hero-hologram-display.is-country-scanning{opacity:0}
+@media (prefers-reduced-motion:reduce){#hero-hologram-display{transition:none}}
 #film-details.veiled{display:none}
 .kg-film-card-poster{width:80px;height:112px;flex:none}
 .kg-trailer-frame{position:absolute;inset:0;display:block;width:100%;height:100%;border:0}
@@ -3740,6 +3747,7 @@ async function scanCountries(scan, steps, slow=false){
   return activeScan===scan;
 }
 const COUNTRY_HOLD_MS = 1000;
+const FINAL_COUNTRY_TURN_MS = 950;
 const LAND_STEPS=[200,230,265,300,350,410];   // замедление перед остановкой
 // Подборка уже знает страну: только световая точка, без прокрутки глобуса и без флажка.
 function pinLight(cc){
@@ -3797,7 +3805,7 @@ window.reelStart=function(themedCountries = []){
     if(themedCountries.length===1) pinLight(themedCountries[0]);
     return;
   }
-  $("hero-hologram-display").classList.add("invisible");
+  $("hero-hologram-display").classList.add("is-country-scanning");
   G.beginScan();
   const scan=activeScan={pool:scanCatalog.slice(),remaining:scanCatalog.length,initial:null};
   scan.initial=scanCountries(scan,SCAN_STEPS);
@@ -3818,16 +3826,14 @@ window.reelLand=async function(cc, themedCountries = []){
   }
   if(!await scanCountries(scan,LAND_STEPS.length,true) || activeScan!==scan) return;
   const country = gc(cc);
-  G.currentCountry = country;
+  const arrived = await G.turnToScanCountry(country, FINAL_COUNTRY_TURN_MS, 0.075, G.CAMERA_DIST_FOCUS, true);
+  if (!arrived || activeScan !== scan) return;
+  G.frameCountry(country, true);
   focusedCC = cc;
-  G.showSingleBeacon(country);
-  const finalTurn=G.turnToScanCountry(country,460,0.075,G.CAMERA_DIST_FOCUS,true);
   hero(country);
-  $("hero-hologram-display").classList.remove("invisible");
+  $("hero-hologram-display").classList.remove("is-country-scanning");
   G.triggerWinnerCelebration(country);
   landed = true;
-  if(!await finalTurn || activeScan!==scan) return;
-  G.frameCountry(country);
   await sleep(COUNTRY_HOLD_MS);
   if(activeScan!==scan) return;
   setSpinUi(true, true);
@@ -3838,7 +3844,7 @@ window.reelLand=async function(cc, themedCountries = []){
 };
 window.reelAbort=function(){
   cancelCountryScan();
-  $("hero-hologram-display").classList.remove("invisible");
+  $("hero-hologram-display").classList.remove("is-country-scanning");
   if(!landed){focusedCC="";G.isSpinning=false;const c=G.currentCountry;G.orientGlobeToCountry(c,false,0.035,G.CAMERA_DIST_DEFAULT,false);G.hideMarks();hero(c);}
 };
 window.filmReel=async function(){};   // в дизайне барабана постеров нет

@@ -757,7 +757,7 @@
   color: rgb(var(--kg-on-surface));
 }
 
-:root[data-kg-theme="midnight"] :is(#btn-top-one, #btn-oscar-laureate):active:not(:disabled) {
+:root[data-kg-theme="midnight"] :is(#btn-top-one, #btn-oscar-laureate):active:not(:disabled, [aria-pressed="true"]) {
   --kg-quick-action-background: rgb(var(--kg-accent-deep));
 }
 
@@ -829,7 +829,7 @@
 :root[data-kg-theme="steel"] :is(
   #btn-mode-filters, #btn-mode-surprise, #btn-top-one, #btn-oscar-laureate,
   #genre-filter-button, #country-filter-button, .kg-extra-page .acts button
-):active:not(:disabled, [data-kg-steel-selected]) {
+):active:not(:disabled, [aria-pressed="true"]) {
   --kg-quick-action-background: var(--kg-metal-control-pressed);
   background: var(--kg-metal-control-pressed);
 }
@@ -961,6 +961,23 @@
 
 :root[data-kg-theme="steel"] :is(#btn-top-one, #btn-oscar-laureate) {
   color: #f1f5f9;
+}
+
+:root :is(#btn-top-one, #btn-oscar-laureate)[aria-pressed="true"] {
+  --kg-quick-action-background: rgb(var(--kg-primary-fixed));
+  border-color: rgb(var(--kg-primary-fixed));
+  color: rgb(var(--kg-canvas-obsidian));
+}
+
+:root[data-kg-theme="steel"] :is(#btn-top-one, #btn-oscar-laureate)[aria-pressed="true"] {
+  --kg-quick-action-background: #fff;
+  border-color: #fff;
+  box-shadow: 0 0 16px rgb(255 255 255 / .4);
+  color: rgb(var(--kg-metal-mode-ink));
+}
+
+:root :is(#btn-top-one, #btn-oscar-laureate)[aria-pressed="true"] .material-symbols-outlined {
+  color: inherit;
 }
 
 :root[data-kg-theme="steel"] :is(

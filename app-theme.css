@@ -718,6 +718,9 @@
   --kg-action-elevation: inset 0 2px 1.5px #fff, inset 0 -2px 4px rgb(15 23 42 / .50), 0 10px 24px -4px #000b, 0 0 18px rgb(226 232 240 / .36);
   --kg-action-elevation-pressed: inset 0 1px 1px rgb(255 255 255 / .78), inset 0 -1px 4px rgb(15 23 42 / .45), 0 3px 11px #000a;
   --kg-metal-selected: linear-gradient(165deg, #fff, #eef2f7 45%, #aebaca);
+  --kg-steel-selection-gradient: linear-gradient(135deg, #fff 0%, #cbd5e1 35%, #94a3b8 75%, #475569 100%);
+  --kg-steel-selection-pressed: linear-gradient(135deg, #e2e8f0 0%, #b8c4d5 35%, #8293ab 75%, #3e4a5e 100%);
+  --kg-steel-selection-shadow: inset 0 2px 1px #fff, inset 0 -2px 4px rgb(15 23 42 / .40), 0 4px 16px #0008, 0 0 12px rgb(226 232 240 / .35);
   --kg-metal-control: linear-gradient(165deg, #4a576a 0%, #273245 48%, #121a29 100%);
   --kg-metal-control-pressed: linear-gradient(165deg, #3e4a5e, #1c2637 58%, #101725);
   --kg-metal-edge: rgb(241 245 249 / .50);
@@ -841,13 +844,6 @@
   border-color: rgb(var(--kg-primary) / .76);
 }
 
-:root[data-kg-theme="steel"] :is(#btn-mode-filters, #btn-mode-surprise)[aria-pressed="true"] {
-  background: var(--kg-metal-selected);
-  border-color: var(--kg-metal-action-edge);
-  box-shadow: inset 0 1px 1px #fff, 0 0 13px rgb(226 232 240 / .32);
-  color: rgb(var(--kg-metal-mode-ink));
-}
-
 :root[data-kg-theme="steel"] button:is(
   .kg-watched-button[aria-pressed="true"], .bg-primary-container, .bg-primary, .from-primary-container
 ) {
@@ -967,13 +963,6 @@
   --kg-quick-action-background: rgb(var(--kg-primary-fixed));
   border-color: rgb(var(--kg-primary-fixed));
   color: rgb(var(--kg-canvas-obsidian));
-}
-
-:root[data-kg-theme="steel"] :is(#btn-top-one, #btn-oscar-laureate)[aria-pressed="true"] {
-  --kg-quick-action-background: #fff;
-  border-color: #fff;
-  box-shadow: 0 0 16px rgb(255 255 255 / .4);
-  color: rgb(var(--kg-metal-mode-ink));
 }
 
 :root :is(#btn-top-one, #btn-oscar-laureate)[aria-pressed="true"] .material-symbols-outlined {
@@ -1116,15 +1105,30 @@ body {
   }
 }
 
+/* The inline quick and primary button styles also read these state colors. */
 :root[data-kg-theme="steel"] :is(
-  #btn-spin-roulette:not(:disabled), .kg-extra-page #go:not(:disabled), #btn-mode-filters, #btn-mode-surprise
-):is([data-kg-steel-selected], [aria-pressed="true"]) {
-  --kg-spin-background: #fff;
-  --kg-spin-shadow: 0 0 20px rgb(255 255 255 / .35), inset 0 2px 4px rgb(0 0 0 / .4);
-  background: #fff;
-  border-color: rgb(255 255 255 / .95);
-  box-shadow: var(--kg-spin-shadow);
+  :is(#btn-mode-filters, #btn-mode-surprise, #btn-top-one, #btn-oscar-laureate)[aria-pressed="true"],
+  :is(#btn-spin-roulette, .kg-extra-page #go)[data-kg-steel-selected]
+) {
+  --kg-steel-selection-fill: var(--kg-steel-selection-gradient);
+  --kg-quick-action-background: var(--kg-steel-selection-fill);
+  --kg-spin-background: var(--kg-steel-selection-fill);
+  --kg-spin-shadow: var(--kg-steel-selection-shadow);
+  background: var(--kg-steel-selection-fill);
+  border-color: var(--kg-metal-action-edge);
+  box-shadow: var(--kg-steel-selection-shadow);
   color: rgb(var(--kg-metal-mode-ink));
+}
+
+:root[data-kg-theme="steel"] :is(
+  :is(#btn-mode-filters, #btn-mode-surprise, #btn-top-one, #btn-oscar-laureate)[aria-pressed="true"],
+  :is(#btn-spin-roulette, .kg-extra-page #go)[data-kg-steel-selected]
+):active:not(:disabled) {
+  --kg-steel-selection-fill: var(--kg-steel-selection-pressed);
+}
+
+:root[data-kg-theme="steel"] #btn-spin-roulette[data-kg-steel-selected]:disabled {
+  filter: none;
 }
 
 :root[data-kg-theme="steel"] #btn-spin-roulette:not(:disabled) #btn-spin-secondary-icon:not(.animate-spin) {

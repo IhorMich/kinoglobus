@@ -387,7 +387,7 @@ try {
     <div id="crew" hidden></div><p id="tagline" hidden></p><p id="over"></p>
     <div id="player" hidden></div><p id="ytnote" hidden><a id="ytlink"></a></p>
   </div>
-  <dialog id="settings"><select id="snd"><option value="roulette">roulette</option><option value="bells">bells</option><option value="arcade">arcade</option><option value="casino">casino</option><option value="marimba">marimba</option><option value="space">space</option><option value="film">film</option><option value="orchestra">orchestra</option><option value="jazz">jazz</option><option value="synth">synth</option><option value="chimes">chimes</option><option value="smp-ui14">smp-ui14</option><option value="smp-ui02">smp-ui02</option><option value="smp-ui73">smp-ui73</option><option value="smp-build">smp-build</option><option value="smp-confirm">smp-confirm</option><option value="smp-impact">smp-impact</option><option value="smp-blaster">smp-blaster</option><option value="off">off</option></select><select id="reel-snd"><option value="projector">35 мм · проектор</option><option value="imax">Кинозал · мягкий импульс</option><option value="camera">Кинокамера · механика</option><option value="tape">Магнитная плёнка</option><option value="premiere">Премьерный зал</option><option value="shutter">Кинокамера · затвор</option><option value="editbench">Монтажный стол · шаг кадра</option><option value="sixteenmm">16 мм · мягкая трещотка</option><option value="off">Без звука</option></select></dialog>
+  <dialog id="settings"><select id="snd"><option value="roulette">roulette</option><option value="bells">bells</option><option value="arcade">arcade</option><option value="casino">casino</option><option value="marimba">marimba</option><option value="space">space</option><option value="film">film</option><option value="orchestra">orchestra</option><option value="jazz">jazz</option><option value="synth">synth</option><option value="chimes">chimes</option><option value="smp-ui14">smp-ui14</option><option value="smp-ui02">smp-ui02</option><option value="smp-ui73">smp-ui73</option><option value="smp-build">smp-build</option><option value="smp-confirm">smp-confirm</option><option value="smp-impact">smp-impact</option><option value="smp-blaster">smp-blaster</option><option value="smp-reveal">smp-reveal</option><option value="off">off</option></select><select id="reel-snd"><option value="projector">35 мм · проектор</option><option value="imax">Кинозал · мягкий импульс</option><option value="camera">Кинокамера · механика</option><option value="tape">Магнитная плёнка</option><option value="premiere">Премьерный зал</option><option value="shutter">Кинокамера · затвор</option><option value="editbench">Монтажный стол · шаг кадра</option><option value="sixteenmm">16 мм · мягкая трещотка</option><option value="off">Без звука</option></select></dialog>
   <dialog id="journey"><div id="jhead"></div><i id="jfill"></i><div id="mapbox"></div><div id="jstats"></div><div id="jopen"></div><div id="jclosed"></div><span id="jclosedsum"></span><div id="jfilms"></div><span id="jopenT"></span><span id="jfilmsT"></span><span id="minfo"></span><span id="jtitle"></span></dialog>
   <span id="topNote" hidden></span><span id="oscarNote" hidden></span>
   <div id="rwin"></div>
@@ -2369,8 +2369,11 @@ const SAMPLE_SOUNDS={
   "smp-build":"assets/sounds/build-finish.mp3",
   "smp-confirm":"assets/sounds/confirm.mp3",
   "smp-impact":"assets/sounds/impact.mp3",
-  "smp-blaster":"assets/sounds/blaster.mp3"
+  "smp-blaster":"assets/sounds/blaster.mp3",
+  "smp-reveal":"assets/sounds/logo-reveal.mp3"
 };
+// Звуки, которые играют ТОЛЬКО в финале; при вращении используется щелчок рулетки
+const SAMPLE_WIN_ONLY={"smp-reveal":true};
 const SAMPLE_TICK_LEN=0.09;   // сколько секунд начала файла играет как «тик» при вращении
 const SAMPLE_TICK_VOL=0.55;   // громкость тика
 const SAMPLE_WIN_VOL=0.9;     // громкость финального звука (полный файл)
@@ -2407,13 +2410,13 @@ function sampleWin(key){
   }catch(_){}
 }
 const MARIMBA=[261.63,293.66,329.63,392,440,523.25,587.33,659.25];
-const THROTTLE={roulette:0,bells:110,arcade:55,casino:70,marimba:90,space:60,film:45,orchestra:95,jazz:80,synth:70,chimes:100,"smp-ui14":70,"smp-ui02":70,"smp-ui73":70,"smp-build":70,"smp-confirm":70,"smp-impact":70,"smp-blaster":70};let lastT=0;
+const THROTTLE={roulette:0,bells:110,arcade:55,casino:70,marimba:90,space:60,film:45,orchestra:95,jazz:80,synth:70,chimes:100,"smp-ui14":70,"smp-ui02":70,"smp-ui73":70,"smp-build":70,"smp-confirm":70,"smp-impact":70,"smp-blaster":70,"smp-reveal":0};let lastT=0;
 function sTick(e){               // e = progress 0..1 (controls pitch)
   if(snd==="off"||!ac)return;
   const now=performance.now();if(now-lastT<(THROTTLE[snd]||0))return;lastT=now;
   const i=Math.min(7,Math.floor(e*8));
-  if(SAMPLE_SOUNDS[snd]){sampleTick(snd,e);return;}
-  if(snd==="roulette"){click(0.8,1700+e*900);tone(150+e*40,0.05,0.10,"sine");}
+  if(SAMPLE_SOUNDS[snd]&&!SAMPLE_WIN_ONLY[snd]){sampleTick(snd,e);return;}
+  if(snd==="roulette"||SAMPLE_WIN_ONLY[snd]){click(0.8,1700+e*900);tone(150+e*40,0.05,0.10,"sine");}
   else if(snd==="bells"){tone(PENTA[i],0.4,0.08,"sine");}
   else if(snd==="casino"){tone(1568+e*600,0.09,0.05,"triangle");click(0.4,3200);}
   else if(snd==="marimba"){tone(MARIMBA[i],0.2,0.14,"sine");tone(MARIMBA[i]*4,0.06,0.04,"sine");}

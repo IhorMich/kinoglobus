@@ -1,4 +1,4 @@
-/* KinoGlobus sign-in screen based on the supplied Stitch design. */
+/* Moven: Explore sign-in screen based on the supplied Stitch design. */
 (() => {
   const styles = document.createElement("style");
   styles.textContent = `
@@ -53,7 +53,7 @@
     <div class="kg-login-shell">
       <header class="kg-login-header">
         <button type="button" data-kg-login-back aria-label="Назад" autofocus class="flex w-9 h-9 shrink-0 items-center justify-center">${icon("arrow_back_ios_new")}</button>
-        <span class="kg-login-brand">${icon("theater_comedy")}KINOGLOBUS</span>
+        <span class="kg-login-brand">${icon("theater_comedy")}Moven: Explore</span>
         <button type="button" data-kg-login-register class="text-secondary font-semibold text-xs sm:text-sm">Регистрация</button>
       </header>
       <div class="kg-login-scroll">

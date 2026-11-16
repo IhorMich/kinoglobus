@@ -93,7 +93,7 @@
     <div class="kg-recovery-shell">
       <header class="kg-recovery-header">
         <button class="kg-recovery-back" type="button" aria-label="Назад" data-email autofocus>${icon("arrow_back_ios_new", 22)}</button>
-        <span class="kg-recovery-brand kg-code-brand">${icon("local_movies", 18)}KINOGLOBUS</span>
+        <span class="kg-recovery-brand kg-code-brand">${icon("local_movies", 18)}Moven: Explore</span>
         <div class="kg-recovery-header-right">
           <button type="button" aria-label="Помощь с кодом" data-help>${icon("verified_user")}</button>
           <span class="kg-recovery-avatar">${icon("person", 18)}</span>

@@ -100,6 +100,7 @@
   --kg-globe-sky-light: 220 230 255;
   --kg-globe-ground-light: 18 22 34;
   --kg-globe-flag-surface: 28 22 38;
+  --kg-globe-flag-edge: var(--kg-primary);
   --kg-globe-ocean-shadow: 8 26 54;
   --kg-globe-ocean-light: 47 95 156;
   --kg-globe-land: 38 84 50;
@@ -677,9 +678,33 @@
 }
 
 :root[data-kg-theme="steel"] {
+  /* Цвета текста из экспорта Stitch. */
+  --kg-on-surface: 223 226 242; /* #DFE2F2 */
+  --kg-heading: var(--kg-on-surface);
+  --kg-on-surface-variant: 194 198 216; /* #C2C6D8 */
+  --kg-primary: 226 232 240; /* #E2E8F0 */
+  --kg-primary-fixed: var(--kg-primary);
+  --kg-secondary: var(--kg-primary);
+  --kg-secondary-fixed: var(--kg-primary);
+  --kg-text-muted: 148 163 184; /* #94A3B8 */
+  --kg-outline: 140 144 161; /* #8C90A1 */
+  --kg-nav-active: var(--kg-white);
+  --kg-nav-inactive: var(--kg-text-muted);
+
+  /* Палитра глобуса сохраняет свои синие акценты. */
+  --kg-globe-flag-edge: 53 200 255;
+  --kg-globe-outline-glow: var(--kg-globe-flag-edge);
+  --kg-globe-beacon-ring: var(--kg-globe-flag-edge);
+  --kg-globe-beacon-dot: var(--kg-globe-flag-edge);
+  --kg-globe-pin-beam: var(--kg-globe-flag-edge);
+  --kg-globe-outline-core: var(--kg-globe-flag-edge);
+  --kg-globe-pin-core: var(--kg-globe-flag-edge);
+  --kg-selection-glow: var(--kg-globe-flag-edge);
+
   --kg-action-gradient: linear-gradient(112deg, #fff 0%, #e2e8f0 20%, #aab8ca 54%, #54647a 77%, #1e293b 100%);
   --kg-action-gradient-pressed: linear-gradient(112deg, #e2e8f0 0%, #cbd5e1 20%, #98a8bd 54%, #46556a 77%, #151e2f 100%);
-  --kg-action-ink: 9 13 24;
+  --kg-action-ink: 0 0 0;
+  --kg-metal-mode-ink: 10 13 20;
   --kg-metal-action-edge: rgb(255 255 255 / .92);
   --kg-action-elevation: inset 0 2px 1.5px #fff, inset 0 -2px 4px rgb(15 23 42 / .50), 0 10px 24px -4px #000b, 0 0 18px rgb(226 232 240 / .36);
   --kg-action-elevation-pressed: inset 0 1px 1px rgb(255 255 255 / .78), inset 0 -1px 4px rgb(15 23 42 / .45), 0 3px 11px #000a;
@@ -804,7 +829,7 @@
 :root[data-kg-theme="steel"] :is(
   #btn-mode-filters, #btn-mode-surprise, #btn-top-one, #btn-oscar-laureate,
   #genre-filter-button, #country-filter-button, .kg-extra-page .acts button
-):active:not(:disabled) {
+):active:not(:disabled, [data-kg-steel-selected]) {
   --kg-quick-action-background: var(--kg-metal-control-pressed);
   background: var(--kg-metal-control-pressed);
 }
@@ -820,7 +845,7 @@
   background: var(--kg-metal-selected);
   border-color: var(--kg-metal-action-edge);
   box-shadow: inset 0 1px 1px #fff, 0 0 13px rgb(226 232 240 / .32);
-  color: rgb(var(--kg-action-ink));
+  color: rgb(var(--kg-metal-mode-ink));
 }
 
 :root[data-kg-theme="steel"] button:is(
@@ -886,7 +911,7 @@
 :root[data-kg-theme="steel"] :is(
   #btn-spin-roulette, #cl-spin, #oscar-roulette, [data-mood-spin], [data-vibe-spin],
   .kg-extra-page button#go
-):active:not(:disabled) {
+):active:not(:disabled, [data-kg-steel-selected]) {
   --kg-spin-background: var(--kg-action-gradient-pressed);
   --kg-spin-shadow: var(--kg-action-elevation-pressed);
   background: var(--kg-action-gradient-pressed);
@@ -911,6 +936,38 @@
   [data-mood-spin], [data-vibe-spin]
 ) .material-symbols-outlined {
   color: inherit;
+}
+
+:root[data-kg-theme="steel"] :is(#btn-mode-filters, #btn-mode-surprise)[aria-pressed="false"] {
+  color: rgb(var(--kg-primary));
+}
+
+:root[data-kg-theme="steel"] :is(#btn-top-one, #btn-oscar-laureate) {
+  color: #f1f5f9;
+}
+
+:root[data-kg-theme="steel"] :is(
+  #genre-filter-button, #country-filter-button, #year-rating-filter > summary, #theme-filter > summary
+) :is(.text-on-surface, .material-symbols-outlined) {
+  color: #cbd5e1;
+}
+
+:root[data-kg-theme="steel"] :is(
+  #genre-filter-summary, #country-filter-summary, #year-rating-filter-summary, #theme-filter-summary
+) {
+  color: #f8fafc;
+}
+
+:root[data-kg-theme="steel"] #hero-country-region {
+  color: #cbd5e1;
+}
+
+:root[data-kg-theme="steel"] #hero-country-films {
+  color: rgb(var(--kg-text-muted));
+}
+
+:root[data-kg-theme="steel"] nav [data-view].text-primary-container {
+  filter: drop-shadow(0 0 10px rgb(var(--kg-white) / .55));
 }
 
 :root[data-kg-theme="steel"] #btn-spin-roulette #btn-spin-secondary-icon {
@@ -955,4 +1012,183 @@ body {
 
 :where(h1, h2, h3, h4) {
   font-family: var(--kg-font-heading);
+}
+
+/* Эффекты кнопок из макета Stitch для темы «Холодная сталь». */
+@keyframes kg-steel-sweep {
+  0% { left: -130%; opacity: 0; }
+  15%, 85% { opacity: .95; }
+  100% { left: 180%; opacity: 0; }
+}
+
+@keyframes kg-steel-periodic-sweep {
+  0% { left: -130%; opacity: 0; }
+  3%, 22% { opacity: .85; }
+  25%, 100% { left: 180%; opacity: 0; }
+}
+
+:root[data-kg-theme="steel"] [data-kg-steel-motion] {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  --kg-steel-press-scale: .96;
+  transition: transform .12s cubic-bezier(.2,.8,.2,1), filter .12s ease-out;
+  -webkit-tap-highlight-color: transparent;
+}
+
+:root[data-kg-theme="steel"] :is([data-kg-steel-motion="quick"], nav [data-view]) {
+  --kg-steel-press-scale: .94;
+}
+
+:root[data-kg-theme="steel"] [data-kg-steel-motion="filter"] {
+  --kg-steel-press-scale: .98;
+}
+
+:root[data-kg-theme="steel"] :is(
+  [data-kg-steel-motion], #btn-spin-roulette, nav [data-view]
+):active:not(:disabled) {
+  transform: scale(var(--kg-steel-press-scale)) !important;
+  filter: brightness(var(--kg-steel-press-scale));
+  transition: all .08s ease-in-out;
+}
+
+:root[data-kg-theme="steel"] :is(
+  [data-kg-steel-motion], #roulette-section, #kg-home-feature:not(:has(> .kg-film-detail))
+)::after {
+  content: "";
+  position: absolute;
+  top: -60%;
+  left: -130%;
+  width: 55%;
+  height: 220%;
+  background: linear-gradient(108deg, transparent 20%, #fff3 38%, rgb(255 255 255 / .9) 50%, #fff3 62%, transparent 80%);
+  transform: rotate(24deg);
+  pointer-events: none;
+  opacity: 0;
+  filter: drop-shadow(0 0 6px rgb(255 255 255 / .8));
+  z-index: 25;
+}
+
+:root[data-kg-theme="steel"] :is(#roulette-section, #kg-home-feature:not(:has(> .kg-film-detail))) {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+:root[data-kg-theme="steel"] :is(#roulette-section, #kg-home-feature:not(:has(> .kg-film-detail)))::after {
+  width: 45%;
+  height: 260%;
+  top: -80%;
+  background: linear-gradient(112deg, transparent 25%, rgb(255 255 255 / .12) 42%, rgb(255 255 255 / .55) 50%, rgb(255 255 255 / .12) 58%, transparent 75%);
+}
+
+:root[data-kg-theme="steel"] :where(
+  [data-kg-steel-motion="primary"], #roulette-section, #kg-home-feature:not(:has(> .kg-film-detail))
+)::after {
+  animation: kg-steel-periodic-sweep 10s cubic-bezier(.4,0,.2,1) infinite;
+}
+
+:root[data-kg-theme="steel"] [data-kg-steel-sweep]::after,
+:root[data-kg-theme="steel"] [data-kg-steel-motion]:active:not(:disabled)::after {
+  animation: kg-steel-sweep 2.5s cubic-bezier(.4,0,.2,1) forwards;
+}
+
+@media (hover: hover) {
+  :root[data-kg-theme="steel"] :is(
+    [data-kg-steel-motion]:not(:disabled), #roulette-section, #kg-home-feature:not(:has(> .kg-film-detail))
+  ):hover::after {
+    animation: kg-steel-sweep 2.5s cubic-bezier(.4,0,.2,1) forwards;
+  }
+}
+
+:root[data-kg-theme="steel"] :is(
+  #btn-spin-roulette, .kg-extra-page #go, #btn-mode-filters, #btn-mode-surprise
+):is([data-kg-steel-selected], [aria-pressed="true"]) {
+  --kg-spin-background: #fff;
+  --kg-spin-shadow: 0 0 20px rgb(255 255 255 / .35), inset 0 2px 4px rgb(0 0 0 / .4);
+  background: #fff;
+  border-color: rgb(255 255 255 / .95);
+  box-shadow: var(--kg-spin-shadow);
+  color: rgb(var(--kg-metal-mode-ink));
+}
+
+:root[data-kg-theme="steel"] :is(#btn-top-one, #btn-oscar-laureate)[data-kg-steel-selected] {
+  --kg-quick-action-background: #fff;
+  border-color: rgb(255 255 255 / .95);
+  box-shadow: 0 0 16px rgb(255 255 255 / .4);
+  color: rgb(var(--kg-metal-mode-ink));
+}
+
+:root[data-kg-theme="steel"] #btn-spin-roulette #btn-spin-secondary-icon {
+  animation: none;
+  transform: rotate(var(--kg-steel-arrow-angle, 0deg));
+  transition: transform .6s cubic-bezier(.34,1.56,.64,1);
+}
+
+:root[data-kg-theme="steel"] #btn-spin-roulette[data-kg-steel-selected] #btn-spin-secondary-icon {
+  color: rgb(var(--kg-metal-mode-ink));
+}
+
+:root[data-kg-theme="steel"] :is(
+  #genre-filter-button[aria-expanded="true"], #country-filter-button[aria-expanded="true"],
+  #year-rating-filter[open] > summary, #theme-filter[open] > summary
+) {
+  background: linear-gradient(165deg, rgb(255 255 255 / .15), rgb(200 210 230 / .12) 45%, rgb(20 25 40 / .95));
+  outline: 1px solid #fff;
+  outline-offset: -1px;
+  border-radius: 12px;
+  box-shadow: 0 0 18px rgb(255 255 255 / .25), inset 0 1.5px 1px rgb(255 255 255 / .9);
+}
+
+:root[data-kg-theme="steel"] [data-kg-steel-motion="filter"] .material-symbols-outlined:last-child {
+  transition: transform .2s ease-in-out;
+}
+
+:root[data-kg-theme="steel"] :is(
+  #genre-filter-button[aria-expanded="true"], #country-filter-button[aria-expanded="true"],
+  #year-rating-filter[open] > summary, #theme-filter[open] > summary
+) span {
+  color: #fff;
+}
+
+:root[data-kg-theme="steel"] :is(
+  [data-release-action="film"], #kg-home-europe [data-home-act="open"],
+  #kg-home-feature:not(:has(> .kg-film-detail))
+) {
+  transition: transform .14s cubic-bezier(.2,.8,.2,1), box-shadow .14s ease-out, border-color .14s ease-out;
+}
+
+:root[data-kg-theme="steel"] :is(
+  [data-release-action="film"]:active, #kg-home-europe [data-home-act="open"]:active,
+  #kg-home-feature:has([data-home-act="open"]:active)
+) {
+  transform: scale(.965);
+}
+
+:root[data-kg-theme="steel"] :is(
+  [data-release-action="film"], #kg-home-europe [data-home-act="open"]
+)[data-kg-steel-selected] > :first-child {
+  outline: 1.5px solid #fff;
+  outline-offset: -1.5px;
+  box-shadow: 0 0 20px rgb(255 255 255 / .4);
+}
+
+:root[data-kg-theme="steel"] :is([data-release-action="expand"], #kg-home-europe-link):active {
+  opacity: .75;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root[data-kg-theme="steel"] :is(
+    [data-kg-steel-motion], #roulette-section, #kg-home-feature
+  )::after {
+    animation: none !important;
+  }
+
+  :root[data-kg-theme="steel"] :is(
+    [data-kg-steel-motion], nav [data-view], #btn-spin-roulette #btn-spin-secondary-icon,
+    [data-kg-steel-motion="filter"] .material-symbols-outlined,
+    [data-release-action="film"], #kg-home-europe [data-home-act="open"], #kg-home-feature
+  ) {
+    transition-duration: 0s !important;
+  }
 }

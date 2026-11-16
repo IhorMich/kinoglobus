@@ -256,7 +256,8 @@
     shelfFilms.clear();
     shelf.innerHTML = profile.shelf ? "" : defaultShelf;
     label.textContent = profile.shelf ? uiText("Топ-4") : defaultShelfLabel;
-    for (const film of profile.shelf || []) {
+    for (const storedFilm of profile.shelf || []) {
+      const film = window.KGDisplayShelfFilm(storedFilm);
       const card = document.createElement("div");
       card.className = "kg-profile-film";
       card.innerHTML = '<span class="kg-profile-frame"><img alt="" loading="lazy"><small></small></span><strong></strong><small class="kg-profile-meta"></small>';

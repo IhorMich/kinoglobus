@@ -1212,11 +1212,11 @@ async function inPageRoulette(){
   $("cl-reel").scrollIntoView({behavior:"smooth",block:"center"});
   if(!others.length||RM){                      // мало постеров или отключена анимация: сразу показываем выбор
     if(window.KGCinemaReel?.isProjectionMode?.()){
-      const landed=await window.KGCinemaReel.spinProjectionTrack($("cl-reel"),[film],film,{duration:350,reducedMotion:true,cancelled:()=>token!==R.token,meta:{country:cname(film._cc||D.cc||D.t.cc[0])}});
+      const landed=await window.KGCinemaReel.spinProjectionTrack($("cl-reel"),[film],film,{reducedMotion:true,cancelled:()=>token!==R.token,meta:{country:cname(film._cc||D.cc||D.t.cc[0])}});
       if(landed&&token===R.token){$("cl-fc").textContent=uiText("Фильм найден");finishPick(film,token);}return;
     }
   if(window.KGCinemaReel?.isCassetteMode?.()){
-      const eligible=D.all.filter(inCc),landed=await window.KGCinemaReel.spinCassetteDeck($("cl-reel"),eligible,[film],film,{duration:350,reducedMotion:true,cancelled:()=>token!==R.token,onOpen:f=>openFilm(f,"roulette")});
+      const eligible=D.all.filter(inCc),landed=await window.KGCinemaReel.spinCassetteDeck($("cl-reel"),eligible,[film],film,{reducedMotion:true,cancelled:()=>token!==R.token,onOpen:f=>openFilm(f,"roulette")});
       if(landed&&token===R.token){$("cl-fc").textContent=uiText("Фильм выбран");finishPick(film,token);}return;
     }
     if(window.KGCinemaReel?.isTicketMode?.()){
@@ -1226,7 +1226,7 @@ async function inPageRoulette(){
     rMount([film],0,"chosen");$("cl-fc").textContent=uiText("Кадр 01 / 01");
     finishPick(film,token);return;
   }
-  const NEED=26,T=4600,TAIL=6,seq=[];
+  const NEED=26,T=window.KGCinemaReel.SEARCH_REEL_DURATION,TAIL=6,seq=[];
   for(let i=0;i<NEED;i++)seq.push(others[i%others.length]);
   seq.push(film);
   for(let i=0;i<TAIL;i++)seq.push(others[(i+2)%others.length]);
@@ -1234,13 +1234,13 @@ async function inPageRoulette(){
   if(token!==R.token)return;
   if(window.KGCinemaReel?.isProjectionMode?.()){
     const total=D.all.filter(inCc).length;$("cl-fc").textContent=uiText("Проектор запускается…");snd(()=>startFilmReelSound());
-    const landed=await window.KGCinemaReel.spinProjectionTrack($("cl-reel"),seq,film,{duration:T,meta:{country:cname(film._cc||D.cc||D.t.cc[0])},cancelled:()=>token!==R.token,shouldSkip:()=>R.skip,onFrame:(_candidate,index)=>{if(token===R.token)$("cl-fc").textContent=uiText("Кадр {current} / {total}", {current: p2(index+1), total: p2(seq.length)});}});
+    const landed=await window.KGCinemaReel.spinProjectionTrack($("cl-reel"),seq,film,{meta:{country:cname(film._cc||D.cc||D.t.cc[0])},cancelled:()=>token!==R.token,shouldSkip:()=>R.skip,onFrame:(_candidate,index)=>{if(token===R.token)$("cl-fc").textContent=uiText("Кадр {current} / {total}", {current: p2(index+1), total: p2(total)});}});
     if(token!==R.token)return;
     snd(()=>stopFilmReelSound());if(!landed)return;const all=D.all.filter(inCc),k=all.findIndex(f=>f.id===film.id);$("cl-fc").textContent=uiText("Фильм {current} / {total}", {current: p2((k<0?0:k)+1), total: p2(all.length||total)});snd(()=>buzz([25,50,60]));finishPick(film,token);return;
   }
   if(window.KGCinemaReel?.isCassetteMode?.()){
     const eligible=D.all.filter(inCc);$("cl-fc").textContent=uiText("Кассета перематывается…");snd(()=>startFilmReelSound());
-    const landed=await window.KGCinemaReel.spinCassetteDeck($("cl-reel"),eligible,seq,film,{duration:T,cancelled:()=>token!==R.token,shouldSkip:()=>R.skip,onOpen:f=>openFilm(f,"roulette"),onFrame:(_f,index)=>{if(token===R.token)$("cl-fc").textContent=uiText("Фильм {current} / {total}", {current: p2(index+1), total: p2(seq.length)});}});
+    const landed=await window.KGCinemaReel.spinCassetteDeck($("cl-reel"),eligible,seq,film,{cancelled:()=>token!==R.token,shouldSkip:()=>R.skip,onOpen:f=>openFilm(f,"roulette"),onFrame:(_f,index,total)=>{if(token===R.token)$("cl-fc").textContent=uiText("Фильм {current} / {total}", {current: p2(index+1), total: p2(total)});}});
     if(token!==R.token)return;
     snd(()=>stopFilmReelSound());if(!landed)return;const all=D.all.filter(inCc),k=all.findIndex(f=>f.id===film.id);$("cl-fc").textContent=uiText("Фильм {current} / {total}", {current: p2((k<0?0:k)+1), total: p2(all.length)});snd(()=>buzz([25,50,60]));finishPick(film,token);return;
   }
@@ -1265,11 +1265,11 @@ async function inPageRoulette(){
   const step=now=>{
     if(token!==R.token)return;
     const t=R.skip?1:Math.min(1,(now-t0)/T);
-    const x=x0+(x1-x0)*(1-Math.pow(1-t,4)),left=x1-x;
+    const x=x0+(x1-x0)*window.KGCinemaReel.searchReelProgress(t);
     run.style.transform=`translateX(${-x}px)`;
     if(t>.4)run.classList.remove("fast");
-    if(!(t>=1||left<.75)){
-      snd(()=>setFilmReelLevel(Math.pow(1-t,3),Math.abs(x-x0)/STEP));
+    if(t<1){
+      snd(()=>setFilmReelLevel(window.KGCinemaReel.searchReelSpeed(t),Math.abs(x-x0)/STEP));
       R.raf=requestAnimationFrame(step);return;
     }
     snd(()=>stopFilmReelSound());

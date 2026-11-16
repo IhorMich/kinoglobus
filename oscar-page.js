@@ -459,7 +459,7 @@ ${window.KGCinemaReel.render({shellClass:"kgo-reel relative w-full overflow-hidd
     };
     if(window.KGCinemaReel?.isProjectionMode?.()){
       panel.scrollIntoView({behavior:"smooth",block:"center"});sound("startFilmReelSound");
-      const landed=await window.KGCinemaReel.spinProjectionTrack(panel,sequence,film,{duration:4600,reducedMotion:!animate,cancelled:()=>token!==state.spinToken||!panel.isConnected,shouldSkip:()=>state.skipSpin,meta:{country:uiText("Оскар")},onFrame:(_f,index)=>{if(counter)counter.textContent=uiText("Кадр")+" "+String(index+1).padStart(2,"0")+" / "+String(sequence.length).padStart(2,"0");}});
+      const landed=await window.KGCinemaReel.spinProjectionTrack(panel,sequence,film,{reducedMotion:!animate,cancelled:()=>token!==state.spinToken||!panel.isConnected,shouldSkip:()=>state.skipSpin,meta:{country:uiText("Оскар")},onFrame:(_f,index,total)=>{if(counter)counter.textContent=uiText("Кадр")+" "+String(index+1).padStart(2,"0")+" / "+String(total).padStart(2,"0");}});
       sound("stopFilmReelSound");if(!landed||token!==state.spinToken||!panel.isConnected){if(token===state.spinToken){state.spinning=false;setLaunch(root,false);}return;}
       state.spinning=false;state.skipSpin=false;if(counter)counter.textContent=uiText("Фильм")+" "+String(pool.indexOf(film)+1).padStart(2,"0")+" / "+String(pool.length).padStart(2,"0");
       setLaunch(root,false);if(skip)skip.hidden=true;showWinner();
@@ -468,7 +468,7 @@ ${window.KGCinemaReel.render({shellClass:"kgo-reel relative w-full overflow-hidd
     if(window.KGCinemaReel?.isCassetteMode?.()){
       panel.scrollIntoView({behavior:"smooth",block:"center"});sound("startFilmReelSound");
       const meta={onOpen:f=>deps.openFilm({...f,_kgRelatedPool:pool},"oscar","oscar-reel-detail")};
-      const landed=await window.KGCinemaReel.spinCassetteDeck(panel,pool,sequence,film,{...meta,duration:4600,reducedMotion:!animate,cancelled:()=>token!==state.spinToken||!panel.isConnected,shouldSkip:()=>state.skipSpin,onFrame:(_f,index)=>{if(counter)counter.textContent=uiText("Плёнка")+" "+String(index+1).padStart(2,"0")+" / "+String(sequence.length).padStart(2,"0");}});
+      const landed=await window.KGCinemaReel.spinCassetteDeck(panel,pool,sequence,film,{...meta,reducedMotion:!animate,cancelled:()=>token!==state.spinToken||!panel.isConnected,shouldSkip:()=>state.skipSpin,onFrame:(_f,index,total)=>{if(counter)counter.textContent=uiText("Плёнка")+" "+String(index+1).padStart(2,"0")+" / "+String(total).padStart(2,"0");}});
       sound("stopFilmReelSound");if(!landed||token!==state.spinToken||!panel.isConnected){if(token===state.spinToken){state.spinning=false;setLaunch(root,false);}return;}
       state.spinning=false;state.skipSpin=false;if(counter)counter.textContent=uiText("Фильм")+" "+String(pool.indexOf(film)+1).padStart(2,"0")+" / "+String(pool.length).padStart(2,"0");
       setLaunch(root,false);if(skip)skip.hidden=true;showWinner();
@@ -493,16 +493,16 @@ ${window.KGCinemaReel.render({shellClass:"kgo-reel relative w-full overflow-hidd
     cells.forEach(cell=>cell.classList.add("spin"));
     run.style.transform=`translateX(${-start}px)`;run.classList.add("fast");
     sound("startFilmReelSound");
-    const startTime=performance.now(),duration=4600;
+    const startTime=performance.now(),duration=window.KGCinemaReel.SEARCH_REEL_DURATION;
     const step=now=>{
       if(token!==state.spinToken||!panel.isConnected)return;
       if(!root.offsetParent){stopSpin(root);return;}   // ушли с экрана «Оскар»
       const progress=state.skipSpin?1:Math.min(1,(now-startTime)/duration);
-      const position=start+(finish-start)*(1-Math.pow(1-progress,4)),remaining=finish-position;
+      const position=start+(finish-start)*window.KGCinemaReel.searchReelProgress(progress);
       run.style.transform=`translateX(${-position}px)`;
       if(progress>.4)run.classList.remove("fast");
-      if(progress<1&&remaining>=.75){
-        sound("setFilmReelLevel",Math.pow(1-progress,3),Math.abs(position-start)/reelStep);
+      if(progress<1){
+        sound("setFilmReelLevel",window.KGCinemaReel.searchReelSpeed(progress),Math.abs(position-start)/reelStep);
         state.spinFrame=requestAnimationFrame(step);return;
       }
       sound("stopFilmReelSound");

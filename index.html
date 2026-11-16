@@ -5,7 +5,7 @@
 <link rel="manifest" href="moven.webmanifest">
 <meta name="application-name" content="Moven: Explore">
 <meta name="description" content="Explore the world of cinema">
-<link rel="stylesheet" href="app-theme.css?v=46">
+<link rel="stylesheet" href="app-theme.css?v=47">
 <script src="steel-motion.js?v=4" defer></script>
 <script src="interface-en.js?v=47"></script>
 <script src="interface-i18n.js?v=2"></script>
@@ -48,7 +48,7 @@ try {
     .hint-float {
       animation: hintPulse 2.8s ease-in-out infinite;
     }
-  </style><script src="cinema-reel.js?v=44"></script><link rel="stylesheet" href="watched-button.css?v=7">
+  </style><script src="cinema-reel.js?v=45"></script><link rel="stylesheet" href="watched-button.css?v=7">
 <script src="watched-button.js?v=3"></script>
 <link rel="stylesheet" href="settings-page.css?v=10">
 </head><body class="bg-canvas-obsidian font-body-md text-on-surface flex flex-col min-h-screen relative">
@@ -2930,13 +2930,13 @@ async function filmReel(pool,film,cc,warm){
     const box=$("freel"),list=pool.films||[],sequence=shuffle(list.filter(f=>f.id!==film.id)).slice(0,18).concat(film);
     await Promise.race([warm||Promise.resolve(),sleep(500)]);box.innerHTML=window.KGCinemaReel.render({mode:"projection"});box.hidden=false;box.classList.remove("out");
     window.KGCinemaReel.mountProjectionTrack(box,sequence[0]||film,{country:cname(cc)});box.scrollIntoView({behavior:"smooth",block:"nearest"});startFilmReelSound();
-    const landed=await window.KGCinemaReel.spinProjectionTrack(box,sequence,film,{duration:2100,reducedMotion:RM,shouldSkip:()=>fSkip,meta:{country:cname(cc)}});stopFilmReelSound();if(landed)await sleep(700);box.hidden=true;resetFilmReelSearchView(box);return;
+    const landed=await window.KGCinemaReel.spinProjectionTrack(box,sequence,film,{reducedMotion:RM,shouldSkip:()=>fSkip,meta:{country:cname(cc)}});stopFilmReelSound();if(landed)await sleep(700);box.hidden=true;resetFilmReelSearchView(box);return;
   }
   if(reelStyle==="cassette"){
     const box=$("freel"),list=pool.films||[],sequence=shuffle(list.filter(f=>f.id!==film.id)).slice(0,14).concat(film);
     await Promise.race([warm||Promise.resolve(),sleep(500)]);box.innerHTML=window.KGCinemaReel.render({mode:"cassette"});box.hidden=false;box.classList.remove("out");
     window.KGCinemaReel.mountCassetteDeck(box,list,sequence[0]||film,{onOpen:f=>window.KGFilmCard.openDialog(f,document.activeElement),onRandom:f=>window.KGFilmCard.openDialog(f,document.activeElement)});box.scrollIntoView({behavior:"smooth",block:"nearest"});startFilmReelSound();
-    const landed=await window.KGCinemaReel.spinCassetteDeck(box,list,sequence,film,{duration:2100,reducedMotion:RM,shouldSkip:()=>fSkip});stopFilmReelSound();if(landed){await sleep(700);}box.hidden=true;resetFilmReelSearchView(box);return;
+    const landed=await window.KGCinemaReel.spinCassetteDeck(box,list,sequence,film,{reducedMotion:RM,shouldSkip:()=>fSkip});stopFilmReelSound();if(landed){await sleep(700);}box.hidden=true;resetFilmReelSearchView(box);return;
   }
   const pics=posterStrip(pool.films);
   if(!pics) return;
@@ -3981,7 +3981,7 @@ async function spinReel(pool,film,cc){
     if(!cur||cur.film.id!==film.id)return;
     const host=$("film-reel-host"),seq=[];for(let i=0;i<24;i++)seq.push(others.length?others[i%others.length]:film);seq.push(film);
     window.KGCinemaReel.mountProjectionTrack(host,seq[0],{country:cname(cc)});startFilmReelSound();
-    const landed=await window.KGCinemaReel.spinProjectionTrack(host,seq,film,{duration:3900,reducedMotion:RM,cancelled:()=>!cur||cur.film.id!==film.id,shouldSkip:()=>fSkip,meta:{country:cname(cc)}});stopFilmReelSound();
+    const landed=await window.KGCinemaReel.spinProjectionTrack(host,seq,film,{reducedMotion:RM,cancelled:()=>!cur||cur.film.id!==film.id,shouldSkip:()=>fSkip,meta:{country:cname(cc)}});stopFilmReelSound();
     if(!landed||!cur||cur.film.id!==film.id)return;buzz([25,50,60]);reveal(film,pool);return;
   }
   if(reelStyle==="cassette"){
@@ -3999,7 +3999,7 @@ async function spinReel(pool,film,cc){
     buzz([25,50,60]);reveal(film,pool);return;
   }
   if(!others.length||RM){renderStatic(pool,film,cc);reveal(film,pool);return;}
-  const NEED=26,T=4600,TAIL=6;
+  const NEED=26,TAIL=6;
   const seq=[];
   for(let i=0;i<NEED;i++)seq.push(others[i%others.length]);
   seq.push(film);
@@ -4013,7 +4013,7 @@ async function spinReel(pool,film,cc){
   const x0=centerX(0),x1=centerX(NEED);
   const completed=await new Promise(resolve=>{
     spinCancel=window.KGCinemaReel.spin({
-      run:runEl,root:null,startX:x0,endX:x1,duration:T,stepWidth:STEP,
+      run:runEl,root:null,startX:x0,endX:x1,stepWidth:STEP,
       chosenIndex:NEED,reducedMotion:RM,
       onStep:(row,progress)=>{
         if(progress>.6)buzz(7);
@@ -4164,13 +4164,13 @@ console.info("[Moven: Explore] Bridge v6 ready");
 <script src="recovery-code.js?v=7"></script>
 <script src="account-page.js?v=12"></script>
 <script src="mood-vibe-additions.js?v=2"></script>
-<script src="mood-page.js?v=44"></script>
-<script src="mood-vibe-page.js?v=30"></script>
-<script src="oscar-page.js?v=49"></script>
+<script src="mood-page.js?v=45"></script>
+<script src="mood-vibe-page.js?v=31"></script>
+<script src="oscar-page.js?v=50"></script>
 <script src="oscar-design.js?v=27"></script>
 <script src="curated-collections.js?v=2"></script>
 <script src="film-card.js?v=8"></script>
-<script src="collections.js?v=119"></script>
+<script src="collections.js?v=120"></script>
 <script src="film-interactions.js?v=28"></script>
 <script src="legal-watch.js?v=8"></script>
 <script src="global-search.js?v=18"></script>

@@ -1331,9 +1331,8 @@ body {
   padding-inline: 1rem;
 }
 
-:is(.kg-cassette-deck, .kg-projection):is([data-kg-cassette-deck], [data-kg-projection]),
-[data-kg-cassette-deck] .kg-cassette-stage,
-[data-kg-projection] :is(.kg-projection-machine, .kg-projection-window) {
+[data-kg-cassette-deck].kg-cassette-deck,
+[data-kg-cassette-deck] .kg-cassette-stage {
   padding: 0;
   border: 0;
   border-radius: 0;
@@ -1341,17 +1340,29 @@ body {
   box-shadow: none;
 }
 
-[data-kg-projection] .kg-projection-machine {
-  position: relative;
-  grid-template-columns: minmax(0, 1fr);
+[data-kg-projection].kg-projection {
   width: 100%;
+  box-sizing: border-box;
+  padding: 0 0 0.5rem;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+[data-kg-projection] .kg-projection-machine {
+  box-sizing: border-box;
+  width: min(100%, 440px);
   margin-block: 0;
 }
 
-[data-kg-projection] .kg-projection-caption {
-  padding: 6px 1rem;
-  border: 0;
-  background: transparent;
+.kg-projection-strip-frame::after {
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 2;
+  height: 3px;
+  background: rgb(var(--kg-black)/0.8);
+  content: "";
 }
 
 .kg-reel-heading {

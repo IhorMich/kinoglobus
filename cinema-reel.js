@@ -1,8 +1,9 @@
 /* Shared visual markup for every film reel in Moven: Explore. */
 (function(){
-  // The ticket, projection and cassette searches share one slower pacing across
-  // the globe, collections, mood and Oscar screens.
-  const searchPaceFactor=1.35;
+  const SEARCH_REEL_DURATION = 4600;
+  const SEARCH_REEL_STEPS = 26;
+  const searchReelProgress = t => 1 - (1 - t) ** 3 * (1 + 2.35 * t);
+  const searchReelSpeed = t => (1 - t) ** 2 * (0.65 + 9.4 * t) / 1.72;
   function emitReelMotion(level, position, frame, continuous = true, phase) {
     document.dispatchEvent(new CustomEvent("kg:reel-motion", {
       detail: {level, position, frame, continuous, phase}
@@ -63,7 +64,7 @@
     if(typeof container==="string")container=document.querySelector(container);
     const stage=container?.querySelector("[data-kg-ticket-shuffle]"),face=container?.querySelector("[data-kg-ticket-face]"),status=container?.querySelector("[data-kg-ticket-shuffle-status]");
     if(!stage||!face)return Promise.resolve(false);
-    const items=(sequence||[]).filter(Boolean),ordered=winner?[...items.filter(f=>String(f?.id)!==String(winner.id)),winner]:(items.length?items:[]),ticketLimit=15,frames=ordered.length>ticketLimit?(()=>{const reel=ordered.slice(0,-1),slots=ticketLimit-1,sampled=Array.from({length:slots},(_,i)=>reel[Math.round(i*(reel.length-1)/Math.max(1,slots-1))]);return [...sampled,ordered[ordered.length-1]];})():ordered,baseDuration=Math.max(6800,Number(options.duration)||6800)*searchPaceFactor,duration=baseDuration*Math.max(1,frames.length-1)/Math.max(1,ordered.length-1)*2;
+    const items=(sequence||[]).filter(Boolean),ordered=winner?[...items.filter(f=>String(f?.id)!==String(winner.id)),winner]:(items.length?items:[]),ticketLimit=15,frames=ordered.length>ticketLimit?(()=>{const reel=ordered.slice(0,-1),slots=ticketLimit-1,sampled=Array.from({length:slots},(_,i)=>reel[Math.round(i*(reel.length-1)/Math.max(1,slots-1))]);return [...sampled,ordered[ordered.length-1]];})():ordered,baseDuration=Math.max(6800,Number(options.duration)||6800)*1.35,duration=baseDuration*Math.max(1,frames.length-1)/Math.max(1,ordered.length-1)*2;
     stage.classList.add("is-shuffling");stage.classList.remove("is-landed");
     const layers=[...stage.querySelectorAll("[data-kg-ticket-layer]")];
     const fillLayers=index=>layers.forEach((layer,depth)=>{const item=frames[Math.max(0,index-depth-1)]||frames[0];layer.innerHTML=ticketMarkup(item,options.meta||{});});
@@ -192,13 +193,13 @@
     const merged={...inherited,...options};
     const list=[...new Map((films||[]).filter(Boolean).map(f=>[String(f.id??f.title),f])).values()];
     const winnerIndex=list.findIndex(f=>String(f.id??f.title)===String(winner?.id??winner?.title));
-    const endIndex=winnerIndex>=0?winnerIndex:0,steps=32;
+    const endIndex=winnerIndex>=0?winnerIndex:0,steps=SEARCH_REEL_STEPS;
     const startIndex=list.length>1?(endIndex+steps)%list.length:endIndex;
     const startFilm=list[startIndex]||winner;
     const mounted=mountCassetteDeck(container,films,startFilm,merged);if(!mounted)return Promise.resolve(false);
     // All screens use one shared cassette cadence; callers choose the film pool,
     // while the Cover Flow animation keeps the same cinematic duration.
-    const state=mounted.state,duration=4600*searchPaceFactor;
+    const state=mounted.state,duration=SEARCH_REEL_DURATION;
     let lastPosition=startIndex;
     const isCurrent=()=>cassetteStates.get(mounted.root)===state && mounted.root.isConnected;
     const finish=landed=>{
@@ -208,7 +209,11 @@
       mounted.update(landed?endIndex:state.index,landed?startIndex-steps:Math.round(lastPosition));
       mounted.root.classList.remove("is-rolling");
       window.stopFilmReelSound?.();
-      if(landed){options.onFrame?.(winner,steps);options.onFinish?.(winner);}
+      if(landed){
+        const finalFrame=state.films.length>1 ? steps : 0;
+        options.onFrame?.(winner,finalFrame,finalFrame+1);
+        options.onFinish?.(winner);
+      }
       return landed;
     };
     if(options.reducedMotion||state.films.length<2){return Promise.resolve(finish(true));}
@@ -221,17 +226,16 @@
           if(!isCurrent()||options.cancelled?.()){resolve(finish(false));return;}
           if(options.shouldSkip?.()){resolve(finish(true));return;}
           const p = Math.min(1, (now - start) / duration);
-          const distance = steps * (1 - (1 - p) ** 4);
-          // At this point the remaining movement is below one pixel.
-          if (steps - distance < .006) {
+          if (p >= 1) {
             resolve(finish(true));
             return;
           }
+          const distance = steps * searchReelProgress(p);
           const position = lastPosition = startIndex - distance;
           const n = startIndex - Math.round(position);
           mounted.layout(position);
-          emitReelMotion((1 - p) ** 3, distance, n);
-          if(n!==last){last=n;const index=((Math.round(position)%state.films.length)+state.films.length)%state.films.length,film=state.films[index]||winner;state.index=index;const counter=mounted.counter;if(counter)counter.textContent=`${String(index+1).padStart(2,"0")} / ${String(state.films.length).padStart(2,"0")}`;options.onFrame?.(film,n);}
+          emitReelMotion(searchReelSpeed(p), distance, n);
+          if(n!==last){last=n;const index=((Math.round(position)%state.films.length)+state.films.length)%state.films.length,film=state.films[index]||winner;state.index=index;const counter=mounted.counter;if(counter)counter.textContent=`${String(index+1).padStart(2,"0")} / ${String(state.films.length).padStart(2,"0")}`;options.onFrame?.(film,n,steps+1);}
           requestAnimationFrame(frame);
         }catch(error){console.error("[Moven: Explore] Cassette animation failed",error);resolve(finish(false));}
       };requestAnimationFrame(frame);
@@ -239,18 +243,21 @@
   }
   const projectionStates=new WeakMap();
   const projectionPoster=path=>path?`https://image.tmdb.org/t/p/w500${path}`:"";
+  const projectionPerforations = () => `<div class="kg-projection-perfs" aria-hidden="true">${"<i></i>".repeat(11)}</div>`;
   function renderProjectionTrack(){
     return `<section class="kg-projection" data-kg-projection>
       ${reelHeading("Проекционный тракт · 35 мм", '<b class="kg-reel-count" data-kg-projection-counter>00 / 00</b>')}
       <div class="kg-projection-machine">
+        ${projectionPerforations()}
         <div class="kg-projection-window">
           <div class="kg-projection-beam"></div>
           <div class="kg-projection-image" data-kg-projection-image></div>
           <div class="kg-projection-frame-meta"><span data-kg-projection-year></span><b data-kg-projection-rating></b></div>
+          <div class="kg-projection-focus" aria-hidden="true"></div>
         </div>
-        <div class="kg-projection-focus" aria-hidden="true"></div>
+        ${projectionPerforations()}
       </div>
-      <div class="kg-projection-caption"><strong data-kg-projection-title></strong></div>
+      <div class="kg-projection-caption"><small data-kg-projection-country></small><strong data-kg-projection-title></strong></div>
     </section>`;
   }
   function projectionRoot(container){if(typeof container==="string")container=document.querySelector(container);return container?.matches?.("[data-kg-projection]")?container:container?.querySelector?.("[data-kg-projection]");}
@@ -262,34 +269,78 @@
     if(image)image.innerHTML=poster?`<img src="${poster}" alt="Постер фильма «${html(title)}»" loading="lazy"><span class="kg-projection-image-shade"></span>`:`<div class="kg-projection-empty">${html(title)}</div>`;
     const set=(selector,value)=>{const el=root.querySelector(selector);if(el)el.textContent=value||"";};
     set("[data-kg-projection-title]",film ? title : "");
+    set("[data-kg-projection-country]",film ? meta.country || "" : "");
     set("[data-kg-projection-year]",(film?.release_date||"").slice(0,4));
     set("[data-kg-projection-rating]",Number(film?.vote_average)>0 ? `★ ${Number(film.vote_average).toFixed(1)}` : "");
     return {root,state};
   }
   function spinProjectionTrack(container,sequence,winner,options={}){
     const mounted=mountProjectionTrack(container,sequence?.[0]||winner,options.meta||{});if(!mounted)return Promise.resolve(false);
-    const {root,state}=mounted,frames=(sequence||[]).filter(Boolean),winnerIndex=frames.findIndex(f=>String(f?.id)===String(winner?.id)),items=(winnerIndex>=0?frames.slice(0,winnerIndex+1):[...frames,...(winner?[winner]:[])]).filter(Boolean),targetItemIndex=winnerIndex>=0?winnerIndex:items.length-1,duration=Math.max(350,Number(options.duration)||3000)*searchPaceFactor,counter=root.querySelector("[data-kg-projection-counter]"),img=root.querySelector("[data-kg-projection-image]");
-    const land=()=>{emitReelMotion(0);mountProjectionTrack(root,winner,options.meta||{});root.classList.remove("is-running");state.rolling=false;options.onFrame?.(winner,items.length);return true;};
-    if(options.reducedMotion||items.length<2)return Promise.resolve(land());
-    state.rolling=true;root.classList.add("is-running");
-    // Reverse repeated segments so the strip physically travels down while
-    // presenting the selection sequence in its original order.
-    const loops=4,total=items.length*(loops+1),stripItems=Array.from({length:loops+1},()=>items.slice().reverse()).flat();
-    const startIndex=loops*items.length+items.length-1,targetIndex=items.length-1-targetItemIndex;
-    if(img){img.innerHTML=`<div class="kg-projection-strip" data-kg-projection-strip style="height:${total*100}%">${stripItems.map(film=>{const title=film?.title||film?.original_title||"Фильм";return `<div class="kg-projection-strip-frame" style="height:${100/total}%"><img src="${projectionPoster(film?.poster_path)}" alt="Постер фильма «${html(title)}»"><span class="kg-projection-image-shade"></span></div>`;}).join("")}</div>`;}
-    const strip=img?.querySelector("[data-kg-projection-strip]");if(strip)strip.style.transform=`translate3d(0,${-(startIndex/total)*100}%,0)`;let lastFrame=-1;
-    return new Promise(resolve=>{const start=performance.now(),step=now=>{if(options.cancelled?.()){emitReelMotion(0);root.classList.remove("is-running");state.rolling=false;resolve(false);return;}if(options.shouldSkip?.()){resolve(land());return;}const progress=Math.min(1,(now-start)/duration),ease=1-Math.pow(1-progress,4),offset=startIndex+(targetIndex-startIndex)*ease;
-        if(strip){strip.style.transform=`translate3d(0,${-(offset/total)*100}%,0)`;const speed=(startIndex-targetIndex)*4*Math.pow(1-progress,.9)*1000/duration;strip.style.filter=`blur(${Math.min(1.15,Math.max(.08,speed*.055))}px)`;}
-        if (offset - targetIndex < .002) {
-          resolve(land());
-          return;
+    const {root,state}=mounted;
+    const previews=(sequence||[]).filter(film=>film && String(film.id)!==String(winner?.id));
+    const counter=root.querySelector("[data-kg-projection-counter]");
+    const image=root.querySelector("[data-kg-projection-image]");
+    const year=root.querySelector("[data-kg-projection-year]");
+    const rating=root.querySelector("[data-kg-projection-rating]");
+    const title=root.querySelector("[data-kg-projection-title]");
+    const steps=previews.length ? SEARCH_REEL_STEPS : 0;
+    const total=steps+1;
+    const setCounter=index=>{
+      if(counter)counter.textContent=`${String(index+1).padStart(2,"0")} / ${String(total).padStart(2,"0")}`;
+    };
+    const stop=()=>{
+      emitReelMotion(0);
+      root.classList.remove("is-running");
+      state.rolling=false;
+    };
+    const land=()=>{
+      stop();
+      mountProjectionTrack(root,winner,options.meta||{});
+      setCounter(steps);
+      options.onFrame?.(winner,steps,total);
+      return true;
+    };
+    if(options.reducedMotion||!steps)return Promise.resolve(land());
+
+    const items=Array.from({length:steps},(_,index)=>previews[Math.floor(index*previews.length/steps)]);
+    items.push(winner);
+    const tiles=items.slice().reverse().map(film=>{
+      const name=html(film?.title||film?.original_title||"Фильм");
+      const poster=projectionPoster(film?.poster_path);
+      const content=poster ? `<img src="${poster}" alt="${name}">` : `<div class="kg-projection-empty">${name}</div>`;
+      return `<div class="kg-projection-strip-frame" style="height:${100/total}%">${content}<span class="kg-projection-image-shade"></span></div>`;
+    });
+    image.innerHTML=`<div class="kg-projection-strip" style="height:${total*100}%">${tiles.join("")}</div>`;
+    const strip=image.firstElementChild;
+    strip.style.transform=`translate3d(0,${-steps/total*100}%,0)`;
+    state.rolling=true;
+    root.classList.add("is-running");
+    setCounter(0);
+    let lastFrame=-1;
+    return new Promise(resolve=>{
+      const start=performance.now();
+      const step=now=>{
+        if(options.cancelled?.()){stop();resolve(false);return;}
+        const progress=Math.min(1,(now-start)/SEARCH_REEL_DURATION);
+        if(options.shouldSkip?.()||progress>=1){resolve(land());return;}
+        const traveled=steps*searchReelProgress(progress);
+        const frameIndex=Math.floor(traveled);
+        const speed=searchReelSpeed(progress);
+        strip.style.transform=`translate3d(0,${(traveled-steps)/total*100}%,0)`;
+        emitReelMotion(speed,traveled,frameIndex);
+        if(frameIndex!==lastFrame){
+          lastFrame=frameIndex;
+          const film=items[frameIndex];
+          setCounter(frameIndex);
+          if(title)title.textContent=film.title||film.original_title||"Фильм";
+          if(year)year.textContent=(film.release_date||"").slice(0,4);
+          if(rating)rating.textContent=Number(film.vote_average)>0?`★ ${Number(film.vote_average).toFixed(1)}`:"";
+          options.onFrame?.(film,frameIndex,total);
         }
-        const distance = startIndex - offset;
-        const traveled = Math.max(0, Math.floor(distance));
-        const frameIndex = traveled % items.length;
-        emitReelMotion((1 - progress) ** 3, distance, traveled);
-        if(frameIndex!==lastFrame){lastFrame=frameIndex;const film=items[frameIndex];if(counter)counter.textContent=`${String(frameIndex+1).padStart(2,"0")} / ${String(items.length).padStart(2,"0")}`;const title=root.querySelector("[data-kg-projection-title]"),year=root.querySelector("[data-kg-projection-year]"),rating=root.querySelector("[data-kg-projection-rating]");if(title)title.textContent=film.title||film.original_title||"Фильм";if(year)year.textContent=(film.release_date||"").slice(0,4);if(rating)rating.textContent=Number(film.vote_average)>0?`★ ${Number(film.vote_average).toFixed(1)}`:"";options.onFrame?.(film,frameIndex);}
-        requestAnimationFrame(step);};requestAnimationFrame(step);});
+        requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    });
   }
   function isProjectionMode(){return reelMode()==="projection";}
   function isCassetteMode(){return reelMode()==="cassette";}
@@ -407,7 +458,7 @@
     activeSpins.get(run)?.();
     const cells=[...run.children],frame=options.frame;
     const startX=Number(options.startX)||0,endX=Number(options.endX)||0;
-    const duration=Math.max(1,Number(options.duration)||1800),stepWidth=Math.max(1,Number(options.stepWidth)||90);
+    const duration=SEARCH_REEL_DURATION,stepWidth=Math.max(1,Number(options.stepWidth)||90);
     const chosenIndex=Number(options.chosenIndex)||0;
     const fastClass=options.fastClass||"fast",spinningClass=options.spinningClass||"spinning",root=options.root;
     let raf=0,done=false,lastStep=-1;
@@ -438,7 +489,7 @@
       if(done)return;
       const rawProgress=Math.min(1,(now-started)/duration);
       const progress=Math.max(0,Math.min(1,options.mapProgress?options.mapProgress(rawProgress):rawProgress));
-      const eased=1-Math.pow(1-progress,4);
+      const eased=searchReelProgress(progress);
       const x=startX+(endX-startX)*eased;
       const remaining=endX-x;
       run.style.transform=`translateX(${-x}px)`;
@@ -446,8 +497,8 @@
       const currentStep=Math.round((x-startX)/stepWidth);
       if(currentStep!==lastStep){lastStep=currentStep;options.onStep?.(currentStep,progress,x,remaining);}
       options.onProgress?.(progress,x,remaining);
-      if(progress<1&&remaining>=.75){
-        emitReelMotion((1 - progress) ** 3, Math.abs(x - startX) / stepWidth, Math.abs(currentStep));
+      if(rawProgress<1){
+        emitReelMotion(searchReelSpeed(progress), Math.abs(x - startX) / stepWidth, Math.abs(currentStep));
         raf=requestAnimationFrame(step);return;
       }
       run.style.transform=`translateX(${-endX}px)`;
@@ -471,6 +522,6 @@
 
   const projectionStyle=document.createElement("style");projectionStyle.id="kg-projection-track-style";projectionStyle.textContent=`.kg-projection{--kgp-gold:rgb(var(--kg-primary-container));position:relative;overflow:hidden;padding:10px;border:1px solid rgb(var(--kg-accent-deep));border-radius:14px;background:radial-gradient(ellipse at 50% 48%,rgb(var(--kg-warm-surface-21)/0.4),transparent 55%),linear-gradient(145deg,rgb(var(--kg-neutral-31)),rgb(var(--kg-neutral-61)) 60%,rgb(var(--kg-neutral-59)));color:rgb(var(--kg-warm-text-22));box-shadow:inset 0 0 24px rgb(var(--kg-primary-container)/0.06275),0 12px 32px rgb(var(--kg-black)/0.53333);font:10px/1.4 ui-monospace,SFMono-Regular,monospace}.kg-projection-top,.kg-projection-telemetry{display:flex;align-items:center;justify-content:space-between;gap:5px}.kg-projection-top{padding:3px 2px 8px;color:rgb(var(--kg-primary-fixed-dim));font-size:8px;letter-spacing:.08em}.kg-projection-top>span:first-child{display:flex;align-items:center;gap:5px}.kg-projection-top i{width:6px;height:6px;border-radius:50%;background:rgb(var(--kg-primary-container));box-shadow:0 0 8px rgb(var(--kg-primary-container))}.kg-projection-top b{color:rgb(var(--kg-accent-warm))}.kg-projection-telemetry{padding:6px 7px;border:1px solid rgb(var(--kg-primary-container)/0.13333);border-radius:5px;background:rgb(var(--kg-neutral-15));color:rgb(var(--kg-warm-text-05));font-size:7px;letter-spacing:.08em}.kg-projection-machine{display:grid;grid-template-columns:11px minmax(0,1fr) 11px;gap:5px;align-items:stretch;margin:9px auto 7px;width:min(100%,355px);height:clamp(280px,88vw,370px);padding:8px;border:1px solid rgb(var(--kg-accent-muted));border-radius:9px;background:linear-gradient(90deg,rgb(var(--kg-neutral-51)),rgb(var(--kg-neutral-87)) 8%,rgb(var(--kg-neutral-44)) 18%,rgb(var(--kg-neutral-24)) 50%,rgb(var(--kg-neutral-51)) 82%,rgb(var(--kg-neutral-84)) 92%,rgb(var(--kg-neutral-51)));box-shadow:0 10px 24px rgb(var(--kg-black)/0.66667),inset 0 0 0 3px rgb(var(--kg-black)/0.53333)}.kg-projection-perfs{display:flex;flex-direction:column;justify-content:space-around;align-items:center;padding:4px 0}.kg-projection-perfs i{display:block;width:8px;height:13px;border-radius:2px;background:linear-gradient(135deg,rgb(var(--kg-neutral-108)),rgb(var(--kg-neutral-80)));box-shadow:inset 0 1px 2px rgb(var(--kg-black))}.kg-projection-window{position:relative;overflow:hidden;border:2px solid rgb(var(--kg-warm-text-01));border-radius:5px;background:rgb(var(--kg-neutral-07));box-shadow:0 0 22px rgb(var(--kg-primary-container)/0.09804)}.kg-projection-image{position:absolute;inset:0;display:grid;place-items:center;overflow:hidden;background:rgb(var(--kg-neutral-32))}.kg-projection-image img{width:100%;height:100%;object-fit:cover;filter:saturate(.86) contrast(1.04)}.kg-projection-image-shade{position:absolute;inset:0;background:linear-gradient(0deg,rgb(var(--kg-neutral-10)/0.86667),transparent 44%,rgb(var(--kg-neutral-10)/0.25098))}.kg-projection-beam{position:absolute;z-index:2;inset:0;pointer-events:none;background:linear-gradient(105deg,transparent 10%,rgb(var(--kg-primary)/0.05098) 47%,rgb(var(--kg-white)/0.13333) 50%,rgb(var(--kg-primary-container)/0.06275) 54%,transparent 90%);mix-blend-mode:screen;animation:kgpBeam 3.2s ease-in-out infinite}.kg-projection-frame-meta{position:absolute;z-index:3;right:7px;bottom:7px;left:7px;display:flex;justify-content:space-between;gap:4px;color:rgb(var(--kg-primary-fixed-dim));font-size:8px;text-shadow:0 1px 4px rgb(var(--kg-black))}.kg-projection-frame-meta b{padding:2px 5px;border-radius:3px;background:rgb(var(--kg-neutral-15)/0.8)}.kg-projection-empty{display:grid;place-items:center;height:100%;padding:15px;color:rgb(var(--kg-primary-fixed-dim));text-align:center;font-weight:bold;letter-spacing:.12em}.kg-projection-caption{display:grid;gap:2px;padding:7px 3px 2px;border-top:1px solid rgb(var(--kg-primary-container)/0.14118)}.kg-projection-caption small{overflow:hidden;color:rgb(var(--kg-accent-text));font-size:7px;letter-spacing:.1em;text-overflow:ellipsis;white-space:nowrap}.kg-projection-caption strong{overflow:hidden;color:rgb(var(--kg-primary));font:600 17px/1.2 Georgia,serif;text-overflow:ellipsis;white-space:nowrap}.kg-projection-caption span{overflow:hidden;color:rgb(var(--kg-neutral-117));font-size:9px;text-overflow:ellipsis;white-space:nowrap}.kg-projection.is-running .kg-projection-window{animation:kgpFlicker .12s steps(2,end) infinite}.kg-projection.is-running .kg-projection-perfs i{animation:kgpPerf .18s linear infinite}.kg-projection-flash{animation:kgpFrame .18s ease-out}@keyframes kgpBeam{0%,100%{transform:translateX(-40%);opacity:.4}50%{transform:translateX(40%);opacity:.9}}@keyframes kgpFlicker{50%{filter:brightness(1.2)}}@keyframes kgpPerf{to{filter:brightness(1.6)}}@keyframes kgpFrame{50%{transform:scale(1.025);filter:brightness(1.3)}}@media(prefers-reduced-motion:reduce){.kg-projection *{animation-duration:.01ms!important;animation-iteration-count:1!important}}`;
   document.head.appendChild(projectionStyle);
-  const projectionMotionStyle=document.createElement("style");projectionMotionStyle.id="kg-projection-motion-style";projectionMotionStyle.textContent=`.kg-projection-strip{position:absolute;inset:0 0 auto;display:flex;flex-direction:column;will-change:transform,filter}.kg-projection-strip-frame{position:relative;box-sizing:border-box;flex:none;width:100%;overflow:hidden;background:rgb(var(--kg-neutral-32))}.kg-projection-strip-frame img{display:block;width:100%;height:100%;object-fit:cover}.kg-projection-strip-frame .kg-projection-image-shade{z-index:1}.kg-projection.is-running .kg-projection-window{animation:none!important}.kg-projection.is-running .kg-projection-perfs i{animation:kgpPerf .55s ease-in-out infinite alternate}`;document.head.appendChild(projectionMotionStyle);
-  window.KGCinemaReel=Object.freeze({render,spin,updateIMAX,renderTicket,presentTicket,prepareTicket,animateTicketDeck,isTicketMode:()=>false,isCassetteMode,isProjectionMode,mountCassetteDeck,spinCassetteDeck,mountProjectionTrack,spinProjectionTrack});
+  const projectionMotionStyle=document.createElement("style");projectionMotionStyle.id="kg-projection-motion-style";projectionMotionStyle.textContent=`.kg-projection-strip{position:absolute;inset:0 0 auto;display:flex;flex-direction:column;will-change:transform}.kg-projection-strip-frame{position:relative;box-sizing:border-box;flex:none;width:100%;overflow:hidden;background:rgb(var(--kg-neutral-32))}.kg-projection-strip-frame img{display:block;width:100%;height:100%;object-fit:cover}.kg-projection-strip-frame .kg-projection-image-shade{z-index:1}.kg-projection.is-running .kg-projection-window{animation:none!important}.kg-projection.is-running .kg-projection-perfs i{animation:kgpPerf .55s ease-in-out infinite alternate}`;document.head.appendChild(projectionMotionStyle);
+  window.KGCinemaReel=Object.freeze({SEARCH_REEL_DURATION,searchReelProgress,searchReelSpeed,render,spin,updateIMAX,renderTicket,presentTicket,prepareTicket,animateTicketDeck,isTicketMode:()=>false,isCassetteMode,isProjectionMode,mountCassetteDeck,spinCassetteDeck,mountProjectionTrack,spinProjectionTrack});
 })();

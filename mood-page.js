@@ -301,7 +301,7 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
     panel.innerHTML=`<div class="relative overflow-hidden rounded-2xl bg-surface-panel p-4 shadow-xl"><div class="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-cinema-amber-glow blur-3xl pointer-events-none"></div><h2 class="relative font-headline-sm text-headline-sm text-primary mb-3">${uiText("Кинорулетка настроения")}</h2>${window.KGCinemaReel.render({content:sequence.map(item=>`<div class="kgr-cell">${item.poster_path?`<img alt="${esc(item.title||item.original_title)}" draggable="false" src="${poster(item.poster_path)}">`:`<div class="nop">${esc(item.title||item.original_title)}</div>`}<span class="yr">${(item.release_date||"").slice(0,4)}</span></div>`).join(""),frameAttr:"data-mood-reel-frame"})}<div class="flex items-center justify-between px-1"><span data-mood-frame-counter class="font-mono text-micro-caption text-primary-fixed font-semibold tracking-wide">${uiText("Кадр {current} / {total}", {current: "--", total: String(pool.length).padStart(2,"0")})}</span><button type="button" data-mood-skip class="font-micro-caption text-micro-caption text-text-muted hover:text-primary underline">${uiText("Пропустить")}</button></div><div id="${winnerDetailId}"></div></div>`;
     if(window.KGCinemaReel?.isProjectionMode?.()){
       panel.scrollIntoView({behavior:"smooth",block:"center"});if(typeof window.startFilmReelSound==="function")window.startFilmReelSound();
-      const landed=await window.KGCinemaReel.spinProjectionTrack(panel,sequence,film,{duration:4600,reducedMotion:prefersReducedMotion()||!others.length,cancelled:()=>token!==state.spinToken||!panel.isConnected,shouldSkip:()=>state.skipSpin,meta:{country:film._cc||"КИНОПОИСК"},onFrame:(_f,index)=>{const c=activeElement(root,"[data-mood-frame-counter]");if(c)c.textContent=uiText("Кадр")+" "+String(index+1).padStart(2,"0")+" / "+String(sequence.length).padStart(2,"0");}});
+      const landed=await window.KGCinemaReel.spinProjectionTrack(panel,sequence,film,{reducedMotion:prefersReducedMotion()||!others.length,cancelled:()=>token!==state.spinToken||!panel.isConnected,shouldSkip:()=>state.skipSpin,meta:{country:film._cc||"КИНОПОИСК"},onFrame:(_f,index,total)=>{const c=activeElement(root,"[data-mood-frame-counter]");if(c)c.textContent=uiText("Кадр")+" "+String(index+1).padStart(2,"0")+" / "+String(total).padStart(2,"0");}});
       if(typeof window.stopFilmReelSound==="function")window.stopFilmReelSound();if(!landed||token!==state.spinToken||!panel.isConnected){state.spinning=false;if(launchButton)launchButton.disabled=false;return;}
       state.spinning=false;state.skipSpin=false;const c=activeElement(root,"[data-mood-frame-counter]");if(c)c.textContent=uiText("Фильм")+" "+String(pool.indexOf(film)+1).padStart(2,"0")+" / "+String(pool.length).padStart(2,"0");
       if(launchButton)launchButton.disabled=false;if(launchLabel)launchLabel.textContent=uiText("Крутить ещё раз");
@@ -311,7 +311,7 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
     if(window.KGCinemaReel?.isCassetteMode?.()){
       panel.scrollIntoView({behavior:"smooth",block:"center"});if(typeof window.startFilmReelSound==="function")window.startFilmReelSound();
       const onOpen=f=>deps.openFilm({...f,_kgRelatedPool:pool},"mood",winnerDetailId);
-      const landed=await window.KGCinemaReel.spinCassetteDeck(panel,pool,sequence,film,{duration:4600,reducedMotion:prefersReducedMotion()||!others.length,cancelled:()=>token!==state.spinToken||!panel.isConnected,shouldSkip:()=>state.skipSpin,onOpen,onFrame:(_f,index)=>{const c=activeElement(root,"[data-mood-frame-counter]");if(c)c.textContent=uiText("Фильм")+" "+String(index+1).padStart(2,"0")+" / "+String(sequence.length).padStart(2,"0");}});
+      const landed=await window.KGCinemaReel.spinCassetteDeck(panel,pool,sequence,film,{reducedMotion:prefersReducedMotion()||!others.length,cancelled:()=>token!==state.spinToken||!panel.isConnected,shouldSkip:()=>state.skipSpin,onOpen,onFrame:(_f,index,total)=>{const c=activeElement(root,"[data-mood-frame-counter]");if(c)c.textContent=uiText("Фильм")+" "+String(index+1).padStart(2,"0")+" / "+String(total).padStart(2,"0");}});
       if(typeof window.stopFilmReelSound==="function")window.stopFilmReelSound();if(!landed||token!==state.spinToken||!panel.isConnected){state.spinning=false;if(launchButton)launchButton.disabled=false;return;}
       state.spinning=false;state.skipSpin=false;const c=activeElement(root,"[data-mood-frame-counter]");if(c)c.textContent=uiText("Фильм")+" "+String(pool.indexOf(film)+1).padStart(2,"0")+" / "+String(pool.length).padStart(2,"0");
       if(launchButton)launchButton.disabled=false;if(launchLabel)launchLabel.textContent=uiText("Крутить ещё раз ({runtime})", {runtime: uiText(currentRuntime().button)});
@@ -354,15 +354,15 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
       cells.forEach(cell=>cell.classList.add("spin"));
       run.style.transform=`translateX(${-start}px)`;run.classList.add("fast");
       if(typeof window.startFilmReelSound==="function")window.startFilmReelSound();
-      const startTime=performance.now(),duration=4600;
+      const startTime=performance.now(),duration=window.KGCinemaReel.SEARCH_REEL_DURATION;
       const step=now=>{
         if(token!==state.spinToken||!panel.isConnected)return;
         const progress=state.skipSpin?1:Math.min(1,(now-startTime)/duration);
-        const position=start+(finish-start)*(1-Math.pow(1-progress,4)),remaining=finish-position;
+        const position=start+(finish-start)*window.KGCinemaReel.searchReelProgress(progress);
         run.style.transform=`translateX(${-position}px)`;
         if(progress>.4)run.classList.remove("fast");
-        if(progress<1&&remaining>=.75){
-          window.setFilmReelLevel?.(Math.pow(1-progress,3),Math.abs(position-start)/reelStep);
+        if(progress<1){
+          window.setFilmReelLevel?.(window.KGCinemaReel.searchReelSpeed(progress),Math.abs(position-start)/reelStep);
           state.spinFrame=requestAnimationFrame(step);return;
         }
         if(typeof window.stopFilmReelSound==="function")window.stopFilmReelSound();

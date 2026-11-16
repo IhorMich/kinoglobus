@@ -2,10 +2,11 @@
 <title>Moven: Explore</title>
 <meta name="application-name" content="Moven: Explore">
 <meta name="description" content="Explore the world of cinema">
-<link rel="stylesheet" href="app-theme.css?v=27">
+<link rel="stylesheet" href="app-theme.css?v=28">
 <script src="steel-motion.js?v=4" defer></script>
-<script src="interface-en.js?v=42"></script>
+<script src="interface-en.js?v=44"></script>
 <script src="interface-i18n.js?v=2"></script>
+<script src="catalog-safety.js?v=1"></script>
 <script>
 function readPaletteColor(token, asNumber = false) {
   const channels = getComputedStyle(document.documentElement).getPropertyValue(token).trim();
@@ -111,7 +112,7 @@ try {
 <!-- Dark Vignette Overlay for Crisp Readability of Forefront Elements -->
 <div class="absolute inset-0 bg-gradient-to-b from-canvas-obsidian via-canvas-obsidian/85 to-canvas-obsidian"></div>
 </div>
-<header class="kg-main-header fixed top-0 w-full z-50 pt-safe bg-surface-panel/85 backdrop-blur-xl shadow-[0_4px_24px_rgb(var(--kg-canvas-obsidian)/0.85)]"><div class="h-20 px-gutter-mobile flex items-center justify-between gap-space-sm max-w-[520px] mx-auto"><div class="flex items-center gap-space-sm min-w-0 flex-1"><div class="kg-brand-globe relative flex-shrink-0"><div class="w-11 h-11 rounded-full p-[2px] bg-gradient-to-tr from-cinema-velvet-deep via-primary-container to-primary flex items-center justify-center shadow-[0_0_12px_rgb(var(--kg-primary-container)/0.28)]"><span class="material-symbols-outlined text-primary-fixed text-[24px]">public</span></div></div><div class="flex flex-col min-w-0"><div class="flex items-center gap-space-xs"><h1 class="font-headline-sm text-headline-sm font-bold tracking-tight text-primary drop-shadow-[0_0_14px_rgb(var(--kg-primary-container)/0.35)] kg-brand-title leading-tight">Moven: Explore</h1><span class="px-1.5 py-0.5 rounded-full bg-cinema-velvet-deep/70 text-secondary font-micro-caption text-micro-caption tracking-wider border-none">PRO</span></div><p class="font-micro-caption text-micro-caption text-text-muted truncate">Случайная страна · Лучшие фильмы</p></div></div><div class="flex items-center gap-space-xs flex-shrink-0"><button type="button" data-kg-search-open aria-label="Поиск фильмов, актёров и режиссёров" title="Поиск" class="w-9 h-9 flex items-center justify-center rounded-full text-primary-fixed hover:bg-surface-container-high border border-primary-container/20"><span class="material-symbols-outlined text-[20px]">search</span></button><a class="flex items-center gap-1.5 h-9 px-3 rounded-full bg-surface-container-high/90 text-primary-fixed border border-primary-container/20 transition-all active:scale-95 shadow-[0_0_10px_rgb(var(--kg-primary-container)/0.15)] hover:border-primary-container/50" data-path="moe-puteshestvie" href="#" title="Моё путешествие"><span class="material-symbols-outlined text-[16px] text-primary-container">explore</span><span class="font-label-sm text-label-sm font-bold text-primary-fixed tracking-wide">0/100</span></a><a aria-label="Настройки" class="w-9 h-9 flex items-center justify-center rounded-full text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all active:scale-95" data-path="nastrojki" href="#"><span class="material-symbols-outlined text-[20px]">settings</span></a><button id="kg-account-open" type="button" aria-label="Открыть профиль и регистрацию" title="Профиль" class="kg-account-avatar ml-0.5"><img alt="" class="w-8 h-8 rounded-full object-cover border border-primary-container/30 shadow-[0_0_8px_rgb(var(--kg-primary-container)/0.25)]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCdLg3sLBvV5C2sZ07bWRzHNAJmJaRmEX2Goq4C0MdemCoCPam7pZebU2QLXvbPIGiROKivIg5-BQrwLFBR1jND7Mm3QCBX2sm4c6mKTZKsJ7cM956ZwqniQ_ajzjh6Qt_hjTIbhqP2tu4tuNyBCe34OM_6Ei49zUEcke8sVmNKfalQmBXxvFY3w6gj0wjWsHNoh97ZLOMjX3FT4nK7mMo6yYR__VDDQb7D8fbOucu4"></button></div></div></header><main class="flex flex-col relative w-full pt-20 pb-28 bg-transparent min-h-screen max-w-[520px] mx-auto"><div class="flex flex-col w-full px-margin-mobile space-y-space-lg select-none">
+<header class="kg-main-header fixed top-0 w-full z-50 pt-safe bg-surface-panel/85 backdrop-blur-xl shadow-[0_4px_24px_rgb(var(--kg-canvas-obsidian)/0.85)]"><div class="h-20 px-gutter-mobile flex items-center justify-between gap-space-sm max-w-[520px] mx-auto"><div class="flex items-center gap-space-sm min-w-0 flex-1"><div class="kg-brand-globe relative flex-shrink-0"><div class="w-11 h-11 rounded-full p-[2px] bg-gradient-to-tr from-cinema-velvet-deep via-primary-container to-primary flex items-center justify-center shadow-[0_0_12px_rgb(var(--kg-primary-container)/0.28)]"><span class="material-symbols-outlined text-primary-fixed text-[24px]">public</span></div></div><div class="flex flex-col min-w-0"><div class="flex items-center gap-space-xs"><h1 class="font-headline-sm text-headline-sm font-bold tracking-tight text-primary drop-shadow-[0_0_14px_rgb(var(--kg-primary-container)/0.35)] kg-brand-title leading-tight">Moven: Explore</h1></div><p class="font-micro-caption text-micro-caption text-text-muted truncate">Случайная страна · Лучшие фильмы</p></div></div><div class="flex items-center gap-space-xs flex-shrink-0"><button type="button" data-kg-search-open aria-label="Поиск фильмов, актёров и режиссёров" title="Поиск" class="w-9 h-9 flex items-center justify-center rounded-full text-primary-fixed hover:bg-surface-container-high border border-primary-container/20"><span class="material-symbols-outlined text-[20px]">search</span></button><a class="flex items-center gap-1.5 h-9 px-3 rounded-full bg-surface-container-high/90 text-primary-fixed border border-primary-container/20 transition-all active:scale-95 shadow-[0_0_10px_rgb(var(--kg-primary-container)/0.15)] hover:border-primary-container/50" data-path="moe-puteshestvie" href="#" title="Моё путешествие"><span class="material-symbols-outlined text-[16px] text-primary-container">explore</span><span class="font-label-sm text-label-sm font-bold text-primary-fixed tracking-wide">0/100</span></a><a aria-label="Настройки" class="w-9 h-9 flex items-center justify-center rounded-full text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all active:scale-95" data-path="nastrojki" href="#"><span class="material-symbols-outlined text-[20px]">settings</span></a><button id="kg-account-open" type="button" aria-label="Открыть профиль и регистрацию" title="Профиль" class="kg-account-avatar ml-0.5"><img alt="" class="w-8 h-8 rounded-full object-cover border border-primary-container/30 shadow-[0_0_8px_rgb(var(--kg-primary-container)/0.25)]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCdLg3sLBvV5C2sZ07bWRzHNAJmJaRmEX2Goq4C0MdemCoCPam7pZebU2QLXvbPIGiROKivIg5-BQrwLFBR1jND7Mm3QCBX2sm4c6mKTZKsJ7cM956ZwqniQ_ajzjh6Qt_hjTIbhqP2tu4tuNyBCe34OM_6Ei49zUEcke8sVmNKfalQmBXxvFY3w6gj0wjWsHNoh97ZLOMjX3FT4nK7mMo6yYR__VDDQb7D8fbOucu4"></button></div></div></header><main class="flex flex-col relative w-full pt-20 pb-28 bg-transparent min-h-screen max-w-[520px] mx-auto"><div class="flex flex-col w-full px-margin-mobile space-y-space-lg select-none">
 <!-- 1. Mode Switcher Segmented Control -->
 <section class="w-full">
 <div id="kg-mode-switch" class="p-1 rounded-full bg-surface-container-low shadow-inner flex items-center gap-1"><button class="kg-mode-choice flex-1 py-2.5 px-4 rounded-full font-label-md text-label-md transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer" id="btn-mode-filters" data-kg-steel-motion="mode" aria-pressed="false" type="button"><span class="material-symbols-outlined text-[18px]">tune</span><span class="">Свои фильтры</span></button><button class="kg-mode-choice flex-1 py-2.5 px-4 rounded-full font-label-md text-label-md transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer" id="btn-mode-surprise" data-kg-steel-motion="mode" aria-pressed="false" type="button"><span class="material-symbols-outlined text-[18px] text-secondary">auto_awesome</span><span class="">Удиви меня</span></button></div>
@@ -148,13 +149,9 @@ try {
 <span class="">Настоящее открытие</span>
 <span class="material-symbols-outlined text-[16px] text-primary-container">explore</span>
 </button>
-<button class="surprise-chip py-2.5 px-3 rounded-xl bg-surface-panel text-on-surface font-label-sm text-label-sm text-left flex items-center justify-between transition-all duration-150 active:scale-95 shadow-sm" type="button">
+<button class="surprise-chip col-span-2 py-2.5 px-3 rounded-xl bg-surface-panel text-on-surface font-label-sm text-label-sm text-left flex items-center justify-between transition-all duration-150 active:scale-95 shadow-sm" type="button">
 <span class="">Полная случайность</span>
 <span class="material-symbols-outlined text-[16px] text-text-muted">shuffle</span>
-</button>
-<button class="surprise-chip py-2.5 px-3 rounded-xl bg-surface-panel text-on-surface font-label-sm text-label-sm text-left flex items-center justify-between transition-all duration-150 active:scale-95 shadow-sm" type="button">
-<span class="">Хардкор</span>
-<span class="material-symbols-outlined text-[16px] text-feedback-error">local_fire_department</span>
 </button>
 </div>
 <p class="font-micro-caption text-micro-caption text-text-muted px-1" id="surprise-description-text">
@@ -246,9 +243,6 @@ try {
 </button>
 <button class="genre-pill h-[34px] px-3.5 rounded-full font-label-sm text-label-sm flex items-center gap-1 bg-surface-container-high text-on-surface-variant hover:text-on-surface" type="button">
 <span class="">📉 Худшие из худших</span>
-</button>
-<button class="genre-pill h-[34px] px-3.5 rounded-full font-label-sm text-label-sm flex items-center gap-1 bg-surface-container-high text-secondary hover:text-secondary-fixed" type="button">
-<span class="">🔞 Взрослое кино 18+</span>
 </button>
 </div>
 </div>
@@ -364,7 +358,6 @@ try {
   <button id="jclose"></button>
   <button id="fx"></button>
   <button id="filmTog"></button>
-  <button id="adultVis"></button>
   <button id="resetSettings"></button>
   <button id="resetHist"></button>
   <button id="changeKey"></button>
@@ -373,7 +366,7 @@ try {
   <button id="modeSurprise"></button>
   <div id="keyCard" hidden><input id="key"></div>
   <div id="surpriseCard" hidden></div>
-  <div id="filterCard"><div id="chips"></div><div id="worstBox" hidden></div><div id="adultNote" hidden></div><span id="filterSum"></span></div>
+  <div id="filterCard"><div id="chips"></div><div id="worstBox" hidden></div><span id="filterSum"></span></div>
   <div id="extraCard"><input id="year"><input id="yearTo"><select id="rmin"><option value="6">6</option></select><select id="rmax"><option value=""></option></select><span id="extraSum"></span><div id="yearNote" hidden></div></div>
   <div id="themeCard"><div id="themes"></div><div id="themeNote" hidden></div><span id="themeSum"></span></div>
   <div id="surpriseChips"></div>
@@ -389,7 +382,6 @@ try {
   </div>
   <dialog id="settings"><select id="snd"><option value="roulette">roulette</option><option value="bells">bells</option><option value="arcade">arcade</option><option value="casino">casino</option><option value="marimba">marimba</option><option value="space">space</option><option value="film">film</option><option value="orchestra">orchestra</option><option value="jazz">jazz</option><option value="synth">synth</option><option value="chimes">chimes</option><option value="off">off</option></select><select id="reel-snd"><option value="projector">35 мм · проектор</option><option value="imax">Кинозал · мягкий импульс</option><option value="camera">Кинокамера · механика</option><option value="tape">Магнитная плёнка</option><option value="premiere">Премьерный зал</option><option value="shutter">Кинокамера · затвор</option><option value="editbench">Монтажный стол · шаг кадра</option><option value="sixteenmm">16 мм · мягкая трещотка</option><option value="off">Без звука</option></select></dialog>
   <dialog id="journey"><div id="jhead"></div><i id="jfill"></i><div id="mapbox"></div><div id="jstats"></div><div id="jopen"></div><div id="jclosed"></div><span id="jclosedsum"></span><div id="jfilms"></div><span id="jopenT"></span><span id="jfilmsT"></span><span id="minfo"></span><span id="jtitle"></span></dialog>
-  <span id="brand"></span>
   <span id="topNote" hidden></span><span id="oscarNote" hidden></span>
   <div id="rwin"></div>
 </div>
@@ -1611,7 +1603,6 @@ const SURPRISE_NOTE={
   light:"Случайные страна и жанр. Оценка не ниже 6, фильмы оценило много зрителей.",
   find:"Случайные страна и жанр. Оценка от 7 при небольшом числе голосов: фильм хороший, но его мало кто видел.",
   wild:"Случайная страна. Жанр и оценка не задаются.",
-  hard:"Случайная страна и случайный год. Любой фильм: без жанра, оценки и числа отзывов, включая 18+."
 };
 // World map: simplified country shapes (Natural Earth data, 110m), pre-projected into a 1000-wide viewBox.
 const MAP={"w":1000,"h":432,"c":{"CA":"M199 95l-3 -3 -1 -1 -4 -2 1 -2 1 -2 -2 -2 1 -2 -1 -2 1 -2 2 -1 1 -2 -2 -2 0 -3 0 -3 -1 -1 -1 -1 0 -2 -3 1 -3 2 -1 -2 0 -1 -2 -1 -2 0 14 -16 10 -11 4 1 2 1 2 1 3 -2 3 0 3 0 4 -1 4 -1 0 1 3 -1 1 -1 1 1 2 2 4 -2 -1 2 3 0 1 -1 3 0 2 1 4 1 2 1 3 -1 1 2 -4 1 4 1 6 0 2 -1 1 2 3 -2 -1 -1 2 -1 3 0 2 0 1 0 1 2 2 0 3 1 4 0 3 0 1 -2 2 -1 3 1 -2 3 3 -2 1 0 3 -3 -1 -2 -2 -1 3 -3 3 -2 3 1 1 1 1 3 -3 1 4 1 -2 3 4 -2 2 1 -2 2 1 2 3 -2 3 -2 2 -3 3 0 3 0 2 2 -1 1 -2 2 0 1 -1 1 -5 2 -3 1 -2 -1 -1 1 -4 3 -1 1 -4 2 -3 0 -3 1 -1 2 -3 1 -4 2 -4 3 -2 2 -2 4 3 0 0 3 0 2 3 0 4 1 2 1 1 2 2 0 2 2 4 0 2 0 -1 3 -1 3 0 3 3 3 2 -1 3 -3 0 -5 -1 -1 5 -2 3 -2 2 -2 1 -2 0 -3 -2 -2 4 -3 0 -2 2 -5 1 -1 4 1 2 0 2 0 2 1 2 1 0 1 4 1 -1 2 -1 4 2 0 1 2 4 -2 3 -3 2 -1 1 2 2 4 1 4 -1 2 2 1 2 2 3 1 1 1 1 2 1 1 1 1 -1 3 -2 2 -2 1 -4 1 -4 2 -4 1 -5 -1 -4 0 -2 0 -3 3 -4 1 -4 4 -4 3 2 -1 5 -4 6 -2 4 -1 2 2 -3 2 0 3 0 3 3 1 4 0 3 -4 0 3 1 1 -4 2 -6 2 -2 1 -4 2 -2 0 1 -3 5 -2 -4 0 -3 0 -1 -2 1 -4 -1 -1 -1 1 -1 -1 -3 2 -1 3 -1 1 -2 1 -1 1 -5 0 -3 0 -2 0 -3 3 -2 1 -2 0 -2 0 -2 1 1 0 0 1 -1 1 -3 1 -3 1 -4 1 -1 0 0 -1 1 -1 2 -2 1 -2 0 -3 1 -2 -2 -2 0 -1 -1 0 0 -1 -1 0 0 -1 -2 -1 -1 -1 -2 -2 -2 -1 -3 1 -1 0 -2 -1 -2 1 -2 -1 -3 -1 -1 0 -1 0 0 -2 -1 1 -5 0 -8 0 -9 0 -7 0 -7 0 -8 0 -7 0 -3 0 -7 0 -7 0zM339 27l2 -1 4 2 2 1 0 1 4 -1 1 2 5 1 1 1 1 3 -5 1 5 2 3 0 2 3 3 0 -2 2 -5 3 -2 -1 -2 -3 -3 1 -1 1 2 2 2 1 0 1 1 3 -2 2 -2 -1 -5 -2 2 2 2 2 0 1 -6 -1 -4 -2 -2 -1 1 -1 -2 -1 -3 -2 0 1 -7 1 -1 -1 2 -3 4 0 5 0 0 -1 1 -1 4 -3 0 -1 0 -1 -3 -2 -3 0 1 -1 -1 -2 -2 0 -1 -1 -1 1 -4 0 -8 0 -4 -1 -3 -1 -1 -1 3 -1 -3 0 1 -2 4 -3 2 -1 6 -1 -3 2 1 2 3 -2 6 -1 2 2 -2 2 5 -1zM332 4l4 0 2 0 4 -1 3 0 2 0 2 0 2 -1 3 0 4 0 5 0 1 0 5 -1 4 1 4 0 5 0 3 0 3 1 -6 1 -4 1 -3 0 4 0 -5 1 -3 1 -5 2 -4 0 -2 1 -6 0 3 0 -2 1 1 1 -3 1 -3 0 -2 1 -3 1 3 0 0 1 -6 1 -5 0 -6 0 -3 0 -3 0 0 -2 4 0 1 -2 1 0 4 1 -1 -1 -3 -1 3 -1 4 0 1 -1 -2 -1 0 -1 5 0 2 0 3 -1 -4 0 -6 0 -3 -1 -1 -1 -1 0 0 -1zM284 25l1 1 -1 3 0 2 2 1 3 1 -1 2 -4 0 1 1 -2 1 -3 -1 -3 0 -3 0 -5 1 -5 0 -4 1 0 -2 -3 -1 -2 1 0 -2 1 -1 4 0 3 0 3 0 -4 -1 -4 0 -3 0 -1 -1 6 -1 -3 0 -3 -1 3 -2 3 -1 7 -1 1 0 -2 1 5 0 2 1 4 -1 1 1 -1 2 2 -1 1 -3 2 0 2 0zM366 88l-2 2 -2 3 1 -1 2 0 -1 1 2 1 1 -1 2 1 -1 3 2 -1 0 2 0 2 -2 2 -1 1 -1 -1 1 -3 -1 0 -3 3 -2 0 2 -2 -2 -1 -2 1 -5 -1 1 -2 2 -2 4 -5 2 -2 2 -1 1 0 0 1zM257 22l2 0 5 0 1 1 1 1 -3 1 -6 2 -5 2 -1 1 -6 1 0 -1 -4 -1 2 -2 3 -2 4 -1 -1 -2 8 0zM323 22l-3 0 -4 -1 0 -2 1 -1 -1 -1 -4 0 -2 -1 2 -1 4 0 1 1 4 0 1 1 -1 1 2 0 1 1 2 0 3 0 3 0 5 -1 3 1 1 1 0 1 -2 0 -3 1 -2 -1 -6 1 -5 0zM321 7l2 -1 2 0 4 0 1 1 3 0 3 1 0 1 1 1 -3 0 -5 2 -3 0 -4 0 -1 -1 1 -1 2 0 -4 0 -1 -1 0 -1 2 -1zM287 18l2 0 2 0 0 1 -3 1 -7 1 -6 1 -3 0 1 -1 5 -1 -9 0 -3 0 5 -3 3 0 5 1 2 1 3 0 -1 -2 3 -1 2 0 -1 1 0 1zM295 26l-1 -1 4 -2 2 1 4 0 -3 2 2 1 -2 2 -4 1 -2 0 -1 -1 -3 -2 0 -1 4 0zM317 47l2 1 2 1 -1 1 2 0 1 1 -2 1 -3 -1 -1 -1 -3 1 -4 2 0 -2 -3 0 3 -1 1 -2 2 -3 2 1 0 1 1 -1 1 1zM310 23l4 0 4 0 -5 3 -3 0 -3 2 -3 0 1 -2 1 -2 2 -1 2 0zM197 97l-2 0 -3 -1 0 -1 -2 -2 -2 -1 0 -2 1 0 2 0 1 1 2 0 1 1 0 2 2 1 0 2zM308 16l0 1 -1 2 -2 1 -4 1 -2 -1 2 -1 -4 0 2 -2 2 0 3 -1 3 0 1 0zM258 18l6 -2 5 -2 3 0 3 0 -2 2 -2 1 -2 0 -5 1 -4 0 -2 0zM300 10l3 0 5 1 0 1 0 1 -3 0 -2 -1 -5 0 3 -1 -2 0 1 -1zM298 35l0 1 -2 1 -2 -1 -2 0 -2 -1 3 -1 2 -1 2 1 1 1zM338 26l-2 -1 1 -1 1 0 4 0 3 1 0 1 -2 0 -2 0 -3 0zM185 80l3 -1 -4 4 1 2 -1 0 -1 -1 1 -2 -1 -1 0 -1 1 -1 1 1zM315 11l2 1 -1 1 -4 0 -1 0 0 -1 1 -1 2 0 1 0zM314 20l-2 1 -3 0 -2 0 2 -2 3 0 1 1 1 0zM339 41l-2 0 -2 0 0 -1 2 -1 2 -1 1 1 -1 1 0 1zM343 92l1 0 3 1 2 1 0 1 -1 0 -3 -1 -2 -2zM342 101l0 2 2 0 2 0 -2 1 -1 1 -2 -2 -1 -1 2 -1zM313 55l2 -2 3 0 0 1 -4 1 -1 0zM286 13l2 0 -1 1 -4 0 -2 0 2 -1 3 0zM285 24l2 0 2 0 -4 2 -1 -2 1 0zM318 14l-1 0 -3 0 0 -1 4 0 1 1 -1 0zM320 56l2 -1 1 0 -2 2 -1 0 0 -1zM288 11l2 1 -2 0 -4 0 1 0 2 -1 1 0z","US":"M199 95l7 0 7 0 3 0 7 0 8 0 7 0 7 0 9 0 8 0 5 0 1 -1 0 2 1 0 1 0 3 1 2 1 2 -1 2 1 1 0 3 -1 2 1 2 2 1 1 2 1 0 1 1 0 0 1 1 0 0 1 2 2 -1 2 0 3 -1 2 -2 2 -1 1 0 1 1 0 4 -1 3 -1 3 -1 1 -1 0 -1 -1 0 2 -1 2 0 2 0 2 -1 3 -3 2 0 3 0 5 0 1 -1 2 -1 1 -1 1 -3 3 -2 1 1 1 -1 1 1 -1 4 1 2 0 1 -3 2 -3 1 -3 1 -1 2 -1 1 -1 1 1 2 1 0 0 -1 0 1 -2 1 -1 0 -2 0 -1 1 -2 0 -2 1 4 -1 0 1 -3 1 -2 0 0 -1 -1 1 1 0 -1 3 -3 2 0 -1 -1 -1 0 2 1 1 -1 1 -1 1 -2 3 0 -1 1 -2 -1 -1 1 -3 -1 2 0 2 -2 -1 2 1 -1 3 1 1 0 1 -1 3 -2 2 -3 1 -2 2 -1 0 -2 2 0 1 -4 2 -2 1 -1 2 -1 3 0 2 0 3 1 2 0 1 0 4 0 2 -1 1 -1 2 0 1 -2 -1 0 -1 -1 -1 -1 -2 -1 -3 0 -1 1 -2 0 -2 -2 -3 -1 0 -3 1 -1 -2 -1 0 -4 0 -2 0 -2 0 -1 0 0 1 0 2 0 1 -1 -1 -1 1 -2 0 -2 -2 -2 0 -2 0 -2 0 -2 1 -3 2 -3 1 -2 2 -1 1 0 3 -1 1 1 1 -1 0 -2 0 -2 -1 0 -2 -1 -2 -1 -2 0 -2 -1 -2 -2 -1 -2 0 -2 2 -2 -1 -1 -1 0 -1 -1 -2 -1 -2 -1 -1 -1 -1 -4 0 -1 2 -2 0 -5 0 -5 -3 -4 -1 1 -1 -4 1 -3 0 0 -2 -1 -2 -1 0 0 -1 -1 0 -1 -1 -2 0 -1 -1 0 -2 -1 -3 0 -4 0 -1 -1 -1 0 -3 0 -3 0 -1 1 -3 2 -3 0 -2 2 -3 2 -3 2 -3 2 -4 0 -3 0 -1 1 -1 3 1 0 3 1 -1 1 -2 0 -3zM204 34l-10 11 -14 16 2 0 2 1 0 1 1 2 3 -2 3 -1 0 2 1 1 1 1 0 3 0 3 2 2 -1 2 -2 1 -1 -1 -1 -1 1 -2 -1 -3 1 -3 -2 0 -4 0 -2 -1 -2 -3 -2 0 -3 -2 -3 1 -4 -2 -1 -1 -3 1 -2 2 -1 0 -3 1 -3 1 -3 0 1 -2 3 -2 4 -1 0 -1 -5 2 -3 2 -5 2 0 1 -4 2 -3 1 -3 1 -2 2 -5 1 -2 2 -4 1 -1 0 -3 1 -3 1 -3 1 -5 0 4 -1 3 -1 4 -2 3 0 2 -2 5 -1 1 -1 3 -1 2 -2 3 -2 -4 1 0 -1 -2 1 0 -1 -2 1 1 -2 -4 2 -1 0 1 -2 2 -1 -1 -1 -3 0 -1 -1 -1 -1 2 -1 -1 -2 3 -1 3 -2 3 -1 2 -1 1 1 3 -2 1 1 3 -1 1 -1 -1 -1 3 -1 -1 0 -3 1 -2 0 -1 0 -3 0 -3 -1 1 -1 -1 -2 4 -1 6 -1 2 0 -2 1 5 0 0 -2 -1 -1 0 -1 -1 -1 -2 -1 3 -1 4 -1 4 -1 2 -1 3 -1 3 -1 5 -1 2 0 5 -1 2 0 0 2 2 -1 3 0 -1 1 3 0 2 0 4 1 4 0 1 1 3 -1 2 1 2 0zM76 188l1 0 0 1 1 1 -2 1 -1 0 0 1 -1 -1 0 -1 0 -1 1 0 0 -1 0 -1 1 0 0 1zM146 68l2 0 0 1 -4 1 -3 1 1 -2 3 -1 1 0zM121 51l1 0 1 0 1 1 2 0 0 1 -3 0 -1 -1 -2 0 1 -1zM122 61l2 0 -1 1 -2 0 -1 0 0 -1 2 0zM74 184l0 1 -2 0 0 -1 2 0zM68 181l-1 1 -1 0 0 -1 1 0 1 0zM75 186l-1 0 0 -1 1 0 0 1zM71 183l0 1 -1 0 0 -1 1 0z","KZ":"M714 94l-1 3 -2 0 1 3 -1 1 -5 -1 0 6 -1 1 -5 1 4 5 -1 1 0 2 -1 0 -2 -1 -4 -1 -4 0 -1 0 -4 -1 -1 1 0 2 -4 -1 -2 0 0 1 -1 1 -3 2 -1 3 -1 0 -1 -2 -3 0 -1 -3 -1 0 -1 -3 -4 -2 -4 0 -3 0 -3 -2 -2 -2 -5 -2 -6 2 3 11 -2 1 -2 -3 -2 -1 -3 1 -1 1 0 -1 1 -1 -1 -1 -3 -1 -2 -3 -2 -1 0 -1 3 0 -1 -2 2 -1 3 1 -1 -3 -1 -2 -2 0 -2 -1 -3 2 -2 0 -1 0 0 -2 -3 -2 -1 0 -3 -2 1 -2 -1 -1 1 -3 3 1 0 -2 4 -3 4 0 6 2 3 1 2 -1 4 0 4 1 0 -1 4 1 0 -2 -5 -2 2 -2 -1 0 2 -1 -2 -2 1 -1 8 -1 1 -1 6 -1 1 -2 5 1 2 3 2 0 3 1 1 1 2 0 5 -3 -1 1 4 3 9 7 0 -1 4 1 4 0 1 0 2 2 2 1 2 1 3 0 2 1z","UZ":"M643 119l-3 -11 6 -2 5 2 2 2 3 2 3 0 4 0 4 2 1 3 1 0 1 3 3 0 1 2 1 0 1 -3 3 -2 1 -1 1 1 -2 2 2 1 2 -1 3 2 -2 2 -2 0 -1 0 -1 -1 0 -1 -3 0 0 2 -1 2 -2 0 -1 1 3 1 1 3 -1 3 -2 -1 -2 0 0 -2 -4 -1 -3 -2 -2 -1 -3 -2 -2 -4 -1 0 -3 0 -1 -1 -1 -2 -4 -2 -1 2 -2 1 0 1 -2 0z","ID":"M827 239l-1 3 2 3 -1 2 4 3 -4 0 -1 2 0 3 -2 2 0 4 -2 5 0 -2 -3 2 -1 -2 -2 0 -2 -1 -3 1 -1 -2 -2 0 -2 0 0 -4 -2 -1 -1 -3 0 -3 0 -3 2 -2 0 2 2 2 2 0 2 0 1 -2 1 0 3 1 2 -1 2 -4 1 -2 1 -3 3 0 2 0zM790 256l0 2 1 2 2 0 2 3 -1 4 -1 4 -3 1 -2 -3 -3 -3 -1 -2 -2 -2 -2 -3 -2 -4 -2 -3 -1 -3 -1 -2 -3 -2 -1 -3 -2 -2 -3 -3 -1 -2 2 0 4 1 3 3 2 2 2 1 3 4 2 0 3 2 1 3 2 1 -1 3 2 1 1 0zM892 261l-1 11 -1 10 -2 -3 -3 0 0 1 -4 0 1 -3 2 -1 0 -3 -1 -3 -6 -3 -2 0 -4 -3 -1 2 -1 0 0 -1 0 -2 -2 -1 3 -1 2 0 -1 -1 -4 0 -1 -2 -2 -1 -1 -1 3 -1 2 -1 4 1 1 1 0 6 3 1 2 -3 4 -2 2 0 3 1 2 1 3 1zM841 250l4 0 2 -3 1 1 -2 3 -2 1 -3 -1 -5 0 -2 1 -1 2 3 3 1 -1 6 -1 -1 1 -1 0 -1 2 -3 1 3 4 -1 1 3 4 0 2 -2 1 -1 -1 2 -3 -3 1 -1 -1 1 -1 -2 -2 0 -3 -2 1 0 4 0 4 -2 1 -1 -1 1 -3 0 -3 -1 0 -1 -2 1 -2 0 -3 2 -5 0 -1 3 -3 2 1 3 1zM801 273l0 1 5 1 1 -2 5 2 1 2 4 1 3 2 -3 1 -3 -1 -2 0 -3 -1 -3 0 -3 -1 -2 -1 -1 1 -5 -2 0 -1 -3 0 2 -3 3 0 3 1 1 0zM855 246l1 1 1 1 0 1 0 3 -1 0 -1 1 2 2 -1 1 -1 -2 -1 -5 0 -2 1 -1zM859 262l3 1 1 2 -2 -1 -2 -1 -2 1 -2 0 1 -2 3 0zM827 280l2 -1 1 2 -4 0 -1 1 -2 0 1 -2 2 0 1 -1 0 1zM846 281l0 1 0 1 -2 2 -2 1 -1 0 1 -1 1 -2 3 -2zM836 280l2 0 2 -1 0 1 -4 1 -4 0 0 -1 2 -1 2 1zM872 275l0 -3 0 -1 1 -1 1 1 0 2 -2 2zM833 286l-4 -3 3 0 1 1 1 1 0 1 -1 0zM852 265l-2 -1 0 -1 3 0 0 1 -1 1z","AR":"M347 350l0 3 -1 3 1 3 -1 1 1 2 0 2 4 3 0 2 1 1 1 2 -2 4 -4 2 -5 0 -3 0 1 2 0 2 1 2 -1 1 -3 0 -2 -1 -1 1 1 3 2 1 1 -1 1 2 -2 1 -1 2 0 3 0 2 -2 0 -2 1 0 3 3 2 3 1 0 3 -3 1 0 4 -2 1 -1 2 2 3 3 2 -2 -1 -2 0 -6 0 -2 -2 0 -3 -2 1 -1 -1 -1 -4 1 -1 0 -2 -1 -2 1 -2 -1 -5 0 -1 1 -1 -1 -1 -1 -1 0 -1 -1 -1 -2 -4 1 -1 -2 -4 0 -3 0 -3 1 -1 -1 -3 -1 -3 2 -2 -1 -3 1 -3 -1 -3 0 -1 -3 -5 1 -4 -1 -3 1 -3 1 -3 2 -2 -1 -1 0 -1 -1 -5 3 -2 1 -3 -1 -1 2 -3 4 1 2 2 0 -3 3 1 1 0 6 6 2 0 3 2 3 2 1 1 -2 5 3 1 3 0 2 0 2 -3 0 -2 1 -1 2 2 0 2 -2 2 -2 2 -2 3 -3 4zM336 421l1 2 2 2 4 2 3 1 0 1 -2 0 -2 -1 -1 0 -3 0 -2 -7z","CL":"M309 309l2 2 1 3 1 1 0 3 2 4 1 4 2 0 1 1 -1 3 -3 2 1 5 0 1 1 1 -2 2 -1 3 -1 3 1 3 -1 4 3 5 0 1 1 3 -1 3 1 3 -2 2 1 3 1 3 -1 1 0 3 0 3 2 4 -1 1 2 4 1 1 0 1 1 1 1 1 -1 1 0 1 1 5 -1 2 1 2 0 2 -1 1 1 4 1 1 2 -1 0 3 2 2 6 0 2 0 -2 0 -1 1 -1 1 0 3 -1 0 -3 -1 -3 -2 -4 -2 -1 -2 0 -1 -2 -2 -2 -6 0 -3 1 -2 -4 -1 2 -3 -1 -5 3 1 0 -7 -2 -1 0 4 -2 0 0 -5 -1 -6 1 -2 -2 -3 -1 -3 1 -1 1 -5 0 -5 1 -5 -2 -5 0 -2 -1 -4 1 -4 0 -6 0 -7 -1 -7 0 -6 -1 -4 1 -1 0 -2zM336 421l2 7 3 0 1 0 0 2 -2 1 -1 -1 -2 0 -2 -1 -2 0 -4 -2 -3 -1 -5 -4 3 1 4 2 3 1 1 -2 0 -2 2 -1 2 0z","KE":"M609 268l-4 -4 0 -1 -10 -7 -1 0 0 -4 1 -1 1 -2 1 -2 -1 -4 0 -2 -2 -2 2 -2 2 -2 1 1 0 1 1 1 2 0 4 3 1 0 1 0 2 1 1 -2 2 -1 1 1 2 0 -2 4 0 11 2 3 -2 1 -1 2 -1 0 -1 2 -1 2 0 2 -1 1z","DO":"M304 195l0 -1 -1 -1 1 -1 0 -1 0 -2 1 0 2 0 1 1 1 -1 1 2 1 0 1 1 1 1 -1 1 -1 -1 -1 1 -1 -1 -1 1 -1 0 0 -1 -1 1 -1 2 -1 0 0 -1z","RU":"M832 117l-1 -1 -1 -2 2 0 -2 -3 -2 -3 1 -1 4 0 0 -3 -1 -3 0 -1 0 -3 -4 1 -1 1 -4 0 -3 -3 -4 -2 -5 -1 -3 -3 -2 -2 -1 -2 -4 -3 -3 -1 -4 -1 -3 0 -2 1 -1 1 1 1 1 2 0 1 -1 3 1 2 -2 2 -4 -2 -3 1 -1 -1 -2 -1 -2 2 -3 1 -2 1 -4 -1 -2 0 -2 -1 -3 -2 -3 0 -3 0 -2 1 -4 -2 -1 -2 -4 -1 -2 0 -3 -1 -1 3 1 2 -1 2 -4 -1 -2 0 -3 -1 -2 -1 -3 0 -3 1 -3 3 -3 0 -2 -1 -3 0 -2 -1 -2 -1 -2 -2 -1 0 -4 0 -4 -1 0 1 -9 -7 -4 -3 1 -1 -5 3 -2 0 -1 -1 -3 -1 -2 0 -2 -3 -5 -1 -1 2 -6 1 -1 1 -8 1 -1 1 2 2 -2 1 1 0 -2 2 5 2 0 2 -4 -1 0 1 -4 -1 -4 0 -2 1 -3 -1 -6 -2 -4 0 -4 3 0 2 -3 -1 -1 3 1 1 -1 2 3 2 1 0 3 2 0 2 1 0 -1 2 -2 1 -2 3 3 3 0 2 3 4 -1 1 0 1 -1 0 -2 -2 -1 0 -2 -1 -1 -1 -2 -1 -2 0 -4 -2 -4 0 -2 -1 0 1 -4 -3 -3 -1 -2 -2 1 -1 2 -2 -2 -1 4 -2 -2 0 -1 -1 2 -1 2 0 0 -1 -1 -2 1 -2 0 -1 -4 -1 -1 0 -2 -1 -2 0 -3 -1 -1 -2 -2 0 -1 -1 1 0 -2 -2 -2 0 -1 0 -1 1 -1 0 -1 -2 0 -1 0 -1 2 0 1 0 -1 -1 -2 -1 -1 -1 -1 -2 0 -1 0 -1 -3 -1 -1 1 -1 -1 -2 -1 -1 -2 -1 -1 -1 -1 1 -1 -1 -3 1 -1 0 -1 2 -1 -2 -2 4 -3 2 -2 0 -2 -4 -2 1 -1 -2 -3 1 -2 -4 -3 2 -2 -4 -2 0 -2 2 0 3 -1 2 -1 4 1 6 1 9 3 2 1 1 2 -2 2 -4 1 -10 -3 -1 1 4 2 0 1 1 3 3 1 2 1 0 -2 -2 -1 1 -1 6 2 2 -1 -2 -2 4 -3 2 0 2 1 1 -2 -2 -1 0 -2 -2 -2 6 1 2 2 -3 0 1 2 2 1 3 -1 0 -2 4 -1 7 -2 1 0 -1 1 2 1 2 -1 4 0 2 -1 3 1 2 -2 -3 -1 1 -1 6 1 4 1 9 3 1 -2 -3 -1 -1 -1 -2 0 0 -1 -2 -2 -1 -1 3 -3 0 -2 1 -1 6 1 1 2 -1 2 2 1 2 1 1 4 3 2 0 2 -2 4 3 0 0 -1 2 -1 0 -1 1 -1 -2 -2 0 -2 -2 0 -2 -1 1 -3 -4 -2 2 -2 -1 -2 1 0 2 1 0 3 3 0 -2 -1 3 -2 4 0 5 2 -4 -2 -1 -3 3 -1 5 0 4 0 -3 -1 1 -2 3 0 2 -1 5 -1 1 0 5 0 2 0 3 -1 4 0 -1 -1 1 -1 4 -1 4 0 -2 1 4 0 2 2 1 -1 6 0 6 1 2 1 1 2 -2 0 -4 2 2 1 4 0 1 0 3 2 0 -1 3 0 7 0 2 1 8 1 -1 -2 4 0 4 0 4 1 3 2 0 1 4 2 5 1 -1 -2 4 1 3 -1 5 1 1 -1 3 1 -4 -3 2 -1 20 2 4 1 7 2 8 0 5 0 3 1 2 2 3 1 2 -1 4 0 5 1 3 0 7 2 1 -1 -3 -2 -1 -1 8 1 4 0 8 1 4 1 8 2 9 3 2 2 2 1 -3 -2 7 0 7 3 -1 1 -3 0 4 3 -1 0 -2 0 -3 -1 -4 0 -2 -2 -2 0 -2 0 -3 -1 0 -1 -2 1 2 1 0 1 -1 2 -3 -1 4 2 4 2 2 1 1 1 0 1 -4 -1 -4 3 -2 0 -1 2 -2 2 1 1 -5 -2 -4 2 -2 -1 -1 2 -4 -1 1 2 0 3 2 1 3 1 3 4 -2 0 2 3 2 1 -3 2 2 3 -3 1 2 3 -2 3 -2 -2 -5 -5 -6 -7 -3 -4 1 -1 -2 -2 3 -1 1 -3 1 -3 2 -3 -2 -4 -3 1 1 2 -2 3 -6 -3 -4 1 -2 4 4 2 -4 1 -4 0 -1 -2 -4 0 -2 1 -7 0 -7 1 -3 5 -4 7 4 1 3 2 2 0 1 -1 3 0 6 3 1 3 1 3 2 4 2 5 -1 4 0 3 -1 3 -1 4 -1 2 -2 2 -2 0 -2 -2 -2 3 0 1zM-81 117l0 -1 1 -2 1 0 4 -3 2 -3 3 -1 3 0 4 -3 4 -3 2 -1 5 -3 -5 1 -4 1 -4 0 2 -3 0 -2 -3 -1 2 -3 1 -2 1 -2 2 -3 -1 -1 -2 -1 -3 0 -4 1 -4 1 1 1 -2 2 -3 1 -6 3 -1 2 -6 2 -2 -2 -3 1 0 -1 -1 -1 -6 2 -4 1 -3 1 -2 -1 -3 0 1 -1 -1 -2 -2 0 -4 0 -3 1 -1 -2 2 -2 -2 -1 -2 0 -1 -1 -6 3 -2 2 -5 2 -2 -1 -2 0 0 -1 -3 -1 -1 0 -5 1 -8 3 -3 0 -2 0 1 -1 -3 0 0 -1 -1 -1 2 -2 -1 0 -4 0 -1 -1 -4 1 6 -7 0 -3 2 -1 -10 3 -3 0 3 -1 -1 -1 -4 0 4 -3 -3 -1 -4 2 -8 1 -2 1 -11 1 -2 1 -2 2 -3 1 -1 0 -5 2 1 2 -2 2 -4 -1 -2 1 0 -1 -4 0 -5 1 -1 -1 -2 -2 -4 0 -10 3 -4 2 1 -1 -7 3 -1 1 -4 2 -1 2 2 0 -1 2 -3 2 1 0 -4 2 -3 1 -7 3 -1 3 -3 2 -1 4 -3 1 -2 1 -1 0 1 -2 -1 0 -1 -1 1 -1 -1 -1 -2 0 -2 -2 -3 0 -1 -1 -1 1 0 -3 -1 -1 0 -2 2 -1 6 -2 0 -1 6 -2 1 0 -3 0 2 -1 2 -1 3 0 2 -1 2 -2 3 -2 1 -1 -2 -1 -1 0 1 -1 -3 0 -1 -1 1 0 1 -2 -2 0 1 -1 2 0 1 -2 -3 0 -2 1 -1 0 3 -2 1 -1 1 -1 2 0 2 0 0 -1 0 -1 1 0 0 -1 2 -2 2 -1 2 -1 -1 -1 -2 1 1 -1 -1 -1 2 -2 3 -1 0 -1 3 -1 4 -3 5 -1 1 -1 5 -1 1 -2 12 -3 6 -2 3 -2 1 -2 5 -1 2 -3 7 -2 5 -3 6 -2 1 -2 5 -2 2 0 6 -1 5 -1 -1 1 5 1 1 3 -1 1 -4 2 -6 2 -5 1 -5 -3 -2 1 -1 2 -3 1 -6 3 1 1 0 1 3 -2 2 -1 3 -1 2 2 3 -1 3 -2 11 -3 2 0 -1 1 6 -2 2 -1 4 -2 2 -2 4 1 -2 2 -3 0 -3 2 -1 1 5 -1 4 -2 7 -1 13 -2 1 0 -6 1 2 1 4 -1 4 0 6 -1 -1 1 6 -2 1 -1 3 -1 4 1 2 1 1 3 4 -2 1 -1 1 -1 -2 0 3 -1 4 -2 2 -1 9 -3 6 -2 3 -1 4 1 -3 2 -7 2 0 1 -3 1 -9 4 -1 2 -4 2 -12 4 2 0 3 -1 3 -1 3 -1 5 -1 2 -2 4 -2 -2 0 3 -1 7 -3 2 -2 8 -2 3 -2 1 0 -2 1 -6 3 1 0 3 -1 6 -2 5 0 0 2 3 -2 6 -3 4 -1 5 0 5 0 1 -1 7 -2 2 0 7 -1 6 -1 2 0 6 0 7 -1 4 0 3 -1 4 -1 7 -1 1 0 -4 1 4 0 -2 2 3 -1 6 0 1 1 0 1 -3 2 -4 0 -8 2 -3 0 2 1 1 0 3 0 -2 2 2 -1 4 0 6 0 -2 1 8 1 3 -2 4 0 3 0 1 1 -2 2 -3 1 -1 2 1 1 7 -2 1 1 5 -1 3 1 2 -1 3 1 3 -3 4 -1 16 2 -1 1 2 2 10 0 3 0 0 1 -3 2 2 1 3 -1 4 0 3 1 5 0 0 2 4 -1 0 -2 3 -1 6 1 4 0 5 1 1 1 3 2 2 3 -2 2 0 1 2 -2 5 0 2 3 -4 1 -4 0 -3 3 -1 0 -2 0 -1 -1 -2 0 1 -2 -2 0 -3 0 0 -1 2 -1 -3 1 -1 1 -2 1 -1 0 -4 2 -2 -1 0 2 -2 2 1 1 -1 1 -2 1 -3 -1 -9 3 -2 0 -6 2 -6 2 -2 1 -1 -2 -8 2 0 -1 -4 2 -2 -1 -3 2 -6 3 -2 1 2 1 -5 4 -2 0 -4 3 0 1 -6 2 -4 3 -4 1 -4 3 -7 3 2 -2 3 -5 6 -7 6 -4 4 -1 1 -2 5 -1 8 -3 7 -3 7 -3 7 -4 -3 1 -4 2 -10 3 3 -3 -7 1 -12 4 0 2 -6 1 -4 0 3 -2 -3 0 -5 1 -6 0 -9 1 -15 5 -17 7 3 1 -1 2 2 0 3 -1 2 0 0 3 -3 3 -5 3 -4 4 -6 5 -8 4 -3 3 -7 3 -7 4 -3 2 -5 2 -1 0 -1 -2 -5 3 -1 1zM608 24l4 -3 -1 -1 3 -1 6 -2 6 0 3 -1 4 0 2 1 -1 0 -6 2 -6 1 -5 2 -2 3 -2 2 2 2 5 3 -2 0 -7 -1 -1 -1 -4 0 0 -2 1 0 0 -2 3 -2 -2 0zM840 81l3 3 2 3 3 3 6 5 -4 -1 1 5 5 3 1 2 -3 -2 0 3 -2 -3 -2 -3 -2 -3 -1 -3 -3 -4 -3 -3 -3 -4 1 -2 -2 -1 1 0 2 2zM674 6l3 0 5 1 7 2 1 2 -3 0 -6 -1 -4 0 -3 -2 -3 0 3 -2zM773 18l5 0 9 1 1 2 -8 0 -2 0 -6 -1 -1 -2 2 0zM583 105l1 -1 2 1 1 0 0 1 2 0 2 0 0 1 -3 1 -3 2 -1 -1 0 -1 -3 -1 0 -1 3 -1 -1 0zM695 10l6 1 1 1 -10 1 0 -3 1 0 2 0zM554 79l-5 0 -2 -1 0 -1 3 -1 3 1 1 0 0 1 0 1zM871 29l2 0 4 1 -1 1 -3 0 -2 0 -1 0 1 -2zM783 25l1 -1 2 -1 4 1 1 1 -3 0 -4 0 -1 0zM794 20l6 0 -1 1 -4 0 -5 -1 0 -1 4 1zM129 29l2 0 2 1 -1 0 -3 1 -2 0 -3 0 1 0 4 -2zM584 7l3 0 3 0 1 0 2 -1 3 1 -1 0 -2 0 -2 1 -2 0 -2 0 1 -1 -4 0z","NO":"M565 35l-3 1 -2 0 1 -2 -3 -1 -3 1 -1 2 -2 1 -2 0 -3 0 -2 -2 -1 1 -2 0 0 2 -4 -1 0 2 -2 0 -1 2 -2 3 -3 4 1 1 -1 1 -2 0 -2 3 1 3 1 2 0 3 -2 2 -1 2 -1 -2 -5 4 -3 0 -3 -1 -1 -3 -1 -7 2 -2 6 -2 4 -3 4 -4 4 -5 4 -3 5 -3 5 -1 3 0 3 -2 4 0 3 -1 7 2 -2 1 2 2zM529 9l0 -1 3 0 2 1 7 2 -5 1 0 1 -2 1 -1 2 -2 0 -4 -2 1 0 -3 -1 -4 -2 -1 -2 5 -1 1 1 3 0zM551 8l-2 1 -5 1 -6 -1 -1 0 -2 0 -3 -1 6 -1 3 0 2 0 5 0 3 1zM548 13l-4 1 -4 0 1 -1 -1 -1 4 0 1 1 3 0z","ZA":"M544 345l1 -2 1 1 0 1 2 1 1 0 2 0 2 -2 1 -12 0 1 2 3 0 2 0 1 2 0 1 -2 2 -1 0 -1 2 -1 1 0 1 1 2 1 2 -1 0 -1 1 -2 1 0 1 -1 1 -2 3 -3 4 -2 1 0 1 0 1 0 2 0 1 5 0 2 0 4 0 1 -2 -1 0 1 -1 1 -1 1 0 1 2 2 1 -1 1 -1 2 0 -1 2 0 3 -1 1 -2 2 -1 0 -1 2 -1 2 -1 2 -4 3 -2 2 -2 2 -3 1 -1 0 0 1 -2 0 -1 0 -3 0 -2 0 -1 0 -3 1 -2 1 -1 1 -2 0 -1 -1 -1 0 -1 -2 0 1 0 -1 0 -2 -1 -2 1 -1 0 -2 -1 -3 -2 -3 -1 -4z","MX":"M191 148l3 0 4 -1 -1 1 4 1 5 3 5 0 2 0 1 -2 4 0 1 1 1 1 1 2 1 2 0 1 1 1 2 1 2 -2 2 0 2 1 1 2 0 2 1 2 1 2 0 2 2 1 2 0 1 0 -2 3 -1 2 -1 5 0 1 0 2 0 2 0 2 2 3 0 1 1 2 3 1 1 1 2 -1 2 0 3 -1 1 0 2 -1 1 -2 1 -3 0 -1 2 -1 3 -1 3 1 1 -1 1 1 0 2 -2 1 -1 2 0 1 0 1 -1 3 -1 -1 -1 0 -1 2 -1 0 -2 0 -3 0 0 2 -2 0 1 1 1 1 1 1 0 1 -4 0 -1 3 0 1 -1 1 -2 -4 -2 -1 -2 0 -1 0 -3 1 -1 0 -2 -1 -2 0 -2 -2 -2 0 -3 -2 -2 -1 -1 -1 -1 0 -3 -1 -1 -2 -3 -1 -1 -3 0 -1 1 0 0 -1 1 -1 0 -1 -1 -2 0 -1 0 -2 -2 -3 -2 -2 -1 -2 -2 -2 0 -1 0 -2 -1 0 -1 -2 0 -2 -1 0 -2 -2 0 -2 0 -1 -1 -2 0 -3 0 -1 -1 -1 -1 0 -1 -1 -1 1 0 2 -1 2 1 2 1 2 0 1 1 0 0 1 0 2 1 1 0 1 1 2 1 3 0 1 0 2 0 1 1 1 1 1 1 1 0 1 -2 1 0 -2 -2 -2 -1 -1 -2 -1 1 -2 0 -2 -1 -1 -2 -2 0 1 0 -1 -2 -1 -1 -2 1 0 2 -1 0 -1 -1 -3 -2 -1 0 -2 0 -2 -1 -2 0 -3z","UY":"M347 350l2 0 3 2 1 0 3 2 2 2 2 2 -1 2 1 2 -1 2 -3 1 -2 0 -1 0 -3 -1 -1 0 -2 -2 -1 -2 1 -1 -1 -3 1 -3 0 -3z","BR":"M360 362l-1 -2 1 -2 -2 -2 -2 -2 -3 -2 -1 0 -3 -2 -2 0 3 -4 2 -3 2 -2 2 -2 0 -2 -2 -2 -1 1 0 -2 0 -2 0 -2 -1 -1 -1 1 -1 0 0 -1 -1 -3 0 -1 -2 -1 -1 0 -3 0 -1 -5 -1 -1 1 -1 0 -2 0 -1 1 -3 -1 -2 -2 -1 0 -1 0 -2 -5 0 -1 -4 0 -1 0 -1 -1 -2 -1 -1 -2 0 -1 -1 -2 -1 -1 -1 -3 0 -4 -3 1 -2 -1 -2 0 -2 -3 1 -2 1 -2 1 -1 1 -1 0 -2 0 -2 0 -1 0 0 -5 -2 2 -3 0 -1 -2 -2 0 1 -1 -2 -2 -1 -3 1 -1 0 -1 1 -1 0 -2 1 -1 0 -1 3 -3 2 0 1 -1 2 0 1 -8 0 -2 0 -2 -1 -1 0 -2 1 -1 1 1 0 -1 -2 -1 0 -2 5 0 1 -1 1 1 1 2 2 1 2 0 0 -1 3 -1 1 0 0 -1 2 -1 0 -1 -2 0 -1 -2 0 -3 -1 0 1 -1 2 1 2 1 1 -1 2 -1 3 -1 1 -1 0 -1 1 0 1 1 -1 1 1 0 1 2 -1 1 -1 3 1 1 0 2 2 1 1 1 1 -1 1 0 1 -1 1 -1 1 1 1 0 1 0 1 -1 -1 0 1 -1 1 0 1 0 2 0 1 1 1 -1 1 1 1 0 1 -1 1 -3 2 -3 1 0 0 2 2 6 1 0 0 2 -2 3 1 1 5 0 0 4 2 -2 4 1 4 2 2 2 -1 1 3 -1 6 2 4 0 4 3 4 3 2 1 2 0 1 1 1 4 1 2 -1 6 -2 2 -3 4 -2 4 -2 3 -1 0 0 2 0 6 0 5 0 2 -1 1 0 5 -3 4 0 3 -2 2 -1 2 -3 0 -4 1 -2 1 -3 1 -2 3 -2 3 -1 2 1 2 0 4 -1 1 -1 2 -2 6 -2 2 -2 2 -1 3 -1 2z","BO":"M308 288l2 0 1 0 1 -1 2 -1 2 -1 3 -1 0 2 1 2 -1 2 4 3 3 0 1 1 2 1 1 1 2 0 1 1 1 2 0 1 0 1 1 4 5 0 0 2 0 1 2 1 1 2 -1 3 0 1 0 2 -1 1 0 -1 -2 -2 -3 0 -5 1 -1 3 1 1 -1 4 -1 0 -3 -1 0 3 -2 -2 -4 -1 -2 3 -2 0 -1 -4 -2 -4 0 -3 -1 -1 -1 -3 -2 -2 2 -3 -2 -3 1 -1 -1 -1 1 -2 0 -3 0 -2 1 -1 -3 -5z","PE":"M306 266l-2 0 -1 1 -2 0 -3 3 0 1 -1 1 0 2 -1 1 0 1 -1 1 1 3 2 2 -1 1 2 0 1 2 3 0 2 -2 0 5 1 0 2 0 3 5 -1 1 0 2 0 3 -1 2 1 1 -1 1 2 3 -2 3 0 2 -1 1 -3 -2 -1 -1 -5 -4 -6 -3 -2 -2 -1 -3 0 -1 -3 -4 -3 -6 -3 -6 -1 -2 -1 -2 -2 -2 -2 -2 1 -1 -2 -3 1 -2 2 -2 0 1 0 1 0 1 1 0 1 0 1 2 2 -2 0 -2 2 -3 3 -1 3 -3 1 -2 0 -3 2 1 1 2 1 1 2 3 2 1 2 -1 1 0 1 0 2 1 -1 4 1 0 1 1z","CO":"M314 249l-1 -2 -1 -1 -1 1 -5 0 0 2 2 1 0 1 -1 -1 -1 1 0 2 1 1 0 2 0 2 -1 8 -1 -1 -1 0 1 -4 -2 -1 -1 0 -1 0 -2 1 -2 -1 -2 -3 -1 -1 -1 -2 -2 -1 -2 -1 -1 -1 -1 1 -2 -1 -1 -1 -3 -2 0 -1 1 0 0 -2 0 -1 2 0 1 -2 1 -2 -1 0 0 -2 0 -3 1 -1 -1 -3 -1 -2 1 -1 1 -1 0 -2 1 0 3 -2 1 -1 0 -1 0 -2 2 -2 2 0 0 -1 2 1 3 -2 1 -1 1 -1 1 0 1 1 -1 1 -2 0 0 2 -2 1 0 1 -1 2 -1 2 2 0 0 2 0 1 1 1 -1 1 0 1 1 0 1 1 3 0 2 0 2 3 1 0 2 0 1 0 1 0 0 2 -1 1 0 2 0 2 1 1 0 1 -1 2 1 0 0 1 1 4z","CR":"M272 222l-1 0 0 2 0 1 -1 1 -1 0 -1 -1 1 -1 -1 -1 -1 -1 -1 0 0 -1 -1 -1 0 1 0 1 -1 -1 -1 0 0 -1 0 -1 0 -1 0 -1 1 0 1 0 1 0 1 0 0 1 1 0 1 0 0 1 1 2 2 1z","VE":"M332 236l0 1 -1 1 -3 1 -2 1 -1 1 -2 -1 -2 -1 -1 1 1 0 0 3 1 2 2 0 0 1 -2 1 0 1 -1 0 -3 1 0 1 -2 0 -2 -1 -1 -4 0 -1 -1 0 1 -2 0 -1 -1 -1 0 -2 0 -2 1 -1 0 -2 -1 0 -1 0 -2 0 -1 0 -2 -3 -2 0 -3 0 -1 -1 -1 0 0 -1 1 -1 -1 -1 0 -1 0 -2 -2 0 1 -2 1 -2 0 -1 2 -1 0 -2 2 0 0 1 -2 0 1 1 0 2 -1 2 1 3 1 -1 1 -2 -1 -1 0 -3 3 -1 0 -1 1 -1 1 2 2 0 2 2 0 1 2 0 3 -1 2 2 2 0 1 -1 0 -1 4 0 3 0 -2 1 0 2 3 0 2 2 0 2 1 0 2 1 -3 2 0 1 1 1 -1 1 -2 0 0 2 0 1 2 2z","FR":"M515 94l1 0 4 1 -1 2 -1 2 0 1 -1 0 -2 2 0 2 1 -1 1 2 1 2 -1 1 1 2 1 0 0 2 -3 2 -5 -1 -3 1 0 2 -3 0 -3 -1 -1 0 -5 -1 -1 -1 2 -2 0 -6 -3 -4 -1 -1 -4 -2 0 -2 3 -1 4 1 -1 -3 3 1 5 -2 1 -3 2 -1 0 2 2 0 1 1 1 1 2 0 2 1 0 1 1 0zM357 239l-2 3 -1 3 -1 1 -1 0 -1 -1 -1 1 -1 -1 0 -1 1 -2 0 -1 -1 -2 0 -2 1 -3 1 1 2 0 3 3 1 1zM522 115l2 -1 0 3 0 2 -2 0 0 -3 0 -1z","EC":"M291 253l0 3 -1 2 -3 3 -3 1 -2 3 0 2 -2 2 -1 -2 -1 0 -1 0 0 -1 0 -1 0 -1 1 -3 0 -1 -1 1 -2 -1 1 -1 -1 -3 1 0 1 -2 1 -2 0 -2 1 0 2 -2 3 2 1 1 2 1 1 -1 1 1 2 1z","CU":"M277 178l3 0 2 0 2 1 1 2 3 -1 0 1 2 2 2 1 1 0 1 1 0 1 2 0 2 1 0 1 -2 1 -2 0 -2 -1 -4 1 2 -2 -1 -1 -2 0 0 -1 -1 -2 -1 0 -3 -1 -1 0 -3 -1 -1 0 1 -1 -2 0 -3 1 -1 0 0 1 -2 0 -1 0 2 -1 1 -1 1 -1 1 0 3 -1z","SN":"M454 209l-1 -3 -1 -1 1 0 1 -3 1 -1 1 -1 1 0 1 -1 2 0 1 1 2 1 2 2 2 3 0 2 0 2 1 0 0 2 0 1 -2 0 -2 -1 -2 0 -5 0 -1 0 -1 0 -1 1 0 -3 2 0 1 0 1 -1 1 1 2 0 1 -1 -1 -1 -1 1 -2 -1 -1 1 -3 0z","ML":"M468 213l0 -1 0 -2 -1 0 0 -2 0 -2 0 -1 1 -2 1 0 2 1 1 -1 1 1 1 -1 11 0 0 -2 0 -1 -1 -14 -1 -14 4 0 9 7 9 7 1 2 1 1 2 0 0 2 3 0 0 7 -2 3 0 2 -2 0 -4 0 -1 2 -2 0 -2 0 0 -1 -2 1 -3 1 0 1 -2 1 -1 1 -1 1 -1 -1 -1 1 0 2 -2 3 0 1 -1 1 0 2 -1 1 -1 0 0 -1 -1 0 -1 1 -2 0 -1 0 -1 -1 0 -1 -1 0 0 -1 1 -1 -1 -1 -1 -1 0 -1 -1 0 -1 1 -1 1 -1 -1 -1 0 0 -1 -1 1 -1 0 0 -1z","NG":"M507 233l1 -6 0 -2 0 -2 1 -1 1 -2 0 -1 0 -1 0 -2 0 -1 0 -3 1 -1 0 -2 1 -1 3 0 3 1 1 2 1 0 1 -1 4 1 1 0 2 -1 1 0 1 0 2 0 2 1 2 -2 1 0 2 4 1 1 0 1 -2 3 -1 2 -1 2 -1 3 -1 1 -1 2 0 1 0 1 -2 1 -2 -1 -1 0 -2 2 -2 3 0 2 -3 2 -1 -1 -1 1 -3 0 -1 -2 -1 -2 -2 -2 -2 0 -3 0z","GH":"M500 217l0 1 1 2 0 2 0 3 1 1 -1 3 1 1 0 2 1 2 -4 2 -2 1 -2 1 -3 -1 0 -2 -1 -2 1 -4 1 -3 -1 -4 0 -3 0 -2 5 0 1 1 1 -1 1 0z","CI":"M478 220l1 0 2 0 1 -1 1 0 0 1 1 0 1 -1 1 1 1 1 1 1 1 -1 1 0 2 1 1 4 -1 3 -1 4 1 2 0 2 -1 0 -2 -1 -2 0 -3 1 -2 1 -3 1 0 -3 0 -2 -1 -1 -1 0 -1 -1 1 -2 -1 -1 1 -1 0 -1 0 -1 1 -1 0 -2 -1 -2 0 -1 1 0z","BF":"M485 219l0 -2 1 -1 0 -1 2 -3 0 -2 1 -1 1 1 1 -1 1 -1 2 -1 0 -1 3 -1 2 -1 0 1 2 0 0 1 0 2 2 2 0 1 3 1 0 2 -1 1 -1 1 -1 1 -1 0 -2 0 -1 0 -1 1 -1 -1 -5 0 0 2 0 3 -2 -1 -1 0 -1 1 -1 -1 -1 -1 -1 -1z","IL":"M594 147l0 1 -1 0 -1 2 1 0 0 1 -1 1 2 -1 0 1 -1 6 0 -1 -2 -5 0 -1 1 -2 0 -2 0 -1 1 0 1 -1 0 2z","LB":"M594 145l-1 1 -1 0 1 -3 1 -2 1 0 1 1 -1 2 -1 1z","TN":"M525 155l-1 -6 -2 -1 0 -1 -2 -2 0 -2 1 -2 1 -3 -1 -3 1 -1 3 -2 1 1 0 1 3 -1 0 1 -1 1 0 2 1 1 -1 2 -1 2 0 2 2 0 0 1 1 1 0 2 -1 1 -1 1 -2 2 1 1 -1 1 -1 1z","DZ":"M477 164l0 -4 4 -3 3 0 2 -1 1 -2 3 -1 0 -2 2 -1 1 -1 4 0 0 -2 -1 0 -1 -4 0 -2 -1 -2 3 -2 3 0 1 -1 3 -1 4 -1 5 0 1 0 2 -1 3 0 1 1 2 0 -1 1 1 3 -1 3 -1 2 0 2 2 2 0 1 2 1 1 6 1 3 0 1 0 3 0 1 0 2 0 2 -1 2 2 2 0 1 1 2 1 0 2 1 1 2 -9 6 -8 7 -3 1 -3 0 0 -2 -2 0 -1 -1 -1 -2 -9 -7 -9 -7 -10 -8z","JO":"M594 148l0 -1 3 1 5 -3 2 4 -1 0 -5 2 3 3 -1 1 0 1 -2 0 -1 2 -1 1 -3 -1 1 -6 0 -1 0 -1 0 -2z","AE":"M639 175l1 -1 0 1 2 0 2 0 2 0 2 -2 1 -2 2 -2 0 1 1 2 -1 0 0 2 0 1 -1 1 0 1 0 1 0 2 -1 0 -8 -1 -2 -4z","IQ":"M604 149l-2 -4 5 -3 1 -4 -1 -3 2 0 1 -2 1 -1 3 1 1 0 1 0 2 4 2 1 1 1 -2 2 0 2 2 3 4 2 2 2 -1 3 1 0 0 1 2 2 -1 0 -2 0 -2 3 -5 0 -8 -7 -4 -2 -3 -1z","KH":"M783 213l-1 -3 1 -3 4 -1 3 1 2 1 1 -2 2 1 1 2 0 4 -4 2 1 2 -2 1 -3 1 -2 -1 -1 -1 -2 -4z","TH":"M790 207l-3 -1 -4 1 -1 3 1 3 -3 -1 -2 0 0 -2 -2 0 0 3 -1 5 -1 3 1 2 1 0 2 3 0 3 2 2 2 0 1 2 -1 1 -1 0 -1 -1 -2 -2 -1 1 -1 -1 0 -2 -2 -2 -1 -1 -1 2 0 -2 0 -2 1 -3 1 -4 1 -3 -2 -2 0 -2 0 -2 -2 -2 -1 -2 1 -1 0 -2 -1 -2 -2 -3 -2 -3 1 0 1 -4 2 0 1 -1 2 -1 1 1 0 2 2 0 0 3 1 3 2 -2 1 1 2 0 0 -1 2 0 3 3 0 3 3 3 0 2 0 2z","MM":"M773 187l-2 1 -1 1 -2 0 -1 4 -1 0 2 3 2 3 1 2 0 2 -1 1 1 2 2 2 0 2 0 2 2 2 -1 3 -1 4 -1 -3 1 -2 -1 -2 -1 -4 -1 -1 -1 -4 -1 -4 -2 -3 -1 2 -3 2 -2 0 -1 -1 0 -4 -1 -3 -3 -4 0 -1 -1 0 -3 -3 0 -2 1 0 0 -2 1 -1 -1 -1 1 -2 -1 -3 2 1 1 -3 0 -1 1 -3 -1 -2 3 -2 2 0 0 -2 1 0 -1 -1 2 -1 1 2 1 1 1 2 0 3 -2 3 1 4 3 -1 1 3 2 1 -1 2 3 2 1 0 2 -1 0 2 -2 2 0 1z","VN":"M788 219l3 -1 2 -1 -1 -2 4 -2 0 -4 -1 -2 1 -3 -1 -3 -3 -2 -2 -3 -3 -3 -3 -2 0 -1 2 -1 -2 -3 -3 0 -2 -3 -2 -3 1 0 3 0 2 -1 2 -2 2 2 2 0 0 2 2 1 3 1 -4 3 -1 3 0 2 2 4 3 4 3 2 2 3 2 6 0 5 -2 2 -3 2 -2 3 -3 3 -1 -2 1 -2 -3 -2z","KR":"M826 131l2 0 0 -2 2 0 1 0 0 -1 4 4 1 2 2 4 -1 2 -2 0 -1 1 -3 1 -1 -2 0 -2 -2 -4 1 0 -3 -3z","MN":"M714 94l3 0 3 -3 3 -1 3 0 2 1 3 1 2 0 4 1 1 -2 -1 -2 1 -3 3 1 2 0 4 1 1 2 4 2 2 -1 3 0 3 0 3 2 2 1 2 0 4 1 2 -1 3 -1 2 -2 2 1 1 1 3 -1 0 3 0 3 1 1 2 0 2 0 2 -1 2 1 3 2 1 1 -2 0 -4 0 -1 1 -1 2 -3 2 -2 1 -3 0 -1 -1 -1 2 2 2 1 1 -2 1 -1 1 -2 2 -4 0 -4 1 -2 2 -1 -1 -4 0 -4 -2 -3 -1 -3 1 -5 -1 -3 0 -2 -2 -3 -3 -1 0 -4 -2 -4 -1 -3 0 -1 -2 -1 -3 -2 -3 -4 -1 -3 -2 -2 -2z","IN":"M760 162l1 1 -1 0 0 2 -2 0 -3 2 1 2 -1 3 0 1 -1 3 -2 -1 1 3 -1 2 1 1 -1 1 -3 -5 -1 2 -1 -2 0 -2 1 0 1 -3 -2 0 -2 0 -3 -1 0 -2 -2 0 -2 -2 -1 3 3 1 -2 2 0 1 2 1 -1 2 2 2 1 3 -1 1 -1 0 -4 0 1 3 -1 2 -4 2 -2 4 -2 2 -3 2 0 1 -1 1 -2 1 -1 1 -1 2 1 4 0 3 -1 3 1 5 -2 1 -1 2 1 1 -2 1 -1 2 -1 1 -3 -3 -2 -4 -1 -4 -1 -1 -2 -3 -1 -4 0 -2 -3 -5 -2 -6 -1 -4 -1 -4 -1 -3 -3 2 -2 -1 -4 -3 1 -2 -1 -1 -4 -3 2 -2 6 0 -1 -3 -2 -1 -1 -3 -2 -1 3 -4 3 1 2 -4 1 -3 2 -3 0 -3 2 -1 -3 -2 -1 -2 -2 -3 1 -1 4 0 3 0 2 -3 4 4 0 3 2 1 0 2 -2 -1 1 4 3 2 5 2 -2 2 0 3 3 1 2 2 4 1 4 1 2 2 2 0 3 1 3 0 0 -2 -1 -2 0 -1 1 -1 1 3 3 2 1 -1 3 0 2 0 0 -2 -2 -1 2 0 2 -3 3 -2 2 1 2 -1 2 2 -1 1 3 1z","BD":"M752 182l0 2 -1 0 0 2 -1 -2 0 -1 -1 -2 -1 -2 -3 0 1 2 -1 1 -1 0 -1 0 -1 0 -1 -3 -2 -2 1 -2 -2 -1 0 -1 2 -2 -3 -1 1 -3 2 2 2 0 0 2 3 1 2 0 2 0 -1 3 -1 0 0 2 1 2 1 -2 3 5z","NP":"M736 163l0 1 1 2 0 2 -3 0 -3 -1 -2 0 -2 -2 -4 -1 -4 -1 -2 -2 -3 -1 0 -3 2 -2 3 1 3 2 2 0 1 2 2 0 2 2 4 1 3 0z","PK":"M703 138l-2 3 -3 0 -4 0 -1 1 2 3 1 2 3 2 -2 1 0 3 -2 3 -1 3 -2 4 -3 -1 -3 4 2 1 1 3 2 1 1 3 -6 0 -2 2 -2 0 -1 -3 -2 -2 -5 0 -4 0 -4 1 0 -4 4 -2 -1 -1 -1 -1 0 -2 -3 -2 -1 -2 -2 -1 5 1 2 0 2 0 0 -1 2 1 3 -2 0 -2 1 -2 2 0 0 -1 2 -1 1 1 1 -1 0 -2 0 -2 2 -1 -2 -2 3 0 0 -1 0 -1 1 -2 -1 -1 0 -2 1 -1 2 -1 3 0 1 -1 2 0 2 1 2 3 4 1z","IR":"M629 156l-2 -2 0 -1 -1 0 1 -3 -2 -2 -4 -2 -2 -3 0 -2 2 -2 -1 -1 -2 -1 -2 -4 -2 -3 1 -1 -2 -3 2 -1 1 1 1 1 2 1 1 0 2 -3 1 0 1 1 0 2 2 1 1 2 3 1 2 2 4 0 4 -1 2 -1 1 -2 2 0 1 0 2 0 3 2 2 0 4 3 2 0 1 3 -1 4 0 2 1 1 -1 1 2 3 0 2 2 0 1 3 -2 3 2 1 1 2 3 2 0 2 1 1 1 1 -4 2 0 4 -5 -1 -3 -1 -4 0 -1 -4 -2 -1 -2 1 -2 1 -3 -1 -3 -2 -3 -1 -2 -3 -3 -5 -1 1 -2 -1 -1 1z","AM":"M620 128l-1 0 -1 -2 -1 -1 -1 0 -1 0 -1 -1 -2 -1 0 -2 -1 -1 4 0 0 1 1 0 0 1 1 1 0 1 1 1 1 0 1 3z","SE":"M525 65l1 -2 2 -2 0 -3 -1 -2 -1 -3 2 -3 2 0 1 -1 -1 -1 3 -4 2 -3 1 -2 2 0 0 -2 4 1 0 -2 2 0 3 1 3 2 1 4 1 2 -4 0 -2 2 1 2 -3 2 -4 3 -1 4 1 2 3 2 -2 3 -2 1 -1 5 -1 2 -3 0 -1 2 -3 1 -1 -3 -2 -4 -2 -4z","BY":"M566 73l2 1 1 1 1 -1 3 1 0 1 0 1 1 2 1 1 2 1 1 1 -1 0 -2 0 0 1 0 1 1 2 -2 0 0 2 -1 0 -2 0 -1 -1 -1 1 -1 -1 -2 0 -3 -1 -2 0 -2 0 -1 1 -1 0 0 -1 -1 -2 1 0 0 -2 -1 -1 0 -1 2 0 3 -1 0 -2 2 -1 -1 -1 2 -1 2 -1z","UA":"M576 86l1 0 1 -1 1 0 2 0 2 2 -1 0 1 1 2 0 1 2 3 1 2 0 2 1 1 0 4 1 0 1 -1 2 1 2 0 1 -2 0 -2 1 1 1 -2 0 -2 1 -2 1 -2 1 0 1 -1 0 -2 -1 -1 1 0 -1 -4 0 0 -2 -3 1 0 1 -2 3 -1 -1 -1 1 -2 -1 1 0 0 -1 1 -1 0 -1 2 0 1 0 -1 0 0 -1 -1 0 0 -2 -1 0 0 -1 -1 -1 -1 0 -2 -1 -2 0 -1 1 -1 0 -2 1 -1 0 -1 -1 -1 0 -2 0 -1 1 0 -1 -2 -1 1 -1 0 -1 1 0 -1 -1 2 -3 1 0 0 -1 -1 -3 1 0 1 -1 2 0 2 0 3 1 2 0 1 1 1 -1 1 1 2 0 1 0 0 -2 2 0z","PL":"M556 80l0 1 1 1 0 2 -1 0 1 2 0 1 1 3 0 1 -1 0 -2 3 1 1 -1 0 -2 -1 -2 0 -1 0 -2 0 -1 -1 -1 1 -1 -2 -2 0 0 -1 -2 0 -2 0 0 -1 -1 0 -2 -1 -1 -2 0 -1 0 -2 -1 -1 0 -1 0 -2 1 0 4 -2 3 -1 2 1 3 0 2 1 5 0 1 0 1 1z","AT":"M542 98l0 1 -2 0 1 1 -1 2 -2 0 -2 1 -2 0 -3 -1 -1 -1 -2 1 -1 0 -1 0 -1 0 -2 -1 1 -1 2 0 2 0 2 -1 1 0 1 1 0 -1 0 -2 1 0 0 -1 2 1 1 -2 1 0 2 1 1 0 2 0 -1 1 1 1z","HU":"M554 97l2 1 0 1 -1 0 -1 2 -2 3 -2 0 -1 0 -2 1 -1 0 -2 0 -2 -2 -1 0 0 -1 -1 0 1 -2 -1 -1 2 0 0 -1 1 1 1 0 2 0 0 -1 1 0 1 -1 1 1 1 -1 0 -1 1 0 3 1z","MD":"M565 98l1 -1 2 0 2 1 1 0 1 1 0 1 1 0 0 2 1 0 0 1 1 0 -1 0 -2 0 0 1 -1 1 0 1 -1 0 0 -1 0 -2 0 -1 -2 -2 -1 -1 -1 -1 -1 0z","RO":"M570 106l2 1 1 -1 1 1 0 1 -1 0 -1 0 0 4 -2 -1 -2 -1 -2 1 -2 1 -3 0 -2 -1 -1 0 -1 -1 -1 0 1 -1 -1 0 -2 -1 0 -1 -2 -1 0 -1 -2 -1 2 0 2 -3 1 -2 1 0 1 -1 2 0 1 0 1 1 1 0 2 -1 1 0 1 0 1 1 1 1 2 2 0 1 0 2 0 1z","LT":"M562 75l1 1 -2 1 0 2 -3 1 -2 0 -1 -1 -1 0 0 -1 0 -1 -1 0 -3 -1 -1 -2 3 -1 4 0 2 0 2 0 2 2z","LV":"M563 69l1 1 1 1 1 2 -2 1 -2 1 -2 -2 -2 0 -2 0 -4 0 -3 1 0 -3 1 -2 2 -1 2 3 2 0 0 -3 2 0 1 0 2 1 2 0z","EE":"M564 63l0 1 -1 1 1 3 -1 1 -2 0 -2 -1 -1 0 -2 0 0 -1 -1 0 -1 -1 -1 -2 3 -1 3 0 3 0 2 0z","DE":"M534 80l0 2 0 1 1 1 0 2 0 1 1 2 -1 0 -1 0 -2 1 -1 0 -1 1 0 1 1 1 1 1 1 2 0 1 -1 0 0 2 0 1 -1 -1 -1 0 -2 1 -2 0 -2 0 -3 -1 -3 0 1 -2 1 -2 -4 -1 -1 0 0 -2 0 -2 -1 -4 2 0 0 -1 1 -3 -1 -1 1 0 2 -1 0 1 2 -1 -1 -2 0 -1 2 0 1 0 0 1 3 1 0 1 2 -1 2 -1 2 1 2 1z","BG":"M557 110l1 1 1 0 2 1 3 0 2 -1 2 -1 2 1 2 1 -1 1 -1 2 1 2 -2 0 -3 1 0 1 -2 1 -2 -1 -2 0 -2 0 0 -2 -1 -1 0 -1 0 -1 1 -1 -1 -1 -1 -1 1 -1z","GR":"M558 119l2 0 2 0 2 1 2 -1 0 -1 2 1 -1 2 -2 0 -1 0 -3 0 2 2 -2 1 -1 0 -2 -2 0 1 1 2 1 1 -1 1 2 1 1 1 0 2 -2 -1 1 2 -2 0 1 3 -2 0 -2 -1 -1 -3 0 -2 -2 -1 -1 -2 0 -1 1 -2 0 -1 1 0 0 -1 1 0 1 -1 2 0 0 -1zM569 139l-1 1 -3 0 -4 -1 1 -1 1 1 2 -1 2 1 2 0z","TR":"M616 133l-1 0 -1 0 -3 -1 -1 1 -3 0 -1 0 -3 1 -2 0 -2 0 -3 1 -1 -1 0 2 -1 1 -1 -1 1 -2 -2 1 -2 -1 -1 2 -4 0 -3 -2 -2 0 -1 2 -2 0 -2 -2 -3 0 -2 -3 -2 -2 1 -2 -2 -2 3 -3 4 0 1 -2 4 0 3 -2 3 -1 4 0 5 2 4 2 3 -1 2 0 3 -1 2 0 3 1 1 1 0 2 2 1 1 1 -2 1 2 3 -1 1 2 3zM566 118l3 -1 2 0 1 1 2 2 -1 0 -3 0 -1 1 -2 2 0 -1 0 -1 1 -2 -2 -1z","AL":"M554 121l0 1 -1 0 0 1 -1 2 -1 0 0 -1 -1 -1 -1 -2 0 -2 1 -1 -1 0 0 -1 1 -2 0 1 1 -1 0 1 1 1 0 1 0 1 1 1 1 1z","HR":"M541 103l1 0 2 2 2 0 1 0 1 1 0 1 0 1 -2 -1 -1 0 -3 0 -1 0 0 1 -1 -1 -1 1 2 2 0 1 2 1 1 1 1 1 2 1 0 1 -3 -1 -1 -2 -3 -1 -2 -2 1 0 -2 -1 0 -2 -1 0 -1 1 -1 -1 0 -1 2 0 1 0 1 0 0 -1 1 0 0 -1 2 -1z","CH":"M524 100l-1 1 2 1 1 0 0 1 -1 1 -2 -1 -1 1 -1 1 0 -1 -2 1 -1 0 -1 0 -1 -2 -1 1 0 -2 2 -2 1 0 0 -1 3 0 3 1z","LU":"M515 92l0 2 -1 0 0 -1 0 -1 1 0z","BE":"M515 90l0 2 -1 0 0 1 -2 -1 -2 0 -1 -1 -1 -1 -2 0 0 -2 2 0 2 0 2 -1 2 2 1 1z","NL":"M516 81l1 1 -1 3 0 1 -2 0 1 4 -1 -1 -2 -2 -2 1 -2 0 1 -1 2 -5 3 -1 2 0z","PT":"M477 118l1 -1 1 -1 1 2 1 0 1 0 1 0 1 1 -1 1 -1 3 0 2 -1 0 1 2 -1 2 1 1 -1 1 -1 1 1 1 -1 1 -2 -1 -1 1 0 -3 0 -2 -1 0 -1 -1 1 -2 1 -2 0 -1 1 -2 0 -1 -1 -1 0 -1z","ES":"M481 133l-1 -1 1 -1 1 -1 -1 -1 1 -2 -1 -2 1 0 0 -2 1 -3 1 -1 -1 -1 -1 0 -1 0 -1 0 -1 -2 -1 1 -1 1 0 -3 -1 -1 4 -2 3 0 3 0 3 1 2 0 4 0 1 1 5 1 1 0 3 1 3 0 0 2 -3 2 -3 0 0 2 -2 1 -1 3 1 2 -1 1 -1 2 -2 1 -2 2 -3 0 -2 0 -2 2 -1 1 -1 -1 -1 -1 -1 -1 -2 -1z","IE":"M485 80l1 2 -2 3 -5 2 -3 -1 2 -3 -1 -3 3 -2 2 -2 1 2 -1 2 2 -1 1 1z","NZ":"M928 393l3 -2 2 -1 3 -3 2 0 1 -2 3 -2 0 2 -1 1 3 -1 0 1 -1 1 -2 2 -3 2 -2 1 0 2 -2 0 -3 1 -2 2 -4 4 -3 1 -2 1 -2 0 -1 -1 -3 -1 1 -1 3 -2 5 -3 2 -1 3 -1zM953 382l-2 2 -3 2 -2 1 0 -1 -1 0 3 -3 0 -2 -2 -1 1 -1 3 -1 2 -3 1 -2 0 -2 0 -2 -1 -3 0 -2 1 0 1 2 1 0 0 3 0 4 1 -2 1 0 -1 3 1 1 2 0 2 -1 1 0 -2 3 -2 2 -2 0 -2 1 0 1 -1 1z","AU":"M833 357l-3 1 -3 1 -1 2 -1 1 -3 0 -1 0 -2 0 -3 0 -1 0 -3 2 -2 1 -1 1 -2 0 -2 0 -2 -2 -1 -1 0 -2 2 0 0 -1 1 -1 1 -2 0 -2 0 -4 0 -2 0 -1 0 -2 0 -1 -1 -2 1 -2 -1 -3 0 -1 1 1 -1 -3 1 1 1 1 0 -1 0 -3 0 -1 -1 -1 1 -2 1 0 0 -2 0 -2 2 -2 0 2 1 -2 3 -1 1 -1 3 -2 1 0 1 0 2 -1 2 0 0 -1 1 0 2 0 3 -1 1 -1 1 -2 2 -2 1 -1 0 -2 2 -3 1 3 1 0 0 -2 1 -1 1 0 1 -2 1 -2 1 -1 2 -1 0 -1 1 1 0 -1 1 0 2 -1 2 2 1 2 2 0 1 0 0 -2 2 -3 1 0 0 -1 1 -2 2 -1 1 0 3 0 0 -2 -2 -1 2 -1 1 1 2 2 2 0 1 0 1 1 2 -1 1 0 1 0 1 1 -1 2 -1 1 -1 1 0 1 -1 1 -2 2 0 1 2 2 2 1 1 1 2 2 1 0 1 1 0 1 3 1 2 -1 1 -2 1 -2 0 -1 1 -3 0 -1 1 -1 0 -2 0 -3 1 0 0 -1 1 -2 0 -2 1 -1 1 -1 0 2 0 2 1 0 0 1 1 2 0 2 -1 1 1 2 2 -1 1 2 1 1 -1 1 0 3 0 2 1 0 0 3 -1 2 1 2 2 1 2 2 1 1 0 1 1 2 0 4 1 -1 1 1 1 0 -1 3 2 2 1 1 1 3 0 3 -1 2 -1 2 1 2 -2 3 -1 2 -1 3 -1 1 -2 3 -2 3 -3 1 -2 3 -1 1 -2 3 -2 2 -2 2 -1 2 0 1 -2 2 -3 0 -3 1 -2 1 -3 2 -1 -2 -1 0 1 -2 -2 1 -3 2 -2 -1 -1 -1 -2 0 -2 -1 0 -2 0 -2 0 -2 0 -1 -3 0 2 -2 0 -2 -2 2 -3 0 3 -1 1 -2 1 -2 1 -2 -3 3 -2 1 -2 2 -2 -1 1 -2 -1 -2 -1 -1 1 -1 -3 -2 -1 0 -2 -2 -5 1 -4 1 -3 1 -3 0zM877 384l1 0 -1 4 -2 1 -2 3 0 -1 -3 2 -2 0 0 -3 1 -2 0 -3 1 -1 1 0 2 1 2 0 2 -1z","LK":"M727 229l-1 3 -1 1 -2 0 -2 -2 0 -5 1 -5 2 2 1 2 2 4z","CN":"M703 116l0 -2 1 -1 -4 -5 5 -1 1 -1 0 -6 5 1 1 -1 -1 -3 2 0 1 -3 2 2 3 2 4 1 2 3 1 3 1 2 3 0 4 1 4 2 1 0 3 3 2 2 3 0 5 1 3 -1 3 1 4 2 4 0 1 1 2 -2 4 -1 4 0 2 -2 1 -1 2 -1 -1 -1 -2 -2 1 -2 1 1 3 0 2 -1 3 -2 1 -2 1 -1 4 0 2 0 -1 -1 -3 -2 -2 -1 -2 1 -2 0 -2 0 -1 -1 0 -3 0 -3 4 2 2 -2 -1 -2 1 -3 0 -1 -1 -2 -1 -1 1 -1 2 -1 3 0 4 1 3 1 4 3 1 2 2 2 3 3 5 1 4 2 3 3 4 0 1 -1 4 -1 0 3 0 1 1 3 0 3 -4 0 -1 1 2 3 2 3 -2 0 1 2 -2 -2 -1 2 -3 1 1 2 -2 0 -2 -1 0 2 -2 2 -1 2 -4 1 -1 1 -2 1 0 -1 -1 -2 1 -2 -2 -1 -1 1 -2 2 -1 2 -2 0 -1 2 2 2 2 0 1 2 2 1 2 -2 3 1 2 0 1 2 -3 0 -1 2 -2 2 0 2 3 2 2 3 3 3 2 2 1 3 -1 1 1 1 2 1 0 3 0 3 -1 0 -1 3 -1 5 -2 4 -3 3 -3 2 -3 1 -1 1 -1 -1 -2 2 -3 1 -3 1 0 3 -2 0 -1 -2 1 -1 -4 -1 -1 0 -3 -1 -2 -1 0 -2 -2 0 -2 -2 -2 2 -2 1 -3 0 -1 0 -1 1 1 4 -2 -1 0 -2 -2 1 -1 0 -3 -2 1 -2 -2 -1 -1 -3 -3 1 -1 -4 2 -3 0 -3 -1 -2 -1 -1 -1 -2 -2 1 -3 -1 1 -1 -2 -2 -2 1 -2 -1 -3 2 -2 3 -2 0 -1 -1 -1 0 -2 -1 -2 1 -1 3 -1 -3 -1 1 -3 0 -4 -1 -2 -2 -2 0 -1 -2 -2 0 -3 -2 -3 -1 -5 -2 -3 -2 -1 -4 2 1 0 -2 -2 -1 0 -3 -4 -4 -4 -1 -2 -3 -2 -1 -1 -1 -1 -2 0 -1 -2 -1 -2 -2 1 -1 -1 -1 2 -1 2 -1 3 0 0 -2 3 0 1 -1 3 -2 0 -1zM799 194l-2 -1 -1 -3 2 -1 2 -1 2 0 1 1 -1 2 0 2 -3 1z","TW":"M829 174l-1 5 0 3 -2 -3 -1 -2 1 -3 1 -3 2 1 0 2z","IT":"M526 102l1 0 1 0 2 -1 1 1 3 1 0 1 1 2 -2 -1 -2 2 0 1 0 1 1 2 2 1 2 3 2 2 2 0 1 1 -1 1 3 1 2 1 2 2 0 1 -2 -1 -2 -1 -1 2 2 2 0 1 -1 0 -1 3 -1 0 0 -1 0 -1 0 -1 -1 -2 -1 -1 -1 -1 0 -1 -2 -1 -1 -1 -2 0 -2 -2 -3 -2 -1 -2 -1 -3 -2 0 -2 -1 -1 0 -1 2 -1 0 0 -2 -1 0 -1 -2 1 -1 -1 -2 1 0 1 0 2 -1 0 1 1 -1 1 -1 2 1 1 -1 0 -1zM538 130l2 -1 -1 3 1 1 -1 2 -2 -2 -1 0 -4 -2 0 -1 4 0 2 0zM522 121l1 -1 2 2 0 4 -1 0 -1 1 -1 -1 -1 -4 0 -1 1 0z","DK":"M523 77l-1 0 -2 0 -1 -2 0 -3 0 -1 1 -1 2 0 1 -1 1 -1 0 2 0 1 0 1 1 0 0 1 -1 0 -1 2 0 2zM529 73l1 2 -1 2 -3 -1 0 -2 3 -1z","GB":"M493 82l0 -2 -2 -2 -2 -1 -1 -1 1 -1 -1 -1 -1 2 0 -3 -1 -2 1 -3 1 -2 2 0 3 0 -2 3 2 0 2 0 0 2 -2 3 2 0 2 4 2 0 1 4 1 1 3 1 0 2 -1 0 0 2 -2 2 -3 0 -4 0 -1 0 -2 1 -2 0 -2 1 -1 0 4 -4 2 0 -4 -1 -1 -1 3 -1 -1 -2 0 -2 4 1zM485 80l-1 -1 -2 1 1 -2 -1 -2 2 0 3 2 -2 2z","IS":"M469 43l-1 2 2 2 -3 2 -6 2 -2 1 -3 -1 -6 -1 2 -1 -4 -1 4 -1 0 -1 -5 0 2 -2 3 -1 3 2 4 -1 2 1 4 -2 4 0z","AZ":"M618 118l1 0 2 2 1 0 0 -1 1 -1 2 2 2 2 1 0 1 1 -2 0 0 3 0 1 -1 0 0 2 -2 -1 0 -2 -1 -1 -1 0 -2 3 -1 -3 -1 0 -1 -1 0 -1 -1 -1 0 -1 -1 0 0 -1 0 -1 2 1 2 0 -2 -2 1 0zM619 128l-2 -1 -1 -1 -1 -1 1 0 1 0 1 1 1 2z","GE":"M601 113l0 -1 2 1 4 0 4 2 2 0 2 1 1 1 2 1 -1 0 2 2 -2 0 -2 -1 0 1 -4 0 -3 -1 -2 0 0 -2 -1 -2 -2 -1 -1 0 -1 -1z","PH":"M835 194l-1 1 2 3 -1 2 -1 1 0 3 1 3 1 0 2 0 3 1 0 2 1 1 0 1 -2 -1 -1 -2 -1 1 -2 -2 -2 1 -2 -1 0 -1 1 -1 -1 -1 0 1 -2 -1 -1 -2 0 -3 1 1 0 -5 0 -3 2 0 1 1 1 -1 1 1zM850 226l0 2 1 2 -1 3 -1 -4 -2 2 2 2 -1 2 -4 -2 0 -2 0 -2 -2 -2 0 2 -2 0 -2 2 0 -1 1 -3 1 -1 2 -1 1 1 2 -1 0 -1 2 0 0 -3 2 2 1 1 0 2zM839 221l1 -1 0 -2 1 0 0 2 2 -3 0 3 -1 1 -1 2 -1 1 -2 -3 1 0zM846 214l1 3 -2 -1 0 1 1 2 -1 1 0 -2 -1 0 -1 -2 2 0 0 -1 -2 -3 2 0 1 2zM828 223l-4 3 2 -2 1 -2 2 -3 1 -3 1 3 -2 2 -1 2zM837 216l-1 -2 2 1 2 0 0 2 -1 1 -2 1 0 -1 0 -2zM833 212l-2 -3 3 0 1 2 0 2 -2 -1z","MY":"M827 239l-2 0 -3 0 -1 3 -1 2 -2 4 -2 1 -3 -1 -1 0 -1 2 -2 0 -2 0 -2 -2 0 -2 2 1 2 0 0 -3 1 -1 4 0 2 -3 1 -2 1 2 1 -1 1 0 0 -2 0 -2 2 -2 2 -3 1 0 1 2 0 1 2 1 3 1 -1 2 -1 0 0 1 -2 1zM777 232l1 -1 2 2 1 1 1 0 1 -1 1 0 2 2 1 2 0 2 0 2 0 1 0 2 1 1 2 2 0 2 -2 0 -3 -3 -3 -2 -1 -2 -1 -2 -1 -3 -1 -1 0 -3 -1 -1z","SI":"M534 103l2 0 2 -1 2 0 1 0 0 1 -2 1 0 1 -1 0 0 1 -1 0 -1 0 -2 0 1 0 -1 -2 0 -1z","FI":"M560 36l0 2 4 2 -2 2 4 3 -1 2 2 3 -1 1 4 2 0 2 -2 2 -4 3 -4 1 -4 1 -4 0 -1 -1 -3 -1 0 -3 -1 -3 1 -2 2 -1 4 -3 1 -1 0 -1 -3 -1 -1 -2 -1 -4 -3 -2 -3 -1 1 -1 2 2 3 0 2 0 2 -1 1 -2 3 -1 3 1 -1 2z","SK":"M555 95l0 1 -1 1 -3 -1 -1 0 0 1 -1 1 -1 -1 -1 1 -1 0 0 1 -2 0 -1 0 -1 -1 -1 -1 1 -1 1 0 1 -1 0 -1 1 0 1 0 1 -1 1 1 2 0 1 0 2 0 2 1z","CZ":"M536 89l2 1 1 0 0 1 2 0 2 0 0 1 2 0 1 2 -1 0 -1 0 0 1 -1 1 -1 0 -2 0 -1 0 -2 -1 -1 0 -1 2 -2 -1 -1 -2 -1 -1 -1 -1 0 -1 1 -1 1 0 2 -1 1 0 1 0z","JP":"M865 126l-1 4 2 3 0 2 1 2 0 2 -3 2 -5 0 -2 4 -2 -1 -1 -3 -5 1 -2 1 -3 0 3 3 1 5 -2 2 -1 -2 -1 -3 -2 0 -2 -3 3 -1 0 -2 2 -1 1 -3 5 -1 3 1 0 -6 3 2 2 -3 1 -2 0 -4 -2 -3 0 -2 2 -1 4 5 1 2zM864 111l1 -1 2 3 -3 1 0 3 -6 -2 1 4 -3 0 -2 -4 0 -2 3 0 -2 -5 -1 -2 5 3 3 1 2 1zM848 145l1 -2 1 0 1 -1 2 1 1 1 -1 2 -1 -1 -1 0 0 2 -2 -1 -1 -1z","PY":"M341 318l1 1 1 5 3 0 1 0 2 1 0 1 1 3 0 1 1 0 1 -1 1 1 0 2 0 2 0 2 0 2 -2 3 -2 0 -3 0 -3 -1 2 -5 -1 -1 -3 -2 -3 -2 -2 0 -6 -6 1 -4 -1 -1 1 -3 5 -1 3 0 2 2 0 1z","SA":"M593 158l3 1 1 -1 1 -2 2 0 0 -1 1 -1 -3 -3 5 -2 1 0 3 1 4 2 8 7 5 0 3 0 0 2 2 0 2 2 1 1 1 1 2 2 0 1 0 1 0 1 1 1 1 1 0 1 1 1 1 -1 0 2 2 4 8 1 1 0 1 2 -1 6 -8 4 -8 1 -2 1 -2 4 -1 0 -1 -1 -1 0 -3 0 -3 0 -1 0 -1 -1 -1 2 0 1 -1 1 0 -1 -1 -1 0 -2 -2 -1 -1 -2 -1 -3 -2 -2 -2 -1 -2 -3 0 -2 0 -2 -2 -4 -1 -1 -2 -1 -1 -1 0 -1 -1 -2 0 -1 -2 -2 -2 -3 -1 -2 -1 0 0 -2 0 -1 0 -1z","MA":"M494 139l1 2 0 2 1 4 1 0 0 2 -4 0 -1 1 -2 1 0 2 -3 1 -1 2 -2 1 -3 0 -4 3 0 4 -1 0 0 1 -1 0 -1 1 -1 0 -1 0 -3 0 -1 3 -2 4 -4 3 -1 5 -1 1 0 1 -6 1 0 -2 1 -1 1 -1 0 -1 1 -3 1 -2 1 0 1 -2 0 -2 1 -2 2 -1 2 -3 1 -2 3 0 2 -2 1 -1 3 -3 -1 -4 1 -3 0 -1 2 -3 3 -1 2 -1 2 -4 1 -2 1 0 2 2 2 -1 3 1 1 0z","EG":"M600 182l-11 0 -10 0 -11 0 -1 -12 0 -12 -1 -2 0 -2 0 -2 1 -1 3 0 3 1 2 1 2 0 2 -1 1 -1 2 0 2 0 1 2 0 -1 2 1 3 0 1 -1 2 5 0 1 -1 1 0 2 -1 2 0 1 -1 -1 -1 -2 -3 -5 0 1 1 3 2 3 3 5 1 2 1 2 2 4 0 2 4 3 0 1z","ET":"M632 227l-7 10 -4 0 -2 2 -2 0 -1 1 -2 0 -1 -1 -2 1 -1 2 -2 -1 -1 0 -1 0 -4 -3 -2 0 -1 -1 0 -1 -1 -1 -2 -4 -1 0 -1 -2 -1 -1 -2 0 1 -2 2 0 0 -1 0 -3 1 -3 1 -1 0 -2 1 -2 2 -2 1 -3 0 -3 3 1 1 -2 2 1 2 -1 0 1 2 0 3 1 0 1 2 1 1 2 1 1 -1 2 -1 1 0 1 0 1 2 0 1 0 0 1 0 1 1 1 1 2 1 1 9 4 2 0z","BA":"M547 115l-2 -1 -1 -1 -1 -1 -2 -1 0 -1 -2 -2 1 -1 1 1 0 -1 1 0 3 0 1 0 2 1 0 2 1 1 0 1 -1 0 0 1 -1 0 0 2z","MK":"M557 116l1 1 0 2 0 1 -2 0 -1 1 -1 0 -1 -1 -1 -1 0 -1 1 0 0 -1 1 0 1 -1 1 0 1 0z","RS":"M547 105l2 -1 1 0 2 1 0 1 2 1 0 1 2 1 1 0 -1 1 1 0 -1 1 1 1 1 1 -1 1 0 1 0 1 -1 0 -1 0 0 -1 -1 0 0 -1 -1 0 0 -1 -1 0 0 1 -1 1 0 -1 -1 0 0 -1 -1 0 -1 -1 1 0 0 -1 -1 -1 0 -2 0 -1 0 -1 -1 -1z"},"o":"M988 309l1 -1 0 1 -1 2 -1 1 -2 -1 0 -1 2 -1 1 0zM994 304l1 0 -1 2 -2 1 -2 0 0 -1 1 0 1 -1 2 -1zM6 304l1 0 0 2 -1 0 -1 1 -2 0 0 -1 1 0 1 -1 1 -1zM594 256l1 0 10 7 0 1 4 4 -2 4 1 1 1 2 0 2 0 1 -1 2 1 2 1 3 1 1 -2 2 -3 1 -2 0 -1 1 -1 0 -1 0 -4 -1 -2 1 0 -5 -1 -1 -1 -1 -2 -1 -2 -1 -2 0 -1 -1 -1 -1 -1 -4 -2 -1 0 -2 0 -2 -1 -3 2 0 1 -1 1 -2 0 -1 0 -1 0 -2 1 -2 -2 -2 1 0 4 0 5 0zM477 164l0 5 -9 0 0 8 -3 1 -1 1 1 5 -11 0 0 1 0 -1 6 -1 0 -1 1 -1 1 -5 4 -3 2 -4 1 -3 3 0 1 0 1 0 1 -1 1 0 0 -1 1 0zM892 261l4 2 5 2 2 2 2 1 0 2 4 2 1 2 -3 0 1 2 2 3 2 3 1 0 0 1 2 1 -1 0 3 2 -1 1 -1 0 -1 -1 -2 0 -3 -1 -2 -2 -1 -2 -2 -2 -3 -2 -2 1 -2 1 0 3 -2 1 -2 -1 -3 0 1 -10 1 -11zM920 271l-2 1 -1 1 -2 0 -2 -1 -2 -1 1 -1 2 1 2 -1 0 -1 1 0 0 1 1 0 1 -1 2 -1 0 -2 1 0 1 1 0 1 -1 2 -2 1zM924 264l1 1 0 2 -1 1 0 -2 -1 -1 -1 -1 -2 -2 -2 -1 1 0 2 1 1 0 1 1 1 1zM929 270l1 1 1 2 2 1 -1 1 -1 0 -1 -1 -1 -2 0 -3 0 1zM581 267l1 3 0 2 0 2 2 1 1 4 -1 0 -4 1 -1 2 0 2 0 3 -1 4 1 0 2 1 1 0 0 3 -2 0 -1 -1 -1 -2 -2 0 -1 -2 -2 1 -2 0 -1 -2 -2 0 -1 0 0 -1 -1 0 -1 0 -2 0 -1 0 -1 0 0 -4 0 -1 -1 -2 1 -2 -1 -1 0 -2 -3 0 0 -1 -1 0 0 1 -2 0 -1 2 -2 0 -1 0 -2 1 -1 -2 0 -1 -1 -2 -1 -2 -8 0 -1 0 -1 0 -1 0 0 -1 1 -1 0 -1 1 -1 1 0 1 -1 1 0 0 1 1 1 2 -2 2 -2 0 -1 0 -3 2 -3 1 -1 2 -2 0 -1 0 -1 1 -1 -1 -2 1 -3 0 -2 1 -2 0 -2 0 -2 2 -1 1 -1 2 1 2 1 2 0 2 1 1 -2 2 0 3 -2 1 1 1 0 0 -1 1 0 2 0 2 0 1 0 2 3 1 0 1 -1 1 1 1 -1 1 1 3 2 -1 4 2 1 -1 1 -1 1 -1 1 -1 2 0 2 -1 2 0 2 -1 1 0 2 0 2 0 1 0 4zM616 258l-2 -3 0 -11 2 -4 1 -1 2 0 2 -2 4 0 7 -10 2 -3 1 -2 0 -1 0 -4 0 -1 1 0 1 -1 2 0 1 -1 1 0 0 1 0 2 0 1 0 2 -1 3 -1 4 -2 4 -2 5 -2 3 -4 5 -2 2 -5 3 -2 3 -3 4 -1 1 0 1zM568 226l-2 -1 -1 -1 0 -1 0 -1 0 -2 -2 -2 0 -1 0 -1 -1 -1 0 -2 -1 -1 -1 0 1 -1 0 -1 0 -2 1 -1 -1 0 1 -2 1 -3 3 0 -1 -12 0 -2 3 0 0 -6 11 0 10 0 11 0 1 3 0 1 0 3 1 4 2 1 1 1 -1 2 -2 0 -1 1 0 2 -1 5 0 1 0 3 -1 3 -2 2 -1 2 0 2 -1 1 -1 3 0 3 0 -3 0 -1 -1 -2 -1 -1 -1 -2 1 -2 -2 -1 0 1 -1 0 0 1 0 2 -1 2 -1 2 -2 0 -2 -1 -1 0 0 1 -2 1 -3 0 -2 0 -1 0 -1 0 -1 -2 -1 -1 -2 1 0 1 -1 3 -1 1 -1 0 2 1zM565 190l1 12 -3 0 -1 3 -1 2 1 0 -1 1 0 2 0 1 -1 1 1 0 1 1 0 2 1 1 0 1 -2 0 -1 2 -2 3 -2 2 -3 0 -1 0 0 1 -1 1 -1 1 -4 2 0 -1 -1 0 0 1 -3 0 1 -1 -1 -2 -1 -2 -1 0 -1 -2 0 -2 1 1 1 0 2 0 -2 -3 0 -2 0 -3 -1 -2 0 -1 -2 0 0 -2 -1 -2 1 -4 4 -3 0 -4 1 -7 0 -1 -1 -1 0 -1 -1 -1 -1 -5 3 -2 11 6 11 7zM304 189l0 2 0 1 -1 1 1 1 0 1 -2 -1 -1 0 -2 0 -1 1 -2 -1 1 -1 2 0 2 0 1 0 -1 -2 0 -1 -1 -1 2 0 2 0zM289 171l1 1 1 2 -1 2 -1 -2 -1 0 1 -3zM288 166l1 0 2 0 0 1 -3 1 0 -2zM353 419l2 -2 2 1 1 -1 3 1 -1 1 -3 1 -1 -1 -2 1 -1 -1zM415 3l7 -2 6 1 3 -1 7 0 14 0 10 1 -3 1 -7 0 -10 1 1 0 6 0 5 0 4 0 2 0 -3 2 5 -1 9 -1 6 1 -7 2 -2 0 -6 1 5 0 -3 2 -2 1 0 3 2 1 -3 1 -3 0 3 2 0 2 -2 0 2 2 -4 0 2 1 -1 1 -3 1 -3 0 2 2 0 1 -4 -1 -1 0 3 1 2 2 1 2 -4 0 -1 -1 -3 -1 1 1 -3 2 5 0 3 0 -6 3 -6 2 -6 1 -3 0 -2 1 -4 3 -5 2 -1 0 -3 0 -4 1 -2 2 -1 2 -1 2 -4 2 0 2 -2 3 -2 2 -3 1 -3 -3 -4 0 -2 -1 0 -3 -3 -4 -1 -2 1 -2 -2 -3 1 -2 -1 -1 4 -3 3 -1 1 -1 2 -2 -3 1 -1 0 -3 0 -2 0 1 -2 1 -2 2 0 4 1 -3 -2 -1 -1 -3 1 -1 -1 3 -2 0 -1 -1 -2 -1 -3 -3 -1 1 -1 -5 -1 -4 -1 -5 1 -5 0 -2 -1 -2 -2 6 0 3 -1 -7 0 -4 -1 1 -1 8 -1 8 -1 1 -1 -5 -1 3 -1 7 -1 3 -1 0 -1 5 0 6 0 5 0 2 0 6 -1 3 1 3 0 3 1 -3 -1 0 -1zM669 409l1 1 3 0 -1 1 -1 1 -3 1 0 -2 1 -1 0 -1zM846 281l3 -1 2 0 1 -1 1 1 -2 1 -3 1 -2 1 0 -1 0 -1zM577 346l1 1 -1 2 0 1 -2 0 0 1 -1 0 -2 -2 1 -2 2 -1 1 -1 1 1zM286 225l0 2 -1 1 -1 1 -1 0 0 -2 1 -1 -1 0 -1 -1 -1 -1 -1 0 -1 1 -1 1 -1 0 0 1 1 1 0 1 -1 0 -1 0 -1 -1 -1 0 0 -1 -1 -1 -1 0 -1 0 0 1 -1 -1 1 -1 0 -1 0 -2 1 0 1 1 -1 1 2 0 1 0 1 0 1 -1 2 0 1 -1 1 0 2 0 1 1 1 1 1 1zM269 218l-1 0 -1 0 0 -1 -1 0 -1 0 -1 0 -1 0 -1 -1 -1 -1 0 -1 -1 -1 -2 -2 1 0 1 0 1 -1 0 -2 1 0 1 0 1 0 1 -1 1 0 0 -1 1 -1 0 1 1 0 0 -1 1 0 1 0 1 -1 0 1 0 2 -1 1 0 1 0 1 0 1 0 2 -1 0 0 1 0 1 -1 1 1 1 0 1zM271 204l-1 1 -1 0 -1 0 0 1 -1 0 0 -1 -1 1 0 1 -1 0 -1 1 -1 0 -1 0 -1 0 0 2 -1 1 -1 0 0 -1 -1 0 0 -2 -2 0 0 -1 -1 0 -1 -1 1 -1 0 -1 1 -1 2 -1 1 0 1 0 1 0 2 0 1 0 0 -1 1 0 0 1 1 -1 1 0 1 1 1 0 1 1 1 1zM254 206l1 1 1 0 0 1 2 0 0 2 -2 0 -1 0 -1 -1 -1 0 -1 0 0 -1 1 -1 1 0 0 -1zM246 206l1 -1 0 -1 1 -3 4 0 0 -1 -1 -1 -1 -1 -1 -1 2 0 0 -2 3 0 2 0 0 3 -1 4 1 0 1 0 1 0 -2 1 -1 1 0 1 -1 1 0 1 -1 0 -1 1 0 1 -1 -1 -2 0 -1 -1 -2 -1zM256 195l1 0 1 -2 1 0 0 1 0 1 -1 1 0 2 0 1 -1 1 -1 2 -1 0 1 -4 0 -3zM343 247l-1 0 -1 -1 -1 1 -1 1 -1 0 -1 1 -1 -1 -2 -1 0 -2 -1 -1 1 -3 1 -1 -1 -2 -1 0 1 -1 -1 -1 -1 0 -2 -2 0 -1 0 -2 2 0 1 -1 -1 -1 0 -1 3 -2 1 1 2 2 0 2 1 0 1 1 2 1 -1 3 -2 1 0 1 0 2 1 2 1 0 0 2 2 3zM349 245l-2 0 -1 0 -1 0 -1 1 1 0 -1 1 -1 0 -2 -3 0 -2 -1 0 -1 -2 0 -2 0 -1 2 -1 1 -3 3 1 2 -1 3 1 -1 3 0 2 1 2 0 1 -1 2 0 1zM319 193l1 0 1 1 -1 1 -2 0 -2 0 0 -1 1 -1 2 0zM288 193l2 0 1 1 0 1 -1 0 -1 1 -2 -1 -1 -1 0 -1 1 0 1 0zM585 324l-2 0 -1 0 -1 0 -1 0 -2 -2 -2 0 -1 -2 1 -1 -2 -1 -3 -3 0 -2 -1 -1 -1 -2 3 0 1 0 1 0 2 -2 2 -2 1 -1 0 -1 2 -1 2 0 0 1 3 0 1 0 0 1 2 0 1 1 0 5 -1 2 0 2 0 1 0 2 -1 3 -3 3zM580 324l-4 2 -3 3 -1 2 -1 1 -1 0 -1 2 0 1 -2 1 -2 -1 -1 -1 -1 0 -2 1 0 1 -2 1 -1 2 -2 0 0 -1 0 -2 -2 -3 0 -1 0 -9 3 0 0 -12 2 0 4 -1 1 2 2 -2 1 0 2 0 1 2 1 1 0 2 3 3 2 1 -1 1 1 2 2 0 2 2zM554 332l-1 12 -2 2 -2 0 -1 0 -2 -1 0 -1 -1 -1 -1 2 -2 -3 -1 -2 -1 -3 0 -3 -1 -4 0 -4 0 -2 -1 -1 -2 -3 -1 -4 -1 -2 -2 -3 0 -3 1 0 2 -1 2 0 2 2 11 -1 2 2 6 0 6 -1 2 -1 2 1 1 0 0 1 -2 0 -1 0 -2 2 -1 -2 -4 1 -2 0 0 12 -3 0 0 9zM454 185l0 -1 11 0 -1 -5 1 -1 3 -1 0 -8 9 0 0 -5 10 8 -4 0 1 14 1 14 0 1 0 2 -11 0 -1 1 -1 -1 -1 1 -2 -1 -1 0 -1 2 0 1 -2 -3 -2 -2 -2 -1 -1 -1 -2 0 -1 1 -1 0 -1 1 0 -2 0 -2 1 -3 0 -3 -1 -1 1 -2 -1 -2 -1 -1zM507 233l-2 0 -1 -2 1 -8 -1 0 0 -2 -1 -1 -1 -1 0 -2 1 0 1 -1 1 -1 1 -1 1 -1 1 0 2 2 0 1 0 2 0 1 0 1 -1 2 -1 1 0 2 0 2 -1 6zM540 179l1 5 1 1 0 1 1 1 0 1 -1 7 0 4 -4 3 -1 4 1 2 0 2 2 0 0 1 -1 1 0 1 -2 -4 -1 0 -2 2 -2 -1 -2 0 -1 0 -1 0 -2 1 -1 0 -4 -1 -1 1 -1 0 -1 -2 -3 -1 -3 0 -1 1 0 2 -1 1 0 3 -2 -2 -1 0 -1 1 0 -2 -3 -1 0 -1 -2 -2 0 -2 0 -1 2 0 1 -2 4 0 2 0 0 -2 2 -3 0 -7 3 -1 8 -7 9 -6 5 1 1 2 2 -1zM540 211l1 2 0 3 0 2 2 3 -2 0 -1 0 -1 -1 0 2 1 2 1 0 1 2 1 2 -1 1 -1 3 -1 1 0 2 0 2 2 2 0 1 1 2 1 1 0 1 0 1 0 2 -2 -1 -2 0 -4 -1 -2 1 -1 -1 -2 0 -4 0 0 -2 -1 -2 -1 -1 -1 -1 0 -1 0 -1 0 -2 2 -3 2 -2 1 0 2 1 2 -1 0 -1 0 -1 1 -2 1 -1 1 -3 1 -2 1 -2 2 -3 0 -1 -1 -1 0 -1 1 -1zM502 217l0 2 1 1 1 1 0 2 1 0 -1 8 1 2 -2 1 -1 -2 0 -2 -1 -1 1 -3 -1 -1 0 -3 0 -2 -1 -2 0 -1 2 0zM462 212l2 0 2 1 2 0 0 1 1 0 1 -1 0 1 1 0 1 1 1 -1 1 -1 1 0 0 1 1 1 1 1 -1 1 0 1 1 0 0 1 1 1 -1 0 0 1 1 2 0 2 -1 1 0 1 0 1 -1 0 -1 1 -1 0 0 -1 0 -1 -1 -2 -1 1 -1 0 0 -1 0 -1 0 -1 -1 -1 -1 -2 -2 0 -1 1 -1 1 0 1 -2 1 -1 -2 -1 -1 -1 -1 -1 -2 -1 -1 1 -1 1 0 1 -1 1 0 0 -1 0 -1 0 -1zM454 213l1 -1 1 0 1 0 5 0 0 1 0 1 0 1 -1 0 -1 1 -1 0 -1 1 -1 -1 -1 0 -1 -1 0 -1 -1 0 0 -1zM477 228l-1 1 1 1 -1 2 1 1 1 0 1 1 0 2 0 3 -1 0 -3 -2 -2 -2 -3 -2 -2 -2 1 -1 0 -1 1 -2 2 -1 1 -1 1 2 0 1 0 1 1 0 1 -1 1 0zM463 224l2 -1 0 -1 1 -1 1 -1 2 0 1 2 1 1 0 1 0 1 0 1 1 0 -2 1 -1 2 0 1 -1 1 -2 -2 -2 -1 0 -2 -1 -2zM576 236l-1 0 -2 0 -2 0 -1 0 0 1 -1 0 -1 -1 -3 2 -2 0 -1 2 -2 -1 -2 0 -2 -1 -2 -1 -1 1 -2 1 0 2 -2 0 -1 0 -2 1 -2 3 0 -1 0 -1 -1 -1 -1 -2 0 -1 -2 -2 0 -2 0 -2 1 -1 1 -3 3 0 0 -1 1 0 0 1 4 -2 1 -1 1 -1 0 -1 1 0 3 0 2 -2 2 -3 1 -2 2 0 0 1 2 2 0 2 0 1 0 1 1 1 2 1 2 2 0 1 1 1 2 2 0 2 2 1 1 1zM551 241l0 2 -1 2 0 2 -1 3 1 2 -1 1 0 1 0 1 -2 2 -1 1 -2 3 0 3 0 1 -2 2 -2 2 -1 -1 0 -1 -1 0 -1 1 -1 0 -1 -1 -1 0 -1 2 -2 -4 2 -1 -1 -2 1 -1 2 -1 0 -1 1 1 3 1 1 -2 0 -2 0 -3 -2 -1 2 -4 -1 -1 -2 0 -1 -1 0 -2 4 1 2 0 2 1 0 -2 2 -3 2 -1 1 0 2 0zM531 245l2 0 1 1 2 -1 0 2 1 1 2 0 1 1 -2 4 2 1 0 3 0 2 -1 2 -3 -1 -1 -1 0 1 -2 1 -1 1 1 2 -2 1 -3 -3 -2 -2 -2 -4 1 -1 0 -1 1 -2 0 -3 1 0 4 0 0 -4zM527 245l4 0 0 4 -4 0 -1 0 1 -4zM585 279l1 1 1 1 2 0 2 1 1 2 1 3 -1 0 -1 3 1 3 -1 1 -1 3 1 1 -8 2 0 3 -2 0 -2 1 0 1 -1 1 -2 2 -2 2 -1 0 -1 0 -3 0 0 -1 -1 0 -2 -1 -2 1 -2 -2 -2 -3 0 -10 6 0 0 -1 0 -1 0 -2 0 -1 0 -1 1 0 0 1 1 0 2 0 1 2 2 0 2 -1 1 2 2 0 1 2 1 1 2 0 0 -3 -1 0 -2 -1 -1 0 1 -4 0 -3 0 -2 1 -2 4 -1 1 0zM591 282l2 1 1 1 1 1 0 5 0 2 0 4 1 0 1 1 1 3 0 4 -1 0 -1 3 -2 -2 0 -3 1 -1 0 -1 -1 -1 -1 0 -2 -1 -1 -1 1 -3 1 -1 -1 -3 1 -3 1 0 -1 -3 -1 -2zM595 290l2 -1 4 1 1 0 1 0 1 -1 2 0 3 -1 2 -2 1 1 0 3 0 3 0 5 0 2 -1 2 -1 2 -2 2 -2 2 -4 1 -3 4 -1 0 -2 3 -1 0 0 3 1 2 0 2 0 1 1 0 -1 3 0 1 0 1 0 1 -1 2 -3 1 -3 1 -1 2 0 1 0 2 -2 0 0 -2 0 -1 0 -1 0 -4 0 -2 -1 -5 3 -3 1 -3 0 -2 0 -1 0 -2 1 -2 0 -5 -1 -1 -2 0 0 -1 -1 0 -3 0 0 -1 0 -3 8 -2 2 1 1 0 1 1 0 1 -1 1 0 3 2 2 1 -3 1 0 0 -4 -1 -3 -1 -1 -1 0 0 -4 0 -2zM586 339l-1 1 -1 1 -2 -2 0 -1 1 -1 1 -1 0 -1 2 1 0 1 0 2zM534 272l1 0 1 0 1 0 8 0 1 2 1 2 0 1 1 2 2 -1 1 0 2 0 1 -2 2 0 0 -1 1 0 0 1 3 0 0 2 1 1 -1 2 1 2 0 1 0 4 1 0 1 0 2 0 1 0 0 1 0 1 0 2 0 1 0 1 -6 0 0 10 2 3 2 2 -6 1 -6 0 -2 -2 -11 1 -2 -2 -2 0 -2 1 -1 0 0 -2 0 -3 1 -2 0 -2 1 -3 1 -1 2 -2 1 -2 0 -2 0 -2 -1 -1 -1 -2 0 -2 0 -1 1 -1 -1 -3 -1 -2 -1 -2 0 -1zM536 268l-1 1 0 1 -1 1 -1 -2 1 -2 1 0 1 1zM585 260l0 2 0 1 0 1 -1 2 -1 1 -2 0 0 -4 0 -1 1 0 1 -2 2 0zM637 293l0 1 1 2 0 4 1 2 -1 1 0 1 -1 -2 -1 1 1 3 -1 1 0 1 -1 2 -1 4 -2 5 -2 6 -1 4 -2 4 -2 1 -3 1 -1 -1 -2 -1 -1 -2 0 -2 -1 -3 0 -2 1 -3 1 0 0 -1 2 -3 0 -2 0 -1 -1 -2 0 -3 1 -2 1 -2 1 0 2 -1 1 -1 1 0 2 -1 2 -2 1 -2 0 -1 1 0 2 -2 0 -2 1 -2 1 2zM594 151l-2 1 1 -1 0 -1 -1 0 1 -2 1 0 0 2 0 1zM454 209l3 0 1 -1 2 1 1 -1 1 1 -1 1 -2 0 -1 -1 -1 1 -1 0 -2 0 0 -1zM637 173l0 -2 0 -2 1 0 1 1 0 1 0 2 -1 1 -1 -1zM628 156l0 1 0 1 1 3 -2 0 0 -2 -3 0 2 -3 2 0zM650 180l0 -2 0 -1 0 -1 1 -1 0 -1 0 -2 1 0 2 3 1 1 2 0 2 1 1 2 1 1 1 0 0 1 -1 2 0 1 -1 1 -1 2 -1 0 0 1 -1 1 1 2 0 1 -2 0 -1 1 0 1 -1 1 -2 0 -1 1 0 1 -1 1 -1 0 -2 1 -1 0 -1 -2 -3 -5 8 -4 1 -6 -1 -2zM795 207l-2 -1 -1 2 -2 -1 0 -2 0 -2 -3 -3 0 -3 -3 -3 -2 0 0 1 -2 0 -1 -1 -2 2 -1 -3 0 -3 -2 0 0 -2 -1 -1 0 -1 2 -2 2 1 -1 -4 1 -1 2 3 2 3 3 0 2 3 -2 1 0 1 3 2 3 3 2 3 3 2 1 3 -1 3zM831 116l1 1 -1 -1 -1 1 0 2 1 2 -1 1 -1 1 -1 1 -1 0 1 2 1 1 2 1 0 1 -1 0 -2 0 0 2 -2 0 -1 -1 0 1 -1 0 -1 -1 -1 0 0 -2 1 0 -1 -1 0 -1 0 -1 -2 0 -1 -1 1 -2 2 -2 0 -2 2 1 2 0 -1 -2 3 -1 1 -2 2 2zM745 163l2 1 0 2 -2 0 -3 0 -1 1 -3 -2 1 -3 2 -1 2 1 1 0 1 1zM672 132l2 0 2 1 1 0 1 -1 1 1 1 -2 1 0 1 0 0 -1 1 -1 1 0 0 1 1 0 0 3 2 1 0 -1 1 0 2 -1 2 0 2 0 1 1 -2 0 -1 1 -3 0 -2 1 -1 1 0 2 1 1 -1 2 0 1 0 1 -3 0 2 2 -2 1 0 2 0 2 -1 1 -1 -1 -2 1 0 1 -2 0 -1 2 0 2 -3 2 -2 -1 0 1 -2 0 -2 0 -5 -1 2 -3 -1 -3 -2 0 0 -2 -2 -3 1 -1 -1 -1 0 -2 1 -4 3 1 1 -1 1 -1 2 0 1 -1 0 -3 2 -1 0 -1 2 1zM676 133l1 -3 -1 -3 -3 -1 1 -1 2 0 1 -2 0 -2 3 0 0 1 1 1 1 0 -1 1 -3 -1 0 2 3 0 4 1 4 0 2 2 2 1 0 1 1 2 -2 0 -2 0 -2 1 -1 0 0 1 -2 -1 0 -3 -1 0 0 -1 -1 0 -1 1 0 1 -1 0 -1 0 -1 2 -1 -1 -1 1 -1 0zM680 116l0 -1 2 0 4 1 0 -2 1 -1 4 1 1 0 4 0 4 1 2 1 1 0 0 1 -3 2 -1 1 -3 0 0 2 -3 0 -2 1 -2 1 1 1 -1 1 -4 0 -4 -1 -3 0 0 -2 3 1 1 -1 2 0 2 -2 -3 -2 -2 1 -2 -1 2 -2 -1 -1zM633 118l1 -1 3 -1 2 1 2 3 2 -1 2 0 0 -1 2 -1 1 -2 4 2 1 2 1 1 3 0 1 0 2 4 3 2 2 1 3 2 4 1 0 2 -2 -1 0 1 -2 1 0 3 -1 1 -2 0 -1 1 -1 1 -3 -1 -1 -3 -2 0 -4 -3 -2 0 -3 -2 -2 0 -1 0 -2 0 -1 2 -2 1 -1 -3 0 -3 -3 -1 1 -2 -2 0 0 -3 3 1 2 -1 -3 -2 -1 -2 -2 1 1 2 -2 -2zM594 147l0 -2 1 -1 1 -2 -1 -1 -1 0 0 -3 0 -1 1 -1 0 -2 1 1 3 -1 2 0 2 0 3 -1 1 0 3 0 -1 2 -2 0 1 3 -1 4 -5 3 -5 3 -3 -1zM951 321l2 2 1 1 -2 1 -1 -1 -1 -2 -2 -1 -1 -3 0 -1 1 0 1 2 1 1 1 1zM942 278l1 1 0 1 -2 -1 -2 -1 -1 -1 1 -1 1 1 2 1zM947 284l-2 -3 0 -2 1 0 0 3 1 2zM945 284l-1 0 -2 0 0 -2 2 1 0 1 1 0zM820 235l0 2 0 2 -1 0 -1 1 -1 -2 1 -1 2 -2zM600 206l0 -1 1 -5 0 -2 1 -1 2 0 1 -2 2 3 1 3 1 2 4 3 2 2 1 2 1 1 2 1 -1 1 -1 -1 -1 -1 -1 -2 -2 -1 0 -1 -3 -1 -2 0 0 -1 -2 1 -2 -1 -1 2 -3 -1zM642 192l3 5 1 2 -2 1 -1 1 0 2 -2 1 -5 1 -2 3 -1 0 -1 0 -2 1 -1 1 -3 0 -1 1 -1 0 0 1 -1 0 -1 0 -2 0 -1 -2 0 -2 0 -1 -1 -2 -1 -1 1 0 -1 -2 1 -1 -1 -1 1 -1 0 -1 1 -2 1 1 1 0 3 0 3 0 1 0 1 1 1 0 2 -4 2 -1 8 -1zM586 139l0 1 1 -1 1 1 1 -1 0 1 -3 1 -1 0 -1 -2 2 0zM568 182l0 6 -3 0 0 2 -11 -7 -11 -6 -3 2 -2 1 -1 -2 -5 -1 -1 -2 -2 -1 -1 0 -1 -2 0 -1 -2 -2 1 -2 0 -2 0 -2 0 -1 0 -3 0 -1 -1 -3 1 -1 1 -1 -1 -1 2 -2 1 -1 1 -1 0 -2 3 1 1 0 3 0 3 2 2 3 2 0 4 1 3 2 1 -1 1 -1 -1 -3 1 -1 2 -2 2 0 3 0 1 2 1 0 1 0 3 1 1 1 -1 1 0 2 0 2 1 2 0 12 1 12zM617 212l1 1 1 -1 0 1 0 1 -1 1 1 1 -1 2 0 -1 -1 0 -2 0 0 -1 0 -1 1 -1 1 -2zM635 216l0 1 0 4 0 1 -1 2 -2 3 -2 0 -9 -4 -1 -1 -1 -2 -1 -1 0 -1 1 -2 1 0 1 2 1 1 1 0 3 -1 3 0 2 -1 2 0 1 -1 1 0zM594 256l-5 0 -4 0 -1 0 -1 1 -1 0 0 -2 1 -2 0 -2 1 -2 1 -1 1 -1 1 -1 -2 -1 1 -4 1 0 2 0 2 -1 2 0 1 -1 2 2 0 2 1 4 -1 2 -1 2 -1 1 0 4zM584 256l2 2 -1 2 -2 0 -1 2 -1 0 0 -2 0 -2 1 -1 1 0 1 -1zM551 115l-1 1 0 -1 -1 2 0 1 0 -1 -1 -1 -1 0 0 -1 0 -2 1 0 0 -1 1 1 1 0 0 1 1 0 0 1zM552 118l0 -1 -1 -1 0 -1 1 -1 0 -1 1 0 0 1 1 0 0 1 1 0 0 1 -1 1 -1 0 0 1 -1 0zM330 218l1 0 1 0 0 2 -3 1 0 -1 1 -1 0 -1zM586 241l-3 -2 -1 -1 -1 1 -1 -1 -1 1 -1 0 -2 -3 -1 -1 -2 -1 0 -2 -2 -2 -1 -1 0 -1 -2 -2 -2 -1 1 0 1 -1 1 -3 0 -1 2 -1 1 1 1 2 1 0 1 0 2 0 3 0 2 -1 0 -1 1 0 2 1 2 0 1 -2 1 -2 0 -2 0 -1 1 0 0 -1 2 1 -1 2 1 2 1 1 1 2 0 1 0 3 0 1 -2 0 -1 2 2 0 1 1 1 2 1 0 2 4 -2 2 -2 2 -1 1 -2 0 -2 1 -2 0 -1 0z","m":{"HK":[810,181],"SG":[788,248]}};
@@ -1695,9 +1686,9 @@ function kgToggleBookmark(id, film) {
   const enabled = !ids.includes(id);
   if (!Number.isSafeInteger(id) || id <= 0) return false;
   const details = store.get("kgBookmarkFilms",{}) || {};
-  if (enabled && film?.title) {
+  if (enabled && movieCatalog.allows({...film,id}) && film.title) {
     details[id] = {
-      id,title:film.title,original:film.original_title || film.original || "",
+      id,adult:film.adult,title:film.title,original:film.original_title || film.original || "",
       year:String(film.release_date || film.year || "").slice(0,4),
       poster:film.poster_path || film.poster || "",cc:film._cc || film._kgCountry || film.cc || ""
     };
@@ -1721,6 +1712,7 @@ function kgBookmarkButton(film,position = "") {
   const id = Number(film?.id);
   if (!Number.isSafeInteger(id) || id <= 0) return "";
   const metadata = JSON.stringify({
+    adult:film.adult,
     title:film.title || film.original_title || film.original || film.name || "",
     original:film.original_title || film.original || "",
     year:String(film.release_date || film.year || "").slice(0,4),
@@ -1814,38 +1806,39 @@ paintCountryFilters();
 let apiKey=store.get("tmdbKey","");
 let seen=new Set(store.get("seen",[]));
 let watched=store.get("watched",[]);
-if(!Array.isArray(watched)) watched=[];
+watched=Array.isArray(watched)?watched.map(movieCatalog.savedFilm).filter(Boolean):[];
 let visited=store.get("visited",{});
 let lastCC=store.get("lastCC","");
 let fx=store.get("fx",true);
-let showAdult=store.get("showAdult",true);
 let filmSpin=store.get("filmSpin",true);
 const savedReelStyle=store.get("reelStyle","35mm");
 let reelStyle=["cassette","projection"].includes(savedReelStyle)?savedReelStyle:"35mm";
 if(savedReelStyle!==reelStyle)store.set("reelStyle",reelStyle);
 let playMode=store.get("playMode","filters")==="surprise"?"surprise":"filters";
-let surprise=store.get("surprise","light");
-if(!SURPRISE_NOTE[surprise]) surprise="light";
+const savedSurprise=store.get("surprise","light");
+let surprise=Object.hasOwn(SURPRISE_NOTE,savedSurprise)?savedSurprise:"light";
+if(surprise!==savedSurprise) store.set("surprise",surprise);
 let themeId=store.get("theme","");
 if(!THEMES.some(t=>t.id===themeId)) themeId="";
 const cache={}; let cur=null; // {cc, pool, film}
 
-const NOGENRE=["adult","worst"];
-const sel=new Set(store.get("cats",[]));
-if(sel.delete("erotic"))sel.add("adult");   // old separate "erotic" category is now part of 18+
+const NOGENRE=["worst"];
+const savedCategories = store.get("cats",[]);
+const sel = new Set(Array.isArray(savedCategories)
+  ? savedCategories.filter(key => key === "worst" || Boolean(key && Object.hasOwn(GENRES, key)))
+  : []);
+if (Array.isArray(savedCategories) && sel.size !== savedCategories.length) store.set("cats", [...sel]);
 $("chips").innerHTML=`<button class="chip" data-k="any">🌐 Любой жанр</button>`
  +Object.entries(GENRES).filter(([k])=>k).map(([k,v])=>`<button class="chip" data-k="${k}">${v}</button>`).join("")
- +`<button class="chip" data-k="worst">📉 Худшие из худших</button>`
- +`<button class="chip" data-k="adult">🔞 Взрослое кино 18+</button>`;
+ +`<button class="chip" data-k="worst">📉 Худшие из худших</button>`;
 function paintChips(){
   const anyGenre=[...sel].some(k=>!NOGENRE.includes(k));
   document.querySelectorAll("#chips .chip").forEach(b=>{const k=b.dataset.k;
     b.setAttribute("aria-pressed",k==="any"?!anyGenre:sel.has(k));});
-  $("adultNote").hidden=!sel.has("adult");
   $("worstBox").hidden=!sel.has("worst");
   $("rmin").disabled=sel.has("worst");
   if($("rmax")) $("rmax").disabled=sel.has("worst");
-  const names=[...sel].map(k=>k==="worst"?uiText("худшие"):k==="adult"?"18+":uiText(GENRES[k]||"")).filter(Boolean);
+  const names=[...sel].map(k=>k==="worst"?uiText("худшие"):uiText(GENRES[k]||"")).filter(Boolean);
   if($("filterSum")) $("filterSum").textContent=names.length?"Категории · "+names.slice(0,3).join(", ")+(names.length>3?"…":""):"Категории";
   if($("extraSum")) paintExtraSum();
 }
@@ -2003,7 +1996,7 @@ function renderJourney(){
 }
 function filmRecord(cc,film){
   return {
-    id:film.id,title:film.title||"",
+    id:film.id,adult:film.adult,title:film.title||"",
     original:film.original_title&&film.original_title!==film.title?film.original_title:"",
     year:(film.release_date||"").slice(0,4),
     poster:film.poster_path||"",cc:cc||"",
@@ -2039,37 +2032,6 @@ jd.addEventListener("click",e=>{if(e.target===jd)closeJ();});
 function filmLabel(){$("filmTog").textContent=filmSpin?"Вкл":"Выкл";}
 $("filmTog").onclick=()=>{filmSpin=!filmSpin;store.set("filmSpin",filmSpin);filmLabel();};
 filmLabel();
-function adultVisLabel() {
-  const button = $("adultVis");
-  if (button) button.textContent = showAdult ? "Показаны" : "Скрыты";
-}
-function applyAdultVis(){
-  document.querySelectorAll('.chip[data-k="adult"]').forEach(b=>{b.hidden=!showAdult;});
-  if(!showAdult){sel.delete("adult");store.set("cats",[...sel]);}
-  adultVisLabel();paintChips();
-}
-function toggleAdultGenres() {
-  showAdult = !showAdult;
-  store.set("showAdult",showAdult);
-  applyAdultVis();
-}
-$("adultVis").onclick = toggleAdultGenres;
-applyAdultVis();
-let brandN=0, brandT=0;
-$("brand").onclick=()=>{
-  brandN++;
-  clearTimeout(brandT);
-  brandT=setTimeout(()=>{brandN=0;},1600);
-  if(brandN>=5){brandN=0;sessionStorage.setItem("kgx","1");location.href="extra.html";}
-};
-let keyBuf="";
-addEventListener("keydown",e=>{
-  const tag=e.target&&e.target.tagName;
-  if(tag==="INPUT"||tag==="TEXTAREA"||tag==="SELECT"||e.metaKey||e.ctrlKey||e.altKey) return;
-  if(e.key.length!==1) return;
-  keyBuf=(keyBuf+e.key.toLowerCase()).slice(-5);
-  if(keyBuf==="extra"){sessionStorage.setItem("kgx","1");location.href="extra.html";}
-});
 function setAppTheme(value) {
   const theme = APP_THEMES.includes(value) ? value : DEFAULT_APP_THEME;
   document.documentElement.dataset.kgTheme = theme;
@@ -2126,9 +2088,6 @@ window.KGResetSettings = () => {
   filmLabel();
   window.setCinemaReelStyle("35mm");
 
-  showAdult = true;
-  store.set("showAdult",showAdult);
-  applyAdultVis();
   themeId = "";
   store.set("theme",themeId);
   surprise = "light";
@@ -2177,10 +2136,8 @@ $("changeKey").onclick=()=>{apiKey="";store.set("tmdbKey","");showKeyUi();closeS
 $("resetHist").onclick=()=>{if(window.KGClearWatchHistory)window.KGClearWatchHistory();else{seen=new Set();store.set("seen",[]);watched=[];store.set("watched",watched);visited={};lastCC="";store.set("visited",visited);store.set("lastCC","");if(window.KGRefreshWatchedMap)window.KGRefreshWatchedMap();if(window.KGResetWatchedButton)window.KGResetWatchedButton();}updHist();};
 
 async function api(params,options={}){
-  const adult=playMode!=="surprise" && (sel.has("adult") || sel.has("erotic"));
   const result = await requestTmdb("discover/movie", {
     language: filmLocale,
-    include_adult: adult ? "true" : "false",
     sort_by: "vote_average.desc",
     ...params
   }, options);
@@ -2192,7 +2149,7 @@ async function requestTmdb(endpoint, params, options={}) {
   const q = new URLSearchParams({api_key: apiKey, ...params});
   const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),10000);
   let r;
-  try{r=await fetch("https://api.themoviedb.org/3/"+endpoint+"?"+q,{cache:options.fresh?"no-store":"default",signal:controller.signal});}
+  try{r=await movieCatalog.request("https://api.themoviedb.org/3/"+endpoint+"?"+q,{cache:options.fresh?"no-store":"default",signal:controller.signal});}
   catch(error){if(error.name==="AbortError")throw new Error("TMDB отвечает слишком долго. Повторите поиск.");throw error;}
   finally{clearTimeout(timeout);}
   if(r.status===401) throw new Error("Ключ не подошёл. Проверьте его и введите заново.");
@@ -2210,12 +2167,12 @@ async function takePool(base,minCount){
   return {films,total:p1.total_results};
 }
 function scoreFloor(o){
-  if(!o||o.worst||o.hard||o.wild) return 0;
+  if(!o||o.worst||o.wild) return 0;
   const n=parseFloat(o.rmin);
   return n>0?n:6;
 }
 function scoreCeil(o){
-  if(!o||o.worst||o.hard||o.wild) return 0;
+  if(!o||o.worst||o.wild) return 0;
   const n=parseFloat(o.rmax);
   return n>0?n:0;
 }
@@ -2230,7 +2187,6 @@ function withScore(got,floor,ceil){
 function poolBase(cc,o,t){
   const base={with_origin_country:cc,"vote_count.gte":t};
   if(o.g) base.with_genres=o.g;
-  if(o.kw) base.with_keywords=o.kw;
   if(o.worst){base.sort_by="vote_average.asc";base["vote_average.gte"]=1;base["vote_average.lte"]=4.9;}
   else{
     const floor=scoreFloor(o);
@@ -2242,32 +2198,7 @@ function poolBase(cc,o,t){
   if(o.yto) base["primary_release_date.lte"]=o.yto+"-12-31";
   return base;
 }
-async function pageOf(base){
-  const p1=await api({...base,page:1});
-  const pages=Math.min(p1.total_pages||0,500);
-  if(!pages) return null;
-  const page=1+Math.floor(Math.random()*pages);
-  const p=page===1?p1:await api({...base,page});
-  let films=p.results||[];
-  if(!films.length) films=p1.results||[];
-  if(!films.length) return null;
-  return {films,total:p1.total_results};
-}
-// A random year, then any film from it. One year stays inside TMDB's page limit, so nothing in that year is dropped for low votes.
-async function sampleAll(cc){
-  const span=new Date().getFullYear()-1894;
-  const year=()=>1895+Math.floor(Math.random()*span);
-  const dated=y=>({with_origin_country:cc,include_adult:"true",sort_by:"primary_release_date.asc",
-    "primary_release_date.gte":y+"-01-01","primary_release_date.lte":y+"-12-31"});
-  return await pageOf(dated(year()))||await pageOf(dated(year()))
-    ||await pageOf({with_origin_country:cc,include_adult:"true",sort_by:"primary_release_date.asc"});
-}
 async function buildPool(cc,o){
-  if(o.hard){
-    const got=await sampleAll(cc);
-    if(!got) return null;
-    return {films:got.films,votes:0,total:got.total,hard:true};
-  }
   if(o.wild){
     const base={with_origin_country:cc,"vote_count.gte":10,sort_by:"popularity.desc"};
     const p1=await api({...base,page:1});
@@ -2293,36 +2224,30 @@ async function buildPool(cc,o){
     return null;
   }
   const floors=o.light?(BIG.has(cc)?[800,200,50]:[200,50,20]):[20];
-  const certList=o.certs||[null];
   const floor=scoreFloor(o);
-  for(const cert of certList){
-    for(const t of floors){
-      const base=poolBase(cc,o,t);
-      if(cert){base.certification_country=cc;base["certification.gte"]=cert;}
-      const got=withScore(await takePool(base,MAX_POOL),floor,scoreCeil(o));
-      if(got) return {films:got.films,votes:t,total:got.total,worst:!!o.worst,light:!!o.light,byRating:true,scoreMin:floor||""};
-    }
-    const base=poolBase(cc,o,1);
-    if(!o.worst) base.sort_by="vote_count.desc";
-    if(cert){base.certification_country=cc;base["certification.gte"]=cert;}
-    const got=withScore(await takePool(base,MIN_POOL),floor,scoreCeil(o));
-    if(got) return {films:got.films,votes:1,total:got.total,worst:!!o.worst,light:!!o.light,anyVotes:true,scoreMin:floor||""};
+  for(const t of floors){
+    const base=poolBase(cc,o,t);
+    const got=withScore(await takePool(base,MAX_POOL),floor,scoreCeil(o));
+    if(got) return {films:got.films,votes:t,total:got.total,worst:!!o.worst,light:!!o.light,byRating:true,scoreMin:floor||""};
   }
+  const base=poolBase(cc,o,1);
+  if(!o.worst) base.sort_by="vote_count.desc";
+  const got=withScore(await takePool(base,MIN_POOL),floor,scoreCeil(o));
+  if(got) return {films:got.films,votes:1,total:got.total,worst:!!o.worst,light:!!o.light,anyVotes:true,scoreMin:floor||""};
   return null;
 }
 
 function currentQuery(){
   if(playMode==="surprise"){
-    if(surprise==="find") return {g:pick(GENRE_IDS),find:true,adult:false,worst:false,rmin:"",rmax:"",y:"",yto:"",theme:"",themeName:""};
-    if(surprise==="wild") return {g:"",wild:true,adult:false,worst:false,rmin:"",rmax:"",y:"",yto:"",theme:"",themeName:""};
-    if(surprise==="hard") return {g:"",hard:true,adult:false,worst:false,rmin:"",rmax:"",y:"",yto:"",theme:"",themeName:""};
-    return {g:pick(GENRE_IDS),light:true,adult:false,worst:false,rmin:"",rmax:"",y:"",yto:"",theme:"",themeName:""};
+    if(surprise==="find") return {g:pick(GENRE_IDS),find:true,worst:false,rmin:"",rmax:"",y:"",yto:"",theme:"",themeName:""};
+    if(surprise==="wild") return {g:"",wild:true,worst:false,rmin:"",rmax:"",y:"",yto:"",theme:"",themeName:""};
+    return {g:pick(GENRE_IDS),light:true,worst:false,rmin:"",rmax:"",y:"",yto:"",theme:"",themeName:""};
   }
   const theme=THEMES.find(t=>t.id===themeId);
   const years=yearQuery();
   return {
     g:theme?theme.g:[...sel].filter(k=>!NOGENRE.includes(k)).join(","),
-    adult:sel.has("adult"),worst:sel.has("worst"),
+    worst:sel.has("worst"),
     rmin:sel.has("worst")?"":$("rmin").value,rmax:sel.has("worst")?"":$("rmax").value,
     y:years.y,yto:years.yto,
     theme:theme?theme.id:"",themeName:theme?theme.name:"",
@@ -2341,63 +2266,16 @@ function tagPool(result,q){
   if(q.light) result.light=true;
   if(q.find) result.find=true;
   if(q.wild) result.wild=true;
-  if(q.hard) result.hard=true;
   return result;
 }
 async function getPool(cc,q){
   q=q||currentQuery();
-  const key=[cc,q.g,q.adult,q.worst,q.rmin,q.rmax,q.y,q.yto,q.light?"L":"",q.find?"F":"",q.theme||""].join("|");
-  if(!q.wild && !q.hard && key in cache) return cache[key];   // null is cached too: "not enough films"
-  const o={g:q.g,worst:q.worst,rmin:q.rmin,rmax:q.rmax,y:q.y,yto:q.yto,light:q.light,find:q.find,wild:q.wild,hard:q.hard};
-  let result;
-  if(!q.adult) result=await buildPool(cc,o);
-  else{
-    // 18+ = strict age rating of the country OR an erotic theme; two pools merged
-    const [kw,certs]=await Promise.all([eroticKw().catch(()=>""),certCandidates(cc)]);
-    const [byRating,byTheme]=await Promise.all([
-      certs.length?buildPool(cc,{...o,certs}):null,
-      kw?buildPool(cc,{...o,kw}):null]);
-    const parts=[byRating,byTheme].filter(Boolean);
-    if(!parts.length) result=null;
-    else{
-      const ids=new Set();
-      let films=parts.flatMap(p=>p.films).filter(f=>!ids.has(f.id)&&ids.add(f.id));
-      films.sort((a,b)=>q.worst?a.vote_average-b.vote_average:b.vote_average-a.vote_average);
-      films=films.slice(0,MAX_POOL);
-      result=films.length>=MIN_POOL?{films,votes:Math.min(...parts.map(p=>p.votes)),total:films.length,worst:q.worst,anyVotes:parts.every(p=>p.anyVotes),byRating:parts.every(p=>p.byRating),scoreMin:scoreFloor(q)||""}:null;
-    }
-  }
-  result=tagPool(result,q);
-  if(!q.wild && !q.hard) cache[key]=result;
+  const key=[cc,q.g,q.worst,q.rmin,q.rmax,q.y,q.yto,q.light?"L":"",q.find?"F":"",q.theme||""].join("|");
+  if(!q.wild && key in cache) return cache[key];   // null is cached too: "not enough films"
+  const o={g:q.g,worst:q.worst,rmin:q.rmin,rmax:q.rmax,y:q.y,yto:q.yto,light:q.light,find:q.find,wild:q.wild};
+  const result=tagPool(await buildPool(cc,o),q);
+  if(!q.wild) cache[key]=result;
   return result;
-}
-
-// Keyword ids for erotic films (looked up once from TMDB, OR-combined).
-let kwIds=null;
-async function eroticKw(){
-  if(kwIds) return kwIds;
-  const out=new Set();
-  for(const q of ["erotic","erotic thriller","erotic drama"]){
-    const r=await fetch("https://api.themoviedb.org/3/search/keyword?"+new URLSearchParams({api_key:apiKey,query:q}));
-    const j=await r.json();
-    (j.results||[]).filter(k=>/erotic/i.test(k.name)&&!/horror|animat|anime|hentai/i.test(k.name)).forEach(k=>out.add(k.id));
-  }
-  if(!out.size) throw new Error("Не удалось найти ключевые слова для этой категории.");
-  return kwIds=[...out].join("|");
-}
-
-// Strictest age ratings of a country (e.g. DE: 18; US: R). Tries top two levels.
-let certs=null;
-async function certCandidates(cc){
-  if(cc==="US") return ["R"];
-  try{
-    if(!certs){
-      const r=await fetch("https://api.themoviedb.org/3/certification/movie/list?api_key="+apiKey);
-      certs=(await r.json()).certifications||{};
-    }
-  }catch(e){certs={}}
-  const list=(certs[cc]||[]).slice().sort((a,b)=>b.order-a.order);
-  return list.slice(0,2).map(c=>c.certification);
 }
 
 // ---- sound, vibration, reel animation
@@ -2826,18 +2704,21 @@ async function reelLand(cc){
 // One videos request. include_video_language pulls Russian, English and clips with no language tag.
 const vcache={};
 async function trailerFor(film){
+  if (!movieCatalog.allows(film)) return null;
   const id=film.id;
+  try { await filmDetails(id); } catch { return null; }
   if(id in vcache) return vcache[id];
   const loadVideos=async langs=>{
     try{
-      const r=await fetch(`https://api.themoviedb.org/3/movie/${id}/videos?`+new URLSearchParams({
+      const r=await movieCatalog.request(`https://api.themoviedb.org/3/movie/${id}/videos?`+new URLSearchParams({
         api_key:apiKey, include_video_language:langs}),{cache:"no-store"});
       if(!r.ok)throw new Error(`TMDB videos: ${r.status}`);
       return (await r.json()).results||[];
     }catch(e){console.warn("[Moven: Explore] Не удалось загрузить список видео TMDB:",e);return [];}
   };
   const score=v=>{
-    const type={Trailer:0,Teaser:1,Clip:2,Featurette:3}[v.type];
+    if (v.official !== true || !movieCatalog.allowsTrailer(v)) return 99;
+    const type={Trailer:0,Teaser:1}[v.type];
     if(type==null) return 99;
     const site=v.site==="YouTube"?0:v.site==="Vimeo"?1:9;
     if(site===9) return 99;
@@ -3061,7 +2942,6 @@ function show(cc,pool,film){
 function poolLine(pool){
   const n=pool.films.length;
   const genre=pool.genre&&GENRES[pool.genre]?`, жанр «${GENRES[pool.genre]}»`:"";
-  if(pool.hard) return "Хардкор: случайный год, любой фильм страны. Без жанра, оценки и порога отзывов, 18+ тоже попадают.";
   if(pool.wild) return "Полная случайность: без жанра и без порога оценки.";
   if(pool.find) return `Настоящее открытие${genre}: оценка от 7, голосов от ${pool.votes} до ${pool.vmax}.`;
   if(pool.light && !pool.anyVotes) return `Лёгкое удивление${genre}: оценка от ${pool.scoreMin||6}, фильмы оценили минимум ${pool.votes} зрителей.`;
@@ -3126,7 +3006,7 @@ function filmPosterMarkup(film, size = "w342") {
 const detailCache={};
 async function filmDetails(id){
   if(id in detailCache) return detailCache[id];
-  const r=await fetch("https://api.themoviedb.org/3/movie/"+id+"?"+new URLSearchParams({
+  const r=await movieCatalog.request("https://api.themoviedb.org/3/movie/"+id+"?"+new URLSearchParams({
     api_key:apiKey, language:filmLocale, append_to_response:"credits,translations,release_dates,images",
     include_image_language:"ru,en,null"}),{cache:"no-store"});
   if(!r.ok) throw new Error("details");
@@ -3143,7 +3023,7 @@ async function filmDetails(id){
   const rel=(j.release_dates&&j.release_dates.results)||[];
   const certOf=cc=>{const c=rel.find(x=>x.iso_3166_1===cc);const d=c&&(c.release_dates||[]).find(x=>String(x.certification||"").trim());return d?String(d.certification).trim():"";};
   const cert=certOf("RU")||certOf("US")||(rel.map(x=>certOf(x.iso_3166_1)).find(Boolean)||"");
-  return detailCache[id]={cert,runtime:j.runtime||0,dirs,dirsFull:dirsFull.map(d=>({...d,photo:(crew.find(c=>c.id===d.id)||{}).profile_path||""})),writers:writers.slice(0,3),cast,castFull:(j.credits&&j.credits.cast||[]).slice(0,10).map(c=>({id:c.id,name:c.name,role:c.character||"",photo:c.profile_path||""})),genres,budget:j.budget||0,revenue:j.revenue||0,
+  return detailCache[id]={adult:j.adult, cert,runtime:j.runtime||0,dirs,dirsFull:dirsFull.map(d=>({...d,photo:(crew.find(c=>c.id===d.id)||{}).profile_path||""})),writers:writers.slice(0,3),cast,castFull:(j.credits&&j.credits.cast||[]).slice(0,10).map(c=>({id:c.id,name:c.name,role:c.character||"",photo:c.profile_path||""})),genres,budget:j.budget||0,revenue:j.revenue||0,
     title:selectMovieText(j, "title").text, localizedPoster:selectFilmPoster(j), posterPath:j.poster_path || "",
     tagline:tg.text,taglineLang:tg.lang,overview:ov.text,overviewLang:ov.lang,
     release:j.release_date||"",originalTitle:j.original_title||"",originalLang:j.original_language||"",
@@ -3210,7 +3090,7 @@ function topQuery(){
   const years=yearQuery();
   return {
     g:theme?theme.g:[...sel].filter(k=>!NOGENRE.includes(k)).join(","),
-    adult:sel.has("adult"),worst:sel.has("worst"),
+    worst:sel.has("worst"),
     rmin:sel.has("worst")?"":$("rmin").value,rmax:sel.has("worst")?"":$("rmax").value,
     y:years.y,yto:years.yto,
     theme:theme?theme.id:"",themeName:theme?theme.name:"",
@@ -3276,6 +3156,8 @@ async function topOfCountry(cc,q){
   return null;
 }
 async function presentFilmSearchResult(cc, pool, film, frameOnly, themedCountries = []) {
+  await filmDetails(film.id);
+  pool = {...pool, films:pool.films.filter(movieCatalog.allows)};
   const warm = preloadPosters(pool, film);
   if (frameOnly) window.KGFrameSelectedCountry(cc);
   else await reelLand(cc, themedCountries);
@@ -3332,7 +3214,7 @@ async function oscarFilms(){
   if(oscarCache) return oscarCache;
   const loadPage=async page=>{
     const q=new URLSearchParams({api_key:apiKey,language:filmLocale,page:String(page)});
-    const r=await fetch("https://api.themoviedb.org/3/list/"+OSCAR_LIST+"?"+q);
+    const r=await movieCatalog.request("https://api.themoviedb.org/3/list/"+OSCAR_LIST+"?"+q);
     if(r.status===401) throw new Error("Ключ не подошёл. Проверьте его и введите заново.");
     if(!r.ok) throw new Error("Список лауреатов недоступен, попробуйте ещё раз.");
     return r.json();
@@ -3357,7 +3239,7 @@ async function oscarFilms(){
   const missing = recentWinners.filter(id => !films.get(id)?.release_date);
   const query = new URLSearchParams({api_key: apiKey, language: filmLocale});
   const recent = await Promise.allSettled(missing.map(async id => {
-    const response = await fetch(`https://api.themoviedb.org/3/movie/${id}?${query}`);
+    const response = await movieCatalog.request(`https://api.themoviedb.org/3/movie/${id}?${query}`);
     if (!response.ok) throw new Error(`TMDB movie ${id}: ${response.status}`);
     const movie = await response.json();
     if (Number(movie.id) !== id || !movie.release_date) throw new Error(`TMDB movie ${id}: missing release date`);
@@ -3385,7 +3267,7 @@ async function spinOscar(){
     let cc=(film.origin_country&&film.origin_country[0])||"US";
     try{
       const q=new URLSearchParams({api_key:apiKey,language:filmLocale});
-      const r=await fetch("https://api.themoviedb.org/3/movie/"+film.id+"?"+q);
+      const r=await movieCatalog.request("https://api.themoviedb.org/3/movie/"+film.id+"?"+q);
       if(r.ok){
         const d=await r.json();
         const origins=(d.origin_country&&d.origin_country.length)?d.origin_country
@@ -3466,13 +3348,11 @@ $("again").onclick=async()=>{
   try{
     if(window.KGScrollBeforeAgain)await window.KGScrollBeforeAgain();
     let pool=cur.pool;
-    if(pool.hard){
-      const next=await getPool(cur.cc,{g:"",hard:true,adult:false,worst:false,rmin:"",y:"",theme:"",themeName:""});
-      if(next) pool=next;
-    }
     const left=fresh(pool,cur.film.id);
     if(!left.length){$("err").textContent="Больше фильмов из этой страны нет. Крутите глобус заново.";return;}
     const film=pool.top1?left[0]:pick(left);
+    await filmDetails(film.id);
+    pool = {...pool, films:pool.films.filter(movieCatalog.allows)};
     const cc=filmCC(pool,film,cur.cc);
     if(!RM){audio();$("result").hidden=true;await filmReel(pool,film,cc,preloadPosters(pool));}
     show(cc,pool,film);
@@ -3610,7 +3490,7 @@ document.body.appendChild(dlgS);dlgS.className="kg-dlg";
 const inS=document.createElement("div");inS.className="kg-in";
 inS.innerHTML='<div class="kg-h">Настройки</div>';
 const row=(label,el)=>{const r=document.createElement("div");r.className="kg-row";r.innerHTML=`<span>${label}</span>`;r.appendChild(el);inS.appendChild(r);};
-[["fx","Вибрация"],["adultVis","Жанр 18+ в списке"]].forEach(([id,l])=>{$(id).className="kg-btn";row(l,$(id));});
+$("fx").className="kg-btn";row("Вибрация",$("fx"));
 row("Звук рулетки",sndSel);
 const btns=[["changeKey","Сменить ключ TMDB",""],["resetHist","Сбросить историю","danger"],["resetSettings","Сбросить настройки","danger"],["sclose","Закрыть",""]];
 btns.forEach(([id,t,c])=>{const b=$(id);if(id!=="resetHist")b.textContent=t;b.className="kg-btn "+c;b.style.width="100%";inS.appendChild(b);});
@@ -3668,7 +3548,8 @@ rBox.innerHTML="";
   rBox.appendChild(b);
 });
 const sChips=[...document.querySelectorAll(".surprise-chip")];
-$("surpriseChips").innerHTML=["light","find","wild","hard"].map(s=>`<button class="chip" data-s="${s}"></button>`).join("");
+const surpriseScenarios=Object.keys(SURPRISE_NOTE);
+$("surpriseChips").innerHTML=surpriseScenarios.map(s=>`<button class="chip" data-s="${s}"></button>`).join("");
 sChips.forEach((c,i)=>c.addEventListener("click",()=>$("surpriseChips").children[i].click()));
 const yi=[...yearRatingFilter.querySelectorAll('input[type="number"]')];
 [[yi[0],"year","1920"],[yi[1],"yearTo","2026"]].forEach(([inp,id,def])=>inp.addEventListener("input",()=>{
@@ -3692,7 +3573,7 @@ function syncDesign(){
   paint(gBox);paint(tBox);
   [...rBox.children].forEach(b=>{const on=$("rmin").value===b.dataset.v&&!$("rmin").disabled;
     b.className="flex-1 py-1.5 px-2 rounded-lg font-label-sm text-label-sm "+(on?"bg-primary-container text-on-primary-container font-bold":"bg-surface-container text-text-muted");});
-  sChips.forEach((c,i)=>{const on=["light","find","wild","hard"][i]===surprise;
+  sChips.forEach((c,i)=>{const on=surpriseScenarios[i]===surprise;
     c.setAttribute("aria-pressed", String(on));
     c.style.background=on?"rgb(var(--kg-surface-container-high))":"rgb(var(--kg-surface-panel))";c.style.color=on?"rgb(var(--kg-primary))":"rgb(var(--kg-on-surface))";c.style.boxShadow=on?"0 0 10px rgb(var(--kg-selection-glow)/.25)":"";});
   const d=$("surprise-description-text");if(d)d.textContent=uiText(SURPRISE_NOTE[surprise]);
@@ -4147,11 +4028,11 @@ console.info("[Moven: Explore] Bridge v6 ready");
 </script>
 
 <script src="globe-visuals.js?v=5"></script>
-<script src="watch-history.js?v=13"></script>
-<script src="country-pages.js?v=33"></script>
-<script src="profile-page.js?v=11"></script>
-<script src="cinema-diary.js?v=10"></script>
-<script src="profile-editor.js?v=5"></script>
+<script src="watch-history.js?v=14"></script>
+<script src="country-pages.js?v=34"></script>
+<script src="profile-page.js?v=12"></script>
+<script src="cinema-diary.js?v=11"></script>
+<script src="profile-editor.js?v=6"></script>
 <script src="login-page.js?v=6"></script>
 <script src="password-recovery.js?v=6"></script>
 <script src="recovery-code.js?v=5"></script>
@@ -4160,14 +4041,14 @@ console.info("[Moven: Explore] Bridge v6 ready");
 <script src="mood-page.js?v=44"></script>
 <script src="mood-vibe-page.js?v=30"></script>
 <script src="oscar-page.js?v=47"></script>
-<script src="oscar-design.js?v=26"></script>
-<script src="curated-collections.js?v=1"></script>
-<script src="film-card.js?v=5"></script>
-<script src="collections.js?v=107"></script>
-<script src="film-interactions.js?v=25"></script>
-<script src="legal-watch.js?v=7"></script>
-<script src="global-search.js?v=12"></script>
+<script src="oscar-design.js?v=27"></script>
+<script src="curated-collections.js?v=2"></script>
+<script src="film-card.js?v=6"></script>
+<script src="collections.js?v=108"></script>
+<script src="film-interactions.js?v=26"></script>
+<script src="legal-watch.js?v=8"></script>
+<script src="global-search.js?v=13"></script>
 <script src="home-releases.js?v=9"></script>
-<script src="settings-page.js?v=55"></script>
+<script src="settings-page.js?v=57"></script>
 
 </body></html>

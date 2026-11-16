@@ -336,7 +336,7 @@ function paintBottomNav(panel, current) {
   });
 }
 
-window.KGMountBottomNav = (dialog, container, current) => {
+window.KGMountBottomNav = (dialog, container, current, close = () => dialog.close()) => {
   let footer = container.querySelector(":scope > .kg-dialog-bottom-nav");
   if (!footer) {
     footer = nav.cloneNode(true);
@@ -348,7 +348,7 @@ window.KGMountBottomNav = (dialog, container, current) => {
       if (!link) return;
       event.preventDefault();
       if (link.dataset.view === footer.dataset.currentView) return;
-      dialog.close();
+      close();
       nav.querySelector(`[data-view="${link.dataset.view}"]`)?.click();
     });
   }

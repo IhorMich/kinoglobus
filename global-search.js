@@ -4,12 +4,95 @@
   const esc=value=>String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const image=(path,size="w185")=>path?`https://image.tmdb.org/t/p/${size}${path}`:"";
   const root=document.createElement("div");root.id="kg-global-search";root.hidden=true;
-  root.innerHTML=`<div class="kgs-backdrop" data-kgs-close></div><section class="kgs-dialog" role="dialog" aria-modal="true" aria-label="Поиск фильмов, актёров и режиссёров"><header class="kgs-header"><button type="button" class="kgs-icon" data-kgs-close aria-label="Закрыть поиск">←</button><div class="kgs-heading"><span><img class="kg-brand-mark" src="assets/branding/moven-icon-192.png" width="24" height="24" alt=""> Moven: Explore</span><h2>Найти фильм или автора</h2></div><button type="button" class="kgs-icon" data-kgs-close aria-label="Закрыть поиск">×</button></header><div class="kgs-input-wrap"><span class="material-symbols-outlined">search</span><input type="search" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Название фильма, актёр, режиссёр…" aria-label="Поиск"><kbd>⌘ K</kbd></div><p class="kgs-hint">Введите несколько букв — сначала покажем самое точное совпадение.</p><div class="kgs-body"><div class="kgs-results" data-kgs-results aria-live="polite"><div class="kgs-empty"><span class="material-symbols-outlined">movie_filter</span><b>Что будем смотреть?</b><span>Ищите по русскому или оригинальному названию, имени актёра или режиссёра.</span></div></div><div class="kgs-detail" data-kgs-detail hidden></div></div><footer class="kgs-footer"><span>Данные TMDB</span><span>↑ ↓ выбор · Enter открыть · Esc закрыть</span></footer></section>`;
+  const emptySearch = `
+    <div class="kgs-empty">
+      <h2>${uiText("Поиск в Moven: Explorer")}</h2>
+      <p>${uiText("Найди фильм, режиссёра или актёра")}</p>
+    </div>`;
+  root.innerHTML = `
+    <section class="kg-search-screen" role="dialog" aria-modal="true" aria-label="Поиск фильмов, актёров и режиссёров">
+      <header class="kg-main-header">
+        <div class="kg-main-header-actions">
+          <button type="button" class="kg-header-action" data-kgs-close aria-label="Закрыть поиск">
+            <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
+          </button>
+          <label class="kg-header-action kg-header-search">
+            <span class="material-symbols-outlined" aria-hidden="true">search</span>
+            <input type="search" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Поиск" aria-label="Поиск">
+          </label>
+        </div>
+      </header>
+      <div class="kgs-body">
+        <div class="kgs-results" data-kgs-results aria-live="polite"></div>
+      </div>
+    </section>`;
   localizeInterfaceMarkup(root);
   document.body.appendChild(root);
-  const style=document.createElement("style");style.textContent=`#kg-global-search[hidden]{display:none!important}#kg-global-search{position:fixed;inset:0;z-index:990;color:rgb(var(--kg-warm-text-28));font-family:inherit}.kgs-backdrop{position:absolute;inset:0;background:rgb(var(--kg-neutral-01)/.82);backdrop-filter:blur(9px)}.kgs-dialog{position:absolute;inset:0;margin:auto;width:100%;height:100dvh;max-height:100dvh;display:flex;flex-direction:column;background:rgb(var(--kg-surface));border:0;overflow:hidden}.kgs-header{height:68px;flex:none;display:flex;align-items:center;gap:12px;padding:0 16px;border-bottom:1px solid rgb(var(--kg-white)/0.06275);background:rgb(var(--kg-neutral-54))}.kgs-icon{width:38px;height:38px;border:0;border-radius:50%;background:rgb(var(--kg-neutral-81));color:rgb(var(--kg-primary));font-size:24px;cursor:pointer}.kgs-heading{flex:1;min-width:0}.kgs-heading>span{font-size:9px;letter-spacing:.2em;color:rgb(var(--kg-accent-text))}.kgs-heading h2{margin:2px 0 0;font:600 17px/1.2 var(--kg-font-heading);color:rgb(var(--kg-warm-text-28))}.kgs-input-wrap{margin:16px 16px 0;height:54px;flex:none;display:flex;align-items:center;gap:10px;padding:0 14px;border:1px solid rgb(var(--kg-warm-surface-24));border-radius:15px;background:rgb(var(--kg-neutral-71));color:rgb(var(--kg-accent-text))}.kgs-input-wrap input{width:100%;min-width:0;border:0;outline:0;background:transparent;color:rgb(var(--kg-white));font-family:inherit;font-size:15px;font-weight:500;line-height:1.4}.kgs-input-wrap input::placeholder{color:rgb(var(--kg-neutral-113))}.kgs-input-wrap kbd{flex:none;font:11px ui-monospace,monospace;color:rgb(var(--kg-text-muted));background:rgb(var(--kg-neutral-89));padding:4px 6px;border-radius:6px}.kgs-hint{margin:9px 19px 10px;font-size:11px;color:rgb(var(--kg-neutral-118))}.kgs-body{position:relative;min-height:0;flex:1;overflow:hidden}.kgs-results,.kgs-detail{height:100%;overflow:auto;overscroll-behavior:contain;padding:0 16px 18px;scrollbar-width:thin;scrollbar-color:rgb(var(--kg-neutral-98)) transparent}.kgs-detail[hidden]{display:none}.kgs-results[hidden]{display:none}.kgs-empty{height:100%;min-height:190px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;text-align:center;color:rgb(var(--kg-neutral-118));padding:20px}.kgs-empty .material-symbols-outlined{font-size:36px;color:rgb(var(--kg-accent-strong))}.kgs-empty b{font:600 17px var(--kg-font-heading);color:rgb(var(--kg-warm-text-28))}.kgs-empty span:last-child{max-width:330px;font-size:12px;line-height:1.55}.kgs-status{padding:26px 8px;text-align:center;color:rgb(var(--kg-text-muted));font-size:13px}.kgs-section{margin:12px 0 7px;color:rgb(var(--kg-primary-fixed-dim));font-size:10px;font-weight:700;letter-spacing:.15em;text-transform:uppercase}.kgs-best{margin:2px 0 12px;padding:10px;border:1px solid rgb(var(--kg-accent-deep));border-radius:15px;background:linear-gradient(115deg,rgb(var(--kg-warm-surface-13)),rgb(var(--kg-neutral-71)) 70%)}.kgs-best-label{margin:0 0 7px;color:rgb(var(--kg-accent-text));font-size:9px;font-weight:800;letter-spacing:.15em;text-transform:uppercase}.kgs-result{width:100%;min-height:70px;display:flex;align-items:center;gap:12px;margin:6px 0;padding:8px;border:1px solid rgb(var(--kg-white)/0.04706);border-radius:13px;background:rgb(var(--kg-neutral-71));color:rgb(var(--kg-warm-text-26));text-align:left;cursor:pointer;transition:background .18s,border-color .18s,transform .18s}.kgs-result:hover,.kgs-result.is-active{background:rgb(var(--kg-neutral-88));border-color:rgb(var(--kg-accent-muted));transform:translateY(-1px)}.kgs-result img,.kgs-avatar{width:46px;height:62px;flex:none;object-fit:cover;border-radius:7px;background:rgb(var(--kg-neutral-90))}.kgs-movie-poster{display:grid;place-items:center;overflow:hidden;border-radius:8px;background:rgb(var(--kg-surface-container-high));color:rgb(var(--kg-primary))}.kgs-result .kgs-movie-poster img{width:100%;height:100%;border-radius:0}.kgs-avatar{height:46px;border-radius:50%;display:grid;place-items:center;color:rgb(var(--kg-primary-fixed-dim))}.kgs-result-copy{min-width:0;flex:1}.kgs-result-title{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:600 14px var(--kg-font-heading)}.kgs-result-sub{display:block;margin-top:5px;color:rgb(var(--kg-neutral-121));font-size:11px}.kgs-score{flex:none;color:rgb(var(--kg-primary-fixed-dim));font-size:11px}.kgs-detail-back{display:flex;align-items:center;gap:7px;margin:0 0 10px;padding:7px 0;border:0;background:none;color:rgb(var(--kg-primary-fixed-dim));font-size:12px;cursor:pointer}.kgs-footer{height:38px;flex:none;display:flex;justify-content:space-between;align-items:center;gap:8px;padding:0 16px;border-top:1px solid rgb(var(--kg-white)/0.05098);color:rgb(var(--kg-neutral-111));font-size:10px}.kgs-footer span:last-child{text-align:right}@media(prefers-reduced-motion:reduce){.kgs-result{transition:none}}`;
+  const style = document.createElement("style");
+  style.textContent = `
+#kg-global-search {
+  position: fixed;
+  inset: 0;
+  z-index: 990;
+  color: rgb(var(--kg-on-surface));
+}
+.kg-search-screen {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background: rgb(var(--kg-canvas-obsidian));
+}
+.kg-search-screen > header, .kg-search-screen > nav { flex: none; }
+.kg-search-screen .kg-header-search input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+.kg-search-screen .kg-header-search input::placeholder {
+  color: inherit;
+  opacity: .8;
+}
+.kg-search-screen .kg-header-search:focus-within {
+  border-color: rgb(var(--kg-primary));
+}
+.kgs-body {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+.kgs-results {
+  height: 100%;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 0 16px;
+}
+.kgs-empty {
+  display: grid;
+  align-content: center;
+  gap: 8px;
+  min-height: 100%;
+  padding: 20px 0;
+  text-align: center;
+  font-family: var(--kg-font-heading);
+}
+.kgs-empty h2 {
+  font-size: clamp(1.15rem, 4vw, 1.5rem);
+  font-weight: 600;
+}
+.kgs-empty p {
+  color: rgb(var(--kg-on-surface-variant));
+  font-size: .9rem;
+}
+.kgs-status{padding:26px 8px;text-align:center;color:rgb(var(--kg-text-muted));font-size:13px}.kgs-section{margin:12px 0 7px;color:rgb(var(--kg-primary-fixed-dim));font-size:10px;font-weight:700;letter-spacing:.15em;text-transform:uppercase}.kgs-best{margin:2px 0 12px;padding:10px;border:1px solid rgb(var(--kg-accent-deep));border-radius:15px;background:linear-gradient(115deg,rgb(var(--kg-warm-surface-13)),rgb(var(--kg-neutral-71)) 70%)}.kgs-best-label{margin:0 0 7px;color:rgb(var(--kg-accent-text));font-size:9px;font-weight:800;letter-spacing:.15em;text-transform:uppercase}.kgs-result{width:100%;min-height:70px;display:flex;align-items:center;gap:12px;margin:6px 0;padding:8px;border:1px solid rgb(var(--kg-white)/0.04706);border-radius:13px;background:rgb(var(--kg-neutral-71));color:rgb(var(--kg-warm-text-26));text-align:left;cursor:pointer;transition:background .18s,border-color .18s,transform .18s}.kgs-result:hover,.kgs-result.is-active{background:rgb(var(--kg-neutral-88));border-color:rgb(var(--kg-accent-muted));transform:translateY(-1px)}.kgs-result img,.kgs-avatar{width:46px;height:62px;flex:none;object-fit:cover;border-radius:7px;background:rgb(var(--kg-neutral-90))}.kgs-movie-poster{display:grid;place-items:center;overflow:hidden;border-radius:8px;background:rgb(var(--kg-surface-container-high));color:rgb(var(--kg-primary))}.kgs-result .kgs-movie-poster img{width:100%;height:100%;border-radius:0}.kgs-avatar{height:46px;border-radius:50%;display:grid;place-items:center;color:rgb(var(--kg-primary-fixed-dim))}.kgs-result-copy{min-width:0;flex:1}.kgs-result-title{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:600 14px var(--kg-font-heading)}.kgs-result-sub{display:block;margin-top:5px;color:rgb(var(--kg-neutral-121));font-size:11px}.kgs-score{flex:none;color:rgb(var(--kg-primary-fixed-dim));font-size:11px}@media(prefers-reduced-motion:reduce){.kgs-result{transition:none}}`;
   document.head.appendChild(style);
-  const input=root.querySelector("input"),results=root.querySelector("[data-kgs-results]");
+  const input = root.querySelector("input");
+  const results = root.querySelector("[data-kgs-results]");
+  window.KGMountBottomNav(root, root.querySelector(".kg-search-screen"), "", close);
   let timer=0,sequence=0,items=[],active=-1,lastFocus=null,previousOverflow="";
   const getKey=()=>{try{return typeof apiKey!=="undefined"?apiKey:"";}catch{return "";}};
   function setStatus(message){results.innerHTML=`<div class="kgs-status">${esc(message)}</div>`;}
@@ -19,17 +102,51 @@
   function yearOf(item){const date=item.release_date||item.first_air_date;return date?date.slice(0,4):"";}
   function movieButton(f,index){const title=f.title||f.original_title||uiText("Без названия"),poster=image(f.poster_path),year=yearOf(f),rating=Number(f.vote_average)||0;return `<div class="kg-bookmark-row"><button type="button" class="kgs-result${index===active?" is-active":""}" data-kgs-item="${index}" aria-label="${esc(uiText("Открыть фильм {title}", {title}))}"><span class="kg-film-card-poster kgs-movie-poster">${poster?`<img src="${poster}" alt="" loading="lazy">`:`<span class="material-symbols-outlined" aria-hidden="true">movie</span>`}</span><span class="kgs-result-copy"><span class="kgs-result-title">${esc(title)}</span><span class="kgs-result-sub">${esc(f.original_title&&f.original_title!==title?f.original_title+" · ":"")}${year||uiText("Год неизвестен")}${rating?` · ★ ${rating.toFixed(1)}`:""}</span></span><span class="kgs-score">${uiText("Фильм")}</span></button>${kgBookmarkButton(f)}</div>`;}
   function personButton(p,index,role){const photo=image(p.profile_path),known=(p.known_for||[]).map(x=>x.title||x.name).filter(Boolean).slice(0,2).join(", ");return `<button type="button" class="kgs-result${index===active?" is-active":""}" data-kgs-item="${index}" aria-label="${esc(uiText("Открыть профиль {name}", {name: p.name}))}">${photo?`<img src="${photo}" alt="" loading="lazy">`:`<span class="kgs-avatar"><span class="material-symbols-outlined">person</span></span>`}<span class="kgs-result-copy"><span class="kgs-result-title">${esc(p.name)}</span><span class="kgs-result-sub">${esc(known||p.known_for_department||uiText("Кинематографист"))}</span></span><span class="kgs-score">${uiText(role)}</span></button>`;}
-  function draw(data,query){const movies=(data.movies||[]).map(x=>({...x,kind:"movie"}));const people=(data.people||[]).map(x=>({...x,kind:"person"}));const all=[...movies,...people].map(x=>({...x,_score:score(x,query)})).filter(x=>x._score>0).sort((a,b)=>b._score-a._score);items=all.map(item=>item.kind==="movie"?localizeFilmListItem(item):item);active=all.length?0:-1;if(!all.length){results.innerHTML=`<div class="kgs-empty"><span class="material-symbols-outlined">search_off</span><b>${uiText("Ничего не нашлось")}</b><span>${uiText("Попробуйте изменить или сократить запрос.")}</span></div>`;return;}
+  function draw(data,query){const movies=(data.movies||[]).map(x=>({...x,kind:"movie"}));const people=(data.people||[]).map(x=>({...x,kind:"person"}));const all=[...movies,...people].map(x=>({...x,_score:score(x,query)})).filter(x=>x._score>0).sort((a,b)=>b._score-a._score);items=all.map(item=>item.kind==="movie"?localizeFilmListItem(item):item);active=all.length?0:-1;if(!all.length){results.innerHTML=`<div class="kgs-empty"><h2>${uiText("Ничего не нашлось")}</h2><p>${uiText("Попробуйте изменить или сократить запрос.")}</p></div>`;return;}
     const best=all[0],bestIndex=0;let html=`<section class="kgs-best"><p class="kgs-best-label">${uiText("Лучшее совпадение")}</p>${best.kind==="movie"?movieButton(items[bestIndex],bestIndex):personButton(best,bestIndex,best.known_for_department==="Directing"?"Режиссёр":"Актёр")}</section>`;
     const rest=all.slice(1);const movieRest=rest.filter(x=>x.kind==="movie"),actorRest=rest.filter(x=>x.kind==="person"&&x.known_for_department!=="Directing"),directorRest=rest.filter(x=>x.kind==="person"&&x.known_for_department==="Directing");
     if(best.kind==="movie")movieRest.unshift(best);if(best.kind==="person"){(best.known_for_department==="Directing"?directorRest:actorRest).unshift(best);}
     const section=(label,list,role)=>list.length?`<h3 class="kgs-section">${uiText(label)}</h3>${list.map(x=>{const i=all.indexOf(x);return x.kind==="movie"?movieButton(items[i],i):personButton(x,i,role);}).join("")}`:"";
     html+=section("Фильмы",movieRest,"Фильм")+section("Актёры",actorRest,"Актёр")+section("Режиссёры",directorRest,"Режиссёр");results.innerHTML=html;
   }
-  async function search(query){const seq=++sequence;const q=query.trim();if(q.length<2){items=[];active=-1;results.innerHTML=`<div class="kgs-empty"><span class="material-symbols-outlined">movie_filter</span><b>${uiText("Что будем смотреть?")}</b><span>${uiText("Введите минимум две буквы, чтобы найти фильм, актёра или режиссёра.")}</span></div>`;return;}setStatus(uiText("Ищем точные совпадения…"));try{const [movieData,personData]=await Promise.all([tmdb("search/movie",q),tmdb("search/person",q)]);if(seq!==sequence||!root.isConnected)return;draw({movies:movieData.results||[],people:personData.results||[]},q);}catch(error){if(seq!==sequence)return;setStatus(error.message||uiText("Не удалось выполнить поиск."));}}
-  function schedule(){clearTimeout(timer);const q=input.value;if(q.trim().length<2){search(q);return;}setStatus(uiText("Подбираем лучший вариант…"));timer=setTimeout(()=>search(q),260);}
-  function close(){if(root.hidden)return;root.hidden=true;document.body.style.overflow=previousOverflow;results.hidden=false;input.value="";items=[];active=-1;sequence++;lastFocus?.focus?.();lastFocus=null;}
-  function open(){if(!root.hidden)return;window.KGFilmCard.stopTrailers();window.KGFilmCard.stopTrailers();lastFocus=document.activeElement;previousOverflow=document.body.style.overflow;document.body.style.overflow="hidden";root.hidden=false;results.hidden=false;input.focus();}
+  async function search(query){const seq=++sequence;const q=query.trim();if(q.length<2){items=[];active=-1;results.innerHTML=emptySearch;return;}setStatus(uiText("Ищем точные совпадения…"));try{const [movieData,personData]=await Promise.all([tmdb("search/movie",q),tmdb("search/person",q)]);if(seq!==sequence||!root.isConnected)return;draw({movies:movieData.results||[],people:personData.results||[]},q);}catch(error){if(seq!==sequence)return;setStatus(error.message||uiText("Не удалось выполнить поиск."));}}
+  function schedule() {
+    clearTimeout(timer);
+    sequence++;
+    items = [];
+    active = -1;
+    const query = input.value;
+    if (query.trim().length < 2) {
+      search(query);
+      return;
+    }
+    setStatus(uiText("Подбираем лучший вариант…"));
+    timer = setTimeout(() => search(query), 260);
+  }
+
+  function close() {
+    if (root.hidden) return;
+    root.hidden = true;
+    clearTimeout(timer);
+    sequence++;
+    document.body.style.overflow = previousOverflow;
+    input.value = "";
+    items = [];
+    active = -1;
+    lastFocus?.focus?.();
+    lastFocus = null;
+  }
+
+  function open() {
+    if (!root.hidden) return;
+    window.KGFilmCard.stopTrailers();
+    lastFocus = document.activeElement;
+    previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    results.innerHTML = emptySearch;
+    root.hidden = false;
+    if (!matchMedia("(pointer: coarse)").matches) input.focus();
+  }
   function openItem(index, opener = input){
     const item=items[index];
     if(!item)return;

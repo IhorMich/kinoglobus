@@ -313,6 +313,8 @@ window.KGInterfaceDictionaries.en = Object.freeze({
   "Проекционный тракт · 35 мм": "Projector · 35 mm",
   "Кинолента 35-мм": "35 mm film reel",
   "Закрыть поиск": "Close search",
+  "Поиск в Moven: Explorer": "Search in Moven: Explorer",
+  "Найди фильм, режиссёра или актёра": "Find a film, director, or actor",
   "Найти фильм или автора": "Find a film or filmmaker",
   "Название фильма, актёр, режиссёр…": "Film title, actor, director…",
   "Введите несколько букв — сначала покажем самое точное совпадение.": "Type a few letters to see the closest match first.",

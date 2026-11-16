@@ -305,7 +305,7 @@
     const films = new Map(entries.map(entry => [String(entry.film.id), entry.film]));
     const saved = store.get("kgBookmarkFilms", {}) || {};
     return Object.entries(notes).map(([id, note]) => makeEntry({
-      ...(note.film || saved[id] || films.get(id)),
+      ...(movieCatalog.savedFilm(note.film) || movieCatalog.savedFilm(saved[id]) || films.get(id)),
       id: Number(id)
     })).sort((a, b) => b.key.localeCompare(a.key));
   }
@@ -319,7 +319,7 @@
     const load = ++bookmarkLoad;
     const saved = store.get("kgBookmarkFilms",{}) || {};
     const watchedById = new Map(entries.map(entry => [Number(entry.film.id),entry.film]));
-    bookmarks = kgBookmarkIds().map(id => makeEntry(watchedById.get(id) || saved[id] || {id}));
+    bookmarks = kgBookmarkIds().map(id => makeEntry(watchedById.get(id) || movieCatalog.savedFilm(saved[id]) || {id}));
     renderList();
     if (!apiKey) return;
     const missing = bookmarks.filter(entry => !entry.film.title || !entry.film.poster);
@@ -329,7 +329,7 @@
           const details = await filmDetails(entry.film.id);
           if (load !== bookmarkLoad || !details.title) return;
           Object.assign(entry, makeEntry({
-            id:entry.film.id,title:details.title,original:details.originalTitle,year:details.release.slice(0,4),
+            id:entry.film.id,adult:details.adult,title:details.title,original:details.originalTitle,year:details.release.slice(0,4),
             poster:details.localizedPoster?.path || entry.film.poster,cc:details.countries[0] || entry.code
           }));
           if (noteDialog.open) {
@@ -630,9 +630,9 @@
     const id = fields.film.value;
     const film = editorEntries.find(entry => String(entry.film.id) === id)?.film;
     if (!film) return;
-    const {title, original, year, poster, cc} = film;
+    const {adult, title, original, year, poster, cc} = film;
     const next = {...(store.get(notesKey,{}) || {}),[id]:{
-      ...entryValues(), film:{id:Number(id), title, original, year, poster, cc:film.countries?.[0] || cc}
+      ...entryValues(), film:{id:Number(id), adult, title, original, year, poster, cc:film.countries?.[0] || cc}
     }};
     try {
       localStorage.setItem(notesKey,JSON.stringify(next));

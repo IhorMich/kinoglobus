@@ -29,7 +29,9 @@ st2.textContent=`.kgr-win{position:relative;height:150px;overflow:hidden;-webkit
 .kg-clip3{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .kg-home-europe{scrollbar-width:none;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
 .kg-home-europe::-webkit-scrollbar{display:none}
-.kg-home-film-wrap{flex:0 0 10rem;scroll-snap-align:start}
+.kg-home-film-wrap{flex:0 0 10rem;width:10rem;min-width:0;scroll-snap-align:start}
+.kg-home-film-poster{position:relative;display:grid;place-items:center;width:100%;aspect-ratio:2/3;overflow:hidden}
+.kg-home-film-poster>img{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover}
 #kg-home-feature .kg-day-poster{width:44%;max-width:192px;aspect-ratio:2/3}
 .kg-three-columns{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.5rem;align-items:start}
 .kg-film-grid-row{column-gap:clamp(10px,3.3vw,14px);padding-bottom:.55rem}
@@ -1393,8 +1395,8 @@ function homeFilmCard(f){
   const details=homeEditorial.directorData.get(f.id);
   const credit=details&&details.dirs&&details.dirs.length?details.dirs[0]:cname(f._cc);
   const poster=f.poster_path?`<img class="w-full h-full object-cover" src="${P(f.poster_path,"w342")}" alt="${uiText("Постер фильма «{title}»", {title})}" loading="lazy">`:'<span class="material-symbols-outlined text-primary-container text-[32px]">movie</span>';
-  return `<div class="relative kg-home-film-wrap"><button type="button" data-home-act="open" data-home-meta="${f.id}" data-id="${f.id}" class="w-full text-left">
-<span class="relative w-full aspect-[2/3] rounded-xl overflow-hidden mb-1.5 bg-surface-container-lowest grid place-items-center">${poster}<span class="absolute bottom-1 right-1 px-1.5 py-0.5 rounded bg-surface-container-lowest/90 font-micro-caption text-micro-caption text-primary-container font-bold">★ ${(Number(f.vote_average)||0).toFixed(1)}</span></span>
+  return `<div class="relative kg-home-film-wrap"><button type="button" data-home-act="open" data-home-meta="${f.id}" data-id="${f.id}" class="block w-full min-w-0 text-left">
+<span class="kg-home-film-poster rounded-xl mb-1.5 bg-surface-container-lowest">${poster}<span class="absolute bottom-1 right-1 px-1.5 py-0.5 rounded bg-surface-container-lowest/90 font-micro-caption text-micro-caption text-primary-container font-bold">★ ${(Number(f.vote_average)||0).toFixed(1)}</span></span>
 <span class="font-label-sm text-label-sm font-bold text-on-surface block truncate">${title}</span>
 <span class="font-micro-caption text-micro-caption text-on-surface-variant block truncate" data-home-director="${f.id}">${esc(credit)}${year?" · "+year:""}</span></button></div>`;
 }

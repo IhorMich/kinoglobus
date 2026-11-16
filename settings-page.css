@@ -33,8 +33,18 @@
 
 .kgs-dialog > header {
   padding-top: calc(.75rem + env(safe-area-inset-top));
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: rgb(var(--kg-surface-panel));
+}
+
+/* Fullscreen settings cover the app. Keep its layers out of the WebView's paint stack. */
+body:has(#settings[open]) > :is(.kg-ambient-background, .kg-main-header, .kg-main-content, nav) {
+  visibility: hidden;
+}
+
+.kgs-nav > nav {
+  position: static;
+  background: rgb(var(--kg-surface-panel));
+  backdrop-filter: none;
 }
 
 .kgs-scroll {
@@ -44,10 +54,6 @@
   padding-bottom: 4rem;
   scrollbar-width: thin;
   scrollbar-color: rgb(var(--kg-primary-container) / .25) transparent;
-}
-
-.kgs-nav > nav {
-  position: static;
 }
 
 .kgs-nav > nav > div {

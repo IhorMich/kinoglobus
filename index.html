@@ -5,7 +5,7 @@
 <link rel="manifest" href="moven.webmanifest">
 <meta name="application-name" content="Moven: Explore">
 <meta name="description" content="Explore the world of cinema">
-<link rel="stylesheet" href="app-theme.css?v=36">
+<link rel="stylesheet" href="app-theme.css?v=37">
 <script src="steel-motion.js?v=4" defer></script>
 <script src="interface-en.js?v=46"></script>
 <script src="interface-i18n.js?v=2"></script>
@@ -41,46 +41,19 @@ try {
     body {
       min-height: max(884px, 100dvh);
     }
-    @keyframes floatPostersA {
-      0% { transform: translateY(0px) rotate(-3deg); }
-      50% { transform: translateY(-10px) rotate(-1.5deg); }
-      100% { transform: translateY(6px) rotate(-4deg); }
-    }
-    @keyframes floatPostersB {
-      0% { transform: translateY(0px) rotate(2deg); }
-      50% { transform: translateY(8px) rotate(3.5deg); }
-      100% { transform: translateY(-8px) rotate(1deg); }
-    }
-    @keyframes ambientGlowPulse {
-      0%, 100% { opacity: 0.35; transform: scale(1); }
-      50% { opacity: 0.5; transform: scale(1.08); }
-    }
     @keyframes hintPulse {
       0%, 100% { transform: translateY(0); opacity: 0.85; }
       50% { transform: translateY(-2px); opacity: 1; }
     }
-    .floating-poster-col-1 {
-      animation: floatPostersA 12s ease-in-out infinite alternate;
-    }
-    .floating-poster-col-2 {
-      animation: floatPostersB 15s ease-in-out infinite alternate;
-    }
-    .ambient-glow {
-      animation: ambientGlowPulse 8s ease-in-out infinite;
-    }
     .hint-float {
       animation: hintPulse 2.8s ease-in-out infinite;
     }
-    @keyframes shimmerMove {
-      0% { transform: translateX(-100%); }
-      100% { transform: translateX(200%); }
-    }
   </style><script src="cinema-reel.js?v=41"></script><link rel="stylesheet" href="watched-button.css?v=7">
 <script src="watched-button.js?v=3"></script>
-<link rel="stylesheet" href="settings-page.css?v=8">
+<link rel="stylesheet" href="settings-page.css?v=9">
 </head><body class="bg-canvas-obsidian font-body-md text-on-surface flex flex-col min-h-screen relative">
-<!-- Atmospheric Living Theater Background Layer with Floating Posters -->
-<div class="fixed inset-0 pointer-events-none overflow-hidden -z-10 select-none">
+<!-- Static cinema backdrop -->
+<div class="kg-ambient-background fixed inset-0 pointer-events-none overflow-hidden -z-10 select-none" aria-hidden="true">
 <!-- Ambient Projector Velvet & Amber Glow Orbs -->
 <div class="ambient-glow absolute top-10 -left-20 w-96 h-96 rounded-full bg-cinema-velvet-glow blur-3xl"></div>
 <div class="ambient-glow absolute top-1/3 -right-20 w-[420px] h-[420px] rounded-full bg-cinema-amber-glow blur-3xl" style="animation-delay: -3s;"></div>
@@ -88,34 +61,34 @@ try {
 <!-- Tilted Living Poster Columns -->
 <div class="absolute inset-0 flex justify-between px-2 sm:px-6 opacity-[0.14] scale-105">
 <!-- Left Column of Tilted Backdrop Posters -->
-<div class="floating-poster-col-1 flex flex-col gap-8 w-36 sm:w-44 -mt-10">
+<div class="flex flex-col gap-8 w-36 sm:w-44 -mt-10">
 <div class="w-full h-52 rounded-xl overflow-hidden shadow-2xl bg-surface-container border border-surface-border-subtle">
-<img alt="Atmospheric cinema poster" onerror="this.style.display='none'" class="w-full h-full object-cover grayscale contrast-125" src="assets%20/covers/frnoir.jpg">
+<img alt="Atmospheric cinema poster" onerror="this.style.display='none'" class="w-full h-full object-cover grayscale contrast-125" src="assets/covers/frnoir.jpg">
 </div>
 <div class="w-full h-56 rounded-xl overflow-hidden shadow-2xl bg-surface-container border border-surface-border-subtle">
-<img alt="Atmospheric cinema poster" onerror="this.style.display='none'" class="w-full h-full object-cover grayscale contrast-125" src="assets%20/covers/jpcrime.jpg">
+<img alt="Atmospheric cinema poster" onerror="this.style.display='none'" class="w-full h-full object-cover grayscale contrast-125" src="assets/covers/jpcrime.jpg">
 </div>
 <div class="w-full h-52 rounded-xl overflow-hidden shadow-2xl bg-surface-container border border-surface-border-subtle">
-<img alt="Atmospheric cinema poster" onerror="this.style.display='none'" class="w-full h-full object-cover grayscale contrast-125" src="assets%20/covers/frnoir.jpg">
+<img alt="Atmospheric cinema poster" onerror="this.style.display='none'" class="w-full h-full object-cover grayscale contrast-125" src="assets/covers/frnoir.jpg">
 </div>
 </div>
 <!-- Right Column of Tilted Backdrop Posters -->
-<div class="floating-poster-col-2 flex flex-col gap-8 w-36 sm:w-44 mt-6">
+<div class="flex flex-col gap-8 w-36 sm:w-44 mt-6">
 <div class="w-full h-56 rounded-xl overflow-hidden shadow-2xl bg-surface-container border border-surface-border-subtle">
-<img alt="Atmospheric cinema poster" onerror="this.style.display='none'" class="w-full h-full object-cover grayscale contrast-125" src="assets%20/covers/jpcrime.jpg">
+<img alt="Atmospheric cinema poster" onerror="this.style.display='none'" class="w-full h-full object-cover grayscale contrast-125" src="assets/covers/jpcrime.jpg">
 </div>
 <div class="w-full h-52 rounded-xl overflow-hidden shadow-2xl bg-surface-container border border-surface-border-subtle">
-<img alt="Atmospheric cinema poster" onerror="this.style.display='none'" class="w-full h-full object-cover grayscale contrast-125" src="assets%20/covers/frnoir.jpg">
+<img alt="Atmospheric cinema poster" onerror="this.style.display='none'" class="w-full h-full object-cover grayscale contrast-125" src="assets/covers/frnoir.jpg">
 </div>
 <div class="w-full h-56 rounded-xl overflow-hidden shadow-2xl bg-surface-container border border-surface-border-subtle">
-<img alt="Atmospheric cinema poster" onerror="this.style.display='none'" class="w-full h-full object-cover grayscale contrast-125" src="assets%20/covers/jpcrime.jpg">
+<img alt="Atmospheric cinema poster" onerror="this.style.display='none'" class="w-full h-full object-cover grayscale contrast-125" src="assets/covers/jpcrime.jpg">
 </div>
 </div>
 </div>
 <!-- Dark Vignette Overlay for Crisp Readability of Forefront Elements -->
 <div class="absolute inset-0 bg-gradient-to-b from-canvas-obsidian via-canvas-obsidian/85 to-canvas-obsidian"></div>
 </div>
-<header class="kg-main-header fixed top-0 w-full z-50 bg-surface-panel/85 backdrop-blur-xl">
+<header class="kg-main-header fixed top-0 w-full z-50 bg-surface-panel">
   <nav class="kg-main-header-actions" aria-label="Навигация">
     <button type="button" class="kg-header-action" data-kg-search-open aria-label="Поиск фильмов, актёров и режиссёров" title="Поиск">
       <span class="material-symbols-outlined" aria-hidden="true">search</span>
@@ -194,7 +167,7 @@ try {
 <div class="relative z-30 flex flex-col items-center justify-center px-3 pt-0 pb-2 transition-all duration-300 w-full max-w-[320px] text-center pointer-events-none" id="hero-hologram-display"><div class="relative w-9 h-9 rounded-2xl p-[2px] bg-gradient-to-tr from-cinema-velvet-deep via-primary-container to-primary flex items-center justify-center backdrop-blur-md mb-1 transition-transform" id="hologram-flag-orb"><div class="w-full h-full rounded-[14px] bg-surface-container-lowest/90 flex items-center justify-center overflow-hidden relative"><div class="absolute inset-0 bg-gradient-to-b from-white/15 via-transparent to-transparent pointer-events-none"></div><span class="text-3xl drop-shadow-[0_4px_16px_rgb(var(--kg-black)/0.8)] select-none transition-all duration-150" id="hero-country-flag">🇪🇸</span></div></div><h2 class="font-headline-lg text-headline-lg font-bold text-primary tracking-tight leading-tight truncate max-w-[260px]" id="hero-country-name">Испания</h2><div class="flex items-center gap-1.5 mt-1"><span class="px-2.5 py-0.5 rounded-full bg-surface-container-high/90 text-primary-fixed font-micro-caption text-micro-caption tracking-wider uppercase border border-primary-container/20" id="hero-country-region">ЮЖНАЯ ЕВРОПА</span></div><div class="flex items-center gap-1 text-text-muted font-micro-caption text-micro-caption mt-1.5 opacity-90"><span class="material-symbols-outlined text-[13px] text-primary-container">movie</span><span class="truncate max-w-[250px]" id="hero-country-master">Педро Альмодовар · Гильермо дель Торо</span></div></div></div>
 <!-- Tactile Primary CTA Button: 'Крутить глобус' -->
 <div class="w-full mt-3.5 z-10" id="globe-search-actions">
-<button class="relative w-full py-4 px-6 rounded-2xl text-canvas-obsidian font-label-lg text-[17px] font-semibold flex items-center justify-between shadow-[0_8px_32px_rgb(var(--kg-action-shadow)/0.45)] transition-all duration-200 hover:brightness-110 active:scale-[0.97] overflow-hidden group select-none cursor-pointer border border-white/20" id="btn-spin-roulette" data-kg-steel-motion="primary" style="background: var(--kg-spin-background, linear-gradient(135deg, rgb(var(--kg-accent-edge)) 0%, rgb(var(--kg-accent-strong)) 48%, rgb(var(--kg-action-gradient-end)) 100%)); box-shadow: var(--kg-spin-shadow, rgb(var(--kg-action-shadow)/0.45) 0px 8px 30px, rgb(var(--kg-white)/0.4) 0px 1px 1px inset);" type="button"><span class="w-9 shrink-0" aria-hidden="true"></span><span class="font-semibold text-canvas-obsidian drop-shadow-[0_1px_1px_rgb(var(--kg-white)/0.4)] flex items-center gap-2" id="btn-spin-text"><span class="">Крутить глобус</span></span><span class="w-9 h-9 rounded-xl flex items-center justify-center text-xl text-black select-none font-bold transition-transform duration-300 group-hover:rotate-180" id="btn-spin-secondary-icon">↻</span><div class="kg-spin-shimmer absolute inset-0 bg-gradient-to-r from-transparent via-white/35 to-transparent -translate-x-full animate-[shimmerMove_2.5s_infinite]"></div></button>
+<button class="relative w-full py-4 px-6 rounded-2xl text-canvas-obsidian font-label-lg text-[17px] font-semibold flex items-center justify-between shadow-[0_8px_32px_rgb(var(--kg-action-shadow)/0.45)] transition-all duration-200 hover:brightness-110 active:scale-[0.97] overflow-hidden group select-none cursor-pointer border border-white/20" id="btn-spin-roulette" data-kg-steel-motion="primary" style="background: var(--kg-spin-background, linear-gradient(135deg, rgb(var(--kg-accent-edge)) 0%, rgb(var(--kg-accent-strong)) 48%, rgb(var(--kg-action-gradient-end)) 100%)); box-shadow: var(--kg-spin-shadow, rgb(var(--kg-action-shadow)/0.45) 0px 8px 30px, rgb(var(--kg-white)/0.4) 0px 1px 1px inset);" type="button"><span class="w-9 shrink-0" aria-hidden="true"></span><span class="font-semibold text-canvas-obsidian drop-shadow-[0_1px_1px_rgb(var(--kg-white)/0.4)] flex items-center gap-2" id="btn-spin-text"><span class="">Крутить глобус</span></span><span class="w-9 h-9 rounded-xl flex items-center justify-center text-xl text-black select-none font-bold transition-transform duration-300 group-hover:rotate-180" id="btn-spin-secondary-icon">↻</span></button>
 <!-- Secondary Quick-Action Cinema Launchers -->
 <div class="w-full grid grid-cols-2 gap-2 mt-2.5 z-10"><button class="py-2.5 px-3 rounded-xl text-on-surface hover:text-primary font-label-sm text-label-sm flex items-center justify-center gap-2 transition-all duration-200 active:scale-95 cursor-pointer backdrop-blur-md border border-primary-container/25 shadow-[0_4px_16px_rgb(var(--kg-black)/0.4)] hover:border-primary-container/50 hover:shadow-[0_0_14px_rgb(var(--kg-primary-container)/0.25)]" id="btn-top-one" aria-pressed="false" data-kg-steel-motion="quick" style="background: var(--kg-quick-action-background, linear-gradient(rgb(var(--kg-neutral-78)/0.85) 0%, rgb(var(--kg-neutral-38)/0.95) 100%));" type="button"><span class="material-symbols-outlined text-[18px] text-primary-container">military_tech</span><span class="font-medium">Топ-1 всех времён</span></button><button class="py-2.5 px-3 rounded-xl text-on-surface hover:text-secondary font-label-sm text-label-sm flex items-center justify-center gap-2 transition-all duration-200 active:scale-95 cursor-pointer backdrop-blur-md border border-secondary/25 shadow-[0_4px_16px_rgb(var(--kg-black)/0.4)] hover:border-secondary/50 hover:shadow-[0_0_14px_rgb(var(--kg-secondary)/0.25)]" id="btn-oscar-laureate" aria-pressed="false" data-kg-steel-motion="quick" style="background: var(--kg-quick-action-background, linear-gradient(rgb(var(--kg-violet-surface-02)/0.85) 0%, rgb(var(--kg-neutral-29)/0.95) 100%));" type="button"><span class="material-symbols-outlined text-[18px] text-secondary">hotel_class</span><span class="font-medium">Лауреат Оскар</span></button></div>
 </div>
@@ -569,14 +542,13 @@ localizeInterfaceMarkup(document.querySelector("main"));
     let currentCountry = catalog[8];
 
     // DOM Elements
-    const heroDisplay = document.getElementById('hero-hologram-display');
     const heroFlag = document.getElementById('hero-country-flag');
     const heroName = document.getElementById('hero-country-name');
     const heroRegion = document.getElementById('hero-country-region');
     const heroMaster = document.getElementById('hero-country-master');
 
 
-    function updateHolographicView(country, isStep = false) {
+    function updateHolographicView(country) {
       if (!country) return;
       if (heroFlag) heroFlag.innerHTML = country.flag || flag(country.id, false);
       if (heroName) heroName.textContent = interfaceLanguage === "ru" ? country.name : interfaceRegionNames.of(country.id);
@@ -585,11 +557,6 @@ localizeInterfaceMarkup(document.querySelector("main"));
         heroRegion.textContent = country.reg ? uiText(country.reg) : "";
       }
       if (heroMaster) heroMaster.textContent = uiText(country.dirs);
-
-      if (isStep && heroDisplay) {
-        heroDisplay.style.transform = 'scale(0.96)';
-        setTimeout(() => { if (heroDisplay) heroDisplay.style.transform = 'scale(1)'; }, 100);
-      }
     }
 
     // Audio Engine
@@ -1090,7 +1057,7 @@ rotatingGroup.add(flagPinGroup);
       camera.position.set(0, currentCameraY, defaultDist);
 
       const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
-      renderer.setSize(width, height);
+      renderer.setSize(width, height, false);
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
       // Cinema Lighting: Soft ambient & directional space lighting without blinding specular hotspot
@@ -1337,8 +1304,15 @@ rotatingGroup.add(flagPinGroup);
 
       // Animation Loop
       const clock = new THREE.Clock();
+      let globeInView = true;
+      const globeVisibility = new IntersectionObserver(([entry]) => {
+        globeInView = entry.isIntersecting;
+      });
+      globeVisibility.observe(container);
+      const settings = document.getElementById("settings");
       function animate() {
         requestAnimationFrame(animate);
+        if (!globeInView || document.hidden || settings.open) return;
         const elapsedTime = clock.getElapsedTime();
 
                 // Camera smooth zoom lerp
@@ -1435,7 +1409,7 @@ if (areaRing) {
         viewportHeight = nextHeight;
         camera.aspect = viewportWidth / viewportHeight;
         camera.updateProjectionMatrix();
-        renderer.setSize(viewportWidth, viewportHeight);
+        renderer.setSize(viewportWidth, viewportHeight, false);
       }
       const earthViewportObserver = new ResizeObserver(resizeEarth);
       earthViewportObserver.observe(container);
@@ -2607,7 +2581,7 @@ function previewFilmReelSound() {
   const step = now => {
     const progress = Math.min(1, (now - start) / 1800);
     if (progress >= 1) {
-      setFilmReelLevel(0);
+      stopFilmReelSound();
       return;
     }
     const speed = 1 - progress;
@@ -3014,7 +2988,7 @@ function selectFilmPoster(movie) {
   if (matching) return {path: matching.file_path, showTitle: false};
 
   const neutral = posters.find(image => image.iso_639_1 == null && image.file_path);
-  return {path: neutral?.file_path || movie.backdrop_path || "", showTitle: true};
+  return {path: neutral?.file_path || movie.poster_path || movie.backdrop_path || "", showTitle: true};
 }
 
 function filmPosterMarkup(film, size = "w342") {
@@ -3641,8 +3615,8 @@ const heroHist = c => {
   if (!el || !c) return;
   el.innerHTML = flag(c.id, false);
 };
-const hero = (c, step) => {
-  G.updateHolographicView(c, step);
+const hero = c => {
+  G.updateHolographicView(c);
   heroHist(c);
 };
 function gc(cc) {
@@ -3660,6 +3634,7 @@ function gc(cc) {
 let scanOn=false,scanT=0,scanAt=0,landed=false,tmr=[];
 let focusedCC="";   // страна, на которой глобус уже стоит в фокусе с флажком (чтобы «другой фильм» не крутил планету заново)
 const SCAN_MIN_MS=3500;   // минимум времени «поиска» до остановки (мс)
+const COUNTRY_HOLD_MS = 1000;
 const LAND_STEPS=[220,300,400,540,720,950];   // замедление перед остановкой
 // Подборка уже знает страну: только световая точка, без прокрутки глобуса и без флажка.
 function pinLight(cc){
@@ -3669,7 +3644,7 @@ function pinLight(cc){
   G.currentCountry=w;focusedCC=cc;landed=true;
   G.showSingleBeacon(w);
   G.orientGlobeToCountry(w,false,0.08,G.CAMERA_DIST_FOCUS,false);
-  hero(w,false);
+  hero(w);
 }
 function frameSelectedCountry(code){
   scanOn=false;
@@ -3681,7 +3656,7 @@ function frameSelectedCountry(code){
   landed=true;
   const country=gc(code);
   G.frameCountry(country);
-  hero(country,false);
+  hero(country);
 }
 window.KGFrameSelectedCountry=(code, candidates=[])=>{
   frameSelectedCountry(candidates.includes(focusedCC) ? focusedCC : code);
@@ -3720,31 +3695,46 @@ window.reelStart=function(themedCountries = []){
     return;
   }
   scanOn=true;scanAt=performance.now();
+  $("hero-hologram-display").classList.add("invisible");
   G.beginScan();                       // как в дизайне: маяки и флаг скрыты, камера на обзорной дистанции
   const loop=()=>{if(!scanOn)return;const c=gc(pick(COUNTRIES));
-    G.orientGlobeToCountry(c,false,0.22,G.CAMERA_DIST_SPIN,false);G.flashBeacon(c);hero(c,true);sTick(Math.random());buzz(8);scanT=setTimeout(loop,170);};
+    G.orientGlobeToCountry(c,false,0.12,G.CAMERA_DIST_SPIN,false);G.flashBeacon(c);sTick(Math.random());scanT=setTimeout(loop,170);};
   loop();
 };
 window.reelLand=async function(cc, themedCountries = []){
-  if(themedCountries.length){pinLight(cc);return;}
+  if (themedCountries.length) {
+    pinLight(cc);
+    await sleep(COUNTRY_HOLD_MS);
+    return;
+  }
   await sleep(Math.max(0,SCAN_MIN_MS-(performance.now()-scanAt)));
   scanOn=false;clearTimeout(scanT);
   for(const d of LAND_STEPS){
     const c=gc(pick(COUNTRIES.filter(x=>x!==cc)));
-    G.orientGlobeToCountry(c,false,0.22,G.CAMERA_DIST_SPIN,false);G.flashBeacon(c);hero(c,true);sTick(.4+Math.random()*.4);await sleep(d);
+    G.orientGlobeToCountry(c,false,0.12,G.CAMERA_DIST_SPIN,false);G.flashBeacon(c);sTick(.4+Math.random()*.4);await sleep(d);
   }
-  const w=gc(cc);G.currentCountry=w;focusedCC=cc;
-  G.showSingleBeacon(w);                                              // маяк только у выпавшей страны
-  G.orientGlobeToCountry(w,false,0.055,G.CAMERA_DIST_FOCUS,true);     // 3D-флажок на стране
-  hero(w,false);G.triggerWinnerCelebration(w);buzz([25,50,60]);
-  landed=true;
-  tmr.push(setTimeout(()=>{G.dollyBack(w);
-    tmr.push(setTimeout(()=>{G.isSpinning=false;},800));},2400));
-  await sleep(400);
+  const country = gc(cc);
+  G.currentCountry = country;
+  focusedCC = cc;
+  G.showSingleBeacon(country);
+  G.orientGlobeToCountry(country, false, 0.055, G.CAMERA_DIST_FOCUS, true);
+  hero(country);
+  $("hero-hologram-display").classList.remove("invisible");
+  G.triggerWinnerCelebration(country);
+  landed = true;
+  await sleep(650);
+  G.frameCountry(country);
+  await sleep(COUNTRY_HOLD_MS);
+  setSpinUi(true, true);
+  tmr.push(setTimeout(() => {
+    G.dollyBack(country);
+    G.isSpinning = false;
+  }, 800));
 };
 window.reelAbort=function(){
   scanOn=false;clearTimeout(scanT);
-  if(!landed){focusedCC="";G.isSpinning=false;const c=G.currentCountry;G.orientGlobeToCountry(c,false,0.035,G.CAMERA_DIST_DEFAULT,false);G.hideMarks();hero(c,false);}
+  $("hero-hologram-display").classList.remove("invisible");
+  if(!landed){focusedCC="";G.isSpinning=false;const c=G.currentCountry;G.orientGlobeToCountry(c,false,0.035,G.CAMERA_DIST_DEFAULT,false);G.hideMarks();hero(c);}
 };
 window.filmReel=async function(){};   // в дизайне барабана постеров нет
 
@@ -3978,7 +3968,7 @@ window.show=function(cc,pool,film){
   const sameCountry=!G.isSpinning&&focusedCC===cc;
   if(!G.isSpinning&&!sameCountry){   // фильм из истории или из другой страны: показать страну
     focusedCC=cc;
-    G.currentCountry=w;G.showSingleBeacon(w);G.orientGlobeToCountry(w,false,0.055,G.CAMERA_DIST_FOCUS,true);hero(w,false);
+    G.currentCountry=w;G.showSingleBeacon(w);G.orientGlobeToCountry(w,false,0.055,G.CAMERA_DIST_FOCUS,true);hero(w);
     set("hero-country-master",uiText("Ищем фильм…"));
     tmr.forEach(clearTimeout);tmr=[];
     tmr.push(setTimeout(()=>G.dollyBack(w),2400));
@@ -4045,7 +4035,7 @@ window.KGCountryApp={
   key:()=>apiKey,
   getCountryFilms:async(code,page=1)=>api({with_origin_country:code,sort_by:"popularity.desc","vote_count.gte":10,include_adult:"false",page}),
   getFilmDetails:filmDetails,
-  showCountryOnGlobe:code=>{closeJ();const country=gc(code);G.currentCountry=country;focusedCC=code;G.showSingleBeacon(country);G.orientGlobeToCountry(country,false,0.055,G.CAMERA_DIST_FOCUS,true);hero(country,false);setTimeout(()=>G.dollyBack(country),1800);window.scrollTo({top:0,behavior:"smooth"});},
+  showCountryOnGlobe:code=>{closeJ();const country=gc(code);G.currentCountry=country;focusedCC=code;G.showSingleBeacon(country);G.orientGlobeToCountry(country,false,0.055,G.CAMERA_DIST_FOCUS,true);hero(country);setTimeout(()=>G.dollyBack(country),1800);window.scrollTo({top:0,behavior:"smooth"});},
   searchCountry:async code=>{if(!apiKey){closeJ();showKeyUi();$("tmdb-key-banner").scrollIntoView({behavior:"smooth",block:"center"});return;}closeJ();await spin(code);}
 };
 console.info("[Moven: Explore] Bridge v6 ready");
@@ -4069,12 +4059,12 @@ console.info("[Moven: Explore] Bridge v6 ready");
 <script src="oscar-design.js?v=27"></script>
 <script src="curated-collections.js?v=2"></script>
 <script src="film-card.js?v=7"></script>
-<script src="collections.js?v=111"></script>
+<script src="collections.js?v=112"></script>
 <script src="film-interactions.js?v=26"></script>
 <script src="legal-watch.js?v=8"></script>
 <script src="global-search.js?v=15"></script>
 <script src="home-releases.js?v=9"></script>
-<script src="settings-page.js?v=60"></script>
+<script src="settings-page.js?v=61"></script>
 <script>
 (() => {
   const earth = document.getElementById("earth-canvas-container");
@@ -4082,13 +4072,16 @@ console.info("[Moven: Explore] Bridge v6 ready");
   const bottomNav = document.querySelector("body > nav");
   if (!earth || !actions) return;
 
+  let fittedHeight;
   function fitGlobe() {
     if (!earth.clientWidth) return;
     const earthRect = earth.getBoundingClientRect();
     const belowEarth = actions.getBoundingClientRect().bottom - earthRect.bottom;
     const bottomBarHeight = bottomNav?.offsetHeight ?? 0;
-    const availableHeight = window.innerHeight - bottomBarHeight - belowEarth - earthRect.top - window.scrollY - 8;
-    earth.style.setProperty("--kg-earth-room", `${Math.floor(availableHeight)}px`);
+    const height = Math.round(window.innerHeight - bottomBarHeight - belowEarth - earthRect.top - window.scrollY - 8);
+    if (height === fittedHeight) return;
+    fittedHeight = height;
+    earth.style.setProperty("--kg-earth-room", `${height}px`);
   }
 
   const sizeChanges = new ResizeObserver(fitGlobe);

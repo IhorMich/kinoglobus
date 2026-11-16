@@ -478,6 +478,17 @@ ${[["light","Лёгкое"],["find","Открытие"],["wild","Случайн�
     });
   });
 
+  const syncSounds = () => {
+    const globeMuted = snd === "off";
+    $("[data-kgs-globe-sound-status]").textContent = globeMuted ? uiText("Без звука") : uiText("Активно");
+    $("[data-kgs-preview]").disabled = globeMuted;
+    const reelSoundSelect=$("[data-kgs-reel-sound-select]");
+    reelSoundSelect.value = window.getCinemaReelSound();
+    const reelMuted = reelSoundSelect.value === "off";
+    $("[data-kgs-reel-sound-status]").textContent = reelMuted ? uiText("Без звука") : uiText("Активно");
+    $("[data-kgs-reel-preview]").disabled = reelMuted;
+  };
+
   const sync = () => {
     syncWatchRegion();
     trailerSubtitlesSelect.value = getTrailerSubtitles();
@@ -499,19 +510,12 @@ ${[["light","Лёгкое"],["find","Открытие"],["wild","Случайн�
     $("[data-kgs-left]").textContent = uiText("Осталось {count}", {count: Math.max(0, total - opened)});
     $("[data-kgs-progress]").style.width = `${Math.round(opened/total*100)}%`;
     $("[data-kgs-warning]").textContent = uiText("Очистка истории снимет отметки со всех {count} открытых стран и просмотренных фильмов.", {count: Object.keys(visited || {}).length});
-    const globeMuted = snd === "off";
-    $("[data-kgs-globe-sound-status]").textContent = globeMuted ? uiText("Без звука") : uiText("Активно");
-    $("[data-kgs-preview]").disabled = globeMuted;
+    syncSounds();
     switchState($("[data-kgs-fx]"), fx);
     dialog.querySelectorAll("[data-kgs-reel-style]").forEach((choice)=>{
       const selected=choice.dataset.kgsReelStyle===reelStyle;
       choice.setAttribute("aria-checked",String(selected));
     });
-    const reelSoundSelect=$("[data-kgs-reel-sound-select]");
-    reelSoundSelect.value = window.getCinemaReelSound();
-    const reelMuted = reelSoundSelect.value === "off";
-    $("[data-kgs-reel-sound-status]").textContent = reelMuted ? uiText("Без звука") : uiText("Активно");
-    $("[data-kgs-reel-preview]").disabled = reelMuted;
     dialog.querySelectorAll("[data-kgs-mode]").forEach(button => {
       const active = button.dataset.kgsMode === playMode;
       button.setAttribute("aria-pressed",String(active));
@@ -544,7 +548,7 @@ ${[["light","Лёгкое"],["find","Открытие"],["wild","Случайн�
   const reelSoundSelect=$("[data-kgs-reel-sound-select]");
   reelSoundSelect.addEventListener("change", () => {
     window.setCinemaReelSound(reelSoundSelect.value);
-    sync();
+    syncSounds();
   });
   $(`[data-kgs-reel-preview]`).addEventListener("click",()=>window.previewFilmReelSound?.());
 
@@ -587,7 +591,10 @@ ${[["light","Лёгкое"],["find","Открытие"],["wild","Случайн�
     });
   });
   $("[data-kgs-preview]").addEventListener("click", preview);
-  dialog.addEventListener("close", stopGlobeSoundPreview);
+  dialog.addEventListener("close", () => {
+    stopGlobeSoundPreview();
+    if (reelSoundPreviewFrame) stopFilmReelSound();
+  });
 
   $("[data-kgs-atlas]").addEventListener("click", () => { close(); document.getElementById("mapBtn").click(); });
   $("[data-kgs-history]").addEventListener("click", () => {
@@ -609,6 +616,6 @@ ${[["light","Лёгкое"],["find","Открытие"],["wild","Случайн�
     close();
     appNav?.querySelector(`[data-view="${link.dataset.view}"]`)?.click();
   });
-  soundSelect?.addEventListener("change", sync);
+  soundSelect?.addEventListener("change", syncSounds);
   sync();
 })();

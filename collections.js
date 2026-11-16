@@ -67,55 +67,55 @@ const catalogThemes = [...THEMES, ...curatedThemes];
 const THEME_COVERS = {
   ...Object.fromEntries(curatedThemes.map(t => [t.id, t.cover])),
   // 1. Азиатский блок
-  kr: "assets /covers/kr.jpg",
-  krdrama: "assets /covers/krdrama.jpg",
-  jp: "assets /covers/jp.jpg",
-  jhorror: "assets /covers/jhorror.jpg",
-  jpauteur: "assets /covers/jpauteur.jpg",
-  jpcrime: "assets /covers/jpcrime.jpg",
-  jpscifi: "assets /covers/jpscifi.jpg",
-  hk: "assets /covers/hk.jpg",
-  cnfan: "assets /covers/cnfan.jpg",
-  thhorror: "assets /covers/thhorror.jpg",
-  idhorror: "assets /covers/idhorror.jpg",
+  kr: "assets/covers/kr.jpg",
+  krdrama: "assets/covers/krdrama.jpg",
+  jp: "assets/covers/jp.jpg",
+  jhorror: "assets/covers/jhorror.jpg",
+  jpauteur: "assets/covers/jpauteur.jpg",
+  jpcrime: "assets/covers/jpcrime.jpg",
+  jpscifi: "assets/covers/jpscifi.jpg",
+  hk: "assets/covers/hk.jpg",
+  cnfan: "assets/covers/cnfan.jpg",
+  thhorror: "assets/covers/thhorror.jpg",
+  idhorror: "assets/covers/idhorror.jpg",
   // 2. Индия и Ближний Восток
-  inact: "assets /covers/inact.jpg",
-  inromance: "assets /covers/inromance.jpg",
-  inclassic: "assets /covers/inclassic.jpg",
-  ir: "assets /covers/ir.jpg",
-  tr: "assets /covers/tr.jpg",
-  arabic: "assets /covers/arabic.jpg",
+  inact: "assets/covers/inact.jpg",
+  inromance: "assets/covers/inromance.jpg",
+  inclassic: "assets/covers/inclassic.jpg",
+  ir: "assets/covers/ir.jpg",
+  tr: "assets/covers/tr.jpg",
+  arabic: "assets/covers/arabic.jpg",
   // 3. Европейский блок
-  nordic: "assets /covers/nordic.jpg",
-  frnoir: "assets /covers/frnoir.jpg",
-  frcom: "assets /covers/frcom.jpg",
-  itcrime: "assets /covers/itcrime.jpg",
-  itcom: "assets /covers/itcom.jpg",
-  eshorror: "assets /covers/eshorror.jpg",
-  esdrama: "assets /covers/esdrama.jpg",
-  dedrama: "assets /covers/dedrama.jpg",
-  gbdet: "assets /covers/gbdet.jpg",
-  gbdrama: "assets /covers/gbdrama.jpg",
-  pldrama: "assets /covers/pldrama.jpg",
+  nordic: "assets/covers/nordic.jpg",
+  frnoir: "assets/covers/frnoir.jpg",
+  frcom: "assets/covers/frcom.jpg",
+  itcrime: "assets/covers/itcrime.jpg",
+  itcom: "assets/covers/itcom.jpg",
+  eshorror: "assets/covers/eshorror.jpg",
+  esdrama: "assets/covers/esdrama.jpg",
+  dedrama: "assets/covers/dedrama.jpg",
+  gbdet: "assets/covers/gbdet.jpg",
+  gbdrama: "assets/covers/gbdrama.jpg",
+  pldrama: "assets/covers/pldrama.jpg",
   // 4. Постсоветский архив
-  suwar: "assets /covers/suwar.jpg",
-  sufi: "assets /covers/sufi.jpg",
-  suanim: "assets /covers/suanim.jpg",
-  uadrama: "assets /covers/uadrama.jpg",
+  suwar: "assets/covers/suwar.jpg",
+  sufi: "assets/covers/sufi.jpg",
+  suanim: "assets/covers/suanim.jpg",
+  uadrama: "assets/covers/uadrama.jpg",
   // 5. Америка и Латинская Америка
-  uscrime: "assets /covers/uscrime.jpg",
-  uswestern: "assets /covers/uswestern.jpg",
-  uscomedy: "assets /covers/uscomedy.jpg",
-  usdrama: "assets /covers/usdrama.jpg",
-  ushorror: "assets /covers/ushorror.jpg",
-  usscifi: "assets /covers/usscifi.jpg",
-  usanimation: "assets /covers/usanimation.jpg",
-  mxdrama: "assets /covers/mxdrama.jpg",
-  latam: "assets /covers/latam.jpg",
-  brazil: "assets /covers/brazil.jpg",
+  uscrime: "assets/covers/uscrime.jpg",
+  uswestern: "assets/covers/uswestern.jpg",
+  uscomedy: "assets/covers/uscomedy.jpg",
+  usdrama: "assets/covers/usdrama.jpg",
+  ushorror: "assets/covers/ushorror.jpg",
+  usscifi: "assets/covers/usscifi.jpg",
+  usanimation: "assets/covers/usanimation.jpg",
+  mxdrama: "assets/covers/mxdrama.jpg",
+  latam: "assets/covers/latam.jpg",
+  brazil: "assets/covers/brazil.jpg",
   // 6. Африка и Океания
-  african: "assets /covers/african.jpg",
-  auhorror: "assets /covers/auhorror.jpg"
+  african: "assets/covers/african.jpg",
+  auhorror: "assets/covers/auhorror.jpg"
 };
 function getThemeCover(id){
   return THEME_COVERS[id] || "";
@@ -224,7 +224,7 @@ async function loadCuratedTheme(theme, force) {
     const {poster_path, backdrop_path, vote_average, vote_count, popularity} = result.value;
     const title = selectMovieText(result.value, "title").text;
     const overview = selectMovieText(result.value, "overview").text;
-    return {...film, title:title || film.title, overview:overview || film.overview, poster_path, backdrop_path, vote_average, vote_count, popularity};
+    return {...film, title:title || film.title, overview:overview || film.overview, poster_path:poster_path || film.poster_path, backdrop_path:backdrop_path || film.backdrop_path, vote_average, vote_count, popularity};
   });
   return curatedData(films.filter(Boolean));
 }
@@ -323,7 +323,7 @@ home.after(sectionNav);sectionNav.after(vc);vc.after(vd);vd.after(vm);vm.after(v
 const NB="flex flex-col items-center justify-center gap-1 min-w-[64px] h-12 transition-all active:scale-95 ";
 const NON="text-primary-container font-bold drop-shadow-[0_0_12px_rgb(var(--kg-primary-container)/0.45)]",NOFF="text-text-muted";
 const nav=document.createElement("nav");
-nav.className="fixed bottom-0 w-full z-50 pb-safe bg-surface-panel/90 backdrop-blur-xl shadow-[0_-4px_24px_rgb(var(--kg-canvas-obsidian)/0.9)]";
+nav.className="fixed bottom-0 w-full z-50 pb-safe bg-surface-panel shadow-[0_-4px_24px_rgb(var(--kg-canvas-obsidian)/0.9)]";
 nav.innerHTML='<div class="flex justify-around items-center h-16 px-gutter-mobile">'+
 [["home","casino","Глобус"],["collections","movie_filter","Подборки"],["journey","travel_explore","Путешествие"],["history","history_toggle_off","История"]]
 .map(([v,i,l])=>`<a href="#" data-view="${v}" class="${NB}${NOFF}"><span class="material-symbols-outlined text-[22px]">${i}</span><span class="font-micro-caption text-micro-caption tracking-tight">${uiText(l)}</span></a>`).join("")+"</div>";
@@ -461,12 +461,37 @@ function syncLayout(root,layout,scope){
     ["text-text-muted","hover:text-primary"].forEach(name=>button.classList.toggle(name,!active));
   });
 }
+function collectionPoster(film, size) {
+  const urls = [...new Set([
+    P(film.localizedPoster?.path, size),
+    P(film.poster_path, size),
+    P(film.poster_path, size === "w342" ? "w185" : "w342"),
+    P(film.backdrop_path, "w780")
+  ].filter(Boolean))];
+  const placeholder = '<span class="material-symbols-outlined w-full h-full flex items-center justify-center text-text-muted" aria-hidden="true">movie</span>';
+  if (!urls.length) return placeholder;
+  const [src, ...fallbacks] = urls;
+  return `${placeholder}<img class="absolute inset-0 w-full h-full object-cover" loading="lazy" decoding="async" alt="" src="${esc(src)}" data-collection-poster="${esc(JSON.stringify(fallbacks))}">`;
+}
+
+document.addEventListener("error", event => {
+  const image = event.target;
+  if (!(image instanceof HTMLImageElement) || !image.hasAttribute("data-collection-poster")) return;
+  const urls = JSON.parse(image.dataset.collectionPoster);
+  const next = urls.shift();
+  if (!next) {
+    image.remove();
+    return;
+  }
+  image.dataset.collectionPoster = JSON.stringify(urls);
+  image.src = next;
+}, true);
+
 function posterTile(film,buttonAttributes,posterBadge=""){
   const title=esc(film.title||film.original_title||uiText("Фильм"));
   const score=Number(film.vote_average)||0;
-  const image=film.localizedPoster?.path||film.poster_path;
   return `<button type="button" ${buttonAttributes} class="kg-film-grid-tile">
-    <span class="kg-film-grid-poster">${image?`<img class="w-full h-full object-cover" src="${P(image,"w342")}" alt="" loading="lazy">`:'<span class="material-symbols-outlined w-full h-full flex items-center justify-center text-primary-container" aria-hidden="true">movie</span>'}
+    <span class="kg-film-grid-poster">${collectionPoster(film,"w342")}
     ${posterBadge}${score?`<span class="kg-film-grid-score">${score.toFixed(1)}</span>`:""}</span>
     <span class="kg-film-grid-title">${title}</span>
   </button>`;
@@ -823,7 +848,7 @@ function filmItem(f){
   const selected=D.selected&&D.selected._placement==="list"&&String(D.selected.id)===String(f.id)?D.selected:null;
   return `<article class="kg-film-list-shell flex flex-col gap-space-sm p-3 rounded-xl bg-surface-panel shadow-md hover:bg-surface-container-low transition-colors">
 <div class="flex gap-space-sm cursor-pointer" role="button" tabindex="0" data-act="open" data-id="${f.id}">
-<div class="kg-film-card-poster relative flex-shrink-0 rounded-lg overflow-hidden bg-surface-container-high">${f.poster_path?`<img class="w-full h-full object-cover" loading="lazy" alt="" src="${P(f.poster_path,"w185")}">`:`<div class="w-full h-full flex items-center justify-center text-text-muted"><span class="material-symbols-outlined">movie</span></div>`}
+<div class="kg-film-card-poster relative flex-shrink-0 rounded-lg overflow-hidden bg-surface-container-high">${collectionPoster(f,"w185")}
 <span class="absolute top-1 left-1 px-1 py-0.5 rounded bg-surface-panel/90 text-primary-container font-micro-caption text-micro-caption font-bold">${f.vote_average ? Number(f.vote_average).toFixed(1) : "—"} ★</span></div>
 <div class="flex flex-col justify-between flex-1 min-w-0"><div class="flex flex-col gap-0.5">
 <div class="flex items-center justify-between"><span class="font-micro-caption text-micro-caption text-text-muted">${fl(f._cc)} ${esc(cname(f._cc))}${y?" • "+y:""}</span><span data-rt="${f.id}" class="font-micro-caption text-micro-caption px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant">${uiText("— мин")}</span></div>
@@ -836,7 +861,7 @@ function pearlHtml(f,selected=null){
   const y=(f.release_date||"").slice(0,4);
   return `<div class="flex flex-col gap-space-xs"><div class="flex items-center gap-1.5 px-1"><span class="material-symbols-outlined text-[18px] text-primary-container">stars</span><h3 class="font-headline-sm text-headline-sm text-primary font-bold">${uiText("Жемчужина коллекции")}</h3></div>
 <div class="kg-film-list-shell relative overflow-hidden rounded-xl bg-surface-panel p-space-md shadow-xl flex flex-col gap-space-md"><div class="flex gap-space-md cursor-pointer" role="button" tabindex="0" data-act="open" data-id="${f.id}">
-<div class="relative flex-shrink-0 w-28 h-40 rounded-lg overflow-hidden bg-surface-container-high shadow-md">${f.poster_path?`<img class="w-full h-full object-cover" alt="" src="${P(f.poster_path,"w342")}">`:""}
+<div class="relative flex-shrink-0 w-28 h-40 rounded-lg overflow-hidden bg-surface-container-high shadow-md">${collectionPoster(f,"w342")}
 <div class="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded bg-surface-panel/90 backdrop-blur-md text-primary-container font-label-sm text-label-sm font-bold flex items-center gap-0.5"><span class="material-symbols-outlined text-[13px]" style="font-variation-settings:'FILL' 1;">star</span>${f.vote_average ? Number(f.vote_average).toFixed(1) : "—"}</div></div>
 <div class="flex flex-col justify-between flex-1 min-w-0"><div class="flex flex-col gap-1">
 <div class="flex items-center gap-1.5"><span class="font-micro-caption text-micro-caption px-1.5 rounded bg-surface-container text-on-surface-variant">${fl(f._cc)} ${y}</span><span data-rt="${f.id}" class="font-micro-caption text-micro-caption text-text-muted">${uiText("— мин")}</span></div>

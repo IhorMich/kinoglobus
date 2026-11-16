@@ -360,7 +360,7 @@ document.addEventListener("click", async event=>{
     pendingWatched.add(film.id);
     window.KGPaintWatchedButton?.(button,!window.KGIsFilmWatched?.(film.id));
     try { await window.KGToggleWatched(film); }
-    catch (error) { console.warn("[Kinoglobus] Не удалось обновить просмотр:",error); }
+    catch (error) { console.warn("[Moven: Explore] Не удалось обновить просмотр:",error); }
     finally { pendingWatched.delete(film.id); paintWatched(); }
   }
 });

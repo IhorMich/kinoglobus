@@ -1,5 +1,6 @@
 /* Visual feedback for the Steel theme, independent of each control's action. */
 (() => {
+  // Capture the click before search handlers disable the primary button.
   document.addEventListener("click", event => {
     if (document.documentElement.dataset.kgTheme !== "steel") return;
 
@@ -23,7 +24,7 @@
         control.setAttribute("data-kg-steel-sweep", "");
       }
     }
-  });
+  }, { capture: true });
 
   function finishSweep(event) {
     if (event.animationName === "kg-steel-sweep" && event.pseudoElement === "::after") {

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html class="dark" lang="ru" data-kg-theme="midnight" data-kg-button-accent="blue"><head><meta charset="utf-8"><link rel="stylesheet" href="app-theme.css?v=23">
+<!DOCTYPE html><html class="dark" lang="ru" data-kg-theme="midnight" data-kg-button-accent="blue"><head><meta charset="utf-8"><link rel="stylesheet" href="app-theme.css?v=24">
 <script src="steel-motion.js?v=3" defer></script>
 <script src="interface-en.js?v=41"></script>
 <script src="interface-i18n.js?v=2"></script>
@@ -794,8 +794,8 @@ localizeInterfaceMarkup(document.querySelector("main"));
       // Gold border
       const borderGrad = ctx.createLinearGradient(0, 0, 256, 160);
       borderGrad.addColorStop(0, readPaletteColor('--kg-globe-flag-edge'));
-      borderGrad.addColorStop(0.5, readPaletteColor('--kg-primary-container'));
-      borderGrad.addColorStop(1, readPaletteColor('--kg-accent-deep'));
+      borderGrad.addColorStop(0.5, readPaletteColor('--kg-globe-flag-band'));
+      borderGrad.addColorStop(1, readPaletteColor('--kg-globe-flag-shade'));
       ctx.strokeStyle = borderGrad;
       ctx.lineWidth = 6;
       ctx.strokeRect(3, 3, 250, 154);

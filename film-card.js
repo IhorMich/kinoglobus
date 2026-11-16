@@ -62,7 +62,7 @@ function markup(f, {closable = true, inline = false} = {}) {
 ${orig? `<p class="text-body-sm text-text-muted">${orig}</p>` : ""}
 <p class="mt-1 text-body-sm text-on-surface-variant">${[countries,esc(genres),f.runtime?uiText("{minutes} мин",{minutes:f.runtime}):""].filter(Boolean).join(" · ")}</p>
 ${rating ? `<div class="mt-2 flex" data-kg-film-rating>${rating}</div>` : ""}
-<div data-kg-film-actions class="kg-film-detail-actions">
+<div data-kg-film-actions class="kg-film-detail-actions" role="group">
 ${window.KGWatchedButtonHtml(watched, `data-film-watched="${Number(f.id)}"`)}
 ${kgBookmarkButton(f)}
 <button type="button" data-kg-film-note aria-label="${diaryLabel}" title="${diaryLabel}"><span class="material-symbols-outlined" aria-hidden="true">add</span></button>
@@ -131,42 +131,58 @@ article:has(>[data-oscar-detail-host]>.kg-film-detail),article:has(>[id^="mood-f
   flex-wrap: wrap;
 }
 .kg-film-detail-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2px;
+  width: min(100%, 156px);
   margin-top: 12px;
+  padding: 2px;
+  border: 1px solid var(--kg-nav-control-border);
+  border-radius: 999px;
+  background: var(--kg-nav-control-fill);
 }
 .kg-film-detail .kg-film-detail-actions > button {
-  display: inline-grid;
+  display: grid;
   place-items: center;
-  width: 44px;
+  width: 100%;
+  min-width: 0;
   height: 44px;
   padding: 0;
-  border-radius: 10px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  box-shadow: none;
+  color: rgb(var(--kg-on-surface));
+  cursor: pointer;
+  transition: color .15s, background-color .15s, transform .15s;
 }
-.kg-film-detail-actions [data-kg-film-note] {
-  border: 1px solid rgb(var(--kg-primary)/.32);
-  background: rgb(var(--kg-surface-container-high));
+.kg-film-detail .kg-film-detail-actions > button:hover {
+  outline: none;
   color: rgb(var(--kg-primary));
 }
-.kg-film-detail-actions .kg-watched-button > span {
+:root[data-kg-theme] .kg-film-detail .kg-film-detail-actions > button[aria-pressed="true"] {
+  background: rgb(var(--kg-primary) / .14);
+  box-shadow: none;
+  color: rgb(var(--kg-primary));
+}
+.kg-film-detail .kg-film-detail-actions > button:active {
+  transform: scale(.96);
+}
+.kg-film-detail .kg-film-detail-actions > button:focus-visible {
+  outline: 2px solid rgb(var(--kg-primary));
+  outline-offset: -2px;
+}
+.kg-film-detail .kg-film-detail-actions .kg-watched-button > span {
   display: none;
 }
-.kg-film-detail-actions .kg-watched-icon {
-  width: 21px;
-  height: 21px;
-}
-.kg-film-detail .kg-film-detail-actions button.kg-watched-button[aria-pressed="true"] {
-  border-color: rgb(var(--kg-primary));
-  background: rgb(var(--kg-primary));
-  color: rgb(var(--kg-canvas-obsidian));
-}
-.kg-film-detail .kg-film-detail-actions .kg-bookmark-button .material-symbols-outlined {
+.kg-film-detail .kg-film-detail-actions .kg-watched-icon {
+  width: 22px;
+  height: 22px;
   color: inherit;
 }
-.kg-film-detail-actions > button:focus-visible {
-  outline: 2px solid rgb(var(--kg-primary));
-  outline-offset: 2px;
+:root[data-kg-theme] .kg-film-detail .kg-film-detail-actions .material-symbols-outlined {
+  font-size: 22px;
+  color: inherit;
 }
 .kg-film-detail-poster{display:grid;place-items:center;position:relative;overflow:hidden;aspect-ratio:2/3;border-radius:9px;background:rgb(var(--kg-surface-container-high));color:rgb(var(--kg-primary))}
 .kg-film-detail-close{position:absolute;right:0;top:0;z-index:1;display:grid;place-items:center;width:36px;height:36px;border-radius:50%;color:rgb(var(--kg-text-muted));background:rgb(var(--kg-surface-container-high))}

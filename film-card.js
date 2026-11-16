@@ -74,7 +74,7 @@ ${closable ? `<button type="button" data-act="close-film" aria-label="${uiText("
 ${f.tagline&&f.taglineLang===f.overviewLang ? `<blockquote class="italic text-primary-fixed">«${esc(f.tagline)}»</blockquote>` : ""}
 <p class="text-body-md text-on-surface leading-relaxed">${esc(f.overview)}</p>${languageNote ? `<small class="text-text-muted">${esc(languageNote)}</small>` : ""}</div>
 <div data-film-part="trailer" class="flex flex-col gap-2">
-<div data-kg-film-trailer class="kg-detail-trailer rounded-xl border border-primary-container/30" ${video ? 'data-video-key="' + esc(video.key) + '"' : ""}>
+<div data-kg-film-trailer class="kg-detail-trailer" ${video ? 'data-video-key="' + esc(video.key) + '"' : ""}>
 <div data-kg-film-preview class="absolute inset-0">${preview}${certBadge}</div></div>
 <div class="flex flex-wrap items-center gap-2">
 <button type="button" hidden data-trailer-action="close" class="min-h-10 px-3 rounded-lg bg-surface-container text-primary text-label-sm"><span class="material-symbols-outlined text-[16px] align-middle" aria-hidden="true">close</span> ${uiText("Закрыть трейлер")}</button>
@@ -97,7 +97,7 @@ ${fact("Мировые сборы",`<span class="font-headline-sm text-headline-
 
 const style = document.createElement("style");
 style.textContent = `
-.kg-film-detail{display:flex;flex-direction:column;gap:14px;width:100%;max-width:100%;min-width:0;box-sizing:border-box;padding:14px;background:rgb(var(--kg-surface-panel));border:1px solid rgb(var(--kg-primary-container)/.25);border-radius:16px;scroll-margin-top:84px}
+.kg-film-detail{display:flex;flex-direction:column;gap:14px;width:100%;max-width:100%;min-width:0;box-sizing:border-box;padding:14px;background:rgb(var(--kg-surface-panel));border:0;border-radius:0;scroll-margin-top:84px}
 #kg-globe-film{margin-inline:-15px}
 .kg-film-list-shell:has(>.kg-film-detail){padding:0;background:none;box-shadow:none;overflow:visible}
 .kg-film-list-shell:has(>.kg-film-detail)>[data-act="open"]{padding:12px;border-radius:12px;background:rgb(var(--kg-surface-panel))}
@@ -162,10 +162,11 @@ article:has(>[data-oscar-detail-host]>.kg-film-detail),article:has(>[id^="mood-f
 }
 .kg-film-detail-poster{display:grid;place-items:center;position:relative;overflow:hidden;aspect-ratio:2/3;border-radius:9px;background:rgb(var(--kg-surface-container-high));color:rgb(var(--kg-primary))}
 .kg-film-detail-close{position:absolute;right:0;top:0;z-index:1;display:grid;place-items:center;width:36px;height:36px;border-radius:50%;color:rgb(var(--kg-text-muted));background:rgb(var(--kg-surface-container-high))}
-.kg-detail-trailer{position:relative;width:100%;aspect-ratio:16/9;background:rgb(var(--kg-black));overflow:hidden;isolation:isolate}
+.kg-film-detail:not([hidden]) [data-film-part="trailer"]{width:100%;min-width:0}
+.kg-film-detail .kg-detail-trailer{position:relative;width:100vw;max-width:none;margin-inline:calc(50% - 50vw);aspect-ratio:16/9;background:rgb(var(--kg-black));overflow:hidden;isolation:isolate}
 .kg-film-detail [hidden]{display:none!important}
 .kg-film-detail [data-film-part="providers"]:not(:has(.kgw-row:not([hidden]))),.kg-film-detail [data-film-part="awards"]:empty{display:none}
-.kg-film-dialog{position:fixed;inset:0;margin:auto;padding:0;width:min(100%,520px);max-width:100%;height:min(100dvh,900px);max-height:100dvh;overflow:auto;overscroll-behavior:contain;color:rgb(var(--kg-on-surface));background:rgb(var(--kg-surface));border:0;text-align:left}
+.kg-film-dialog{position:fixed;inset:0;margin:auto;padding:0;width:100%;max-width:100%;height:100dvh;max-height:100dvh;overflow:auto;overscroll-behavior:contain;color:rgb(var(--kg-on-surface));background:rgb(var(--kg-surface));border:0;text-align:left}
 .kg-film-dialog::backdrop{background:rgb(var(--kg-black)/.68)}
 .kg-film-dialog-header{position:sticky;top:0;z-index:2;display:flex;align-items:center;min-height:56px;padding:env(safe-area-inset-top,0px) 12px 0;background:rgb(var(--kg-surface));border-bottom:1px solid rgb(var(--kg-surface-border-subtle))}
 .kg-film-dialog-header button{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 10px;color:rgb(var(--kg-primary))}

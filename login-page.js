@@ -3,7 +3,7 @@
   const styles = document.createElement("style");
   styles.textContent = `
     #kg-login {
-      position:fixed; inset:0; margin:0 auto; width:min(100%,520px);
+      position:fixed; inset:0; margin:0 auto; width:100%;
       height:100dvh; max-height:100dvh; padding:0; border:0;
       background:rgb(var(--kg-surface)); color:rgb(var(--kg-on-surface));
     }

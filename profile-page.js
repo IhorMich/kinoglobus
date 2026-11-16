@@ -35,7 +35,7 @@
   const styles = document.createElement("style");
   styles.textContent = `
     #kg-profile {
-      position:fixed;inset:0;margin:0 auto;width:min(100%,520px);max-width:none;
+      position:fixed;inset:0;margin:0 auto;width:100%;max-width:none;
       height:100dvh;max-height:100dvh;padding:0;border:0;overflow:hidden;
       background:rgb(var(--kg-neutral-35));color:rgb(var(--kg-neutral-127));font:14px/1.45 var(--kg-font-interface);color-scheme:dark;
       --profile-gold:rgb(var(--kg-primary-fixed-dim));--profile-muted:rgb(var(--kg-warm-text-19));--profile-card:rgb(var(--kg-neutral-70));--profile-tile:rgb(var(--kg-neutral-86));

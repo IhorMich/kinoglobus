@@ -791,7 +791,7 @@
 
 :root[data-kg-theme="steel"] :is(
   #recent-discovery-card, #genre-filter-panel, #country-filter-panel,
-  #kg-home-feature:not(:has(> .kg-film-detail)), .kg-film-detail
+  #kg-home-feature:not(:has(> .kg-film-detail))
 ) {
   background: var(--kg-metal-panel);
   border: 1px solid var(--kg-metal-edge);
@@ -1232,4 +1232,31 @@ body {
 
 .kg-country-count-icon {
   flex: none;
+}
+
+
+/* Full-width media keeps its composition without inheriting card gutters. */
+#roulette-section {
+  width: 100vw;
+  max-width: none;
+  align-self: center;
+  border: 0;
+  border-radius: 0;
+}
+
+#globe-container {
+  width: 100vw;
+  max-width: none;
+  border-radius: 0;
+}
+
+.kg-country-progress {
+  display: grid;
+  justify-items: start;
+  white-space: nowrap;
+  line-height: 1.1;
+}
+.kg-country-progress-label {
+  color: rgb(var(--kg-on-surface-variant));
+  font-size: .65rem;
 }

@@ -98,7 +98,7 @@
     stopSpin(root);
     state.sort="new";state.onlyBest=false;state.onlyUnseen=false;state.group=true;state.view="list";
     state.films=[];state.decade="all";state.shown=6;state.feature=null;state.featureDetails=null;state.selected=null;state.loaded=false;
-    root.innerHTML=`<div class="flex flex-col w-full pb-safe max-w-[520px] mx-auto overflow-hidden">
+    root.innerHTML=`<div class="flex flex-col w-full pb-safe">
     <div class="flex items-center justify-between px-gutter-mobile pt-2"><button type="button" data-oscar-back class="w-11 h-11 -ml-1.5 flex items-center gap-1.5 text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined text-[22px]">arrow_back</span><span class="font-label-sm text-label-sm">${uiText("Подборки")}</span></button><span class="font-micro-caption text-micro-caption text-text-muted">${uiText("Moven: Explore · OSCAR WINNERS")}</span></div>
 <div class="relative w-full px-gutter-mobile pt-space-md"><div class="relative overflow-hidden rounded-2xl bg-gradient-to-b from-surface-container-high via-surface-panel to-surface-container-lowest p-space-lg shadow-xl shadow-canvas-obsidian/80">
 <div class="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-cinema-amber-glow blur-3xl pointer-events-none"></div><div class="absolute -bottom-16 -left-12 w-44 h-44 rounded-full bg-cinema-velvet-glow blur-3xl pointer-events-none"></div>

@@ -15,32 +15,15 @@
 </svg>
 </button>
 <div class="text-center flex-1 px-3">
-<div class="font-headline-sm text-base text-primary font-semibold leading-tight">
-          Настройки приложения
+<div id="kgs-title" class="font-headline-sm text-base text-primary font-semibold leading-tight">
+          Настройки
         </div>
 <p class="text-[11px] text-text-muted font-medium tracking-tight"><img class="kg-brand-mark" src="assets/branding/moven-icon-192.png" width="24" height="24" alt=""> Настройки Moven: Explore</p>
-</div>
-<div class="flex items-center gap-2">
-<div class="px-2.5 py-1 rounded-full bg-gradient-to-r from-primary-fixed-dim/20 to-primary-container/10 border border-primary-container/40 kgs-gold-shadow flex items-center gap-1">
-<span class="text-[10px] font-headline-sm font-bold text-primary-container tracking-wider">✦ VIP</span>
-</div>
-<div class="w-7 h-7 rounded-full bg-surface-container border border-primary-container/30 flex items-center justify-center">
-<div class="w-2.5 h-2.5 rounded-full bg-primary-container kgs-gold-shadow"></div>
-</div>
 </div>
 </div>
 </header>
 <div class="kgs-scroll px-4 pt-4 space-y-6">
 <section class="space-y-3" data-purpose="core-configuration">
-<div class="flex items-center justify-between px-1">
-<span class="text-[11px] font-bold tracking-widest text-primary-container uppercase font-micro-caption">
-          КОНФИГУРАЦИЯ ЯДРА • V2.4.2 PRODUCTION
-        </span>
-</div>
-<div class="space-y-1 px-1">
-<h1 id="kgs-title" class="font-display-hero-mobile text-display-hero-mobile text-primary">Настройки приложения</h1>
-<p class="text-xs text-text-muted font-light">Moven: Explore v2.4.2 · Движок кинематографической рулетки</p>
-</div>
 <div class="relative overflow-hidden rounded-2xl bg-gradient-to-b from-surface-container-high to-surface-panel border border-primary-container/25 p-[18px] shadow-xl transition-colors duration-300">
 <div class="theme-ambient-light absolute -right-12 -top-12 w-32 h-32 bg-primary-container/5 rounded-full blur-2xl pointer-events-none"></div>
 <div class="flex items-start gap-3.5">

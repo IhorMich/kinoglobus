@@ -39,7 +39,7 @@
   const styles = document.createElement("style");
   styles.textContent = `
     #kg-profile-editor {
-      position:fixed;inset:0;margin:0 auto;width:min(100%,520px);max-width:none;
+      position:fixed;inset:0;margin:0 auto;width:100%;max-width:none;
       height:100dvh;max-height:100dvh;overflow:hidden;border:0;padding:0;
       background:rgb(var(--kg-surface));color:rgb(var(--kg-on-surface));
       font:14px/1.5 var(--kg-font-interface);color-scheme:dark;

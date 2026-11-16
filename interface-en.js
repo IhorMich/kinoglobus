@@ -1,6 +1,9 @@
 // English translations for the Moven: Explore interface.
 window.KGInterfaceDictionaries ??= {};
 window.KGInterfaceDictionaries.en = Object.freeze({
+  "Открыто": "Opened",
+  "Стран: {count}": "Countries: {count}",
+  "Случайный фильм с оценкой от 7.": "A random film rated 7 or higher.",
   "Назад": "Back",
   "Настройки": "Settings",
   "Настройки приложения": "App settings",

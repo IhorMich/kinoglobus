@@ -3,7 +3,7 @@
   const style = document.createElement('style');
   style.textContent = `
     .kg-account-avatar{width:36px;height:36px;display:grid;place-items:center;padding:0;border:0;border-radius:50%;background:transparent;cursor:pointer;transition:transform .18s,filter .18s}.kg-account-avatar:hover{filter:brightness(1.15);transform:scale(1.05)}
-    #kg-account-dialog{position:fixed;inset:0;margin:0 auto;width:min(100%,520px);height:100dvh;max-height:100dvh;padding:0;border:0;border-radius:0;background:rgb(var(--kg-surface-container-lowest));color:rgb(var(--kg-on-surface));overflow:hidden;font-family:var(--kg-font-interface)}
+    #kg-account-dialog{position:fixed;inset:0;margin:0 auto;width:100%;height:100dvh;max-height:100dvh;padding:0;border:0;border-radius:0;background:rgb(var(--kg-surface-container-lowest));color:rgb(var(--kg-on-surface));overflow:hidden;font-family:var(--kg-font-interface)}
     #kg-account-dialog::backdrop{background:rgb(var(--kg-canvas-obsidian) / 0.933);backdrop-filter:blur(8px)}
     .kga-shell{height:100%;display:flex;flex-direction:column;background:radial-gradient(ellipse at 52% -12%,rgb(var(--kg-primary-container)/.12),transparent 37%),radial-gradient(ellipse at 95% 45%,rgb(var(--kg-secondary-container)/.11),transparent 38%),rgb(var(--kg-surface-container-lowest))}
     .kga-head{height:64px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-bottom:1px solid rgb(var(--kg-white)/0.04706);background:rgb(var(--kg-surface) / 0.800);backdrop-filter:blur(14px)}

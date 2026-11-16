@@ -324,7 +324,7 @@ const NB="flex flex-col items-center justify-center gap-1 min-w-[64px] h-12 tran
 const NON="text-primary-container font-bold drop-shadow-[0_0_12px_rgb(var(--kg-primary-container)/0.45)]",NOFF="text-text-muted";
 const nav=document.createElement("nav");
 nav.className="fixed bottom-0 w-full z-50 pb-safe bg-surface-panel/90 backdrop-blur-xl shadow-[0_-4px_24px_rgb(var(--kg-canvas-obsidian)/0.9)]";
-nav.innerHTML='<div class="flex justify-around items-center h-16 max-w-[520px] mx-auto px-gutter-mobile">'+
+nav.innerHTML='<div class="flex justify-around items-center h-16 px-gutter-mobile">'+
 [["home","casino","Глобус"],["collections","movie_filter","Подборки"],["journey","travel_explore","Путешествие"],["history","history_toggle_off","История"]]
 .map(([v,i,l])=>`<a href="#" data-view="${v}" class="${NB}${NOFF}"><span class="material-symbols-outlined text-[22px]">${i}</span><span class="font-micro-caption text-micro-caption tracking-tight">${uiText(l)}</span></a>`).join("")+"</div>";
 nav.setAttribute("aria-label",uiText("Навигация"));

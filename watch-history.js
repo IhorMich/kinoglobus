@@ -8,8 +8,13 @@
     return [...new Set([...fromFilm, ...fromDetails].map(x => String(x || '').toUpperCase()).filter(x => /^[A-Z]{2}$/.test(x)))];
   }
 
+  function creditedCountries(item) {
+    const codes = Array.isArray(item.countries) && item.countries.length ? item.countries : [item.cc];
+    return [...new Set(codes.filter(code => COUNTRIES.includes(code)))];
+  }
+
   window.KGWatchedCountryCounts = () => watched.reduce((counts, item) => {
-    (item.countries || []).forEach(code => { counts[code] = (counts[code] || 0) + 1; });
+    creditedCountries(item).forEach(code => { counts[code] = (counts[code] || 0) + 1; });
     return counts;
   }, {});
   window.KGIsFilmWatched = id => watched.some(item => Number(item.id) === Number(id));
@@ -81,7 +86,7 @@
     if (typeof renderMap === 'function') renderMap();
     window.KGRenderWatchedByCountry('');
     const countryCount = countOpenedCountries(window.KGWatchedCountryCounts());
-    const badge=document.querySelector('header a[data-path="moe-puteshestvie"] span:last-child');
+    const badge=document.getElementById("kg-opened-country-count");
     if(badge)badge.textContent=countryCount+'/'+COUNTRIES.length;
     const globe=window.MovenGlobe;
     if (globe && globe.setWatchedCountryOutlines) globe.setWatchedCountryOutlines(Object.keys(window.KGWatchedCountryCounts()));

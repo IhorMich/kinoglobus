@@ -44,7 +44,7 @@
   const style = document.createElement("style");
   style.textContent = `
     #kg-diary,#kg-diary-note {background:rgb(var(--kg-surface));color:rgb(var(--kg-on-surface));border:0;color-scheme:dark;font:14px/1.5 var(--kg-font-interface)}
-    #kg-diary {position:fixed;inset:0;width:min(100%,520px);max-width:none;height:100dvh;max-height:100dvh;margin:auto;padding:0;overflow:hidden}
+    #kg-diary {position:fixed;inset:0;width:100%;max-width:none;height:100dvh;max-height:100dvh;margin:auto;padding:0;overflow:hidden}
     #kg-diary::backdrop,#kg-diary-note::backdrop {background:rgb(var(--kg-canvas-obsidian) / .9)}
     #kg-diary [hidden] {display:none}
     #kg-diary button:focus-visible,#kg-diary-note :focus-visible {outline:2px solid rgb(var(--kg-primary));outline-offset:2px}
@@ -111,7 +111,7 @@
     .kg-diary-nav {justify-content:space-around;padding:5px 2% calc(5px + env(safe-area-inset-bottom,0px))}
     .kg-diary-nav button {min-height:45px;display:grid;justify-items:center;align-content:center;gap:3px;font-size:11px;color:rgb(var(--kg-on-surface-variant))}
     #kg-diary-note {
-      position:fixed;inset:0;width:min(100%,520px);max-width:none;height:100dvh;max-height:100dvh;
+      position:fixed;inset:0;width:100%;max-width:none;height:100dvh;max-height:100dvh;
       margin:0 auto;padding:0;overflow:auto;
     }
     .kg-diary-note-content:not(:empty) > strong:not([hidden]),

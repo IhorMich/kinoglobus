@@ -2371,15 +2371,20 @@ const SAMPLE_SOUNDS={
   "smp-impact":"assets/sounds/impact.mp3",
   "smp-blaster":"assets/sounds/blaster.mp3"
 };
-const SAMPLE_TICK_LEN=0.07;   // сколько секунд начала файла играет как «тик» при вращении
+const SAMPLE_TICK_LEN=0.09;   // сколько секунд начала файла играет как «тик» при вращении
 const SAMPLE_TICK_VOL=0.55;   // громкость тика
 const SAMPLE_WIN_VOL=0.9;     // громкость финального звука (полный файл)
-const sampleBuf={}, samplePending={};
+const sampleBuf={}, sampleOnset={}, samplePending={};
+function findOnset(buf){      // где в файле кончается тишина в начале
+  const ch=buf.getChannelData(0),lim=Math.min(ch.length,Math.floor(buf.sampleRate*0.5));
+  for(let i=0;i<lim;i++){if(Math.abs(ch[i])>0.015)return Math.max(0,i/buf.sampleRate-0.002);}
+  return 0;
+}
 function loadSample(key){
   if(sampleBuf[key]||samplePending[key]||!ac||!SAMPLE_SOUNDS[key])return;
   samplePending[key]=fetch(SAMPLE_SOUNDS[key]).then(r=>r.arrayBuffer())
     .then(b=>new Promise((res,rej)=>ac.decodeAudioData(b,res,rej)))
-    .then(buf=>{sampleBuf[key]=buf;}).catch(()=>{}).finally(()=>{delete samplePending[key];});
+    .then(buf=>{sampleOnset[key]=findOnset(buf);sampleBuf[key]=buf;}).catch(()=>{}).finally(()=>{delete samplePending[key];});
 }
 function sampleTick(key,e){
   const buf=sampleBuf[key];if(!buf){loadSample(key);return;}
@@ -2389,7 +2394,8 @@ function sampleTick(key,e){
     g.gain.setValueAtTime(SAMPLE_TICK_VOL,t);
     g.gain.setValueAtTime(SAMPLE_TICK_VOL,t+SAMPLE_TICK_LEN-0.02);
     g.gain.linearRampToValueAtTime(0.0001,t+SAMPLE_TICK_LEN);
-    src.connect(g);g.connect(soundOutput);src.start(t,0,SAMPLE_TICK_LEN+0.02);
+    const o=sampleOnset[key]||0;
+    src.connect(g);g.connect(soundOutput);src.start(t,o,SAMPLE_TICK_LEN+0.02);
   }catch(_){}
 }
 function sampleWin(key){
@@ -2397,7 +2403,7 @@ function sampleWin(key){
   try{
     const src=ac.createBufferSource(),g=ac.createGain();
     src.buffer=buf;g.gain.value=SAMPLE_WIN_VOL;
-    src.connect(g);g.connect(soundOutput);src.start();
+    src.connect(g);g.connect(soundOutput);src.start(0,sampleOnset[key]||0);
   }catch(_){}
 }
 const MARIMBA=[261.63,293.66,329.63,392,440,523.25,587.33,659.25];

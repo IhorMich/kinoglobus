@@ -320,20 +320,17 @@ sectionNav.innerHTML='<div class="grid grid-cols-3 gap-1.5 rounded-xl bg-surface
 "</div>";
 home.after(sectionNav);sectionNav.after(vc);vc.after(vd);vd.after(vm);vm.after(vo);
 
-const NB="flex flex-col items-center justify-center gap-1 min-w-[64px] h-12 transition-all active:scale-95 ";
-const NON="text-primary-container font-bold drop-shadow-[0_0_12px_rgb(var(--kg-primary-container)/0.45)]",NOFF="text-text-muted";
 const nav=document.createElement("nav");
 nav.className="fixed bottom-0 w-full z-50 pb-safe bg-surface-panel shadow-[0_-4px_24px_rgb(var(--kg-canvas-obsidian)/0.9)]";
-nav.innerHTML='<div class="flex justify-around items-center h-16 px-gutter-mobile">'+
+nav.innerHTML='<div class="kg-bottom-nav-grid">'+
 [["home","casino","Глобус"],["collections","movie_filter","Подборки"],["journey","travel_explore","Путешествие"],["history","history_toggle_off","История"]]
-.map(([v,i,l])=>`<a href="#" data-view="${v}" class="${NB}${NOFF}"><span class="material-symbols-outlined text-[22px]">${i}</span><span class="font-micro-caption text-micro-caption tracking-tight">${uiText(l)}</span></a>`).join("")+"</div>";
+.map(([v,i,l])=>`<a href="#" data-view="${v}" class="kg-bottom-nav-link"><span class="material-symbols-outlined text-[22px]">${i}</span><span class="font-micro-caption text-micro-caption tracking-tight">${uiText(l)}</span></a>`).join("")+"</div>";
 nav.setAttribute("aria-label",uiText("Навигация"));
 document.body.appendChild(nav);
 
 function paintBottomNav(panel, current) {
   panel.querySelectorAll("[data-view]").forEach(link => {
     const selected = link.dataset.view === current;
-    link.className = NB + (selected ? NON : NOFF);
     if (selected) link.setAttribute("aria-current", "page");
     else link.removeAttribute("aria-current");
   });

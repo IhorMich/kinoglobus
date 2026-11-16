@@ -324,13 +324,6 @@
 </section>
 <section class="rounded-2xl bg-surface-panel border border-surface-border-subtle p-4 space-y-4 transition-colors duration-300" data-purpose="film-search-settings">
 <h2 class="font-headline-sm text-headline-sm text-primary">Параметры поиска фильмов</h2>
-<div class="flex items-center justify-between gap-3">
-<div>
-<div class="text-xs font-bold text-on-surface uppercase">КОНТЕНТ ДЛЯ ВЗРОСЛЫХ (18+)</div>
-<div class="text-[10px] text-text-muted font-micro-caption uppercase">ПОКАЗЫВАТЬ ЖАНР 18+ В ФИЛЬТРАХ</div>
-</div>
-<button class="kgs-switch bg-surface-container-highest aria-checked:bg-primary-container" type="button" role="switch" aria-checked="false" aria-label="Контент для взрослых" data-kgs-adult><span aria-hidden="true"></span></button>
-</div>
 <div class="space-y-2 pt-2 border-t border-surface-border-subtle">
 <div class="text-xs font-bold text-primary-container uppercase tracking-tight font-micro-caption">
           РЕЖИМ РУЛЕТКИ ПО УМОЛЧАНИЮ
@@ -345,8 +338,8 @@
 <span>Удиви меня</span>
 </button>
 </div>
-<div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 pt-1" role="group" aria-label="Сценарии «Удиви меня»">
-${[["light","Лёгкое"],["find","Открытие"],["wild","Случайность"],["hard","Хардкор"]].map(([id,label]) => `
+<div class="grid grid-cols-3 gap-1.5 pt-1" role="group" aria-label="Сценарии «Удиви меня»">
+${[["light","Лёгкое"],["find","Открытие"],["wild","Случайность"]].map(([id,label]) => `
 <button class="min-h-9 px-2 rounded-lg bg-surface-container hover:bg-surface-container-high border border-surface-border-subtle text-xs font-medium text-on-surface-variant aria-pressed:bg-primary-container aria-pressed:text-on-primary-fixed" type="button" data-kgs-surprise="${id}" aria-pressed="false">${label}</button>
 `).join("")}
 </div>
@@ -527,7 +520,6 @@ ${[["light","Лёгкое"],["find","Открытие"],["wild","Случайн�
     $("[data-kgs-globe-sound-status]").textContent = globeMuted ? uiText("Без звука") : uiText("Активно");
     $("[data-kgs-preview]").disabled = globeMuted;
     switchState($("[data-kgs-fx]"), fx);
-    switchState($("[data-kgs-adult]"), showAdult);
     dialog.querySelectorAll("[data-kgs-reel-style]").forEach((choice)=>{
       const selected=choice.dataset.kgsReelStyle===reelStyle;
       choice.setAttribute("aria-checked",String(selected));
@@ -592,7 +584,7 @@ ${[["light","Лёгкое"],["find","Открытие"],["wild","Случайн�
     if (!apiKey) { message.textContent = uiText("Сначала добавьте ключ TMDB."); return; }
     message.textContent = uiText("Проверяем соединение…");
     try {
-      const response = await fetch(`https://api.themoviedb.org/3/configuration?api_key=${encodeURIComponent(apiKey)}`);
+      const response = await movieCatalog.request(`https://api.themoviedb.org/3/configuration?api_key=${encodeURIComponent(apiKey)}`);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       message.textContent = uiText("TMDB ответил успешно — соединение работает.");
     } catch (error) { message.textContent = uiText("Не удалось проверить соединение: {error}", {error: error.message}); }
@@ -603,7 +595,6 @@ ${[["light","Лёгкое"],["find","Открытие"],["wild","Случайн�
     const select=()=>{window.setCinemaReelStyle(choice.dataset.kgsReelStyle);sync();};
     choice.addEventListener("click",select);
   });
-  $("[data-kgs-adult]").addEventListener("click", () => { toggleAdultGenres(); sync(); });
   $("[data-kgs-mode=filters]").addEventListener("click", () => { document.getElementById("modeFilters").click(); sync(); });
   $("[data-kgs-mode=surprise]").addEventListener("click", () => { document.getElementById("modeSurprise").click(); sync(); });
   dialog.querySelectorAll("[data-kgs-surprise]").forEach(button => {

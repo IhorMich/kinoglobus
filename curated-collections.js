@@ -1,7 +1,7 @@
 (function () {
   function film(id, title, originalTitle, year, country, genres, overview) {
     return {
-      id, title, original_title: originalTitle, release_date: String(year),
+      id, adult: false, title, original_title: originalTitle, release_date: String(year),
       _cc: country, genre_ids: genres, overview
     };
   }

@@ -5,7 +5,7 @@
 <link rel="manifest" href="moven.webmanifest">
 <meta name="application-name" content="Moven: Explore">
 <meta name="description" content="Explore the world of cinema">
-<link rel="stylesheet" href="app-theme.css?v=40">
+<link rel="stylesheet" href="app-theme.css?v=41">
 <script src="steel-motion.js?v=4" defer></script>
 <script src="interface-en.js?v=46"></script>
 <script src="interface-i18n.js?v=2"></script>
@@ -90,8 +90,9 @@ try {
 </div>
 <header class="kg-main-header fixed top-0 w-full z-50 bg-canvas-obsidian">
   <nav class="kg-main-header-actions" aria-label="Навигация">
-    <button type="button" class="kg-header-action" data-kg-search-open aria-label="Поиск фильмов, актёров и режиссёров" title="Поиск">
+    <button type="button" class="kg-header-action kg-header-search" data-kg-search-open aria-label="Поиск фильмов, актёров и режиссёров" title="Поиск">
       <span class="material-symbols-outlined" aria-hidden="true">search</span>
+      <span>Поиск</span>
     </button>
     <a class="kg-header-action" data-path="nastrojki" href="#" aria-label="Настройки" title="Настройки">
       <span class="material-symbols-outlined" aria-hidden="true">settings</span>
@@ -101,11 +102,6 @@ try {
     </button>
   </nav>
 </header><main class="kg-main-content flex flex-col relative w-full pb-28 bg-transparent min-h-screen"><div class="flex flex-col w-full px-margin-mobile space-y-space-lg select-none">
-<!-- 1. Mode Switcher Segmented Control -->
-<section class="w-full">
-<div id="kg-mode-switch" class="flex items-center gap-2"><button class="kg-mode-choice flex-1 py-2.5 px-4 rounded-full font-label-md text-label-md transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer" id="btn-mode-filters" data-kg-steel-motion="mode" aria-pressed="false" type="button"><span class="material-symbols-outlined text-[18px]">tune</span><span class="">Свои фильтры</span></button><button class="kg-mode-choice flex-1 py-2.5 px-4 rounded-full font-label-md text-label-md transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer" id="btn-mode-surprise" data-kg-steel-motion="mode" aria-pressed="false" type="button"><span class="material-symbols-outlined text-[18px] text-secondary">auto_awesome</span><span class="">Удиви меня</span></button></div>
-</section>
-
 <!-- Visible TMDB key prompt (shown when key missing) -->
 <section id="tmdb-key-banner" class="w-full rounded-xl bg-surface-panel border border-primary-container/40 p-3.5 shadow-lg hidden">
   <div class="flex items-start gap-3">
@@ -122,7 +118,29 @@ try {
   </div>
 </section>
 
-<!-- 2. 'Удиви меня' Pill Matrix (Collapsible by mode) -->
+<!-- Globe and discovery actions -->
+<section class="relative w-full px-space-md pb-space-md flex flex-col items-center" id="roulette-section">
+<div class="relative w-full bg-black overflow-hidden flex flex-col items-center select-none" id="globe-container">
+<!-- 1. STATIC DEEP SPACE BACKGROUND LAYER -->
+<div class="absolute inset-0 z-0 overflow-hidden pointer-events-none select-none" id="starfield-bg">
+<img alt="Млечный Путь, снятый экипажем Artemis II. Фото NASA, «No Place Like Home»." class="w-full h-full object-cover object-center scale-105 pointer-events-none select-none opacity-90 contrast-125" src="assets/globe/milky-way.jpg">
+<div class="absolute inset-0 bg-gradient-to-b from-black/25 via-black/45 to-black/65 pointer-events-none"></div>
+</div>
+<!-- 2. 3D PLANET EARTH CANVASES & RENDER VIEWPORT -->
+<div class="relative w-full flex items-center justify-center pointer-events-auto z-10" id="earth-canvas-container">
+<!-- Interactive 3D Earth WebGL Canvas -->
+<canvas class="w-full h-full block touch-none cursor-grab active:cursor-grabbing" id="earth-webgl-canvas"></canvas>
+</div>
+<!-- Selected country details -->
+<div class="relative z-30 flex flex-col items-center justify-center px-3 pt-0 pb-2 transition-all duration-300 w-full max-w-[320px] text-center pointer-events-none" id="hero-hologram-display"><div class="relative w-9 h-9 rounded-2xl p-[2px] bg-gradient-to-tr from-cinema-velvet-deep via-primary-container to-primary flex items-center justify-center backdrop-blur-md mb-1 transition-transform" id="hologram-flag-orb"><div class="w-full h-full rounded-[14px] bg-surface-container-lowest/90 flex items-center justify-center overflow-hidden relative"><div class="absolute inset-0 bg-gradient-to-b from-white/15 via-transparent to-transparent pointer-events-none"></div><span class="text-3xl drop-shadow-[0_4px_16px_rgb(var(--kg-black)/0.8)] select-none transition-all duration-150" id="hero-country-flag">🇪🇸</span></div></div><h2 class="font-headline-lg text-headline-lg font-bold text-primary tracking-tight leading-tight truncate max-w-[260px]" id="hero-country-name">Испания</h2><div class="flex items-center gap-1.5 mt-1"><span class="px-2.5 py-0.5 rounded-full bg-surface-container-high/90 text-primary-fixed font-micro-caption text-micro-caption tracking-wider uppercase border border-primary-container/20" id="hero-country-region">ЮЖНАЯ ЕВРОПА</span></div><div class="flex items-center gap-1 text-text-muted font-micro-caption text-micro-caption mt-1.5 opacity-90"><span class="material-symbols-outlined text-[13px] text-primary-container">movie</span><span class="truncate max-w-[250px]" id="hero-country-master">Педро Альмодовар · Гильермо дель Торо</span></div></div></div>
+<!-- Tactile Primary CTA Button: 'Крутить глобус' -->
+<div class="w-full mt-3.5 z-10" id="globe-search-actions">
+<button class="relative w-full py-4 px-6 rounded-2xl text-canvas-obsidian font-label-lg text-[17px] font-semibold flex items-center justify-between shadow-[0_8px_32px_rgb(var(--kg-action-shadow)/0.45)] transition-all duration-200 hover:brightness-110 active:scale-[0.97] overflow-hidden group select-none cursor-pointer border border-white/20" id="btn-spin-roulette" data-kg-steel-motion="primary" style="background: var(--kg-spin-background, var(--kg-primary-button-fill)); box-shadow: var(--kg-spin-shadow, rgb(var(--kg-action-shadow)/0.45) 0px 8px 30px);" type="button"><span class="w-9 shrink-0" aria-hidden="true"></span><span class="font-semibold text-canvas-obsidian drop-shadow-[0_1px_1px_rgb(var(--kg-white)/0.4)] flex items-center gap-2" id="btn-spin-text"><span class="">Крутить глобус</span></span><span class="w-9 h-9 rounded-xl flex items-center justify-center text-xl text-black select-none font-bold transition-transform duration-300 group-hover:rotate-180" id="btn-spin-secondary-icon">↻</span></button>
+<!-- Secondary Quick-Action Cinema Launchers -->
+<div class="w-full grid grid-cols-2 gap-2 mt-2.5 z-10"><button class="py-2.5 px-3 rounded-xl text-on-surface hover:text-primary font-label-sm text-label-sm flex items-center justify-center gap-2 transition-all duration-200 active:scale-95 cursor-pointer backdrop-blur-md border border-primary-container/25 shadow-[0_4px_16px_rgb(var(--kg-black)/0.4)] hover:border-primary-container/50 hover:shadow-[0_0_14px_rgb(var(--kg-primary-container)/0.25)]" id="btn-top-one" aria-pressed="false" data-kg-steel-motion="quick" style="background: var(--kg-quick-action-background, linear-gradient(rgb(var(--kg-neutral-78)/0.85) 0%, rgb(var(--kg-neutral-38)/0.95) 100%));" type="button"><span class="material-symbols-outlined text-[18px] text-primary-container">military_tech</span><span class="font-medium">Топ-1 всех времён</span></button><button class="py-2.5 px-3 rounded-xl text-on-surface hover:text-secondary font-label-sm text-label-sm flex items-center justify-center gap-2 transition-all duration-200 active:scale-95 cursor-pointer backdrop-blur-md border border-secondary/25 shadow-[0_4px_16px_rgb(var(--kg-black)/0.4)] hover:border-secondary/50 hover:shadow-[0_0_14px_rgb(var(--kg-secondary)/0.25)]" id="btn-oscar-laureate" aria-pressed="false" data-kg-steel-motion="quick" style="background: var(--kg-quick-action-background, linear-gradient(rgb(var(--kg-violet-surface-02)/0.85) 0%, rgb(var(--kg-neutral-29)/0.95) 100%));" type="button"><span class="material-symbols-outlined text-[18px] text-secondary">hotel_class</span><span class="font-medium">Лауреат Оскар</span></button></div>
+<button class="w-full mt-2.5 py-2.5 px-4 rounded-full font-label-md text-label-md transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer" id="btn-mode-surprise" data-kg-steel-motion="mode" aria-pressed="false" aria-controls="surprise-levels-panel" type="button"><span class="material-symbols-outlined text-[18px] text-secondary">auto_awesome</span><span class="">Удиви меня</span></button>
+</div>
+<!-- Surprise search scenarios -->
 <section class="hidden flex flex-col space-y-2" id="surprise-levels-panel">
 <div class="flex items-center justify-between px-1">
 <span class="font-label-sm text-label-sm text-text-muted uppercase tracking-wider">Режим поиска</span>
@@ -146,27 +164,6 @@ try {
       Случайный фильм с оценкой от 7.
     </p>
 </section>
-<!-- Globe and discovery actions -->
-<section class="relative w-full p-space-md flex flex-col items-center" id="roulette-section">
-<div class="relative w-full bg-black overflow-hidden flex flex-col items-center select-none" id="globe-container">
-<!-- 1. STATIC DEEP SPACE BACKGROUND LAYER -->
-<div class="absolute inset-0 z-0 overflow-hidden pointer-events-none select-none" id="starfield-bg">
-<img alt="Млечный Путь, снятый экипажем Artemis II. Фото NASA, «No Place Like Home»." class="w-full h-full object-cover object-center scale-105 pointer-events-none select-none opacity-90 contrast-125" src="assets/globe/milky-way.jpg">
-<div class="absolute inset-0 bg-gradient-to-b from-black/25 via-black/45 to-black/65 pointer-events-none"></div>
-</div>
-<!-- 2. 3D PLANET EARTH CANVASES & RENDER VIEWPORT -->
-<div class="relative w-full flex items-center justify-center pointer-events-auto z-10" id="earth-canvas-container">
-<!-- Interactive 3D Earth WebGL Canvas -->
-<canvas class="w-full h-full block touch-none cursor-grab active:cursor-grabbing" id="earth-webgl-canvas"></canvas>
-</div>
-<!-- Selected country details -->
-<div class="relative z-30 flex flex-col items-center justify-center px-3 pt-0 pb-2 transition-all duration-300 w-full max-w-[320px] text-center pointer-events-none" id="hero-hologram-display"><div class="relative w-9 h-9 rounded-2xl p-[2px] bg-gradient-to-tr from-cinema-velvet-deep via-primary-container to-primary flex items-center justify-center backdrop-blur-md mb-1 transition-transform" id="hologram-flag-orb"><div class="w-full h-full rounded-[14px] bg-surface-container-lowest/90 flex items-center justify-center overflow-hidden relative"><div class="absolute inset-0 bg-gradient-to-b from-white/15 via-transparent to-transparent pointer-events-none"></div><span class="text-3xl drop-shadow-[0_4px_16px_rgb(var(--kg-black)/0.8)] select-none transition-all duration-150" id="hero-country-flag">🇪🇸</span></div></div><h2 class="font-headline-lg text-headline-lg font-bold text-primary tracking-tight leading-tight truncate max-w-[260px]" id="hero-country-name">Испания</h2><div class="flex items-center gap-1.5 mt-1"><span class="px-2.5 py-0.5 rounded-full bg-surface-container-high/90 text-primary-fixed font-micro-caption text-micro-caption tracking-wider uppercase border border-primary-container/20" id="hero-country-region">ЮЖНАЯ ЕВРОПА</span></div><div class="flex items-center gap-1 text-text-muted font-micro-caption text-micro-caption mt-1.5 opacity-90"><span class="material-symbols-outlined text-[13px] text-primary-container">movie</span><span class="truncate max-w-[250px]" id="hero-country-master">Педро Альмодовар · Гильермо дель Торо</span></div></div></div>
-<!-- Tactile Primary CTA Button: 'Крутить глобус' -->
-<div class="w-full mt-3.5 z-10" id="globe-search-actions">
-<button class="relative w-full py-4 px-6 rounded-2xl text-canvas-obsidian font-label-lg text-[17px] font-semibold flex items-center justify-between shadow-[0_8px_32px_rgb(var(--kg-action-shadow)/0.45)] transition-all duration-200 hover:brightness-110 active:scale-[0.97] overflow-hidden group select-none cursor-pointer border border-white/20" id="btn-spin-roulette" data-kg-steel-motion="primary" style="background: var(--kg-spin-background, var(--kg-primary-button-fill)); box-shadow: var(--kg-spin-shadow, rgb(var(--kg-action-shadow)/0.45) 0px 8px 30px);" type="button"><span class="w-9 shrink-0" aria-hidden="true"></span><span class="font-semibold text-canvas-obsidian drop-shadow-[0_1px_1px_rgb(var(--kg-white)/0.4)] flex items-center gap-2" id="btn-spin-text"><span class="">Крутить глобус</span></span><span class="w-9 h-9 rounded-xl flex items-center justify-center text-xl text-black select-none font-bold transition-transform duration-300 group-hover:rotate-180" id="btn-spin-secondary-icon">↻</span></button>
-<!-- Secondary Quick-Action Cinema Launchers -->
-<div class="w-full grid grid-cols-2 gap-2 mt-2.5 z-10"><button class="py-2.5 px-3 rounded-xl text-on-surface hover:text-primary font-label-sm text-label-sm flex items-center justify-center gap-2 transition-all duration-200 active:scale-95 cursor-pointer backdrop-blur-md border border-primary-container/25 shadow-[0_4px_16px_rgb(var(--kg-black)/0.4)] hover:border-primary-container/50 hover:shadow-[0_0_14px_rgb(var(--kg-primary-container)/0.25)]" id="btn-top-one" aria-pressed="false" data-kg-steel-motion="quick" style="background: var(--kg-quick-action-background, linear-gradient(rgb(var(--kg-neutral-78)/0.85) 0%, rgb(var(--kg-neutral-38)/0.95) 100%));" type="button"><span class="material-symbols-outlined text-[18px] text-primary-container">military_tech</span><span class="font-medium">Топ-1 всех времён</span></button><button class="py-2.5 px-3 rounded-xl text-on-surface hover:text-secondary font-label-sm text-label-sm flex items-center justify-center gap-2 transition-all duration-200 active:scale-95 cursor-pointer backdrop-blur-md border border-secondary/25 shadow-[0_4px_16px_rgb(var(--kg-black)/0.4)] hover:border-secondary/50 hover:shadow-[0_0_14px_rgb(var(--kg-secondary)/0.25)]" id="btn-oscar-laureate" aria-pressed="false" data-kg-steel-motion="quick" style="background: var(--kg-quick-action-background, linear-gradient(rgb(var(--kg-violet-surface-02)/0.85) 0%, rgb(var(--kg-neutral-29)/0.95) 100%));" type="button"><span class="material-symbols-outlined text-[18px] text-secondary">hotel_class</span><span class="font-medium">Лауреат Оскар</span></button></div>
-</div>
 </section>
 <!-- Главные фильтры -->
 <section class="w-full flex flex-col gap-2.5">
@@ -1865,7 +1862,6 @@ function paintGo(){ if(!$("go").disabled) $("go").textContent=goLabel(); }
 function applyMode(){
   selectQuickSearch("");
   const sur=playMode==="surprise";
-  $("btn-mode-filters").setAttribute("aria-pressed",String(!sur));
   $("btn-mode-surprise").setAttribute("aria-pressed",String(sur));
   $("surprise-levels-panel").classList.toggle("hidden",!sur);
   $("modeFilters").setAttribute("aria-pressed", sur?"false":"true");
@@ -2043,7 +2039,7 @@ window.KGResetSettings = () => {
   store.set("theme",themeId);
   surprise = "light";
   store.set("surprise",surprise);
-  $("btn-mode-filters").click();
+  $("modeFilters").click();
   if (filmLanguagePreference !== "auto" || interfaceLanguage !== "ru") location.reload();
 };
 $("resetSettings").onclick = window.KGResetSettings;
@@ -3447,10 +3443,9 @@ st.textContent=`
 #film-center-frame::before{top:-9px;border-top:7px solid rgb(var(--kg-primary-container));border-bottom:0}
 #film-center-frame::after{bottom:-9px;border-bottom:7px solid rgb(var(--kg-primary-container));border-top:0}
 #cinema-35mm-reel-section,#cl-result,#oscar-reel-detail,[id^="mood-roulette-winner-detail-"]{overflow-anchor:none}
-#btn-mode-filters,#btn-mode-surprise{border:1px solid rgb(var(--kg-surface-border-subtle));color:rgb(var(--kg-neutral-119));background:rgb(var(--kg-surface-container))}
-.kg-mode-choice[aria-pressed="false"]:hover{color:rgb(var(--kg-on-surface))}
-#btn-mode-filters[aria-pressed="true"],#btn-mode-surprise[aria-pressed="true"]{color:rgb(var(--kg-white));box-shadow:0 4px 18px rgb(var(--kg-rose-07)/0.26667)}
-#btn-mode-filters[aria-pressed="true"]{background:linear-gradient(135deg,rgb(var(--kg-accent-edge)),rgb(var(--kg-accent-strong)))}
+#btn-mode-surprise{border:1px solid rgb(var(--kg-surface-border-subtle));color:rgb(var(--kg-neutral-119));background:rgb(var(--kg-surface-container))}
+#btn-mode-surprise[aria-pressed="false"]:hover{color:rgb(var(--kg-on-surface))}
+#btn-mode-surprise[aria-pressed="true"]{color:rgb(var(--kg-white));box-shadow:0 4px 18px rgb(var(--kg-rose-07)/0.26667)}
 #btn-mode-surprise[aria-pressed="true"]{background:linear-gradient(135deg,rgb(var(--kg-secondary-container)),rgb(var(--kg-rose-06)))}
 #film-details.veiled{display:none}
 .kg-film-card-poster{width:80px;height:112px;flex:none}
@@ -4005,8 +4000,10 @@ $("btn-spin-roulette").addEventListener("click",()=>{
 $("btn-top-one").addEventListener("click", () => selectQuickSearch("top1"));
 $("btn-oscar-laureate").addEventListener("click", () => selectQuickSearch("oscar"));
 $("btn-top-one").parentNode.after($("err"));
-$("btn-mode-filters").addEventListener("click",()=>$("modeFilters").click());
-$("btn-mode-surprise").addEventListener("click",()=>$("modeSurprise").click());
+$("btn-mode-surprise").addEventListener("click", () => {
+  const nextMode = playMode === "surprise" ? "modeFilters" : "modeSurprise";
+  $(nextMode).click();
+});
 
 // ---------- Навигация ----------
 const go=(sel,fn)=>document.querySelectorAll(`[data-path="${sel}"]`).forEach(a=>a.addEventListener("click",e=>{e.preventDefault();fn();}));
@@ -4053,7 +4050,7 @@ console.info("[Moven: Explore] Bridge v6 ready");
 <script src="oscar-design.js?v=27"></script>
 <script src="curated-collections.js?v=2"></script>
 <script src="film-card.js?v=7"></script>
-<script src="collections.js?v=113"></script>
+<script src="collections.js?v=114"></script>
 <script src="film-interactions.js?v=26"></script>
 <script src="legal-watch.js?v=8"></script>
 <script src="global-search.js?v=15"></script>
@@ -4089,8 +4086,7 @@ console.info("[Moven: Explore] Bridge v6 ready");
 
   const sizeChanges = new ResizeObserver(scheduleGlobeFit);
   for (const element of [
-    document.getElementById("kg-mode-switch"), document.getElementById("tmdb-key-banner"),
-    document.getElementById("surprise-levels-panel"), document.getElementById("hero-hologram-display"),
+    document.getElementById("tmdb-key-banner"), document.getElementById("hero-hologram-display"),
     actions, bottomNav
   ]) if (element) sizeChanges.observe(element);
   window.addEventListener("resize", scheduleGlobeFit);

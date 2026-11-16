@@ -324,7 +324,7 @@ const nav=document.createElement("nav");
 nav.className="fixed bottom-0 w-full z-50 pb-safe bg-surface-panel shadow-[0_-4px_24px_rgb(var(--kg-canvas-obsidian)/0.9)]";
 nav.innerHTML='<div class="kg-bottom-nav-grid">'+
 [["home","casino","Глобус"],["collections","movie_filter","Подборки"],["journey","travel_explore","Путешествие"],["history","history_toggle_off","История"]]
-.map(([v,i,l])=>`<a href="#" data-view="${v}" class="kg-bottom-nav-link"><span class="material-symbols-outlined text-[22px]">${i}</span><span class="font-micro-caption text-micro-caption tracking-tight">${uiText(l)}</span></a>`).join("")+"</div>";
+.map(([v,i,l])=>`<a href="#" data-view="${v}" class="kg-bottom-nav-link" aria-label="${esc(uiText(l))}"><span class="material-symbols-outlined text-[24px]" aria-hidden="true">${i}</span></a>`).join("")+"</div>";
 nav.setAttribute("aria-label",uiText("Навигация"));
 document.body.appendChild(nav);
 

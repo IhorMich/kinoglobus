@@ -387,7 +387,7 @@ try {
     <div id="crew" hidden></div><p id="tagline" hidden></p><p id="over"></p>
     <div id="player" hidden></div><p id="ytnote" hidden><a id="ytlink"></a></p>
   </div>
-  <dialog id="settings"><select id="snd"><option value="roulette">roulette</option><option value="bells">bells</option><option value="arcade">arcade</option><option value="casino">casino</option><option value="marimba">marimba</option><option value="space">space</option><option value="film">film</option><option value="orchestra">orchestra</option><option value="jazz">jazz</option><option value="synth">synth</option><option value="chimes">chimes</option><option value="off">off</option></select><select id="reel-snd"><option value="projector">35 мм · проектор</option><option value="imax">Кинозал · мягкий импульс</option><option value="camera">Кинокамера · механика</option><option value="tape">Магнитная плёнка</option><option value="premiere">Премьерный зал</option><option value="shutter">Кинокамера · затвор</option><option value="editbench">Монтажный стол · шаг кадра</option><option value="sixteenmm">16 мм · мягкая трещотка</option><option value="off">Без звука</option></select></dialog>
+  <dialog id="settings"><select id="snd"><option value="roulette">roulette</option><option value="bells">bells</option><option value="arcade">arcade</option><option value="casino">casino</option><option value="marimba">marimba</option><option value="space">space</option><option value="film">film</option><option value="orchestra">orchestra</option><option value="jazz">jazz</option><option value="synth">synth</option><option value="chimes">chimes</option><option value="smp-ui14">smp-ui14</option><option value="smp-ui02">smp-ui02</option><option value="smp-ui73">smp-ui73</option><option value="smp-build">smp-build</option><option value="smp-confirm">smp-confirm</option><option value="smp-impact">smp-impact</option><option value="smp-blaster">smp-blaster</option><option value="off">off</option></select><select id="reel-snd"><option value="projector">35 мм · проектор</option><option value="imax">Кинозал · мягкий импульс</option><option value="camera">Кинокамера · механика</option><option value="tape">Магнитная плёнка</option><option value="premiere">Премьерный зал</option><option value="shutter">Кинокамера · затвор</option><option value="editbench">Монтажный стол · шаг кадра</option><option value="sixteenmm">16 мм · мягкая трещотка</option><option value="off">Без звука</option></select></dialog>
   <dialog id="journey"><div id="jhead"></div><i id="jfill"></i><div id="mapbox"></div><div id="jstats"></div><div id="jopen"></div><div id="jclosed"></div><span id="jclosedsum"></span><div id="jfilms"></div><span id="jopenT"></span><span id="jfilmsT"></span><span id="minfo"></span><span id="jtitle"></span></dialog>
   <span id="topNote" hidden></span><span id="oscarNote" hidden></span>
   <div id="rwin"></div>
@@ -2311,6 +2311,7 @@ function audio() {
       soundOutput.connect(ac.destination);
     }
     if (ac.state !== "running") ac.resume().catch(() => {});
+    if (typeof SAMPLE_SOUNDS!=="undefined" && SAMPLE_SOUNDS[snd]) loadSample(snd);
     return ac;
   } catch (_) {
     return null;
@@ -2360,12 +2361,52 @@ function playFilmFoundSound() {
   tone(880,.42,.045,"sine",.105);
 }
 window.playFilmFoundSound = playFilmFoundSound;
+// ---- Sample sounds (mp3 from assets/sounds) ----
+const SAMPLE_SOUNDS={
+  "smp-ui14":"assets/sounds/ui-14.mp3",
+  "smp-ui02":"assets/sounds/ui-02.mp3",
+  "smp-ui73":"assets/sounds/ui-73.mp3",
+  "smp-build":"assets/sounds/build-finish.mp3",
+  "smp-confirm":"assets/sounds/confirm.mp3",
+  "smp-impact":"assets/sounds/impact.mp3",
+  "smp-blaster":"assets/sounds/blaster.mp3"
+};
+const SAMPLE_TICK_LEN=0.07;   // сколько секунд начала файла играет как «тик» при вращении
+const SAMPLE_TICK_VOL=0.55;   // громкость тика
+const SAMPLE_WIN_VOL=0.9;     // громкость финального звука (полный файл)
+const sampleBuf={}, samplePending={};
+function loadSample(key){
+  if(sampleBuf[key]||samplePending[key]||!ac||!SAMPLE_SOUNDS[key])return;
+  samplePending[key]=fetch(SAMPLE_SOUNDS[key]).then(r=>r.arrayBuffer())
+    .then(b=>new Promise((res,rej)=>ac.decodeAudioData(b,res,rej)))
+    .then(buf=>{sampleBuf[key]=buf;}).catch(()=>{}).finally(()=>{delete samplePending[key];});
+}
+function sampleTick(key,e){
+  const buf=sampleBuf[key];if(!buf){loadSample(key);return;}
+  try{
+    const t=ac.currentTime,src=ac.createBufferSource(),g=ac.createGain();
+    src.buffer=buf;src.playbackRate.value=0.9+e*0.4;   // чем дальше прогресс, тем выше тон
+    g.gain.setValueAtTime(SAMPLE_TICK_VOL,t);
+    g.gain.setValueAtTime(SAMPLE_TICK_VOL,t+SAMPLE_TICK_LEN-0.02);
+    g.gain.linearRampToValueAtTime(0.0001,t+SAMPLE_TICK_LEN);
+    src.connect(g);g.connect(soundOutput);src.start(t,0,SAMPLE_TICK_LEN+0.02);
+  }catch(_){}
+}
+function sampleWin(key){
+  const buf=sampleBuf[key];if(!buf){loadSample(key);return;}
+  try{
+    const src=ac.createBufferSource(),g=ac.createGain();
+    src.buffer=buf;g.gain.value=SAMPLE_WIN_VOL;
+    src.connect(g);g.connect(soundOutput);src.start();
+  }catch(_){}
+}
 const MARIMBA=[261.63,293.66,329.63,392,440,523.25,587.33,659.25];
-const THROTTLE={roulette:0,bells:110,arcade:55,casino:70,marimba:90,space:60,film:45,orchestra:95,jazz:80,synth:70,chimes:100};let lastT=0;
+const THROTTLE={roulette:0,bells:110,arcade:55,casino:70,marimba:90,space:60,film:45,orchestra:95,jazz:80,synth:70,chimes:100,"smp-ui14":70,"smp-ui02":70,"smp-ui73":70,"smp-build":70,"smp-confirm":70,"smp-impact":70,"smp-blaster":70};let lastT=0;
 function sTick(e){               // e = progress 0..1 (controls pitch)
   if(snd==="off"||!ac)return;
   const now=performance.now();if(now-lastT<(THROTTLE[snd]||0))return;lastT=now;
   const i=Math.min(7,Math.floor(e*8));
+  if(SAMPLE_SOUNDS[snd]){sampleTick(snd,e);return;}
   if(snd==="roulette"){click(0.8,1700+e*900);tone(150+e*40,0.05,0.10,"sine");}
   else if(snd==="bells"){tone(PENTA[i],0.4,0.08,"sine");}
   else if(snd==="casino"){tone(1568+e*600,0.09,0.05,"triangle");click(0.4,3200);}
@@ -2380,6 +2421,7 @@ function sTick(e){               // e = progress 0..1 (controls pitch)
 }
 function sWin(){
   if(snd==="off"||!ac)return;
+  if(SAMPLE_SOUNDS[snd]){sampleWin(snd);return;}
   if(snd==="arcade"){[523,659,784,1047].forEach((f,i)=>tone(f,0.14,0.05,"square",i*0.1));return;}
   if(snd==="casino"){
     [1760,2093,2637,2093,2637,3136,2637,3136].forEach((f,i)=>tone(f,0.3,0.05,"triangle",i*0.065));
@@ -2628,7 +2670,7 @@ function toggleVibration() {
 }
 $("fx").onclick = toggleVibration;
 fxLabel();
-$("snd").value=snd;$("snd").onchange=()=>{snd=$("snd").value;store.set("snd",snd);stopGlobeSoundPreview();};
+$("snd").value=snd;$("snd").onchange=()=>{snd=$("snd").value;store.set("snd",snd);stopGlobeSoundPreview();if(SAMPLE_SOUNDS[snd]){audio();loadSample(snd);}};
 
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const RM=matchMedia("(prefers-reduced-motion: reduce)").matches;

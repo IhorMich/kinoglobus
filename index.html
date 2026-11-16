@@ -48,7 +48,7 @@ try {
     .hint-float {
       animation: hintPulse 2.8s ease-in-out infinite;
     }
-  </style><script src="cinema-reel.js?v=42"></script><link rel="stylesheet" href="watched-button.css?v=7">
+  </style><script src="cinema-reel.js?v=43"></script><link rel="stylesheet" href="watched-button.css?v=7">
 <script src="watched-button.js?v=3"></script>
 <link rel="stylesheet" href="settings-page.css?v=10">
 </head><body class="bg-canvas-obsidian font-body-md text-on-surface flex flex-col min-h-screen relative">
@@ -3902,9 +3902,12 @@ renderBlank();
 const loaded=new Set();
 function loadPoster(f){
   return new Promise(r=>{
-    if(!f.poster_path||loaded.has(f.poster_path))return r();
-    const i=new Image();i.onload=i.onerror=()=>{loaded.add(f.poster_path);r();};
-    i.src="https://image.tmdb.org/t/p/w185"+f.poster_path;
+    if(!f.poster_path)return r();
+    const size=reelStyle==="cassette"?"w500":"w185";
+    const url="https://image.tmdb.org/t/p/"+size+f.poster_path;
+    if(loaded.has(url))return r();
+    const i=new Image();i.onload=i.onerror=()=>{loaded.add(url);r();};
+    i.src=url;
   });
 }
 const warmPosters=(pool,selected)=>{
@@ -3983,9 +3986,17 @@ async function spinReel(pool,film,cc){
   }
   if(reelStyle==="cassette"){
     if(!cur||cur.film.id!==film.id)return;
-    const host=$("film-reel-host"),seq=[];for(let i=0;i<20;i++)seq.push(others.length?others[i%others.length]:film);seq.push(film);
-    startFilmReelSound();const landed=await window.KGCinemaReel.spinCassetteDeck(host,seq,seq,film,{duration:3900,reducedMotion:RM,cancelled:()=>!cur||cur.film.id!==film.id,onOpen:f=>window.KGFilmCard.openDialog(f,document.activeElement),onRandom:f=>window.KGFilmCard.openDialog(f,document.activeElement)});stopFilmReelSound();
-    if(!landed||!cur||cur.film.id!==film.id)return;buzz([25,50,60]);reveal(film,pool);return;
+    const selection=cur,host=$("film-reel-host");
+    const seq=others.slice(0,20).concat(film);
+    let cancelled=false;
+    const cancel=()=>{cancelled=true;};
+    spinCancel=cancel;
+    const landed=await window.KGCinemaReel.spinCassetteDeck(host,seq,seq,film,{
+      reducedMotion:RM,cancelled:()=>cancelled||cur!==selection||reelStyle!=="cassette"
+    });
+    if(spinCancel===cancel)spinCancel=null;
+    if(!landed||cancelled||cur!==selection||reelStyle!=="cassette")return;
+    buzz([25,50,60]);reveal(film,pool);return;
   }
   if(!others.length||RM){renderStatic(pool,film,cc);reveal(film,pool);return;}
   const NEED=26,T=4600,TAIL=6;
@@ -4083,14 +4094,14 @@ window.show=function(cc,pool,film){
   refresh();
   $("kg-globe-film-context").innerHTML=globeFilmContext(cc);
   ag.hidden=$("again").hidden;
-  renderBlank();
+  if(reelStyle!=="cassette")renderBlank();
   window.KGFilmCard.hydrate(model,film,refresh,()=>globeFilm===model);
   stopReel();warmPosters(pool,film);
-  const selection = cur;
+  const selection = cur, displayStyle = reelStyle;
   spinTimer=setTimeout(async()=>{
     try{
       await scrollToFilmReel(card, fromSpin ? 620 : 500);
-      if(cur!==selection)return;
+      if(cur!==selection||reelStyle!==displayStyle)return;
       await spinReel(pool,film,cc);
     }catch(e){console.warn('[Moven: Explore] reel',e);if(cur===selection){stopFilmReelSound();renderStatic(pool,film,cc);reveal(film,pool);}}
   },0);

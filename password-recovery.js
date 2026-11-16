@@ -1,4 +1,4 @@
-/* KinoGlobus email recovery screen based on the supplied Stitch design. */
+/* Moven: Explore email recovery screen based on the supplied Stitch design. */
 (() => {
   const styles = document.createElement("style");
   styles.textContent = `
@@ -92,7 +92,7 @@
     <div class="kg-recovery-shell">
       <header class="kg-recovery-header">
         <button class="kg-recovery-back" type="button" data-kg-recovery-login aria-label="Назад" autofocus>${icon("arrow_back_ios_new", 22)}</button>
-        <span class="kg-recovery-brand">${icon("theater_comedy", 18)}KINOGLOBUS</span>
+        <span class="kg-recovery-brand">${icon("theater_comedy", 18)}Moven: Explore</span>
         <div class="kg-recovery-header-right">
           <button type="button" data-kg-recovery-register>Регистрация</button>
           <span class="kg-recovery-avatar">${icon("person", 18)}</span>
@@ -120,7 +120,7 @@
             <label for="kg-recovery-email"><span>ЭЛЕКТРОННАЯ ПОЧТА</span><small>Киноман ID</small></label>
             <div class="kg-recovery-input">
               ${icon("alternate_email")}
-              <input id="kg-recovery-email" name="email" type="email" autocomplete="email" autocapitalize="none" spellcheck="false" placeholder="tarkovsky@kinoglobus.app" required>
+              <input id="kg-recovery-email" name="email" type="email" autocomplete="email" autocapitalize="none" spellcheck="false" placeholder="name@example.com" required>
               <span class="kg-recovery-valid material-symbols-outlined" aria-hidden="true" hidden>verified</span>
             </div>
           </div>

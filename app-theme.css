@@ -1004,14 +1004,6 @@
   --profile-tile: rgb(var(--kg-surface-container-high));
 }
 
-:root:is([data-kg-theme="midnight"], [data-kg-theme="steel"]) #kg-profile .kg-profile-nav button {
-  color: rgb(var(--kg-nav-inactive));
-}
-
-:root:is([data-kg-theme="midnight"], [data-kg-theme="steel"]) #kg-profile .kg-profile-nav button .material-symbols-outlined {
-  color: inherit;
-}
-
 :root:is([data-kg-theme="midnight"], [data-kg-theme="steel"]) #kg-profile :is(.kg-profile-button.gold, .kg-profile-tabs button[aria-pressed="true"]) {
   background: rgb(var(--kg-primary-container));
   color: rgb(var(--kg-white));
@@ -1224,4 +1216,9 @@ body {
 
 .kg-main-content {
   padding-top: calc(var(--kg-main-header-height) + env(safe-area-inset-top, 0px));
+}
+
+.kg-dialog-bottom-nav {
+  flex: none;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }

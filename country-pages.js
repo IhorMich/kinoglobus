@@ -58,7 +58,8 @@
   const style = document.createElement('style');
   style.textContent = `
     #journey.kg-dlg{width:min(100vw,520px);max-width:100vw;height:100dvh;max-height:100dvh;border-radius:0;background:rgb(var(--kg-surface-container-lowest));border-color:rgb(var(--kg-surface-border-subtle))}
-    #journey .kg-in{padding:0;gap:0;height:100dvh;max-height:100dvh;overflow:auto;scroll-behavior:smooth}
+    #journey.kg-dlg[open]{display:flex;flex-direction:column;overflow:hidden}
+    #journey .kg-in{flex:1;min-height:0;max-height:none;padding:0;gap:0;overflow:auto;scroll-behavior:smooth}
     #journey .kg-country-legacy{display:none!important}
     #kg-country-app{font-family:var(--kg-font-interface);color:rgb(var(--kg-on-surface));min-height:100%;background:radial-gradient(ellipse at 90% 14%,rgb(var(--kg-secondary-container)/.17),transparent 34%),rgb(var(--kg-surface-container-lowest))}
     .kgc-head{height:60px;padding:0 16px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:5;background:rgb(var(--kg-surface)/.92);backdrop-filter:blur(18px);border-bottom:1px solid rgb(var(--kg-primary)/.08)}
@@ -749,6 +750,7 @@
     delete root.dataset.code;
     root.hidden = true;
     historyView.hidden = false;
+    window.KGMountBottomNav?.(dialog, dialog, "history");
     window.KGRenderWatchedByCountry('');
     if (!dialog.open) {window.KGFilmCard.stopTrailers();dialog.showModal();}
     shell.scrollTo({top:0,behavior:'instant'});
@@ -759,6 +761,7 @@
   function showAtlas() {
     root.hidden = false;
     historyView.hidden = true;
+    window.KGMountBottomNav?.(dialog, dialog, "journey");
     atlas();
     shell.scrollTo({top:0,behavior:'instant'});
   }
@@ -855,6 +858,9 @@
   }
   window.addEventListener('hashchange', openSharedPassport);
   openSharedPassport();
+  document.addEventListener('DOMContentLoaded', () => {
+    if (dialog.open) window.KGMountBottomNav?.(dialog, dialog, historyView.hidden ? "journey" : "history");
+  }, {once:true});
 
   root.addEventListener('keydown', event => {
     if (event.key !== 'Enter' && event.key !== ' ') return;

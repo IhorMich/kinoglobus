@@ -43,7 +43,7 @@
     #kg-profile::backdrop {background:rgb(var(--kg-neutral-17)/0.93725)}
     #kg-profile [hidden] {display:none}
     .kg-profile-shell {display:flex;flex-direction:column;height:100%}
-    .kg-profile-header,.kg-profile-nav {display:flex;align-items:center;gap:8px;background:rgb(var(--kg-neutral-35));flex:none}
+    .kg-profile-header {display:flex;align-items:center;gap:8px;background:rgb(var(--kg-neutral-35));flex:none}
     .kg-profile-header {padding:env(safe-area-inset-top,0px) 4% 0;min-height:calc(62px + env(safe-area-inset-top,0px))}
     .kg-profile-brand {flex:1;color:var(--profile-gold);font-size:21px;font-weight:600;line-height:1.1}
     .kg-profile-brand small {display:block;color:var(--profile-muted);font-size:9px;letter-spacing:.12em;text-transform:uppercase}
@@ -98,8 +98,6 @@
     .kg-profile-activity blockquote {margin-top:12px;background:rgb(var(--kg-neutral-52));padding:10px;border-radius:8px;font-style:italic;color:var(--profile-muted)}
     .kg-profile-club {background:linear-gradient(120deg,rgb(var(--kg-on-primary-fixed-variant)),rgb(var(--kg-neutral-85)) 58%,rgb(var(--kg-warm-surface-19)))}
     .kg-profile-club h2 {font-size:17px;font-weight:700;color:var(--profile-gold)}
-    .kg-profile-nav {justify-content:space-around;padding:5px 2% calc(5px + env(safe-area-inset-bottom,0px));box-shadow:0 -8px 30px rgb(var(--kg-neutral-09)/0.43922)}
-    .kg-profile-nav button {display:grid;justify-items:center;align-content:center;gap:3px;min-width:58px;min-height:48px;color:var(--profile-muted);font-size:11px}
   `;
   document.head.appendChild(styles);
 
@@ -195,12 +193,6 @@
           </div>
         </section>
       </div>
-      <nav class="kg-profile-nav" aria-label="Навигация">
-        <button type="button" data-profile-action="home">${icon("public")}<span>Глобус</span></button>
-        <button type="button" data-profile-action="collections">${icon("collections_bookmark")}<span>Подборки</span></button>
-        <button type="button" data-profile-action="history">${icon("history")}<span>История</span></button>
-        <button type="button" data-profile-action="settings">${icon("tune")}<span>Настройки</span></button>
-      </nav>
     </div>`;
   localizeInterfaceMarkup(dialog);
   document.body.appendChild(dialog);
@@ -210,9 +202,6 @@
   const tabs = [...dialog.querySelectorAll("[data-profile-tab]")];
   const panels = [...dialog.querySelectorAll("[data-profile-panel]")];
   const routes = {
-    home: 'body > nav [data-view="home"]',
-    collections: 'body > nav [data-view="collections"]',
-    history: 'body > nav [data-view="history"]',
     settings: "#gear",
     search: "[data-kg-search-open]"
   };
@@ -292,6 +281,7 @@
     renderProfile();
     selectTab("collections");
     status.textContent = message;
+    window.KGMountBottomNav?.(dialog, scroll.parentElement, "profile");
     if (!dialog.open) dialog.showModal();
     scroll.scrollTop = 0;
     return true;

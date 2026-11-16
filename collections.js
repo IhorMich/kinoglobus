@@ -327,7 +327,37 @@ nav.className="fixed bottom-0 w-full z-50 pb-safe bg-surface-panel/90 backdrop-b
 nav.innerHTML='<div class="flex justify-around items-center h-16 max-w-[520px] mx-auto px-gutter-mobile">'+
 [["home","casino","Глобус"],["collections","movie_filter","Подборки"],["journey","travel_explore","Путешествие"],["history","history_toggle_off","История"]]
 .map(([v,i,l])=>`<a href="#" data-view="${v}" class="${NB}${NOFF}"><span class="material-symbols-outlined text-[22px]">${i}</span><span class="font-micro-caption text-micro-caption tracking-tight">${uiText(l)}</span></a>`).join("")+"</div>";
+nav.setAttribute("aria-label",uiText("Навигация"));
 document.body.appendChild(nav);
+
+function paintBottomNav(panel, current) {
+  panel.querySelectorAll("[data-view]").forEach(link => {
+    const selected = link.dataset.view === current;
+    link.className = NB + (selected ? NON : NOFF);
+    if (selected) link.setAttribute("aria-current", "page");
+    else link.removeAttribute("aria-current");
+  });
+}
+
+window.KGMountBottomNav = (dialog, container, current) => {
+  let footer = container.querySelector(":scope > .kg-dialog-bottom-nav");
+  if (!footer) {
+    footer = nav.cloneNode(true);
+    footer.classList.remove("fixed", "bottom-0", "z-50", "pb-safe");
+    footer.classList.add("kg-dialog-bottom-nav");
+    container.appendChild(footer);
+    footer.addEventListener("click", event => {
+      const link = event.target.closest("[data-view]");
+      if (!link) return;
+      event.preventDefault();
+      if (link.dataset.view === footer.dataset.currentView) return;
+      dialog.close();
+      nav.querySelector(`[data-view="${link.dataset.view}"]`)?.click();
+    });
+  }
+  footer.dataset.currentView = current;
+  paintBottomNav(footer, current);
+};
 
 let view="home";
 function showView(v){
@@ -345,15 +375,13 @@ function showView(v){
   vm.style.display=v==="mood"?"":"none";
   vo.style.display=v==="oscar"?"":"none";
   const act=["collection","mood","oscar"].includes(v)?"collections":v;
-  nav.querySelectorAll("[data-view]").forEach(a=>{a.className=NB+(a.dataset.view===act&&a.dataset.view!=="journey"?NON:NOFF);});
+  paintBottomNav(nav, act);
   const section=v==="collection"?"collections":v;
   sectionNav.querySelectorAll("[data-collection-route]").forEach(button=>{
     const active=button.dataset.collectionRoute===section;
     button.className=`min-w-0 px-1.5 py-2 rounded-lg font-micro-caption text-micro-caption leading-tight ${active?"bg-primary-container text-on-primary-container font-semibold":"text-text-muted hover:text-primary"}`;
     button.setAttribute("aria-current",String(active));
   });
-  const sub=document.querySelector("header .flex-col > p");
-  if(sub) sub.textContent=uiText(v==="home"?"Случайная страна · Лучшие фильмы":v==="mood"?"Подборки · По настроению":v==="oscar"?"Подборки · Зал славы Оскара":"Moven: Explore — Тематическая Подборка");
   scrollTo({top:0});
   if(v==="collections") initCatalog();
   if(v==="mood"&&(!vm.dataset.ready||vm.dataset.key!==apiKey)){window.KGMoodPage.render(vm,pageDeps);vm.dataset.ready="true";vm.dataset.key=apiKey;}

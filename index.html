@@ -3285,10 +3285,17 @@ async function spinTop(){
   if(!apiKey){showKeyUi();$("err").textContent="Сначала введите ключ TMDB.";return;}
   store.set("year",$("year").value);store.set("yearTo",$("yearTo").value);
   audio();
-  lockSpin(uiText("Ищем фильм…"), true);
-  closePlayer();
+  const q = topQuery();
+  const frameOnly = countryFilters.size > 0;
+  const themedCountries = !frameOnly && q.theme ? q.countries || [] : [];
+  lockSpin(uiText("Ищем фильм…"), frameOnly || themedCountries.length > 0);
   try{
-    const q=topQuery();
+    if (frameOnly) {
+      closePlayer();
+      window.KGFrameSelectedCountry(q.countries[0], q.countries);
+    } else {
+      reelStart(themedCountries);
+    }
     const order=spinOrder(q.countries||COUNTRIES);
     const cap=q.y||q.yto||q.countries?Math.min(order.length,40):Math.min(order.length,24);
     const extra=[];   // фильмы из уже загруженных стран, для вида прокрутки
@@ -3304,7 +3311,7 @@ async function spinTop(){
         const ids=new Set([film.id]);
         const filler=shuffle(extra.filter(f=>f.poster_path&&!ids.has(f.id)&&ids.add(f.id))).slice(0,40);
         filler.push(film);
-        await presentFilmSearchResult(batch[k], {...pool, films:filler}, film, true);
+        await presentFilmSearchResult(batch[k], {...pool, films:filler}, film, frameOnly, themedCountries);
         return;
       }
     }
@@ -3312,7 +3319,7 @@ async function spinTop(){
       ?"За этот период подходящий фильм не нашёлся. Попробуйте другие годы или сбросьте историю."
       :"Лучший фильм не нашёлся. Смягчите фильтры или сбросьте историю.";
   }catch(e){$("err").textContent=e.message}
-  finally{unlockSpin();}
+  finally{if (!frameOnly) reelAbort();unlockSpin();}
 }
 
 const OSCAR_LIST="101353";
@@ -3365,9 +3372,9 @@ async function spinOscar(){
   $("err").textContent="";
   if(!apiKey){showKeyUi();$("err").textContent="Сначала введите ключ TMDB.";return;}
   audio();
-  lockSpin(uiText("Ищем фильм…"), true);
-  closePlayer();
+  lockSpin(uiText("Ищем фильм…"));
   try{
+    reelStart();
     const left=(await oscarFilms()).filter(f=>!seen.has(f.id));
     if(!left.length){$("err").textContent="Все лауреаты из списка уже в истории. Сбросьте историю, чтобы смотреть их снова.";return;}
     const film=pick(left);
@@ -3393,9 +3400,9 @@ async function spinOscar(){
     const all = await oscarFilms();
     const reelFilms = shuffle(all.filter(f => f.poster_path && f.id !== film.id)).slice(0, 40);
     reelFilms.push(film);
-    await presentFilmSearchResult(cc, {films:reelFilms, oscar:true, votes:film.vote_count || 0, total:all.length}, film, true);
+    await presentFilmSearchResult(cc, {films:reelFilms, oscar:true, votes:film.vote_count || 0, total:all.length}, film, false);
   }catch(e){$("err").textContent=e.message}
-  finally{unlockSpin();}
+  finally{reelAbort();unlockSpin();}
 }
 
 async function spin(countryCode = ""){

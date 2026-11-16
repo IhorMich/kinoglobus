@@ -1222,3 +1222,14 @@ body {
   flex: none;
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
+
+
+/* Leave just enough space for the whole planet and its action above the bottom tabs. */
+#earth-canvas-container {
+  height: clamp(128px, var(--kg-earth-room, calc(100svh - 430px)), 264px);
+  flex: none;
+}
+
+.kg-country-count-icon {
+  flex: none;
+}

@@ -5,7 +5,7 @@
 <link rel="manifest" href="moven.webmanifest">
 <meta name="application-name" content="Moven: Explore">
 <meta name="description" content="Explore the world of cinema">
-<link rel="stylesheet" href="app-theme.css?v=31">
+<link rel="stylesheet" href="app-theme.css?v=32">
 <script src="steel-motion.js?v=4" defer></script>
 <script src="interface-en.js?v=44"></script>
 <script src="interface-i18n.js?v=2"></script>
@@ -117,7 +117,7 @@ try {
 </div>
 <header class="kg-main-header fixed top-0 w-full z-50 bg-surface-panel/85 backdrop-blur-xl shadow-[0_4px_24px_rgb(var(--kg-canvas-obsidian)/0.85)]">
   <div class="kg-main-header-actions px-gutter-mobile max-w-[520px] mx-auto">
-    <button type="button" data-kg-search-open aria-label="Поиск фильмов, актёров и режиссёров" title="Поиск" class="w-9 h-9 flex items-center justify-center rounded-full text-primary-fixed hover:bg-surface-container-high border border-primary-container/20"><span class="material-symbols-outlined text-[20px]">search</span></button><a class="flex items-center gap-1.5 h-9 px-3 rounded-full bg-surface-container-high/90 text-primary-fixed border border-primary-container/20 transition-all active:scale-95 shadow-[0_0_10px_rgb(var(--kg-primary-container)/0.15)] hover:border-primary-container/50" data-path="moe-puteshestvie" href="#" title="Моё путешествие"><span class="material-symbols-outlined text-[16px] text-primary-container">explore</span><span class="font-label-sm text-label-sm font-bold text-primary-fixed tracking-wide">0/100</span></a><a aria-label="Настройки" class="w-9 h-9 flex items-center justify-center rounded-full text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all active:scale-95" data-path="nastrojki" href="#"><span class="material-symbols-outlined text-[20px]">settings</span></a><button id="kg-account-open" type="button" aria-label="Открыть профиль и регистрацию" title="Профиль" class="kg-account-avatar ml-0.5"><img alt="" class="w-8 h-8 rounded-full object-cover border border-primary-container/30 shadow-[0_0_8px_rgb(var(--kg-primary-container)/0.25)]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCdLg3sLBvV5C2sZ07bWRzHNAJmJaRmEX2Goq4C0MdemCoCPam7pZebU2QLXvbPIGiROKivIg5-BQrwLFBR1jND7Mm3QCBX2sm4c6mKTZKsJ7cM956ZwqniQ_ajzjh6Qt_hjTIbhqP2tu4tuNyBCe34OM_6Ei49zUEcke8sVmNKfalQmBXxvFY3w6gj0wjWsHNoh97ZLOMjX3FT4nK7mMo6yYR__VDDQb7D8fbOucu4"></button>
+    <button type="button" data-kg-search-open aria-label="Поиск фильмов, актёров и режиссёров" title="Поиск" class="w-9 h-9 flex items-center justify-center rounded-full text-primary-fixed hover:bg-surface-container-high border border-primary-container/20"><span class="material-symbols-outlined text-[20px]">search</span></button><a class="flex items-center gap-1.5 h-9 px-3 rounded-full bg-surface-container-high/90 text-primary-fixed border border-primary-container/20 transition-all active:scale-95 shadow-[0_0_10px_rgb(var(--kg-primary-container)/0.15)] hover:border-primary-container/50" data-path="moe-puteshestvie" href="#" title="Моё путешествие"><svg class="kg-country-count-icon text-primary-container" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18"/></svg><span class="font-label-sm text-label-sm font-bold text-primary-fixed tracking-wide">0/100</span></a><a aria-label="Настройки" class="w-9 h-9 flex items-center justify-center rounded-full text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all active:scale-95" data-path="nastrojki" href="#"><span class="material-symbols-outlined text-[20px]">settings</span></a><button id="kg-account-open" type="button" aria-label="Открыть профиль и регистрацию" title="Профиль" class="kg-account-avatar ml-0.5"><img alt="" class="w-8 h-8 rounded-full object-cover border border-primary-container/30 shadow-[0_0_8px_rgb(var(--kg-primary-container)/0.25)]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCdLg3sLBvV5C2sZ07bWRzHNAJmJaRmEX2Goq4C0MdemCoCPam7pZebU2QLXvbPIGiROKivIg5-BQrwLFBR1jND7Mm3QCBX2sm4c6mKTZKsJ7cM956ZwqniQ_ajzjh6Qt_hjTIbhqP2tu4tuNyBCe34OM_6Ei49zUEcke8sVmNKfalQmBXxvFY3w6gj0wjWsHNoh97ZLOMjX3FT4nK7mMo6yYR__VDDQb7D8fbOucu4"></button>
   </div>
 </header><main class="kg-main-content flex flex-col relative w-full pb-28 bg-transparent min-h-screen max-w-[520px] mx-auto"><div class="flex flex-col w-full px-margin-mobile space-y-space-lg select-none">
 <!-- 1. Mode Switcher Segmented Control -->
@@ -187,19 +187,19 @@ try {
 </div>
 </div>
 <!-- Photorealistic Earth Space Viewport Card -->
-<div class="relative w-full mx-auto rounded-2xl bg-black overflow-hidden flex flex-col items-center justify-between group h-[440px] select-none" id="globe-container">
+<div class="relative w-full mx-auto rounded-2xl bg-black overflow-hidden flex flex-col items-center group select-none" id="globe-container">
 <!-- 1. STATIC DEEP SPACE BACKGROUND LAYER -->
 <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none select-none" id="starfield-bg">
 <img alt="Млечный Путь, снятый экипажем Artemis II. Фото NASA, «No Place Like Home»." class="w-full h-full object-cover object-center scale-105 pointer-events-none select-none opacity-90 contrast-125" src="https://images-assets.nasa.gov/image/art002e028296/art002e028296~large.jpg">
 <div class="absolute inset-0 bg-gradient-to-b from-black/25 via-black/45 to-black/65 pointer-events-none"></div>
 </div>
 <!-- 2. 3D PLANET EARTH CANVASES & RENDER VIEWPORT -->
-<div class="absolute inset-0 flex items-center justify-center pointer-events-auto z-10" id="earth-canvas-container">
+<div class="relative w-full flex items-center justify-center pointer-events-auto z-10" id="earth-canvas-container">
 <!-- Interactive 3D Earth WebGL Canvas -->
 <canvas class="w-full h-full block touch-none cursor-grab active:cursor-grabbing" id="earth-webgl-canvas"></canvas>
 </div>
-<!-- Selected Country Holographic Display Card: reveals selected country details with golden radiance -->
-<div class="relative z-30 flex flex-col items-center justify-center px-4 pt-2 pb-3 transition-all duration-300 w-full max-w-[320px] text-center pointer-events-none mt-auto" id="hero-hologram-display" style="filter: drop-shadow(rgb(var(--kg-primary-container)/0.5) 0px 0px 20px);"><div class="relative w-15 h-15 rounded-2xl p-[2px] bg-gradient-to-tr from-cinema-velvet-deep via-primary-container to-primary shadow-[0_0_28px_rgb(var(--kg-primary-container)/0.7)] flex items-center justify-center backdrop-blur-md mb-1.5 transition-transform" id="hologram-flag-orb"><div class="w-full h-full rounded-[14px] bg-surface-container-lowest/90 flex items-center justify-center overflow-hidden relative shadow-[0_0_16px_rgb(var(--kg-primary-container)/0.4)]"><div class="absolute inset-0 bg-gradient-to-b from-white/15 via-transparent to-transparent pointer-events-none"></div><span class="text-3xl drop-shadow-[0_4px_16px_rgb(var(--kg-black)/0.8)] select-none transition-all duration-150" id="hero-country-flag">🇪🇸</span></div><div class="absolute -bottom-1 inset-x-3 h-2 bg-primary-container/70 blur-sm rounded-full"></div></div><div class="inline-flex items-center gap-1 px-3 py-0.5 rounded-full bg-[rgb(var(--kg-violet-surface-01))]/95 border border-primary-container/50 text-primary-container font-micro-caption mb-1 shadow-[0_0_12px_rgb(var(--kg-primary-container)/0.3)]"><span class="text-primary text-[10px]">✪</span><span class="font-bold tracking-wider uppercase text-primary-fixed">ВЫПАЛА СТРАНА</span></div><h2 class="font-headline-lg text-headline-lg font-bold text-primary tracking-tight leading-tight drop-shadow-[0_0_16px_rgb(var(--kg-accent-warm)/0.45)] truncate max-w-[260px]" id="hero-country-name">Испания</h2><div class="flex items-center gap-1.5 mt-1"><span class="px-2.5 py-0.5 rounded-full bg-surface-container-high/90 text-primary-fixed font-micro-caption text-micro-caption tracking-wider uppercase border border-primary-container/20" id="hero-country-region">ЮЖНАЯ ЕВРОПА</span><span class="px-2.5 py-0.5 rounded-full bg-cinema-velvet-deep/70 text-secondary font-micro-caption text-micro-caption tracking-wider" id="hero-country-films">295 лент</span></div><div class="flex items-center gap-1 text-text-muted font-micro-caption text-micro-caption mt-1.5 opacity-90"><span class="material-symbols-outlined text-[13px] text-primary-container">movie</span><span class="truncate max-w-[250px]" id="hero-country-master">Педро Альмодовар · Гильермо дель Торо</span></div></div></div>
+<!-- Selected country details -->
+<div class="relative z-30 flex flex-col items-center justify-center px-3 pt-0 pb-2 transition-all duration-300 w-full max-w-[320px] text-center pointer-events-none" id="hero-hologram-display"><div class="relative w-9 h-9 rounded-2xl p-[2px] bg-gradient-to-tr from-cinema-velvet-deep via-primary-container to-primary flex items-center justify-center backdrop-blur-md mb-1 transition-transform" id="hologram-flag-orb"><div class="w-full h-full rounded-[14px] bg-surface-container-lowest/90 flex items-center justify-center overflow-hidden relative"><div class="absolute inset-0 bg-gradient-to-b from-white/15 via-transparent to-transparent pointer-events-none"></div><span class="text-3xl drop-shadow-[0_4px_16px_rgb(var(--kg-black)/0.8)] select-none transition-all duration-150" id="hero-country-flag">🇪🇸</span></div></div><div class="inline-flex items-center gap-1 px-3 py-0.5 rounded-full bg-[rgb(var(--kg-violet-surface-01))]/95 border border-primary-container/50 text-primary-container font-micro-caption mb-1"><span class="text-primary text-[10px]">✪</span><span class="font-bold tracking-wider uppercase text-primary-fixed">ВЫПАЛА СТРАНА</span></div><h2 class="font-headline-lg text-headline-lg font-bold text-primary tracking-tight leading-tight truncate max-w-[260px]" id="hero-country-name">Испания</h2><div class="flex items-center gap-1.5 mt-1"><span class="px-2.5 py-0.5 rounded-full bg-surface-container-high/90 text-primary-fixed font-micro-caption text-micro-caption tracking-wider uppercase border border-primary-container/20" id="hero-country-region">ЮЖНАЯ ЕВРОПА</span><span class="px-2.5 py-0.5 rounded-full bg-cinema-velvet-deep/70 text-secondary font-micro-caption text-micro-caption tracking-wider" id="hero-country-films">295 лент</span></div><div class="flex items-center gap-1 text-text-muted font-micro-caption text-micro-caption mt-1.5 opacity-90"><span class="material-symbols-outlined text-[13px] text-primary-container">movie</span><span class="truncate max-w-[250px]" id="hero-country-master">Педро Альмодовар · Гильермо дель Торо</span></div></div></div>
 <!-- Tactile Primary CTA Button: 'Крутить глобус' -->
 <div class="w-full mt-3.5 z-10">
 <button class="relative w-full py-4 px-6 rounded-2xl text-canvas-obsidian font-label-lg text-[17px] font-semibold flex items-center justify-between shadow-[0_8px_32px_rgb(var(--kg-action-shadow)/0.45)] transition-all duration-200 hover:brightness-110 active:scale-[0.97] overflow-hidden group select-none cursor-pointer border border-white/20" id="btn-spin-roulette" data-kg-steel-motion="primary" style="background: var(--kg-spin-background, linear-gradient(135deg, rgb(var(--kg-accent-edge)) 0%, rgb(var(--kg-accent-strong)) 48%, rgb(var(--kg-action-gradient-end)) 100%)); box-shadow: var(--kg-spin-shadow, rgb(var(--kg-action-shadow)/0.45) 0px 8px 30px, rgb(var(--kg-white)/0.4) 0px 1px 1px inset);" type="button"><span class="w-9 shrink-0" aria-hidden="true"></span><span class="font-semibold text-canvas-obsidian drop-shadow-[0_1px_1px_rgb(var(--kg-white)/0.4)] flex items-center gap-2" id="btn-spin-text"><span class="">Крутить глобус</span></span><span class="w-9 h-9 rounded-xl flex items-center justify-center text-xl text-black select-none font-bold transition-transform duration-300 group-hover:rotate-180" id="btn-spin-secondary-icon">↻</span><div class="kg-spin-shimmer absolute inset-0 bg-gradient-to-r from-transparent via-white/35 to-transparent -translate-x-full animate-[shimmerMove_2.5s_infinite]"></div></button>
@@ -1111,7 +1111,7 @@ rotatingGroup.add(flagPinGroup);
       const height = container.clientHeight || 420;
 
       const scene = new THREE.Scene();
-      camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+      camera = new THREE.PerspectiveCamera(37, width / height, 0.1, 1000);
       camera.position.set(0, currentCameraY, defaultDist);
 
       const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
@@ -4107,11 +4107,37 @@ console.info("[Moven: Explore] Bridge v6 ready");
 <script src="oscar-design.js?v=27"></script>
 <script src="curated-collections.js?v=2"></script>
 <script src="film-card.js?v=6"></script>
-<script src="collections.js?v=109"></script>
+<script src="collections.js?v=110"></script>
 <script src="film-interactions.js?v=26"></script>
 <script src="legal-watch.js?v=8"></script>
 <script src="global-search.js?v=14"></script>
 <script src="home-releases.js?v=9"></script>
-<script src="settings-page.js?v=58"></script>
+<script src="settings-page.js?v=59"></script>
+<script>
+(() => {
+  const earth = document.getElementById("earth-canvas-container");
+  const spin = document.getElementById("btn-spin-roulette");
+  const bottomNav = document.querySelector("body > nav");
+  if (!earth || !spin) return;
+
+  function fitGlobe() {
+    if (!earth.clientWidth) return;
+    const earthRect = earth.getBoundingClientRect();
+    const belowEarth = spin.getBoundingClientRect().bottom - earthRect.bottom;
+    const bottomBarHeight = bottomNav?.offsetHeight ?? 0;
+    const availableHeight = window.innerHeight - bottomBarHeight - belowEarth - earthRect.top - window.scrollY - 8;
+    earth.style.setProperty("--kg-earth-room", `${Math.floor(availableHeight)}px`);
+  }
+
+  const sizeChanges = new ResizeObserver(fitGlobe);
+  for (const element of [
+    document.getElementById("kg-mode-switch"), document.getElementById("tmdb-key-banner"),
+    document.getElementById("surprise-levels-panel"), document.getElementById("hero-hologram-display"),
+    spin, bottomNav
+  ]) if (element) sizeChanges.observe(element);
+  window.addEventListener("resize", fitGlobe);
+  fitGlobe();
+})();
+</script>
 
 </body></html>

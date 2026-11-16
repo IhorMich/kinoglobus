@@ -360,7 +360,18 @@ window.KGMountBottomNav = (dialog, container, current) => {
 };
 
 let view="home";
-function showView(v){
+const previousViews = [];
+
+function rememberView(destination, collectionId = null) {
+  const currentId = view === "collection" ? D.t?.id ?? null : null;
+  if (destination === view && collectionId === currentId) return;
+  const previous = previousViews.at(-1);
+  if (previous?.view === destination && previous.collectionId === collectionId) previousViews.pop();
+  else previousViews.push({view, collectionId:currentId});
+}
+
+function showView(v, remember = true){
+  if (remember && v !== view) rememberView(v);
   if(v!==view) window.KGFilmCard.stopTrailers();
   if(v!=="mood"&&window.KGMoodPage)window.KGMoodPage.stop(vm);
   if(v!=="mood"&&window.KGMoodVibePage)window.KGMoodVibePage.stop();
@@ -398,6 +409,41 @@ sectionNav.addEventListener("click",e=>{
   const button=e.target.closest("[data-collection-route]");
   if(button)showView(button.dataset.collectionRoute);
 });
+
+// Android sends Back here. Reuse each screen's own close/back action.
+window.KGHandleBack = () => {
+  const focusedDialog = document.activeElement?.closest("dialog[open]");
+  const topDialog = focusedDialog || [...document.querySelectorAll("dialog[open]")].at(-1);
+  const person = (topDialog || document).querySelector("#kg-person-modal");
+  if (person) {
+    person.querySelector("[data-kg-person-close]")?.click();
+    return;
+  }
+  if (topDialog) {
+    const trailerClose = topDialog.querySelector('[data-trailer-action="close"]:not([hidden])');
+    if (trailerClose) { trailerClose.click(); return; }
+    if (topDialog.id === "journey") {
+      const back = topDialog.querySelector("#kg-country-app:not([hidden]) [data-atlas-back], #kg-watch-history:not([hidden]) [data-atlas-close], #kg-country-app:not([hidden]) [data-atlas-close]");
+      if (back) { back.click(); return; }
+    }
+    if (typeof topDialog.requestClose === "function") topDialog.requestClose();
+    else if (topDialog.dispatchEvent(new Event("cancel", {cancelable:true}))) topDialog.close();
+    return;
+  }
+  const search = document.querySelector("#kg-global-search:not([hidden]) [data-kgs-close]");
+  if (search) { search.click(); return; }
+  const trailerClose = [...document.querySelectorAll('[data-trailer-action="close"]:not([hidden])')]
+    .find(button => button.getClientRects().length);
+  if (trailerClose) { trailerClose.click(); return; }
+  if (D.selected) { closeInlineFilm(); return; }
+  const previous = previousViews.pop();
+  if (!previous) return;
+  if (previous.view === "collection" && previous.collectionId) {
+    openCollection(previous.collectionId, {returning:true});
+  } else {
+    showView(previous.view, false);
+  }
+};
 
 /* ================= КАТАЛОГ ================= */
 let catBuilt=false,activeCat="all",sortMode="curated";
@@ -895,11 +941,12 @@ ${t.cc.length>1?`<div class="flex flex-col gap-1.5 pt-1"><span class="font-micro
 
 async function openCollection(id,opt){
   const t=T[id];if(!t)return;
+  if (!opt?.returning) rememberView("collection", id);
   rStop();
   const cached=themeDataCache.get(themeDataKey(t,2));
   const initial=cached?.data || (t.films ? curatedData(t.films.map(localizeFilmListItem)) : null);
   D={t,all:initial?initial.films:[],total:initial?initial.total:0,totals:initial?initial.totals:{},cc:"",sort:"rating",shown:5,selected:null,picked:null};
-  renderCollection();showView("collection");
+  renderCollection();showView("collection", false);
   if(initial){
     $("cl-count").textContent=collectionFilmCount(D.total);
     renderFilms();

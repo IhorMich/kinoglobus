@@ -280,6 +280,7 @@
               <option value="cassetteRewind">Кассета · мотор перемотки</option>
               <option value="paperTickets">Билеты · шорох бумаги</option>
             </optgroup>
+            <optgroup label="Свои звуки (mp3)"><option value="rsm-click">Мышь · щелчок</option><option value="rsm-swoosh">Быстрый свуш</option><option value="rsm-cape">Свуш · плащ</option><option value="rsm-motion">Свуш · движение</option><option value="rsm-fire">Свуш · пламя</option><option value="rsm-whistle">Свисток · писк</option><option value="rsm-proj2">Проектор · живая запись 1</option><option value="rsm-cine">Проектор · живая запись 2</option></optgroup>
             <optgroup label="Другие профили"><option value="projector">Проектор · щелчки</option><option value="imax">Кинозал · мягкий импульс</option><option value="camera">Кинокамера · механика</option><option value="tape">Магнитная плёнка</option><option value="premiere">Премьерный зал</option><option value="shutter">Кинокамера · затвор</option><option value="editbench">Монтажный стол · шаг кадра</option><option value="sixteenmm">16 мм · мягкая трещотка</option></optgroup><option value="off">Без звука</option></select>
 <button class="w-full py-2 px-3 rounded-xl bg-surface-container hover:bg-surface-container-high border border-primary-container/30 text-primary-container text-xs font-medium transition-all flex items-center justify-center gap-1.5" type="button" data-kgs-reel-preview>
 <span>▶</span>

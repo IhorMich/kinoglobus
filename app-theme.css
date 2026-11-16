@@ -101,6 +101,8 @@
   --kg-globe-ground-light: 18 22 34;
   --kg-globe-flag-surface: 28 22 38;
   --kg-globe-flag-edge: var(--kg-primary);
+  --kg-globe-flag-band: var(--kg-primary-container);
+  --kg-globe-flag-shade: var(--kg-accent-deep);
   --kg-globe-ocean-shadow: 8 26 54;
   --kg-globe-ocean-light: 47 95 156;
   --kg-globe-land: 38 84 50;
@@ -678,6 +680,9 @@
 }
 
 :root[data-kg-theme="steel"] {
+  --kg-primary-container: 86 99 119;
+  --kg-accent-deep: 49 60 77;
+  --kg-secondary-container: 52 61 78;
   /* Цвета текста из экспорта Stitch. */
   --kg-on-surface: 223 226 242; /* #DFE2F2 */
   --kg-heading: var(--kg-on-surface);
@@ -693,13 +698,17 @@
 
   /* Палитра глобуса сохраняет свои синие акценты. */
   --kg-globe-flag-edge: 53 200 255;
+  --kg-globe-flag-band: var(--kg-swatch-blue);
+  --kg-globe-flag-shade: 16 82 214;
+  --kg-cinema-velvet-glow: var(--kg-globe-flag-band);
+  --kg-cinema-amber-glow: var(--kg-globe-flag-edge);
   --kg-globe-outline-glow: var(--kg-globe-flag-edge);
   --kg-globe-beacon-ring: var(--kg-globe-flag-edge);
   --kg-globe-beacon-dot: var(--kg-globe-flag-edge);
   --kg-globe-pin-beam: var(--kg-globe-flag-edge);
   --kg-globe-outline-core: var(--kg-globe-flag-edge);
   --kg-globe-pin-core: var(--kg-globe-flag-edge);
-  --kg-selection-glow: var(--kg-globe-flag-edge);
+  --kg-selection-glow: var(--kg-primary);
 
   --kg-action-gradient: linear-gradient(112deg, #fff 0%, #e2e8f0 20%, #aab8ca 54%, #54647a 77%, #1e293b 100%);
   --kg-action-gradient-pressed: linear-gradient(112deg, #e2e8f0 0%, #cbd5e1 20%, #98a8bd 54%, #46556a 77%, #151e2f 100%);
@@ -787,6 +796,16 @@
   box-shadow: var(--kg-metal-panel-shadow);
 }
 
+/* The planet and its ambient lighting keep their own palette. */
+:root[data-kg-theme="steel"] :is(#globe-container, #roulette-section > .blur-3xl) {
+  --kg-primary-container: var(--kg-globe-flag-band);
+}
+
+:root[data-kg-theme="steel"] .kga-input:focus {
+  border-color: rgb(var(--kg-primary));
+  box-shadow: 0 0 0 3px rgb(var(--kg-primary) / .12);
+}
+
 :root[data-kg-theme="steel"] #kg-mode-switch {
   padding: 0;
   gap: 8px;
@@ -853,6 +872,23 @@
 
 :root:is([data-kg-theme="midnight"], [data-kg-theme="steel"]) :is(.genre-pill, #genre-filter-chips button, #theme-filter button).text-canvas-obsidian {
   color: rgb(var(--kg-white));
+}
+
+:root[data-kg-theme="steel"] button:is(
+  [data-collection-route][aria-current="true"],
+  .filter-chip.bg-primary-container,
+  .kga-submit
+) {
+  background: var(--kg-metal-selected);
+  color: rgb(var(--kg-metal-mode-ink));
+}
+
+:root[data-kg-theme="steel"] button:is(
+  [data-collection-route][aria-current="true"],
+  .filter-chip.bg-primary-container,
+  .kga-submit
+) .material-symbols-outlined {
+  color: inherit;
 }
 
 /* Одинаковое оформление основных кнопок рулетки на всех экранах. */

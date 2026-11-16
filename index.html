@@ -1,5 +1,5 @@
-<!DOCTYPE html><html class="dark" lang="ru" data-kg-theme="midnight" data-kg-button-accent="blue"><head><meta charset="utf-8"><link rel="stylesheet" href="app-theme.css?v=21">
-<script src="steel-motion.js?v=1" defer></script>
+<!DOCTYPE html><html class="dark" lang="ru" data-kg-theme="midnight" data-kg-button-accent="blue"><head><meta charset="utf-8"><link rel="stylesheet" href="app-theme.css?v=23">
+<script src="steel-motion.js?v=3" defer></script>
 <script src="interface-en.js?v=41"></script>
 <script src="interface-i18n.js?v=2"></script>
 <script>
@@ -121,8 +121,8 @@ try {
       <p class="font-label-md text-label-md text-on-surface font-semibold mb-1">Нужен ключ TMDB</p>
       <p class="font-body-sm text-body-sm text-text-muted mb-2">Без бесплатного API-ключа крутить глобус нельзя. Получи ключ на themoviedb.org → Settings → API.</p>
       <div class="flex gap-2">
-        <input id="tmdb-key-input" type="text" placeholder="Вставь API key" class="flex-1 h-10 px-3 rounded-lg bg-surface-container-lowest font-label-md text-label-md text-on-surface outline-none border border-surface-border-subtle">
-        <button id="tmdb-key-save" type="button" class="h-10 px-4 rounded-lg bg-primary-container text-on-primary-container font-label-sm font-bold">Сохранить</button>
+        <input id="tmdb-key-input" type="text" placeholder="Вставь API key" class="min-w-0 flex-1 h-10 px-3 rounded-lg bg-surface-container-lowest font-label-md text-label-md text-on-surface outline-none border border-surface-border-subtle">
+        <button id="tmdb-key-save" type="button" class="shrink-0 h-10 px-4 rounded-lg bg-primary-container text-on-primary-container font-label-sm font-bold">Сохранить</button>
       </div>
       <p id="tmdb-key-err" class="font-micro-caption text-feedback-error mt-1.5 hidden"></p>
     </div>
@@ -615,25 +615,6 @@ localizeInterfaceMarkup(document.querySelector("main"));
     }
 
     // Audio Engine
-    function playRadarChirp(freq = 900) {
-      if (snd === "off") return;
-      try {
-        const audioCtx = audio();
-        if (!audioCtx) return;
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(320, audioCtx.currentTime + 0.04);
-        gain.gain.setValueAtTime(0.09, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.04);
-        osc.connect(gain);
-        gain.connect(soundOutput);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.045);
-      } catch(e) {}
-    }
-
     function playHologramLockSound() {
       if (snd === "off") return;
       try {
@@ -653,17 +634,6 @@ localizeInterfaceMarkup(document.querySelector("main"));
           osc.stop(audioCtx.currentTime + idx * 0.05 + 0.5);
         });
       } catch(e) {}
-    }
-
-    const tickSpark = document.getElementById('tick-spark');
-    function triggerTickEffect() {
-      if (tickSpark) {
-        tickSpark.classList.remove('bg-primary');
-        void tickSpark.offsetWidth;
-        tickSpark.classList.add('bg-primary');
-      }
-      buzz(10);
-      playRadarChirp(800 + Math.random() * 300);
     }
 
     // 3D PLANET EARTH ENGINE WITH AUTHENTIC AXIAL TILT & TRUE POLAR ROTATION
@@ -785,7 +755,6 @@ localizeInterfaceMarkup(document.querySelector("main"));
     let targetCameraY = 0.15;
     let currentCameraY = 0.15;
     let zoomLerpFactor = 0.035;
-    let zoomResetTimeout = null;
 
     let isSpinning = false;
     let driftSpeed = 0.0018;
@@ -853,7 +822,7 @@ localizeInterfaceMarkup(document.querySelector("main"));
       }
 
       // Country Name
-      ctx.fillStyle = readPaletteColor('--kg-primary');
+      ctx.fillStyle = readPaletteColor('--kg-globe-flag-edge');
       ctx.font = 'bold 20px "Plus Jakarta Sans", sans-serif';
       ctx.fillText((country.name || '').toUpperCase(), 128, 134);
 
@@ -1470,14 +1439,23 @@ if (areaRing) {
       }
       animate();
 
-      window.addEventListener('resize', () => {
-        if (!container || !renderer || !camera) return;
-        const w = container.clientWidth;
-        const h = container.clientHeight;
-        camera.aspect = w / h;
+      let viewportWidth = width;
+      let viewportHeight = height;
+      function resizeEarth() {
+        const nextWidth = container.clientWidth;
+        const nextHeight = container.clientHeight;
+        // A hidden home screen has no layout. Keep the last valid viewport.
+        if (nextWidth === 0 || nextHeight === 0) return;
+        if (nextWidth === viewportWidth && nextHeight === viewportHeight) return;
+
+        viewportWidth = nextWidth;
+        viewportHeight = nextHeight;
+        camera.aspect = viewportWidth / viewportHeight;
         camera.updateProjectionMatrix();
-        renderer.setSize(w, h);
-      });
+        renderer.setSize(viewportWidth, viewportHeight);
+      }
+      const earthViewportObserver = new ResizeObserver(resizeEarth);
+      earthViewportObserver.observe(container);
     }
 
     if (document.readyState === 'loading') {
@@ -1491,138 +1469,6 @@ if (areaRing) {
       playHologramLockSound();
       buzz([70, 90, 220]);
 
-    }
-
-    // Roulette execution
-    const spinBtn = document.getElementById('btn-spin-roulette');
-    const spinText = document.getElementById('btn-spin-text');
-    const spinSecIcon = document.getElementById('btn-spin-secondary-icon');
-    const statusBadge = document.getElementById('roulette-status-badge');
-
-    function runCountryRoulette(forcedTargetCountry = null) {
-      if (isSpinning) return;
-      isSpinning = true;
-
-      // Keep all dots and flag hidden during spinning
-      hideAllBeacons();
-      hideFlagPost();
-
-      if (zoomResetTimeout) {
-        clearTimeout(zoomResetTimeout);
-        zoomResetTimeout = null;
-      }
-
-      targetCameraZ = defaultDist;
-
-      let finalWinner = forcedTargetCountry;
-      if (!finalWinner) {
-        const pool = catalog.filter(c => c.id !== currentCountry.id);
-        finalWinner = pool[Math.floor(Math.random() * pool.length)];
-      }
-
-      const intermediateStepsCount = 6 + Math.floor(Math.random() * 3);
-      const countrySequence = [];
-      let prevId = currentCountry.id;
-
-      for (let i = 0; i < intermediateStepsCount - 1; i++) {
-        const available = catalog.filter(c => c.id !== prevId && c.id !== finalWinner.id);
-        const nextCountry = available[Math.floor(Math.random() * available.length)];
-        countrySequence.push(nextCountry);
-        prevId = nextCountry.id;
-      }
-      countrySequence.push(finalWinner);
-
-      spinBtn.disabled = true;
-      spinBtn.classList.add('brightness-125', 'shadow-[0_0_36px_rgb(var(--kg-primary-container)/0.8)]');
-      if (spinText) {
-        spinText.innerHTML = '<span class="material-symbols-outlined text-[22px] animate-spin">sensors</span><span>'+uiText("Ищем страну…")+'</span>';
-      }
-      if (spinSecIcon) spinSecIcon.classList.add('animate-spin');
-
-      if (statusBadge) {
-        statusBadge.textContent = uiText("Сканирование...");
-        statusBadge.className = 'font-micro-caption text-micro-caption px-2.5 py-0.5 rounded-full bg-primary-container text-on-primary-container font-bold shadow-[0_0_12px_rgb(var(--kg-primary-container)/0.5)]';
-      }
-
-      let stepIndex = 0;
-      const delays = [140, 160, 200, 260, 340, 450, 590, 780];
-
-      function executeStep() {
-        if (stepIndex >= countrySequence.length) {
-          currentCountry = finalWinner;
-          // Final landing: Show beacon dot ONLY for winner and tilt 3D flag ~28° facing the camera
-          showSingleBeacon(finalWinner.id);
-          orientGlobeToCountry(finalWinner, false, 0.055, focusDist, true);
-          updateHolographicView(finalWinner, false);
-          triggerWinnerCelebration(finalWinner);
-
-          spinBtn.disabled = false;
-          spinBtn.classList.remove('brightness-125', 'shadow-[0_0_36px_rgb(var(--kg-primary-container)/0.8)]');
-          if (spinText) {
-            spinText.innerHTML = '<span>'+uiText("Крутить глобус")+'</span>';
-          }
-          if (spinSecIcon) spinSecIcon.classList.remove('animate-spin');
-
-          if (statusBadge) {
-            statusBadge.textContent = countrySearchStatus();
-            statusBadge.className = 'font-micro-caption text-micro-caption px-2.5 py-0.5 rounded-full bg-surface-container-high/90 text-primary-fixed border border-primary-container/20 shadow-[0_0_10px_rgb(var(--kg-primary-container)/0.15)]';
-          }
-
-          zoomResetTimeout = setTimeout(() => {
-            targetCameraZ = defaultDist;
-            const rots = countryToRotations(finalWinner.lat, finalWinner.lon);
-            targetRotX = rots.rotX;
-            lerpSpeed = 0.035;
-            setTimeout(() => {
-              isSpinning = false;
-            }, 800);
-          }, 2400);
-
-          return;
-        }
-
-        const stepCountry = countrySequence[stepIndex];
-        const isFinal = stepIndex === countrySequence.length - 1;
-
-        const targetZoom = isFinal ? focusDist : defaultDist;
-        // Keep flag hidden during intermediate steps
-        orientGlobeToCountry(stepCountry, false, isFinal ? 0.06 : 0.22, targetZoom, false);
-
-        updateHolographicView(stepCountry, true);
-        triggerTickEffect();
-
-        const currentDelay = delays[stepIndex] || 450;
-        stepIndex++;
-        setTimeout(executeStep, currentDelay);
-      }
-
-      executeStep();
-    }
-
-    if (spinBtn) {
-      spinBtn.addEventListener('click', () => {
-        runCountryRoulette();
-      });
-    }
-
-    // Secondary Buttons
-    const btnTopOne = document.getElementById('btn-top-one');
-    const btnOscar = document.getElementById('btn-oscar-laureate');
-
-    if (btnTopOne) {
-      btnTopOne.addEventListener('click', () => {
-        const topPool = [catalog[0], catalog[4], catalog[7]];
-        const target = topPool[Math.floor(Math.random() * topPool.length)];
-        runCountryRoulette(target);
-      });
-    }
-
-    if (btnOscar) {
-      btnOscar.addEventListener('click', () => {
-        const oscarPool = [catalog[2], catalog[3], catalog[6], catalog[8]];
-        const target = oscarPool[Math.floor(Math.random() * oscarPool.length)];
-        runCountryRoulette(target);
-      });
     }
 
     // Filter Chips
@@ -1644,10 +1490,8 @@ if (areaRing) {
     updateHolographicView(currentCountry);
 
     // === Export for engine bridge ===
-    // Helpers below repeat exactly what the design's runCountryRoulette does around the spin.
     function beginScan() {
       countryFramed = false;
-      if (zoomResetTimeout) { clearTimeout(zoomResetTimeout); zoomResetTimeout = null; }
       isDragging = false;
       touchGesture = null;
       hideAllBeacons();
@@ -1672,8 +1516,6 @@ if (areaRing) {
       set currentCountry(v) { currentCountry = v; },
       orientGlobeToCountry,
       frameCountry(country) {
-        clearTimeout(zoomResetTimeout);
-        zoomResetTimeout = null;
         countryFramed = true;
         currentCountry = country;
         showSingleBeacon(country);
@@ -1681,7 +1523,6 @@ if (areaRing) {
       },
       updateHolographicView,
       triggerWinnerCelebration,
-      triggerTickEffect,
       showSingleBeacon,
       flashBeacon,
       hideMarks,
@@ -1690,7 +1531,6 @@ if (areaRing) {
       dollyBack,
       get isSpinning() { return isSpinning; },
       set isSpinning(v) { isSpinning = v; },
-      runCountryRoulette,
       countryToRotations,
       get CAMERA_DIST_DEFAULT() { return defaultDist; },
       get CAMERA_DIST_SPIN() { return defaultDist; },
@@ -1709,7 +1549,9 @@ function countOpenedCountries(counts) {
 }
 function countrySearchStatus() {
   const count = COUNTRIES.length;
-  return uiText("{count} {unit} онлайн", {count, unit: plural(count)});
+  const endings = {one:"страна", few:"страны", many:"стран", other:"стран"};
+  const unit = endings[new Intl.PluralRules("ru").select(count)];
+  return uiText("{count} {unit} онлайн", {count, unit});
 }
 const BIG=new Set(["US","GB","FR","DE","IT","ES","JP","KR","CN","HK","IN","RU","CA"]);
 const MIN_POOL=10, MAX_POOL=100;
@@ -3419,13 +3261,22 @@ async function topOfCountry(cc,q){
   }
   return null;
 }
+async function presentFilmSearchResult(cc, pool, film, frameOnly, themedCountries = []) {
+  const warm = preloadPosters(pool, film);
+  if (frameOnly) window.KGFrameSelectedCountry(cc);
+  else await reelLand(cc, themedCountries);
+  await filmReel(pool, film, cc, warm);
+  show(cc, pool, film);
+}
+
 async function spinTop(){
+  if ($("go").disabled) return;
   $("err").textContent="";
   if(!apiKey){showKeyUi();$("err").textContent="Сначала введите ключ TMDB.";return;}
   store.set("year",$("year").value);store.set("yearTo",$("yearTo").value);
   audio();
-  lockSpin('<span class="spin">🏆</span> Ищем лучший…');
-  reelStart();
+  lockSpin(uiText("Ищем фильм…"), true);
+  closePlayer();
   try{
     const q=topQuery();
     const order=spinOrder(q.countries||COUNTRIES);
@@ -3443,15 +3294,15 @@ async function spinTop(){
         const ids=new Set([film.id]);
         const filler=shuffle(extra.filter(f=>f.poster_path&&!ids.has(f.id)&&ids.add(f.id))).slice(0,40);
         filler.push(film);
-        await reelLand(batch[k]);
-        show(batch[k],{...pool,films:filler},film);return;
+        await presentFilmSearchResult(batch[k], {...pool, films:filler}, film, true);
+        return;
       }
     }
     $("err").textContent=q.y||q.yto
       ?"За этот период подходящий фильм не нашёлся. Попробуйте другие годы или сбросьте историю."
       :"Лучший фильм не нашёлся. Смягчите фильтры или сбросьте историю.";
   }catch(e){$("err").textContent=e.message}
-  finally{reelAbort();unlockSpin();}
+  finally{unlockSpin();}
 }
 
 const OSCAR_LIST="101353";
@@ -3500,11 +3351,12 @@ async function oscarFilms(){
   return localized;
 }
 async function spinOscar(){
+  if ($("go").disabled) return;
   $("err").textContent="";
   if(!apiKey){showKeyUi();$("err").textContent="Сначала введите ключ TMDB.";return;}
   audio();
-  lockSpin('<span class="spin">🎬</span> Ищем «Оскар»…');
-  reelStart();
+  lockSpin(uiText("Ищем фильм…"), true);
+  closePlayer();
   try{
     const left=(await oscarFilms()).filter(f=>!seen.has(f.id));
     if(!left.length){$("err").textContent="Все лауреаты из списка уже в истории. Сбросьте историю, чтобы смотреть их снова.";return;}
@@ -3528,14 +3380,12 @@ async function spinOscar(){
         film.genre_ids=d.genres?d.genres.map(g=>g.id):(film.genre_ids||[]);
       }
     }catch(e){}
-    await reelLand(cc);
-    const all=await oscarFilms();
-// для прокрутки плёнки берём 40 случайных лауреатов с постерами + сам выпавший фильм
-const reelFilms=shuffle(all.filter(f=>f.poster_path&&f.id!==film.id)).slice(0,40);
-reelFilms.push(film);
-show(cc,{films:reelFilms,oscar:true,votes:film.vote_count||0,total:all.length},film);
+    const all = await oscarFilms();
+    const reelFilms = shuffle(all.filter(f => f.poster_path && f.id !== film.id)).slice(0, 40);
+    reelFilms.push(film);
+    await presentFilmSearchResult(cc, {films:reelFilms, oscar:true, votes:film.vote_count || 0, total:all.length}, film, true);
   }catch(e){$("err").textContent=e.message}
-  finally{reelAbort();unlockSpin();}
+  finally{unlockSpin();}
 }
 
 async function spin(countryCode = ""){
@@ -3548,17 +3398,19 @@ async function spin(countryCode = ""){
   const manualCountries=countryCode ? [countryCode] : [...countryFilters];
   const frameOnly=manualCountries.length > 0;
   if (frameOnly) q.countries=manualCountries;
-  lockSpin(frameOnly ? uiText("Ищем фильм…") : '<span class="spin">🌍</span> Крутим…', frameOnly);
+  const themedCountries = q.theme ? q.countries || [] : [];
+  const filmOnly = frameOnly || themedCountries.length > 0;
+  lockSpin(filmOnly ? uiText("Ищем фильм…") : '<span class="spin">🌍</span> Крутим…', filmOnly);
   try{
     if (frameOnly) {
       closePlayer();
       window.KGFrameSelectedCountry(manualCountries[0],manualCountries);
-    } else reelStart();
+    } else reelStart(themedCountries);
     const order=shuffle(q.countries||COUNTRIES);
     const cap=q.countries?order.length:Math.min(order.length,18);
     for(let i=0;i<cap;i+=3){   // проверяем небольшими параллельными партиями, чтобы поиск оставался отзывчивым
       const batch=order.slice(i,i+3);
-      if (!frameOnly) lockSpin(`<span class="spin">🌍</span> Проверяем страны ${i+1}–${Math.min(i+batch.length,cap)} из ${cap}…`);
+      if (!filmOnly) lockSpin(`<span class="spin">🌍</span> Проверяем страны ${i+1}–${Math.min(i+batch.length,cap)} из ${cap}…`);
       const pools=await Promise.all(batch.map(cc=>getPool(cc,q).catch(error=>{console.warn("[Kinoglobus] country search",cc,error);return null;})));
       for(let k=0;k<batch.length;k++){
         const pool=pools[k];
@@ -3566,11 +3418,8 @@ async function spin(countryCode = ""){
         const left=fresh(pool);
         if(!left.length) continue;            // everything here already watched
         const film=pick(left);
-        const warm=preloadPosters(pool,film);
-        if (frameOnly) window.KGFrameSelectedCountry(batch[k]);
-        else await reelLand(batch[k]);
-        await filmReel(pool,film,batch[k],warm);
-        show(batch[k],pool,film);return;
+        await presentFilmSearchResult(batch[k], pool, film, frameOnly, themedCountries);
+        return;
       }
     }
     $("err").textContent="Подходящих фильмов не нашлось. Смягчите фильтры или сбросьте историю.";
@@ -3797,7 +3646,6 @@ const yi=[...yearRatingFilter.querySelectorAll('input[type="number"]')];
 [[yi[0],"year","1920"],[yi[1],"yearTo","2026"]].forEach(([inp,id,def])=>inp.addEventListener("input",()=>{
   const v=inp.value.trim(),e=$(id);e.value=(v===""||v===def)?"":v;e.dispatchEvent(new Event("input"));}));
 
-function plural(n){const m=n%100,k=n%10;return (k===1&&m!==11)?"страна":(k>1&&k<5&&(m<12||m>14))?"страны":"стран";}
 function spinLabel(){
   if(countryFilters.size) return uiText("Найти фильм");
   if(playMode==="surprise") return uiText("Удиви меня");
@@ -3873,10 +3721,6 @@ let scanOn=false,scanT=0,scanAt=0,landed=false,tmr=[];
 let focusedCC="";   // страна, на которой глобус уже стоит в фокусе с флажком (чтобы «другой фильм» не крутил планету заново)
 const SCAN_MIN_MS=3500;   // минимум времени «поиска» до остановки (мс)
 const LAND_STEPS=[220,300,400,540,720,950];   // замедление перед остановкой
-function activeTheme(){
-  const t=THEMES.find(x=>x.id===themeId);
-  return t&&t.cc&&t.cc.length?t:null;
-}
 // Подборка уже знает страну: только световая точка, без прокрутки глобуса и без флажка.
 function pinLight(cc){
   const w=gc(cc);
@@ -3912,31 +3756,31 @@ window.KGUpdateCountryFrame=function(preferredCountry){
     G.hideMarks();
   } else if (preferredCountry || !countryFilters.has(focusedCC)) frameSelectedCountry(lastSelected);
 };
-function setSpinUi(on, frameOnly=false){
+function setSpinUi(on, filmOnly=false){
   const b=$("btn-spin-roulette"),t=$("btn-spin-text"),s=$("btn-spin-secondary-icon"),sb=$("roulette-status-badge");
-  const known=frameOnly||!!activeTheme();
   b.disabled=on;b.classList.toggle("brightness-125",on);
+  $("btn-top-one").disabled = on;
+  $("btn-oscar-laureate").disabled = on;
   t.innerHTML=on
-    ?(known?'<span class="material-symbols-outlined text-[22px]">movie</span><span>'+uiText("Ищем фильм…")+'</span>'
+    ?(filmOnly?'<span class="material-symbols-outlined text-[22px]">movie</span><span>'+uiText("Ищем фильм…")+'</span>'
       :'<span class="material-symbols-outlined text-[22px] animate-spin">sensors</span><span>'+uiText("Ищем страну…")+'</span>')
     :'<span>'+spinLabel()+'</span>';
-  s.classList.toggle("animate-spin",on&&!known);
-  sb.textContent=on?uiText(frameOnly?"Ищем фильм…":known?"Подборка":"Сканирование...")
+  s.classList.toggle("animate-spin",on&&!filmOnly);
+  sb.textContent=on?uiText(filmOnly?"Ищем фильм…":"Сканирование...")
     :countrySearchStatus();
   sb.className=on?"font-micro-caption text-micro-caption px-2.5 py-0.5 rounded-full bg-primary-container text-on-primary-container font-bold"
     :"font-micro-caption text-micro-caption px-2.5 py-0.5 rounded-full bg-surface-container-high/90 text-primary-fixed border border-primary-container/20";
 }
 const _lock=window.lockSpin,_unlock=window.unlockSpin;
-window.lockSpin=function(label,frameOnly){_lock(label);setSpinUi(true,frameOnly);};
+window.lockSpin=function(label,filmOnly){_lock(label);setSpinUi(true,filmOnly);};
 window.unlockSpin=function(){_unlock();setSpinUi(false);};
-window.reelStart=function(){
+window.reelStart=function(themedCountries = []){
   closePlayer();tmr.forEach(clearTimeout);tmr=[];landed=false;focusedCC="";
-  const theme=activeTheme();
-  if(theme){
+  if(themedCountries.length){
     scanOn=false;
     G.isSpinning=false;
     G.hideMarks();
-    if(theme.cc.length===1) pinLight(theme.cc[0]);
+    if(themedCountries.length===1) pinLight(themedCountries[0]);
     return;
   }
   scanOn=true;scanAt=performance.now();
@@ -3945,8 +3789,8 @@ window.reelStart=function(){
     G.orientGlobeToCountry(c,false,0.22,G.CAMERA_DIST_SPIN,false);G.flashBeacon(c);hero(c,true);sTick(Math.random());buzz(8);scanT=setTimeout(loop,170);};
   loop();
 };
-window.reelLand=async function(cc){
-  if(activeTheme()){pinLight(cc);return;}
+window.reelLand=async function(cc, themedCountries = []){
+  if(themedCountries.length){pinLight(cc);return;}
   await sleep(Math.max(0,SCAN_MIN_MS-(performance.now()-scanAt)));
   scanOn=false;clearTimeout(scanT);
   for(const d of LAND_STEPS){
@@ -4234,15 +4078,14 @@ document.addEventListener("kg:watched-change",()=>{
 ag.addEventListener("click",()=>$("again").click());
 
 // ---------- Кнопки глобуса ----------
-const clone=el=>{const n=el.cloneNode(true);el.replaceWith(n);return n;};
-clone($("btn-spin-roulette")).addEventListener("click",()=>{
+$("btn-spin-roulette").addEventListener("click",()=>{
   refreshKey();
   if(!apiKey){const b=$("tmdb-key-banner");b.classList.remove("hidden");b.scrollIntoView({behavior:"smooth",block:"center"});return;}
   $("go").click();
 });
 const needKey=fn=>()=>{if(!apiKey){refreshKey();$("tmdb-key-banner").scrollIntoView({behavior:"smooth",block:"center"});return;}fn();};
-clone($("btn-top-one")).addEventListener("click",needKey(()=>$("top1").click()));
-clone($("btn-oscar-laureate")).addEventListener("click",needKey(()=>$("oscar").click()));
+$("btn-top-one").addEventListener("click",needKey(()=>$("top1").click()));
+$("btn-oscar-laureate").addEventListener("click",needKey(()=>$("oscar").click()));
 $("btn-top-one").parentNode.after($("err"));
 $("btn-mode-filters").addEventListener("click",()=>$("modeFilters").click());
 $("btn-mode-surprise").addEventListener("click",()=>$("modeSurprise").click());

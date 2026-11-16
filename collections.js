@@ -3,7 +3,7 @@
 const $=id=>document.getElementById(id);
 const main=document.querySelector("main");
 const home=main&&main.querySelector(":scope > div");
-if(!home||typeof THEMES==="undefined"){console.error("[Kinoglobus] v7: движок не найден");return;}
+if(!home||typeof THEMES==="undefined"){console.error("[Moven: Explore] v7: движок не найден");return;}
 
 /* ---------- стили ---------- */
 const st=document.createElement("style");
@@ -267,7 +267,7 @@ async function loadTheme(t,pages,force=false){
       return data;
     }catch(error){
       themeRetryAfter.set(key,Date.now()+15*60*1000);
-      if(cached){console.warn(`[Kinoglobus] Обновление подборки «${t.name}» не удалось; показываем сохранённые данные.`,error);return {...cached.data,_stale:true};}
+      if(cached){console.warn(`[Moven: Explore] Обновление подборки «${t.name}» не удалось; показываем сохранённые данные.`,error);return {...cached.data,_stale:true};}
       throw error;
     }
   })();
@@ -352,7 +352,7 @@ function showView(v){
     button.setAttribute("aria-current",String(active));
   });
   const sub=document.querySelector("header .flex-col > p");
-  if(sub) sub.textContent=uiText(v==="home"?"Случайная страна · Лучшие фильмы":v==="mood"?"Подборки · По настроению":v==="oscar"?"Подборки · Зал славы Оскара":"Киноглобус — Тематическая Подборка");
+  if(sub) sub.textContent=uiText(v==="home"?"Случайная страна · Лучшие фильмы":v==="mood"?"Подборки · По настроению":v==="oscar"?"Подборки · Зал славы Оскара":"Moven: Explore — Тематическая Подборка");
   scrollTo({top:0});
   if(v==="collections") initCatalog();
   if(v==="mood"&&(!vm.dataset.ready||vm.dataset.key!==apiKey)){window.KGMoodPage.render(vm,pageDeps);vm.dataset.ready="true";vm.dataset.key=apiKey;}
@@ -851,7 +851,7 @@ ${t.cc.length>1?`<div class="flex flex-col gap-1.5 pt-1"><span class="font-micro
 <div id="cl-films" class="flex flex-col gap-space-lg"><p class="font-body-sm text-body-sm text-text-muted px-1 animate-pulse">${uiText("Загружаем подборку…")}</p></div>
 <div class="flex flex-col gap-space-sm pt-space-xs"><div class="flex items-center justify-between px-1"><h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">${uiText("Другие подборки")}</h3><a href="#" data-act="back" class="font-micro-caption text-micro-caption text-primary hover:underline">${uiText("Все {count}", {count: catalogThemes.length})} →</a></div>
 <div id="cl-others" class="flex gap-space-sm overflow-x-auto pb-2">${others.map(otherHtml).join("")}</div>
-<a href="#" data-act="back" class="w-full py-3 rounded-xl bg-surface-panel hover:bg-surface-container-low text-primary text-center font-label-md text-label-md font-semibold flex items-center justify-center gap-2 transition-colors shadow-sm"><span class="material-symbols-outlined text-[18px]">apps</span><span>${uiText("Все {count} подборок Киноглобуса", {count: catalogThemes.length})}</span></a></div>`;
+<a href="#" data-act="back" class="w-full py-3 rounded-xl bg-surface-panel hover:bg-surface-container-low text-primary text-center font-label-md text-label-md font-semibold flex items-center justify-center gap-2 transition-colors shadow-sm"><span class="material-symbols-outlined text-[18px]">apps</span><span>${uiText("Все {count} подборок Moven: Explore", {count: catalogThemes.length})}</span></a></div>`;
   // постеры и счётчики «других подборок»
   others.forEach(o=>loadMeta(o).then(m=>{
     const a=vd.querySelector(`[data-oc="${o.id}"]`),i=vd.querySelector(`[data-oi="${o.id}"]`);
@@ -892,7 +892,7 @@ async function openCollection(id,opt){
   }catch(e){
     if(initial){
       $("cl-films").insertAdjacentHTML("afterbegin",`<p role="status" class="font-micro-caption text-micro-caption text-text-muted">${uiText("Не удалось обновить данные; показана сохранённая подборка.")}</p>`);
-      console.error("[Kinoglobus] Не удалось обновить подборку:",e);
+      console.error("[Moven: Explore] Не удалось обновить подборку:",e);
     }else $("cl-films").innerHTML=`<p class="font-body-sm text-body-sm text-feedback-error px-1">${esc(uiText(e.message||"Не удалось загрузить подборку."))}</p>`;
   }
 }
@@ -1334,7 +1334,7 @@ function renderHomeEditorial(){
       renderHomeFeature(featured,d,selected);
       const credit=document.querySelector(`[data-home-director="${featured.id}"]`);
       if(credit&&d.dirs.length)credit.innerHTML=[d.dirsFull&&d.dirsFull[0]?kgPersonLink(d.dirsFull[0],"Режиссёр"):esc(d.dirs[0]),homeFilmYear(featured)].filter(Boolean).join(" · ");
-    }).catch(e=>{homeEditorial.details.delete(featured.id);console.warn("[Kinoglobus] Не удалось загрузить данные фильма дня:",e);});
+    }).catch(e=>{homeEditorial.details.delete(featured.id);console.warn("[Moven: Explore] Не удалось загрузить данные фильма дня:",e);});
   }
 }
 async function loadHomeDirector(id){
@@ -1361,7 +1361,7 @@ async function loadHomeDirector(id){
       const selected=D.selected&&D.selected._placement==="home"&&String(D.selected.id)===String(f.id)?D.selected:null;
       renderHomeFeature(f,emptyDetails,selected);
     }
-    console.warn("[Kinoglobus] Не удалось загрузить режиссёра:",e);
+    console.warn("[Moven: Explore] Не удалось загрузить режиссёра:",e);
   }
 }
 function renderHomeEditorialMessage(message,action){
@@ -1386,7 +1386,7 @@ async function loadHomeEditorial(force=false){
       return films.length?{...films[0],_cc:cc}:null;
     }));
     if(token!==homeEditorial.token)return false;
-    results.forEach((result,i)=>{if(result.status==="rejected")console.warn(`[Kinoglobus] Не удалось загрузить фильмы ${HOME_EUROPE[i]}:`,result.reason);});
+    results.forEach((result,i)=>{if(result.status==="rejected")console.warn(`[Moven: Explore] Не удалось загрузить фильмы ${HOME_EUROPE[i]}:`,result.reason);});
     const succeeded=results.some(result=>result.status==="fulfilled");
     const byCountry=new Map();
     results.forEach((result,i)=>{
@@ -1441,12 +1441,12 @@ homeEditorialRoot.addEventListener("click",async e=>{
   }
   if(action==="share"){
     try{
-      const info={title:film.title||film.original_title||"Фильм",text:"Посмотри этот фильм в Kinoglobus",url:`https://www.themoviedb.org/movie/${film.id}`};
+      const info={title:film.title||film.original_title||"Фильм",text:"Посмотри этот фильм в Moven: Explore",url:`https://www.themoviedb.org/movie/${film.id}`};
       if(navigator.share)await navigator.share(info);
       else if(navigator.clipboard&&navigator.clipboard.writeText){await navigator.clipboard.writeText(info.url);toast("Ссылка скопирована","link");}
       else throw new Error("Поделиться из этого браузера не удалось.");
     }catch(error){
-      if(error.name!=="AbortError"){console.error("[Kinoglobus] Не удалось поделиться фильмом:",error);toast("Не удалось поделиться фильмом","share");}
+      if(error.name!=="AbortError"){console.error("[Moven: Explore] Не удалось поделиться фильмом:",error);toast("Не удалось поделиться фильмом","share");}
     }
   }
 });
@@ -1513,7 +1513,7 @@ async function refreshDailyData(force=false,ignoreCooldown=false){
       store.set("kgDailyRefreshDate",localDateKey());
       return true;
     }
-    console.warn("[Kinoglobus] Ежедневное обновление выполнено частично; сохранённые данные оставлены.");
+    console.warn("[Moven: Explore] Ежедневное обновление выполнено частично; сохранённые данные оставлены.");
     setTimeout(()=>refreshDailyData(),15*60*1000);
     return false;
   })();
@@ -1548,6 +1548,6 @@ if(dailyRefreshDue())refreshDailyData();
 else if(!homeEditorial.films.length)loadHomeEditorial();
 scheduleDailyRefresh();
 showView("home");
-window.KINOGLOBUS_THEME_COVERS = THEME_COVERS;
-console.info("[Kinoglobus] v8 collections ready + theme covers");
+window.MOVEN_THEME_COVERS = THEME_COVERS;
+console.info("[Moven: Explore] v8 collections ready + theme covers");
 })();

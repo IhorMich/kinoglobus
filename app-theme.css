@@ -1256,6 +1256,11 @@ body {
   transform: scale(.96);
 }
 
+/* Match the icon to the text when the active tab switches to a light fill. */
+:root[data-kg-theme] :is(.kg-header-action, .kg-bottom-nav-link) .material-symbols-outlined {
+  color: inherit;
+}
+
 :is(.kg-header-action, .kg-bottom-nav-link):focus-visible {
   outline: 2px solid rgb(var(--kg-primary));
   outline-offset: 1px;

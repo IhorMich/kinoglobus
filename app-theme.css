@@ -1248,6 +1248,8 @@ body {
   width: 100vw;
   max-width: none;
   border-radius: 0;
+  margin-inline: 0;
+  align-self: center;
 }
 
 .kg-country-progress {

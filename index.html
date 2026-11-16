@@ -586,6 +586,11 @@ localizeInterfaceMarkup(document.querySelector("main"));
     let flagBannerMesh = null;    // больше не используем
     let targetFlagScale = 0.001;
     let markerPulseT = 0;
+    let markerPulse1, markerPulse2, markerBeam, markerGlow, markerArea, markerAreaRing;
+    const blendForFrames = (blend, frames) => 1 - Math.pow(1 - blend, frames);
+    // One timed turn owns the rotation until it reaches its target or is cancelled.
+    let turnDone = null, globeAnimationReady = false;
+    let turnMs, turnStart, turnX, turnY, turnDX, turnDY, turnBase, turnEase;
     let camera;
     let targetRotY = 0;
     let countryFramed = false;
@@ -602,7 +607,7 @@ localizeInterfaceMarkup(document.querySelector("main"));
     let beaconGroup = null;
     // Вспышки во время поиска: точка загорается у проходимой страны и плавно гаснет
     const FLASH_MS = 850;
-    let flashing = {};   // id страны -> момент вспышки (performance.now())
+    const scanBeacons = []; // Reused throughout the scan; up to four 850 ms flashes overlap.
     let countryBoundaryFeatures = [];
     let watchedCountryIds = new Set();
     let countryOutlineGroup = null;
@@ -714,13 +719,13 @@ localizeInterfaceMarkup(document.querySelector("main"));
       return { rotX, rotY };
     }
 
-    function latLonToVector3(lat, lon, radius) {
+    function latLonToVector3(lat, lon, radius, out = new THREE.Vector3()) {
       const phi = (90 - lat) * (Math.PI / 180);
       const theta = (lon + 180) * (Math.PI / 180);
       const x = - (radius * Math.sin(phi) * Math.cos(theta));
       const z = (radius * Math.sin(phi) * Math.sin(theta));
       const y = (radius * Math.cos(phi));
-      return new THREE.Vector3(x, y, z);
+      return out.set(x, y, z);
     }
 
     // High quality canvas texture for the 3D winner flag
@@ -776,7 +781,7 @@ localizeInterfaceMarkup(document.querySelector("main"));
 
     // Hide all beacon dots to maintain a clean and pristine Earth
     function hideAllBeacons() {
-      flashing = {};
+      for (const beacon of scanBeacons) resetBeacon(beacon);
       Object.keys(dotMeshMap).forEach(key => {
         const item = dotMeshMap[key];
         if (item && item.holder) {
@@ -789,37 +794,43 @@ localizeInterfaceMarkup(document.querySelector("main"));
       });
     }
 
-    // Вспышка точки у страны, которую сейчас проходит поиск
+    function resetBeacon(b) {
+      b.started = -Infinity;
+      b.holder.visible = false;
+      b.dotMat.opacity = b.ringMat.opacity = 0;
+      b.dotMesh.scale.setScalar(1);
+      b.ringMesh.scale.setScalar(1);
+    }
+
+    // Reposition a pooled beacon instead of building meshes as countries roll by.
     function flashBeacon(country) {
-      if (!country || !rotatingGroup) return;
-      const b = dotMeshMap[country.id] || addBeacon(country);
-      if (!b || !b.holder) return;
+      if (!country || !scanBeacons.length) return;
+      let b = scanBeacons[0];
+      for (let i = 1; i < scanBeacons.length; i++) {
+        if (scanBeacons[i].started < b.started) b = scanBeacons[i];
+      }
+      resetBeacon(b);
+      placeBeacon(b, country);
       b.holder.visible = true;
       b.dotMat.opacity = 1;
       b.ringMat.opacity = 0.85;
-      flashing[country.id] = performance.now();
+      b.started = performance.now();
     }
 
-    // Каждый кадр: точки вспышек гаснут, кольцо расходится
     function updateFlashes(now) {
-      for (const id in flashing) {
-        const b = dotMeshMap[id];
-        if (!b) { delete flashing[id]; continue; }
-        const p = (now - flashing[id]) / FLASH_MS;
+      for (let i = 0; i < scanBeacons.length; i++) {
+        const b = scanBeacons[i];
+        if (!b.holder.visible) continue;
+        const p = Math.max(0, now - b.started) / FLASH_MS;
         if (p >= 1) {
-          b.holder.visible = false;
-          b.dotMat.opacity = 0;
-          b.ringMat.opacity = 0;
-          b.dotMesh.scale.setScalar(1);
-          b.ringMesh.scale.setScalar(1);
-          delete flashing[id];
+          resetBeacon(b);
           continue;
         }
         const fade = Math.pow(1 - p, 1.6);
         b.dotMat.opacity = fade;
         b.ringMat.opacity = fade * 0.85;
-        b.dotMesh.scale.setScalar(1 + 1.2 * (1 - Math.min(1, p * 3)));   // вспыхивает крупнее и сжимается
-        b.ringMesh.scale.setScalar(1 + p * 1.8);                         // кольцо расходится
+        b.dotMesh.scale.setScalar(1 + 1.2 * (1 - Math.min(1, p * 3)));
+        b.ringMesh.scale.setScalar(1 + p * 1.8);
       }
     }
 
@@ -884,7 +895,7 @@ function update3DCountryFlag(country, popAnimation = false) {
       side: THREE.DoubleSide
     });
     const beamMesh = new THREE.Mesh(beamGeo, beamMat);
-    beamMesh.name = 'beam';
+    markerBeam = beamMesh;
     flagPinGroup.add(beamMesh);
 
     // 3. Мягкое свечение у основания
@@ -895,7 +906,7 @@ function update3DCountryFlag(country, popAnimation = false) {
       depthWrite: false
     });
     const glowMesh = new THREE.Mesh(glowGeo, glowMat);
-    glowMesh.name = 'glow';
+    markerGlow = glowMesh;
     flagPinGroup.add(glowMesh);
 
     // 4. Два пульс-кольца на поверхности
@@ -913,8 +924,8 @@ function update3DCountryFlag(country, popAnimation = false) {
       flagPinGroup.add(mesh);
       return mesh;
     };
-    makeRing('pulse1', 0.08);
-    makeRing('pulse2', 0.08);
+    markerPulse1 = makeRing('pulse1', 0.08);
+    markerPulse2 = makeRing('pulse2', 0.08);
 // 5. Мягкая подсветка «территории» страны
 const areaGeo = new THREE.CircleGeometry(0.16, 32);
 areaGeo.rotateX(-Math.PI / 2);
@@ -925,7 +936,7 @@ const areaMat = globeAccentMaterial('--kg-globe-pin-beam', {
   depthWrite: false
 });
 const areaMesh = new THREE.Mesh(areaGeo, areaMat);
-areaMesh.name = 'area';
+markerArea = areaMesh;
 areaMesh.position.y = 0.002;
 flagPinGroup.add(areaMesh);
 
@@ -939,7 +950,7 @@ const areaRingMat = globeAccentMaterial('--kg-globe-pin-core', {
   depthWrite: false
 });
 const areaRingMesh = new THREE.Mesh(areaRingGeo, areaRingMat);
-areaRingMesh.name = 'areaRing';
+markerAreaRing = areaRingMesh;
 areaRingMesh.position.y = 0.003;
 flagPinGroup.add(areaRingMesh);
 
@@ -967,57 +978,90 @@ rotatingGroup.add(flagPinGroup);
 
     // Beacon dots: created once per country on demand (hidden in idle state)
     let beaconGeo = null;
-    function addBeacon(item) {
-      if (!rotatingGroup || !item) return null;
-      if (!beaconGroup) {
-        beaconGroup = new THREE.Group();
-        rotatingGroup.add(beaconGroup);
-      }
-      if (!beaconGeo) {
-        beaconGeo = {
-          dotGeo: new THREE.SphereGeometry(0.022, 16, 16),
-          pulseRingGeo: new THREE.RingGeometry(0.024, 0.052, 24)
-        };
-      }
-      if (dotMeshMap[item.id]) return dotMeshMap[item.id];
+    let beaconNormal, beaconUp;
+    function placeBeacon(beacon, item) {
+      const pos = latLonToVector3(item.lat, item.lon, 1.422, beacon.dotMesh.position);
+      beacon.ringMesh.position.copy(pos);
+      beacon.ringMesh.quaternion.setFromUnitVectors(beaconUp, beaconNormal.copy(pos).normalize());
+    }
 
+    function makeBeacon() {
       const holder = new THREE.Group();
-      const pos = latLonToVector3(item.lat, item.lon, 1.422);
-      const normal = pos.clone().normalize();
-
       const dotMat = globeAccentMaterial('--kg-globe-beacon-dot', { transparent: true, opacity: 0 });
       const dotMesh = new THREE.Mesh(beaconGeo.dotGeo, dotMat);
-      dotMesh.position.copy(pos);
-      holder.add(dotMesh);
-
       const ringMat = globeAccentMaterial('--kg-globe-beacon-ring', { side: THREE.DoubleSide, transparent: true, opacity: 0 });
       const ringMesh = new THREE.Mesh(beaconGeo.pulseRingGeo, ringMat);
-      ringMesh.position.copy(pos);
-      const up = new THREE.Vector3(0, 0, 1);
-      ringMesh.quaternion.setFromUnitVectors(up, normal);
-      holder.add(ringMesh);
-
-      // Pristine Earth: Initialized hidden
+      holder.add(dotMesh, ringMesh);
       holder.visible = false;
       beaconGroup.add(holder);
+      return { holder, dotMat, ringMat, dotMesh, ringMesh, started: -Infinity };
+    }
 
-      dotMeshMap[item.id] = { holder: holder, dotMat: dotMat, ringMat: ringMat, dotMesh: dotMesh, ringMesh: ringMesh, country: item };
-      return dotMeshMap[item.id];
+    function addBeacon(item) {
+      if (!beaconGroup || !item) return null;
+      if (dotMeshMap[item.id]) return dotMeshMap[item.id];
+      const beacon = makeBeacon();
+      placeBeacon(beacon, item);
+      return dotMeshMap[item.id] = beacon;
     }
 
     function createCountryBeacons() {
-      if (!rotatingGroup) return;
       beaconGroup = new THREE.Group();
-      dotMeshMap = {};
+      beaconGeo = {
+        dotGeo: new THREE.SphereGeometry(0.022, 16, 16),
+        pulseRingGeo: new THREE.RingGeometry(0.024, 0.052, 24)
+      };
+      beaconNormal = new THREE.Vector3();
+      beaconUp = new THREE.Vector3(0, 0, 1);
       rotatingGroup.add(beaconGroup);
-      catalog.forEach(item => addBeacon(item));
+      catalog.forEach(addBeacon);
+      for (let i = 0; i < 4; i++) scanBeacons.push(makeBeacon());
+    }
+
+    function cancelScanTurn() {
+      if (!turnDone) return;
+      const done = turnDone;
+      turnDone = null;
+      done(false);
+    }
+
+    function turnToScanCountry(country, duration, speed, zoom, showFlag = false) {
+      orientGlobeToCountry(country, false, speed, zoom, showFlag);
+      if (!globeAnimationReady) return new Promise(resolve => setTimeout(resolve, duration, true));
+      turnStart = performance.now();
+      turnMs = duration;
+      turnX = currentRotX;
+      turnY = currentRotY;
+      turnDX = targetRotX - turnX;
+      turnDY = shortestAngleDist(turnY, targetRotY);
+      turnBase = 1 - speed;
+      turnEase = 1 / blendForFrames(speed, duration * 0.06);
+      return new Promise(resolve => { turnDone = resolve; });
+    }
+
+    function advanceRotation(now, frames) {
+      if (turnDone) {
+        const ms = Math.max(0, now - turnStart);
+        const progress = ms >= turnMs ? 1 : (1 - Math.pow(turnBase, ms * 0.06)) * turnEase;
+        currentRotX = turnX + turnDX * progress;
+        currentRotY = turnY + turnDY * progress;
+        if (progress === 1) {
+          const done = turnDone;
+          turnDone = null;
+          done(true);
+        }
+        return;
+      }
+      const blend = blendForFrames(lerpSpeed, frames);
+      currentRotY += shortestAngleDist(currentRotY, targetRotY) * blend;
+      currentRotX += (targetRotX - currentRotX) * blend;
     }
 
     function orientGlobeToCountry(country, immediate = false, speed = 0.065, zoomLevel = focusDist, showFlag = true) {
       if (!country) return;
-      const rots = countryToRotations(country.lat, country.lon);
-      targetRotX = rots.rotX;
-      targetRotY = rots.rotY;
+      cancelScanTurn();
+      targetRotX = country.lat * Math.PI / 180;
+      targetRotY = -country.lon * Math.PI / 180 - Math.PI / 2;
       lerpSpeed = speed;
       targetCameraZ = zoomLevel;
 
@@ -1050,8 +1094,11 @@ rotatingGroup.add(flagPinGroup);
       camera.position.set(0, currentCameraY, defaultDist);
 
       const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+      const mobile = window.Capacitor?.isNativePlatform?.()
+        || matchMedia('(pointer: coarse)').matches
+        || (navigator.maxTouchPoints > 0 && window.innerWidth <= 768);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, mobile ? 1.5 : 2));
       renderer.setSize(width, height, false);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
       // Cinema Lighting: Soft ambient & directional space lighting without blinding specular hotspot
       const dirLight = new THREE.DirectionalLight(readPaletteColor('--kg-globe-sunlight', true), 1.15);
@@ -1296,98 +1343,67 @@ rotatingGroup.add(flagPinGroup);
       window.addEventListener('touchcancel', endTouchGesture, { passive: true });
 
       // Animation Loop
-      const clock = new THREE.Clock();
       let globeInView = true;
+      let lastFrame = null, elapsedTime = 0;
       const globeVisibility = new IntersectionObserver(([entry]) => {
         globeInView = entry.isIntersecting;
       });
       globeVisibility.observe(container);
       const settings = document.getElementById("settings");
-      function animate() {
+      function animate(now) {
         requestAnimationFrame(animate);
-        if (!globeInView || document.hidden || settings.open) return;
-        const elapsedTime = clock.getElapsedTime();
+        const visible = globeInView && !document.hidden && !settings.open;
+        // Do not integrate time spent offscreen into idle, zoom or marker animation.
+        const deltaTime = visible && lastFrame !== null
+          ? Math.min(0.1, (now - lastFrame) / 1000) : 0;
+        lastFrame = visible ? now : null;
+        const frames = deltaTime * 60;
 
-                // Camera smooth zoom lerp
-        currentCameraZ += (targetCameraZ - currentCameraZ) * zoomLerpFactor;
-        currentCameraY += (targetCameraY - currentCameraY) * zoomLerpFactor;
-        if (camera) {
-          camera.position.z = currentCameraZ;
-          camera.position.y = currentCameraY;
+        // A search can finish even if the globe is scrolled out of view.
+        if (!visible) {
+          if (turnDone) advanceRotation(now, 0);
+          return;
         }
 
-        // Marker rise + cinematic pulse
-if (flagPinGroup && flagPinGroup.visible) {
-  const s = flagPinGroup.scale.x + (targetFlagScale - flagPinGroup.scale.x) * 0.1;
-  flagPinGroup.scale.set(s, s, s);
+        elapsedTime += deltaTime;
+        const zoomBlend = blendForFrames(zoomLerpFactor, frames);
+        currentCameraZ += (targetCameraZ - currentCameraZ) * zoomBlend;
+        currentCameraY += (targetCameraY - currentCameraY) * zoomBlend;
+        camera.position.z = currentCameraZ;
+        camera.position.y = currentCameraY;
 
-  markerPulseT += 0.016;
-  const t = markerPulseT;
+        if (flagPinGroup?.visible) {
+          const s = flagPinGroup.scale.x + (targetFlagScale - flagPinGroup.scale.x) * blendForFrames(0.1, frames);
+          flagPinGroup.scale.setScalar(s);
+          markerPulseT += deltaTime;
+          const t = markerPulseT * 0.96; // Preserve the previous pulse tempo at 60 Hz.
+          const p1 = (t % 1.8) / 1.8;
+          const p2 = ((t + 0.9) % 1.8) / 1.8;
+          markerPulse1.scale.setScalar(0.6 + p1 * 2.4);
+          markerPulse1.material.opacity = (1 - p1) * 0.75;
+          markerPulse2.scale.setScalar(0.6 + p2 * 2.4);
+          markerPulse2.material.opacity = (1 - p2) * 0.55;
+          const glowWave = Math.sin(t * 2.2);
+          markerBeam.material.opacity = 0.42 + glowWave * 0.12;
+          markerGlow.scale.setScalar(0.9 + glowWave * 0.15);
+          markerGlow.material.opacity = 0.28 + glowWave * 0.08;
+          const areaWave = Math.sin(t * 1.6);
+          markerArea.material.opacity = 0.16 + areaWave * 0.05;
+          markerAreaRing.material.opacity = 0.55 + areaWave * 0.15;
+        }
 
-  const pulse1 = flagPinGroup.getObjectByName('pulse1');
-  const pulse2 = flagPinGroup.getObjectByName('pulse2');
-  const beam = flagPinGroup.getObjectByName('beam');
-  const glow = flagPinGroup.getObjectByName('glow');
-
-  if (pulse1) {
-    const p = (t % 1.8) / 1.8;
-    const scale = 0.6 + p * 2.4;
-    pulse1.scale.set(scale, scale, scale);
-    pulse1.material.opacity = (1 - p) * 0.75;
-  }
-
-  if (pulse2) {
-    const p = ((t + 0.9) % 1.8) / 1.8;
-    const scale = 0.6 + p * 2.4;
-    pulse2.scale.set(scale, scale, scale);
-    pulse2.material.opacity = (1 - p) * 0.55;
-  }
-
-  if (beam) {
-    beam.material.opacity = 0.42 + Math.sin(t * 2.2) * 0.12;
-  }
-  if (glow) {
-    const g = 0.9 + Math.sin(t * 2.2) * 0.15;
-    glow.scale.set(g, g, g);
-    glow.material.opacity = 0.28 + Math.sin(t * 2.2) * 0.08;
-  }
-
-// Дыхание зоны вокруг маркера
-const area = flagPinGroup.getObjectByName('area');
-const areaRing = flagPinGroup.getObjectByName('areaRing');
-
-if (area) {
-  area.material.opacity = 0.16 + Math.sin(t * 1.6) * 0.05;
-}
-
-if (areaRing) {
-  areaRing.material.opacity = 0.55 + Math.sin(t * 1.6) * 0.15;
-}
-
-}
-
- 
-        // Idle slow rotation
         if (!isSpinning && !isDragging && !countryFramed) {
-          targetRotY += driftSpeed;
+          targetRotY += driftSpeed * frames;
         }
-        if (rotatingGroup) {
-          const diffY = shortestAngleDist(currentRotY, targetRotY);
-          currentRotY += diffY * lerpSpeed;
-          currentRotX += (targetRotX - currentRotX) * lerpSpeed;
-
-          rotatingGroup.rotation.y = currentRotY;
-          rotatingGroup.rotation.x = currentRotX;
-
-          if (cloudsMesh) {
-            cloudsMesh.rotation.y = currentRotY * 1.04 + elapsedTime * 0.0006;
-          }
-        }
-
-        updateFlashes(performance.now());
+        advanceRotation(now, frames);
+        rotatingGroup.rotation.y = currentRotY;
+        rotatingGroup.rotation.x = currentRotX;
+        if (cloudsMesh) cloudsMesh.rotation.y = currentRotY * 1.04 + elapsedTime * 0.0006;
+        updateFlashes(now);
         renderer.render(scene, camera);
       }
-      animate();
+      globeAnimationReady = true;
+      requestAnimationFrame(animate);
 
       let viewportWidth = width;
       let viewportHeight = height;
@@ -1465,6 +1481,8 @@ if (areaRing) {
       get currentCountry() { return currentCountry; },
       set currentCountry(v) { currentCountry = v; },
       orientGlobeToCountry,
+      turnToScanCountry,
+      cancelScanTurn,
       frameCountry(country) {
         countryFramed = true;
         currentCountry = country;
@@ -3697,15 +3715,36 @@ function gc(cc) {
     movie: null
   };
 }
-let scanOn=false,scanT=0,scanAt=0,landed=false,tmr=[];
+let activeScan=null,landed=false,tmr=[];
 let focusedCC="";   // страна, на которой глобус уже стоит в фокусе с флажком (чтобы «другой фильм» не крутил планету заново)
-const SCAN_MIN_MS=3500;   // минимум времени «поиска» до остановки (мс)
+const SCAN_STEPS=8, SCAN_STEP_MS=3500/SCAN_STEPS;
+const scanCatalog=COUNTRIES.map(id=>{
+  const [lat,lon]=GEO[id]||[20,0];
+  return {id,lat,lon};
+});
+function cancelCountryScan(){
+  activeScan=null;
+  G.cancelScanTurn();
+}
+async function scanCountries(scan, steps, slow=false){
+  for(let i=0;i<steps && activeScan===scan;i++){
+    const index=Math.floor(Math.random()*scan.remaining);
+    const country=scan.pool[index];
+    scan.pool[index]=scan.pool[--scan.remaining];
+    const duration=slow ? LAND_STEPS[i] : SCAN_STEP_MS;
+    const turn=G.turnToScanCountry(country,duration,0.12,G.CAMERA_DIST_SPIN);
+    G.flashBeacon(country);
+    sTick(slow ? .4+Math.random()*.4 : Math.random());
+    if(!await turn) return false;
+  }
+  return activeScan===scan;
+}
 const COUNTRY_HOLD_MS = 1000;
 const LAND_STEPS=[220,300,400,540,720,950];   // замедление перед остановкой
 // Подборка уже знает страну: только световая точка, без прокрутки глобуса и без флажка.
 function pinLight(cc){
   const w=gc(cc);
-  scanOn=false;clearTimeout(scanT);
+  cancelCountryScan();
   G.isSpinning=false;
   G.currentCountry=w;focusedCC=cc;landed=true;
   G.showSingleBeacon(w);
@@ -3713,8 +3752,7 @@ function pinLight(cc){
   hero(w);
 }
 function frameSelectedCountry(code){
-  scanOn=false;
-  clearTimeout(scanT);
+  cancelCountryScan();
   tmr.forEach(clearTimeout);
   tmr=[];
   G.isSpinning=false;
@@ -3752,20 +3790,17 @@ const _lock=window.lockSpin,_unlock=window.unlockSpin;
 window.lockSpin=function(label,filmOnly){_lock(label);setSpinUi(true,filmOnly);};
 window.unlockSpin=function(){_unlock();setSpinUi(false);};
 window.reelStart=function(themedCountries = []){
-  closePlayer();tmr.forEach(clearTimeout);tmr=[];landed=false;focusedCC="";
+  closePlayer();cancelCountryScan();tmr.forEach(clearTimeout);tmr=[];landed=false;focusedCC="";
   if(themedCountries.length){
-    scanOn=false;
     G.isSpinning=false;
     G.hideMarks();
     if(themedCountries.length===1) pinLight(themedCountries[0]);
     return;
   }
-  scanOn=true;scanAt=performance.now();
   $("hero-hologram-display").classList.add("invisible");
-  G.beginScan();                       // как в дизайне: маяки и флаг скрыты, камера на обзорной дистанции
-  const loop=()=>{if(!scanOn)return;const c=gc(pick(COUNTRIES));
-    G.orientGlobeToCountry(c,false,0.12,G.CAMERA_DIST_SPIN,false);G.flashBeacon(c);sTick(Math.random());scanT=setTimeout(loop,170);};
-  loop();
+  G.beginScan();
+  const scan=activeScan={pool:scanCatalog.slice(),remaining:scanCatalog.length,initial:null};
+  scan.initial=scanCountries(scan,SCAN_STEPS);
 };
 window.reelLand=async function(cc, themedCountries = []){
   if (themedCountries.length) {
@@ -3773,24 +3808,28 @@ window.reelLand=async function(cc, themedCountries = []){
     await sleep(COUNTRY_HOLD_MS);
     return;
   }
-  await sleep(Math.max(0,SCAN_MIN_MS-(performance.now()-scanAt)));
-  scanOn=false;clearTimeout(scanT);
-  for(const d of LAND_STEPS){
-    const c=gc(pick(COUNTRIES.filter(x=>x!==cc)));
-    G.orientGlobeToCountry(c,false,0.12,G.CAMERA_DIST_SPIN,false);G.flashBeacon(c);sTick(.4+Math.random()*.4);await sleep(d);
+  const scan=activeScan;
+  if(!scan || !await scan.initial || activeScan!==scan) return;
+  // Keep the known winner out of all remaining turns.
+  for(let i=0;i<scan.remaining;i++){
+    if(scan.pool[i].id!==cc) continue;
+    scan.pool[i]=scan.pool[--scan.remaining];
+    break;
   }
+  if(!await scanCountries(scan,LAND_STEPS.length,true) || activeScan!==scan) return;
   const country = gc(cc);
   G.currentCountry = country;
   focusedCC = cc;
   G.showSingleBeacon(country);
-  G.orientGlobeToCountry(country, false, 0.055, G.CAMERA_DIST_FOCUS, true);
+  const finalTurn=G.turnToScanCountry(country,650,0.055,G.CAMERA_DIST_FOCUS,true);
   hero(country);
   $("hero-hologram-display").classList.remove("invisible");
   G.triggerWinnerCelebration(country);
   landed = true;
-  await sleep(650);
+  if(!await finalTurn || activeScan!==scan) return;
   G.frameCountry(country);
   await sleep(COUNTRY_HOLD_MS);
+  if(activeScan!==scan) return;
   setSpinUi(true, true);
   tmr.push(setTimeout(() => {
     G.dollyBack(country);
@@ -3798,7 +3837,7 @@ window.reelLand=async function(cc, themedCountries = []){
   }, 800));
 };
 window.reelAbort=function(){
-  scanOn=false;clearTimeout(scanT);
+  cancelCountryScan();
   $("hero-hologram-display").classList.remove("invisible");
   if(!landed){focusedCC="";G.isSpinning=false;const c=G.currentCountry;G.orientGlobeToCountry(c,false,0.035,G.CAMERA_DIST_DEFAULT,false);G.hideMarks();hero(c);}
 };

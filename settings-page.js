@@ -1,4 +1,4 @@
-// KinoGlobus settings, adapted from the Stitch settings screen.
+// Moven: Explore settings, adapted from the Stitch settings screen.
 (function () {
   const dialog = document.getElementById("settings");
   if (!dialog) return;
@@ -18,7 +18,7 @@
 <div class="font-headline-sm text-base text-primary font-semibold leading-tight">
           Настройки приложения
         </div>
-<p class="text-[11px] text-text-muted font-medium tracking-tight">Настройки КиноГлобуса</p>
+<p class="text-[11px] text-text-muted font-medium tracking-tight">Настройки Moven: Explore</p>
 </div>
 <div class="flex items-center gap-2">
 <div class="px-2.5 py-1 rounded-full bg-gradient-to-r from-primary-fixed-dim/20 to-primary-container/10 border border-primary-container/40 kgs-gold-shadow flex items-center gap-1">
@@ -39,7 +39,7 @@
 </div>
 <div class="space-y-1 px-1">
 <h1 id="kgs-title" class="font-display-hero-mobile text-display-hero-mobile text-primary">Настройки приложения</h1>
-<p class="text-xs text-text-muted font-light">КиноГлобус v2.4.2 · Движок кинематографической рулетки</p>
+<p class="text-xs text-text-muted font-light">Moven: Explore v2.4.2 · Движок кинематографической рулетки</p>
 </div>
 <div class="relative overflow-hidden rounded-2xl bg-gradient-to-b from-surface-container-high to-surface-panel border border-primary-container/25 p-[18px] shadow-xl transition-colors duration-300">
 <div class="theme-ambient-light absolute -right-12 -top-12 w-32 h-32 bg-primary-container/5 rounded-full blur-2xl pointer-events-none"></div>
@@ -182,6 +182,11 @@
 <span class="text-[10px] font-semibold text-on-surface uppercase leading-tight theme-title">Синяя ночь</span>
 <span class="text-[9px] text-primary-container" data-kgs-theme-current hidden>Выбрано</span>
 </button>
+<button class="theme-card relative rounded-xl p-2.5 bg-surface-container-lowest border border-surface-border-subtle flex flex-col items-center justify-between min-h-[104px] w-full" type="button" data-kgs-theme="steel" aria-pressed="false">
+<span aria-hidden="true" class="material-symbols-outlined text-primary mt-1">auto_awesome</span>
+<span class="text-[10px] font-semibold text-on-surface uppercase leading-tight theme-title">Холодная сталь</span>
+<span class="text-[9px] text-primary-container" data-kgs-theme-current hidden>Выбрано</span>
+</button>
 <button class="theme-card relative rounded-xl p-2.5 bg-surface-container-lowest border border-surface-border-subtle flex flex-col items-center justify-between min-h-[104px] w-full" type="button" data-kgs-theme="cinematic" aria-pressed="false">
 <span aria-hidden="true" class="text-primary-container mt-1 text-base">🎞</span>
 <span class="text-[10px] font-semibold text-on-surface uppercase leading-tight theme-title">Кинематографичная</span>
@@ -195,11 +200,6 @@
 <button class="theme-card relative rounded-xl p-2.5 bg-surface-container-lowest border border-surface-border-subtle flex flex-col items-center justify-between min-h-[104px] w-full" type="button" data-kgs-theme="golden-age" aria-pressed="false">
 <span aria-hidden="true" class="text-primary-container mt-1 text-base">🏆</span>
 <span class="text-[10px] font-semibold text-on-surface uppercase leading-tight theme-title">Золотой век</span>
-<span class="text-[9px] text-primary-container" data-kgs-theme-current hidden>Выбрано</span>
-</button>
-<button class="theme-card col-span-2 sm:col-span-1 relative rounded-xl p-2.5 bg-surface-container-lowest border border-surface-border-subtle flex flex-col items-center justify-between min-h-[104px] w-full" type="button" data-kgs-theme="steel" aria-pressed="false">
-<span aria-hidden="true" class="material-symbols-outlined text-primary mt-1">auto_awesome</span>
-<span class="text-[10px] font-semibold text-on-surface uppercase leading-tight theme-title">Холодная сталь</span>
 <span class="text-[9px] text-primary-container" data-kgs-theme-current hidden>Выбрано</span>
 </button>
 </div>
@@ -274,7 +274,7 @@
 </div>
 <div class="flex items-center justify-between gap-3">
 <div>
-<div class="text-xs font-bold text-on-surface uppercase tracking-tight">ЗВУК ВРАЩЕНИЯ КИНОГЛОБУСА</div>
+<div class="text-xs font-bold text-on-surface uppercase tracking-tight">ЗВУК ВРАЩЕНИЯ ГЛОБУСА</div>
 <div class="text-[10px] text-text-muted font-micro-caption uppercase">СОПРОВОЖДЕНИЕ ВЫБОРА СТРАНЫ</div>
 </div>
 <span class="text-[9px] font-micro-caption font-bold px-2 py-0.5 rounded bg-surface-container-high text-primary-container border border-primary-container/30" data-kgs-globe-sound-status></span>
@@ -403,8 +403,6 @@ ${[["light","Лёгкое"],["find","Открытие"],["wild","Случайн�
 <span>Сбросить все настройки по умолчанию</span>
 </button>
 <div class="pt-2 text-[11px] text-text-muted font-micro-caption flex items-center justify-center gap-3">
-<a class="hover:text-primary-container transition-colors" href="https://github.com/IhorMich/kinoglobus" rel="noopener noreferrer" target="_blank">GitHub Repository</a>
-<span>•</span>
 <a class="hover:text-primary-container transition-colors" href="https://developer.themoviedb.org/docs" rel="noopener noreferrer" target="_blank">TMDB API Docs</a>
 </div>
 </section>
@@ -564,7 +562,7 @@ ${[["light","Лёгкое"],["find","Открытие"],["wild","Случайн�
   if (soundSelect) {
     [...soundSelect.options].forEach((option) => { option.textContent = uiText(labels[option.value] || option.textContent); });
     soundSelect.className = $("[data-kgs-reel-sound-select]").className;
-    soundSelect.setAttribute("aria-label", uiText("Звук вращения КиноГлобуса"));
+    soundSelect.setAttribute("aria-label", uiText("Звук вращения глобуса"));
     const soundHost = $("[data-kgs-sound]");
     if (soundHost) soundHost.appendChild(soundSelect);
   }

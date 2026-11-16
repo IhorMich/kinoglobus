@@ -8,14 +8,14 @@
   const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
   // ---------- TMDB: поиск фильмов и людей (кэш в localStorage) ----------
-  const LS="kgoDesignCache2",reg={};
+  const LS="kgoDesignCache3",reg={};
   let disk={};try{disk=JSON.parse(localStorage.getItem(LS)||"{}");}catch(e){}
   const save=()=>{try{localStorage.setItem(LS,JSON.stringify(disk));}catch(e){}};
   if(!document.getElementById("kgo-design-style")){const st=document.createElement("style");st.id="kgo-design-style";st.textContent='[id^="oscar-kgo-detail-"]:not(:empty){margin-top:.5rem}';document.head.appendChild(st);}
   const hasKey=()=>typeof apiKey!=="undefined"&&!!apiKey;
   async function tmdb(path,params){
     const q=new URLSearchParams({api_key:apiKey,language:"ru-RU",include_adult:"false",...params});
-    const r=await fetch("https://api.themoviedb.org/3/"+path+"?"+q);
+    const r=await movieCatalog.request("https://api.themoviedb.org/3/"+path+"?"+q);
     if(!r.ok)throw new Error("TMDB "+r.status);
     return r.json();
   }
@@ -25,7 +25,7 @@
     let r=((await tmdb("search/movie",{query,primary_release_year:year})).results||[])[0];
     if(!r)r=((await tmdb("search/movie",{query})).results||[])[0];
     if(!r)return null;
-    const f={id:r.id,title:r.title,original_title:r.original_title,poster_path:r.poster_path,backdrop_path:r.backdrop_path,release_date:r.release_date,vote_average:r.vote_average,vote_count:r.vote_count,overview:r.overview,genre_ids:r.genre_ids||[],origin_country:r.origin_country||[]};
+    const f={id:r.id,adult:r.adult,title:r.title,original_title:r.original_title,poster_path:r.poster_path,backdrop_path:r.backdrop_path,release_date:r.release_date,vote_average:r.vote_average,vote_count:r.vote_count,overview:r.overview,genre_ids:r.genre_ids||[],origin_country:r.origin_country||[]};
     disk["f"+k]=f;save();return f;
   }
   async function findPerson(k){

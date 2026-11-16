@@ -85,9 +85,6 @@
   window.KGRefreshWatchedMap = () => {
     if (typeof renderMap === 'function') renderMap();
     window.KGRenderWatchedByCountry('');
-    const countryCount = countOpenedCountries(window.KGWatchedCountryCounts());
-    const badge=document.getElementById("kg-opened-country-count");
-    if(badge)badge.textContent=countryCount+'/'+COUNTRIES.length;
     const globe=window.MovenGlobe;
     if (globe && globe.setWatchedCountryOutlines) globe.setWatchedCountryOutlines(Object.keys(window.KGWatchedCountryCounts()));
     document.dispatchEvent(new CustomEvent('kg:watched-change'));

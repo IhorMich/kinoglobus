@@ -5,7 +5,7 @@
 <link rel="manifest" href="moven.webmanifest">
 <meta name="application-name" content="Moven: Explore">
 <meta name="description" content="Explore the world of cinema">
-<link rel="stylesheet" href="app-theme.css?v=37">
+<link rel="stylesheet" href="app-theme.css?v=38">
 <script src="steel-motion.js?v=4" defer></script>
 <script src="interface-en.js?v=46"></script>
 <script src="interface-i18n.js?v=2"></script>
@@ -88,15 +88,11 @@ try {
 <!-- Dark Vignette Overlay for Crisp Readability of Forefront Elements -->
 <div class="absolute inset-0 bg-gradient-to-b from-canvas-obsidian via-canvas-obsidian/85 to-canvas-obsidian"></div>
 </div>
-<header class="kg-main-header fixed top-0 w-full z-50 bg-surface-panel">
+<header class="kg-main-header fixed top-0 w-full z-50 bg-canvas-obsidian">
   <nav class="kg-main-header-actions" aria-label="Навигация">
     <button type="button" class="kg-header-action" data-kg-search-open aria-label="Поиск фильмов, актёров и режиссёров" title="Поиск">
       <span class="material-symbols-outlined" aria-hidden="true">search</span>
     </button>
-    <a class="kg-header-action kg-country-progress" data-path="moe-puteshestvie" href="#" title="Открытые страны">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18"/></svg>
-      <span><span class="sr-only">Открытые страны</span> <span id="kg-opened-country-count">0/100</span></span>
-    </a>
     <a class="kg-header-action" data-path="nastrojki" href="#" aria-label="Настройки" title="Настройки">
       <span class="material-symbols-outlined" aria-hidden="true">settings</span>
     </a>
@@ -107,7 +103,7 @@ try {
 </header><main class="kg-main-content flex flex-col relative w-full pb-28 bg-transparent min-h-screen"><div class="flex flex-col w-full px-margin-mobile space-y-space-lg select-none">
 <!-- 1. Mode Switcher Segmented Control -->
 <section class="w-full">
-<div id="kg-mode-switch" class="p-1 rounded-full bg-surface-container-low shadow-inner flex items-center gap-1"><button class="kg-mode-choice flex-1 py-2.5 px-4 rounded-full font-label-md text-label-md transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer" id="btn-mode-filters" data-kg-steel-motion="mode" aria-pressed="false" type="button"><span class="material-symbols-outlined text-[18px]">tune</span><span class="">Свои фильтры</span></button><button class="kg-mode-choice flex-1 py-2.5 px-4 rounded-full font-label-md text-label-md transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer" id="btn-mode-surprise" data-kg-steel-motion="mode" aria-pressed="false" type="button"><span class="material-symbols-outlined text-[18px] text-secondary">auto_awesome</span><span class="">Удиви меня</span></button></div>
+<div id="kg-mode-switch" class="flex items-center gap-2"><button class="kg-mode-choice flex-1 py-2.5 px-4 rounded-full font-label-md text-label-md transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer" id="btn-mode-filters" data-kg-steel-motion="mode" aria-pressed="false" type="button"><span class="material-symbols-outlined text-[18px]">tune</span><span class="">Свои фильтры</span></button><button class="kg-mode-choice flex-1 py-2.5 px-4 rounded-full font-label-md text-label-md transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer" id="btn-mode-surprise" data-kg-steel-motion="mode" aria-pressed="false" type="button"><span class="material-symbols-outlined text-[18px] text-secondary">auto_awesome</span><span class="">Удиви меня</span></button></div>
 </section>
 
 <!-- Visible TMDB key prompt (shown when key missing) -->
@@ -167,7 +163,7 @@ try {
 <div class="relative z-30 flex flex-col items-center justify-center px-3 pt-0 pb-2 transition-all duration-300 w-full max-w-[320px] text-center pointer-events-none" id="hero-hologram-display"><div class="relative w-9 h-9 rounded-2xl p-[2px] bg-gradient-to-tr from-cinema-velvet-deep via-primary-container to-primary flex items-center justify-center backdrop-blur-md mb-1 transition-transform" id="hologram-flag-orb"><div class="w-full h-full rounded-[14px] bg-surface-container-lowest/90 flex items-center justify-center overflow-hidden relative"><div class="absolute inset-0 bg-gradient-to-b from-white/15 via-transparent to-transparent pointer-events-none"></div><span class="text-3xl drop-shadow-[0_4px_16px_rgb(var(--kg-black)/0.8)] select-none transition-all duration-150" id="hero-country-flag">🇪🇸</span></div></div><h2 class="font-headline-lg text-headline-lg font-bold text-primary tracking-tight leading-tight truncate max-w-[260px]" id="hero-country-name">Испания</h2><div class="flex items-center gap-1.5 mt-1"><span class="px-2.5 py-0.5 rounded-full bg-surface-container-high/90 text-primary-fixed font-micro-caption text-micro-caption tracking-wider uppercase border border-primary-container/20" id="hero-country-region">ЮЖНАЯ ЕВРОПА</span></div><div class="flex items-center gap-1 text-text-muted font-micro-caption text-micro-caption mt-1.5 opacity-90"><span class="material-symbols-outlined text-[13px] text-primary-container">movie</span><span class="truncate max-w-[250px]" id="hero-country-master">Педро Альмодовар · Гильермо дель Торо</span></div></div></div>
 <!-- Tactile Primary CTA Button: 'Крутить глобус' -->
 <div class="w-full mt-3.5 z-10" id="globe-search-actions">
-<button class="relative w-full py-4 px-6 rounded-2xl text-canvas-obsidian font-label-lg text-[17px] font-semibold flex items-center justify-between shadow-[0_8px_32px_rgb(var(--kg-action-shadow)/0.45)] transition-all duration-200 hover:brightness-110 active:scale-[0.97] overflow-hidden group select-none cursor-pointer border border-white/20" id="btn-spin-roulette" data-kg-steel-motion="primary" style="background: var(--kg-spin-background, linear-gradient(135deg, rgb(var(--kg-accent-edge)) 0%, rgb(var(--kg-accent-strong)) 48%, rgb(var(--kg-action-gradient-end)) 100%)); box-shadow: var(--kg-spin-shadow, rgb(var(--kg-action-shadow)/0.45) 0px 8px 30px, rgb(var(--kg-white)/0.4) 0px 1px 1px inset);" type="button"><span class="w-9 shrink-0" aria-hidden="true"></span><span class="font-semibold text-canvas-obsidian drop-shadow-[0_1px_1px_rgb(var(--kg-white)/0.4)] flex items-center gap-2" id="btn-spin-text"><span class="">Крутить глобус</span></span><span class="w-9 h-9 rounded-xl flex items-center justify-center text-xl text-black select-none font-bold transition-transform duration-300 group-hover:rotate-180" id="btn-spin-secondary-icon">↻</span></button>
+<button class="relative w-full py-4 px-6 rounded-2xl text-canvas-obsidian font-label-lg text-[17px] font-semibold flex items-center justify-between shadow-[0_8px_32px_rgb(var(--kg-action-shadow)/0.45)] transition-all duration-200 hover:brightness-110 active:scale-[0.97] overflow-hidden group select-none cursor-pointer border border-white/20" id="btn-spin-roulette" data-kg-steel-motion="primary" style="background: var(--kg-spin-background, linear-gradient(135deg, rgb(var(--kg-accent-edge)) 0%, rgb(var(--kg-accent-strong)) 48%, rgb(var(--kg-action-gradient-end)) 100%)); box-shadow: var(--kg-spin-shadow, rgb(var(--kg-action-shadow)/0.45) 0px 8px 30px);" type="button"><span class="w-9 shrink-0" aria-hidden="true"></span><span class="font-semibold text-canvas-obsidian drop-shadow-[0_1px_1px_rgb(var(--kg-white)/0.4)] flex items-center gap-2" id="btn-spin-text"><span class="">Крутить глобус</span></span><span class="w-9 h-9 rounded-xl flex items-center justify-center text-xl text-black select-none font-bold transition-transform duration-300 group-hover:rotate-180" id="btn-spin-secondary-icon">↻</span></button>
 <!-- Secondary Quick-Action Cinema Launchers -->
 <div class="w-full grid grid-cols-2 gap-2 mt-2.5 z-10"><button class="py-2.5 px-3 rounded-xl text-on-surface hover:text-primary font-label-sm text-label-sm flex items-center justify-center gap-2 transition-all duration-200 active:scale-95 cursor-pointer backdrop-blur-md border border-primary-container/25 shadow-[0_4px_16px_rgb(var(--kg-black)/0.4)] hover:border-primary-container/50 hover:shadow-[0_0_14px_rgb(var(--kg-primary-container)/0.25)]" id="btn-top-one" aria-pressed="false" data-kg-steel-motion="quick" style="background: var(--kg-quick-action-background, linear-gradient(rgb(var(--kg-neutral-78)/0.85) 0%, rgb(var(--kg-neutral-38)/0.95) 100%));" type="button"><span class="material-symbols-outlined text-[18px] text-primary-container">military_tech</span><span class="font-medium">Топ-1 всех времён</span></button><button class="py-2.5 px-3 rounded-xl text-on-surface hover:text-secondary font-label-sm text-label-sm flex items-center justify-center gap-2 transition-all duration-200 active:scale-95 cursor-pointer backdrop-blur-md border border-secondary/25 shadow-[0_4px_16px_rgb(var(--kg-black)/0.4)] hover:border-secondary/50 hover:shadow-[0_0_14px_rgb(var(--kg-secondary)/0.25)]" id="btn-oscar-laureate" aria-pressed="false" data-kg-steel-motion="quick" style="background: var(--kg-quick-action-background, linear-gradient(rgb(var(--kg-violet-surface-02)/0.85) 0%, rgb(var(--kg-neutral-29)/0.95) 100%));" type="button"><span class="material-symbols-outlined text-[18px] text-secondary">hotel_class</span><span class="font-medium">Лауреат Оскар</span></button></div>
 </div>
@@ -3453,7 +3449,7 @@ st.textContent=`
 #cinema-35mm-reel-section,#cl-result,#oscar-reel-detail,[id^="mood-roulette-winner-detail-"]{overflow-anchor:none}
 #btn-mode-filters,#btn-mode-surprise{border:1px solid rgb(var(--kg-surface-border-subtle));color:rgb(var(--kg-neutral-119));background:rgb(var(--kg-surface-container))}
 .kg-mode-choice[aria-pressed="false"]:hover{color:rgb(var(--kg-on-surface))}
-#btn-mode-filters[aria-pressed="true"],#btn-mode-surprise[aria-pressed="true"]{color:rgb(var(--kg-white));border-color:rgb(var(--kg-white)/0.2);box-shadow:0 4px 18px rgb(var(--kg-rose-07)/0.26667),inset 0 1px rgb(var(--kg-white)/0.2)}
+#btn-mode-filters[aria-pressed="true"],#btn-mode-surprise[aria-pressed="true"]{color:rgb(var(--kg-white));box-shadow:0 4px 18px rgb(var(--kg-rose-07)/0.26667)}
 #btn-mode-filters[aria-pressed="true"]{background:linear-gradient(135deg,rgb(var(--kg-accent-edge)),rgb(var(--kg-accent-strong)))}
 #btn-mode-surprise[aria-pressed="true"]{background:linear-gradient(135deg,rgb(var(--kg-secondary-container)),rgb(var(--kg-rose-06)))}
 #film-details.veiled{display:none}
@@ -3589,8 +3585,6 @@ function syncDesign(){
   $("theme-filter-summary").textContent=themeSummary===uiText("Любой")?uiText("Готовые сеты"):themeSummary;
   if(document.activeElement!==yi[0])yi[0].value=$("year").value||"1920";
   if(document.activeElement!==yi[1])yi[1].value=$("yearTo").value||"2026";
-  const cnt=document.getElementById("kg-opened-country-count");
-  if(cnt){const wc=window.KGWatchedCountryCounts?window.KGWatchedCountryCounts():{};cnt.textContent=countOpenedCountries(wc)+"/"+COUNTRIES.length;}
   const sb=$("btn-spin-roulette");if(sb&&!sb.disabled){const t=sb.querySelector("#btn-spin-text span:last-child");if(t)t.textContent=spinLabel();}
 }
 ["paintChips","paintThemes","paintSurprise","paintExtraSum","paintGo","updHist"].forEach(n=>{
@@ -4043,10 +4037,10 @@ console.info("[Moven: Explore] Bridge v6 ready");
 </script>
 
 <script src="globe-visuals.js?v=5"></script>
-<script src="watch-history.js?v=15"></script>
+<script src="watch-history.js?v=16"></script>
 <script src="country-pages.js?v=36"></script>
 <script src="profile-page.js?v=15"></script>
-<script src="cinema-diary.js?v=13"></script>
+<script src="cinema-diary.js?v=14"></script>
 <script src="profile-editor.js?v=8"></script>
 <script src="login-page.js?v=8"></script>
 <script src="password-recovery.js?v=8"></script>

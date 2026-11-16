@@ -75,12 +75,12 @@
     .kg-diary-row {justify-content:space-between}
     .kg-diary-row h2 {font-size:17px;font-weight:700;overflow-wrap:anywhere}
     .kg-diary-count {font-size:11px;background:rgb(var(--kg-primary) / .14);color:rgb(var(--kg-primary));border-radius:99px;padding:3px 7px;text-align:center}
-    .kg-diary-count[aria-pressed=true] {outline:1px solid rgb(var(--kg-primary))}
+    .kg-diary-count[aria-pressed=true] {background:rgb(var(--kg-primary) / .28);font-weight:700}
     .kg-diary-strip {display:grid;grid-template-columns:repeat(auto-fit,minmax(22px,1fr));gap:4px;padding:10px 7px;background:rgb(var(--kg-surface-container-lowest));border-radius:8px;margin-top:9px}
     .kg-diary-strip button {border-radius:4px;min-height:24px;background:rgb(var(--kg-surface-container-high));font-size:10px}
     .kg-diary-strip button[data-level="1"] {background:rgb(var(--kg-primary) / .31)}
     .kg-diary-strip button[data-level="2"] {background:rgb(var(--kg-primary));color:rgb(var(--kg-canvas-obsidian))}
-    .kg-diary-strip button[aria-pressed=true] {outline:2px solid rgb(var(--kg-primary));outline-offset:1px}
+    .kg-diary-strip button[aria-pressed=true] {background:rgb(var(--kg-primary-fixed));color:rgb(var(--kg-canvas-obsidian));font-weight:700}
     .kg-diary-legend,.kg-diary-tabs {display:flex;gap:7px}
     .kg-diary-legend {flex-wrap:wrap;margin-top:8px}
     .kg-diary-legend span::before {content:"";display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;background:rgb(var(--kg-surface-container-high))}
@@ -128,7 +128,7 @@
     .kg-diary-editor-stars {display:flex;justify-content:center;gap:4px;color:rgb(var(--kg-primary))}
     #kg-diary-note .kg-diary-editor-stars button {font-size:clamp(21px,8vw,34px);padding:1px 4px}
     #kg-diary-note [data-vibe] {border-radius:99px;background:rgb(var(--kg-surface-container-high));padding:5px 9px;font-size:12px}
-    #kg-diary-note [data-vibe][aria-pressed=true] {color:rgb(var(--kg-primary));box-shadow:inset 0 0 0 1px rgb(var(--kg-primary))}
+    #kg-diary-note [data-vibe][aria-pressed=true] {color:rgb(var(--kg-primary));background:rgb(var(--kg-primary) / .22)}
     .kg-diary-vibes {display:flex;flex-wrap:wrap;gap:6px}
     #kg-diary-note input[type=range] {accent-color:rgb(var(--kg-primary));padding:0}
     .kg-diary-draft {background:rgb(var(--kg-surface-container-high))}

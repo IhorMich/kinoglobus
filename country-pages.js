@@ -532,7 +532,7 @@
     } catch (error) {
       button.textContent = uiText("Повторить");
       button.removeAttribute('aria-label');
-      console.warn('[Kinoglobus] Не удалось загрузить фильм страны:',error);
+      console.warn('[Moven: Explore] Не удалось загрузить фильм страны:',error);
     } finally {
       button.disabled = !button.hasAttribute('data-catalog-feature');
     }
@@ -585,7 +585,7 @@
       try {
         await window.KGUnmarkWatched(button.dataset.catalogUnwatch);
       } catch (error) {
-        console.warn('[Kinoglobus] Не удалось снять отметку просмотра:',error);
+        console.warn('[Moven: Explore] Не удалось снять отметку просмотра:',error);
       } finally {
         button.disabled = false;
       }
@@ -796,7 +796,7 @@
       settings.querySelector('#kgs-token')?.focus();
       return;
     }
-    if(target.dataset.countrySearch){const code=target.dataset.countrySearch;target.disabled=true;target.dataset.originalLabel=target.innerHTML;target.innerHTML=`<span class="material-symbols-outlined">progress_activity</span>${uiText("Ищем фильм…")}`;Promise.resolve(app.searchCountry(code)).catch(error=>console.warn('[Kinoglobus] Country search failed:',error)).finally(()=>{if(target.isConnected){target.disabled=false;target.innerHTML=target.dataset.originalLabel;}});return;}
+    if(target.dataset.countrySearch){const code=target.dataset.countrySearch;target.disabled=true;target.dataset.originalLabel=target.innerHTML;target.innerHTML=`<span class="material-symbols-outlined">progress_activity</span>${uiText("Ищем фильм…")}`;Promise.resolve(app.searchCountry(code)).catch(error=>console.warn('[Moven: Explore] Country search failed:',error)).finally(()=>{if(target.isConnected){target.disabled=false;target.innerHTML=target.dataset.originalLabel;}});return;}
     if(target.hasAttribute('data-kga-account')){window.KGOpenAccountPage?.('register');return;}
     if (target.dataset.countryFavorite) {
       const code = target.dataset.countryFavorite;
@@ -808,7 +808,7 @@
       target.setAttribute('aria-label', favoriteLabel(saved));
       return;
     }
-    if(target.dataset.countryShare){const code=target.dataset.countryShare,url=location.href.split('#')[0]+'#country-'+encodeURIComponent(code);if(navigator.share)navigator.share({title:app.countryName(code)+' · '+uiText('Киноглобус'),url}).catch(()=>{});else navigator.clipboard?.writeText(url).then(()=>{target.textContent='✓';setTimeout(()=>{if(target.isConnected)target.textContent='↗'},1200)}).catch(()=>{});return;}
+    if(target.dataset.countryShare){const code=target.dataset.countryShare,url=location.href.split('#')[0]+'#country-'+encodeURIComponent(code);if(navigator.share)navigator.share({title:app.countryName(code)+' · '+uiText('Moven: Explore'),url}).catch(()=>{});else navigator.clipboard?.writeText(url).then(()=>{target.textContent='✓';setTimeout(()=>{if(target.isConnected)target.textContent='↗'},1200)}).catch(()=>{});return;}
     if(target.dataset.countryScroll){root.querySelector('#kg-country-'+target.dataset.countryScroll)?.scrollIntoView({behavior:'smooth',block:'start'});return;}
     if(target.dataset.countryGlobe){app.showCountryOnGlobe(target.dataset.countryGlobe);return;}
     if(target.dataset.countryFilter){state.filter=target.dataset.countryFilter;root.querySelectorAll('[data-country-filter]').forEach(b=>b.classList.toggle('active',b===target));paintFilms(state.films,state.filter);return;}

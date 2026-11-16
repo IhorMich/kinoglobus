@@ -228,7 +228,7 @@
     root.querySelector("[data-action-share]")?.addEventListener("click",()=>{
       const text=`${state.currentFilm.title} (${(state.currentFilm.release_date||"").slice(0,4)})`;
       if(navigator.share){
-        navigator.share({title:"Киноглобус",text,url:window.location.href}).catch(()=>{});
+        navigator.share({title:"Moven: Explore",text,url:window.location.href}).catch(()=>{});
       }else{
         const url=window.location.href;
         navigator.clipboard.writeText(`${text}\n${url}`).catch(()=>{});
@@ -279,7 +279,7 @@
       render(filmPage,deps);
     }).catch(error=>{
       state.isLoading=false;
-      console.error("[Kinoglobus] Не удалось загрузить сведения о фильме:",error);
+      console.error("[Moven: Explore] Не удалось загрузить сведения о фильме:",error);
     });
 
     deps.trailerFor({id:filmId}).then(trailer=>{
@@ -293,7 +293,7 @@
         state.currentFilm._trailerStatus="missing";
         render(filmPage,deps);
       }
-      console.error("[Kinoglobus] Не удалось загрузить трейлер:",e);
+      console.error("[Moven: Explore] Не удалось загрузить трейлер:",e);
     });
   }
 

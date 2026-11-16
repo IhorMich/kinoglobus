@@ -287,7 +287,7 @@
     const request = async (path, params = {}) => {
       const url = new URL('https://api.themoviedb.org/3/' + path);
       url.search = new URLSearchParams({api_key:key, ...params});
-      const response = await fetch(url, {signal});
+      const response = await movieCatalog.request(url, {signal});
       if (!response.ok) throw new Error('TMDB HTTP ' + response.status);
       return response.json();
     };

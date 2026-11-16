@@ -219,15 +219,16 @@ async function loadCuratedTheme(theme, force) {
   ));
   const films = theme.films.map((film, i) => {
     const result = results[i];
+    if (result.reason?.code === "CATALOG_RESTRICTED") return null;
     if (result.status !== "fulfilled" || result.value.id !== film.id) return localizeFilmListItem(film);
     const {poster_path, backdrop_path, vote_average, vote_count, popularity} = result.value;
     const title = selectMovieText(result.value, "title").text;
     const overview = selectMovieText(result.value, "overview").text;
     return {...film, title:title || film.title, overview:overview || film.overview, poster_path, backdrop_path, vote_average, vote_count, popularity};
   });
-  return curatedData(films);
+  return curatedData(films.filter(Boolean));
 }
-const themeDataKey=(t,pages)=>t.films?t.id:`${t.id}:${pages}:${playMode!=="surprise"&&(sel.has("adult")||sel.has("erotic"))?"adult":"all"}`;
+const themeDataKey=(t,pages)=>t.films?t.id:`${t.id}:${pages}`;
 async function loadTheme(t,pages,force=false){
   const key=themeDataKey(t,pages),cached=themeDataCache.get(key),now=Date.now();
   if(!force&&cached&&now-cached.ts<DAY_MS)return cached.data;
@@ -1540,7 +1541,7 @@ $("saveKey").addEventListener("click",()=>setTimeout(refreshForNewKey,0));
 
 const savedHome=store.get("kgHomeEditorial",null);
 if(savedHome&&(savedHome.language||"ru")===filmLanguage&&Array.isArray(savedHome.films)&&savedHome.films.length){
-  homeEditorial.films=savedHome.films;
+  homeEditorial.films=savedHome.films.filter(movieCatalog.allows);
   homeEditorial.loadedKey=apiKey;
   renderHomeEditorial();
 }

@@ -1,4 +1,4 @@
-/* Country outline visuals for the interactive Kinoglobus Earth. */
+/* Country outline visuals for the interactive Moven: Explore Earth. */
 (() => {
   function subdivideRing(ring,maxDegrees=2.1) {
     const result=[];
@@ -49,8 +49,8 @@
     const group=new THREE.Group();group.name=`watched-country-outline-${code}`;
     const polygons=feature?.geometry?.type==="Polygon"?[feature.geometry.coordinates]:feature?.geometry?.coordinates||[];
     // Keep the border legible at phone scale without the old oversized neon halo.
-    const glowMaterial=new THREE.MeshBasicMaterial({color:options.glowColor||0xffbd62,transparent:true,opacity:.16,blending:THREE.AdditiveBlending,depthTest:true,depthWrite:false,side:THREE.DoubleSide,toneMapped:false});
-    const coreMaterial=new THREE.MeshBasicMaterial({color:options.coreColor||0xffe6b5,transparent:true,opacity:.82,blending:THREE.AdditiveBlending,depthTest:true,depthWrite:false,side:THREE.DoubleSide,toneMapped:false});
+    const glowMaterial=new THREE.MeshBasicMaterial({color:options.glowColor ?? readPaletteColor('--kg-globe-outline-glow', true),transparent:true,opacity:.16,blending:THREE.AdditiveBlending,depthTest:true,depthWrite:false,side:THREE.DoubleSide,toneMapped:false});
+    const coreMaterial=new THREE.MeshBasicMaterial({color:options.coreColor ?? readPaletteColor('--kg-globe-outline-core', true),transparent:true,opacity:.82,blending:THREE.AdditiveBlending,depthTest:true,depthWrite:false,side:THREE.DoubleSide,toneMapped:false});
     let ringsAdded=0;
     for(const polygon of polygons){
       for(const ring of polygon||[]){

@@ -799,7 +799,7 @@
 }
 
 /* The planet and its ambient lighting keep their own palette. */
-:root[data-kg-theme="steel"] :is(#globe-container, #roulette-section > .blur-3xl) {
+:root[data-kg-theme="steel"] #globe-container {
   --kg-primary-container: var(--kg-globe-flag-band);
 }
 
@@ -979,10 +979,6 @@
 
 :root[data-kg-theme="steel"] #hero-country-region {
   color: #cbd5e1;
-}
-
-:root[data-kg-theme="steel"] #hero-country-films {
-  color: rgb(var(--kg-text-muted));
 }
 
 :root[data-kg-theme="steel"] nav [data-view].text-primary-container {
@@ -1205,13 +1201,47 @@ body {
   height: var(--kg-main-header-height);
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  justify-content: center;
+  gap: 4px;
 }
 
-.kg-main-header-actions > :is(a, button) {
+.kg-main-header-actions .kg-header-action {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-width: 44px;
   min-height: 44px;
+  border-radius: 50%;
+  color: rgb(var(--kg-on-surface-variant));
+  transition: color .18s, background-color .18s;
+}
+
+.kg-main-header-actions .kg-header-action:hover,
+.kg-main-header-actions .kg-header-action:focus-visible {
+  color: rgb(var(--kg-primary));
+  background-color: rgb(var(--kg-surface-container-high));
+}
+
+.kg-main-header-actions .kg-country-progress {
+  gap: 6px;
+  padding-inline: 12px;
+  border-radius: 24px;
+  color: rgb(var(--kg-on-surface));
+  font-size: .8rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.kg-country-progress svg {
+  flex: none;
+  color: rgb(var(--kg-primary));
+}
+
+.kg-header-action img {
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 .kg-main-content {
@@ -1224,16 +1254,11 @@ body {
 }
 
 
-/* Leave just enough space for the whole planet and its action above the bottom tabs. */
+/* Fit the planet and all three discovery actions above the bottom tabs when space allows. */
 #earth-canvas-container {
-  height: clamp(128px, var(--kg-earth-room, calc(100svh - 430px)), 264px);
+  height: clamp(128px, var(--kg-earth-room, calc(100svh - 390px)), 330px);
   flex: none;
 }
-
-.kg-country-count-icon {
-  flex: none;
-}
-
 
 /* Full-width media keeps its composition without inheriting card gutters. */
 #roulette-section {
@@ -1250,15 +1275,4 @@ body {
   border-radius: 0;
   margin-inline: 0;
   align-self: center;
-}
-
-.kg-country-progress {
-  display: grid;
-  justify-items: start;
-  white-space: nowrap;
-  line-height: 1.1;
-}
-.kg-country-progress-label {
-  color: rgb(var(--kg-on-surface-variant));
-  font-size: .65rem;
 }

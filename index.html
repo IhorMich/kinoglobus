@@ -2296,6 +2296,14 @@ function playFilmFoundSound() {
   if (reelSnd === "off") return;
   audio();
   if (!ac) return;
+  // Свой звук колоды (rsm-*): финал из того же файла
+  const foundCfg = reelProfiles[reelSnd]?.found;
+  if (foundCfg && playReelFound(foundCfg)) return;
+  // Авто-режим + выбран звук-сэмпл глобуса (smp-*): играем финал этого сэмпла
+  if (reelSnd === "auto" && typeof SAMPLE_SOUNDS !== "undefined" && SAMPLE_SOUNDS[snd]) {
+    if (sampleBuf[snd]) { sampleWin(snd); return; }
+    loadSample(snd);
+  }
   click(.12,1850);
   tone(659.25,.18,.055,"triangle",.025);
   tone(880,.42,.045,"sine",.105);
@@ -2424,8 +2432,81 @@ const reelProfiles = {
   paperTickets: {
     duration:.096, attack:.012, noise:{frequency:3400,q:.65,volume:.24},
     landing:{duration:.037, noise:{frequency:850,q:1.15,volume:.27}}
-  }
+  },
+  // ---- Свои звуки (mp3 из assets/sounds) ----
+  // sample = звук на каждый кадр, loop = непрерывная петля, found = финал, когда фильм выбран
+  "rsm-click":   {duration:.05, sample:{file:"click", len:.07, vol:.55, rate:[.9,1.2]},
+                  found:{file:"click", len:.45, vol:.8}},
+  "rsm-swoosh":  {duration:.05, sample:{file:"swoosh", len:.2, vol:.4, rate:[.9,1.2]},
+                  found:{file:"swoosh", len:.8, vol:.7}},
+  "rsm-cape":    {duration:.05, sample:{file:"cape", len:.22, vol:.4, rate:[.9,1.15]},
+                  found:{file:"cape", len:1.0, vol:.7}},
+  "rsm-motion":  {duration:.05, sample:{file:"motion", len:.2, vol:.4, rate:[.9,1.15]},
+                  found:{file:"motion", len:1.0, vol:.7}},
+  "rsm-fire":    {duration:.05, sample:{file:"fire", len:.22, vol:.35, rate:[.9,1.15]},
+                  found:{file:"fire", len:1.4, vol:.65}},
+  "rsm-whistle": {duration:.05, sample:{file:"whistle", len:.12, vol:.3, rate:[.8,1.4]},
+                  found:{file:"whistle", len:1.3, vol:.6}},
+  "rsm-proj2":   {duration:.05, loop:{file:"proj2", vol:.55}, sample:{file:"click", len:.05, vol:.18},
+                  found:{file:"proj2", len:.9, vol:.5, fadeIn:.04, pre:{file:"click", len:.4, vol:.7}}},
+  "rsm-cine":    {duration:.05, loop:{file:"cine", vol:.55}, sample:{file:"click", len:.05, vol:.18},
+                  found:{file:"cine", len:.9, vol:.5, fadeIn:.04, pre:{file:"click", len:.4, vol:.7}}}
 };
+const REEL_SAMPLE_FILES={
+  click:"assets/sounds/reel-click.mp3", swoosh:"assets/sounds/reel-swoosh.mp3",
+  cape:"assets/sounds/reel-whoosh-cape.mp3", motion:"assets/sounds/reel-whoosh-motion.mp3",
+  fire:"assets/sounds/reel-whoosh-fire.mp3", whistle:"assets/sounds/reel-whistle.mp3",
+  proj2:"assets/sounds/reel-projector2-loop.mp3", cine:"assets/sounds/reel-cine-loop.mp3"
+};
+const reelBuf={}, reelOnset={}, reelPending={};
+function loadReelSample(file){
+  if(reelBuf[file]||reelPending[file]||!ac||!REEL_SAMPLE_FILES[file])return;
+  reelPending[file]=fetch(REEL_SAMPLE_FILES[file]).then(r=>r.arrayBuffer())
+    .then(b=>new Promise((res,rej)=>ac.decodeAudioData(b,res,rej)))
+    .then(buf=>{reelOnset[file]=findOnset(buf);reelBuf[file]=buf;}).catch(()=>{}).finally(()=>{delete reelPending[file];});
+}
+function playReelSample(nodes, level){
+  const cfg=nodes.profile.sample; if(!cfg)return;
+  const buf=reelBuf[cfg.file]; if(!buf){loadReelSample(cfg.file);return;}
+  const now=ac.currentTime,src=ac.createBufferSource(),g=ac.createGain();
+  const r=cfg.rate||[1,1],v=cfg.vol*(.45+.55*level);
+  src.buffer=buf;src.playbackRate.value=r[0]+(r[1]-r[0])*level;
+  g.gain.setValueAtTime(v,now);g.gain.setValueAtTime(v,now+cfg.len*.6);g.gain.linearRampToValueAtTime(.0001,now+cfg.len);
+  src.connect(g);g.connect(nodes.output);nodes.voices.add(src);
+  src.onended=()=>{nodes.voices.delete(src);src.disconnect();g.disconnect();};
+  src.start(now,reelOnset[cfg.file]||0,cfg.len+.02);
+}
+function updateReelLoop(nodes, level){
+  const lp=nodes.profile.loop; if(!lp)return;
+  const buf=reelBuf[lp.file]; if(!buf){loadReelSample(lp.file);return;}
+  if(!nodes.loopSrc){
+    nodes.loopSrc=ac.createBufferSource();nodes.loopGain=ac.createGain();
+    nodes.loopSrc.buffer=buf;nodes.loopSrc.loop=true;nodes.loopGain.gain.value=0;
+    nodes.loopSrc.connect(nodes.loopGain);nodes.loopGain.connect(nodes.output);
+    nodes.voices.add(nodes.loopSrc);nodes.loopSrc.start();
+  }
+  nodes.loopSrc.playbackRate.setTargetAtTime(.8+.3*level,ac.currentTime,.05);
+  nodes.loopGain.gain.setTargetAtTime(lp.vol*level,ac.currentTime,.03);
+}
+// Финальный звук выбранного фильма: играет файл, соответствующий выбранному звуку колоды.
+// Возвращает false, если файл ещё не загружен (тогда играет встроенный сигнал).
+function playReelFound(cfg){
+  const buf=reelBuf[cfg.file];
+  if(!buf){loadReelSample(cfg.file);return false;}
+  const one=(c,delay)=>{
+    const b=reelBuf[c.file]; if(!b)return;
+    const t=ac.currentTime+delay,src=ac.createBufferSource(),g=ac.createGain(),fi=c.fadeIn||.004;
+    src.buffer=b;
+    g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(c.vol,t+fi);
+    g.gain.setValueAtTime(c.vol,t+Math.max(fi,c.len*.7));g.gain.linearRampToValueAtTime(.0001,t+c.len);
+    src.connect(g);g.connect(soundOutput);
+    src.onended=()=>{src.disconnect();g.disconnect();};
+    src.start(t,reelOnset[c.file]||0,c.len+.02);
+  };
+  if(cfg.pre)one(cfg.pre,0);
+  one(cfg,cfg.pre?.04:0);
+  return true;
+}
 function isReelSound(value) {
   return value === "auto" || value === "off" || Object.hasOwn(reelProfiles, value);
 }
@@ -2466,6 +2547,9 @@ function startFilmReelSound() {
   audio();
   if (!ac) return;
   const profile = activeReelProfile();
+  if (profile.sample) loadReelSample(profile.sample.file);
+  if (profile.loop) loadReelSample(profile.loop.file);
+  if (profile.found) { loadReelSample(profile.found.file); if (profile.found.pre) loadReelSample(profile.found.pre.file); }
   const output = ac.createGain();
   output.connect(soundOutput);
   const prepareFrame = config => {
@@ -2485,6 +2569,7 @@ function startFilmReelSound() {
 }
 
 function playReelFrame(nodes, level, phase) {
+  if (nodes.profile.sample) { playReelSample(nodes, level); return; }
   const {output, voices} = nodes;
   const {config:profile, filter, noise} = phase === "land" && nodes.landing ? nodes.landing : nodes.frame;
   const now = ac.currentTime;
@@ -2528,6 +2613,7 @@ function setFilmReelLevel(level, position, frame = Math.round(position), continu
   }
   const nodes = filmReelNodes;
   if (!nodes || ac.state !== "running" || (Number.isFinite(position) && position <= 0)) return;
+  if (continuous && nodes.profile.loop) updateReelLoop(nodes, level);
   if (continuous && nodes.profile.motor) {
     if (!nodes.motor) {
       nodes.motor = ac.createBufferSource();

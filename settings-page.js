@@ -550,7 +550,7 @@ ${[["light","Лёгкое"],["find","Открытие"],["wild","Случайн�
     sync();
   };
 
-  const labels = {roulette:"Трещотка бобины",bells:"Колокольчики",arcade:"Аркада",casino:"Казино",marimba:"Маримба",space:"Космос",film:"Киноплёнка",orchestra:"Оркестр",jazz:"Джаз",synth:"Синтезатор",chimes:"Звон",off:"Без звука",imax:"Кинозал · низкий гул"};
+  const labels = {roulette:"Трещотка бобины",bells:"Колокольчики",arcade:"Аркада",casino:"Казино",marimba:"Маримба",space:"Космос",film:"Киноплёнка",orchestra:"Оркестр",jazz:"Джаз",synth:"Синтезатор",chimes:"Звон","smp-ui14":"Сэмпл · UI 14","smp-ui02":"Сэмпл · UI 02","smp-ui73":"Сэмпл · UI 73","smp-build":"Сэмпл · Build finish","smp-confirm":"Сэмпл · Confirm","smp-impact":"Сэмпл · Impact","smp-blaster":"Сэмпл · Sci-fi blaster",off:"Без звука",imax:"Кинозал · низкий гул"};
   if (soundSelect) {
     [...soundSelect.options].forEach((option) => { option.textContent = uiText(labels[option.value] || option.textContent); });
     soundSelect.className = $("[data-kgs-reel-sound-select]").className;

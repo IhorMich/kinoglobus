@@ -41,7 +41,7 @@
   }
   async function providerData(id){
     if(cache.has(id))return cache.get(id);
-    const promise=(async()=>{let key="";try{key=apiKey||"";}catch{}if(!key)throw new Error("missing TMDB key");const response=await fetch(`https://api.themoviedb.org/3/movie/${encodeURIComponent(id)}/watch/providers?api_key=${encodeURIComponent(key)}`);if(!response.ok)throw new Error(`TMDB ${response.status}`);const json=await response.json();return json.results||{};})().catch(error=>{cache.delete(id);throw error;});
+    const promise=(async()=>{let key="";try{key=apiKey||"";}catch{}if(!key)throw new Error("missing TMDB key");const response=await movieCatalog.request(`https://api.themoviedb.org/3/movie/${encodeURIComponent(id)}/watch/providers?api_key=${encodeURIComponent(key)}`);if(!response.ok)throw new Error(`TMDB ${response.status}`);const json=await response.json();return json.results||{};})().catch(error=>{cache.delete(id);throw error;});
     cache.set(id,promise);return promise;
   }
   function render(section,all){

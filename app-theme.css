@@ -1419,6 +1419,19 @@ body {
   border-radius: 5px;
 }
 
+[data-film-part="cast"] .kg-person-card {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.kg-cast-avatar {
+  width: 5rem;
+  height: 5rem;
+  flex: none;
+}
+
 /* Fullscreen screens share the canvas color of the current theme. */
 :root body :is(
   dialog:not(#kg-edit-sheet),

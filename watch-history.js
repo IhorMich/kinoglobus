@@ -83,7 +83,7 @@
     const countryCount = countOpenedCountries(window.KGWatchedCountryCounts());
     const badge=document.querySelector('header a[data-path="moe-puteshestvie"] span:last-child');
     if(badge)badge.textContent=countryCount+'/'+COUNTRIES.length;
-    const globe=window.KinoglobusGlobe;
+    const globe=window.MovenGlobe;
     if (globe && globe.setWatchedCountryOutlines) globe.setWatchedCountryOutlines(Object.keys(window.KGWatchedCountryCounts()));
     document.dispatchEvent(new CustomEvent('kg:watched-change'));
   };

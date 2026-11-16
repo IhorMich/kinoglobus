@@ -9,10 +9,8 @@
     const control = target.closest("[data-kg-steel-motion]");
     if (control && !control.matches(":disabled, [aria-disabled='true']")) {
       const motion = control.dataset.kgSteelMotion;
-      if (motion === "primary" || motion === "quick") {
-        control.toggleAttribute("data-kg-steel-selected");
-      }
       if (motion === "primary") {
+        control.toggleAttribute("data-kg-steel-selected");
         const arrow = control.querySelector("#btn-spin-secondary-icon");
         if (arrow) {
           const angle = parseInt(arrow.style.getPropertyValue("--kg-steel-arrow-angle"), 10) || 0;
@@ -22,15 +20,10 @@
 
       if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
         // A tap ends before the sweep can run. Keep it active until it finishes.
-        control.removeAttribute("data-kg-steel-sweep");
-        control.getBoundingClientRect();
         control.setAttribute("data-kg-steel-sweep", "");
       }
     }
-
-    const card = target.closest('[data-release-action="film"], #kg-home-europe [data-home-act="open"]');
-    if (card) card.toggleAttribute("data-kg-steel-selected");
-  }, true);
+  });
 
   function finishSweep(event) {
     if (event.animationName === "kg-steel-sweep" && event.pseudoElement === "::after") {

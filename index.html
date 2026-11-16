@@ -5,7 +5,7 @@
 <link rel="manifest" href="moven.webmanifest">
 <meta name="application-name" content="Moven: Explore">
 <meta name="description" content="Explore the world of cinema">
-<link rel="stylesheet" href="app-theme.css?v=45">
+<link rel="stylesheet" href="app-theme.css?v=46">
 <script src="steel-motion.js?v=4" defer></script>
 <script src="interface-en.js?v=47"></script>
 <script src="interface-i18n.js?v=2"></script>
@@ -48,7 +48,7 @@ try {
     .hint-float {
       animation: hintPulse 2.8s ease-in-out infinite;
     }
-  </style><script src="cinema-reel.js?v=43"></script><link rel="stylesheet" href="watched-button.css?v=7">
+  </style><script src="cinema-reel.js?v=44"></script><link rel="stylesheet" href="watched-button.css?v=7">
 <script src="watched-button.js?v=3"></script>
 <link rel="stylesheet" href="settings-page.css?v=10">
 </head><body class="bg-canvas-obsidian font-body-md text-on-surface flex flex-col min-h-screen relative">
@@ -607,7 +607,7 @@ localizeInterfaceMarkup(document.querySelector("main"));
     let beaconGroup = null;
     // Вспышки во время поиска: точка загорается у проходимой страны и плавно гаснет
     const FLASH_MS = 850;
-    const scanBeacons = []; // Reused throughout the scan; up to four 850 ms flashes overlap.
+    const scanBeacons = []; // Reused throughout the scan; up to five 850 ms flashes overlap.
     let countryBoundaryFeatures = [];
     let watchedCountryIds = new Set();
     let countryOutlineGroup = null;
@@ -1015,7 +1015,7 @@ rotatingGroup.add(flagPinGroup);
       beaconUp = new THREE.Vector3(0, 0, 1);
       rotatingGroup.add(beaconGroup);
       catalog.forEach(addBeacon);
-      for (let i = 0; i < 4; i++) scanBeacons.push(makeBeacon());
+      for (let i = 0; i < 5; i++) scanBeacons.push(makeBeacon());
     }
 
     function cancelScanTurn() {
@@ -3717,7 +3717,7 @@ function gc(cc) {
 }
 let activeScan=null,landed=false,tmr=[];
 let focusedCC="";   // страна, на которой глобус уже стоит в фокусе с флажком (чтобы «другой фильм» не крутил планету заново)
-const SCAN_STEPS=8, SCAN_STEP_MS=3500/SCAN_STEPS;
+const SCAN_STEPS=8, SCAN_STEP_MS=190;
 const scanCatalog=COUNTRIES.map(id=>{
   const [lat,lon]=GEO[id]||[20,0];
   return {id,lat,lon};
@@ -3740,7 +3740,7 @@ async function scanCountries(scan, steps, slow=false){
   return activeScan===scan;
 }
 const COUNTRY_HOLD_MS = 1000;
-const LAND_STEPS=[220,300,400,540,720,950];   // замедление перед остановкой
+const LAND_STEPS=[200,230,265,300,350,410];   // замедление перед остановкой
 // Подборка уже знает страну: только световая точка, без прокрутки глобуса и без флажка.
 function pinLight(cc){
   const w=gc(cc);
@@ -3821,7 +3821,7 @@ window.reelLand=async function(cc, themedCountries = []){
   G.currentCountry = country;
   focusedCC = cc;
   G.showSingleBeacon(country);
-  const finalTurn=G.turnToScanCountry(country,650,0.055,G.CAMERA_DIST_FOCUS,true);
+  const finalTurn=G.turnToScanCountry(country,460,0.075,G.CAMERA_DIST_FOCUS,true);
   hero(country);
   $("hero-hologram-display").classList.remove("invisible");
   G.triggerWinnerCelebration(country);

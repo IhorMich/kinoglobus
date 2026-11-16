@@ -1342,26 +1342,70 @@ body {
 }
 
 [data-kg-projection] .kg-projection-machine {
+  position: relative;
   grid-template-columns: minmax(0, 1fr);
   width: 100%;
   margin-block: 0;
 }
 
-[data-kg-projection] :is(.kg-projection-top, .kg-projection-caption),
-[data-kg-cassette-deck] .kg-cassette-counter {
+[data-kg-projection] .kg-projection-caption {
   padding: 6px 1rem;
   border: 0;
   background: transparent;
 }
 
-#film-center-frame,
-.kgr-frame {
-  border-color: transparent;
-  box-shadow: none;
+.kg-reel-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.4rem 1rem;
+  color: rgb(var(--kg-on-surface));
+  font-size: 0.8rem;
+  font-weight: 600;
 }
 
-.kgr-frame.hit {
+.kg-reel-count {
+  flex-shrink: 0;
+  color: rgb(var(--kg-accent-text));
+  font: 600 0.75rem ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.kg-reel-frame.kgr-frame,
+#film-center-frame,
+.kg-cassette-focus,
+.kg-projection-focus {
+  border: 2px solid rgb(var(--kg-primary-fixed-dim));
+  box-shadow: inset 0 0 0 1px rgb(var(--kg-black)/0.48);
+}
+
+.kg-reel-frame.kgr-frame.hit {
   animation: none;
+}
+
+.kg-cassette-focus,
+.kg-projection-focus {
+  position: absolute;
+  box-sizing: border-box;
+  pointer-events: none;
+}
+
+.kg-cassette-focus {
+  top: 50%;
+  left: 50%;
+  z-index: 5;
+  width: var(--kg-cassette-width);
+  height: 86%;
+  max-height: 245px;
+  border-radius: 9px;
+  transform: translate(-50%, -50%) scale(1.15);
+}
+
+.kg-projection-focus {
+  z-index: 4;
+  inset: 2px;
+  border-radius: 5px;
 }
 
 /* Fullscreen screens share the canvas color of the current theme. */

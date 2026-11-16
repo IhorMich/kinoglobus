@@ -296,8 +296,22 @@ function hydrate(model, source, refresh, active, onTrailer) {
 }
 
 let dialogSequence = 0;
-function openDialog(film, opener, {autoplayTrailer = false} = {}) {
-  if (!film?.id) return;
+async function openDialog(film, opener, {autoplayTrailer = false} = {}) {
+  const id = Number(film?.id);
+  if (!Number.isSafeInteger(id) || id <= 0) return;
+  if (apiKey) {
+    try {
+      const details = await filmDetails(id);
+      if (!movieCatalog.allows(film)) {
+        if (opener && !opener.isConnected) return;
+        film = {...details, id, release_date:details.release, original_title:details.originalTitle,
+          poster_path:details.posterPath, _cc:film._cc || film.cc, _kgGlobalRelated:true};
+      }
+    } catch (error) {
+      if (error.code === "CATALOG_RESTRICTED" || !movieCatalog.allows(film)) return;
+    }
+  }
+  if (!movieCatalog.allows(film)) return;
   stopTrailers();
   const dialog = document.createElement("dialog");
   dialog.className="kg-film-dialog";

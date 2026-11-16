@@ -54,7 +54,7 @@
     .kg-edit-header {min-height:calc(56px + env(safe-area-inset-top,0px));padding:env(safe-area-inset-top,0px) 4% 0}
     .kg-edit-header strong {font-size:22px;line-height:1}
     .kg-edit-header small {display:block;font-size:9px;letter-spacing:.1em;text-transform:uppercase}
-    .kg-edit-header img {width:32px;height:32px;border-radius:50%;border:1px solid rgb(var(--kg-primary));object-fit:cover}
+    .kg-edit-header [data-header-avatar] {width:32px;height:32px;border-radius:50%;border:1px solid rgb(var(--kg-primary));object-fit:cover}
     .kg-edit-header button,.kg-edit-nav button {min-width:44px;min-height:44px}
     .kg-edit-toolbar {display:grid;grid-template-columns:1fr minmax(0,1.6fr) 1fr;text-align:center;border-top:1px solid rgb(var(--kg-surface-border))}
     .kg-edit-toolbar button:last-child {justify-self:end}
@@ -150,7 +150,7 @@
     <div class="kg-edit-shell">
       <header class="kg-edit-header">
         ${icon("local_movies")}
-        <div class="flex-1"><strong>Moven: Explore</strong><small>Настройки</small></div>
+        <div class="flex-1"><strong><img class="kg-brand-mark" src="assets/branding/moven-icon-192.png" width="24" height="24" alt=""> Moven: Explore</strong><small>Настройки</small></div>
         <button type="button" data-nav="search" aria-label="Поиск">${icon("search")}</button>
         <img data-header-avatar alt="">
       </header>

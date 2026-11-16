@@ -1194,12 +1194,37 @@ body {
 
 /* Leave space for the full wordmark beside the main header controls. */
 @media (max-width: 440px) {
-  .kg-main-header .kg-brand-globe {
-    display: none;
-  }
-
   .kg-main-header .kg-brand-title {
     font-size: 15px;
     overflow-wrap: normal;
+  }
+}
+
+
+.kg-brand-mark {
+  display: inline-block;
+  width: 1.35em;
+  height: 1.35em;
+  object-fit: contain;
+  vertical-align: middle;
+  flex: none;
+}
+.kg-main-header .kg-brand-mark {
+  width: 40px;
+  height: 40px;
+}
+@media (max-width: 440px) {
+  .kg-main-header .kg-brand-mark {
+    width: 28px;
+    height: 28px;
+  }
+}
+@media (max-width: 360px) {
+  .kg-main-header .kg-brand-mark {
+    width: 22px;
+    height: 22px;
+  }
+  .kg-main-header [data-path="moe-puteshestvie"] {
+    padding-inline: 6px;
   }
 }

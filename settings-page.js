@@ -18,7 +18,7 @@
 <div class="font-headline-sm text-base text-primary font-semibold leading-tight">
           Настройки приложения
         </div>
-<p class="text-[11px] text-text-muted font-medium tracking-tight">Настройки Moven: Explore</p>
+<p class="text-[11px] text-text-muted font-medium tracking-tight"><img class="kg-brand-mark" src="assets/branding/moven-icon-192.png" width="24" height="24" alt=""> Настройки Moven: Explore</p>
 </div>
 <div class="flex items-center gap-2">
 <div class="px-2.5 py-1 rounded-full bg-gradient-to-r from-primary-fixed-dim/20 to-primary-container/10 border border-primary-container/40 kgs-gold-shadow flex items-center gap-1">

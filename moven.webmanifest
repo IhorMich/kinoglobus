@@ -1,0 +1,12 @@
+{
+  "name": "Moven: Explore",
+  "short_name": "Moven",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#070A10",
+  "theme_color": "#070A10",
+  "icons": [
+    {"src": "assets/branding/moven-icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "assets/branding/moven-icon-512.png", "sizes": "512x512", "type": "image/png"}
+  ]
+}

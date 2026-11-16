@@ -110,7 +110,7 @@
     <div class="kg-profile-shell">
       <header class="kg-profile-header">
         <button type="button" data-profile-back aria-label="Назад" autofocus>${icon("arrow_back_ios_new")}</button>
-        <div class="kg-profile-brand">Moven: Explore<small>Личный кабинет</small></div>
+        <div class="kg-profile-brand"><img class="kg-brand-mark" src="assets/branding/moven-icon-192.png" width="24" height="24" alt=""> Moven: Explore<small>Личный кабинет</small></div>
         <button type="button" data-profile-action="search" aria-label="Поиск">${icon("search")}</button>
         <button type="button" data-profile-logout aria-label="Выйти">${icon("logout")}</button>
         ${still(0)}

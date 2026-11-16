@@ -53,7 +53,7 @@
     .kg-diary-header {min-height:calc(58px + env(safe-area-inset-top,0px));padding:env(safe-area-inset-top,0px) 5% 0}
     .kg-diary-header strong {flex:1;color:rgb(var(--kg-primary));font-size:22px}
     .kg-diary-header button {min-width:32px;min-height:44px;color:rgb(var(--kg-primary))}
-    .kg-diary-header img {width:32px;height:32px;border-radius:50%;object-fit:cover;border:1px solid rgb(var(--kg-primary))}
+    .kg-diary-header [data-diary-portrait] {width:32px;height:32px;border-radius:50%;object-fit:cover;border:1px solid rgb(var(--kg-primary))}
     .kg-diary-scroll {flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;padding:16px 5% 30px}
     .kg-diary-scroll > * + * {margin-top:16px}
     .kg-diary-kicker {font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.11em;color:rgb(var(--kg-primary))}
@@ -156,9 +156,9 @@
     <div class="kg-diary-shell">
       <header class="kg-diary-header">
         <button type="button" data-back aria-label="Назад" autofocus>${icon("arrow_back_ios_new")}</button>
-        <strong>Moven: Explore</strong>
+        <strong><img class="kg-brand-mark" src="assets/branding/moven-icon-192.png" width="24" height="24" alt=""> Moven: Explore</strong>
         <button type="button" data-route="search" aria-label="Поиск">${icon("search")}</button>
-        <img alt="" hidden>
+        <img data-diary-portrait alt="" hidden>
       </header>
       <div class="kg-diary-scroll">
         <header class="kg-diary-intro">
@@ -764,7 +764,7 @@
     filter = "all";
     day = "";
     showStatus();
-    const portrait = dialog.querySelector(".kg-diary-header img");
+    const portrait = dialog.querySelector(".kg-diary-header [data-diary-portrait]");
     portrait.hidden = !avatar;
     if (avatar) portrait.src = avatar;
     if (!dialog.open) dialog.showModal();

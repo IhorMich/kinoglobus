@@ -1,4 +1,4 @@
-/* Shared visual markup for every film reel in Kinoglobus. */
+/* Shared visual markup for every film reel in Moven: Explore. */
 (function(){
   // The ticket, projection and cassette searches share one slower pacing across
   // the globe, collections, mood and Oscar screens.
@@ -30,16 +30,16 @@
   const reelMode=()=>{try{const mode=JSON.parse(localStorage.getItem("reelStyle")||'"35mm"');return ["cassette","projection"].includes(mode)?mode:"35mm";}catch{return"35mm";}};
   const ticketEscape=html;
   function ticketMarkup(film={},meta={}){
-    const title=film.title||film.original_title||"Фильм из КиноГлобуса",original=film.original_title&&film.original_title!==title?film.original_title:"ПРЕМЬЕРНЫЙ СЕАНС";
+    const title=film.title||film.original_title||"Фильм из Moven: Explore",original=film.original_title&&film.original_title!==title?film.original_title:"ПРЕМЬЕРНЫЙ СЕАНС";
     const year=(film.release_date||"").slice(0,4)||"—",rating=Number(film.vote_average)>0?Number(film.vote_average).toFixed(1):"—";
     const poster=film.poster_path?`https://image.tmdb.org/t/p/w500${film.poster_path}`:"";
-    const runtime=film.runtime?`${film.runtime} МИН`:(meta.runtime||"СЕАНС КИНОГЛОБУСА"),country=meta.country||film._cc||"МИРОВОЙ КИНЕМАТОГРАФ";
+    const runtime=film.runtime?`${film.runtime} МИН`:(meta.runtime||"СЕАНС Moven: Explore"),country=meta.country||film._cc||"МИРОВОЙ КИНЕМАТОГРАФ";
     const overview=film.overview||"Билет в следующий фильм уже найден. Откройте карточку фильма, чтобы посмотреть описание и трейлер.";
     const serial=`KG-${String(film.id||"000000").replace(/\D/g,"").slice(-6).padStart(6,"0")}-${year}`;
-    return `<section class="kg-ticket" data-kg-ticket-card><div class="kg-ticket-top"><span>КИНОГЛОБУС <i>·</i> ПРЕМЬЕРНЫЙ АРХИВ</span><span class="kg-ticket-edition">ЗОЛОТОЙ БИЛЕТ</span></div>
-      <div class="kg-ticket-body"><div class="kg-ticket-poster">${poster?`<img src="${poster}" alt="Постер фильма «${ticketEscape(title)}»" loading="lazy">`:`<div class="kg-ticket-no-poster">КИНОГЛОБУС<br>PREMIÈRE</div>`}<span>${year} <b>·</b> TMDB</span></div>
+    return `<section class="kg-ticket" data-kg-ticket-card><div class="kg-ticket-top"><span>Moven: Explore <i>·</i> ПРЕМЬЕРНЫЙ АРХИВ</span><span class="kg-ticket-edition">ЗОЛОТОЙ БИЛЕТ</span></div>
+      <div class="kg-ticket-body"><div class="kg-ticket-poster">${poster?`<img src="${poster}" alt="Постер фильма «${ticketEscape(title)}»" loading="lazy">`:`<div class="kg-ticket-no-poster">Moven: Explore<br>PREMIÈRE</div>`}<span>${year} <b>·</b> TMDB</span></div>
       <div class="kg-ticket-info"><div class="kg-ticket-kicker">${ticketEscape(country)} <span>·</span> ${ticketEscape(year)}</div><h2>${ticketEscape(title)}</h2><div class="kg-ticket-original">${ticketEscape(original)}</div>${film.director?`<div class="kg-ticket-director">Режиссёр · ${ticketEscape(film.director)}</div>`:""}<p class="kg-ticket-synopsis">${ticketEscape(overview)}</p><div class="kg-ticket-stats"><span><small>TMDB</small><b>★ ${rating} / 10</b></span><span><small>СЕАНС</small><b>${ticketEscape(runtime)}</b></span><span><small>АРХИВ</small><b>№ ${ticketEscape(String(film.id||"—"))}</b></span></div>${film.award?`<div class="kg-ticket-award">✦ ${ticketEscape(film.award)}</div>`:""}</div></div>
-      <div class="kg-ticket-foot"><span class="kg-ticket-code-inline"><i class="kg-ticket-bars" aria-hidden="true"></i><small>${serial}</small></span><span class="kg-ticket-valid">АРХИВ КИНОГЛОБУСА</span></div></section>`;
+      <div class="kg-ticket-foot"><span class="kg-ticket-code-inline"><i class="kg-ticket-bars" aria-hidden="true"></i><small>${serial}</small></span><span class="kg-ticket-valid">АРХИВ Moven: Explore</span></div></section>`;
   }
   function renderTicket(film,meta){return ticketMarkup(film,meta);}
   function presentTicket(container,film,meta={}){
@@ -206,7 +206,7 @@
           emitReelMotion((1 - p) ** 3, distance, n);
           if(n!==last){last=n;const index=((Math.round(position)%state.films.length)+state.films.length)%state.films.length,film=state.films[index]||winner;state.index=index;const counter=mounted.root.querySelector("[data-kg-cassette-counter]");if(counter)counter.textContent=`${String(index+1).padStart(2,"0")} / ${String(state.films.length).padStart(2,"0")}`;options.onFrame?.(film,n);}
           requestAnimationFrame(frame);
-        }catch(error){console.error("[Kinoglobus] Cassette animation failed",error);resolve(finish(false));}
+        }catch(error){console.error("[Moven: Explore] Cassette animation failed",error);resolve(finish(false));}
       };requestAnimationFrame(frame);
     });
   }
@@ -215,9 +215,9 @@
   function renderProjectionTrack(){
     return `<section class="kg-projection" data-kg-projection>
       <div class="kg-projection-top"><span><i></i> ${uiText("ПРОЕКЦИОННЫЙ ТРАКТ · 35 ММ")}</span><b data-kg-projection-counter>${uiText("КАДР 00 / 00")}</b><span>24 FPS</span></div>
-      <div class="kg-projection-telemetry"><span>35 MM · KODAK</span><span data-kg-projection-state>${uiText("ОЖИДАНИЕ ПОИСКА")}</span><span>КИНОГЛОБУС</span></div>
+      <div class="kg-projection-telemetry"><span>35 MM · KODAK</span><span data-kg-projection-state>${uiText("ОЖИДАНИЕ ПОИСКА")}</span><span>Moven: Explore</span></div>
       <div class="kg-projection-machine"><div class="kg-projection-perfs" aria-hidden="true">${"<i></i>".repeat(11)}</div><div class="kg-projection-window"><div class="kg-projection-beam"></div><div class="kg-projection-image" data-kg-projection-image><div class="kg-projection-empty">${uiText("ЗАПУСТИТЕ ПОИСК ФИЛЬМА")}</div></div><div class="kg-projection-frame-meta"><span data-kg-projection-year>35 MM · 24 FPS</span><b data-kg-projection-rating>● TMDB</b></div></div><div class="kg-projection-perfs" aria-hidden="true">${"<i></i>".repeat(11)}</div></div>
-      <div class="kg-projection-caption"><small data-kg-projection-country>${uiText("КИНОГЛОБУС · ПОИСК")}</small><strong data-kg-projection-title>${uiText("Фильм появится после запуска")}</strong><span data-kg-projection-subtitle>${uiText("Оптическая рамка 35 мм")}</span></div>
+      <div class="kg-projection-caption"><small data-kg-projection-country>${uiText("Moven: Explore · ПОИСК")}</small><strong data-kg-projection-title>${uiText("Фильм появится после запуска")}</strong><span data-kg-projection-subtitle>${uiText("Оптическая рамка 35 мм")}</span></div>
     </section>`;
   }
   function projectionRoot(container){if(typeof container==="string")container=document.querySelector(container);return container?.matches?.("[data-kg-projection]")?container:container?.querySelector?.("[data-kg-projection]");}
@@ -228,7 +228,7 @@
     const image=root.querySelector("[data-kg-projection-image]"),poster=projectionPoster(film?.poster_path);
     if(image)image.innerHTML=poster?`<img src="${poster}" alt="Постер фильма «${html(title)}»" loading="lazy"><span class="kg-projection-image-shade"></span>`:`<div class="kg-projection-empty">${html(title)}</div>`;
     const set=(selector,value)=>{const el=root.querySelector(selector);if(el)el.textContent=value||"";};
-    set("[data-kg-projection-title]",title);set("[data-kg-projection-year]",`${(film?.release_date||"").slice(0,4)||"35 MM"} · KODAK`);set("[data-kg-projection-rating]",Number(film?.vote_average)>0?`★ ${Number(film.vote_average).toFixed(1)}`:"● TMDB");set("[data-kg-projection-country]",meta.country||film?._cc||film?.origin_country?.[0]||uiText("КИНОГЛОБУС · ПОИСК"));set("[data-kg-projection-subtitle]",[film?.original_title&&film.original_title!==title?film.original_title:"",film?.runtime?`${film.runtime} мин`:uiText("Оптическая рамка 35 мм")].filter(Boolean).join(" · "));return {root,state};
+    set("[data-kg-projection-title]",title);set("[data-kg-projection-year]",`${(film?.release_date||"").slice(0,4)||"35 MM"} · KODAK`);set("[data-kg-projection-rating]",Number(film?.vote_average)>0?`★ ${Number(film.vote_average).toFixed(1)}`:"● TMDB");set("[data-kg-projection-country]",meta.country||film?._cc||film?.origin_country?.[0]||uiText("Moven: Explore · ПОИСК"));set("[data-kg-projection-subtitle]",[film?.original_title&&film.original_title!==title?film.original_title:"",film?.runtime?`${film.runtime} мин`:uiText("Оптическая рамка 35 мм")].filter(Boolean).join(" · "));return {root,state};
   }
   function spinProjectionTrack(container,sequence,winner,options={}){
     const mounted=mountProjectionTrack(container,sequence?.[0]||winner,options.meta||{});if(!mounted)return Promise.resolve(false);

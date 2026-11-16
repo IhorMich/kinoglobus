@@ -620,6 +620,11 @@ localizeInterfaceMarkup(document.querySelector("main"));
     // Audio Engine
     function playHologramLockSound() {
       if (snd === "off") return;
+      // Выбран звук-сэмпл (mp3): играем его финал вместо встроенного аккорда
+      if (typeof SAMPLE_SOUNDS !== "undefined" && SAMPLE_SOUNDS[snd]) {
+        if (audio()) sampleWin(snd);
+        return;
+      }
       try {
         const audioCtx = audio();
         if (!audioCtx) return;

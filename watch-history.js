@@ -104,7 +104,7 @@
   });
 
   window.KGMarkWatched = film => {
-    if (!film || !film.id) return false;
+    if (!movieCatalog.allows(film) || !film.id) return false;
     const id = Number(film.id);
     const prior = watched.find(item => Number(item.id) === id);
     if (prior && Array.isArray(prior.countries) && prior.countries.length) return Promise.resolve(true);

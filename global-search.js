@@ -61,9 +61,6 @@
   color: inherit;
   opacity: .8;
 }
-.kg-search-screen .kg-header-search:focus-within {
-  border-color: rgb(var(--kg-primary));
-}
 .kgs-body {
   flex: 1;
   min-height: 0;

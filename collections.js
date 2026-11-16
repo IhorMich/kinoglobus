@@ -543,6 +543,9 @@ ${top}<div class="kg-catalog-row flex items-start gap-3">
 </div></div></article>`;
 }
 
+const collectionSpinClasses = "kg-collection-spin relative group py-3.5 px-4 rounded-xl bg-primary-container text-on-primary font-label-lg text-label-lg font-bold flex items-center justify-center gap-2 shadow-[0_0_24px_rgb(var(--kg-primary-container)/0.28)] transition-all active:scale-[0.98] overflow-hidden";
+const collectionSpinShine = '<span aria-hidden="true" class="absolute inset-0 pointer-events-none bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></span>';
+
 function spotlightHtml(t){
   const m=TM[t.id]||["noir","","",""];
   return `<section id="spot" data-t="${t.id}" tabindex="0" aria-label="${esc(uiText("Открыть подборку «{title}»", {title: uiText(t.name)}))}" class="relative w-full rounded-2xl overflow-hidden bg-surface-panel shadow-[0_14px_34px_-10px_rgb(var(--kg-black)/0.85)] cursor-pointer">
@@ -552,7 +555,7 @@ function spotlightHtml(t){
 <div class="absolute bottom-3 left-3.5 right-3.5 flex items-center gap-1.5"><span class="px-2 py-0.5 rounded-full bg-surface-container-high/90 backdrop-blur text-primary font-micro-caption text-micro-caption tracking-wider">${t.cc.map(fl).join(" ")}</span><span class="font-micro-caption text-micro-caption text-text-muted truncate">${esc(t.cc.map(cname).join(", "))}</span></div></div>
 <div class="p-4 flex flex-col gap-2.5"><div class="flex items-baseline justify-between"><h3 class="font-headline-md text-headline-md text-primary font-bold">${esc(uiText(t.name))}</h3><span data-k="cnt" class="font-micro-caption text-micro-caption text-text-muted">…</span></div>
 <p class="font-body-sm text-body-sm text-text-muted kg-clip2">${esc(uiText(m[3]))}</p>
-<div class="flex items-center gap-2 pt-1"><button type="button" data-act="spin" data-t="${t.id}" class="flex-1 h-11 px-4 rounded-xl bg-primary-container text-on-primary-container font-label-md text-label-md flex items-center justify-center gap-2 shadow-[0_0_20px_rgb(var(--kg-primary-container)/0.32)] transition-transform active:scale-95"><span class="material-symbols-outlined text-[20px]">casino</span><span>${uiText("Крутить рулетку")}</span></button>
+<div class="flex items-center gap-2 pt-1"><button type="button" data-act="spin" data-t="${t.id}" class="${collectionSpinClasses} min-w-0 flex-1"><span class="material-symbols-outlined text-[22px]">casino</span><span>${uiText("Крутить рулетку")}</span>${collectionSpinShine}</button>
 <button type="button" aria-label="${uiText("Подробнее")}" data-act="open" data-t="${t.id}" class="w-11 h-11 rounded-xl bg-surface-container-high text-primary flex items-center justify-center transition-colors hover:bg-surface-bright active:scale-95"><span class="material-symbols-outlined text-[20px]">arrow_forward</span></button></div></div></section>`;
 }
 function updateWeeklySpotlight(){
@@ -937,7 +940,7 @@ function renderCollection(){
 <p class="font-body-sm text-body-sm text-text-muted leading-relaxed pt-1">${esc(uiText(m[3]))}</p>
 <div class="flex items-center gap-2 pt-1 flex-wrap">${gnames(t).map(g=>`<span class="px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-micro-caption text-micro-caption">${esc(g)}</span>`).join("")}</div></div></div>
 <div class="flex flex-col gap-space-sm bg-surface-panel p-space-md rounded-xl shadow-lg"><div class="flex items-center justify-between"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary-container text-[20px]">casino</span><span class="font-headline-sm text-headline-sm text-on-surface font-semibold">${uiText("Случайный выбор")}</span></div><span class="font-micro-caption text-micro-caption text-primary-fixed bg-surface-container-high px-2 py-0.5 rounded-full">${uiText(t.films ? "Ручной отбор" : "Рейтинг ≥ 6.5")}</span></div>
-<button type="button" id="cl-spin" data-act="spin" class="relative group w-full py-3.5 px-4 rounded-xl bg-primary-container text-on-primary font-label-lg text-label-lg font-bold flex items-center justify-center gap-2 shadow-[0_0_24px_rgb(var(--kg-primary-container)/0.28)] transition-all active:scale-[0.98] overflow-hidden"><span id="cl-ricon" class="material-symbols-outlined text-[22px]">casino</span><span id="cl-rtext">${uiText("Крутить рулетку")}</span><div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div></button>
+<button type="button" id="cl-spin" data-act="spin" class="${collectionSpinClasses} w-full"><span id="cl-ricon" class="material-symbols-outlined text-[22px]">casino</span><span id="cl-rtext">${uiText("Крутить рулетку")}</span>${collectionSpinShine}</button>
 ${sortBar(D.sort)}
 <div id="cl-reel" style="display:none" class="flex flex-col gap-space-sm">
 <div id="cl-reel-host"></div>

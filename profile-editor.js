@@ -29,6 +29,13 @@
     "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuBdPJh286WbSRCHQZXzzL58Yn--5GmgZqrYyP5c93nC14Bey4JbvtY4uKHv-YcZp8M9DeoFW20l_37VeTiSafLBQTcRdIGJ3m8xjzET61ts1UOPxP_9nogwXG7GE5rw46-oDRKFZf7g9UuT3H9me4EmqkFqfyg7AG5kQDQDWXIcQ3yIYs9TgW1swQcPsuYkhRBExxdOb5pucDvcusi35SzvHPJYEAJ6SpB0YlHwOmo"
   }
 ];
+  function displayShelfFilm(film) {
+    if (movieCatalog.allows(film)) return film;
+    const sample = !film.id && sampleShelf.find(item => item.title === film.title && item.year === film.year);
+    return sample || {id:film.id, title:"Фильм", year:"", ratio:""};
+  }
+  window.KGDisplayShelfFilm = displayShelfFilm;
+
   const styles = document.createElement("style");
   styles.textContent = `
     #kg-profile-editor {
@@ -347,7 +354,7 @@
       return chip(uiText(genre),active ? "check" : "add","genre",index,active);
     }).join("") + chip(uiText("Добавить жанр"),"add_circle","add-genre",0);
     editor.querySelector("[data-badges]").innerHTML = draft.badges.map((badge,index) => chip(uiText(badge),"close","remove-badge",index)).join("");
-    editor.querySelector("[data-shelf]").innerHTML = draft.shelf.map((film,index) => `
+    editor.querySelector("[data-shelf]").innerHTML = draft.shelf.map(displayShelfFilm).map((film,index) => `
       <article class="rounded-lg bg-surface-container-low p-2">
         <div class="kg-edit-poster">
           ${film.image ? `<img src="${escapeHtml(film.image)}" alt="">` : icon("movie")}
@@ -415,16 +422,16 @@
   }
 
   function showShelf(slot) {
-    const choices = watched.map(film => ({
-      id:film.id, poster:film.poster, cc:film.cc, original:film.original,
+    const choices = watched.filter(movieCatalog.allows).map(film => ({
+      id:film.id, adult:film.adult, poster:film.poster, cc:film.cc, original:film.original,
       title:film.title || film.original || "", year:String(film.year || ""), ratio:"",
       image: /^\/[\w.-]+$/.test(film.poster || "") ? `https://image.tmdb.org/t/p/w342${film.poster}` : ""
     })).filter(film => film.title);
     const relevantFilms = [...draft.shelf, ...choices];
     showPanel(slot === undefined ? "Изменить или переставить шедевры" : "Заменить фильм",
       slot === undefined
-        ? draft.shelf.map((film,index) => `<div class="kg-edit-shelf-row"><b>${index+1}. ${escapeHtml(uiText(film.title))}</b><button type="button" data-panel-replace="${index}">${uiText("Заменить")}</button><button type="button" data-move="${index}" ${index===0 ? "disabled" : ""} aria-label="${uiText("Выше")}">↑</button></div>`).join("")
-        : relevantFilms.map((film,index) => `<button type="button" data-pick="${index}">${escapeHtml(uiText(film.title))} · ${escapeHtml(film.year)}</button>`).join(""));
+        ? draft.shelf.map(displayShelfFilm).map((film,index) => `<div class="kg-edit-shelf-row"><b>${index+1}. ${escapeHtml(uiText(film.title))}</b><button type="button" data-panel-replace="${index}">${uiText("Заменить")}</button><button type="button" data-move="${index}" ${index===0 ? "disabled" : ""} aria-label="${uiText("Выше")}">↑</button></div>`).join("")
+        : relevantFilms.map(displayShelfFilm).map((film,index) => `<button type="button" data-pick="${index}">${escapeHtml(uiText(film.title))} · ${escapeHtml(film.year)}</button>`).join(""));
     panel.onpick = index => {
       const selection = relevantFilms[index];
       const previousSlot = draft.shelf.findIndex(film => film.title === selection.title && film.year === selection.year);

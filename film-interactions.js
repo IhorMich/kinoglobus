@@ -8,7 +8,7 @@
     let key="";try{key=apiKey||"";}catch{}
     if(!key)throw new Error("Нужен ключ TMDB");
     const query=new URLSearchParams({...params,api_key:key,language});
-    const response=await fetch(`https://api.themoviedb.org/3/${path}?${query}`);
+    const response=await movieCatalog.request(`https://api.themoviedb.org/3/${path}?${query}`);
     if(!response.ok)throw new Error(`TMDB ${response.status}`);
     return response.json();
   }

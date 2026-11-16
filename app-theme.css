@@ -1317,3 +1317,49 @@ body {
 :where(button:not(.kg-header-action), [role="button"], summary, nav a:not(.kg-bottom-nav-link, .kg-header-action), #year-rating-filter, #theme-filter) {
   border-color: transparent !important;
 }
+
+
+/* These displays sit inside the main column's one-rem gutters. */
+.kg-home-full-width,
+#cl-reel {
+  width: auto;
+  align-self: stretch;
+  margin-inline: -1rem;
+}
+
+#cl-reel > div:nth-child(2) {
+  padding-inline: 1rem;
+}
+
+:is(.kg-cassette-deck, .kg-projection):is([data-kg-cassette-deck], [data-kg-projection]),
+[data-kg-cassette-deck] .kg-cassette-stage,
+[data-kg-projection] :is(.kg-projection-machine, .kg-projection-window) {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+[data-kg-projection] .kg-projection-machine {
+  grid-template-columns: minmax(0, 1fr);
+  width: 100%;
+  margin-block: 0;
+}
+
+[data-kg-projection] :is(.kg-projection-top, .kg-projection-caption),
+[data-kg-cassette-deck] .kg-cassette-counter {
+  padding: 6px 1rem;
+  border: 0;
+  background: transparent;
+}
+
+#film-center-frame,
+.kgr-frame {
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.kgr-frame.hit {
+  animation: none;
+}

@@ -433,10 +433,9 @@ ${info.best?`<span class="block font-micro-caption text-micro-caption text-prima
     ]);
     if(token!==state.spinToken||!panel.isConnected)return;
     panel.hidden=false;
-    panel.innerHTML=`<section class="w-full rounded-2xl bg-surface-panel/95 p-3.5 shadow-2xl relative overflow-hidden border border-primary-container/25 backdrop-blur-xl">
-<div class="flex items-center justify-between gap-2 mb-2.5 px-0.5"><div class="flex items-center gap-2 min-w-0"><div class="w-7 h-7 rounded-lg bg-surface-container flex items-center justify-center border border-primary-container/30 text-primary shadow-[0_0_8px_rgb(var(--kg-primary-container)/0.25)] flex-shrink-0"><span class="material-symbols-outlined text-[17px]">movie</span></div><div class="flex flex-col min-w-0"><div class="flex items-center gap-1.5"><span class="font-label-sm text-label-sm font-bold text-on-surface uppercase tracking-wider">${uiText("Кинолента 35-мм")}</span></div><span class="font-micro-caption text-[11px] text-text-muted truncate" data-oscar-reel-sub>Оскар · ${esc(eraName())}</span></div></div>
-<div class="flex items-center gap-1.5 flex-shrink-0"><div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-high/90 border border-primary-container/25 shadow-sm"><span class="material-symbols-outlined text-primary-container text-[14px]">confirmation_number</span><span data-oscar-frame-counter class="font-mono text-micro-caption text-primary-fixed font-semibold tracking-wide">${uiText("Кадр {current} / {total}", {current: "--", total: String(pool.length).padStart(2,"0")})}</span></div><button type="button" data-oscar-reel-close aria-label="${uiText("Закрыть плёнку")}" class="w-8 h-8 rounded-full bg-surface-container-high text-text-muted hover:text-primary flex items-center justify-center"><span class="material-symbols-outlined text-[18px]">close</span></button></div></div>
-${window.KGCinemaReel.render({shellClass:"kgo-reel relative w-full rounded-xl bg-canvas-obsidian border border-primary-container/30 overflow-hidden shadow-[inset_0_2px_12px_rgb(var(--kg-black)/0.95)] my-2 p-1",content:sequence.map(cellHtml).join(""),frameAttr:"data-oscar-reel-frame"})}
+    panel.innerHTML=`<section class="w-full">
+<div class="flex items-center justify-between gap-2 px-margin-mobile"><span data-oscar-frame-counter class="font-mono text-micro-caption text-primary-fixed font-semibold tracking-wide">${uiText("Кадр {current} / {total}", {current: "--", total: String(pool.length).padStart(2,"0")})}</span><button type="button" data-oscar-reel-close aria-label="${uiText("Закрыть плёнку")}" class="w-8 h-8 rounded-full bg-surface-container-high text-text-muted hover:text-primary flex items-center justify-center"><span class="material-symbols-outlined text-[18px]">close</span></button></div>
+${window.KGCinemaReel.render({shellClass:"kgo-reel relative w-full overflow-hidden",content:sequence.map(cellHtml).join(""),frameAttr:"data-oscar-reel-frame"})}
 <div class="flex items-center justify-end px-1"><button type="button" data-oscar-skip class="font-micro-caption text-micro-caption text-text-muted hover:text-primary underline"${animate?"":" hidden"}>${uiText("Пропустить")}</button></div>
 <div id="oscar-reel-detail" class="mt-2"></div></section>`;
     const run=panel.querySelector(".kgr-run"),cells=run?[...run.children]:[],viewport=panel.querySelector(".kgr-win"),frame=panel.querySelector("[data-oscar-reel-frame]"),skip=panel.querySelector("[data-oscar-skip]"),counter=panel.querySelector("[data-oscar-frame-counter]");
@@ -452,7 +451,6 @@ ${window.KGCinemaReel.render({shellClass:"kgo-reel relative w-full rounded-xl bg
       run.classList.remove("fast");
       run.style.transform=`translateX(${-finish}px)`;
       counter.textContent=uiText("Кадр {current} / {total}", {current: String(pool.indexOf(film)+1).padStart(2,"0"), total: String(pool.length).padStart(2,"0")});
-      const sub=panel.querySelector("[data-oscar-reel-sub]");if(sub)sub.textContent=`${film.title||film.original_title||uiText("Фильм")} · ${yearOf(film)}`;
       setLaunch(root,false);
       if(skip)skip.hidden=true;
       frame.classList.remove("hit");void frame.offsetWidth;frame.classList.add("hit");
@@ -464,7 +462,6 @@ ${window.KGCinemaReel.render({shellClass:"kgo-reel relative w-full rounded-xl bg
       const landed=await window.KGCinemaReel.spinProjectionTrack(panel,sequence,film,{duration:4600,reducedMotion:!animate,cancelled:()=>token!==state.spinToken||!panel.isConnected,shouldSkip:()=>state.skipSpin,meta:{country:uiText("Оскар")},onFrame:(_f,index)=>{if(counter)counter.textContent=uiText("Кадр")+" "+String(index+1).padStart(2,"0")+" / "+String(sequence.length).padStart(2,"0");}});
       sound("stopFilmReelSound");if(!landed||token!==state.spinToken||!panel.isConnected){if(token===state.spinToken){state.spinning=false;setLaunch(root,false);}return;}
       state.spinning=false;state.skipSpin=false;if(counter)counter.textContent=uiText("Фильм")+" "+String(pool.indexOf(film)+1).padStart(2,"0")+" / "+String(pool.length).padStart(2,"0");
-      const sub=panel.querySelector("[data-oscar-reel-sub]");if(sub)sub.textContent=(film.title||film.original_title||uiText("Фильм"))+" · "+yearOf(film);
       setLaunch(root,false);if(skip)skip.hidden=true;showWinner();
       return;
     }
@@ -474,7 +471,6 @@ ${window.KGCinemaReel.render({shellClass:"kgo-reel relative w-full rounded-xl bg
       const landed=await window.KGCinemaReel.spinCassetteDeck(panel,pool,sequence,film,{...meta,duration:4600,reducedMotion:!animate,cancelled:()=>token!==state.spinToken||!panel.isConnected,shouldSkip:()=>state.skipSpin,onFrame:(_f,index)=>{if(counter)counter.textContent=uiText("Плёнка")+" "+String(index+1).padStart(2,"0")+" / "+String(sequence.length).padStart(2,"0");}});
       sound("stopFilmReelSound");if(!landed||token!==state.spinToken||!panel.isConnected){if(token===state.spinToken){state.spinning=false;setLaunch(root,false);}return;}
       state.spinning=false;state.skipSpin=false;if(counter)counter.textContent=uiText("Фильм")+" "+String(pool.indexOf(film)+1).padStart(2,"0")+" / "+String(pool.length).padStart(2,"0");
-      const sub=panel.querySelector("[data-oscar-reel-sub]");if(sub)sub.textContent=(film.title||film.original_title||uiText("Фильм"))+" · "+yearOf(film);
       setLaunch(root,false);if(skip)skip.hidden=true;showWinner();
       return;
     }
@@ -484,7 +480,6 @@ ${window.KGCinemaReel.render({shellClass:"kgo-reel relative w-full rounded-xl bg
       sound("stopFilmReelSound");if(!landed||token!==state.spinToken||!panel.isConnected){if(token===state.spinToken){state.spinning=false;setLaunch(root,false);}return;}
       window.KGCinemaReel.presentTicket(panel,film,{country:uiText("Оскар")});state.spinning=false;state.skipSpin=false;
       if(counter)counter.textContent="Билет "+String(pool.indexOf(film)+1).padStart(2,"0")+" / "+String(pool.length).padStart(2,"0");
-      const sub=panel.querySelector("[data-oscar-reel-sub]");if(sub)sub.textContent=(film.title||film.original_title||uiText("Фильм"))+" · "+yearOf(film);
       setLaunch(root,false);if(skip)skip.hidden=true;showWinner();
       return;
     }

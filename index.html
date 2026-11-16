@@ -5,7 +5,7 @@
 <link rel="manifest" href="moven.webmanifest">
 <meta name="application-name" content="Moven: Explore">
 <meta name="description" content="Explore the world of cinema">
-<link rel="stylesheet" href="app-theme.css?v=43">
+<link rel="stylesheet" href="app-theme.css?v=44">
 <script src="steel-motion.js?v=4" defer></script>
 <script src="interface-en.js?v=47"></script>
 <script src="interface-i18n.js?v=2"></script>
@@ -48,7 +48,7 @@ try {
     .hint-float {
       animation: hintPulse 2.8s ease-in-out infinite;
     }
-  </style><script src="cinema-reel.js?v=41"></script><link rel="stylesheet" href="watched-button.css?v=7">
+  </style><script src="cinema-reel.js?v=42"></script><link rel="stylesheet" href="watched-button.css?v=7">
 <script src="watched-button.js?v=3"></script>
 <link rel="stylesheet" href="settings-page.css?v=10">
 </head><body class="bg-canvas-obsidian font-body-md text-on-surface flex flex-col min-h-screen relative">
@@ -297,12 +297,12 @@ try {
     <p class="font-micro-caption text-micro-caption text-primary font-bold uppercase tracking-wider">Выбор дня</p>
     <p class="font-body-sm text-body-sm text-text-muted mt-2">Добавьте ключ TMDB, чтобы загрузить фильм и подборку европейского кино.</p>
   </article>
-  <section class="w-full" aria-labelledby="kg-home-europe-title">
-    <div class="flex items-center justify-between gap-2 mb-2">
+  <section class="kg-home-full-width" aria-labelledby="kg-home-europe-title">
+    <div class="flex items-center justify-between gap-2 mb-2 px-margin-mobile">
       <div class="flex items-center gap-1.5 min-w-0"><span class="material-symbols-outlined text-primary-container text-[20px]">theaters</span><h2 id="kg-home-europe-title" class="font-headline-sm text-headline-sm text-on-surface truncate">Европейская палитра</h2></div>
       <button id="kg-home-europe-link" type="button" class="font-label-sm text-label-sm text-primary-container font-semibold hover:underline flex-shrink-0">Все 14 стран →</button>
     </div>
-    <div id="kg-home-europe" class="kg-home-europe flex gap-2 overflow-x-auto pb-2" aria-label="Фильмы европейского кино"></div>
+    <div id="kg-home-europe" class="kg-home-europe flex gap-3.5 overflow-x-auto pb-2" aria-label="Фильмы европейского кино"></div>
     <div id="kg-home-europe-detail" class="w-full mt-2" hidden></div>
   </section>
 </div>
@@ -3542,26 +3542,17 @@ document.head.appendChild(st);
 
 // ---------- Единый визуальный режим киноленты для всех экранов ----------
 function mainReelMarkup(){
-  const common={shellClass:"relative w-full rounded-xl bg-canvas-obsidian border border-primary-container/30 overflow-hidden shadow-[inset_0_2px_12px_rgb(var(--kg-black)/0.95)] my-2 p-1",prefix:"film-reel",windowId:"film-reel-window",trackId:"film-reel-track",runClass:"run",frameId:"film-center-frame",includeRun:false};
+  const common={prefix:"film-reel",windowId:"film-reel-window",trackId:"film-reel-track",runClass:"run",frameId:"film-center-frame",includeRun:false};
   return window.KGCinemaReel.render({...common,mode:reelStyle});
 }
 // ---------- Новая секция «Кинолента» (подменяет старую карточку) ----------
 const CARD_HTML=`
-<section class="w-full rounded-2xl bg-surface-panel/95 p-3.5 shadow-2xl relative overflow-hidden border border-primary-container/25 backdrop-blur-xl" id="cinema-35mm-reel-section">
-<div class="flex items-center justify-between mb-2.5 px-0.5">
-<div class="flex items-center gap-2 min-w-0">
-<div class="w-7 h-7 rounded-lg bg-surface-container flex items-center justify-center border border-primary-container/30 text-primary shadow-[0_0_8px_rgb(var(--kg-primary-container)/0.25)] flex-shrink-0"><span class="material-symbols-outlined text-[17px]">movie</span></div>
-<div class="flex flex-col min-w-0">
-<div class="flex items-center gap-1.5"><span class="font-label-sm text-label-sm font-bold text-on-surface uppercase tracking-wider" id="reel-format-title">${uiText(reelStyle==="cassette"?"Кассетная дека · 3D Cover Flow":reelStyle==="projection"?"Проекционный тракт · 35 мм":"Кинолента 35-мм")}</span></div>
-<span class="font-micro-caption text-[11px] text-text-muted truncate" id="discovery-timestamp">Крутите глобус, и здесь появится находка</span>
-</div></div>
-<div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-high/90 border border-primary-container/25 shadow-sm flex-shrink-0"><span class="material-symbols-outlined text-primary-container text-[14px]">confirmation_number</span><span class="font-mono text-micro-caption text-primary-fixed font-semibold tracking-wide" id="reel-frame-counter">Кадр 00 / 00</span></div>
-</div>
+<section class="kg-home-full-width" id="cinema-35mm-reel-section">
 <div id="film-reel-host">${mainReelMarkup()}</div>
 <div class="veiled flex flex-col gap-3 mt-2.5" id="film-details">
 <div id="kg-globe-film"></div>
 <div id="kg-globe-film-context"></div>
-<button type="button" class="self-start py-2 px-3 rounded-xl bg-primary-container text-on-primary-container font-label-sm text-label-sm font-semibold" id="btn-spin-another-film">${uiText("Найти другой фильм")}</button>
+<button type="button" class="self-start mx-margin-mobile py-2 px-3 rounded-xl bg-primary-container text-on-primary-container font-label-sm text-label-sm font-semibold" id="btn-spin-another-film">${uiText("Найти другой фильм")}</button>
 </div>
 </section>`;
 {const old=$("cinema-35mm-reel-section")||$("recent-discovery-card");if(old){old.outerHTML=CARD_HTML;localizeInterfaceMarkup($("film-details"));}}
@@ -3843,7 +3834,6 @@ function renderBlank(){
   if(!["cassette","projection"].includes(reelStyle))mountRun(new Array(9).fill(null),4,"");
   if(reelStyle==="cassette")window.KGCinemaReel.mountCassetteDeck($("film-reel-host"),[],null,{onOpen:f=>window.KGFilmCard.openDialog(f,document.activeElement)});
   if(reelStyle==="projection")window.KGCinemaReel.mountProjectionTrack($("film-reel-host"),null);
-  set("reel-frame-counter","Кадр 00 / 00");
 }
 function renderStatic(pool,film,cc){      // готовая лента без прокрутки: выбранный фильм под рамкой
   let list=(pool.films&&pool.films.length)?pool.films:[film];
@@ -3853,7 +3843,6 @@ function renderStatic(pool,film,cc){      // готовая лента без п
   if(reelStyle==="cassette")window.KGCinemaReel.mountCassetteDeck($("film-reel-host"),list,film,{onOpen:f=>window.KGFilmCard.openDialog(f,document.activeElement),onRandom:f=>window.KGFilmCard.openDialog(f,document.activeElement)});
   else if(reelStyle==="projection")window.KGCinemaReel.mountProjectionTrack($("film-reel-host"),film,{country:cname(cc)});
   else mountRun(list,i,"chosen");
-  set("reel-frame-counter",`Кадр ${pad(i+1)} / ${list.length}`);
 }
 window.setCinemaReelStyle=function(style){
   const next=["cassette","projection"].includes(style)?style:"35mm";
@@ -3862,7 +3851,6 @@ window.setCinemaReelStyle=function(style){
   stopReel();
   reelStyle=next;store.set("reelStyle",next);
   filmSpin=true;store.set("filmSpin",true);filmLabel();
-  const title=$("reel-format-title");if(title)title.textContent=uiText(next==="cassette"?"Кассетная дека · 3D Cover Flow":next==="projection"?"Проекционный тракт · 35 мм":"Кинолента 35-мм");
   const host=$("film-reel-host");if(!host)return;
   host.innerHTML=mainReelMarkup();
   trackEl=$("film-reel-track");runEl=null;
@@ -3949,16 +3937,16 @@ async function spinReel(pool,film,cc){
   const others=shuffle((pool.films||[]).filter(f=>f.id!==film.id));
   if(reelStyle==="projection"){
     if(!cur||cur.film.id!==film.id)return;
-    const host=$("film-reel-host"),all=pool.films||[],seq=[];for(let i=0;i<24;i++)seq.push(others.length?others[i%others.length]:film);seq.push(film);
-    window.KGCinemaReel.mountProjectionTrack(host,seq[0],{country:cname(cc)});set("reel-frame-counter","Кадры проектора запускаются…");startFilmReelSound();
-    const landed=await window.KGCinemaReel.spinProjectionTrack(host,seq,film,{duration:3900,reducedMotion:RM,cancelled:()=>!cur||cur.film.id!==film.id,shouldSkip:()=>fSkip,meta:{country:cname(cc)},onFrame:(_f,i)=>set("reel-frame-counter","Кадр "+pad(i+1)+" / "+pad(seq.length))});stopFilmReelSound();
-    if(!landed||!cur||cur.film.id!==film.id)return;const k=all.findIndex(f=>f.id===film.id);set("reel-frame-counter","Фильм "+pad((k<0?0:k)+1)+" / "+pad(all.length));buzz([25,50,60]);reveal(film,pool);return;
+    const host=$("film-reel-host"),seq=[];for(let i=0;i<24;i++)seq.push(others.length?others[i%others.length]:film);seq.push(film);
+    window.KGCinemaReel.mountProjectionTrack(host,seq[0],{country:cname(cc)});startFilmReelSound();
+    const landed=await window.KGCinemaReel.spinProjectionTrack(host,seq,film,{duration:3900,reducedMotion:RM,cancelled:()=>!cur||cur.film.id!==film.id,shouldSkip:()=>fSkip,meta:{country:cname(cc)}});stopFilmReelSound();
+    if(!landed||!cur||cur.film.id!==film.id)return;buzz([25,50,60]);reveal(film,pool);return;
   }
   if(reelStyle==="cassette"){
     if(!cur||cur.film.id!==film.id)return;
-    const host=$("film-reel-host"),all=pool.films||[],seq=[];for(let i=0;i<20;i++)seq.push(others.length?others[i%others.length]:film);seq.push(film);
-    startFilmReelSound();const landed=await window.KGCinemaReel.spinCassetteDeck(host,seq,seq,film,{duration:3900,reducedMotion:RM,cancelled:()=>!cur||cur.film.id!==film.id,onOpen:f=>window.KGFilmCard.openDialog(f,document.activeElement),onRandom:f=>window.KGFilmCard.openDialog(f,document.activeElement),onFrame:(_f,i)=>set("reel-frame-counter","Кассета "+pad(i+1)+" / "+pad(seq.length))});stopFilmReelSound();
-    if(!landed||!cur||cur.film.id!==film.id)return;const k=all.findIndex(f=>f.id===film.id);set("reel-frame-counter","Фильм "+pad((k<0?0:k)+1)+" / "+pad(all.length));buzz([25,50,60]);reveal(film,pool);return;
+    const host=$("film-reel-host"),seq=[];for(let i=0;i<20;i++)seq.push(others.length?others[i%others.length]:film);seq.push(film);
+    startFilmReelSound();const landed=await window.KGCinemaReel.spinCassetteDeck(host,seq,seq,film,{duration:3900,reducedMotion:RM,cancelled:()=>!cur||cur.film.id!==film.id,onOpen:f=>window.KGFilmCard.openDialog(f,document.activeElement),onRandom:f=>window.KGFilmCard.openDialog(f,document.activeElement)});stopFilmReelSound();
+    if(!landed||!cur||cur.film.id!==film.id)return;buzz([25,50,60]);reveal(film,pool);return;
   }
   if(!others.length||RM){renderStatic(pool,film,cc);reveal(film,pool);return;}
   const NEED=26,T=4600,TAIL=6;
@@ -3971,7 +3959,6 @@ async function spinReel(pool,film,cc){
   strip={list:seq,pool,cc,idx:NEED,busy:true};
   mountRun(seq,NEED,"");
   [...runEl.children].forEach(c=>c.classList.add("spinning"));
-  set("reel-frame-counter","Кадр -- / "+pad(pool.films.length));
   startFilmReelSound();
   const x0=centerX(0),x1=centerX(NEED);
   const completed=await new Promise(resolve=>{
@@ -3990,8 +3977,6 @@ async function spinReel(pool,film,cc){
   if(!completed||!cur||cur.film.id!==film.id){strip.busy=false;stopFilmReelSound();return;}
   strip.busy=false;
   stopFilmReelSound();
-  const k=pool.films.findIndex(f=>f.id===film.id);
-  set("reel-frame-counter",`Кадр ${pad((k<0?0:k)+1)} / ${pad(pool.films.length)}`);
   buzz([25,50,60]);
   reveal(film,pool);
 }
@@ -4008,7 +3993,7 @@ function globeFilmContext(cc) {
   // страна и прогресс
   const countryCounts=window.KGWatchedCountryCounts?window.KGWatchedCountryCounts():{};const n=countryCounts[cc]||0,open=countOpenedCountries(countryCounts),all=COUNTRIES.length,pct=Math.round(open/all*100);
   const tag=uiText(cur&&cur.pool.oscar?"ОСКАР":cur&&cur.pool.top1?"ТОП-1":"НАХОДКА");
-  return cc?`<div class="p-3.5 rounded-xl bg-surface-container-high flex flex-col gap-2.5">
+  return cc?`<div class="px-margin-mobile py-3.5 flex flex-col gap-2.5">
     <div class="flex items-center justify-between gap-2">
       <div class="flex items-center gap-2 min-w-0"><div class="w-7 h-7 rounded-full bg-cinema-velvet-deep flex items-center justify-center text-secondary flex-shrink-0"><span class="material-symbols-outlined text-[16px]">travel_explore</span></div>
         <span class="font-label-md text-label-md text-primary font-bold truncate">${esc(uiText("Кинематограф: {country}", {country: cname(cc)}))}</span></div>
@@ -4057,7 +4042,6 @@ window.show=function(cc,pool,film){
   };
   detailsEl.classList.add("veiled");
   refresh();
-  set("discovery-timestamp",pool.oscar?uiText("Лауреат «Оскара»"):pool.top1?uiText("Топ-1 страны"):pool.worst?uiText("Из худших"):uiText("Случайная находка · {country}", {country:cname(cc)}));
   $("kg-globe-film-context").innerHTML=globeFilmContext(cc);
   ag.hidden=$("again").hidden;
   renderBlank();
@@ -4132,11 +4116,11 @@ console.info("[Moven: Explore] Bridge v6 ready");
 <script src="mood-vibe-additions.js?v=2"></script>
 <script src="mood-page.js?v=44"></script>
 <script src="mood-vibe-page.js?v=30"></script>
-<script src="oscar-page.js?v=48"></script>
+<script src="oscar-page.js?v=49"></script>
 <script src="oscar-design.js?v=27"></script>
 <script src="curated-collections.js?v=2"></script>
-<script src="film-card.js?v=7"></script>
-<script src="collections.js?v=117"></script>
+<script src="film-card.js?v=8"></script>
+<script src="collections.js?v=118"></script>
 <script src="film-interactions.js?v=27"></script>
 <script src="legal-watch.js?v=8"></script>
 <script src="global-search.js?v=18"></script>

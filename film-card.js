@@ -98,7 +98,15 @@ ${fact("Мировые сборы",`<span class="font-headline-sm text-headline-
 const style = document.createElement("style");
 style.textContent = `
 .kg-film-detail{display:flex;flex-direction:column;gap:14px;width:100%;max-width:100%;min-width:0;box-sizing:border-box;padding:14px;background:rgb(var(--kg-surface-panel));border:0;border-radius:0;scroll-margin-top:84px}
-#kg-globe-film{margin-inline:-15px}
+#kg-globe-film > .kg-film-detail,
+#kg-home-europe-detail > .kg-film-detail,
+#cl-result > .kg-film-detail,
+#oscar-reel-detail > .kg-film-detail {background:transparent}
+:is(#kg-globe-film, #kg-home-europe-detail, #cl-result, #oscar-reel-detail) [data-kg-film-description] {
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+}
 .kg-film-list-shell:has(>.kg-film-detail){padding:0;background:none;box-shadow:none;overflow:visible}
 .kg-film-list-shell:has(>.kg-film-detail)>[data-act="open"]{padding:12px;border-radius:12px;background:rgb(var(--kg-surface-panel))}
 article:has(>[data-oscar-detail-host]>.kg-film-detail),article:has(>[id^="mood-film-detail-"]>.kg-film-detail){padding-inline:0}

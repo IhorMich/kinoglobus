@@ -214,28 +214,36 @@
   const projectionPoster=path=>path?`https://image.tmdb.org/t/p/w500${path}`:"";
   function renderProjectionTrack(){
     return `<section class="kg-projection" data-kg-projection>
-      <div class="kg-projection-top"><span><i></i> ${uiText("ПРОЕКЦИОННЫЙ ТРАКТ · 35 ММ")}</span><b data-kg-projection-counter>${uiText("КАДР 00 / 00")}</b><span>24 FPS</span></div>
-      <div class="kg-projection-telemetry"><span>35 MM · KODAK</span><span data-kg-projection-state>${uiText("ОЖИДАНИЕ ПОИСКА")}</span><span>Moven: Explore</span></div>
-      <div class="kg-projection-machine"><div class="kg-projection-perfs" aria-hidden="true">${"<i></i>".repeat(11)}</div><div class="kg-projection-window"><div class="kg-projection-beam"></div><div class="kg-projection-image" data-kg-projection-image><div class="kg-projection-empty">${uiText("ЗАПУСТИТЕ ПОИСК ФИЛЬМА")}</div></div><div class="kg-projection-frame-meta"><span data-kg-projection-year>35 MM · 24 FPS</span><b data-kg-projection-rating>● TMDB</b></div></div><div class="kg-projection-perfs" aria-hidden="true">${"<i></i>".repeat(11)}</div></div>
-      <div class="kg-projection-caption"><small data-kg-projection-country>${uiText("Moven: Explore · ПОИСК")}</small><strong data-kg-projection-title>${uiText("Фильм появится после запуска")}</strong><span data-kg-projection-subtitle>${uiText("Оптическая рамка 35 мм")}</span></div>
+      <div class="kg-projection-top"><b data-kg-projection-counter>00 / 00</b></div>
+      <div class="kg-projection-machine">
+        <div class="kg-projection-window">
+          <div class="kg-projection-beam"></div>
+          <div class="kg-projection-image" data-kg-projection-image></div>
+          <div class="kg-projection-frame-meta"><span data-kg-projection-year></span><b data-kg-projection-rating></b></div>
+        </div>
+      </div>
+      <div class="kg-projection-caption"><strong data-kg-projection-title></strong></div>
     </section>`;
   }
   function projectionRoot(container){if(typeof container==="string")container=document.querySelector(container);return container?.matches?.("[data-kg-projection]")?container:container?.querySelector?.("[data-kg-projection]");}
   function mountProjectionTrack(container,film=null,meta={}){
     const root=projectionRoot(container);if(!root)return null;
     const state=projectionStates.get(root)||{rolling:false};projectionStates.set(root,state);state.film=film;state.meta=meta;
-    const title=film?.title||film?.original_title||uiText("Фильм появится после запуска");
+    const title=film?.title||film?.original_title||uiText("Поиск фильма");
     const image=root.querySelector("[data-kg-projection-image]"),poster=projectionPoster(film?.poster_path);
     if(image)image.innerHTML=poster?`<img src="${poster}" alt="Постер фильма «${html(title)}»" loading="lazy"><span class="kg-projection-image-shade"></span>`:`<div class="kg-projection-empty">${html(title)}</div>`;
     const set=(selector,value)=>{const el=root.querySelector(selector);if(el)el.textContent=value||"";};
-    set("[data-kg-projection-title]",title);set("[data-kg-projection-year]",`${(film?.release_date||"").slice(0,4)||"35 MM"} · KODAK`);set("[data-kg-projection-rating]",Number(film?.vote_average)>0?`★ ${Number(film.vote_average).toFixed(1)}`:"● TMDB");set("[data-kg-projection-country]",meta.country||film?._cc||film?.origin_country?.[0]||uiText("Moven: Explore · ПОИСК"));set("[data-kg-projection-subtitle]",[film?.original_title&&film.original_title!==title?film.original_title:"",film?.runtime?`${film.runtime} мин`:uiText("Оптическая рамка 35 мм")].filter(Boolean).join(" · "));return {root,state};
+    set("[data-kg-projection-title]",film ? title : "");
+    set("[data-kg-projection-year]",(film?.release_date||"").slice(0,4));
+    set("[data-kg-projection-rating]",Number(film?.vote_average)>0 ? `★ ${Number(film.vote_average).toFixed(1)}` : "");
+    return {root,state};
   }
   function spinProjectionTrack(container,sequence,winner,options={}){
     const mounted=mountProjectionTrack(container,sequence?.[0]||winner,options.meta||{});if(!mounted)return Promise.resolve(false);
-    const {root,state}=mounted,frames=(sequence||[]).filter(Boolean),winnerIndex=frames.findIndex(f=>String(f?.id)===String(winner?.id)),items=(winnerIndex>=0?frames.slice(0,winnerIndex+1):[...frames,...(winner?[winner]:[])]).filter(Boolean),targetItemIndex=winnerIndex>=0?winnerIndex:items.length-1,duration=Math.max(350,Number(options.duration)||3000)*searchPaceFactor,counter=root.querySelector("[data-kg-projection-counter]"),status=root.querySelector("[data-kg-projection-state]"),img=root.querySelector("[data-kg-projection-image]");
-    const land=()=>{emitReelMotion(0);mountProjectionTrack(root,winner,options.meta||{});root.classList.remove("is-running");state.rolling=false;if(status)status.textContent=uiText("ФИЛЬМ НАЙДЕН · КАДР ЗАФИКСИРОВАН");options.onFrame?.(winner,items.length);return true;};
+    const {root,state}=mounted,frames=(sequence||[]).filter(Boolean),winnerIndex=frames.findIndex(f=>String(f?.id)===String(winner?.id)),items=(winnerIndex>=0?frames.slice(0,winnerIndex+1):[...frames,...(winner?[winner]:[])]).filter(Boolean),targetItemIndex=winnerIndex>=0?winnerIndex:items.length-1,duration=Math.max(350,Number(options.duration)||3000)*searchPaceFactor,counter=root.querySelector("[data-kg-projection-counter]"),img=root.querySelector("[data-kg-projection-image]");
+    const land=()=>{emitReelMotion(0);mountProjectionTrack(root,winner,options.meta||{});root.classList.remove("is-running");state.rolling=false;options.onFrame?.(winner,items.length);return true;};
     if(options.reducedMotion||items.length<2)return Promise.resolve(land());
-    state.rolling=true;root.classList.add("is-running");if(status)status.textContent=uiText("ПРОЕКЦИЯ ИДЁТ…");
+    state.rolling=true;root.classList.add("is-running");
     // Reverse repeated segments so the strip physically travels down while
     // presenting the selection sequence in its original order.
     const loops=4,total=items.length*(loops+1),stripItems=Array.from({length:loops+1},()=>items.slice().reverse()).flat();
@@ -252,7 +260,7 @@
         const traveled = Math.max(0, Math.floor(distance));
         const frameIndex = traveled % items.length;
         emitReelMotion((1 - progress) ** 3, distance, traveled);
-        if(frameIndex!==lastFrame){lastFrame=frameIndex;const film=items[frameIndex];if(counter)counter.textContent=uiText("КАДР {current} / {total}", {current: String(frameIndex+1).padStart(2,"0"), total: String(items.length).padStart(2,"0")});const title=root.querySelector("[data-kg-projection-title]"),year=root.querySelector("[data-kg-projection-year]"),rating=root.querySelector("[data-kg-projection-rating]"),subtitle=root.querySelector("[data-kg-projection-subtitle]");if(title)title.textContent=film.title||film.original_title||"Фильм";if(year)year.textContent=`${(film.release_date||"").slice(0,4)||"35 MM"} · KODAK`;if(rating)rating.textContent=Number(film.vote_average)>0?`★ ${Number(film.vote_average).toFixed(1)}`:"● TMDB";if(subtitle)subtitle.textContent=film.original_title&&film.original_title!==film.title?film.original_title:uiText("Оптическая рамка 35 мм");options.onFrame?.(film,frameIndex);}
+        if(frameIndex!==lastFrame){lastFrame=frameIndex;const film=items[frameIndex];if(counter)counter.textContent=`${String(frameIndex+1).padStart(2,"0")} / ${String(items.length).padStart(2,"0")}`;const title=root.querySelector("[data-kg-projection-title]"),year=root.querySelector("[data-kg-projection-year]"),rating=root.querySelector("[data-kg-projection-rating]");if(title)title.textContent=film.title||film.original_title||"Фильм";if(year)year.textContent=(film.release_date||"").slice(0,4);if(rating)rating.textContent=Number(film.vote_average)>0?`★ ${Number(film.vote_average).toFixed(1)}`:"";options.onFrame?.(film,frameIndex);}
         requestAnimationFrame(step);};requestAnimationFrame(step);});
   }
   function isProjectionMode(){return reelMode()==="projection";}
@@ -261,7 +269,7 @@
     const mode=options.mode||reelMode();
     if(mode==="cassette")return renderCassetteDeck(options);
     if(mode==="projection")return renderProjectionTrack(options);
-    const shellClass=options.shellClass||"relative w-full rounded-xl bg-canvas-obsidian border border-primary-container/30 overflow-hidden shadow-[inset_0_2px_12px_rgb(var(--kg-black)/0.95)] p-1";
+    const shellClass=options.shellClass||"relative w-full overflow-hidden";
     const windowClass=["kg-reel-window","kgr-win","select-none",options.windowClass||""].filter(Boolean).join(" ");
     const trackClass=["kg-reel-track","kgr-track",options.trackClass||""].filter(Boolean).join(" ");
     const runClass=["kg-reel-run","kgr-run",options.runClass||""].filter(Boolean).join(" ");

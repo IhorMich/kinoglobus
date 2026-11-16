@@ -53,6 +53,10 @@
   color: inherit;
   font: inherit;
 }
+.kg-search-screen .kg-header-search input:focus {
+  outline: 0;
+  box-shadow: none;
+}
 .kg-search-screen .kg-header-search input::placeholder {
   color: inherit;
   opacity: .8;
@@ -145,7 +149,9 @@
     document.body.style.overflow = "hidden";
     results.innerHTML = emptySearch;
     root.hidden = false;
-    if (!matchMedia("(pointer: coarse)").matches) input.focus();
+    if (matchMedia("(min-width: 768px) and (pointer: fine)").matches && !window.Capacitor?.isNativePlatform?.()) {
+      input.focus();
+    }
   }
   function openItem(index, opener = input){
     const item=items[index];

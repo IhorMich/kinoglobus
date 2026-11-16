@@ -1161,8 +1161,6 @@ body {
   --kg-primary-button-fill: linear-gradient(135deg, rgb(var(--kg-accent-edge)) 0%, rgb(var(--kg-accent-strong)) 48%, rgb(var(--kg-action-gradient-end)) 100%);
   --kg-nav-control-fill: var(--kg-metal-control, rgb(var(--kg-surface-container)));
   --kg-nav-control-border: rgb(var(--kg-primary) / .23);
-  --kg-nav-selected-fill: var(--kg-metal-selected, var(--kg-action-gradient, var(--kg-spin-background, var(--kg-primary-button-fill))));
-  --kg-nav-selected-ink: rgb(var(--kg-action-ink, var(--kg-canvas-obsidian)));
 }
 
 .kg-main-header {
@@ -1219,13 +1217,20 @@ body {
   padding-top: calc(var(--kg-main-header-height) + env(safe-area-inset-top, 0px));
 }
 
+.kg-bottom-nav {
+  padding: 5px max(10px, env(safe-area-inset-right, 0px)) calc(5px + env(safe-area-inset-bottom, 0px)) max(10px, env(safe-area-inset-left, 0px));
+}
+
 .kg-bottom-nav-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   align-items: stretch;
   gap: clamp(10px, 3.2vw, 20px);
-  min-height: 64px;
-  padding: 5px max(10px, env(safe-area-inset-right, 0px)) 5px max(10px, env(safe-area-inset-left, 0px));
+  min-height: 54px;
+  padding: 3px 6px;
+  border: 1px solid var(--kg-nav-control-border);
+  border-radius: 999px;
+  background: var(--kg-nav-control-fill);
 }
 
 .kg-bottom-nav-link {
@@ -1238,28 +1243,28 @@ body {
   padding: 4px 2px;
   text-align: center;
   line-height: 1.1;
-  border: 1px solid var(--kg-nav-control-border);
-  border-radius: 12px;
-  background: var(--kg-nav-control-fill);
+  border-radius: 999px;
   color: rgb(var(--kg-on-surface));
-  transition: transform .15s, filter .15s;
+  transition: transform .15s, color .15s;
 }
 
 .kg-bottom-nav-link[aria-current="page"] {
-  background: var(--kg-nav-selected-fill);
-  color: var(--kg-nav-selected-ink);
-  font-weight: 700;
+  color: rgb(var(--kg-primary));
+}
+
+.kg-bottom-nav-link[aria-current="page"] .material-symbols-outlined {
+  font-variation-settings: "FILL" 1;
 }
 
 .kg-bottom-nav-link:hover {
-  filter: brightness(1.1);
+  color: rgb(var(--kg-primary));
 }
 
 .kg-bottom-nav-link:active {
   transform: scale(.96);
 }
 
-/* Match the icon to the text when the active tab switches to a light fill. */
+/* Keep navigation icons in the color of their control. */
 :root[data-kg-theme] :is(.kg-header-action, .kg-bottom-nav-link) .material-symbols-outlined {
   color: inherit;
 }
@@ -1271,7 +1276,6 @@ body {
 
 .kg-dialog-bottom-nav {
   flex: none;
-  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 

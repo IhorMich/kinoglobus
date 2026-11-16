@@ -321,7 +321,7 @@ sectionNav.innerHTML='<div class="grid grid-cols-3 gap-1.5 rounded-xl bg-surface
 home.after(sectionNav);sectionNav.after(vc);vc.after(vd);vd.after(vm);vm.after(vo);
 
 const nav=document.createElement("nav");
-nav.className="fixed bottom-0 w-full z-50 pb-safe bg-surface-panel shadow-[0_-4px_24px_rgb(var(--kg-canvas-obsidian)/0.9)]";
+nav.className="kg-bottom-nav fixed bottom-0 w-full z-50";
 nav.innerHTML='<div class="kg-bottom-nav-grid">'+
 [["home","casino","Глобус"],["collections","movie_filter","Подборки"],["journey","travel_explore","Путешествие"],["history","history_toggle_off","История"]]
 .map(([v,i,l])=>`<a href="#" data-view="${v}" class="kg-bottom-nav-link" aria-label="${esc(uiText(l))}"><span class="material-symbols-outlined text-[24px]" aria-hidden="true">${i}</span></a>`).join("")+"</div>";
@@ -340,7 +340,7 @@ window.KGMountBottomNav = (dialog, container, current) => {
   let footer = container.querySelector(":scope > .kg-dialog-bottom-nav");
   if (!footer) {
     footer = nav.cloneNode(true);
-    footer.classList.remove("fixed", "bottom-0", "z-50", "pb-safe");
+    footer.classList.remove("fixed", "bottom-0", "z-50");
     footer.classList.add("kg-dialog-bottom-nav");
     container.appendChild(footer);
     footer.addEventListener("click", event => {

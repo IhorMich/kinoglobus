@@ -155,7 +155,7 @@ try {
 <div class="relative w-full bg-black overflow-hidden flex flex-col items-center select-none" id="globe-container">
 <!-- 1. STATIC DEEP SPACE BACKGROUND LAYER -->
 <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none select-none" id="starfield-bg">
-<img alt="Млечный Путь, снятый экипажем Artemis II. Фото NASA, «No Place Like Home»." class="w-full h-full object-cover object-center scale-105 pointer-events-none select-none opacity-90 contrast-125" src="https://images-assets.nasa.gov/image/art002e028296/art002e028296~large.jpg">
+<img alt="Млечный Путь, снятый экипажем Artemis II. Фото NASA, «No Place Like Home»." class="w-full h-full object-cover object-center scale-105 pointer-events-none select-none opacity-90 contrast-125" src="assets/globe/milky-way.jpg">
 <div class="absolute inset-0 bg-gradient-to-b from-black/25 via-black/45 to-black/65 pointer-events-none"></div>
 </div>
 <!-- 2. 3D PLANET EARTH CANVASES & RENDER VIEWPORT -->
@@ -4084,13 +4084,22 @@ console.info("[Moven: Explore] Bridge v6 ready");
     earth.style.setProperty("--kg-earth-room", `${height}px`);
   }
 
-  const sizeChanges = new ResizeObserver(fitGlobe);
+  let fitFrame = 0;
+  function scheduleGlobeFit() {
+    if (fitFrame) return;
+    fitFrame = requestAnimationFrame(() => {
+      fitFrame = 0;
+      fitGlobe();
+    });
+  }
+
+  const sizeChanges = new ResizeObserver(scheduleGlobeFit);
   for (const element of [
     document.getElementById("kg-mode-switch"), document.getElementById("tmdb-key-banner"),
     document.getElementById("surprise-levels-panel"), document.getElementById("hero-hologram-display"),
     actions, bottomNav
   ]) if (element) sizeChanges.observe(element);
-  window.addEventListener("resize", fitGlobe);
+  window.addEventListener("resize", scheduleGlobeFit);
   fitGlobe();
 })();
 </script>

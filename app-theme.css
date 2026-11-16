@@ -1192,15 +1192,6 @@ body {
   }
 }
 
-/* Leave space for the full wordmark beside the main header controls. */
-@media (max-width: 440px) {
-  .kg-main-header .kg-brand-title {
-    font-size: 15px;
-    overflow-wrap: normal;
-  }
-}
-
-
 .kg-brand-mark {
   display: inline-block;
   width: 1.35em;
@@ -1209,22 +1200,28 @@ body {
   vertical-align: middle;
   flex: none;
 }
-.kg-main-header .kg-brand-mark {
-  width: 40px;
-  height: 40px;
+
+:root {
+  --kg-main-header-height: 52px;
 }
-@media (max-width: 440px) {
-  .kg-main-header .kg-brand-mark {
-    width: 28px;
-    height: 28px;
-  }
+
+.kg-main-header {
+  padding-top: env(safe-area-inset-top, 0px);
 }
-@media (max-width: 360px) {
-  .kg-main-header .kg-brand-mark {
-    width: 22px;
-    height: 22px;
-  }
-  .kg-main-header [data-path="moe-puteshestvie"] {
-    padding-inline: 6px;
-  }
+
+.kg-main-header-actions {
+  height: var(--kg-main-header-height);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.kg-main-header-actions > :is(a, button) {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.kg-main-content {
+  padding-top: calc(var(--kg-main-header-height) + env(safe-area-inset-top, 0px));
 }

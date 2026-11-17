@@ -51,11 +51,28 @@
     if(personTaggedBackdropCache.has(key))return personTaggedBackdropCache.get(key);
     const request=(async()=>{
       try{
-        const data=await tmdb(`person/${personId}/tagged_images`,{page:"1"},"en-US");
-        return (data.results||[])
-          .filter(img=>img.file_path&&(img.aspect_ratio||0)>=1.35&&(img.width||0)>=700)
-          .sort((a,b)=>(b.vote_count||0)-(a.vote_count||0))
-          .map(img=>img.file_path);
+        // TMDB tagged_images may contain movie, TV and episode stills.
+        // Read a few pages and deduplicate: some TMDB responses repeat page 1.
+        const pages=await Promise.all([1,2,3].map(page=>
+          tmdb(`person/${personId}/tagged_images`,{page:String(page)},"en-US").catch(()=>null)
+        ));
+        const unique=new Map();
+        for(const data of pages){
+          for(const img of data?.results||[]){
+            if(!img.file_path)continue;
+            const width=Number(img.width)||0;
+            const height=Number(img.height)||0;
+            const ratio=Number(img.aspect_ratio)||(height?width/height:0);
+            if(width<550||ratio<1.25)continue;
+            // Keep only real tagged media stills; never use profile images here.
+            if(img.image_type&&/profile/i.test(img.image_type))continue;
+            const score=(Number(img.vote_count)||0)*2+(Number(img.vote_average)||0)*3+
+              (ratio>=1.5?2:0)+(width>=1000?1:0);
+            const previous=unique.get(img.file_path);
+            if(!previous||score>previous.score)unique.set(img.file_path,{path:img.file_path,score});
+          }
+        }
+        return [...unique.values()].sort((a,b)=>b.score-a.score).map(item=>item.path);
       }catch{
         return [];
       }
@@ -93,9 +110,12 @@
     // 1. Сначала ищем кадры, где TMDB отметил именно этого человека.
     const tagged=await personTaggedBackdrop(personId);
     if(!root.isConnected||host.dataset.kgBackdropSource==="tagged")return;
-    const loaded=await Promise.any(
-      tagged.slice(0,6).map(path=>warmPersonBackdrop(path).then(img=>img||Promise.reject()))
-    ).catch(()=>null);
+    // Load several candidates concurrently, but preserve TMDB's relevance ranking:
+    // choose the highest-ranked image that actually loads, not whichever finishes first.
+    const loadedCandidates=await Promise.all(
+      tagged.slice(0,8).map(path=>warmPersonBackdrop(path))
+    );
+    const loaded=loadedCandidates.find(Boolean)||null;
     if(!root.isConnected||host.dataset.kgBackdropSource==="tagged")return;
 
     if(loaded){

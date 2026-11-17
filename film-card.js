@@ -68,7 +68,7 @@ ${kgBookmarkButton(f)}
 <button type="button" data-kg-film-note aria-label="${diaryLabel}" title="${diaryLabel}"><span class="material-symbols-outlined" aria-hidden="true">add</span></button>
 </div>
 </div>
-${closable ? `<button type="button" data-act="close-film" aria-label="${uiText("Свернуть карточку")}" class="kg-film-detail-close"><span class="material-symbols-outlined" aria-hidden="true">close</span></button>` : ""}
+  ${closable ? (f._relatedPrevious ? `<button type="button" data-kg-related-back aria-label="${uiText("Вернуться к предыдущему фильму")}" class="kg-film-detail-close"><span class="material-symbols-outlined" aria-hidden="true">arrow_back</span></button>` : `<button type="button" data-act="close-film" aria-label="${uiText("Свернуть карточку")}" class="kg-film-detail-close"><span class="material-symbols-outlined" aria-hidden="true">close</span></button>`) : ""}
 </div>
 <div data-film-part="description" data-kg-film-description class="flex flex-col gap-2"><h4 class="font-label-md text-label-md text-primary-fixed">${uiText("О фильме")}</h4>
 ${f.tagline&&f.taglineLang===f.overviewLang ? `<blockquote class="italic text-primary-fixed">«${esc(f.tagline)}»</blockquote>` : ""}
@@ -356,27 +356,75 @@ async function openDialog(film, opener, {autoplayTrailer = false} = {}) {
   const relatedPool=film._kgRelatedPool;
   const key=relatedPool?.length ? `film-dialog-${++dialogSequence}` : "";
   if (key) window.KGFilmInteractions?.registerPool(key,relatedPool);
+  dialog.__kgPoolKeys=key?[key]:[];
   const model=createModel(film,{_kgRelatedContext:key, _kgGlobalRelated:film._kgGlobalRelated ?? !key});
-  const refresh=()=>mount(host,model,{closable:false});
-  refresh();
+  let activeModel=model;
+  dialog.__kgCurrentModel=model;
+  dialog.__kgRelatedHistory=[];
+  const refresh=forModel=>()=>{if(activeModel===forModel)mount(host,forModel,{closable:false});};
+  refresh(model)();
   document.body.append(dialog);
   dialog.showModal();
   dialog.scrollTop=0;
   dialog.addEventListener("click",event=>{
     if (event.target===dialog || event.target.closest("[data-kg-film-back]")) {
-      stopTrailers(dialog);
-      dialog.close();
+      if(event.target.closest("[data-kg-film-back]") && dialog.__kgRelatedHistory.length){
+        event.preventDefault();
+        stopTrailers(dialog);
+        const previous=dialog.__kgRelatedHistory.pop();
+        activeModel=dialog.__kgCurrentModel=previous.model;
+        host.replaceChildren(previous.node);
+        hydrate(previous.model,previous.source,refresh(previous.model),()=>dialog.open&&activeModel===previous.model);
+        requestAnimationFrame(()=>dialog.scrollTo({top:previous.scrollTop,behavior:"smooth"}));
+      }else{
+        stopTrailers(dialog);
+        dialog.close();
+      }
     }
   });
   dialog.addEventListener("close",()=>{
     dialog.remove();
-    if (key) window.KGFilmInteractions?.registerPool(key,null);
+    dialog.__kgPoolKeys.forEach(poolKey=>window.KGFilmInteractions?.registerPool(poolKey,null));
     if (opener?.isConnected) opener.focus({preventScroll:true});
   },{once:true});
-  hydrate(model,film,refresh,()=>dialog.open,()=>{
+  hydrate(model,film,refresh(model),()=>dialog.open&&activeModel===model,()=>{
     if (autoplayTrailer && [...document.querySelectorAll("dialog[open]")].at(-1) === dialog) playTrailer(host.firstElementChild,model,false);
   });
 }
+
+function modelFor(card){return mountedFilms.get(card)||window.KGInlineFilmModel?.(card)||window.KGGlobeFilmModel?.(card)||null;}
+
+async function navigateDialogRelated(film,dialog,opener,pool=[],oscar=false){
+  if(!dialog?.open||!dialog.__kgCurrentModel)return false;
+  const id=Number(film?.id);
+  if(!Number.isSafeInteger(id)||id<=0||!movieCatalog.allows(film))return false;
+  stopTrailers(dialog);
+  const host=dialog.querySelector("[data-kg-film-dialog-content]");
+  const current=dialog.__kgCurrentModel;
+  dialog.__kgRelatedHistory.push({node:host.firstElementChild,model:current,source:current,scrollTop:dialog.scrollTop});
+  const key=pool?.length?`film-dialog-${++dialogSequence}`:"";
+  if(key){window.KGFilmInteractions?.registerPool(key,pool);dialog.__kgPoolKeys.push(key);}
+  const model=createModel(film,{_kgRelatedContext:key,_kgGlobalRelated:film._kgGlobalRelated??!key,
+    _kgRelatedPool:pool,_oscarContext:!!oscar,_relatedPrevious:current});
+  dialog.__kgCurrentModel=model;
+  host.replaceChildren();
+  const refresh=()=>{if(dialog.open&&dialog.__kgCurrentModel===model)mount(host,model,{closable:false});};
+  refresh();
+  hydrate(model,film,refresh,()=>dialog.open&&dialog.__kgCurrentModel===model);
+  requestAnimationFrame(()=>dialog.scrollTo({top:0,behavior:"smooth"}));
+  return true;
+}
+
+document.addEventListener("click",event=>{
+  const button=event.target.closest("[data-kg-related-back]");
+  if(!button)return;
+  const card=button.closest(".kg-film-detail");
+  const model=mountedFilms.get(card)||window.KGInlineFilmModel?.(card)||window.KGGlobeFilmModel?.(card);
+  if(!model?._relatedPrevious)return;
+  event.preventDefault();event.stopImmediatePropagation();
+  if(model._globeRelated)window.KGBackFromGlobeFilm?.(model);
+  else window.KGCloseFilmFromRelated?.(model._detailTarget||null,false);
+},true);
 
 function savedFilm(record) {
   return {
@@ -428,5 +476,5 @@ document.addEventListener("kg:diary-note-change", event => {
     button.title = label;
   });
 });
-window.KGFilmCard={markup, createModel, hydrate, mount, update, playTrailer, stopTrailers, openDialog, savedFilm};
+window.KGFilmCard={markup, createModel, hydrate, mount, update, playTrailer, stopTrailers, openDialog, savedFilm, modelFor, navigateDialogRelated};
 })();

@@ -186,10 +186,15 @@
       const filmId=button.dataset.kgRelatedOpen;
       const film=relatedCache.get(`${id}:${key}`)?.find(item=>String(item.id)===filmId)
         || pool.find(item=>String(item.id)===filmId);
-      if(film)window.KGFilmCard.openDialog({
-        ...film,_kgRelatedPool:pool,_kgGlobalRelated:section.dataset.globalRelated==="true",
-        _oscarContext:section.dataset.placement==="oscar"
-      },button);
+      if(film){
+        const enriched={...film,_kgRelatedPool:pool,_kgGlobalRelated:section.dataset.globalRelated==="true",
+          _oscarContext:section.dataset.placement==="oscar"};
+        const dialog=button.closest("dialog.kg-film-dialog");
+        if(dialog&&window.KGFilmCard.navigateDialogRelated(enriched,dialog,button,pool,section.dataset.placement==="oscar"))return;
+        const current=window.KGFilmCard.modelFor(button.closest(".kg-film-detail"));
+        if(current&&window.KGOpenInlineRelatedFilm?.(enriched,current,button))return;
+        window.KGFilmCard.openDialog(enriched,button);
+      }
       return;
     }
     if(e.target===modal())closePerson();

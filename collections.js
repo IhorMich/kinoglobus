@@ -1074,7 +1074,7 @@ function renderSelectedPanel(refresh = false){
   }
   renderFilms();
 }
-function openFilm(f,placement="list",detailTarget=null,{opener=document.activeElement}={}){
+function openFilm(f,placement="list",detailTarget=null,{opener=document.activeElement,relatedNavigation=false}={}){
   const previous = D.selected;
   if (previous && previous._placement === placement && String(previous.id) === String(f.id) && previous._detailTarget === detailTarget) {
     closeInlineFilm(previous);
@@ -1085,7 +1085,7 @@ function openFilm(f,placement="list",detailTarget=null,{opener=document.activeEl
     : null;
   const anchorTop = listAnchor?.getBoundingClientRect().top;
   window.KGFilmCard.stopTrailers();
-  if (previous) closeInlineFilm(previous, false);
+  if (previous && !relatedNavigation) closeInlineFilm(previous, false);
   if(placement==="list")$("cl-result").replaceChildren();
   const relatedPool=f._kgGlobalRelated?null:Array.isArray(f._kgRelatedPool)?f._kgRelatedPool:(placement==="list"||placement==="roulette"?D.all:placement==="home-europe"?null:placement.startsWith("home")?homeEditorial.films:null);
   const relatedContext=relatedPool&&relatedPool.length?`${placement}:${D.t&&D.t.id||"all"}:${detailTarget||""}`:"";
@@ -1094,6 +1094,7 @@ function openFilm(f,placement="list",detailTarget=null,{opener=document.activeEl
     _placement:placement, _detailTarget:detailTarget, _opener:opener, _openerScroll:window.scrollY, _kgRelatedContext:relatedContext,
     _oscarContext:placement==="oscar"
   });
+  if(relatedNavigation&&previous){selected._relatedPrevious=previous;selected._relatedScroll=previous._relatedScroll??window.scrollY;}
   renderSelectedPanel();
   if (listAnchor?.isConnected) {
     const shift = listAnchor.getBoundingClientRect().top - anchorTop;
@@ -1120,6 +1121,13 @@ function closeInlineFilm(film = D.selected, restoreFocus = true) {
   const panel = inlineFilmCard(film);
   window.KGFilmCard.stopTrailers(panel?.parentElement || document);
   D.selected = null;
+  if(film._relatedPrevious){
+    const previous=film._relatedPrevious;
+    D.selected=previous;
+    renderSelectedPanel();
+    requestAnimationFrame(()=>window.scrollTo({top:film._relatedScroll||0,behavior:"smooth"}));
+    return;
+  }
   if (film._placement === "home") {
     const featured = homeEditorial.films.find(item=>String(item.id)===String(film.id));
     if (featured) renderHomeFeature(featured,homeEditorial.featureDetails,null);
@@ -1146,6 +1154,14 @@ function closeInlineFilm(film = D.selected, restoreFocus = true) {
 }
 
 window.KGOpenFilmFromRelated=(film,placement,detailTarget,options)=>openFilm(film,placement,detailTarget,options);
+window.KGOpenInlineRelatedFilm=(film,current,opener)=>{
+  if(D.selected===current&&current?._placement){
+    current._relatedScroll=window.scrollY;
+    openFilm(film,current._placement,current._detailTarget,{opener,relatedNavigation:true});
+    return true;
+  }
+  return !!window.KGOpenGlobeRelatedFilm?.(film,current,opener);
+};
 window.KGCloseFilmFromRelated=(detailTarget,restoreFocus=false)=>{
   if (D.selected && D.selected._detailTarget===detailTarget) closeInlineFilm(D.selected,restoreFocus);
   else {

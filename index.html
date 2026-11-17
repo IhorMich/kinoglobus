@@ -4094,6 +4094,33 @@ function globeFilmContext(cc) {
 }
 
 let globeFilm=null;
+window.KGGlobeFilmModel=card=>card?.closest("#kg-globe-film")&&globeFilm&&card.dataset.selectedFilm===String(globeFilm.id)?globeFilm:null;
+window.KGOpenGlobeRelatedFilm=(film,current)=>{
+  if(globeFilm!==current)return false;
+  current._relatedScroll=window.scrollY;
+  window.KGFilmCard.stopTrailers($("kg-globe-film"));
+  const model=globeFilm=window.KGFilmCard.createModel(film,{
+    _cc:film._cc||current._cc,_kgRelatedContext:"discovery-current",_oscarContext:current._oscarContext,
+    _kgRelatedPool:film._kgRelatedPool,_relatedPrevious:current,_globeRelated:true
+  });
+  const refresh=()=>{if(globeFilm!==model)return;window.KGFilmCard.mount($("kg-globe-film"),model,{closable:true});set("hero-country-master",model.title);};
+  refresh();
+  window.KGFilmCard.hydrate(model,film,refresh,()=>globeFilm===model);
+  const panel=$("kg-globe-film").firstElementChild;
+  requestAnimationFrame(()=>window.KGScrollToFilmStart(panel,450));
+  return true;
+};
+window.KGBackFromGlobeFilm=model=>{
+  if(globeFilm!==model||!model._relatedPrevious)return false;
+  const previous=model._relatedPrevious;
+  window.KGFilmCard.stopTrailers($("kg-globe-film"));
+  globeFilm=previous;
+  const refresh=()=>{if(globeFilm===previous){window.KGFilmCard.mount($("kg-globe-film"),previous,{closable:!!previous._relatedPrevious});set("hero-country-master",previous.title);}};
+  refresh();
+  if(!previous._detailsLoaded)window.KGFilmCard.hydrate(previous,previous,refresh,()=>globeFilm===previous);
+  requestAnimationFrame(()=>window.scrollTo({top:model._relatedScroll||0,behavior:"smooth"}));
+  return true;
+};
 const closeLegacyPlayer=window.closePlayer;
 window.closePlayer=function(){
   closeLegacyPlayer();
@@ -4230,7 +4257,7 @@ console.info("[Moven: Explore] Bridge v6 ready");
 <script src="oscar-page.js?v=48"></script>
 <script src="oscar-design.js?v=27"></script>
 <script src="curated-collections.js?v=2"></script>
-<script src="film-card.js?v=9"></script>
+<script src="film-card.js?v=10"></script>
 <script src="collections.js?v=117"></script>
 <script src="film-interactions.js?v=28"></script>
 <script src="legal-watch.js?v=9"></script>

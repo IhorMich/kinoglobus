@@ -8,7 +8,10 @@
   async function tmdb(path,params={},language="ru-RU"){
     let key="";try{key=apiKey||"";}catch{}
     if(!key)throw new Error("Нужен ключ TMDB");
-    const query=new URLSearchParams({...params,api_key:key,language});
+    const query=new URLSearchParams({...params,api_key:key});
+    // Omit language when null: image endpoints can filter out stills tagged
+    // with another language or with no language metadata at all.
+    if(language)query.set("language",language);
     const response=await movieCatalog.request(`https://api.themoviedb.org/3/${path}?${query}`);
     if(!response.ok)throw new Error(`TMDB ${response.status}`);
     return response.json();
@@ -50,28 +53,37 @@
     const key=`${personId}:${page}`;
     if(personTaggedBackdropCache.has(key))return personTaggedBackdropCache.get(key);
     const request=(async()=>{
-      try{
-        const data=await tmdb(`person/${personId}/tagged_images`,{page:String(page)},"en-US");
-        const unique=new Map();
-        for(const img of data.results||[]){
-          if(!img.file_path)continue;
-          const width=Number(img.width)||0;
-          const height=Number(img.height)||0;
-          const ratio=Number(img.aspect_ratio)||(height?width/height:0);
-          if(width<550||ratio<1.25)continue;
-          if(img.image_type&&/profile/i.test(img.image_type))continue;
-          const score=(Number(img.vote_count)||0)*2+(Number(img.vote_average)||0)*3+
-            (ratio>=1.5?2:0)+(width>=1000?1:0);
-          const previous=unique.get(img.file_path);
-          if(!previous||score>previous.score)unique.set(img.file_path,{path:img.file_path,score});
-        }
-        return [...unique.values()].sort((a,b)=>b.score-a.score).map(item=>item.path);
-      }catch{
-        return [];
+      // Do not pass en-US here: it can hide non-English and unlabelled film stills.
+      const data=await tmdb(`person/${personId}/tagged_images`,{page:String(page)},null);
+      const unique=new Map();
+      for(const img of data.results||[]){
+        if(!img.file_path)continue;
+        const type=String(img.image_type||"").toLowerCase();
+        if(/profile|poster|logo/.test(type))continue;
+        const width=Number(img.width)||0;
+        const height=Number(img.height)||0;
+        const ratio=Number(img.aspect_ratio)||(height?width/height:0);
+        // Include classic 4:3 movie frames as well as modern widescreen stills.
+        if(width<480||ratio<1.15)continue;
+        const typeBonus=/backdrop|still/.test(type)?12:0;
+        const score=typeBonus+(Number(img.vote_count)||0)*2+
+          (Number(img.vote_average)||0)*3+(ratio>=1.5?2:0)+(width>=1000?1:0);
+        const previous=unique.get(img.file_path);
+        if(!previous||score>previous.score)unique.set(img.file_path,{path:img.file_path,score});
       }
+      return {
+        paths:[...unique.values()].sort((a,b)=>b.score-a.score).map(item=>item.path),
+        totalPages:Math.max(1,Number(data.total_pages)||1),
+        rawCount:(data.results||[]).length
+      };
     })();
-    personTaggedBackdropCache.set(key,request);
-    return request;
+    // Cache successful responses only. Network/auth errors must be retryable.
+    const cached=request.catch(error=>{
+      personTaggedBackdropCache.delete(key);
+      throw error;
+    });
+    personTaggedBackdropCache.set(key,cached);
+    return cached;
   }
   async function personAltPortrait(personId,excludePath){
     try{
@@ -89,67 +101,101 @@
     const key=String(personId||"");
     if(!key||personBackdropPreloadStarted.has(key))return;
     personBackdropPreloadStarted.add(key);
-    personTaggedBackdrop(key,1).then(paths=>{
+    personTaggedBackdrop(key,1).then(data=>{
       // Прогреваем только два первых кадра: меньше сетевой нагрузки на открытие карточки.
-      paths.slice(0,2).forEach(path=>{void warmPersonBackdrop(path);});
+      data.paths.slice(0,2).forEach(path=>{void warmPersonBackdrop(path);});
     }).catch(()=>{
+      // A failed preload must not permanently block a retry on click.
       personBackdropPreloadStarted.delete(key);
     });
   }
   async function applyPersonBackdrop(root,personId,mainProfilePath=null){
     const host=root.querySelector("[data-kg-person-backdrop]");
     if(!host||host.dataset.kgBackdropSource==="tagged"||host.dataset.kgBackdropSource==="portrait")return;
+    if(mainProfilePath)host.__kgMainProfilePath=mainProfilePath;
+    // The early call (before person details) and the later call share one search.
+    if(host.__kgBackdropTask)return host.__kgBackdropTask;
 
-    const showTagged=loaded=>{
-      if(!loaded||!root.isConnected||host.dataset.kgBackdropSource==="tagged")return false;
+    const task=(async()=>{
+      const loadPage=async page=>{
+        try{return await personTaggedBackdrop(personId,page);}
+        catch(error){
+          console.debug("[Moven] Tagged image request failed", {personId,page,error});
+          return null;
+        }
+      };
+      const firstLoaded=paths=>paths.length?Promise.any(
+        paths.map(path=>warmPersonBackdrop(path).then(img=>img||Promise.reject()))
+      ).catch(()=>null):Promise.resolve(null);
+      const showTagged=loaded=>{
+        if(!loaded||!root.isConnected||host.dataset.kgBackdropSource==="tagged")return false;
+        const shown=new Image();
+        shown.alt="";
+        shown.decoding="async";
+        shown.src=loaded.src;
+        host.dataset.kgBackdropSource="tagged";
+        fadeInto(host,shown);
+        return true;
+      };
+
+      // Retry page 1 once if the first request failed (e.g. transient network error).
+      let firstPage=await loadPage(1);
+      if(!firstPage)firstPage=await loadPage(1);
+      if(!root.isConnected||host.dataset.kgBackdropSource==="tagged")return;
+
+      let pagesChecked=0;
+      let rawTagged=0;
+      let usable=0;
+      if(firstPage){
+        pagesChecked=1;
+        rawTagged+=firstPage.rawCount;
+        usable+=firstPage.paths.length;
+        // Fast first pass: only the highest-ranked candidates from page 1.
+        const firstImage=await firstLoaded(firstPage.paths.slice(0,6));
+        if(showTagged(firstImage))return;
+        if(!root.isConnected||host.dataset.kgBackdropSource==="tagged")return;
+
+        // Search deeper only if page 1 has no loadable cinematic frame.
+        const maxPages=Math.min(firstPage.totalPages,10);
+        if(maxPages>1){
+          const extraPages=await Promise.all(
+            Array.from({length:maxPages-1},(_,index)=>loadPage(index+2))
+          );
+          if(!root.isConnected||host.dataset.kgBackdropSource==="tagged")return;
+          const extraPaths=[];
+          for(const page of extraPages){
+            if(!page)continue;
+            pagesChecked++;
+            rawTagged+=page.rawCount;
+            usable+=page.paths.length;
+            extraPaths.push(...page.paths);
+          }
+          const extraImage=await firstLoaded([...new Set(extraPaths)].slice(0,16));
+          if(showTagged(extraImage))return;
+        }
+      }
+      console.debug("[Moven] No loadable tagged film still; using actor portrait", {
+        personId,pagesChecked,rawTagged,usable
+      });
+
+      // No tagged still found: use this person's own profile image, more blurred.
+      const fallbackPath=host.__kgMainProfilePath||null;
+      if(!fallbackPath||!root.isConnected)return;
+      const portrait=await warmPersonBackdrop(fallbackPath);
+      if(!root.isConnected||!portrait||host.dataset.kgBackdropSource==="tagged")return;
       const shown=new Image();
       shown.alt="";
       shown.decoding="async";
-      shown.src=loaded.src;
-      host.dataset.kgBackdropSource="tagged";
+      shown.src=portrait.src;
+      shown.className="kgpi-portrait-backdrop";
+      shown.style.objectPosition="center 20%";
+      host.dataset.kgBackdropSource="portrait";
       fadeInto(host,shown);
-      return true;
-    };
-    const firstLoaded=paths=>Promise.any(paths.map(path=>
-      warmPersonBackdrop(path).then(img=>img||Promise.reject())
-    )).catch(()=>null);
+    })();
 
-    // 1. Fast path: first page is fetched and partly warmed while the film card is open.
-    const firstPage=await personTaggedBackdrop(personId,1);
-    if(!root.isConnected||host.dataset.kgBackdropSource==="tagged")return;
-    const firstBatch=firstPage.slice(0,4);
-    const firstImage=await firstLoaded(firstBatch);
-    if(showTagged(firstImage))return;
-    if(!root.isConnected||host.dataset.kgBackdropSource==="tagged")return;
-
-    // 2. Try the rest of page 1 before issuing more TMDB requests.
-    const remainingImage=await firstLoaded(firstPage.slice(4,12));
-    if(showTagged(remainingImage))return;
-    if(!root.isConnected||host.dataset.kgBackdropSource==="tagged")return;
-
-    // 3. Only when page 1 has no usable image, request pages 2 and 3.
-    const extraPages=await Promise.all([
-      personTaggedBackdrop(personId,2),
-      personTaggedBackdrop(personId,3)
-    ]);
-    if(!root.isConnected||host.dataset.kgBackdropSource==="tagged")return;
-    const extraPaths=[...new Set(extraPages.flat())].slice(0,8);
-    const extraImage=await firstLoaded(extraPaths);
-    if(showTagged(extraImage))return;
-    if(!root.isConnected||host.dataset.kgBackdropSource==="tagged")return;
-
-    // 4. No usable tagged still: use this person's own portrait, more blurred.
-    if(!mainProfilePath)return;
-    const portrait=await warmPersonBackdrop(mainProfilePath);
-    if(!root.isConnected||!portrait||host.dataset.kgBackdropSource==="tagged")return;
-    const shown=new Image();
-    shown.alt="";
-    shown.decoding="async";
-    shown.src=portrait.src;
-    shown.className="kgpi-portrait-backdrop";
-    shown.style.objectPosition="center 20%";
-    host.dataset.kgBackdropSource="portrait";
-    fadeInto(host,shown);
+    host.__kgBackdropTask=task;
+    try{await task;}
+    finally{if(host.__kgBackdropTask===task)delete host.__kgBackdropTask;}
   }
   function seedPersonPortrait(root,sourceElement,id,name){
     const host=root.querySelector("[data-kg-person-image]");

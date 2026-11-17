@@ -3543,7 +3543,7 @@ $("again").onclick=async()=>{
     await filmDetails(film.id);
     pool = {...pool, films:pool.films.filter(movieCatalog.allows)};
     const cc=filmCC(pool,film,cur.cc);
-    if(!RM){audio();$("result").hidden=true;await filmReel(pool,film,cc,preloadPosters(pool));}
+    if(!RM){audio();await filmReel(pool,film,cc,preloadPosters(pool));}
     show(cc,pool,film);
   }catch(e){$("err").textContent=e.message}
   finally{$("again").disabled=false;$("freel").hidden=true;}

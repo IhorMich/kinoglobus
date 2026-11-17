@@ -3615,7 +3615,7 @@ function mainReelMarkup(){
 }
 // ---------- Новая секция «Кинолента» (подменяет старую карточку) ----------
 const CARD_HTML=`
-<section class="w-full rounded-2xl bg-surface-panel/95 p-3.5 shadow-2xl relative overflow-hidden border border-primary-container/25 backdrop-blur-xl" id="cinema-35mm-reel-section">
+<section class="w-full p-0 relative overflow-hidden" id="cinema-35mm-reel-section">
 <div class="flex items-center justify-between mb-2.5 px-0.5">
 <div class="flex items-center gap-2 min-w-0">
 <div class="w-7 h-7 rounded-lg bg-surface-container flex items-center justify-center border border-primary-container/30 text-primary shadow-[0_0_8px_rgb(var(--kg-primary-container)/0.25)] flex-shrink-0"><span class="material-symbols-outlined text-[17px]">movie</span></div>
@@ -3626,7 +3626,7 @@ const CARD_HTML=`
 <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-high/90 border border-primary-container/25 shadow-sm flex-shrink-0"><span class="material-symbols-outlined text-primary-container text-[14px]">confirmation_number</span><span class="font-mono text-micro-caption text-primary-fixed font-semibold tracking-wide" id="reel-frame-counter">Кадр 00 / 00</span></div>
 </div>
 <div id="film-reel-host">${mainReelMarkup()}</div>
-<div class="veiled flex flex-col gap-3 mt-2.5" id="film-details">
+<div class="veiled flex flex-col gap-3" id="film-details">
 <div id="kg-globe-film"></div>
 <div id="kg-globe-film-context"></div>
 
@@ -4076,7 +4076,7 @@ function globeFilmContext(cc) {
   // страна и прогресс
   const countryCounts=window.KGWatchedCountryCounts?window.KGWatchedCountryCounts():{};const n=countryCounts[cc]||0,open=countOpenedCountries(countryCounts),all=COUNTRIES.length,pct=Math.round(open/all*100);
   const tag=uiText(cur&&cur.pool.oscar?"ОСКАР":cur&&cur.pool.top1?"ТОП-1":"НАХОДКА");
-  return cc?`<div class="p-3.5 rounded-xl bg-surface-container-high flex flex-col gap-2.5">
+  return cc?`<div class="flex flex-col gap-2.5">
     <div class="flex items-center justify-between gap-2">
       <div class="flex items-center gap-2 min-w-0"><div class="w-7 h-7 rounded-full bg-cinema-velvet-deep flex items-center justify-center text-secondary flex-shrink-0"><span class="material-symbols-outlined text-[16px]">travel_explore</span></div>
         <span class="font-label-md text-label-md text-primary font-bold truncate">${esc(uiText("Кинематограф: {country}", {country: cname(cc)}))}</span></div>
@@ -4228,7 +4228,7 @@ console.info("[Moven: Explore] Bridge v6 ready");
 <script src="curated-collections.js?v=2"></script>
 <script src="film-card.js?v=7"></script>
 <script src="collections.js?v=117"></script>
-<script src="film-interactions.js?v=27"></script>
+<script src="film-interactions.js?v=28"></script>
 <script src="legal-watch.js?v=9"></script>
 <script src="global-search.js?v=18"></script>
 <script src="home-releases.js?v=10"></script>

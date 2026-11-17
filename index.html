@@ -2378,11 +2378,12 @@ function sampleWin(key){
   try{
     const src=ac.createBufferSource(),g=ac.createGain(),t=ac.currentTime;
     const isMusic=key.startsWith("smp-m-");
-    const duration=isMusic?Math.min(buf.duration,.85):buf.duration;
+    const offset=sampleOnset[key]||0,rate=isMusic?1.5:1;
+    const duration=(buf.duration-offset)/rate;
     src.buffer=buf;g.gain.value=SAMPLE_WIN_VOL;
+    src.playbackRate.value=rate;
     if(isMusic){g.gain.setValueAtTime(SAMPLE_WIN_VOL,t+Math.max(0,duration-.18));g.gain.linearRampToValueAtTime(.0001,t+duration);}
-    src.connect(g);g.connect(soundOutput);src.start(t,sampleOnset[key]||0);
-    if(isMusic)src.stop(t+duration+.02);
+    src.connect(g);g.connect(soundOutput);src.start(t,offset);
   }catch(_){}
 }
 const MARIMBA=[261.63,293.66,329.63,392,440,523.25,587.33,659.25];
@@ -2563,13 +2564,15 @@ function playReelFound(cfg){
   const one=(c,delay)=>{
     const b=reelBuf[c.file]; if(!b)return;
     const t=ac.currentTime+delay,src=ac.createBufferSource(),g=ac.createGain(),fi=c.fadeIn||.004;
-    const len=Math.min(c.len,cfg.pre?(delay===0?0.18:0.78):0.78);
+    const isMusic=c.file.startsWith("m-"),offset=reelOnset[c.file]||0,rate=isMusic?1.5:1;
+    const len=isMusic?(b.duration-offset)/rate:Math.min(c.len,cfg.pre?(delay===0?0.18:0.78):0.78);
     src.buffer=b;
+    src.playbackRate.value=rate;
     g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(c.vol,t+Math.min(fi,len*.25));
-    g.gain.setValueAtTime(c.vol,t+Math.max(fi,len*.7));g.gain.linearRampToValueAtTime(.0001,t+len);
+    g.gain.setValueAtTime(c.vol,t+Math.max(fi,len-(isMusic ? .18 : Math.min(.08,len*.3))));g.gain.linearRampToValueAtTime(.0001,t+len);
     src.connect(g);g.connect(soundOutput);
     src.onended=()=>{src.disconnect();g.disconnect();};
-    src.start(t,reelOnset[c.file]||0,len+.02);
+    if(isMusic)src.start(t,offset);else src.start(t,offset,len+.02);
   };
   if(cfg.pre)one(cfg.pre,0);
   one(cfg,cfg.pre?.04:0);

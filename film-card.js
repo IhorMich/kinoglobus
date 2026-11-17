@@ -396,6 +396,45 @@ async function openDialog(film, opener, {autoplayTrailer = false} = {}) {
 
 function modelFor(card){return mountedFilms.get(card)||window.KGInlineFilmModel?.(card)||window.KGGlobeFilmModel?.(card)||null;}
 
+function openInlineRelated(film,current,opener,pool=[],oscar=false){
+  const id=Number(film?.id),parentCard=opener?.closest?.(".kg-film-detail");
+  if(!parentCard||modelFor(parentCard)!==current||!Number.isSafeInteger(id)||id<=0||!movieCatalog.allows(film))return false;
+  const related=parentCard.querySelector(":scope > [data-film-part=related]");
+  if(!related)return false;
+  let stack=related.querySelector(":scope > [data-kg-related-inline-stack]");
+  if(!stack){stack=document.createElement("div");stack.dataset.kgRelatedInlineStack="";stack.className="flex flex-col gap-4 pt-3";related.append(stack);}
+  stopTrailers(stack);
+  [...stack.querySelectorAll("[data-kg-related-inline-branch]")].forEach(branch=>{
+    const branches=[branch,...branch.querySelectorAll("[data-kg-related-inline-branch]")];
+    branches.forEach(node=>{if(node.dataset.kgRelatedPoolKey)window.KGFilmInteractions?.registerPool(node.dataset.kgRelatedPoolKey,null);});
+  });
+  stack.replaceChildren();
+  const key=pool.length?`kg-inline-related-${++dialogSequence}`:"";
+  if(key)window.KGFilmInteractions?.registerPool(key,pool);
+  const branch=document.createElement("div");
+  branch.dataset.kgRelatedInlineBranch="";
+  if(key)branch.dataset.kgRelatedPoolKey=key;
+  stack.append(branch);
+  const model=createModel(film,{_kgRelatedContext:key,_kgGlobalRelated:film._kgGlobalRelated??!key,
+    _kgRelatedPool:pool,_oscarContext:!!oscar,_relatedPrevious:current,_relatedBranch:branch});
+  const refresh=()=>{if(branch.isConnected)mount(branch,model,{closable:true});};
+  refresh();
+  hydrate(model,film,refresh,()=>branch.isConnected&&modelFor(branch.firstElementChild)===model);
+  requestAnimationFrame(()=>{
+    const card=branch.firstElementChild,description=card?.querySelector("[data-kg-film-description]");
+    if(!description)return;
+    const dialog=card.closest("dialog.kg-film-dialog");
+    if(dialog){
+      const header=dialog.querySelector(".kg-film-dialog-header");
+      const top=dialog.scrollTop+description.getBoundingClientRect().top-dialog.getBoundingClientRect().top-(header?.getBoundingClientRect().height||0)-12;
+      dialog.scrollTo({top:Math.max(0,top),behavior:"smooth"});
+    }else if(window.KGScrollToFilmStart){
+      window.KGScrollToFilmStart(card,620,{target:()=>card.querySelector("[data-kg-film-description]"),downOnly:true});
+    }else description.scrollIntoView({behavior:"smooth",block:"start"});
+  });
+  return true;
+}
+
 async function navigateDialogRelated(film,dialog,opener,pool=[],oscar=false){
   if(!dialog?.open||!dialog.__kgCurrentModel)return false;
   const id=Number(film?.id);
@@ -424,6 +463,20 @@ document.addEventListener("click",event=>{
   const model=mountedFilms.get(card)||window.KGInlineFilmModel?.(card)||window.KGGlobeFilmModel?.(card);
   if(!model?._relatedPrevious)return;
   event.preventDefault();event.stopImmediatePropagation();
+  if(model._relatedBranch){
+    const branch=model._relatedBranch;
+    stopTrailers(branch);
+    const branches=[branch,...branch.querySelectorAll("[data-kg-related-inline-branch]")];
+    branches.forEach(node=>{if(node.dataset.kgRelatedPoolKey)window.KGFilmInteractions?.registerPool(node.dataset.kgRelatedPoolKey,null);});
+    const parentSection=branch.parentElement;
+    branch.remove();
+    if(parentSection?.isConnected){
+      const dialog=parentSection.closest("dialog.kg-film-dialog");
+      if(dialog)parentSection.scrollIntoView({behavior:"smooth",block:"nearest"});
+      else window.KGScrollToFilmStart?.(parentSection,450,{target:()=>parentSection,downOnly:false});
+    }
+    return;
+  }
   if(model._globeRelated)window.KGBackFromGlobeFilm?.(model);
   else window.KGCloseFilmFromRelated?.(model._detailTarget||null,false);
 },true);
@@ -478,5 +531,5 @@ document.addEventListener("kg:diary-note-change", event => {
     button.title = label;
   });
 });
-window.KGFilmCard={markup, createModel, hydrate, mount, update, playTrailer, stopTrailers, openDialog, savedFilm, modelFor, navigateDialogRelated};
+window.KGFilmCard={markup, createModel, hydrate, mount, update, playTrailer, stopTrailers, openDialog, savedFilm, modelFor, navigateDialogRelated, openInlineRelated};
 })();

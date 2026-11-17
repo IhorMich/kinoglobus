@@ -194,9 +194,10 @@
       if(film){
         const enriched={...film,_kgRelatedPool:pool,_kgGlobalRelated:section.dataset.globalRelated==="true",
           _oscarContext:section.dataset.placement==="oscar"};
+        const current=window.KGFilmCard.modelFor(button.closest(".kg-film-detail"));
+        if(current&&window.KGFilmCard.openInlineRelated(enriched,current,button,pool,section.dataset.placement==="oscar"))return;
         const dialog=button.closest("dialog.kg-film-dialog");
         if(dialog&&window.KGFilmCard.navigateDialogRelated(enriched,dialog,button,pool,section.dataset.placement==="oscar"))return;
-        const current=window.KGFilmCard.modelFor(button.closest(".kg-film-detail"));
         if(current&&window.KGOpenInlineRelatedFilm?.(enriched,current,button))return;
         window.KGFilmCard.openDialog(enriched,button);
       }

@@ -57,6 +57,7 @@
       const data=await tmdb(`person/${personId}/tagged_images`,{page:String(page)},null);
       const raw=data.results||[];
       const unique=new Map();
+      const posterUnique=new Map();
       const rejected={missingPath:0,profilePosterLogo:0,tooSmall:0,notWide:0};
       const rows=[];
       for(const img of raw){
@@ -68,6 +69,11 @@
         const height=Number(img.height)||0;
         const ratio=Number(img.aspect_ratio)||(height?width/height:0);
         let rejectedReason="";
+        if(/poster/.test(type)&&width>=300){
+          const score=(Number(img.vote_count)||0)*2+(Number(img.vote_average)||0)*3+(width>=1000?2:0);
+          const previous=posterUnique.get(img.file_path);
+          if(!previous||score>previous.score)posterUnique.set(img.file_path,{path:img.file_path,score});
+        }
         if(/profile|poster|logo/.test(type)){rejected.profilePosterLogo++;rejectedReason="poster/profile/logo";}
         else if(width<480){rejected.tooSmall++;rejectedReason="width < 480";}
         else if(ratio<1.15){rejected.notWide++;rejectedReason="ratio < 1.15";}
@@ -86,6 +92,7 @@
       }
       return {
         paths:[...unique.values()].sort((a,b)=>b.score-a.score).map(item=>item.path),
+        posterPaths:[...posterUnique.values()].sort((a,b)=>b.score-a.score).map(item=>item.path),
         totalPages:Math.max(1,Number(data.total_pages)||1),
         totalResults:Number(data.total_results)||raw.length,
         page:Number(data.page)||0,
@@ -120,7 +127,7 @@
     personBackdropPreloadStarted.add(key);
     personTaggedBackdrop(key,1).then(data=>{
       // Прогреваем только два первых кадра: меньше сетевой нагрузки на открытие карточки.
-      data.paths.slice(0,2).forEach(path=>{void warmPersonBackdrop(path);});
+      [...data.paths.slice(0,2),...data.posterPaths.slice(0,3)].forEach(path=>{void warmPersonBackdrop(path);});
     }).catch(()=>{
       // A failed preload must not permanently block a retry on click.
       personBackdropPreloadStarted.delete(key);
@@ -221,8 +228,25 @@
         }:null
       });
 
-      // No tagged still found: use this person's own profile image, more blurred.
-      const fallbackPath=host.__kgMainProfilePath||null;
+      // No cinematic still found: use a different movie poster tagged with this person.
+      const mainProfilePath=host.__kgMainProfilePath||null;
+      const posterPath=firstPage?.posterPaths?.find(path=>path!==mainProfilePath);
+      if(posterPath&&root.isConnected){
+        const poster=await warmPersonBackdrop(posterPath);
+        if(root.isConnected&&poster&&host.dataset.kgBackdropSource!=="tagged"){
+          const shown=new Image();
+          shown.alt="";
+          shown.decoding="async";
+          shown.src=poster.src;
+          shown.className="kgpi-poster-backdrop";
+          host.dataset.kgBackdropSource="poster";
+          fadeInto(host,shown);
+          return;
+        }
+      }
+
+      // Last resort: this person's own profile image, more blurred.
+      const fallbackPath=mainProfilePath;
       if(!fallbackPath||!root.isConnected)return;
       const portrait=await warmPersonBackdrop(fallbackPath);
       if(!root.isConnected||!portrait||host.dataset.kgBackdropSource==="tagged")return;
@@ -284,7 +308,7 @@
 .kgpi-film .kgpi-poster>img{display:block;width:100%;height:100%;object-fit:cover}
 .kgpi-film .kgpi-poster>span{display:grid;place-items:center;width:100%;height:100%;text-align:center}
 .kgpi-film-title{overflow-wrap:anywhere}
-.kgpi-profile-credit{display:grid;grid-template-columns:76px minmax(0,1fr);gap:12px;align-items:center;min-height:136px}.kgpi-profile-credit-poster-wrap{position:relative;display:block;width:76px;height:112px}.kgpi-profile-credit-poster{display:block;box-sizing:border-box;flex:none;width:76px!important;min-width:76px;max-width:76px;height:112px!important;min-height:112px;max-height:112px;aspect-ratio:2/3;object-fit:cover;border-radius:9px;background:rgb(var(--kg-surface-container-high))}.kgpi-profile-credit-poster.is-empty{display:flex;align-items:center;justify-content:center}.kgpi-profile-credit-rating{position:absolute;right:4px;bottom:4px;padding:2px 5px;border-radius:6px;background:rgb(var(--kg-canvas-obsidian)/.86);color:rgb(var(--kg-primary));font-size:11px;font-weight:700;line-height:1.25}.kgpi-profile-credit:focus-visible{outline:2px solid rgb(var(--kg-primary-container));outline-offset:2px}.kgpi-bio-clamp{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}.kgpi-hero{isolation:isolate;overflow:hidden}.kgpi-hero-backdrop{position:absolute;z-index:-1;inset:0;overflow:hidden;pointer-events:none;opacity:.92;mask-image:linear-gradient(to bottom,#000 0%,#000 70%,transparent 100%)}.kgpi-hero-backdrop:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgb(var(--kg-canvas-obsidian)/.25) 0%,rgb(var(--kg-canvas-obsidian)/.55) 55%,rgb(var(--kg-canvas-obsidian)) 100%);box-shadow:inset 0 0 120px rgb(var(--kg-primary-container)/.08)}.kgpi-hero-backdrop img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 30%;filter:brightness(.62) saturate(1.05) blur(2px);transform:scale(1.02);transition:opacity .5s ease}.kgpi-hero-backdrop img.kgpi-fade{opacity:0}.kgpi-hero-backdrop img.kgpi-fade.is-ready{opacity:1}.kgpi-hero-backdrop img.kgpi-fade{opacity:0;transition:opacity .5s ease}.kgpi-hero-backdrop img.kgpi-fade.is-ready{opacity:1}.kgpi-hero-backdrop img.kgpi-portrait-backdrop{filter:brightness(.48) saturate(.9) blur(9px);transform:scale(1.12)}.kgpi-modal [data-kg-person-image]{position:relative}.kgpi-modal [data-kg-person-image] img.kgpi-portrait-top{position:absolute;inset:0;opacity:0;transition:opacity .35s ease}.kgpi-modal [data-kg-person-image] img.kgpi-portrait-top.is-ready{opacity:1}.kgpi-hero-backdrop img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 30%;filter:brightness(.62) saturate(1.05) blur(2px);transform:scale(1.02);transition:opacity .5s ease}.kgpi-hero-content{position:relative;z-index:1}`;
+.kgpi-profile-credit{display:grid;grid-template-columns:76px minmax(0,1fr);gap:12px;align-items:center;min-height:136px}.kgpi-profile-credit-poster-wrap{position:relative;display:block;width:76px;height:112px}.kgpi-profile-credit-poster{display:block;box-sizing:border-box;flex:none;width:76px!important;min-width:76px;max-width:76px;height:112px!important;min-height:112px;max-height:112px;aspect-ratio:2/3;object-fit:cover;border-radius:9px;background:rgb(var(--kg-surface-container-high))}.kgpi-profile-credit-poster.is-empty{display:flex;align-items:center;justify-content:center}.kgpi-profile-credit-rating{position:absolute;right:4px;bottom:4px;padding:2px 5px;border-radius:6px;background:rgb(var(--kg-canvas-obsidian)/.86);color:rgb(var(--kg-primary));font-size:11px;font-weight:700;line-height:1.25}.kgpi-profile-credit:focus-visible{outline:2px solid rgb(var(--kg-primary-container));outline-offset:2px}.kgpi-bio-clamp{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}.kgpi-hero{isolation:isolate;overflow:hidden}.kgpi-hero-backdrop{position:absolute;z-index:-1;inset:0;overflow:hidden;pointer-events:none;opacity:.92;mask-image:linear-gradient(to bottom,#000 0%,#000 70%,transparent 100%)}.kgpi-hero-backdrop:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgb(var(--kg-canvas-obsidian)/.25) 0%,rgb(var(--kg-canvas-obsidian)/.55) 55%,rgb(var(--kg-canvas-obsidian)) 100%);box-shadow:inset 0 0 120px rgb(var(--kg-primary-container)/.08)}.kgpi-hero-backdrop img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 30%;filter:brightness(.62) saturate(1.05) blur(2px);transform:scale(1.02);transition:opacity .5s ease}.kgpi-hero-backdrop img.kgpi-fade{opacity:0}.kgpi-hero-backdrop img.kgpi-fade.is-ready{opacity:1}.kgpi-hero-backdrop img.kgpi-fade{opacity:0;transition:opacity .5s ease}.kgpi-hero-backdrop img.kgpi-fade.is-ready{opacity:1}.kgpi-hero-backdrop img.kgpi-poster-backdrop{filter:brightness(.5) saturate(.92) blur(7px);transform:scale(1.12)}.kgpi-hero-backdrop img.kgpi-portrait-backdrop{filter:brightness(.48) saturate(.9) blur(9px);transform:scale(1.12)}.kgpi-modal [data-kg-person-image]{position:relative}.kgpi-modal [data-kg-person-image] img.kgpi-portrait-top{position:absolute;inset:0;opacity:0;transition:opacity .35s ease}.kgpi-modal [data-kg-person-image] img.kgpi-portrait-top.is-ready{opacity:1}.kgpi-hero-backdrop img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 30%;filter:brightness(.62) saturate(1.05) blur(2px);transform:scale(1.02);transition:opacity .5s ease}.kgpi-hero-content{position:relative;z-index:1}`;
     document.head.appendChild(style);
   }
   function registerPool(key,films){

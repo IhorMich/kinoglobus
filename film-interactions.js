@@ -116,34 +116,33 @@
     if(host.__kgBackdropTask)return host.__kgBackdropTask;
 
     const task=(async()=>{
+      let taggedPoster=null;
+      const mainPath=()=>host.__kgMainProfilePath||null;
       try{
-        let data=await personTaggedBackdrop(personId,1);
-        if(!data) return;
-        // Wait for the preloaded poster bitmap; never insert a temporary image first.
-        const mainPath=host.__kgMainProfilePath||null;
-        const candidates=data.posterPaths.filter(path=>path!==mainPath);
-        // Prefer a separate tagged poster. If none exists, reuse the actor's
-        // primary profile portrait as a deliberately softer background.
-        const taggedPoster=candidates.length?await Promise.any(candidates.map(path=>
+        const data=await personTaggedBackdrop(personId,1);
+        const candidates=(data?.posterPaths||[]).filter(path=>path!==mainPath());
+        // A separate tagged poster is preferred, but its endpoint is optional:
+        // a failed/empty tagged-images response must not block the portrait fallback.
+        taggedPoster=candidates.length?await Promise.any(candidates.map(path=>
           warmPersonBackdrop(path).then(img=>img||Promise.reject())
         )).catch(()=>null):null;
-        const fallbackPortrait=!taggedPoster&&mainPath?await warmPersonBackdrop(mainPath):null;
-        const background=taggedPoster||fallbackPortrait;
-        if(!root.isConnected||!background||host.dataset.kgBackdropSource==="poster")return;
-        const shown=new Image();
-        shown.alt="";
-        shown.decoding="async";
-        shown.src=background.src;
-        shown.className=taggedPoster?"kgpi-poster-backdrop":"kgpi-poster-backdrop kgpi-portrait-backdrop";
-        // Alternate the poster's placement so profiles don't all look identical.
-        shown.classList.add((personHash(personId)&1)?"kgpi-poster-right":"kgpi-poster-left");
-        host.dataset.kgBackdropSource="poster";
-        fadeInto(host,shown);
       }catch(error){
-        console.warn("[Moven backdrop] Could not prepare tagged poster",{
+        console.warn("[Moven backdrop] Tagged posters unavailable; trying profile portrait",{
           personId,message:error?.message||String(error)
         });
       }
+      const fallbackPortrait=!taggedPoster&&mainPath()?await warmPersonBackdrop(mainPath()):null;
+      const background=taggedPoster||fallbackPortrait;
+      if(!root.isConnected||!background||host.dataset.kgBackdropSource==="poster")return;
+      const shown=new Image();
+      shown.alt="";
+      shown.decoding="async";
+      shown.src=background.src;
+      shown.className=taggedPoster?"kgpi-poster-backdrop":"kgpi-poster-backdrop kgpi-portrait-backdrop";
+      // Alternate the background placement so profiles don't all look identical.
+      shown.classList.add((personHash(personId)&1)?"kgpi-poster-right":"kgpi-poster-left");
+      host.dataset.kgBackdropSource="poster";
+      fadeInto(host,shown);
     })();
     host.__kgBackdropTask=task;
     try{await task;}

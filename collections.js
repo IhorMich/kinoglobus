@@ -1055,7 +1055,7 @@ function renderSelectedPanel(refresh = false){
     const target = $(detailId) || (selected._placement === "mood" ? $("mood-film-detail") : $("oscar-film-detail"));
     if (target) {
       target.innerHTML = html;
-      if (target.hasAttribute("data-home-inline-film")) target.hidden = false;
+      if (selected._placement === "home-europe" || target.hasAttribute("data-home-inline-film")) target.hidden = false;
       paintWatchedButtons(target);
     }
     return;
@@ -1104,7 +1104,7 @@ function openFilm(f,placement="list",detailTarget=null,{opener=document.activeEl
     if (D.selected !== selected) return;
     const panel = inlineFilmCard(selected);
     if (!panel) return;
-    if (relatedNavigation) {
+    if (relatedNavigation || placement === "home-europe") {
       window.KGScrollToFilmStart(panel, 620, {
         target: () => panel.querySelector("[data-kg-film-description]"),
         downOnly: true,

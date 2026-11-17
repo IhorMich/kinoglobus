@@ -16,9 +16,9 @@
     if(!response.ok)throw new Error(`TMDB ${response.status}`);
     return response.json();
   }
-  function warmPersonBackdrop(path){
+  function warmPersonBackdrop(path,size="w780"){
     if(!path)return Promise.resolve(null);
-    const src=`https://image.tmdb.org/t/p/w1280${path}`;
+    const src=`https://image.tmdb.org/t/p/${size}${path}`;
     if(personBackdropWarmCache.has(src))return personBackdropWarmCache.get(src);
     const promise=new Promise(resolve=>{
       const img=new Image();
@@ -124,14 +124,14 @@
         // A separate tagged poster is preferred, but its endpoint is optional:
         // a failed/empty tagged-images response must not block the portrait fallback.
         taggedPoster=candidates.length?await Promise.any(candidates.map(path=>
-          warmPersonBackdrop(path).then(img=>img||Promise.reject())
+          warmPersonBackdrop(path,"w780").then(img=>img||Promise.reject())
         )).catch(()=>null):null;
       }catch(error){
         console.warn("[Moven backdrop] Tagged posters unavailable; trying profile portrait",{
           personId,message:error?.message||String(error)
         });
       }
-      const fallbackPortrait=!taggedPoster&&mainPath()?await warmPersonBackdrop(mainPath()):null;
+      const fallbackPortrait=!taggedPoster&&mainPath()?await warmPersonBackdrop(mainPath(),"h632"):null;
       const background=taggedPoster||fallbackPortrait;
       if(!root.isConnected||!background||host.dataset.kgBackdropSource==="poster")return;
       const shown=new Image();

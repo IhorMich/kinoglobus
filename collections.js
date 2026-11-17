@@ -1104,7 +1104,12 @@ function openFilm(f,placement="list",detailTarget=null,{opener=document.activeEl
     if (D.selected !== selected) return;
     const panel = inlineFilmCard(selected);
     if (!panel) return;
-    if (placement === "list") {
+    if (relatedNavigation) {
+      window.KGScrollToFilmStart(panel, 620, {
+        target: () => panel.querySelector("[data-kg-film-description]"),
+        downOnly: true,
+      });
+    } else if (placement === "list") {
       window.KGScrollToFilmStart(panel, 620, {
         target: () => panel.querySelector("[data-kg-film-description]"),
         downOnly: true,

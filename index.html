@@ -19,7 +19,7 @@ html.kg-launch-reveal body>:not(#kg-launch-splash){visibility:visible!important;
 <link rel="manifest" href="moven.webmanifest">
 <meta name="application-name" content="Moven: Explore">
 <meta name="description" content="Explore the world of cinema">
-<link rel="stylesheet" href="app-theme.css?v=52">
+<link rel="stylesheet" href="app-theme.css?v=53">
 <script>
 try {
   if (!navigator.connection?.saveData) {
@@ -4144,7 +4144,10 @@ window.KGOpenGlobeRelatedFilm=(film,current)=>{
   refresh();
   window.KGFilmCard.hydrate(model,film,refresh,()=>globeFilm===model);
   const panel=$("kg-globe-film").firstElementChild;
-  requestAnimationFrame(()=>window.KGScrollToFilmStart(panel,450));
+  requestAnimationFrame(()=>window.KGScrollToFilmStart(panel,620,{
+    target:()=>panel?.querySelector("[data-kg-film-description]"),
+    downOnly:true
+  }));
   return true;
 };
 window.KGBackFromGlobeFilm=model=>{

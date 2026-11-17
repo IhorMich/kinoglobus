@@ -120,49 +120,44 @@
     personBackdropPreloadTasks.set(key,task);
     return task;
   }
-  async function applyPersonBackdrop(root,personId,mainProfilePath=null){
-    const host=root.querySelector("[data-kg-person-backdrop]");
-    if(!host||host.dataset.kgBackdropSource==="poster")return;
-    if(mainProfilePath)host.__kgMainProfilePath=mainProfilePath;
-    if(host.__kgBackdropTask)return host.__kgBackdropTask;
-
-    const task=(async()=>{
-      const mainPath=()=>host.__kgMainProfilePath||null;
-      let alternatePortrait=null;
-      try{
-        const candidates=await personAltPortrait(personId,mainPath());
-        // Use the best available image from the actor's own profile gallery, in ranked order.
-        for(const path of candidates){
-          alternatePortrait=await warmPersonBackdrop(path,"h632");
-          if(alternatePortrait)break;
-        }
-      }catch(error){
-        console.warn("[Moven backdrop] Could not load alternate actor portrait",{
-          personId,message:error?.message||String(error)
-        });
+  async function preparePersonBackdrop(personId,mainProfilePath=null){
+    let alternatePortrait=null;
+    try{
+      const candidates=await personAltPortrait(personId,mainProfilePath);
+      // Try actor gallery images in ranked order and wait for a successful decode.
+      for(const path of candidates){
+        alternatePortrait=await warmPersonBackdrop(path,"h632");
+        if(alternatePortrait)break;
       }
-      const fallbackPortrait=!alternatePortrait&&mainPath()
-        ?await warmPersonBackdrop(mainPath(),"h632"):null;
-      const background=alternatePortrait||fallbackPortrait;
-      if(!root.isConnected||!background||host.dataset.kgBackdropSource==="poster")return;
-      const shown=new Image();
-      shown.alt="";
-      shown.decoding="async";
-      shown.src=background.src;
-      shown.className=alternatePortrait
-        ?"kgpi-poster-backdrop kgpi-actor-profile-backdrop"
-        :"kgpi-poster-backdrop kgpi-portrait-backdrop";
-      shown.classList.add((personHash(personId)&1)?"kgpi-poster-right":"kgpi-poster-left");
-      host.dataset.kgBackdropSource="poster";
-      host.dataset.kgBackdropKind=alternatePortrait?"alternate-profile":"main-profile-fallback";
-      fadeInto(host,shown);
-      console.info("[Moven backdrop] Actor profile background selected",{
-        personId,source:host.dataset.kgBackdropKind
+    }catch(error){
+      console.warn("[Moven backdrop] Could not load alternate actor portrait",{
+        personId,message:error?.message||String(error)
       });
-    })();
-    host.__kgBackdropTask=task;
-    try{await task;}
-    finally{if(host.__kgBackdropTask===task)delete host.__kgBackdropTask;}
+    }
+    const fallbackPortrait=!alternatePortrait&&mainProfilePath
+      ?await warmPersonBackdrop(mainProfilePath,"h632"):null;
+    return {
+      image:alternatePortrait||fallbackPortrait,
+      kind:alternatePortrait?"alternate-profile":fallbackPortrait?"main-profile-fallback":"unavailable"
+    };
+  }
+  function applyPersonBackdrop(root,personId,prepared=null){
+    const host=root.querySelector("[data-kg-person-backdrop]");
+    if(!host||!prepared?.image||host.dataset.kgBackdropSource==="poster")return;
+    const shown=new Image();
+    shown.alt="";
+    shown.decoding="async";
+    shown.src=prepared.image.src;
+    shown.className=prepared.kind==="alternate-profile"
+      ?"kgpi-poster-backdrop kgpi-actor-profile-backdrop"
+      :"kgpi-poster-backdrop kgpi-portrait-backdrop";
+    host.dataset.kgBackdropSource="poster";
+    host.dataset.kgBackdropKind=prepared.kind;
+    // The image is already downloaded and decoded before the modal is attached.
+    host.replaceChildren(shown);
+    console.info("[Moven backdrop] Actor profile background ready",{
+      personId,source:prepared.kind
+    });
   }
   function seedPersonPortrait(root,sourceElement,id,name){
     const host=root.querySelector("[data-kg-person-image]");
@@ -210,10 +205,9 @@
 .kgpi-film-title{overflow-wrap:anywhere}
 .kgpi-profile-credit{display:grid;grid-template-columns:76px minmax(0,1fr);gap:12px;align-items:center;min-height:136px}.kgpi-profile-credit-poster-wrap{position:relative;display:block;width:76px;height:112px}.kgpi-profile-credit-poster{display:block;box-sizing:border-box;flex:none;width:76px!important;min-width:76px;max-width:76px;height:112px!important;min-height:112px;max-height:112px;aspect-ratio:2/3;object-fit:cover;border-radius:9px;background:rgb(var(--kg-surface-container-high))}.kgpi-profile-credit-poster.is-empty{display:flex;align-items:center;justify-content:center}.kgpi-profile-credit-rating{position:absolute;right:4px;bottom:4px;padding:2px 5px;border-radius:6px;background:rgb(var(--kg-canvas-obsidian)/.86);color:rgb(var(--kg-primary));font-size:11px;font-weight:700;line-height:1.25}.kgpi-profile-credit:focus-visible{outline:2px solid rgb(var(--kg-primary-container));outline-offset:2px}.kgpi-bio-clamp{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}.kgpi-hero{isolation:isolate;overflow:hidden}.kgpi-hero-backdrop{position:absolute;z-index:-1;inset:0;overflow:hidden;pointer-events:none;opacity:.92;mask-image:linear-gradient(to bottom,#000 0%,#000 70%,transparent 100%)}.kgpi-hero-backdrop:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgb(var(--kg-canvas-obsidian)/.25) 0%,rgb(var(--kg-canvas-obsidian)/.55) 55%,rgb(var(--kg-canvas-obsidian)) 100%);box-shadow:inset 0 0 120px rgb(var(--kg-primary-container)/.08)}.kgpi-hero-backdrop img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 30%;filter:brightness(.62) saturate(1.05) blur(8px);transform:scale(1.12);transition:opacity .35s ease}.kgpi-hero-backdrop img.kgpi-poster-backdrop{position:absolute;top:0;width:72%;height:100%;object-fit:cover;filter:brightness(.5) saturate(.9) blur(8px);transform:scale(1.12)}.kgpi-hero-backdrop img.kgpi-poster-left{left:-5%}.kgpi-hero-backdrop img.kgpi-poster-right{right:-5%}.kgpi-hero-backdrop img.kgpi-portrait-backdrop{filter:brightness(.38) saturate(.72) blur(12px);transform:scale(1.16)}.kgpi-hero-backdrop img.kgpi-actor-profile-backdrop{filter:brightness(.5) saturate(.92) blur(8px);transform:scale(1.12)}.kgpi-hero-backdrop img.kgpi-fade{opacity:0}.kgpi-hero-backdrop img.kgpi-fade.is-ready{opacity:1}.kgpi-hero-backdrop img.kgpi-fade{opacity:0;transition:opacity .5s ease}.kgpi-hero-backdrop img.kgpi-fade.is-ready{opacity:1}.kgpi-hero-backdrop img.kgpi-poster-backdrop{filter:brightness(.5) saturate(.92) blur(7px);transform:scale(1.12)}.kgpi-modal [data-kg-person-image]{position:relative}.kgpi-modal [data-kg-person-image] img.kgpi-portrait-top{position:absolute;inset:0;opacity:0;transition:opacity .35s ease}.kgpi-modal [data-kg-person-image] img.kgpi-portrait-top.is-ready{opacity:1}.kgpi-hero-backdrop img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 30%;filter:brightness(.62) saturate(1.05) blur(2px);transform:scale(1.02);transition:opacity .5s ease}.kgpi-hero-content{position:relative;z-index:1}
 .kgpi-modal{position:relative;isolation:isolate}
-.kgpi-modal>.kgpi-hero-backdrop{position:fixed;z-index:0;inset:0;width:100%;height:100dvh;mask-image:none;opacity:.92}
-.kgpi-modal>.kgpi-hero-backdrop:after{background:linear-gradient(180deg,rgb(var(--kg-canvas-obsidian)/.28) 0%,rgb(var(--kg-canvas-obsidian)/.48) 55%,rgb(var(--kg-canvas-obsidian)/.78) 100%)}
-.kgpi-modal>.kgpi-hero-backdrop img.kgpi-poster-backdrop{width:100%;left:0;right:0;top:0;height:100%;object-position:center center}
-.kgpi-modal>div{position:relative;z-index:1}`;
+.kgpi-hero{position:relative;isolation:isolate;overflow:hidden}
+.kgpi-hero>.kgpi-hero-backdrop{position:absolute;z-index:-1;inset:0;width:100%;height:100%;opacity:.92}
+.kgpi-hero>.kgpi-hero-backdrop img.kgpi-poster-backdrop{width:100%;left:0;right:0;top:0;height:100%;object-position:center center}`;
     document.head.appendChild(style);
   }
   function registerPool(key,films){
@@ -297,15 +291,31 @@
   async function showPerson(id,name,role,sourceElement=null){
     ensureStyles();closePerson();
     const request=++personOpenRequest;
-    // Keep the modal hidden until its poster is downloaded and decoded.
-    try{await preloadPersonBackdrop(id);}catch{}
+    const personPath=`person/${id}`;
+    const profileLocale=interfaceLanguage==="en"?"en-US":"ru-RU";
+    const sharedLocale=profileLocale===filmLocale;
+    let data=personCache.get(id);
+    if(!data){
+      try{
+        const params=sharedLocale?{append_to_response:"movie_credits"}:{};
+        data=await tmdb(personPath,params,profileLocale);
+        personCache.set(id,data);
+      }catch(error){
+        console.warn("[Moven] person profile preload:",error);
+      }
+    }
+    if(request!==personOpenRequest)return;
+    // Do not reveal the profile until its final background image has loaded and decoded.
+    let preparedBackdrop={image:null,kind:"unavailable"};
+    if(data?.profile_path){
+      try{preparedBackdrop=await preparePersonBackdrop(id,data.profile_path);}
+      catch(error){console.warn("[Moven backdrop] Preload failed:",error);}
+    }
     if(request!==personOpenRequest)return;
     const root=document.createElement("div");root.id="kg-person-modal";root.className="kgpi-backdrop";root.setAttribute("role","presentation");root.dataset.personId=id;
     root.innerHTML=`<section class="kgpi-modal" role="dialog" aria-modal="true" aria-label="${esc(uiText("Профиль {name}", {name}))}"><header class="sticky top-0 z-20 h-16 px-4 flex items-center justify-between bg-transparent backdrop-blur-none border-0 shadow-none" style="background:transparent!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;border:0!important;box-shadow:none!important"><div class="flex items-center gap-2 min-w-0"><button type="button" data-kg-person-close aria-label="${uiText("Назад")}" class="w-10 h-10 rounded-full text-[rgb(var(--kg-primary))] text-2xl">‹</button><div class="min-w-0"><span class="block text-[9px] uppercase tracking-[.2em] text-[rgb(var(--kg-primary-container))]">${esc(uiText(role||"Кинематографист"))}</span><h2 class="text-base font-semibold truncate">${esc(name)}</h2></div></div><button type="button" data-kg-person-close aria-label="${uiText("Закрыть профиль")}" class="w-10 h-10 rounded-full bg-surface-container-high text-xl">×</button></header><div class="pb-10"><section class="kgpi-hero relative px-4 pt-3 -mt-16 pt-20"><div data-kg-person-backdrop class="kgpi-hero-backdrop" aria-hidden="true"></div><div class="kgpi-hero-content flex flex-col items-center text-center"><div data-kg-person-image class="w-[188px] h-[250px] rounded-[9px] overflow-hidden flex items-center justify-center"><span class="material-symbols-outlined text-5xl text-[rgb(var(--kg-text-muted))]">person</span></div><h1 data-kg-person-title class="mt-4 text-2xl font-bold font-serif text-[rgb(var(--kg-primary))]"></h1><p data-kg-person-original class="text-sm text-[rgb(var(--kg-text-muted))]"></p><div class="flex flex-wrap justify-center gap-2 mt-3"><span data-kg-person-location class="px-3 py-1 rounded-full text-xs text-[rgb(var(--kg-on-surface-variant))]"></span><span data-kg-person-department class="px-3 py-1 rounded-full text-xs text-[rgb(var(--kg-secondary-fixed))]"></span></div><div data-kg-person-stats class="w-full grid grid-cols-3 gap-1.5 mt-5 py-3 px-2"><div class="flex flex-col items-center"><span data-kg-person-age-label class="text-[9px] uppercase tracking-wider text-[rgb(var(--kg-text-muted))] text-center">${uiText("Возраст")}</span><span data-kg-person-age class="text-sm font-semibold mt-1"></span></div><div class="flex flex-col items-center"><span class="text-[9px] uppercase tracking-wider text-[rgb(var(--kg-text-muted))]">${uiText("Фильмы")}</span><span data-kg-person-count class="text-sm font-semibold text-[rgb(var(--kg-primary))] mt-1">—</span></div><div class="flex flex-col items-center"><span class="text-[9px] uppercase tracking-wider text-[rgb(var(--kg-text-muted))]">${uiText("Профессия")}</span><span data-kg-person-stat-role class="text-sm font-semibold text-[rgb(var(--kg-primary-fixed))] mt-1"></span></div></div><button type="button" data-kg-person-best class="w-full h-12 mt-4 rounded-full bg-[rgb(var(--kg-primary-container))] text-[rgb(var(--kg-on-primary-fixed))] font-semibold flex items-center justify-center gap-2 active:scale-[.98] transition-transform"><span class="material-symbols-outlined">local_fire_department</span><span data-kg-person-best-label>${uiText("Смотреть лучшие роли")}</span></button></div></section><section class="px-4 mt-7"><div class="flex items-center justify-between mb-3"><h2 data-kg-person-bio-heading class="text-lg font-semibold text-[rgb(var(--kg-warm-text-28))]">${uiText("Об актёре")}</h2><span class="text-[9px] uppercase tracking-widest text-[rgb(var(--kg-primary-container))]">${uiText("Биография")}</span></div><div class="py-1"><p data-kg-person-bio class="text-sm leading-relaxed text-[rgb(var(--kg-on-surface-variant))] kgpi-bio-clamp"></p><button type="button" data-kg-person-bio-toggle class="mt-3 text-xs font-semibold text-[rgb(var(--kg-primary-container))]">${uiText("Читать полностью")}</button></div></section><section class="px-4 mt-7"><div class="flex items-center justify-between mb-3"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-[rgb(var(--kg-primary-container))]">movie</span><h2 class="text-lg font-semibold text-[rgb(var(--kg-warm-text-28))]">${uiText("Фильмография в Moven")}</h2></div><span data-kg-person-credit-total class="text-xs text-[rgb(var(--kg-primary-container))]"></span></div><p data-kg-person-credit-subtitle class="text-xs text-[rgb(var(--kg-text-muted))] mb-3"></p><div data-kg-person-films class="flex flex-col gap-2.5"><span class="text-sm text-[rgb(var(--kg-text-muted))]">${uiText("Загружаем фильмы…")}</span></div></section></div></section>`;
-    // Keep the actor background attached to the full modal viewport, not only the hero block.
-    const backdropLayer=root.querySelector("[data-kg-person-backdrop]");
-    const modalSurface=root.querySelector(".kgpi-modal");
-    if(backdropLayer&&modalSurface)modalSurface.prepend(backdropLayer);
+    // The backdrop stays inside the hero: full width, original hero height.
+    applyPersonBackdrop(root,id,preparedBackdrop);
     seedPersonPortrait(root,sourceElement,id,name);
     const sourceFilmCard=sourceElement?.closest?.(".kg-film-detail");
     const sourceFilm=sourceFilmCard&&window.KGFilmCard?.modelFor(sourceFilmCard);
@@ -329,14 +339,9 @@
       }
     });
     try{
-      const personPath = `person/${id}`;
-      const profileLocale = interfaceLanguage === "en" ? "en-US" : "ru-RU";
-      const sharedLocale = profileLocale === filmLocale;
-      let data = personCache.get(id);
-      if (!data) {
-        const params = sharedLocale ? {append_to_response: "movie_credits"} : {};
-        data = await tmdb(personPath, params, profileLocale);
-        personCache.set(id, data);
+      if(!data){
+        root.querySelector("[data-kg-person-films]").textContent=uiText("Не удалось загрузить профиль. Проверьте подключение к TMDB.");
+        return;
       }
       if(!root.isConnected)return;
       const actor=data.known_for_department==="Acting"||/акт[её]р/i.test(role||""),profession=actor?"Актёр":"Режиссёр";
@@ -352,7 +357,6 @@
       const birthplace=data.place_of_birth||uiText("Место рождения не указано");root.querySelector("[data-kg-person-location]").textContent=`⌖ ${birthplace}`;
       const bio=data.biography?.trim()||uiText("Биография пока недоступна на русском языке.");root.querySelector("[data-kg-person-bio]").textContent=bio;
       upgradePersonPortrait(root,data.profile_path,data.name||name);
-      applyPersonBackdrop(root,id,data.profile_path);
       let movieCredits = data.movie_credits;
       if (!movieCredits) {
         try {

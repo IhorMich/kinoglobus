@@ -119,6 +119,7 @@ window.KGInterfaceDictionaries.en = Object.freeze({
   "Система и администрирование": "System",
   "Сбросить все настройки по умолчанию": "Restore default settings",
   "Регион для блока «Где смотреть»: {region}.": "Region used for Where to watch: {region}.",
+  "Регион определяется автоматически по настройкам устройства.": "Region is detected automatically from device settings.",
   "{opened} / {total} стран": "{opened} / {total} countries",
   "Открыто стран: {count}": "Countries unlocked: {count}",
   "Осталось {count}": "{count} remaining",

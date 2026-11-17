@@ -21,13 +21,33 @@
   function region(){
     if (selectedRegion !== "auto") return selectedRegion;
     const zone=Intl.DateTimeFormat().resolvedOptions().timeZone||"";
-    const zones={"Europe/Warsaw":"PL","Europe/Kyiv":"UA","Europe/Kiev":"UA","Europe/Moscow":"RU","Europe/Berlin":"DE","Europe/Paris":"FR","Europe/London":"GB","America/New_York":"US","America/Los_Angeles":"US","America/Toronto":"CA","Asia/Tokyo":"JP","Asia/Seoul":"KR","Asia/Kolkata":"IN","Australia/Sydney":"AU"};
+    const zones={
+      "Europe/Warsaw":"PL","Europe/Kyiv":"UA","Europe/Kiev":"UA","Europe/Moscow":"RU",
+      "Europe/Berlin":"DE","Europe/Paris":"FR","Europe/London":"GB","Europe/Brussels":"BE",
+      "Europe/Vienna":"AT","Europe/Zurich":"CH","Europe/Amsterdam":"NL","Europe/Rome":"IT",
+      "Europe/Madrid":"ES","Europe/Lisbon":"PT","Europe/Athens":"GR","Europe/Prague":"CZ",
+      "Europe/Budapest":"HU","Europe/Bucharest":"RO","Europe/Sofia":"BG","Europe/Stockholm":"SE",
+      "Europe/Oslo":"NO","Europe/Copenhagen":"DK","Europe/Helsinki":"FI","Europe/Dublin":"IE",
+      "Europe/Tallinn":"EE","Europe/Riga":"LV","Europe/Vilnius":"LT","Europe/Istanbul":"TR",
+      "America/New_York":"US","America/Chicago":"US","America/Denver":"US","America/Phoenix":"US",
+      "America/Los_Angeles":"US","America/Anchorage":"US","Pacific/Honolulu":"US",
+      "America/Toronto":"CA","America/Vancouver":"CA","America/Edmonton":"CA","America/Winnipeg":"CA",
+      "America/Halifax":"CA","America/St_Johns":"CA","America/Mexico_City":"MX","America/Sao_Paulo":"BR",
+      "America/Argentina/Buenos_Aires":"AR","Asia/Tokyo":"JP","Asia/Seoul":"KR","Asia/Kolkata":"IN",
+      "Asia/Singapore":"SG","Asia/Bangkok":"TH","Asia/Dubai":"AE","Asia/Riyadh":"SA",
+      "Asia/Jerusalem":"IL","Asia/Shanghai":"CN","Asia/Hong_Kong":"HK","Asia/Taipei":"TW",
+      "Australia/Sydney":"AU","Australia/Perth":"AU","Australia/Adelaide":"AU",
+      "Pacific/Auckland":"NZ","Africa/Cairo":"EG","Africa/Johannesburg":"ZA","Africa/Lagos":"NG"
+    };
     if(zones[zone])return zones[zone];
-    try {
-      const localeRegion = new Intl.Locale(navigator.language).region;
-      if (regions.includes(localeRegion)) return localeRegion;
-    } catch (_) {}
-    return "PL";
+    const locales=[navigator.language,...(navigator.languages||[])];
+    for(const locale of locales){
+      try {
+        const code = new Intl.Locale(locale).region;
+        if (/^[A-Z]{2}$/.test(code||"")) return code;
+      } catch (_) {}
+    }
+    return "";
   }
   function markup(id){
     const safeId=String(id||"").replace(/[^0-9]/g,"");
@@ -46,10 +66,12 @@
   }
   function render(section,all){
     const code = region();
+    if(!code){section.innerHTML="";section.hidden=true;return;}
     const result = all[code] || {};
     const groups=["flatrate","free","ads","rent","buy"],seen=new Set(),providers=[];
     for(const group of groups)for(const provider of result[group]||[]){if(!seen.has(provider.provider_id)){seen.add(provider.provider_id);providers.push(provider);}}
     const items=providers.slice(0,3);
+    if(!items.length){section.innerHTML="";section.hidden=true;return;}
     const links=items.map(provider=>{
       const name=provider.provider_name||uiText("Сервис просмотра");
       const site=officialSites.find(([pattern])=>pattern.test(name))?.[1];
@@ -57,11 +79,8 @@
       const logo=provider.logo_path?`<img src="https://image.tmdb.org/t/p/w92${escape(provider.logo_path)}" alt="${escape(name)}" loading="lazy">`:`<span class="kgw-service-fallback" aria-hidden="true">${escape(name.slice(0,2).toUpperCase())}</span>`;
       return `<a class="kgw-service" href="${href}" target="_blank" rel="noopener noreferrer" aria-label="${escape(uiText("Открыть {name}", {name}))}" title="${escape(name)}">${logo}</a>`;
     }).join("");
-    const availability = items.length
-      ? `<div class="kgw-links">${links}</div>`
-      : `<span class="text-text-muted">${uiText("Нет данных о сервисах в этом регионе.")}</span>`;
-    section.innerHTML = `<div class="kgw-info"><strong>${escape(uiText("Где смотреть · {region}", {region: interfaceRegionNames.of(code)}))}</strong>
-      ${availability}<span class="text-text-muted">${uiText("Данные:")} <a href="https://www.justwatch.com/" target="_blank" rel="noopener noreferrer">JustWatch</a></span></div>`;
+    section.innerHTML = `<div class="kgw-info"><div class="kgw-links">${links}</div>
+      <span class="text-text-muted">${uiText("Данные:")} <a href="https://www.justwatch.com/" target="_blank" rel="noopener noreferrer">JustWatch</a></span></div>`;
     section.hidden=false;
   }
   function refresh(section){

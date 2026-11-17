@@ -194,10 +194,11 @@
     message(section, "Загружаем фильмы…");
     try {
       const params = {
-        language: filmLocale, region: current.region, include_adult: "false",
+        language: filmLocale, include_adult: "false",
         with_release_type: section.type, "release_date.gte": day(current.today, section.from),
         "release_date.lte": day(current.today, section.to), sort_by: "popularity.desc"
       };
+      if (current.region) params.region = current.region;
       const result = await requestTmdb("discover/movie", params);
       if (context !== current) return;
       section.films = releaseFilms(result);
@@ -233,13 +234,13 @@
     const dateKey = day(today, 0);
     if (context?.key === apiKey && context.region === region && context.dateKey === dateKey) return;
     closeDetails();
-    context = {key:apiKey, region, regionName:interfaceRegionNames.of(region), today, dateKey};
+    context = {key:apiKey, region, regionName:region ? interfaceRegionNames.of(region) : "", today, dateKey};
     for (const section of sections) {
       section.expanded = false;
       section.films = [];
-      section.element.querySelector("[data-release-subtitle]").textContent = uiText("{subtitle} · {region}", {
-        subtitle:uiText(section.subtitle), region:context.regionName
-      });
+      section.element.querySelector("[data-release-subtitle]").textContent = context.regionName
+        ? uiText("{subtitle} · {region}", {subtitle:uiText(section.subtitle), region:context.regionName})
+        : uiText(section.subtitle);
       loadSection(section, context);
     }
   }

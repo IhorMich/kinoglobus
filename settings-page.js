@@ -419,8 +419,11 @@ ${[["light","Лёгкое"],["find","Открытие"],["wild","Случайн�
     watchRegionSelect.add(new Option(name, code));
   }
   function syncWatchRegion() {
-    watchRegionSelect.value = watchProviders.getRegion();
-    $("#kgs-watch-region-note").textContent = uiText("Регион для блока «Где смотреть»: {region}.", {region: interfaceRegionNames.of(watchProviders.getEffectiveRegion())});
+    const selected = watchProviders.getRegion();
+    watchRegionSelect.value = selected;
+    $("#kgs-watch-region-note").textContent = selected === "auto"
+      ? uiText("Регион определяется автоматически по настройкам устройства.")
+      : uiText("Регион для блока «Где смотреть»: {region}.", {region: interfaceRegionNames.of(watchProviders.getEffectiveRegion())});
   }
   watchRegionSelect.addEventListener("change", () => {
     watchProviders.setRegion(watchRegionSelect.value);

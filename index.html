@@ -19,7 +19,7 @@ html.kg-launch-reveal body>:not(#kg-launch-splash){visibility:visible!important;
 <link rel="manifest" href="moven.webmanifest">
 <meta name="application-name" content="Moven: Explore">
 <meta name="description" content="Explore the world of cinema">
-<link rel="stylesheet" href="app-theme.css?v=56">
+<link rel="stylesheet" href="app-theme.css?v=57">
 <script>
 try {
   if (!navigator.connection?.saveData) {
@@ -4309,7 +4309,7 @@ console.info("[Moven: Explore] Bridge v6 ready");
 <script src="curated-collections.js?v=2"></script>
 <script src="film-card.js?v=11"></script>
 <script src="collections.js?v=120"></script>
-<script src="film-interactions.js?v=31"></script>
+<script src="film-interactions.js?v=32"></script>
 <script src="legal-watch.js?v=9"></script>
 <script src="global-search.js?v=18"></script>
 <script src="home-releases.js?v=11"></script>
@@ -4334,7 +4334,7 @@ console.info("[Moven: Explore] Bridge v6 ready");
       fittedHeight = height;
       earth.style.setProperty("--kg-earth-room", `${height}px`);
     }
-    const skyHeight=Math.max(220,starEnd.getBoundingClientRect().bottom-section.getBoundingClientRect().top+240);
+    const skyHeight=Math.max(220,starEnd.getBoundingClientRect().bottom-section.getBoundingClientRect().top+160);
     section.style.setProperty("--kg-space-sky-height",`${skyHeight}px`);
   }
 

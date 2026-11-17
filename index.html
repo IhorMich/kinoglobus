@@ -5,7 +5,7 @@
 <link rel="manifest" href="moven.webmanifest">
 <meta name="application-name" content="Moven: Explore">
 <meta name="description" content="Explore the world of cinema">
-<link rel="stylesheet" href="app-theme.css?v=43">
+<link rel="stylesheet" href="app-theme.css?v=44">
 <script src="steel-motion.js?v=4" defer></script>
 <script src="interface-en.js?v=47"></script>
 <script src="interface-i18n.js?v=2"></script>
@@ -52,6 +52,18 @@ try {
 <script src="watched-button.js?v=3"></script>
 <link rel="stylesheet" href="settings-page.css?v=10">
 </head><body class="bg-canvas-obsidian font-body-md text-on-surface flex flex-col min-h-screen relative">
+<div id="kg-launch-splash" role="status" aria-label="Moven — Cinema in Motion">
+  <section class="kg-launch-splash__center" aria-label="Moven brand">
+    <img class="kg-launch-splash__icon" src="assets/branding/moven-icon-512.png" alt="" width="148" height="148" fetchpriority="high">
+    <h1>MOVEN</h1>
+    <p>Cinema in Motion</p>
+  </section>
+  <footer class="kg-launch-splash__footer" aria-hidden="true">
+    <span class="kg-launch-splash__rule"></span>
+    <span>Crafted for film lovers</span>
+  </footer>
+</div>
+
 <!-- Static cinema backdrop -->
 <div class="kg-ambient-background fixed inset-0 pointer-events-none overflow-hidden -z-10 select-none" aria-hidden="true">
 <!-- Ambient Projector Velvet & Amber Glow Orbs -->
@@ -4232,4 +4244,26 @@ console.info("[Moven: Explore] Bridge v6 ready");
 })();
 </script>
 
+
+<script>
+(() => {
+  const splash = document.getElementById("kg-launch-splash");
+  if (!splash) return;
+  const started = Date.now();
+  let dismissed = false;
+  const dismiss = () => {
+    if (dismissed) return;
+    dismissed = true;
+    const delay = Math.max(0, 900 - (Date.now() - started));
+    window.setTimeout(() => {
+      splash.classList.add("kg-launch-splash--hidden");
+      splash.setAttribute("aria-hidden", "true");
+      window.setTimeout(() => splash.remove(), 500);
+    }, delay);
+  };
+  if (document.readyState === "complete") dismiss();
+  else window.addEventListener("load", dismiss, { once: true });
+  window.setTimeout(dismiss, 4500);
+})();
+</script>
 </body></html>

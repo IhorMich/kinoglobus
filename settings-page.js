@@ -1,4 +1,4 @@
-// Moven settings, adapted from the Stitch settings screen.
+// Moven: Explore settings, adapted from the Stitch settings screen.
 (function () {
   const dialog = document.getElementById("settings");
   if (!dialog) return;
@@ -18,7 +18,7 @@
 <div id="kgs-title" class="font-headline-sm text-base text-primary font-semibold leading-tight">
           Настройки
         </div>
-<p class="text-[11px] text-text-muted font-medium tracking-tight"><img class="kg-brand-mark" src="assets/branding/moven-icon-192.png" width="24" height="24" alt=""> Настройки Moven</p>
+<p class="text-[11px] text-text-muted font-medium tracking-tight"><img class="kg-brand-mark" src="assets/branding/moven-icon-192.png" width="24" height="24" alt=""> Настройки Moven: Explore</p>
 </div>
 </div>
 </header>
@@ -281,6 +281,7 @@
               <option value="paperTickets">Билеты · шорох бумаги</option>
             </optgroup>
             <optgroup label="Свои звуки (mp3)"><option value="rsm-click">Мышь · щелчок</option><option value="rsm-swoosh">Быстрый свуш</option><option value="rsm-cape">Свуш · плащ</option><option value="rsm-motion">Свуш · движение</option><option value="rsm-fire">Свуш · пламя</option><option value="rsm-whistle">Свисток · писк</option><option value="rsm-proj2">Проектор · живая запись 1</option><option value="rsm-cine">Проектор · живая запись 2</option></optgroup>
+            <optgroup label="Музыка (mp3)"><option value="rsm-m-menu">Музыка · Меню · смена</option><option value="rsm-m-ondabeat">Музыка · On Da Beat</option><option value="rsm-m-oblivion">Музыка · Oblivion Beat</option><option value="rsm-m-multiverse">Музыка · Multiverse</option><option value="rsm-m-moonwalker">Музыка · Moon Walker</option><option value="rsm-m-horror">Музыка · Horror Kick</option><option value="rsm-m-goldmetal">Музыка · Gold Metal</option><option value="rsm-m-heroes">Музыка · Drums of Heroes</option><option value="rsm-m-darkrolls">Музыка · Dark Rolls</option><option value="rsm-m-tension">Музыка · Cinematic Tension</option><option value="rsm-m-percussion">Музыка · Cinematic Percussion</option><option value="rsm-m-bassdrop">Музыка · Bass Drop</option><option value="rsm-m-addkick">Музыка · Add Kick</option></optgroup>
             <optgroup label="Другие профили"><option value="projector">Проектор · щелчки</option><option value="imax">Кинозал · мягкий импульс</option><option value="camera">Кинокамера · механика</option><option value="tape">Магнитная плёнка</option><option value="premiere">Премьерный зал</option><option value="shutter">Кинокамера · затвор</option><option value="editbench">Монтажный стол · шаг кадра</option><option value="sixteenmm">16 мм · мягкая трещотка</option></optgroup><option value="off">Без звука</option></select>
 <button class="w-full py-2 px-3 rounded-xl bg-surface-container hover:bg-surface-container-high border border-primary-container/30 text-primary-container text-xs font-medium transition-all flex items-center justify-center gap-1.5" type="button" data-kgs-reel-preview>
 <span>▶</span>
@@ -538,7 +539,7 @@ ${[["light","Лёгкое"],["find","Открытие"],["wild","Случайн�
     sync();
   };
 
-  const labels = {roulette:"Трещотка бобины",bells:"Колокольчики",arcade:"Аркада",casino:"Казино",marimba:"Маримба",space:"Космос",film:"Киноплёнка",orchestra:"Оркестр",jazz:"Джаз",synth:"Синтезатор",chimes:"Звон","smp-ui14":"Сэмпл · UI 14","smp-ui02":"Сэмпл · UI 02","smp-ui73":"Сэмпл · UI 73","smp-build":"Сэмпл · Build finish","smp-confirm":"Сэмпл · Confirm","smp-impact":"Сэмпл · Impact","smp-blaster":"Сэмпл · Sci-fi blaster","smp-reveal":"Трещотка + финал Logo reveal",off:"Без звука",imax:"Кинозал · низкий гул"};
+  const labels = {roulette:"Трещотка бобины",bells:"Колокольчики",arcade:"Аркада",casino:"Казино",marimba:"Маримба",space:"Космос",film:"Киноплёнка",orchestra:"Оркестр",jazz:"Джаз",synth:"Синтезатор",chimes:"Звон","smp-ui14":"Сэмпл · UI 14","smp-ui02":"Сэмпл · UI 02","smp-ui73":"Сэмпл · UI 73","smp-build":"Сэмпл · Build finish","smp-confirm":"Сэмпл · Confirm","smp-impact":"Сэмпл · Impact","smp-blaster":"Сэмпл · Sci-fi blaster","smp-reveal":"Трещотка + финал Logo reveal","smp-m-menu":"Музыка · Меню · смена","smp-m-ondabeat":"Музыка · On Da Beat","smp-m-oblivion":"Музыка · Oblivion Beat","smp-m-multiverse":"Музыка · Multiverse","smp-m-moonwalker":"Музыка · Moon Walker","smp-m-horror":"Музыка · Horror Kick","smp-m-goldmetal":"Музыка · Gold Metal","smp-m-heroes":"Музыка · Drums of Heroes","smp-m-darkrolls":"Музыка · Dark Rolls","smp-m-tension":"Музыка · Cinematic Tension","smp-m-percussion":"Музыка · Cinematic Percussion","smp-m-bassdrop":"Музыка · Bass Drop","smp-m-addkick":"Музыка · Add Kick",off:"Без звука",imax:"Кинозал · низкий гул"};
   if (soundSelect) {
     [...soundSelect.options].forEach((option) => { option.textContent = uiText(labels[option.value] || option.textContent); });
     soundSelect.className = $("[data-kgs-reel-sound-select]").className;

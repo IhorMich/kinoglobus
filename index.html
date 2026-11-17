@@ -2377,9 +2377,13 @@ function sampleTick(key,e){
 function sampleWin(key){
   const buf=sampleBuf[key];if(!buf){loadSample(key);return;}
   try{
-    const src=ac.createBufferSource(),g=ac.createGain();
+    const src=ac.createBufferSource(),g=ac.createGain(),t=ac.currentTime;
+    const isMusic=key.startsWith("smp-m-");
+    const duration=isMusic?Math.min(buf.duration,1.9):buf.duration;
     src.buffer=buf;g.gain.value=SAMPLE_WIN_VOL;
-    src.connect(g);g.connect(soundOutput);src.start(0,sampleOnset[key]||0);
+    if(isMusic){g.gain.setValueAtTime(SAMPLE_WIN_VOL,t+Math.max(0,duration-.28));g.gain.linearRampToValueAtTime(.0001,t+duration);}
+    src.connect(g);g.connect(soundOutput);src.start(t,sampleOnset[key]||0);
+    if(isMusic)src.stop(t+duration+.02);
   }catch(_){}
 }
 const MARIMBA=[261.63,293.66,329.63,392,440,523.25,587.33,659.25];
@@ -4142,9 +4146,32 @@ document.addEventListener("kg:watched-change",()=>{
 ag.addEventListener("click",()=>$("again").click());
 
 // ---------- Кнопки глобуса ----------
-$("btn-spin-roulette").addEventListener("click",()=>{
+async function revealGlobeForSpin(){
+  const globe = $("earth-canvas-container");
+  if (!globe) return;
+  const header = document.querySelector("body > header");
+  const bottomNav = document.querySelector("body > nav");
+  const viewportHeight = window.visualViewport?.height || window.innerHeight;
+  const topLimit = Math.max(12, (header?.getBoundingClientRect().bottom || 0) + 12);
+  const bottomLimit = Math.min(viewportHeight, bottomNav?.getBoundingClientRect().top ?? viewportHeight) - 12;
+  const rect = globe.getBoundingClientRect();
+  if (rect.top >= topLimit && rect.bottom <= bottomLimit) return;
+
+  const targetTop = Math.max(0, window.scrollY + rect.top - topLimit);
+  if (Math.abs(targetTop - window.scrollY) < 2) return;
+  window.scrollTo({top: targetTop, behavior: "smooth"});
+  await new Promise(resolve => {
+    let timeout;
+    const done = () => { clearTimeout(timeout); window.removeEventListener("scrollend", done); resolve(); };
+    window.addEventListener("scrollend", done, {once: true});
+    timeout = setTimeout(done, 800);
+  });
+}
+
+$("btn-spin-roulette").addEventListener("click",async()=>{
   refreshKey();
   if(!apiKey){const b=$("tmdb-key-banner");b.classList.remove("hidden");b.scrollIntoView({behavior:"smooth",block:"center"});return;}
+  await revealGlobeForSpin();
   $("go").click();
 });
 $("btn-top-one").addEventListener("click", () => selectQuickSearch("top1"));

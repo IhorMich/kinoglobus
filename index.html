@@ -2412,12 +2412,9 @@ function sampleWin(key){
   const buf=sampleBuf[key];if(!buf){loadSample(key);return;}
   try{
     const src=ac.createBufferSource(),g=ac.createGain(),t=ac.currentTime;
-    const isMusic=key.startsWith("smp-m-");
-    const offset=sampleOnset[key]||0,rate=isMusic?1.5:1;
-    const duration=(buf.duration-offset)/rate;
+    const offset=sampleOnset[key]||0;
     src.buffer=buf;g.gain.value=SAMPLE_WIN_VOL;
-    src.playbackRate.value=rate;
-    if(isMusic){g.gain.setValueAtTime(SAMPLE_WIN_VOL,t+Math.max(0,duration-.18));g.gain.linearRampToValueAtTime(.0001,t+duration);}
+    src.playbackRate.value=1;
     src.connect(g);g.connect(soundOutput);src.start(t,offset);
   }catch(_){}
 }
@@ -2599,12 +2596,13 @@ function playReelFound(cfg){
   const one=(c,delay)=>{
     const b=reelBuf[c.file]; if(!b)return;
     const t=ac.currentTime+delay,src=ac.createBufferSource(),g=ac.createGain(),fi=c.fadeIn||.004;
-    const isMusic=c.file.startsWith("m-"),offset=reelOnset[c.file]||0,rate=isMusic?1.5:1;
-    const len=isMusic?(b.duration-offset)/rate:Math.min(c.len,cfg.pre?(delay===0?0.18:0.78):0.78);
+    const isMusic=c.file.startsWith("m-"),offset=reelOnset[c.file]||0,rate=1;
+    const len=isMusic?(b.duration-offset):Math.min(c.len,cfg.pre?(delay===0?0.18:0.78):0.78);
     src.buffer=b;
     src.playbackRate.value=rate;
     g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(c.vol,t+Math.min(fi,len*.25));
-    g.gain.setValueAtTime(c.vol,t+Math.max(fi,len-(isMusic ? .18 : Math.min(.08,len*.3))));g.gain.linearRampToValueAtTime(.0001,t+len);
+    if(isMusic)g.gain.setValueAtTime(c.vol,t+Math.max(fi,len));
+    else {g.gain.setValueAtTime(c.vol,t+Math.max(fi,len-Math.min(.08,len*.3)));g.gain.linearRampToValueAtTime(.0001,t+len);}
     src.connect(g);g.connect(soundOutput);
     src.onended=()=>{src.disconnect();g.disconnect();};
     if(isMusic)src.start(t,offset);else src.start(t,offset,len+.02);

@@ -1522,13 +1522,8 @@ body {
   contain: layout paint style;
 }
 #kg-launch-splash::before {
-  position: absolute;
-  z-index: -1;
-  inset: 22% 12% 32%;
-  content: "";
-  background: radial-gradient(ellipse at center, rgba(180, 195, 220, .095), rgba(130, 145, 175, .025) 52%, transparent 78%);
-  filter: blur(38px);
-  pointer-events: none;
+  display: none !important;
+  content: none !important;
 }
 #kg-launch-splash.kg-launch-splash--hidden {
   opacity: 0;

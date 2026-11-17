@@ -1480,8 +1480,13 @@ body {
   color: #f4f5f7;
   background: radial-gradient(circle at 50% 46%, #161821 0%, #0c0d12 55%, #060709 100%);
   opacity: 1;
+  animation: kg-launch-enter 720ms cubic-bezier(.2,.75,.25,1) both;
   transition: opacity 420ms ease;
   isolation: isolate;
+}
+@keyframes kg-launch-enter {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 #kg-launch-splash::before {
   position: absolute;
@@ -1555,6 +1560,7 @@ body {
 }
 @media (prefers-reduced-motion: reduce) {
   .kg-launch-splash__rule { animation: none; }
+  #kg-launch-splash { animation: none; }
   #kg-launch-splash { transition-duration: 150ms; }
 }
 

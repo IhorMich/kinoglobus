@@ -3544,9 +3544,9 @@ $("again").onclick=async()=>{
     await filmDetails(film.id);
     pool = {...pool, films:pool.films.filter(movieCatalog.allows)};
     const cc=filmCC(pool,film,cur.cc);
-    if(!RM){audio();await filmReel(pool,film,cc,preloadPosters(pool));}
+    window.kgPreserveGlobeFrame=true;
     show(cc,pool,film);
-  }catch(e){$("err").textContent=e.message}
+  }catch(e){window.kgPreserveGlobeFrame=false;$("err").textContent=e.message}
   finally{$("again").disabled=false;$("freel").hidden=true;}
 };
 $("seen").onclick=()=>markCurrentFilm($("seen"));
@@ -4107,11 +4107,13 @@ async function spinReel(pool,film,cc){
 }
 
 function reveal(film,pool){
-  if (!detailsEl.classList.contains("veiled")) return;
-  detailsEl.classList.remove("veiled");
+  const reroll=pendingRerollReveal?.model?.id===film.id?pendingRerollReveal:null;
+  if (detailsEl.classList.contains("veiled")) detailsEl.classList.remove("veiled");
+  else if (!reroll) return;
+  if(reroll){reroll.model._rerollPending=false;reroll.refresh();pendingRerollReveal=null;}
   playFilmFoundSound();
   set("hero-country-master",globeFilm?.title || film.title);
-  scrollToFilmReel($("kg-globe-film").firstElementChild);
+  if(!reroll)scrollToFilmReel($("kg-globe-film").firstElementChild);
 }
 
 function globeFilmContext(cc) {
@@ -4131,7 +4133,7 @@ function globeFilmContext(cc) {
 
 }
 
-let globeFilm=null;
+let globeFilm=null,pendingRerollReveal=null;
 window.KGGlobeFilmModel=card=>card?.closest("#kg-globe-film")&&globeFilm&&card.dataset.selectedFilm===String(globeFilm.id)?globeFilm:null;
 window.KGOpenGlobeRelatedFilm=(film,current)=>{
   if(globeFilm!==current)return false;
@@ -4176,11 +4178,13 @@ window.show=function(cc,pool,film){
   hideGlobeIntroHint();
   $("hero-hologram-display").classList.remove("invisible");
   if (reelSnd !== "off") audio();
+  const preserveFrame=!!window.kgPreserveGlobeFrame;
+  window.kgPreserveGlobeFrame=false;
   const fromSpin=G.isSpinning;
   _show(cc,pool,film);
   window.KGFilmInteractions?.registerPool("discovery-current",pool.films||[]);
   const w=gc(cc);
-  set("hero-country-master",uiText("Ищем фильм…"));
+  if(!preserveFrame)set("hero-country-master",uiText("Ищем фильм…"));
   // «Другой фильм» из той же страны: глобус уже стоит на ней, крутить и приближать его заново не нужно
   const sameCountry=!G.isSpinning&&focusedCC===cc;
   if(!G.isSpinning&&!sameCountry){   // фильм из истории или из другой страны: показать страну
@@ -4193,22 +4197,24 @@ window.show=function(cc,pool,film){
   const model = globeFilm = window.KGFilmCard.createModel(film,{
     _cc:cc, _kgRelatedContext:"discovery-current", _oscarContext:!!pool.oscar
   });
+  model._rerollPending=preserveFrame;
   const refresh = () => {
+    if(model._rerollPending)return;
     window.KGFilmCard.mount($("kg-globe-film"),model,{closable:false});
     if (!detailsEl.classList.contains("veiled") && focusedCC===cc) set("hero-country-master",model.title);
   };
-  detailsEl.classList.add("veiled");
-  refresh();
+  if(!preserveFrame){detailsEl.classList.add("veiled");refresh();}
+  else pendingRerollReveal={model,refresh};
   set("discovery-timestamp",pool.oscar?uiText("Лауреат «Оскара»"):pool.top1?uiText("Топ-1 страны"):pool.worst?uiText("Из худших"):uiText("Случайная находка · {country}", {country:cname(cc)}));
   $("kg-globe-film-context").innerHTML=globeFilmContext(cc);
   ag.hidden=$("again").hidden;
-  renderBlank();
+  if(!preserveFrame)renderBlank();
   window.KGFilmCard.hydrate(model,film,refresh,()=>globeFilm===model);
   stopReel();warmPosters(pool,film);
   const selection = cur;
   spinTimer=setTimeout(async()=>{
     try{
-      await scrollToFilmReel(card, fromSpin ? 620 : 500);
+      if(!preserveFrame)await scrollToFilmReel(card, fromSpin ? 620 : 500);
       if(cur!==selection)return;
       await spinReel(pool,film,cc);
     }catch(e){console.warn('[Moven: Explore] reel',e);if(cur===selection){stopFilmReelSound();renderStatic(pool,film,cc);reveal(film,pool);}}

@@ -2,12 +2,12 @@
 <style>
 html.kg-launch-pending,html.kg-launch-pending body{background:#07060a!important}
 html.kg-launch-pending body>:not(#kg-launch-splash){visibility:hidden!important;opacity:0!important}
-#kg-launch-splash{position:fixed;inset:0;width:100%;height:100vh;height:100svh;z-index:2147483647;display:block;overflow:hidden;box-sizing:border-box;padding:max(22px,env(safe-area-inset-top)) 24px max(28px,env(safe-area-inset-bottom));color:#f4f5f7;background:radial-gradient(circle at 50% 46%,#161821 0%,#0c0d12 55%,#030405 100%);opacity:1;transition:opacity 650ms ease;isolation:isolate}
-.kg-launch-splash__center{position:absolute;top:50%;left:50%;display:flex;flex:none;flex-direction:column;align-items:center;justify-content:center;width:calc(100% - 48px);transform:translate3d(-50%,-50%,0);text-align:center}
-.kg-launch-splash__center h1{display:block;margin:0;padding:0;color:#e9ebf0;font:600 30px/36px Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:.28em;text-align:center;white-space:nowrap;text-shadow:0 1px 2px rgba(0,0,0,.55)}
-.kg-launch-splash__center p{margin:14px 0 0;padding:0;color:#8b8e99;font:500 10px/14px Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:.35em;text-align:center;text-transform:uppercase;white-space:nowrap}
-.kg-launch-splash__footer{position:absolute;left:24px;right:24px;bottom:max(28px,env(safe-area-inset-bottom));display:flex;flex-direction:column;align-items:center;gap:15px;padding:0;color:#777b86;font:500 9px/14px Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:.2em;text-align:center;text-transform:uppercase}
-.kg-launch-splash__rule{width:128px;height:1.5px;border-radius:999px;background:rgba(255,255,255,.1)}
+#kg-launch-splash{position:fixed;inset:0;width:100%;height:100vh;height:100svh;z-index:2147483647;display:block;overflow:hidden;box-sizing:border-box;color:#f4f5f7;background:radial-gradient(circle at 50% 46%,#161821 0%,#0c0d12 55%,#030405 100%);opacity:1;transition:opacity 650ms ease;isolation:isolate;contain:layout paint style}
+.kg-launch-splash__center{position:absolute;inset:0;display:grid;place-content:center;justify-items:center;align-content:center;gap:14px;width:100%;height:100%;padding:0 24px;box-sizing:border-box;transform:none!important;translate:none!important;animation:none!important;transition:none!important;text-align:center}
+.kg-launch-splash__logo{display:block;margin:0;padding:0;color:#e9ebf0;font-family:Arial,Helvetica,sans-serif;font-size:30px;font-weight:600;line-height:36px;letter-spacing:.28em;text-align:center;white-space:nowrap;font-synthesis:none;transform:none!important;translate:none!important;animation:none!important;transition:none!important}
+.kg-launch-splash__tagline{display:block;margin:0;padding:0;color:#8b8e99;font-family:Arial,Helvetica,sans-serif;font-size:10px;font-weight:500;line-height:14px;letter-spacing:.35em;text-align:center;text-transform:uppercase;white-space:nowrap;font-synthesis:none;transform:none!important;translate:none!important;animation:none!important;transition:none!important}
+.kg-launch-splash__footer{position:absolute;left:24px;right:24px;bottom:max(28px,env(safe-area-inset-bottom));display:flex;flex-direction:column;align-items:center;gap:15px;padding:0;color:#777b86;font:500 9px/14px Arial,Helvetica,sans-serif;letter-spacing:.2em;text-align:center;text-transform:uppercase;transform:none!important;animation:none!important;transition:none!important}
+.kg-launch-splash__rule{width:128px;height:1.5px;border-radius:999px;background:rgba(255,255,255,.1);animation:none!important}
 #kg-launch-splash.kg-launch-splash--hidden{opacity:0;pointer-events:none}
 @media(prefers-reduced-motion:reduce){#kg-launch-splash{transition-duration:150ms}}</style>
 <title>Moven: Explore</title>
@@ -17,7 +17,7 @@ html.kg-launch-pending body>:not(#kg-launch-splash){visibility:hidden!important;
 <meta name="theme-color" content="#0c0d12">
 <meta name="application-name" content="Moven: Explore">
 <meta name="description" content="Explore the world of cinema">
-<link rel="stylesheet" href="app-theme.css?v=58">
+<link rel="stylesheet" href="app-theme.css?v=59">
 <script>
 try {
   if (!navigator.connection?.saveData) {
@@ -79,10 +79,10 @@ try {
 <link rel="stylesheet" href="settings-page.css?v=10">
 </head><body class="bg-canvas-obsidian font-body-md text-on-surface flex flex-col min-h-screen relative">
 <div id="kg-launch-splash" role="status" aria-label="Moven — Cinema in Motion">
-  <section class="kg-launch-splash__center" aria-label="Moven brand">
-    <h1>MOVEN</h1>
-    <p>Cinema in Motion</p>
-  </section>
+  <div class="kg-launch-splash__center" aria-label="Moven brand">
+    <div class="kg-launch-splash__logo" role="heading" aria-level="1">MOVEN</div>
+    <div class="kg-launch-splash__tagline">Cinema in Motion</div>
+  </div>
   <footer class="kg-launch-splash__footer" aria-hidden="true">
     <span class="kg-launch-splash__rule"></span>
     <span>Crafted for film lovers</span>

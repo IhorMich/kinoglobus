@@ -30,6 +30,27 @@
     personBackdropWarmCache.set(src,promise);
     return promise;
   }
+  function seedPersonPortrait(root,sourceElement,id,name){
+    const host=root.querySelector("[data-kg-person-image]");
+    if(!host)return null;
+    const filmCard=sourceElement?.closest?.(".kg-film-detail");
+    const localSource=sourceElement?.querySelector?.("img")||
+      [...(filmCard?.querySelectorAll?.(`[data-kg-person-id="${id}"] img`)||[])][0]||
+      sourceElement?.closest?.("[data-kg-person-id]")?.querySelector?.("img");
+    const src=localSource?.currentSrc||localSource?.src;
+    if(!src)return null;
+    const portrait=new Image();portrait.className="h-full w-full object-cover";portrait.alt=name;portrait.decoding="async";portrait.src=src;
+    host.replaceChildren(portrait);
+    return portrait;
+  }
+  function upgradePersonPortrait(root,profilePath,name){
+    if(!profilePath)return;
+    const host=root.querySelector("[data-kg-person-image]");if(!host)return;
+    const upgraded=new Image();upgraded.className="h-full w-full object-cover";upgraded.alt=name;upgraded.decoding="async";
+    const show=()=>{if(root.isConnected&&host.isConnected)host.replaceChildren(upgraded);};
+    upgraded.onload=show;upgraded.src=image(profilePath,"w500");
+    if(upgraded.complete&&upgraded.naturalWidth)show();
+  }
   function ensureStyles(){
     if(document.getElementById("kg-film-interactions-style"))return;
     const style=document.createElement("style");style.id="kg-film-interactions-style";
@@ -126,6 +147,7 @@
     ensureStyles();closePerson();window.KGFilmCard?.stopTrailers();
     const root=document.createElement("div");root.id="kg-person-modal";root.className="kgpi-backdrop";root.setAttribute("role","presentation");root.dataset.personId=id;
     root.innerHTML=`<section class="kgpi-modal" role="dialog" aria-modal="true" aria-label="${esc(uiText("Профиль {name}", {name}))}"><header class="sticky top-0 z-20 h-16 px-4 flex items-center justify-between bg-canvas-obsidian"><div class="flex items-center gap-2 min-w-0"><button type="button" data-kg-person-close aria-label="${uiText("Назад")}" class="w-10 h-10 rounded-full text-[rgb(var(--kg-primary))] text-2xl">‹</button><div class="min-w-0"><span class="block text-[9px] uppercase tracking-[.2em] text-[rgb(var(--kg-primary-container))]">${esc(uiText(role||"Кинематографист"))}</span><h2 class="text-base font-semibold truncate">${esc(name)}</h2></div></div><button type="button" data-kg-person-close aria-label="${uiText("Закрыть профиль")}" class="w-10 h-10 rounded-full bg-surface-container-high text-xl">×</button></header><div class="pb-10"><section class="kgpi-hero relative px-4 pt-3"><div data-kg-person-backdrop class="kgpi-hero-backdrop" aria-hidden="true"></div><div class="kgpi-hero-content flex flex-col items-center text-center"><div data-kg-person-image class="w-[188px] h-[250px] rounded-[9px] overflow-hidden flex items-center justify-center"><span class="material-symbols-outlined text-5xl text-[rgb(var(--kg-text-muted))]">person</span></div><h1 data-kg-person-title class="mt-4 text-2xl font-bold font-serif text-[rgb(var(--kg-primary))]"></h1><p data-kg-person-original class="text-sm text-[rgb(var(--kg-text-muted))]"></p><div class="flex flex-wrap justify-center gap-2 mt-3"><span data-kg-person-location class="px-3 py-1 rounded-full text-xs text-[rgb(var(--kg-on-surface-variant))]"></span><span data-kg-person-department class="px-3 py-1 rounded-full text-xs text-[rgb(var(--kg-secondary-fixed))]"></span></div><div data-kg-person-stats class="w-full grid grid-cols-3 gap-1.5 mt-5 py-3 px-2"><div class="flex flex-col items-center"><span data-kg-person-age-label class="text-[9px] uppercase tracking-wider text-[rgb(var(--kg-text-muted))] text-center">${uiText("Возраст")}</span><span data-kg-person-age class="text-sm font-semibold mt-1"></span></div><div class="flex flex-col items-center"><span class="text-[9px] uppercase tracking-wider text-[rgb(var(--kg-text-muted))]">${uiText("Фильмы")}</span><span data-kg-person-count class="text-sm font-semibold text-[rgb(var(--kg-primary))] mt-1">—</span></div><div class="flex flex-col items-center"><span class="text-[9px] uppercase tracking-wider text-[rgb(var(--kg-text-muted))]">${uiText("Профессия")}</span><span data-kg-person-stat-role class="text-sm font-semibold text-[rgb(var(--kg-primary-fixed))] mt-1"></span></div></div><button type="button" data-kg-person-best class="w-full h-12 mt-4 rounded-full bg-[rgb(var(--kg-primary-container))] text-[rgb(var(--kg-on-primary-fixed))] font-semibold flex items-center justify-center gap-2 active:scale-[.98] transition-transform"><span class="material-symbols-outlined">local_fire_department</span><span data-kg-person-best-label>${uiText("Смотреть лучшие роли")}</span></button></div></section><section class="px-4 mt-7"><div class="flex items-center justify-between mb-3"><h2 data-kg-person-bio-heading class="text-lg font-semibold text-[rgb(var(--kg-warm-text-28))]">${uiText("Об актёре")}</h2><span class="text-[9px] uppercase tracking-widest text-[rgb(var(--kg-primary-container))]">${uiText("Биография")}</span></div><div class="py-1"><p data-kg-person-bio class="text-sm leading-relaxed text-[rgb(var(--kg-on-surface-variant))] kgpi-bio-clamp"></p><button type="button" data-kg-person-bio-toggle class="mt-3 text-xs font-semibold text-[rgb(var(--kg-primary-container))]">${uiText("Читать полностью")}</button></div></section><section class="px-4 mt-7"><div class="flex items-center justify-between mb-3"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-[rgb(var(--kg-primary-container))]">movie</span><h2 class="text-lg font-semibold text-[rgb(var(--kg-warm-text-28))]">${uiText("Фильмография в Moven")}</h2></div><span data-kg-person-credit-total class="text-xs text-[rgb(var(--kg-primary-container))]"></span></div><p data-kg-person-credit-subtitle class="text-xs text-[rgb(var(--kg-text-muted))] mb-3"></p><div data-kg-person-films class="flex flex-col gap-2.5"><span class="text-sm text-[rgb(var(--kg-text-muted))]">${uiText("Загружаем фильмы…")}</span></div></section></div></section>`;
+    seedPersonPortrait(root,sourceElement,id,name);
     // Native modal dialogs live in the browser top layer. A profile appended to
     // body would sit behind an open Journey dialog and look like a dead click.
     const ownerDialog=sourceElement?.closest?.("dialog[open]");
@@ -175,7 +197,7 @@
         uiText(data.deathday ? "Возраст на момент смерти" : "Возраст");
       const birthplace=data.place_of_birth||uiText("Место рождения не указано");root.querySelector("[data-kg-person-location]").textContent=`⌖ ${birthplace}`;
       const bio=data.biography?.trim()||uiText("Биография пока недоступна на русском языке.");root.querySelector("[data-kg-person-bio]").textContent=bio;
-      const photo=root.querySelector("[data-kg-person-image]");if(data.profile_path)photo.innerHTML=`<img class="h-full w-full object-cover" src="${image(data.profile_path,"w500")}" alt="${esc(data.name)}">`;
+      upgradePersonPortrait(root,data.profile_path,data.name||name);
       let movieCredits = data.movie_credits;
       if (!movieCredits) {
         try {

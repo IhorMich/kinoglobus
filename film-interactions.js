@@ -30,6 +30,35 @@
     personBackdropWarmCache.set(src,promise);
     return promise;
   }
+  // Стабильный «случайный» выбор по id человека: у каждого актёра/режиссёра свой кадр, при повторном открытии тот же.
+  const personHash=value=>{let h=2166136261;for(const c of String(value)){h^=c.charCodeAt(0);h=Math.imul(h,16777619);}return h>>>0;};
+  function personBackdropCandidates(credits,personId,excludeFilmId){
+    const pool=(credits||[]).filter(f=>f.backdrop_path&&String(f.id)!==String(excludeFilmId)).slice(0,14);
+    if(!pool.length)return [];
+    const start=personHash(personId)%pool.length;
+    return pool.slice(start).concat(pool.slice(0,start));
+  }
+  // Один плавный показ вместо резкой подмены: картинка уже загружена, появляется из opacity 0.
+  function fadeInto(host,img){
+    if(!host||!img)return;
+    img.classList.add("kgpi-fade");
+    host.replaceChildren(img);
+    requestAnimationFrame(()=>requestAnimationFrame(()=>img.classList.add("is-ready")));
+  }
+  async function applyPersonBackdrop(root,credits,personId,sourceFilmId){
+    const host=root.querySelector("[data-kg-person-backdrop]");
+    if(!host)return;
+    for(const film of personBackdropCandidates(credits,personId,sourceFilmId).slice(0,4)){
+      const loaded=await warmPersonBackdrop(film.backdrop_path);
+      if(!root.isConnected)return;
+      if(loaded){
+        const shown=new Image();shown.alt="";shown.decoding="async";shown.src=loaded.src;
+        fadeInto(host,shown);
+        return;
+      }
+    }
+    loadPersonBackdrop(root,credits);
+  }
   function seedPersonPortrait(root,sourceElement,id,name){
     const host=root.querySelector("[data-kg-person-image]");
     if(!host)return null;
@@ -39,16 +68,28 @@
       sourceElement?.closest?.("[data-kg-person-id]")?.querySelector?.("img");
     const src=localSource?.currentSrc||localSource?.src;
     if(!src)return null;
-    const portrait=new Image();portrait.className="h-full w-full object-cover";portrait.alt=name;portrait.decoding="async";portrait.src=src;
+    const portrait=new Image();portrait.className="h-full w-full object-cover";portrait.alt=name;portrait.decoding="sync";portrait.src=src;
     host.replaceChildren(portrait);
     return portrait;
   }
   function upgradePersonPortrait(root,profilePath,name){
     if(!profilePath)return;
     const host=root.querySelector("[data-kg-person-image]");if(!host)return;
-    const upgraded=new Image();upgraded.className="h-full w-full object-cover";upgraded.alt=name;upgraded.decoding="async";
-    const show=()=>{if(root.isConnected&&host.isConnected)host.replaceChildren(upgraded);};
-    upgraded.onload=show;upgraded.src=image(profilePath,"w500");
+    const url=image(profilePath,"w500");
+    const current=host.querySelector("img");
+    if(current&&(current.currentSrc||current.src)===url)return;
+    const upgraded=new Image();upgraded.className="h-full w-full object-cover kgpi-portrait-top";upgraded.alt=name;
+    const show=async()=>{
+      if(!root.isConnected||!host.isConnected)return;
+      try{await upgraded.decode();}catch{}
+      if(!root.isConnected||!host.isConnected)return;
+      if(!current||!current.isConnected){host.replaceChildren(upgraded);upgraded.classList.remove("kgpi-portrait-top");return;}
+      // Новое фото кладём ПОВЕРХ старого и плавно проявляем — без пустого кадра между ними.
+      host.append(upgraded);
+      requestAnimationFrame(()=>requestAnimationFrame(()=>upgraded.classList.add("is-ready")));
+      setTimeout(()=>{if(upgraded.isConnected&&host.isConnected){upgraded.classList.remove("kgpi-portrait-top","is-ready");host.replaceChildren(upgraded);}},420);
+    };
+    upgraded.onload=show;upgraded.src=url;
     if(upgraded.complete&&upgraded.naturalWidth)show();
   }
   function ensureStyles(){
@@ -62,7 +103,7 @@
 .kgpi-film .kgpi-poster>img{display:block;width:100%;height:100%;object-fit:cover}
 .kgpi-film .kgpi-poster>span{display:grid;place-items:center;width:100%;height:100%;text-align:center}
 .kgpi-film-title{overflow-wrap:anywhere}
-.kgpi-profile-credit{display:grid;grid-template-columns:76px minmax(0,1fr);gap:12px;align-items:center;min-height:136px}.kgpi-profile-credit-poster-wrap{position:relative;display:block;width:76px;height:112px}.kgpi-profile-credit-poster{display:block;box-sizing:border-box;flex:none;width:76px!important;min-width:76px;max-width:76px;height:112px!important;min-height:112px;max-height:112px;aspect-ratio:2/3;object-fit:cover;border-radius:9px;background:rgb(var(--kg-surface-container-high))}.kgpi-profile-credit-poster.is-empty{display:flex;align-items:center;justify-content:center}.kgpi-profile-credit-rating{position:absolute;right:4px;bottom:4px;padding:2px 5px;border-radius:6px;background:rgb(var(--kg-canvas-obsidian)/.86);color:rgb(var(--kg-primary));font-size:11px;font-weight:700;line-height:1.25}.kgpi-profile-credit:focus-visible{outline:2px solid rgb(var(--kg-primary-container));outline-offset:2px}.kgpi-bio-clamp{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}.kgpi-hero{isolation:isolate;overflow:hidden}.kgpi-hero-backdrop{position:absolute;z-index:-1;inset:0;overflow:hidden;pointer-events:none;opacity:.88;mask-image:linear-gradient(to bottom,#000 0%,#000 78%,transparent 100%)}.kgpi-hero-backdrop:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgb(var(--kg-canvas-obsidian)/.28),rgb(var(--kg-canvas-obsidian)/.5) 62%,rgb(var(--kg-canvas-obsidian) 100%))}.kgpi-hero-backdrop img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 35%;filter:brightness(.62)}.kgpi-hero-content{position:relative;z-index:1}`;
+.kgpi-profile-credit{display:grid;grid-template-columns:76px minmax(0,1fr);gap:12px;align-items:center;min-height:136px}.kgpi-profile-credit-poster-wrap{position:relative;display:block;width:76px;height:112px}.kgpi-profile-credit-poster{display:block;box-sizing:border-box;flex:none;width:76px!important;min-width:76px;max-width:76px;height:112px!important;min-height:112px;max-height:112px;aspect-ratio:2/3;object-fit:cover;border-radius:9px;background:rgb(var(--kg-surface-container-high))}.kgpi-profile-credit-poster.is-empty{display:flex;align-items:center;justify-content:center}.kgpi-profile-credit-rating{position:absolute;right:4px;bottom:4px;padding:2px 5px;border-radius:6px;background:rgb(var(--kg-canvas-obsidian)/.86);color:rgb(var(--kg-primary));font-size:11px;font-weight:700;line-height:1.25}.kgpi-profile-credit:focus-visible{outline:2px solid rgb(var(--kg-primary-container));outline-offset:2px}.kgpi-bio-clamp{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}.kgpi-hero{isolation:isolate;overflow:hidden}.kgpi-hero-backdrop{position:absolute;z-index:-1;inset:0;overflow:hidden;pointer-events:none;opacity:.88;mask-image:linear-gradient(to bottom,#000 0%,#000 78%,transparent 100%)}.kgpi-hero-backdrop:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgb(var(--kg-canvas-obsidian)/.28),rgb(var(--kg-canvas-obsidian)/.5) 62%,rgb(var(--kg-canvas-obsidian) 100%))}.kgpi-hero-backdrop img.kgpi-fade{opacity:0;transition:opacity .5s ease}.kgpi-hero-backdrop img.kgpi-fade.is-ready{opacity:1}.kgpi-modal [data-kg-person-image]{position:relative}.kgpi-modal [data-kg-person-image] img.kgpi-portrait-top{position:absolute;inset:0;opacity:0;transition:opacity .35s ease}.kgpi-modal [data-kg-person-image] img.kgpi-portrait-top.is-ready{opacity:1}.kgpi-hero-backdrop img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 35%;filter:brightness(.62)}.kgpi-hero-content{position:relative;z-index:1}`;
     document.head.appendChild(style);
   }
   function registerPool(key,films){
@@ -139,7 +180,7 @@
       const ready=await new Promise(resolve=>{const probe=new Image();probe.onload=()=>resolve(true);probe.onerror=()=>resolve(false);probe.src=src;if(probe.complete)resolve(probe.naturalWidth>0);});
       if(!ready||!root.isConnected)continue;
       const img=document.createElement("img");img.src=src;img.alt="";img.decoding="async";img.fetchPriority="low";
-      backdrop.replaceChildren(img);
+      fadeInto(backdrop,img);
       return;
     }
   }
@@ -151,10 +192,8 @@
     seedPersonPortrait(root,sourceElement,id,name);
     const sourceFilmCard=sourceElement?.closest?.(".kg-film-detail");
     const sourceFilm=sourceFilmCard&&window.KGFilmCard?.modelFor(sourceFilmCard);
-    const sourceBackdrop=sourceFilm?.backdrop_path;
-    const contextFrame=sourceBackdrop?await warmPersonBackdrop(sourceBackdrop):null;
+    const sourceFilmId=sourceFilm?.id;
     if(request!==personOpenRequest)return;
-    if(contextFrame)root.querySelector("[data-kg-person-backdrop]").replaceChildren(contextFrame);
     // Native modal dialogs live in the browser top layer. A profile appended to
     // body would sit behind an open Journey dialog and look like a dead click.
     const ownerDialog=sourceElement?.closest?.("dialog[open]");
@@ -222,7 +261,7 @@
       if(!credits.length)credits=allCredits;
       credits.sort((a,b)=>(b.popularity||0)-(a.popularity||0));
       const dedup=[...new Map(credits.map(f=>[String(f.id),f])).values()].slice(0,30);personFilmPools.set(String(id),dedup);
-      if(!contextFrame)loadPersonBackdrop(root,dedup);
+      applyPersonBackdrop(root,dedup,id,sourceFilmId);
       root.querySelector("[data-kg-person-count]").textContent=String(dedup.length);
       root.querySelector("[data-kg-person-credit-total]").textContent=uiText(interfaceLanguage==="en"&&dedup.length===1?"{count} фильм":"{count} фильмов", {count: dedup.length});
       root.querySelector("[data-kg-person-credit-subtitle]").textContent=uiText(actor?"Главные и заметные роли {name}":"Фильмы, снятые {name}", {name: data.name||name});

@@ -81,9 +81,10 @@
     // 1. Несколько лучших tagged images прогружаем параллельно.
     const tagged=await personTaggedBackdrop(personId);
     if(!root.isConnected)return;
-    const taggedImages=await Promise.all(tagged.slice(0,6).map(warmPersonBackdrop));
+    const taggedImage=await Promise.any(
+      tagged.slice(0,6).map(path=>warmPersonBackdrop(path).then(img=>img||Promise.reject()))
+    ).catch(()=>null);
     if(!root.isConnected)return;
-    const taggedImage=taggedImages.find(Boolean);
     if(taggedImage){
       const shown=new Image();
       shown.alt="";
@@ -100,9 +101,10 @@
 
     // 2. Backdrop фильмов также загружаем параллельно, сохраняя приоритет списка.
     const filmCandidates=personBackdropCandidates(credits,personId,sourceFilmId).slice(0,4);
-    const filmImages=await Promise.all(filmCandidates.map(film=>warmPersonBackdrop(film.backdrop_path)));
+    const filmImage=await Promise.any(
+      filmCandidates.map(film=>warmPersonBackdrop(film.backdrop_path).then(img=>img||Promise.reject()))
+    ).catch(()=>null);
     if(!root.isConnected)return;
-    const filmImage=filmImages.find(Boolean);
     if(filmImage){
       const shown=new Image();
       shown.alt="";
@@ -115,9 +117,10 @@
 
     // 3. Другой портрет, отличный от основного фото.
     const altPortraits=await personAltPortrait(personId,mainProfilePath);
-    const portraitImages=await Promise.all(altPortraits.slice(0,4).map(warmPersonBackdrop));
+    const portraitImage=await Promise.any(
+      altPortraits.slice(0,4).map(path=>warmPersonBackdrop(path).then(img=>img||Promise.reject()))
+    ).catch(()=>null);
     if(!root.isConnected)return;
-    const portraitImage=portraitImages.find(Boolean);
     if(portraitImage){
       const shown=new Image();
       shown.alt="";

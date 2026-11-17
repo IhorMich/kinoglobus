@@ -19,7 +19,7 @@ html.kg-launch-reveal body>:not(#kg-launch-splash){visibility:visible!important;
 <link rel="manifest" href="moven.webmanifest">
 <meta name="application-name" content="Moven: Explore">
 <meta name="description" content="Explore the world of cinema">
-<link rel="stylesheet" href="app-theme.css?v=51">
+<link rel="stylesheet" href="app-theme.css?v=52">
 <script>
 try {
   if (!navigator.connection?.saveData) {
@@ -1662,8 +1662,7 @@ const flag = (c, wave = true) => {
 // storage (guarded)
 const store={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},
  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
-function hideGlobeIntroHint(){const hint=$("kg-globe-empty-hint");if(hint){hint.hidden=true;store.set("kgGlobeHintSeen",true);}}
-if(store.get("kgGlobeHintSeen",false))$("kg-globe-empty-hint").hidden=true;
+function hideGlobeIntroHint(){const hint=$("kg-globe-empty-hint");if(hint)hint.hidden=true;}
 $("kg-globe-empty-hint").textContent=uiText("Крутите глобус — находите фильмы по странам");
 function kgBookmarkIds() {
   const saved = store.get("kgBookmarks",[]);
@@ -3820,7 +3819,6 @@ const COUNTRY_HOLD_MS = 1000;
 const LAND_STEPS=[220,300,400,540,720,950];   // замедление перед остановкой
 // Подборка уже знает страну: только световая точка, без прокрутки глобуса и без флажка.
 function pinLight(cc){
-  hideGlobeIntroHint();
   const w=gc(cc);
   scanOn=false;clearTimeout(scanT);
   G.isSpinning=false;
@@ -3831,7 +3829,6 @@ function pinLight(cc){
   $("hero-hologram-display").classList.remove("invisible");
 }
 function frameSelectedCountry(code){
-  hideGlobeIntroHint();
   scanOn=false;
   clearTimeout(scanT);
   tmr.forEach(clearTimeout);

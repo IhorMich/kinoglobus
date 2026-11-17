@@ -198,6 +198,8 @@ div.relative:has(> [id^="mood-roulette-winner-detail-"]>.kg-film-detail){
 .kg-film-detail-close{position:absolute;right:0;top:0;z-index:1;display:grid;place-items:center;width:36px;height:36px;border-radius:50%;color:rgb(var(--kg-text-muted));background:rgb(var(--kg-surface-container-high))}
 .kg-film-detail:not([hidden]) [data-film-part="trailer"]{width:100%;min-width:0}
 .kg-film-detail .kg-detail-trailer{position:relative;width:100vw;max-width:none;margin-inline:calc(50% - 50vw);aspect-ratio:16/9;background:rgb(var(--kg-black));overflow:hidden;isolation:isolate}
+/* The homepage detail already sits in the page column; keep its trailer inside that column. */
+#kg-home-feature .kg-detail-trailer{width:100%;max-width:100%;margin-inline:0}
 .kg-film-detail [hidden]{display:none!important}
 .kg-film-detail [data-film-part="providers"]:not(:has(.kgw-row:not([hidden]))),.kg-film-detail [data-film-part="awards"]:empty{display:none}
 .kg-film-dialog{position:fixed;inset:0;margin:auto;padding:0;width:100%;max-width:100%;height:100dvh;max-height:100dvh;overflow:auto;overscroll-behavior:contain;color:rgb(var(--kg-on-surface));background:rgb(var(--kg-surface));border:0;text-align:left}

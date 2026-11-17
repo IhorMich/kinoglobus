@@ -14,6 +14,8 @@ function trailerThumb(v,f){
   return src?`<img src="${src}" alt="" class="absolute inset-0 w-full h-full object-cover opacity-80" loading="eager" decoding="async" onerror="this.remove()">`:"";
 }
 function markup(f, {closable = true, inline = false} = {}) {
+  if (f.backdrop_path && ((f.castFull && f.castFull.length) || (f.dirsFull && f.dirsFull.length)))
+    window.KGPersonBackdropWarm?.(f.backdrop_path);
   const year=String(f.release_date||f.year||"").slice(0,4);
   const personLink=(p,role)=>p&&p.id?`<button type="button" data-kg-person-id="${p.id}" data-kg-person-name="${esc(p.name)}" data-kg-person-role="${role}" class="kg-person-link">${esc(p.name)}</button>`:esc(p&&p.name||"");
   const cast=(f.castFull||[]).map(c=>`<button type="button" data-kg-person-id="${c.id||""}" data-kg-person-name="${esc(c.name)}" data-kg-person-role="Актёр" class="kg-person-card flex flex-col items-center text-center py-1" ${c.id?"":"disabled"}>

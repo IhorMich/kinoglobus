@@ -1,6 +1,6 @@
 /* Shared TMDB person profiles and related-film carousels. */
 (function(){
-  const pools=new Map(),relatedCache=new Map(),personCache=new Map(),personFilmPools=new Map();
+  const pools=new Map(),relatedCache=new Map(),personCache=new Map(),personFilmPools=new Map(),personBackdropWarmCache=new Map();
   let scrollFrame=0,personScrollFrame=0;
   const image=(path,size="w342")=>path?`https://image.tmdb.org/t/p/${size}${path}`:"";
   const esc=value=>String(value||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -11,6 +11,24 @@
     const response=await movieCatalog.request(`https://api.themoviedb.org/3/${path}?${query}`);
     if(!response.ok)throw new Error(`TMDB ${response.status}`);
     return response.json();
+  }
+  function warmPersonBackdrop(path){
+    if(!path)return Promise.resolve(null);
+    const src=`https://image.tmdb.org/t/p/w1280${path}`;
+    if(personBackdropWarmCache.has(src))return personBackdropWarmCache.get(src);
+    const promise=new Promise(resolve=>{
+      const img=new Image();
+      img.onload=()=>resolve(img);
+      img.onerror=()=>resolve(null);
+      img.src=src;
+      if(img.complete)resolve(img.naturalWidth?img:null);
+    }).then(async img=>{
+      if(!img){personBackdropWarmCache.delete(src);return null;}
+      try{await img.decode();}catch{}
+      return img;
+    });
+    personBackdropWarmCache.set(src,promise);
+    return promise;
   }
   function ensureStyles(){
     if(document.getElementById("kg-film-interactions-style"))return;
@@ -112,6 +130,17 @@
     // body would sit behind an open Journey dialog and look like a dead click.
     const ownerDialog=sourceElement?.closest?.("dialog[open]");
     (ownerDialog||document.body).appendChild(root);
+    const sourceFilmCard=sourceElement?.closest?.(".kg-film-detail");
+    const sourceFilm=sourceFilmCard&&window.KGFilmCard?.modelFor(sourceFilmCard);
+    const sourceBackdrop=sourceFilm?.backdrop_path;
+    const contextFramePromise=sourceBackdrop?warmPersonBackdrop(sourceBackdrop):Promise.resolve(null);
+    let personBackdropCredits=null,contextFrameSettled=false,contextFrameImage=null;
+    contextFramePromise.then(contextFrame=>{
+      contextFrameSettled=true;contextFrameImage=contextFrame;
+      if(!root.isConnected)return;
+      if(contextFrame)root.querySelector("[data-kg-person-backdrop]").replaceChildren(contextFrame);
+      else if(personBackdropCredits)loadPersonBackdrop(root,personBackdropCredits);
+    });
     const dialog=root.querySelector(".kgpi-modal");
     root.addEventListener("click",e=>{
       if(e.target===root||e.target.closest("[data-kg-person-close]")){closePerson();return;}
@@ -174,7 +203,8 @@
       if(!credits.length)credits=allCredits;
       credits.sort((a,b)=>(b.popularity||0)-(a.popularity||0));
       const dedup=[...new Map(credits.map(f=>[String(f.id),f])).values()].slice(0,30);personFilmPools.set(String(id),dedup);
-      loadPersonBackdrop(root,dedup);
+      personBackdropCredits=dedup;
+      if(!sourceBackdrop||(contextFrameSettled&&!contextFrameImage))loadPersonBackdrop(root,dedup);
       root.querySelector("[data-kg-person-count]").textContent=String(dedup.length);
       root.querySelector("[data-kg-person-credit-total]").textContent=uiText(interfaceLanguage==="en"&&dedup.length===1?"{count} фильм":"{count} фильмов", {count: dedup.length});
       root.querySelector("[data-kg-person-credit-subtitle]").textContent=uiText(actor?"Главные и заметные роли {name}":"Фильмы, снятые {name}", {name: data.name||name});
@@ -235,6 +265,7 @@
   });
 
   window.KGFilmInteractions={registerPool};
+  window.KGPersonBackdropWarm=warmPersonBackdrop;
   window.KGOpenPersonProfile=showPerson;
   window.KGScrollToFilmDescription=scrollToDescription;
   window.KGScrollPersonModalToFilm=scrollPersonModalToFilm;

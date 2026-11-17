@@ -20,6 +20,20 @@ html.kg-launch-reveal body>:not(#kg-launch-splash){visibility:visible!important;
 <meta name="application-name" content="Moven: Explore">
 <meta name="description" content="Explore the world of cinema">
 <link rel="stylesheet" href="app-theme.css?v=48">
+<script>
+try {
+  if (!navigator.connection?.saveData) {
+    ["https://cdn.tailwindcss.com", "https://cdnjs.cloudflare.com", "https://threejs.org"].forEach(href => {
+      const link=document.createElement("link");link.rel="preconnect";link.href=href;link.crossOrigin="anonymous";document.head.append(link);
+    });
+    if (JSON.parse(localStorage.getItem("tmdbKey")||"null")) {
+      ["https://api.themoviedb.org", "https://image.tmdb.org"].forEach(href => {
+        const link=document.createElement("link");link.rel="preconnect";link.href=href;link.crossOrigin="anonymous";document.head.append(link);
+      });
+    }
+  }
+} catch (_) {}
+</script>
 <script src="steel-motion.js?v=4" defer></script>
 <script src="interface-en.js?v=48"></script>
 <script src="interface-i18n.js?v=2"></script>
@@ -4272,7 +4286,7 @@ console.info("[Moven: Explore] Bridge v6 ready");
 <script src="oscar-design.js?v=27"></script>
 <script src="curated-collections.js?v=2"></script>
 <script src="film-card.js?v=10"></script>
-<script src="collections.js?v=117"></script>
+<script src="collections.js?v=118"></script>
 <script src="film-interactions.js?v=28"></script>
 <script src="legal-watch.js?v=9"></script>
 <script src="global-search.js?v=18"></script>

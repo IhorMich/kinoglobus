@@ -1373,6 +1373,7 @@ if(typeof _showFilm==="function")window.show=function(){if(reelCard)reelCard.sty
 /* ---------- Главная: редакционная карточка и европейская палитра ---------- */
 const HOME_EUROPE=["FR","IT","ES","DE","GB","PL","SE","DK","NO","FI","PT","NL","BE","IE"];
 const homeEditorial={films:[],details:new Set(),directorData:new Map(),loadedKey:"",token:0,loading:false,pending:null,observer:null,scrollAnchorId:null};
+const homePosterWarmCache=new Set();
 const homeEditorialRoot=$("kg-home-editorial");
 function homeFilmYear(f){return (f.release_date||"").slice(0,4);}
 function homeFeatureMarkup(f,d,expandedFilm=null){
@@ -1419,6 +1420,20 @@ function homeFilmCard(f){
 <span class="font-label-sm text-label-sm font-bold text-on-surface block truncate">${title}</span>
 <span class="font-micro-caption text-micro-caption text-on-surface-variant block truncate" data-home-director="${f.id}">${esc(credit)}${year?" · "+year:""}</span></button></div>`;
 }
+function warmHomePosters(films){
+  const connection=navigator.connection;
+  if(!Array.isArray(films)||!films.length||!navigator.onLine||connection?.saveData||/^(slow-)?2g$/.test(connection?.effectiveType||""))return;
+  const queue=films.slice(0,2).filter(f=>f.poster_path&&!homePosterWarmCache.has(f.poster_path));
+  if(!queue.length)return;
+  const warm=()=>queue.forEach(f=>{
+    homePosterWarmCache.add(f.poster_path);
+    const image=new Image();image.decoding="async";
+    if("fetchPriority" in image)image.fetchPriority="low";
+    image.src=P(f.poster_path,"w342");
+  });
+  if("requestIdleCallback" in window)window.requestIdleCallback(warm,{timeout:1400});
+  else window.setTimeout(warm,650);
+}
 function renderHomeEditorial(){
   if(!homeEditorialRoot)return;
   const carousel=$("kg-home-europe");
@@ -1429,6 +1444,7 @@ function renderHomeEditorial(){
   const selected=D.selected&&D.selected._placement==="home"&&String(D.selected.id)===String(featured.id)?D.selected:null;
   renderHomeFeature(featured,homeEditorial.featureDetails||null,selected);
   carousel.innerHTML=films.map(homeFilmCard).join("");
+  warmHomePosters(films);
   carousel.scrollLeft=scrollLeft;
   if(anchorTop!==null)requestAnimationFrame(()=>{
     const restored=carousel.querySelector(`[data-home-meta="${homeEditorial.scrollAnchorId}"]`);

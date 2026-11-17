@@ -1,6 +1,7 @@
 /* Shared TMDB person profiles and related-film carousels. */
 (function(){
   const pools=new Map(),relatedCache=new Map(),personCache=new Map(),personFilmPools=new Map(),personBackdropWarmCache=new Map(),personTaggedBackdropCache=new Map();
+  const personBackdropPreloadStarted=new Set();
   let scrollFrame=0,personScrollFrame=0,personOpenRequest=0;
   const image=(path,size="w342")=>path?`https://image.tmdb.org/t/p/${size}${path}`:"";
   const esc=value=>String(value||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -52,7 +53,7 @@
       try{
         const data=await tmdb(`person/${personId}/tagged_images`,{page:"1"},"en-US");
         return (data.results||[])
-          .filter(img=>img.file_path&&img.media_type==="movie"&&(img.aspect_ratio||0)>=1.35&&(img.width||0)>=700)
+          .filter(img=>img.file_path&&(img.aspect_ratio||0)>=1.35&&(img.width||0)>=700)
           .sort((a,b)=>(b.vote_count||0)-(a.vote_count||0))
           .map(img=>img.file_path);
       }catch{
@@ -74,66 +75,35 @@
       return [];
     }
   }
-  async function applyPersonBackdrop(root,credits,personId,sourceFilmId,mainProfilePath){
+  function preloadPersonBackdrop(personId){
+    const key=String(personId||"");
+    if(!key||personBackdropPreloadStarted.has(key))return;
+    personBackdropPreloadStarted.add(key);
+    personTaggedBackdrop(key).then(paths=>{
+      // Прогреваем несколько самых популярных кадров в фоне, не блокируя интерфейс.
+      paths.slice(0,6).forEach(path=>{void warmPersonBackdrop(path);});
+    }).catch(()=>{
+      personBackdropPreloadStarted.delete(key);
+    });
+  }
+  async function applyPersonBackdrop(root,personId){
     const host=root.querySelector("[data-kg-person-backdrop]");
     if(!host||host.dataset.kgBackdropSource==="tagged")return;
 
-    // 1. Несколько лучших tagged images прогружаем параллельно.
+    // Фон выбирается только из изображений, помеченных именно этим person ID в TMDB.
     const tagged=await personTaggedBackdrop(personId);
     if(!root.isConnected)return;
-    const taggedImage=await Promise.any(
+    const loaded=await Promise.any(
       tagged.slice(0,6).map(path=>warmPersonBackdrop(path).then(img=>img||Promise.reject()))
     ).catch(()=>null);
-    if(!root.isConnected)return;
-    if(taggedImage){
-      const shown=new Image();
-      shown.alt="";
-      shown.decoding="async";
-      shown.src=taggedImage.src;
-      host.dataset.kgBackdropSource="tagged";
-      fadeInto(host,shown);
-      return;
-    }
+    if(!root.isConnected||!loaded)return;
 
-    // Первый вызов запускает tagged images сразу при открытии профиля.
-    // Остальные варианты выбираются, когда готова фильмография.
-    if(credits==null)return;
-
-    // 2. Backdrop фильмов также загружаем параллельно, сохраняя приоритет списка.
-    const filmCandidates=personBackdropCandidates(credits,personId,sourceFilmId).slice(0,4);
-    const filmImage=await Promise.any(
-      filmCandidates.map(film=>warmPersonBackdrop(film.backdrop_path).then(img=>img||Promise.reject()))
-    ).catch(()=>null);
-    if(!root.isConnected)return;
-    if(filmImage){
-      const shown=new Image();
-      shown.alt="";
-      shown.decoding="async";
-      shown.src=filmImage.src;
-      host.dataset.kgBackdropSource="film";
-      fadeInto(host,shown);
-      return;
-    }
-
-    // 3. Другой портрет, отличный от основного фото.
-    const altPortraits=await personAltPortrait(personId,mainProfilePath);
-    const portraitImage=await Promise.any(
-      altPortraits.slice(0,4).map(path=>warmPersonBackdrop(path).then(img=>img||Promise.reject()))
-    ).catch(()=>null);
-    if(!root.isConnected)return;
-    if(portraitImage){
-      const shown=new Image();
-      shown.alt="";
-      shown.decoding="async";
-      shown.src=portraitImage.src;
-      shown.style.objectPosition="center 20%";
-      host.dataset.kgBackdropSource="portrait";
-      fadeInto(host,shown);
-      return;
-    }
-
-    // 4. Последний fallback
-    loadPersonBackdrop(root,credits);
+    const shown=new Image();
+    shown.alt="";
+    shown.decoding="async";
+    shown.src=loaded.src;
+    host.dataset.kgBackdropSource="tagged";
+    fadeInto(host,shown);
   }
   function seedPersonPortrait(root,sourceElement,id,name){
     const host=root.querySelector("[data-kg-person-image]");
@@ -147,24 +117,6 @@
     const portrait=new Image();portrait.className="h-full w-full object-cover";portrait.alt=name;portrait.decoding="sync";portrait.src=src;
     host.replaceChildren(portrait);
     return portrait;
-  }
-  function seedPersonBackdrop(root,sourceElement,id){
-    const host=root.querySelector("[data-kg-person-backdrop]");
-    if(!host)return;
-    const filmCard=sourceElement?.closest?.(".kg-film-detail");
-    const localSource=(sourceElement?.matches?.("img")?sourceElement:null)||
-      sourceElement?.querySelector?.("img")||
-      [...(filmCard?.querySelectorAll?.(`[data-kg-person-id="${id}"] img`)||[])][0]||
-      sourceElement?.closest?.("[data-kg-person-id]")?.querySelector?.("img");
-    const src=localSource?.currentSrc||localSource?.src;
-    if(!src)return;
-    const preview=new Image();
-    preview.alt="";
-    preview.decoding="async";
-    preview.src=src;
-    preview.style.objectPosition="center 20%";
-    host.dataset.kgBackdropSource="preview";
-    fadeInto(host,preview);
   }
   function upgradePersonPortrait(root,profilePath,name){
     if(!profilePath)return;
@@ -292,8 +244,7 @@
     // body would sit behind an open Journey dialog and look like a dead click.
     const ownerDialog=sourceElement?.closest?.("dialog[open]");
     (ownerDialog||document.body).appendChild(root);
-    seedPersonBackdrop(root,sourceElement,id);
-    applyPersonBackdrop(root,null,id,sourceFilmId,null);
+    applyPersonBackdrop(root,id);
     window.KGFilmCard?.stopTrailers();
     const dialog=root.querySelector(".kgpi-modal");
     root.addEventListener("click",e=>{
@@ -357,7 +308,6 @@
       if(!credits.length)credits=allCredits;
       credits.sort((a,b)=>(b.popularity||0)-(a.popularity||0));
       const dedup=[...new Map(credits.map(f=>[String(f.id),f])).values()].slice(0,30);personFilmPools.set(String(id),dedup);
-      applyPersonBackdrop(root,dedup,id,sourceFilmId,data.profile_path);
       root.querySelector("[data-kg-person-count]").textContent=String(dedup.length);
       root.querySelector("[data-kg-person-credit-total]").textContent=uiText(interfaceLanguage==="en"&&dedup.length===1?"{count} фильм":"{count} фильмов", {count: dedup.length});
       root.querySelector("[data-kg-person-credit-subtitle]").textContent=uiText(actor?"Главные и заметные роли {name}":"Фильмы, снятые {name}", {name: data.name||name});
@@ -383,6 +333,12 @@
   const observer=new MutationObserver(records=>records.forEach(record=>record.addedNodes.forEach(node=>{if(node.nodeType!==1)return;if(node.matches?.("[data-kg-related-films]"))related(node);node.querySelectorAll?.("[data-kg-related-films]").forEach(related);}))) ;
   observer.observe(document.documentElement,{childList:true,subtree:true});
   document.querySelectorAll("[data-kg-related-films]").forEach(related);
+  const warmPersonFromTarget=event=>{
+    const person=event.target.closest?.("[data-kg-person-id]");
+    if(person?.dataset.kgPersonId)preloadPersonBackdrop(person.dataset.kgPersonId);
+  };
+  document.addEventListener("pointerover",warmPersonFromTarget,{passive:true});
+  document.addEventListener("focusin",warmPersonFromTarget);
   document.addEventListener("click",e=>{
     const person=e.target.closest("[data-kg-person-id]");if(person){e.preventDefault();e.stopImmediatePropagation();showPerson(person.dataset.kgPersonId,person.dataset.kgPersonName||person.textContent,person.dataset.kgPersonRole,person);return;}
     const button=e.target.closest("[data-kg-related-open]");
@@ -419,6 +375,7 @@
 
   window.KGFilmInteractions={registerPool};
   window.KGPersonBackdropWarm=warmPersonBackdrop;
+  window.KGPreloadPersonBackdrop=preloadPersonBackdrop;
   window.KGOpenPersonProfile=showPerson;
   window.KGScrollToFilmDescription=scrollToDescription;
   window.KGScrollPersonModalToFilm=scrollPersonModalToFilm;

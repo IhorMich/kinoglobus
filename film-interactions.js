@@ -34,14 +34,6 @@
     personBackdropWarmCache.set(src,promise);
     return promise;
   }
-  // Стабильный «случайный» выбор по id человека: у каждого актёра/режиссёра свой кадр, при повторном открытии тот же.
-  const personHash=value=>{let h=2166136261;for(const c of String(value)){h^=c.charCodeAt(0);h=Math.imul(h,16777619);}return h>>>0;};
-  function personBackdropCandidates(credits,personId,excludeFilmId){
-    const pool=(credits||[]).filter(f=>f.backdrop_path&&String(f.id)!==String(excludeFilmId)).slice(0,14);
-    if(!pool.length)return [];
-    const start=personHash(personId)%pool.length;
-    return pool.slice(start).concat(pool.slice(0,start));
-  }
   // Один плавный показ вместо резкой подмены: картинка уже загружена, появляется из opacity 0.
   function fadeInto(host,img){
     if(!host||!img)return;
@@ -56,48 +48,25 @@
       // Do not pass en-US here: it can hide non-English and unlabelled film stills.
       const data=await tmdb(`person/${personId}/tagged_images`,{page:String(page)},null);
       const raw=data.results||[];
-      const unique=new Map();
       const posterUnique=new Map();
-      const rejected={missingPath:0,profilePosterLogo:0,tooSmall:0,notWide:0};
       const rows=[];
       for(const img of raw){
-        if(!img.file_path){rejected.missingPath++;continue;}
+        if(!img.file_path)continue;
         const type=String(img.image_type||"").toLowerCase();
-        const mediaType=String(img.media_type||img.media?.media_type||"");
-        const mediaTitle=img.media?.title||img.media?.name||img.media?.original_title||"";
         const width=Number(img.width)||0;
-        const height=Number(img.height)||0;
-        const ratio=Number(img.aspect_ratio)||(height?width/height:0);
-        let rejectedReason="";
-        if(/poster/.test(type)&&width>=300){
-          const score=(Number(img.vote_count)||0)*2+(Number(img.vote_average)||0)*3+(width>=1000?2:0);
-          const previous=posterUnique.get(img.file_path);
-          if(!previous||score>previous.score)posterUnique.set(img.file_path,{path:img.file_path,score});
-        }
-        if(/profile|poster|logo/.test(type)){rejected.profilePosterLogo++;rejectedReason="poster/profile/logo";}
-        else if(width<480){rejected.tooSmall++;rejectedReason="width < 480";}
-        else if(ratio<1.15){rejected.notWide++;rejectedReason="ratio < 1.15";}
-        rows.push({
-          file_path:img.file_path,image_type:img.image_type||"",media_type:mediaType,
-          media_title:mediaTitle,width,height,aspect_ratio:ratio,
-          vote_count:Number(img.vote_count)||0,vote_average:Number(img.vote_average)||0,
-          accepted:!rejectedReason,rejected_reason:rejectedReason
-        });
-        if(rejectedReason)continue;
-        const typeBonus=/backdrop|still/.test(type)?12:0;
-        const score=typeBonus+(Number(img.vote_count)||0)*2+
-          (Number(img.vote_average)||0)*3+(ratio>=1.5?2:0)+(width>=1000?1:0);
-        const previous=unique.get(img.file_path);
-        if(!previous||score>previous.score)unique.set(img.file_path,{path:img.file_path,score});
+        if(!/poster/.test(type)||width<300)continue;
+        const score=(Number(img.vote_count)||0)*2+(Number(img.vote_average)||0)*3+(width>=1000?2:0);
+        const previous=posterUnique.get(img.file_path);
+        if(!previous||score>previous.score)posterUnique.set(img.file_path,{path:img.file_path,score});
+        rows.push({file_path:img.file_path,image_type:img.image_type||"",width,
+          vote_count:Number(img.vote_count)||0,vote_average:Number(img.vote_average)||0});
       }
       return {
-        paths:[...unique.values()].sort((a,b)=>b.score-a.score).map(item=>item.path),
-        posterPaths:[...posterUnique.values()].sort((a,b)=>b.score-a.score).map(item=>item.path),
+        posterPaths:[...posterUnique.values()].sort((x,y)=>y.score-x.score).map(item=>item.path),
         totalPages:Math.max(1,Number(data.total_pages)||1),
         totalResults:Number(data.total_results)||raw.length,
         page:Number(data.page)||0,
         rawCount:raw.length,
-        rejected,
         rows
       };
     })();
@@ -125,141 +94,46 @@
     const key=String(personId||"");
     if(!key||personBackdropPreloadStarted.has(key))return;
     personBackdropPreloadStarted.add(key);
-    personTaggedBackdrop(key,1).then(data=>{
-      // Прогреваем только два первых кадра: меньше сетевой нагрузки на открытие карточки.
-      [...data.paths.slice(0,2),...data.posterPaths.slice(0,3)].forEach(path=>{void warmPersonBackdrop(path);});
+    personTaggedBackdrop(key,1).then(async data=>{
+      // Preload every available poster so opening a profile never reveals a loading state.
+      await Promise.all(data.posterPaths.map(path=>warmPersonBackdrop(path)));
     }).catch(()=>{
-      // A failed preload must not permanently block a retry on click.
       personBackdropPreloadStarted.delete(key);
     });
   }
   async function applyPersonBackdrop(root,personId,mainProfilePath=null){
     const host=root.querySelector("[data-kg-person-backdrop]");
-    if(!host||host.dataset.kgBackdropSource==="tagged"||host.dataset.kgBackdropSource==="portrait")return;
+    if(!host||host.dataset.kgBackdropSource==="poster")return;
     if(mainProfilePath)host.__kgMainProfilePath=mainProfilePath;
-    // The early call (before person details) and the later call share one search.
     if(host.__kgBackdropTask)return host.__kgBackdropTask;
 
     const task=(async()=>{
-      const loadPage=async page=>{
-        try{return await personTaggedBackdrop(personId,page);}
-        catch(error){
-          console.error("[Moven backdrop] TMDB tagged_images request failed", {
-            personId,page,message:error?.message||String(error)
-          });
-          return null;
-        }
-      };
-      const firstLoaded=paths=>paths.length?Promise.any(
-        paths.map(path=>warmPersonBackdrop(path).then(img=>img||Promise.reject()))
-      ).catch(()=>null):Promise.resolve(null);
-      const showTagged=loaded=>{
-        if(!loaded||!root.isConnected||host.dataset.kgBackdropSource==="tagged")return false;
+      try{
+        let data=await personTaggedBackdrop(personId,1);
+        if(!data) return;
+        // Wait for the preloaded poster bitmap; never insert a temporary image first.
+        const mainPath=host.__kgMainProfilePath||null;
+        const candidates=data.posterPaths.filter(path=>path!==mainPath);
+        if(!candidates.length)return;
+        const poster=await Promise.any(candidates.map(path=>
+          warmPersonBackdrop(path).then(img=>img||Promise.reject())
+        )).catch(()=>null);
+        if(!root.isConnected||!poster||host.dataset.kgBackdropSource==="poster")return;
         const shown=new Image();
         shown.alt="";
         shown.decoding="async";
-        shown.src=loaded.src;
-        host.dataset.kgBackdropSource="tagged";
+        shown.src=poster.src;
+        shown.className="kgpi-poster-backdrop";
+        // Alternate the poster's placement so profiles don't all look identical.
+        shown.classList.add((personHash(personId)&1)?"kgpi-poster-right":"kgpi-poster-left");
+        host.dataset.kgBackdropSource="poster";
         fadeInto(host,shown);
-        return true;
-      };
-
-      // Retry page 1 once if the first request failed (e.g. transient network error).
-      let firstPage=await loadPage(1);
-      if(!firstPage)firstPage=await loadPage(1);
-      if(!root.isConnected||host.dataset.kgBackdropSource==="tagged")return;
-
-      let pagesChecked=0;
-      let rawTagged=0;
-      let usable=0;
-      const diagnostics=[];
-      if(firstPage){
-        pagesChecked=1;
-        rawTagged+=firstPage.rawCount;
-        usable+=firstPage.paths.length;
-        diagnostics.push(firstPage);
-        console.groupCollapsed(`[Moven backdrop] Actor ${personId}: tagged images`);
-        console.log("TMDB response", {
-          page:firstPage.page,totalPages:firstPage.totalPages,
-          totalResults:firstPage.totalResults,rawCount:firstPage.rawCount,
-          candidates:firstPage.paths.length,rejected:firstPage.rejected
+      }catch(error){
+        console.warn("[Moven backdrop] Could not prepare tagged poster",{
+          personId,message:error?.message||String(error)
         });
-        console.table(firstPage.rows);
-        console.groupEnd();
-        // Fast first pass: only the highest-ranked candidates from page 1.
-        const firstImage=await firstLoaded(firstPage.paths.slice(0,6));
-        if(showTagged(firstImage))return;
-        if(!root.isConnected||host.dataset.kgBackdropSource==="tagged")return;
-
-        // Search deeper only if page 1 has no loadable cinematic frame.
-        const maxPages=Math.min(firstPage.totalPages,10);
-        if(maxPages>1){
-          const extraPages=await Promise.all(
-            Array.from({length:maxPages-1},(_,index)=>loadPage(index+2))
-          );
-          if(!root.isConnected||host.dataset.kgBackdropSource==="tagged")return;
-          const extraPaths=[];
-          const firstSignature=firstPage.paths.join("|");
-          for(const page of extraPages){
-            if(!page)continue;
-            // Some TMDB responses repeat page 1 even when a later page is requested.
-            if(page.paths.join("|")===firstSignature)continue;
-            pagesChecked++;
-            rawTagged+=page.rawCount;
-            usable+=page.paths.length;
-            diagnostics.push(page);
-            extraPaths.push(...page.paths);
-          }
-          if(extraPaths.length){
-            console.info("[Moven backdrop] Additional tagged pages", {
-              personId,pagesChecked,rawTagged,candidates:usable,
-              identicalPagesSkipped:extraPages.filter(page=>page&&page.paths.join("|")===firstSignature).length
-            });
-          }
-          const extraImage=await firstLoaded([...new Set(extraPaths)].slice(0,16));
-          if(showTagged(extraImage))return;
-        }
       }
-      console.warn("[Moven backdrop] No tagged frame could be displayed; using actor portrait", {
-        personId,pagesChecked,rawTagged,usable,
-        firstPage:diagnostics[0]?{
-          page:diagnostics[0].page,totalPages:diagnostics[0].totalPages,
-          totalResults:diagnostics[0].totalResults,rejected:diagnostics[0].rejected
-        }:null
-      });
-
-      // No cinematic still found: use a different movie poster tagged with this person.
-      const mainProfilePath=host.__kgMainProfilePath||null;
-      const posterPath=firstPage?.posterPaths?.find(path=>path!==mainProfilePath);
-      if(posterPath&&root.isConnected){
-        const poster=await warmPersonBackdrop(posterPath);
-        if(root.isConnected&&poster&&host.dataset.kgBackdropSource!=="tagged"){
-          const shown=new Image();
-          shown.alt="";
-          shown.decoding="async";
-          shown.src=poster.src;
-          shown.className="kgpi-poster-backdrop";
-          host.dataset.kgBackdropSource="poster";
-          fadeInto(host,shown);
-          return;
-        }
-      }
-
-      // Last resort: this person's own profile image, more blurred.
-      const fallbackPath=mainProfilePath;
-      if(!fallbackPath||!root.isConnected)return;
-      const portrait=await warmPersonBackdrop(fallbackPath);
-      if(!root.isConnected||!portrait||host.dataset.kgBackdropSource==="tagged")return;
-      const shown=new Image();
-      shown.alt="";
-      shown.decoding="async";
-      shown.src=portrait.src;
-      shown.className="kgpi-portrait-backdrop";
-      shown.style.objectPosition="center 20%";
-      host.dataset.kgBackdropSource="portrait";
-      fadeInto(host,shown);
     })();
-
     host.__kgBackdropTask=task;
     try{await task;}
     finally{if(host.__kgBackdropTask===task)delete host.__kgBackdropTask;}
@@ -308,7 +182,7 @@
 .kgpi-film .kgpi-poster>img{display:block;width:100%;height:100%;object-fit:cover}
 .kgpi-film .kgpi-poster>span{display:grid;place-items:center;width:100%;height:100%;text-align:center}
 .kgpi-film-title{overflow-wrap:anywhere}
-.kgpi-profile-credit{display:grid;grid-template-columns:76px minmax(0,1fr);gap:12px;align-items:center;min-height:136px}.kgpi-profile-credit-poster-wrap{position:relative;display:block;width:76px;height:112px}.kgpi-profile-credit-poster{display:block;box-sizing:border-box;flex:none;width:76px!important;min-width:76px;max-width:76px;height:112px!important;min-height:112px;max-height:112px;aspect-ratio:2/3;object-fit:cover;border-radius:9px;background:rgb(var(--kg-surface-container-high))}.kgpi-profile-credit-poster.is-empty{display:flex;align-items:center;justify-content:center}.kgpi-profile-credit-rating{position:absolute;right:4px;bottom:4px;padding:2px 5px;border-radius:6px;background:rgb(var(--kg-canvas-obsidian)/.86);color:rgb(var(--kg-primary));font-size:11px;font-weight:700;line-height:1.25}.kgpi-profile-credit:focus-visible{outline:2px solid rgb(var(--kg-primary-container));outline-offset:2px}.kgpi-bio-clamp{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}.kgpi-hero{isolation:isolate;overflow:hidden}.kgpi-hero-backdrop{position:absolute;z-index:-1;inset:0;overflow:hidden;pointer-events:none;opacity:.92;mask-image:linear-gradient(to bottom,#000 0%,#000 70%,transparent 100%)}.kgpi-hero-backdrop:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgb(var(--kg-canvas-obsidian)/.25) 0%,rgb(var(--kg-canvas-obsidian)/.55) 55%,rgb(var(--kg-canvas-obsidian)) 100%);box-shadow:inset 0 0 120px rgb(var(--kg-primary-container)/.08)}.kgpi-hero-backdrop img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 30%;filter:brightness(.62) saturate(1.05) blur(2px);transform:scale(1.02);transition:opacity .5s ease}.kgpi-hero-backdrop img.kgpi-fade{opacity:0}.kgpi-hero-backdrop img.kgpi-fade.is-ready{opacity:1}.kgpi-hero-backdrop img.kgpi-fade{opacity:0;transition:opacity .5s ease}.kgpi-hero-backdrop img.kgpi-fade.is-ready{opacity:1}.kgpi-hero-backdrop img.kgpi-poster-backdrop{filter:brightness(.5) saturate(.92) blur(7px);transform:scale(1.12)}.kgpi-hero-backdrop img.kgpi-portrait-backdrop{filter:brightness(.48) saturate(.9) blur(9px);transform:scale(1.12)}.kgpi-modal [data-kg-person-image]{position:relative}.kgpi-modal [data-kg-person-image] img.kgpi-portrait-top{position:absolute;inset:0;opacity:0;transition:opacity .35s ease}.kgpi-modal [data-kg-person-image] img.kgpi-portrait-top.is-ready{opacity:1}.kgpi-hero-backdrop img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 30%;filter:brightness(.62) saturate(1.05) blur(2px);transform:scale(1.02);transition:opacity .5s ease}.kgpi-hero-content{position:relative;z-index:1}`;
+.kgpi-profile-credit{display:grid;grid-template-columns:76px minmax(0,1fr);gap:12px;align-items:center;min-height:136px}.kgpi-profile-credit-poster-wrap{position:relative;display:block;width:76px;height:112px}.kgpi-profile-credit-poster{display:block;box-sizing:border-box;flex:none;width:76px!important;min-width:76px;max-width:76px;height:112px!important;min-height:112px;max-height:112px;aspect-ratio:2/3;object-fit:cover;border-radius:9px;background:rgb(var(--kg-surface-container-high))}.kgpi-profile-credit-poster.is-empty{display:flex;align-items:center;justify-content:center}.kgpi-profile-credit-rating{position:absolute;right:4px;bottom:4px;padding:2px 5px;border-radius:6px;background:rgb(var(--kg-canvas-obsidian)/.86);color:rgb(var(--kg-primary));font-size:11px;font-weight:700;line-height:1.25}.kgpi-profile-credit:focus-visible{outline:2px solid rgb(var(--kg-primary-container));outline-offset:2px}.kgpi-bio-clamp{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}.kgpi-hero{isolation:isolate;overflow:hidden}.kgpi-hero-backdrop{position:absolute;z-index:-1;inset:0;overflow:hidden;pointer-events:none;opacity:.92;mask-image:linear-gradient(to bottom,#000 0%,#000 70%,transparent 100%)}.kgpi-hero-backdrop:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgb(var(--kg-canvas-obsidian)/.25) 0%,rgb(var(--kg-canvas-obsidian)/.55) 55%,rgb(var(--kg-canvas-obsidian)) 100%);box-shadow:inset 0 0 120px rgb(var(--kg-primary-container)/.08)}.kgpi-hero-backdrop img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 30%;filter:brightness(.62) saturate(1.05) blur(8px);transform:scale(1.12);transition:opacity .35s ease}.kgpi-hero-backdrop img.kgpi-poster-backdrop{position:absolute;top:0;width:72%;height:100%;object-fit:cover;filter:brightness(.5) saturate(.9) blur(8px);transform:scale(1.12)}.kgpi-hero-backdrop img.kgpi-poster-left{left:-5%}.kgpi-hero-backdrop img.kgpi-poster-right{right:-5%}.kgpi-hero-backdrop img.kgpi-fade{opacity:0}.kgpi-hero-backdrop img.kgpi-fade.is-ready{opacity:1}.kgpi-hero-backdrop img.kgpi-fade{opacity:0;transition:opacity .5s ease}.kgpi-hero-backdrop img.kgpi-fade.is-ready{opacity:1}.kgpi-hero-backdrop img.kgpi-poster-backdrop{filter:brightness(.5) saturate(.92) blur(7px);transform:scale(1.12)}.kgpi-modal [data-kg-person-image]{position:relative}.kgpi-modal [data-kg-person-image] img.kgpi-portrait-top{position:absolute;inset:0;opacity:0;transition:opacity .35s ease}.kgpi-modal [data-kg-person-image] img.kgpi-portrait-top.is-ready{opacity:1}.kgpi-hero-backdrop img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 30%;filter:brightness(.62) saturate(1.05) blur(2px);transform:scale(1.02);transition:opacity .5s ease}.kgpi-hero-content{position:relative;z-index:1}`;
     document.head.appendChild(style);
   }
   function registerPool(key,films){
@@ -490,9 +364,11 @@
   function paint(section,films){const list=section.querySelector("[data-kg-related-list]");if(!list)return;list.innerHTML=films.length?films.map(filmButton).join(""):`<span class="text-xs text-[rgb(var(--kg-text-muted))]">${uiText("В этом списке больше нет похожих фильмов.")}</span>`;}
   // Apply carousel poster sizing on every screen, not just after opening a person profile.
   ensureStyles();
-  const observer=new MutationObserver(records=>records.forEach(record=>record.addedNodes.forEach(node=>{if(node.nodeType!==1)return;if(node.matches?.("[data-kg-related-films]"))related(node);node.querySelectorAll?.("[data-kg-related-films]").forEach(related);}))) ;
+  const observer=new MutationObserver(records=>records.forEach(record=>record.addedNodes.forEach(node=>{if(node.nodeType!==1)return;if(node.matches?.("[data-kg-related-films]"))related(node);node.querySelectorAll?.("[data-kg-related-films]").forEach(related);if(node.matches?.("[data-kg-person-id]"))preloadPersonBackdrop(node.dataset.kgPersonId);node.querySelectorAll?.("[data-kg-person-id]").forEach(person=>preloadPersonBackdrop(person.dataset.kgPersonId));}))) ;
   observer.observe(document.documentElement,{childList:true,subtree:true});
   document.querySelectorAll("[data-kg-related-films]").forEach(related);
+  // Start poster downloads as soon as actor cards enter the page, including touch devices.
+  document.querySelectorAll("[data-kg-person-id]").forEach(node=>preloadPersonBackdrop(node.dataset.kgPersonId));
   const warmPersonFromTarget=event=>{
     const person=event.target.closest?.("[data-kg-person-id]");
     if(person?.dataset.kgPersonId)preloadPersonBackdrop(person.dataset.kgPersonId);

@@ -46,31 +46,24 @@
     host.replaceChildren(img);
     requestAnimationFrame(()=>requestAnimationFrame(()=>img.classList.add("is-ready")));
   }
-  function personTaggedBackdrop(personId){
-    const key=String(personId);
+  function personTaggedBackdrop(personId,page=1){
+    const key=`${personId}:${page}`;
     if(personTaggedBackdropCache.has(key))return personTaggedBackdropCache.get(key);
     const request=(async()=>{
       try{
-        // TMDB tagged_images may contain movie, TV and episode stills.
-        // Read a few pages and deduplicate: some TMDB responses repeat page 1.
-        const pages=await Promise.all([1,2,3].map(page=>
-          tmdb(`person/${personId}/tagged_images`,{page:String(page)},"en-US").catch(()=>null)
-        ));
+        const data=await tmdb(`person/${personId}/tagged_images`,{page:String(page)},"en-US");
         const unique=new Map();
-        for(const data of pages){
-          for(const img of data?.results||[]){
-            if(!img.file_path)continue;
-            const width=Number(img.width)||0;
-            const height=Number(img.height)||0;
-            const ratio=Number(img.aspect_ratio)||(height?width/height:0);
-            if(width<550||ratio<1.25)continue;
-            // Keep only real tagged media stills; never use profile images here.
-            if(img.image_type&&/profile/i.test(img.image_type))continue;
-            const score=(Number(img.vote_count)||0)*2+(Number(img.vote_average)||0)*3+
-              (ratio>=1.5?2:0)+(width>=1000?1:0);
-            const previous=unique.get(img.file_path);
-            if(!previous||score>previous.score)unique.set(img.file_path,{path:img.file_path,score});
-          }
+        for(const img of data.results||[]){
+          if(!img.file_path)continue;
+          const width=Number(img.width)||0;
+          const height=Number(img.height)||0;
+          const ratio=Number(img.aspect_ratio)||(height?width/height:0);
+          if(width<550||ratio<1.25)continue;
+          if(img.image_type&&/profile/i.test(img.image_type))continue;
+          const score=(Number(img.vote_count)||0)*2+(Number(img.vote_average)||0)*3+
+            (ratio>=1.5?2:0)+(width>=1000?1:0);
+          const previous=unique.get(img.file_path);
+          if(!previous||score>previous.score)unique.set(img.file_path,{path:img.file_path,score});
         }
         return [...unique.values()].sort((a,b)=>b.score-a.score).map(item=>item.path);
       }catch{
@@ -96,9 +89,9 @@
     const key=String(personId||"");
     if(!key||personBackdropPreloadStarted.has(key))return;
     personBackdropPreloadStarted.add(key);
-    personTaggedBackdrop(key).then(paths=>{
-      // Прогреваем несколько самых популярных кадров в фоне, не блокируя интерфейс.
-      paths.slice(0,6).forEach(path=>{void warmPersonBackdrop(path);});
+    personTaggedBackdrop(key,1).then(paths=>{
+      // Прогреваем только два первых кадра: меньше сетевой нагрузки на открытие карточки.
+      paths.slice(0,2).forEach(path=>{void warmPersonBackdrop(path);});
     }).catch(()=>{
       personBackdropPreloadStarted.delete(key);
     });
@@ -107,33 +100,48 @@
     const host=root.querySelector("[data-kg-person-backdrop]");
     if(!host||host.dataset.kgBackdropSource==="tagged"||host.dataset.kgBackdropSource==="portrait")return;
 
-    // 1. Сначала ищем кадры, где TMDB отметил именно этого человека.
-    const tagged=await personTaggedBackdrop(personId);
-    if(!root.isConnected||host.dataset.kgBackdropSource==="tagged")return;
-    // Load several candidates concurrently, but preserve TMDB's relevance ranking:
-    // choose the highest-ranked image that actually loads, not whichever finishes first.
-    const loadedCandidates=await Promise.all(
-      tagged.slice(0,8).map(path=>warmPersonBackdrop(path))
-    );
-    const loaded=loadedCandidates.find(Boolean)||null;
-    if(!root.isConnected||host.dataset.kgBackdropSource==="tagged")return;
-
-    if(loaded){
+    const showTagged=loaded=>{
+      if(!loaded||!root.isConnected||host.dataset.kgBackdropSource==="tagged")return false;
       const shown=new Image();
       shown.alt="";
       shown.decoding="async";
       shown.src=loaded.src;
       host.dataset.kgBackdropSource="tagged";
       fadeInto(host,shown);
-      return;
-    }
+      return true;
+    };
+    const firstLoaded=paths=>Promise.any(paths.map(path=>
+      warmPersonBackdrop(path).then(img=>img||Promise.reject())
+    )).catch(()=>null);
 
-    // 2. Если персональных кадров нет, используем основной портрет этого человека.
-    // Он сильнее размыт, чтобы работать как атмосферный фон, а не второй аватар.
+    // 1. Fast path: first page is fetched and partly warmed while the film card is open.
+    const firstPage=await personTaggedBackdrop(personId,1);
+    if(!root.isConnected||host.dataset.kgBackdropSource==="tagged")return;
+    const firstBatch=firstPage.slice(0,4);
+    const firstImage=await firstLoaded(firstBatch);
+    if(showTagged(firstImage))return;
+    if(!root.isConnected||host.dataset.kgBackdropSource==="tagged")return;
+
+    // 2. Try the rest of page 1 before issuing more TMDB requests.
+    const remainingImage=await firstLoaded(firstPage.slice(4,12));
+    if(showTagged(remainingImage))return;
+    if(!root.isConnected||host.dataset.kgBackdropSource==="tagged")return;
+
+    // 3. Only when page 1 has no usable image, request pages 2 and 3.
+    const extraPages=await Promise.all([
+      personTaggedBackdrop(personId,2),
+      personTaggedBackdrop(personId,3)
+    ]);
+    if(!root.isConnected||host.dataset.kgBackdropSource==="tagged")return;
+    const extraPaths=[...new Set(extraPages.flat())].slice(0,8);
+    const extraImage=await firstLoaded(extraPaths);
+    if(showTagged(extraImage))return;
+    if(!root.isConnected||host.dataset.kgBackdropSource==="tagged")return;
+
+    // 4. No usable tagged still: use this person's own portrait, more blurred.
     if(!mainProfilePath)return;
     const portrait=await warmPersonBackdrop(mainProfilePath);
     if(!root.isConnected||!portrait||host.dataset.kgBackdropSource==="tagged")return;
-
     const shown=new Image();
     shown.alt="";
     shown.decoding="async";

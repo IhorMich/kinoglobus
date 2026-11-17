@@ -1325,7 +1325,7 @@ body {
 }
 .kg-empty-country-hint {
   color: rgb(var(--kg-on-surface-variant));
-  font: 500 12px/1.4 var(--kg-font-interface);
+  font: 600 12px/1.4 var(--kg-font-interface);
   text-align: center;
   text-wrap: balance;
   text-shadow: 0 1px 5px rgb(var(--kg-black) / .9);

@@ -19,7 +19,7 @@ html.kg-launch-reveal body>:not(#kg-launch-splash){visibility:visible!important;
 <link rel="manifest" href="moven.webmanifest">
 <meta name="application-name" content="Moven: Explore">
 <meta name="description" content="Explore the world of cinema">
-<link rel="stylesheet" href="app-theme.css?v=50">
+<link rel="stylesheet" href="app-theme.css?v=51">
 <script>
 try {
   if (!navigator.connection?.saveData) {
@@ -728,6 +728,8 @@ localizeInterfaceMarkup(document.querySelector("main"));
     // Exact camera distances:
     const defaultDist = 5.45;
     const focusDist = 4.75;
+    const minZoomDist = 3.15;
+    const defaultFov = 37;
 
     let targetCameraZ = defaultDist;
     let currentCameraZ = defaultDist;
@@ -1082,7 +1084,7 @@ rotatingGroup.add(flagPinGroup);
       const height = container.clientHeight || 420;
 
       const scene = new THREE.Scene();
-      camera = new THREE.PerspectiveCamera(37, width / height, 0.1, 1000);
+      camera = new THREE.PerspectiveCamera(defaultFov, width / height, 0.1, 1000);
       camera.position.set(0, currentCameraY, defaultDist);
 
       const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
@@ -1297,7 +1299,7 @@ rotatingGroup.add(flagPinGroup);
           const distance=Math.max(1,Math.hypot(dx,dy)),midY=(a.clientY+b.clientY)/2;
           if(e.cancelable)e.preventDefault();
           targetRotX=Math.max(-1.45,Math.min(1.45,targetRotX+(midY-touchGesture.lastMidY)*.006));
-          targetCameraZ=Math.max(3.15,Math.min(8.5,targetCameraZ*touchGesture.lastDistance/distance));
+          targetCameraZ=Math.max(minZoomDist,Math.min(8.5,targetCameraZ*touchGesture.lastDistance/distance));
           touchGesture.lastDistance=distance;touchGesture.lastMidY=midY;
           return;
         }
@@ -1350,6 +1352,10 @@ rotatingGroup.add(flagPinGroup);
         if (camera) {
           camera.position.z = currentCameraZ;
           camera.position.y = currentCameraY;
+          const fitFov=2*Math.atan(earthRadius/(currentCameraZ*.9))*180/Math.PI;
+          const targetFov=Math.max(defaultFov,fitFov);
+          const nextFov=camera.fov+(targetFov-camera.fov)*.08;
+          if(Math.abs(nextFov-camera.fov)>.01){camera.fov=nextFov;camera.updateProjectionMatrix();}
         }
 
         // Marker rise + cinematic pulse
@@ -4238,6 +4244,7 @@ async function revealGlobeForSpin(){
 $("btn-spin-roulette").addEventListener("click",async()=>{
   refreshKey();
   if(!apiKey){const b=$("tmdb-key-banner");b.classList.remove("hidden");b.scrollIntoView({behavior:"smooth",block:"center"});return;}
+  hideGlobeIntroHint();
   await revealGlobeForSpin();
   $("go").click();
 });

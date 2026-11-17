@@ -1,14 +1,13 @@
 <!DOCTYPE html><html class="dark" lang="ru" data-kg-theme="midnight" data-kg-button-accent="blue"><head><meta charset="utf-8">
-<title>Moven</title>
+<title>Moven: Explore</title>
 <link rel="icon" type="image/png" sizes="32x32" href="assets/branding/moven-icon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="assets/branding/moven-icon-180.png">
-<link rel="manifest" href="moven.webmanifest?v=2">
-<meta name="application-name" content="Moven">
-<meta name="apple-mobile-web-app-title" content="Moven">
+<link rel="manifest" href="moven.webmanifest">
+<meta name="application-name" content="Moven: Explore">
 <meta name="description" content="Explore the world of cinema">
-<link rel="stylesheet" href="app-theme.css?v=50">
+<link rel="stylesheet" href="app-theme.css?v=43">
 <script src="steel-motion.js?v=4" defer></script>
-<script src="interface-en.js?v=48"></script>
+<script src="interface-en.js?v=47"></script>
 <script src="interface-i18n.js?v=2"></script>
 <script src="catalog-safety.js?v=1"></script>
 <script>
@@ -49,7 +48,7 @@ try {
     .hint-float {
       animation: hintPulse 2.8s ease-in-out infinite;
     }
-  </style><script src="cinema-reel.js?v=46"></script><link rel="stylesheet" href="watched-button.css?v=7">
+  </style><script src="cinema-reel.js?v=41"></script><link rel="stylesheet" href="watched-button.css?v=7">
 <script src="watched-button.js?v=3"></script>
 <link rel="stylesheet" href="settings-page.css?v=10">
 </head><body class="bg-canvas-obsidian font-body-md text-on-surface flex flex-col min-h-screen relative">
@@ -298,18 +297,18 @@ try {
     <p class="font-micro-caption text-micro-caption text-primary font-bold uppercase tracking-wider">Выбор дня</p>
     <p class="font-body-sm text-body-sm text-text-muted mt-2">Добавьте ключ TMDB, чтобы загрузить фильм и подборку европейского кино.</p>
   </article>
-  <section class="kg-home-full-width" aria-labelledby="kg-home-europe-title">
-    <div class="flex items-center justify-between gap-2 mb-2 px-margin-mobile">
+  <section class="w-full" aria-labelledby="kg-home-europe-title">
+    <div class="flex items-center justify-between gap-2 mb-2">
       <div class="flex items-center gap-1.5 min-w-0"><span class="material-symbols-outlined text-primary-container text-[20px]">theaters</span><h2 id="kg-home-europe-title" class="font-headline-sm text-headline-sm text-on-surface truncate">Европейская палитра</h2></div>
       <button id="kg-home-europe-link" type="button" class="font-label-sm text-label-sm text-primary-container font-semibold hover:underline flex-shrink-0">Все 14 стран →</button>
     </div>
-    <div id="kg-home-europe" class="kg-home-europe flex gap-3.5 overflow-x-auto pb-2" aria-label="Фильмы европейского кино"></div>
-    <div id="kg-home-europe-detail" class="w-full mt-2" data-home-inline-film hidden></div>
+    <div id="kg-home-europe" class="kg-home-europe flex gap-2 overflow-x-auto pb-2" aria-label="Фильмы европейского кино"></div>
+    <div id="kg-home-europe-detail" class="w-full mt-2" hidden></div>
   </section>
 </div>
 </div>
 
-<!-- Bridge elements for Moven engine (visually hidden) -->
+<!-- Bridge elements for Moven: Explore engine (visually hidden) -->
 <div id="kg-bridge" style="position:absolute;width:0;height:0;overflow:hidden;opacity:0;pointer-events:none" aria-hidden="true">
   <button id="go"></button>
   <button id="top1"></button>
@@ -346,7 +345,7 @@ try {
     <div id="crew" hidden></div><p id="tagline" hidden></p><p id="over"></p>
     <div id="player" hidden></div><p id="ytnote" hidden><a id="ytlink"></a></p>
   </div>
-  <dialog id="settings"><select id="snd"><option value="roulette">roulette</option><option value="bells">bells</option><option value="arcade">arcade</option><option value="casino">casino</option><option value="marimba">marimba</option><option value="space">space</option><option value="film">film</option><option value="orchestra">orchestra</option><option value="jazz">jazz</option><option value="synth">synth</option><option value="chimes">chimes</option><option value="smp-ui14">smp-ui14</option><option value="smp-ui02">smp-ui02</option><option value="smp-ui73">smp-ui73</option><option value="smp-build">smp-build</option><option value="smp-confirm">smp-confirm</option><option value="smp-impact">smp-impact</option><option value="smp-blaster">smp-blaster</option><option value="smp-reveal">smp-reveal</option><option value="off">off</option></select><select id="reel-snd"><option value="projector">35 мм · проектор</option><option value="imax">Кинозал · мягкий импульс</option><option value="camera">Кинокамера · механика</option><option value="tape">Магнитная плёнка</option><option value="premiere">Премьерный зал</option><option value="shutter">Кинокамера · затвор</option><option value="editbench">Монтажный стол · шаг кадра</option><option value="sixteenmm">16 мм · мягкая трещотка</option><option value="off">Без звука</option></select></dialog>
+  <dialog id="settings"><select id="snd"><option value="roulette">roulette</option><option value="bells">bells</option><option value="arcade">arcade</option><option value="casino">casino</option><option value="marimba">marimba</option><option value="space">space</option><option value="film">film</option><option value="orchestra">orchestra</option><option value="jazz">jazz</option><option value="synth">synth</option><option value="chimes">chimes</option><option value="smp-ui14">smp-ui14</option><option value="smp-ui02">smp-ui02</option><option value="smp-ui73">smp-ui73</option><option value="smp-build">smp-build</option><option value="smp-confirm">smp-confirm</option><option value="smp-impact">smp-impact</option><option value="smp-blaster">smp-blaster</option><option value="smp-reveal">smp-reveal</option><option value="smp-m-menu">smp-m-menu</option><option value="smp-m-ondabeat">smp-m-ondabeat</option><option value="smp-m-oblivion">smp-m-oblivion</option><option value="smp-m-multiverse">smp-m-multiverse</option><option value="smp-m-moonwalker">smp-m-moonwalker</option><option value="smp-m-horror">smp-m-horror</option><option value="smp-m-goldmetal">smp-m-goldmetal</option><option value="smp-m-heroes">smp-m-heroes</option><option value="smp-m-darkrolls">smp-m-darkrolls</option><option value="smp-m-tension">smp-m-tension</option><option value="smp-m-percussion">smp-m-percussion</option><option value="smp-m-bassdrop">smp-m-bassdrop</option><option value="smp-m-addkick">smp-m-addkick</option><option value="off">off</option></select><select id="reel-snd"><option value="projector">35 мм · проектор</option><option value="imax">Кинозал · мягкий импульс</option><option value="camera">Кинокамера · механика</option><option value="tape">Магнитная плёнка</option><option value="premiere">Премьерный зал</option><option value="shutter">Кинокамера · затвор</option><option value="editbench">Монтажный стол · шаг кадра</option><option value="sixteenmm">16 мм · мягкая трещотка</option><option value="off">Без звука</option></select></dialog>
   <dialog id="journey"><div id="jhead"></div><i id="jfill"></i><div id="mapbox"></div><div id="jstats"></div><div id="jopen"></div><div id="jclosed"></div><span id="jclosedsum"></span><div id="jfilms"></div><span id="jopenT"></span><span id="jfilmsT"></span><span id="minfo"></span><span id="jtitle"></span></dialog>
   <span id="topNote" hidden></span><span id="oscarNote" hidden></span>
   <div id="rwin"></div>
@@ -587,11 +586,6 @@ localizeInterfaceMarkup(document.querySelector("main"));
     let flagBannerMesh = null;    // больше не используем
     let targetFlagScale = 0.001;
     let markerPulseT = 0;
-    let markerPulse1, markerPulse2, markerBeam, markerGlow, markerArea, markerAreaRing;
-    const blendForFrames = (blend, frames) => 1 - Math.pow(1 - blend, frames);
-    // One timed turn owns the rotation until it reaches its target or is cancelled.
-    let turnDone = null, globeAnimationReady = false;
-    let turnMs, turnStart, turnX, turnY, turnDX, turnDY, turnBase, turnEase, turnSettles;
     let camera;
     let targetRotY = 0;
     let countryFramed = false;
@@ -608,7 +602,7 @@ localizeInterfaceMarkup(document.querySelector("main"));
     let beaconGroup = null;
     // Вспышки во время поиска: точка загорается у проходимой страны и плавно гаснет
     const FLASH_MS = 850;
-    const scanBeacons = []; // Reused throughout the scan; up to five 850 ms flashes overlap.
+    let flashing = {};   // id страны -> момент вспышки (performance.now())
     let countryBoundaryFeatures = [];
     let watchedCountryIds = new Set();
     let countryOutlineGroup = null;
@@ -688,7 +682,7 @@ localizeInterfaceMarkup(document.querySelector("main"));
         countryBoundaryFeatures=Array.isArray(data.features)?data.features:[];
         updateWatchedCountryOutlines([...watchedCountryIds]);
       } catch(error) {
-        console.warn("[Moven] Не удалось загрузить границы стран",error);
+        console.warn("[Moven: Explore] Не удалось загрузить границы стран",error);
       }
     }
 
@@ -720,13 +714,13 @@ localizeInterfaceMarkup(document.querySelector("main"));
       return { rotX, rotY };
     }
 
-    function latLonToVector3(lat, lon, radius, out = new THREE.Vector3()) {
+    function latLonToVector3(lat, lon, radius) {
       const phi = (90 - lat) * (Math.PI / 180);
       const theta = (lon + 180) * (Math.PI / 180);
       const x = - (radius * Math.sin(phi) * Math.cos(theta));
       const z = (radius * Math.sin(phi) * Math.sin(theta));
       const y = (radius * Math.cos(phi));
-      return out.set(x, y, z);
+      return new THREE.Vector3(x, y, z);
     }
 
     // High quality canvas texture for the 3D winner flag
@@ -782,7 +776,7 @@ localizeInterfaceMarkup(document.querySelector("main"));
 
     // Hide all beacon dots to maintain a clean and pristine Earth
     function hideAllBeacons() {
-      for (const beacon of scanBeacons) resetBeacon(beacon);
+      flashing = {};
       Object.keys(dotMeshMap).forEach(key => {
         const item = dotMeshMap[key];
         if (item && item.holder) {
@@ -795,43 +789,37 @@ localizeInterfaceMarkup(document.querySelector("main"));
       });
     }
 
-    function resetBeacon(b) {
-      b.started = -Infinity;
-      b.holder.visible = false;
-      b.dotMat.opacity = b.ringMat.opacity = 0;
-      b.dotMesh.scale.setScalar(1);
-      b.ringMesh.scale.setScalar(1);
-    }
-
-    // Reposition a pooled beacon instead of building meshes as countries roll by.
+    // Вспышка точки у страны, которую сейчас проходит поиск
     function flashBeacon(country) {
-      if (!country || !scanBeacons.length) return;
-      let b = scanBeacons[0];
-      for (let i = 1; i < scanBeacons.length; i++) {
-        if (scanBeacons[i].started < b.started) b = scanBeacons[i];
-      }
-      resetBeacon(b);
-      placeBeacon(b, country);
+      if (!country || !rotatingGroup) return;
+      const b = dotMeshMap[country.id] || addBeacon(country);
+      if (!b || !b.holder) return;
       b.holder.visible = true;
       b.dotMat.opacity = 1;
       b.ringMat.opacity = 0.85;
-      b.started = performance.now();
+      flashing[country.id] = performance.now();
     }
 
+    // Каждый кадр: точки вспышек гаснут, кольцо расходится
     function updateFlashes(now) {
-      for (let i = 0; i < scanBeacons.length; i++) {
-        const b = scanBeacons[i];
-        if (!b.holder.visible) continue;
-        const p = Math.max(0, now - b.started) / FLASH_MS;
+      for (const id in flashing) {
+        const b = dotMeshMap[id];
+        if (!b) { delete flashing[id]; continue; }
+        const p = (now - flashing[id]) / FLASH_MS;
         if (p >= 1) {
-          resetBeacon(b);
+          b.holder.visible = false;
+          b.dotMat.opacity = 0;
+          b.ringMat.opacity = 0;
+          b.dotMesh.scale.setScalar(1);
+          b.ringMesh.scale.setScalar(1);
+          delete flashing[id];
           continue;
         }
         const fade = Math.pow(1 - p, 1.6);
         b.dotMat.opacity = fade;
         b.ringMat.opacity = fade * 0.85;
-        b.dotMesh.scale.setScalar(1 + 1.2 * (1 - Math.min(1, p * 3)));
-        b.ringMesh.scale.setScalar(1 + p * 1.8);
+        b.dotMesh.scale.setScalar(1 + 1.2 * (1 - Math.min(1, p * 3)));   // вспыхивает крупнее и сжимается
+        b.ringMesh.scale.setScalar(1 + p * 1.8);                         // кольцо расходится
       }
     }
 
@@ -896,7 +884,7 @@ function update3DCountryFlag(country, popAnimation = false) {
       side: THREE.DoubleSide
     });
     const beamMesh = new THREE.Mesh(beamGeo, beamMat);
-    markerBeam = beamMesh;
+    beamMesh.name = 'beam';
     flagPinGroup.add(beamMesh);
 
     // 3. Мягкое свечение у основания
@@ -907,7 +895,7 @@ function update3DCountryFlag(country, popAnimation = false) {
       depthWrite: false
     });
     const glowMesh = new THREE.Mesh(glowGeo, glowMat);
-    markerGlow = glowMesh;
+    glowMesh.name = 'glow';
     flagPinGroup.add(glowMesh);
 
     // 4. Два пульс-кольца на поверхности
@@ -925,8 +913,8 @@ function update3DCountryFlag(country, popAnimation = false) {
       flagPinGroup.add(mesh);
       return mesh;
     };
-    markerPulse1 = makeRing('pulse1', 0.08);
-    markerPulse2 = makeRing('pulse2', 0.08);
+    makeRing('pulse1', 0.08);
+    makeRing('pulse2', 0.08);
 // 5. Мягкая подсветка «территории» страны
 const areaGeo = new THREE.CircleGeometry(0.16, 32);
 areaGeo.rotateX(-Math.PI / 2);
@@ -937,7 +925,7 @@ const areaMat = globeAccentMaterial('--kg-globe-pin-beam', {
   depthWrite: false
 });
 const areaMesh = new THREE.Mesh(areaGeo, areaMat);
-markerArea = areaMesh;
+areaMesh.name = 'area';
 areaMesh.position.y = 0.002;
 flagPinGroup.add(areaMesh);
 
@@ -951,7 +939,7 @@ const areaRingMat = globeAccentMaterial('--kg-globe-pin-core', {
   depthWrite: false
 });
 const areaRingMesh = new THREE.Mesh(areaRingGeo, areaRingMat);
-markerAreaRing = areaRingMesh;
+areaRingMesh.name = 'areaRing';
 areaRingMesh.position.y = 0.003;
 flagPinGroup.add(areaRingMesh);
 
@@ -979,94 +967,57 @@ rotatingGroup.add(flagPinGroup);
 
     // Beacon dots: created once per country on demand (hidden in idle state)
     let beaconGeo = null;
-    let beaconNormal, beaconUp;
-    function placeBeacon(beacon, item) {
-      const pos = latLonToVector3(item.lat, item.lon, 1.422, beacon.dotMesh.position);
-      beacon.ringMesh.position.copy(pos);
-      beacon.ringMesh.quaternion.setFromUnitVectors(beaconUp, beaconNormal.copy(pos).normalize());
-    }
+    function addBeacon(item) {
+      if (!rotatingGroup || !item) return null;
+      if (!beaconGroup) {
+        beaconGroup = new THREE.Group();
+        rotatingGroup.add(beaconGroup);
+      }
+      if (!beaconGeo) {
+        beaconGeo = {
+          dotGeo: new THREE.SphereGeometry(0.022, 16, 16),
+          pulseRingGeo: new THREE.RingGeometry(0.024, 0.052, 24)
+        };
+      }
+      if (dotMeshMap[item.id]) return dotMeshMap[item.id];
 
-    function makeBeacon() {
       const holder = new THREE.Group();
+      const pos = latLonToVector3(item.lat, item.lon, 1.422);
+      const normal = pos.clone().normalize();
+
       const dotMat = globeAccentMaterial('--kg-globe-beacon-dot', { transparent: true, opacity: 0 });
       const dotMesh = new THREE.Mesh(beaconGeo.dotGeo, dotMat);
+      dotMesh.position.copy(pos);
+      holder.add(dotMesh);
+
       const ringMat = globeAccentMaterial('--kg-globe-beacon-ring', { side: THREE.DoubleSide, transparent: true, opacity: 0 });
       const ringMesh = new THREE.Mesh(beaconGeo.pulseRingGeo, ringMat);
-      holder.add(dotMesh, ringMesh);
+      ringMesh.position.copy(pos);
+      const up = new THREE.Vector3(0, 0, 1);
+      ringMesh.quaternion.setFromUnitVectors(up, normal);
+      holder.add(ringMesh);
+
+      // Pristine Earth: Initialized hidden
       holder.visible = false;
       beaconGroup.add(holder);
-      return { holder, dotMat, ringMat, dotMesh, ringMesh, started: -Infinity };
-    }
 
-    function addBeacon(item) {
-      if (!beaconGroup || !item) return null;
-      if (dotMeshMap[item.id]) return dotMeshMap[item.id];
-      const beacon = makeBeacon();
-      placeBeacon(beacon, item);
-      return dotMeshMap[item.id] = beacon;
+      dotMeshMap[item.id] = { holder: holder, dotMat: dotMat, ringMat: ringMat, dotMesh: dotMesh, ringMesh: ringMesh, country: item };
+      return dotMeshMap[item.id];
     }
 
     function createCountryBeacons() {
+      if (!rotatingGroup) return;
       beaconGroup = new THREE.Group();
-      beaconGeo = {
-        dotGeo: new THREE.SphereGeometry(0.022, 16, 16),
-        pulseRingGeo: new THREE.RingGeometry(0.024, 0.052, 24)
-      };
-      beaconNormal = new THREE.Vector3();
-      beaconUp = new THREE.Vector3(0, 0, 1);
+      dotMeshMap = {};
       rotatingGroup.add(beaconGroup);
-      catalog.forEach(addBeacon);
-      for (let i = 0; i < 5; i++) scanBeacons.push(makeBeacon());
-    }
-
-    function cancelScanTurn() {
-      if (!turnDone) return;
-      const done = turnDone;
-      turnDone = null;
-      done(false);
-    }
-
-    function turnToScanCountry(country, duration, speed, zoom, settle = false) {
-      orientGlobeToCountry(country, false, speed, zoom, false);
-      if (!globeAnimationReady) return new Promise(resolve => setTimeout(resolve, duration, true));
-      turnStart = performance.now();
-      turnMs = duration;
-      turnSettles = settle;
-      turnX = currentRotX;
-      turnY = currentRotY;
-      turnDX = targetRotX - turnX;
-      turnDY = shortestAngleDist(turnY, targetRotY);
-      turnBase = 1 - speed;
-      turnEase = 1 / blendForFrames(speed, duration * 0.06);
-      return new Promise(resolve => { turnDone = resolve; });
-    }
-
-    function advanceRotation(now, frames) {
-      if (turnDone) {
-        const ms = Math.max(0, now - turnStart);
-        const time = Math.min(1, ms / turnMs);
-        const progress = turnSettles
-          ? time * time * (3 - 2 * time)
-          : time >= 1 ? 1 : (1 - Math.pow(turnBase, ms * 0.06)) * turnEase;
-        currentRotX = turnX + turnDX * progress;
-        currentRotY = turnY + turnDY * progress;
-        if (progress === 1) {
-          const done = turnDone;
-          turnDone = null;
-          done(true);
-        }
-        return;
-      }
-      const blend = blendForFrames(lerpSpeed, frames);
-      currentRotY += shortestAngleDist(currentRotY, targetRotY) * blend;
-      currentRotX += (targetRotX - currentRotX) * blend;
+      catalog.forEach(item => addBeacon(item));
     }
 
     function orientGlobeToCountry(country, immediate = false, speed = 0.065, zoomLevel = focusDist, showFlag = true) {
       if (!country) return;
-      cancelScanTurn();
-      targetRotX = country.lat * Math.PI / 180;
-      targetRotY = -country.lon * Math.PI / 180 - Math.PI / 2;
+      const rots = countryToRotations(country.lat, country.lon);
+      targetRotX = rots.rotX;
+      targetRotY = rots.rotY;
       lerpSpeed = speed;
       targetCameraZ = zoomLevel;
 
@@ -1099,11 +1050,8 @@ rotatingGroup.add(flagPinGroup);
       camera.position.set(0, currentCameraY, defaultDist);
 
       const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
-      const mobile = window.Capacitor?.isNativePlatform?.()
-        || matchMedia('(pointer: coarse)').matches
-        || (navigator.maxTouchPoints > 0 && window.innerWidth <= 768);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, mobile ? 1.5 : 2));
       renderer.setSize(width, height, false);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
       // Cinema Lighting: Soft ambient & directional space lighting without blinding specular hotspot
       const dirLight = new THREE.DirectionalLight(readPaletteColor('--kg-globe-sunlight', true), 1.15);
@@ -1217,7 +1165,7 @@ rotatingGroup.add(flagPinGroup);
         },
         undefined,
         (error) => {
-          console.warn('[Moven] Не удалось загрузить текстуру Земли; оставляем запасную поверхность.', error);
+          console.warn('[Moven: Explore] Не удалось загрузить текстуру Земли; оставляем запасную поверхность.', error);
         }
       );
 
@@ -1348,67 +1296,98 @@ rotatingGroup.add(flagPinGroup);
       window.addEventListener('touchcancel', endTouchGesture, { passive: true });
 
       // Animation Loop
+      const clock = new THREE.Clock();
       let globeInView = true;
-      let lastFrame = null, elapsedTime = 0;
       const globeVisibility = new IntersectionObserver(([entry]) => {
         globeInView = entry.isIntersecting;
       });
       globeVisibility.observe(container);
       const settings = document.getElementById("settings");
-      function animate(now) {
+      function animate() {
         requestAnimationFrame(animate);
-        const visible = globeInView && !document.hidden && !settings.open;
-        // Do not integrate time spent offscreen into idle, zoom or marker animation.
-        const deltaTime = visible && lastFrame !== null
-          ? Math.min(0.1, (now - lastFrame) / 1000) : 0;
-        lastFrame = visible ? now : null;
-        const frames = deltaTime * 60;
+        if (!globeInView || document.hidden || settings.open) return;
+        const elapsedTime = clock.getElapsedTime();
 
-        // A search can finish even if the globe is scrolled out of view.
-        if (!visible) {
-          if (turnDone) advanceRotation(now, 0);
-          return;
+                // Camera smooth zoom lerp
+        currentCameraZ += (targetCameraZ - currentCameraZ) * zoomLerpFactor;
+        currentCameraY += (targetCameraY - currentCameraY) * zoomLerpFactor;
+        if (camera) {
+          camera.position.z = currentCameraZ;
+          camera.position.y = currentCameraY;
         }
 
-        elapsedTime += deltaTime;
-        const zoomBlend = blendForFrames(zoomLerpFactor, frames);
-        currentCameraZ += (targetCameraZ - currentCameraZ) * zoomBlend;
-        currentCameraY += (targetCameraY - currentCameraY) * zoomBlend;
-        camera.position.z = currentCameraZ;
-        camera.position.y = currentCameraY;
+        // Marker rise + cinematic pulse
+if (flagPinGroup && flagPinGroup.visible) {
+  const s = flagPinGroup.scale.x + (targetFlagScale - flagPinGroup.scale.x) * 0.1;
+  flagPinGroup.scale.set(s, s, s);
 
-        if (flagPinGroup?.visible) {
-          const s = flagPinGroup.scale.x + (targetFlagScale - flagPinGroup.scale.x) * blendForFrames(0.1, frames);
-          flagPinGroup.scale.setScalar(s);
-          markerPulseT += deltaTime;
-          const t = markerPulseT * 0.96; // Preserve the previous pulse tempo at 60 Hz.
-          const p1 = (t % 1.8) / 1.8;
-          const p2 = ((t + 0.9) % 1.8) / 1.8;
-          markerPulse1.scale.setScalar(0.6 + p1 * 2.4);
-          markerPulse1.material.opacity = (1 - p1) * 0.75;
-          markerPulse2.scale.setScalar(0.6 + p2 * 2.4);
-          markerPulse2.material.opacity = (1 - p2) * 0.55;
-          const glowWave = Math.sin(t * 2.2);
-          markerBeam.material.opacity = 0.42 + glowWave * 0.12;
-          markerGlow.scale.setScalar(0.9 + glowWave * 0.15);
-          markerGlow.material.opacity = 0.28 + glowWave * 0.08;
-          const areaWave = Math.sin(t * 1.6);
-          markerArea.material.opacity = 0.16 + areaWave * 0.05;
-          markerAreaRing.material.opacity = 0.55 + areaWave * 0.15;
-        }
+  markerPulseT += 0.016;
+  const t = markerPulseT;
 
+  const pulse1 = flagPinGroup.getObjectByName('pulse1');
+  const pulse2 = flagPinGroup.getObjectByName('pulse2');
+  const beam = flagPinGroup.getObjectByName('beam');
+  const glow = flagPinGroup.getObjectByName('glow');
+
+  if (pulse1) {
+    const p = (t % 1.8) / 1.8;
+    const scale = 0.6 + p * 2.4;
+    pulse1.scale.set(scale, scale, scale);
+    pulse1.material.opacity = (1 - p) * 0.75;
+  }
+
+  if (pulse2) {
+    const p = ((t + 0.9) % 1.8) / 1.8;
+    const scale = 0.6 + p * 2.4;
+    pulse2.scale.set(scale, scale, scale);
+    pulse2.material.opacity = (1 - p) * 0.55;
+  }
+
+  if (beam) {
+    beam.material.opacity = 0.42 + Math.sin(t * 2.2) * 0.12;
+  }
+  if (glow) {
+    const g = 0.9 + Math.sin(t * 2.2) * 0.15;
+    glow.scale.set(g, g, g);
+    glow.material.opacity = 0.28 + Math.sin(t * 2.2) * 0.08;
+  }
+
+// Дыхание зоны вокруг маркера
+const area = flagPinGroup.getObjectByName('area');
+const areaRing = flagPinGroup.getObjectByName('areaRing');
+
+if (area) {
+  area.material.opacity = 0.16 + Math.sin(t * 1.6) * 0.05;
+}
+
+if (areaRing) {
+  areaRing.material.opacity = 0.55 + Math.sin(t * 1.6) * 0.15;
+}
+
+}
+
+ 
+        // Idle slow rotation
         if (!isSpinning && !isDragging && !countryFramed) {
-          targetRotY += driftSpeed * frames;
+          targetRotY += driftSpeed;
         }
-        advanceRotation(now, frames);
-        rotatingGroup.rotation.y = currentRotY;
-        rotatingGroup.rotation.x = currentRotX;
-        if (cloudsMesh) cloudsMesh.rotation.y = currentRotY * 1.04 + elapsedTime * 0.0006;
-        updateFlashes(now);
+        if (rotatingGroup) {
+          const diffY = shortestAngleDist(currentRotY, targetRotY);
+          currentRotY += diffY * lerpSpeed;
+          currentRotX += (targetRotX - currentRotX) * lerpSpeed;
+
+          rotatingGroup.rotation.y = currentRotY;
+          rotatingGroup.rotation.x = currentRotX;
+
+          if (cloudsMesh) {
+            cloudsMesh.rotation.y = currentRotY * 1.04 + elapsedTime * 0.0006;
+          }
+        }
+
+        updateFlashes(performance.now());
         renderer.render(scene, camera);
       }
-      globeAnimationReady = true;
-      requestAnimationFrame(animate);
+      animate();
 
       let viewportWidth = width;
       let viewportHeight = height;
@@ -1486,14 +1465,11 @@ rotatingGroup.add(flagPinGroup);
       get currentCountry() { return currentCountry; },
       set currentCountry(v) { currentCountry = v; },
       orientGlobeToCountry,
-      turnToScanCountry,
-      cancelScanTurn,
-      frameCountry(country, alreadyOriented = false) {
+      frameCountry(country) {
         countryFramed = true;
         currentCountry = country;
         showSingleBeacon(country);
-        if (alreadyOriented) update3DCountryFlag(country, true);
-        else orientGlobeToCountry(country, true, 0.065, focusDist, true);
+        orientGlobeToCountry(country, true, 0.065, focusDist, true);
       },
       updateHolographicView,
       triggerWinnerCelebration,
@@ -1514,7 +1490,7 @@ rotatingGroup.add(flagPinGroup);
 
 </script>
 <script>
-// ========== Moven engine (TMDB, filters, history) ==========
+// ========== Moven: Explore engine (TMDB, filters, history) ==========
 
 const GENRES={"":"Любой жанр",28:"Боевик",12:"Приключения",16:"Мультфильм",35:"Комедия",80:"Криминал",99:"Документальный",18:"Драма",10751:"Семейный",14:"Фэнтези",36:"История",27:"Ужасы",9648:"Детектив",10402:"Музыка",10749:"Мелодрама",878:"Фантастика",53:"Триллер",10752:"Военный",37:"Вестерн"};
 const COUNTRIES=["US","GB","FR","DE","IT","ES","JP","KR","CN","HK","TW","IN","RU","CA","AU","MX","BR","AR","CL","CO","PE","CU","SE","DK","NO","FI","IS","PL","CZ","HU","RO","BG","RS","GR","TR","IR","IL","LB","EG","MA","NG","ZA","TH","VN","ID","PH","MY","SG","PK","KZ","UA","GE","AM","NL","BE","AT","CH","PT","IE","NZ","UY","VE","EC","BO","PY","CR","DO","LV","LT","EE","SK","SI","HR","BA","MK","AL","BY","MD","AZ","UZ","IQ","JO","SA","AE","TN","DZ","SN","KE","GH","ET","BF","ML","CI","BD","LK","NP","MN","KH","MM","LU"];
@@ -2342,7 +2318,20 @@ const SAMPLE_SOUNDS={
   "smp-confirm":"assets/sounds/confirm.mp3",
   "smp-impact":"assets/sounds/impact.mp3",
   "smp-blaster":"assets/sounds/blaster.mp3",
-  "smp-reveal":"assets/sounds/logo-reveal.mp3"
+  "smp-reveal":"assets/sounds/logo-reveal.mp3",
+  "smp-m-menu":"assets/sounds/m-menu.mp3",
+  "smp-m-ondabeat":"assets/sounds/m-ondabeat.mp3",
+  "smp-m-oblivion":"assets/sounds/m-oblivion.mp3",
+  "smp-m-multiverse":"assets/sounds/m-multiverse.mp3",
+  "smp-m-moonwalker":"assets/sounds/m-moonwalker.mp3",
+  "smp-m-horror":"assets/sounds/m-horror.mp3",
+  "smp-m-goldmetal":"assets/sounds/m-goldmetal.mp3",
+  "smp-m-heroes":"assets/sounds/m-heroes.mp3",
+  "smp-m-darkrolls":"assets/sounds/m-darkrolls.mp3",
+  "smp-m-tension":"assets/sounds/m-tension.mp3",
+  "smp-m-percussion":"assets/sounds/m-percussion.mp3",
+  "smp-m-bassdrop":"assets/sounds/m-bassdrop.mp3",
+  "smp-m-addkick":"assets/sounds/m-addkick.mp3"
 };
 // Звуки, которые играют ТОЛЬКО в финале; при вращении используется щелчок рулетки
 const SAMPLE_WIN_ONLY={"smp-reveal":true};
@@ -2382,7 +2371,7 @@ function sampleWin(key){
   }catch(_){}
 }
 const MARIMBA=[261.63,293.66,329.63,392,440,523.25,587.33,659.25];
-const THROTTLE={roulette:0,bells:110,arcade:55,casino:70,marimba:90,space:60,film:45,orchestra:95,jazz:80,synth:70,chimes:100,"smp-ui14":70,"smp-ui02":70,"smp-ui73":70,"smp-build":70,"smp-confirm":70,"smp-impact":70,"smp-blaster":70,"smp-reveal":0};let lastT=0;
+const THROTTLE={roulette:0,bells:110,arcade:55,casino:70,marimba:90,space:60,film:45,orchestra:95,jazz:80,synth:70,chimes:100,"smp-ui14":70,"smp-ui02":70,"smp-ui73":70,"smp-build":70,"smp-confirm":70,"smp-impact":70,"smp-blaster":70,"smp-reveal":0,"smp-m-menu":90,"smp-m-ondabeat":90,"smp-m-oblivion":90,"smp-m-multiverse":90,"smp-m-moonwalker":90,"smp-m-horror":90,"smp-m-goldmetal":90,"smp-m-heroes":90,"smp-m-darkrolls":90,"smp-m-tension":90,"smp-m-percussion":90,"smp-m-bassdrop":90,"smp-m-addkick":90};let lastT=0;
 function sTick(e){               // e = progress 0..1 (controls pitch)
   if(snd==="off"||!ac)return;
   const now=performance.now();if(now-lastT<(THROTTLE[snd]||0))return;lastT=now;
@@ -2474,13 +2463,52 @@ const reelProfiles = {
   "rsm-proj2":   {duration:.05, loop:{file:"proj2", vol:.55}, sample:{file:"click", len:.05, vol:.18},
                   found:{file:"proj2", len:.9, vol:.5, fadeIn:.04, pre:{file:"click", len:.4, vol:.7}}},
   "rsm-cine":    {duration:.05, loop:{file:"cine", vol:.55}, sample:{file:"click", len:.05, vol:.18},
-                  found:{file:"cine", len:.9, vol:.5, fadeIn:.04, pre:{file:"click", len:.4, vol:.7}}}
+                  found:{file:"cine", len:.9, vol:.5, fadeIn:.04, pre:{file:"click", len:.4, vol:.7}}},
+  "rsm-m-menu": {duration:.05, sample:{file:"m-menu", len:.09, vol:.5, rate:[.92,1.12]},
+                  found:{file:"m-menu", len:0.58, vol:.85}},
+  "rsm-m-ondabeat": {duration:.05, sample:{file:"m-ondabeat", len:.09, vol:.5, rate:[.92,1.12]},
+                  found:{file:"m-ondabeat", len:2.2, vol:.85}},
+  "rsm-m-oblivion": {duration:.05, sample:{file:"m-oblivion", len:.09, vol:.5, rate:[.92,1.12]},
+                  found:{file:"m-oblivion", len:2.2, vol:.85}},
+  "rsm-m-multiverse": {duration:.05, sample:{file:"m-multiverse", len:.09, vol:.5, rate:[.92,1.12]},
+                  found:{file:"m-multiverse", len:2.2, vol:.85}},
+  "rsm-m-moonwalker": {duration:.05, sample:{file:"m-moonwalker", len:.09, vol:.5, rate:[.92,1.12]},
+                  found:{file:"m-moonwalker", len:2.2, vol:.85}},
+  "rsm-m-horror": {duration:.05, sample:{file:"m-horror", len:.09, vol:.5, rate:[.92,1.12]},
+                  found:{file:"m-horror", len:2.4, vol:.85}},
+  "rsm-m-goldmetal": {duration:.05, sample:{file:"m-goldmetal", len:.09, vol:.5, rate:[.92,1.12]},
+                  found:{file:"m-goldmetal", len:2.2, vol:.85}},
+  "rsm-m-heroes": {duration:.05, sample:{file:"m-heroes", len:.09, vol:.5, rate:[.92,1.12]},
+                  found:{file:"m-heroes", len:2.2, vol:.85}},
+  "rsm-m-darkrolls": {duration:.05, sample:{file:"m-darkrolls", len:.09, vol:.5, rate:[.92,1.12]},
+                  found:{file:"m-darkrolls", len:2.2, vol:.85}},
+  "rsm-m-tension": {duration:.05, sample:{file:"m-tension", len:.09, vol:.5, rate:[.92,1.12]},
+                  found:{file:"m-tension", len:2.4, vol:.85}},
+  "rsm-m-percussion": {duration:.05, sample:{file:"m-percussion", len:.09, vol:.5, rate:[.92,1.12]},
+                  found:{file:"m-percussion", len:2.2, vol:.85}},
+  "rsm-m-bassdrop": {duration:.05, sample:{file:"m-bassdrop", len:.09, vol:.5, rate:[.92,1.12]},
+                  found:{file:"m-bassdrop", len:2.8, vol:.85}},
+  "rsm-m-addkick": {duration:.05, sample:{file:"m-addkick", len:.09, vol:.5, rate:[.92,1.12]},
+                  found:{file:"m-addkick", len:2.2, vol:.85}}
 };
 const REEL_SAMPLE_FILES={
   click:"assets/sounds/reel-click.mp3", swoosh:"assets/sounds/reel-swoosh.mp3",
   cape:"assets/sounds/reel-whoosh-cape.mp3", motion:"assets/sounds/reel-whoosh-motion.mp3",
   fire:"assets/sounds/reel-whoosh-fire.mp3", whistle:"assets/sounds/reel-whistle.mp3",
-  proj2:"assets/sounds/reel-projector2-loop.mp3", cine:"assets/sounds/reel-cine-loop.mp3"
+  proj2:"assets/sounds/reel-projector2-loop.mp3", cine:"assets/sounds/reel-cine-loop.mp3",
+  "m-menu":"assets/sounds/m-menu.mp3",
+  "m-ondabeat":"assets/sounds/m-ondabeat.mp3",
+  "m-oblivion":"assets/sounds/m-oblivion.mp3",
+  "m-multiverse":"assets/sounds/m-multiverse.mp3",
+  "m-moonwalker":"assets/sounds/m-moonwalker.mp3",
+  "m-horror":"assets/sounds/m-horror.mp3",
+  "m-goldmetal":"assets/sounds/m-goldmetal.mp3",
+  "m-heroes":"assets/sounds/m-heroes.mp3",
+  "m-darkrolls":"assets/sounds/m-darkrolls.mp3",
+  "m-tension":"assets/sounds/m-tension.mp3",
+  "m-percussion":"assets/sounds/m-percussion.mp3",
+  "m-bassdrop":"assets/sounds/m-bassdrop.mp3",
+  "m-addkick":"assets/sounds/m-addkick.mp3"
 };
 const reelBuf={}, reelOnset={}, reelPending={};
 function loadReelSample(file){
@@ -2822,7 +2850,7 @@ async function trailerFor(film){
         api_key:apiKey, include_video_language:langs}),{cache:"no-store"});
       if(!r.ok)throw new Error(`TMDB videos: ${r.status}`);
       return (await r.json()).results||[];
-    }catch(e){console.warn("[Moven] Не удалось загрузить список видео TMDB:",e);return [];}
+    }catch(e){console.warn("[Moven: Explore] Не удалось загрузить список видео TMDB:",e);return [];}
   };
   const score=v=>{
     if (v.official !== true || !movieCatalog.allowsTrailer(v)) return 99;
@@ -2936,13 +2964,13 @@ async function filmReel(pool,film,cc,warm){
     const box=$("freel"),list=pool.films||[],sequence=shuffle(list.filter(f=>f.id!==film.id)).slice(0,18).concat(film);
     await Promise.race([warm||Promise.resolve(),sleep(500)]);box.innerHTML=window.KGCinemaReel.render({mode:"projection"});box.hidden=false;box.classList.remove("out");
     window.KGCinemaReel.mountProjectionTrack(box,sequence[0]||film,{country:cname(cc)});box.scrollIntoView({behavior:"smooth",block:"nearest"});startFilmReelSound();
-    const landed=await window.KGCinemaReel.spinProjectionTrack(box,sequence,film,{reducedMotion:RM,shouldSkip:()=>fSkip,meta:{country:cname(cc)}});stopFilmReelSound();if(landed)await sleep(700);box.hidden=true;resetFilmReelSearchView(box);return;
+    const landed=await window.KGCinemaReel.spinProjectionTrack(box,sequence,film,{duration:2100,reducedMotion:RM,shouldSkip:()=>fSkip,meta:{country:cname(cc)}});stopFilmReelSound();if(landed)await sleep(700);box.hidden=true;resetFilmReelSearchView(box);return;
   }
   if(reelStyle==="cassette"){
     const box=$("freel"),list=pool.films||[],sequence=shuffle(list.filter(f=>f.id!==film.id)).slice(0,14).concat(film);
     await Promise.race([warm||Promise.resolve(),sleep(500)]);box.innerHTML=window.KGCinemaReel.render({mode:"cassette"});box.hidden=false;box.classList.remove("out");
     window.KGCinemaReel.mountCassetteDeck(box,list,sequence[0]||film,{onOpen:f=>window.KGFilmCard.openDialog(f,document.activeElement),onRandom:f=>window.KGFilmCard.openDialog(f,document.activeElement)});box.scrollIntoView({behavior:"smooth",block:"nearest"});startFilmReelSound();
-    const landed=await window.KGCinemaReel.spinCassetteDeck(box,list,sequence,film,{reducedMotion:RM,shouldSkip:()=>fSkip});stopFilmReelSound();if(landed){await sleep(700);}box.hidden=true;resetFilmReelSearchView(box);return;
+    const landed=await window.KGCinemaReel.spinCassetteDeck(box,list,sequence,film,{duration:2100,reducedMotion:RM,shouldSkip:()=>fSkip});stopFilmReelSound();if(landed){await sleep(700);}box.hidden=true;resetFilmReelSearchView(box);return;
   }
   const pics=posterStrip(pool.films);
   if(!pics) return;
@@ -3422,7 +3450,7 @@ async function spin(countryCode = ""){
     for(let i=0;i<cap;i+=3){   // проверяем небольшими параллельными партиями, чтобы поиск оставался отзывчивым
       const batch=order.slice(i,i+3);
       if (!filmOnly) lockSpin(`<span class="spin">🌍</span> Проверяем страны ${i+1}–${Math.min(i+batch.length,cap)} из ${cap}…`);
-      const pools=await Promise.all(batch.map(cc=>getPool(cc,q).catch(error=>{console.warn("[Moven] country search",cc,error);return null;})));
+      const pools=await Promise.all(batch.map(cc=>getPool(cc,q).catch(error=>{console.warn("[Moven: Explore] country search",cc,error);return null;})));
       for(let k=0;k<batch.length;k++){
         const pool=pools[k];
         if(!pool) continue;                   // too few films
@@ -3475,7 +3503,7 @@ $("seen").onclick=()=>markCurrentFilm($("seen"));
 (function(){
 const $=id=>document.getElementById(id);
 const G=window.MovenGlobe;
-if(!G){console.error("[Moven] globe not ready");return;}
+if(!G){console.error("[Moven: Explore] globe not ready");return;}
 const GEO={US:[37.7,-98],GB:[54,-2],FR:[46.2,2.2],DE:[51.2,10.4],IT:[41.9,12.5],ES:[40.4,-3.7],JP:[36,138],KR:[36.5,127.8],CN:[35,103],HK:[22.3,114.2],TW:[23.7,121],IN:[20.6,78.9],RU:[60,100],CA:[56,-106],AU:[-25,134],MX:[23,-102],BR:[-14,-51],AR:[-34,-64],CL:[-35,-71],CO:[4,-74],SE:[62,15],DK:[56,10],NO:[62,10],FI:[64,26],IS:[65,-18],PL:[52,19],CZ:[50,15],HU:[47,19],RO:[46,25],GR:[39,22],TR:[39,35],IR:[32,53],IL:[31,35],EG:[26,30],ZA:[-29,24],TH:[15,100],VN:[16,108],ID:[-2,118],PH:[13,122],MY:[4,102],SG:[1.3,103.8],NL:[52.1,5.3],BE:[50.5,4.5],AT:[47.5,14.5],CH:[47,8],PT:[39.4,-8],IE:[53,-8],NZ:[-41,174],UA:[49,32],GE:[42,43.5],AM:[40,45],KZ:[48,67],UZ:[41,64],LB:[34,36],SA:[24,45],AE:[24,54],TN:[34,9],DZ:[28,3],NG:[10,8],KE:[0,38],GH:[8,-1],ET:[9,40],CU:[22,-80],PE:[-10,-76],VE:[7,-66],EC:[-1,-78],UY:[-33,-56],CR:[10,-84],DO:[19,-70],LV:[57,25],LT:[55,24],EE:[59,25],SK:[49,20],SI:[46,15],HR:[45,16],BA:[44,18],RS:[44,21],BG:[43,25],MK:[42,22],AL:[41,20],BY:[53,28],MD:[47,29],AZ:[40,48],IQ:[33,44],JO:[31,36],PK:[30,70],BD:[24,90],LK:[7,81],NP:[28,84],MN:[46,105],KH:[13,105],MM:[22,96],LU:[50,6],MA:[32,-6],BO:[-17,-65],PY:[-23,-58],SN:[14,-14],BF:[12,-1.5],ML:[17,-3],CI:[7.5,-5.5],SU:[60,90],YU:[44,20],CS:[49,17],DD:[52,13]};
 
 // ---------- CSS для диалогов и карты ----------
@@ -3557,8 +3585,6 @@ st.textContent=`
 #btn-mode-surprise[aria-pressed="false"]:hover{color:rgb(var(--kg-on-surface))}
 #btn-mode-surprise[aria-pressed="true"]{color:rgb(var(--kg-white));box-shadow:0 4px 18px rgb(var(--kg-rose-07)/0.26667)}
 #btn-mode-surprise[aria-pressed="true"]{background:linear-gradient(135deg,rgb(var(--kg-secondary-container)),rgb(var(--kg-rose-06)))}
-#hero-hologram-display.is-country-scanning{opacity:0}
-@media (prefers-reduced-motion:reduce){#hero-hologram-display{transition:none}}
 #film-details.veiled{display:none}
 .kg-film-card-poster{width:80px;height:112px;flex:none}
 .kg-trailer-frame{position:absolute;inset:0;display:block;width:100%;height:100%;border:0}
@@ -3568,17 +3594,26 @@ document.head.appendChild(st);
 
 // ---------- Единый визуальный режим киноленты для всех экранов ----------
 function mainReelMarkup(){
-  const common={prefix:"film-reel",windowId:"film-reel-window",trackId:"film-reel-track",runClass:"run",frameId:"film-center-frame",includeRun:false};
+  const common={shellClass:"relative w-full rounded-xl bg-canvas-obsidian border border-primary-container/30 overflow-hidden shadow-[inset_0_2px_12px_rgb(var(--kg-black)/0.95)] my-2 p-1",prefix:"film-reel",windowId:"film-reel-window",trackId:"film-reel-track",runClass:"run",frameId:"film-center-frame",includeRun:false};
   return window.KGCinemaReel.render({...common,mode:reelStyle});
 }
 // ---------- Новая секция «Кинолента» (подменяет старую карточку) ----------
 const CARD_HTML=`
-<section class="kg-home-full-width" id="cinema-35mm-reel-section">
+<section class="w-full rounded-2xl bg-surface-panel/95 p-3.5 shadow-2xl relative overflow-hidden border border-primary-container/25 backdrop-blur-xl" id="cinema-35mm-reel-section">
+<div class="flex items-center justify-between mb-2.5 px-0.5">
+<div class="flex items-center gap-2 min-w-0">
+<div class="w-7 h-7 rounded-lg bg-surface-container flex items-center justify-center border border-primary-container/30 text-primary shadow-[0_0_8px_rgb(var(--kg-primary-container)/0.25)] flex-shrink-0"><span class="material-symbols-outlined text-[17px]">movie</span></div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5"><span class="font-label-sm text-label-sm font-bold text-on-surface uppercase tracking-wider" id="reel-format-title">${uiText(reelStyle==="cassette"?"Кассетная дека · 3D Cover Flow":reelStyle==="projection"?"Проекционный тракт · 35 мм":"Кинолента 35-мм")}</span></div>
+<span class="font-micro-caption text-[11px] text-text-muted truncate" id="discovery-timestamp">Крутите глобус, и здесь появится находка</span>
+</div></div>
+<div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-high/90 border border-primary-container/25 shadow-sm flex-shrink-0"><span class="material-symbols-outlined text-primary-container text-[14px]">confirmation_number</span><span class="font-mono text-micro-caption text-primary-fixed font-semibold tracking-wide" id="reel-frame-counter">Кадр 00 / 00</span></div>
+</div>
 <div id="film-reel-host">${mainReelMarkup()}</div>
 <div class="veiled flex flex-col gap-3 mt-2.5" id="film-details">
 <div id="kg-globe-film"></div>
 <div id="kg-globe-film-context"></div>
-<button type="button" class="self-start mx-margin-mobile py-2 px-3 rounded-xl bg-primary-container text-on-primary-container font-label-sm text-label-sm font-semibold" id="btn-spin-another-film">${uiText("Найти другой фильм")}</button>
+<button type="button" class="self-start py-2 px-3 rounded-xl bg-primary-container text-on-primary-container font-label-sm text-label-sm font-semibold" id="btn-spin-another-film">${uiText("Найти другой фильм")}</button>
 </div>
 </section>`;
 {const old=$("cinema-35mm-reel-section")||$("recent-discovery-card");if(old){old.outerHTML=CARD_HTML;localizeInterfaceMarkup($("film-details"));}}
@@ -3723,37 +3758,15 @@ function gc(cc) {
     movie: null
   };
 }
-let activeScan=null,landed=false,tmr=[];
+let scanOn=false,scanT=0,scanAt=0,landed=false,tmr=[];
 let focusedCC="";   // страна, на которой глобус уже стоит в фокусе с флажком (чтобы «другой фильм» не крутил планету заново)
-const SCAN_STEPS=8, SCAN_STEP_MS=190;
-const scanCatalog=COUNTRIES.map(id=>{
-  const [lat,lon]=GEO[id]||[20,0];
-  return {id,lat,lon};
-});
-function cancelCountryScan(){
-  activeScan=null;
-  G.cancelScanTurn();
-}
-async function scanCountries(scan, steps, slow=false){
-  for(let i=0;i<steps && activeScan===scan;i++){
-    const index=Math.floor(Math.random()*scan.remaining);
-    const country=scan.pool[index];
-    scan.pool[index]=scan.pool[--scan.remaining];
-    const duration=slow ? LAND_STEPS[i] : SCAN_STEP_MS;
-    const turn=G.turnToScanCountry(country,duration,0.12,G.CAMERA_DIST_SPIN);
-    G.flashBeacon(country);
-    sTick(slow ? .4+Math.random()*.4 : Math.random());
-    if(!await turn) return false;
-  }
-  return activeScan===scan;
-}
+const SCAN_MIN_MS=3500;   // минимум времени «поиска» до остановки (мс)
 const COUNTRY_HOLD_MS = 1000;
-const FINAL_COUNTRY_TURN_MS = 950;
-const LAND_STEPS=[200,230,265,300,350,410];   // замедление перед остановкой
+const LAND_STEPS=[220,300,400,540,720,950];   // замедление перед остановкой
 // Подборка уже знает страну: только световая точка, без прокрутки глобуса и без флажка.
 function pinLight(cc){
   const w=gc(cc);
-  cancelCountryScan();
+  scanOn=false;clearTimeout(scanT);
   G.isSpinning=false;
   G.currentCountry=w;focusedCC=cc;landed=true;
   G.showSingleBeacon(w);
@@ -3761,7 +3774,8 @@ function pinLight(cc){
   hero(w);
 }
 function frameSelectedCountry(code){
-  cancelCountryScan();
+  scanOn=false;
+  clearTimeout(scanT);
   tmr.forEach(clearTimeout);
   tmr=[];
   G.isSpinning=false;
@@ -3799,17 +3813,20 @@ const _lock=window.lockSpin,_unlock=window.unlockSpin;
 window.lockSpin=function(label,filmOnly){_lock(label);setSpinUi(true,filmOnly);};
 window.unlockSpin=function(){_unlock();setSpinUi(false);};
 window.reelStart=function(themedCountries = []){
-  closePlayer();cancelCountryScan();tmr.forEach(clearTimeout);tmr=[];landed=false;focusedCC="";
+  closePlayer();tmr.forEach(clearTimeout);tmr=[];landed=false;focusedCC="";
   if(themedCountries.length){
+    scanOn=false;
     G.isSpinning=false;
     G.hideMarks();
     if(themedCountries.length===1) pinLight(themedCountries[0]);
     return;
   }
-  $("hero-hologram-display").classList.add("is-country-scanning");
-  G.beginScan();
-  const scan=activeScan={pool:scanCatalog.slice(),remaining:scanCatalog.length,initial:null};
-  scan.initial=scanCountries(scan,SCAN_STEPS);
+  scanOn=true;scanAt=performance.now();
+  $("hero-hologram-display").classList.add("invisible");
+  G.beginScan();                       // как в дизайне: маяки и флаг скрыты, камера на обзорной дистанции
+  const loop=()=>{if(!scanOn)return;const c=gc(pick(COUNTRIES));
+    G.orientGlobeToCountry(c,false,0.12,G.CAMERA_DIST_SPIN,false);G.flashBeacon(c);sTick(Math.random());scanT=setTimeout(loop,170);};
+  loop();
 };
 window.reelLand=async function(cc, themedCountries = []){
   if (themedCountries.length) {
@@ -3817,26 +3834,24 @@ window.reelLand=async function(cc, themedCountries = []){
     await sleep(COUNTRY_HOLD_MS);
     return;
   }
-  const scan=activeScan;
-  if(!scan || !await scan.initial || activeScan!==scan) return;
-  // Keep the known winner out of all remaining turns.
-  for(let i=0;i<scan.remaining;i++){
-    if(scan.pool[i].id!==cc) continue;
-    scan.pool[i]=scan.pool[--scan.remaining];
-    break;
+  await sleep(Math.max(0,SCAN_MIN_MS-(performance.now()-scanAt)));
+  scanOn=false;clearTimeout(scanT);
+  for(const d of LAND_STEPS){
+    const c=gc(pick(COUNTRIES.filter(x=>x!==cc)));
+    G.orientGlobeToCountry(c,false,0.12,G.CAMERA_DIST_SPIN,false);G.flashBeacon(c);sTick(.4+Math.random()*.4);await sleep(d);
   }
-  if(!await scanCountries(scan,LAND_STEPS.length,true) || activeScan!==scan) return;
   const country = gc(cc);
-  const arrived = await G.turnToScanCountry(country, FINAL_COUNTRY_TURN_MS, 0.075, G.CAMERA_DIST_FOCUS, true);
-  if (!arrived || activeScan !== scan) return;
-  G.frameCountry(country, true);
+  G.currentCountry = country;
   focusedCC = cc;
+  G.showSingleBeacon(country);
+  G.orientGlobeToCountry(country, false, 0.055, G.CAMERA_DIST_FOCUS, true);
   hero(country);
-  $("hero-hologram-display").classList.remove("is-country-scanning");
+  $("hero-hologram-display").classList.remove("invisible");
   G.triggerWinnerCelebration(country);
   landed = true;
+  await sleep(650);
+  G.frameCountry(country);
   await sleep(COUNTRY_HOLD_MS);
-  if(activeScan!==scan) return;
   setSpinUi(true, true);
   tmr.push(setTimeout(() => {
     G.dollyBack(country);
@@ -3844,8 +3859,8 @@ window.reelLand=async function(cc, themedCountries = []){
   }, 800));
 };
 window.reelAbort=function(){
-  cancelCountryScan();
-  $("hero-hologram-display").classList.remove("is-country-scanning");
+  scanOn=false;clearTimeout(scanT);
+  $("hero-hologram-display").classList.remove("invisible");
   if(!landed){focusedCC="";G.isSpinning=false;const c=G.currentCountry;G.orientGlobeToCountry(c,false,0.035,G.CAMERA_DIST_DEFAULT,false);G.hideMarks();hero(c);}
 };
 window.filmReel=async function(){};   // в дизайне барабана постеров нет
@@ -3880,6 +3895,7 @@ function renderBlank(){
   if(!["cassette","projection"].includes(reelStyle))mountRun(new Array(9).fill(null),4,"");
   if(reelStyle==="cassette")window.KGCinemaReel.mountCassetteDeck($("film-reel-host"),[],null,{onOpen:f=>window.KGFilmCard.openDialog(f,document.activeElement)});
   if(reelStyle==="projection")window.KGCinemaReel.mountProjectionTrack($("film-reel-host"),null);
+  set("reel-frame-counter","Кадр 00 / 00");
 }
 function renderStatic(pool,film,cc){      // готовая лента без прокрутки: выбранный фильм под рамкой
   let list=(pool.films&&pool.films.length)?pool.films:[film];
@@ -3889,6 +3905,7 @@ function renderStatic(pool,film,cc){      // готовая лента без п
   if(reelStyle==="cassette")window.KGCinemaReel.mountCassetteDeck($("film-reel-host"),list,film,{onOpen:f=>window.KGFilmCard.openDialog(f,document.activeElement),onRandom:f=>window.KGFilmCard.openDialog(f,document.activeElement)});
   else if(reelStyle==="projection")window.KGCinemaReel.mountProjectionTrack($("film-reel-host"),film,{country:cname(cc)});
   else mountRun(list,i,"chosen");
+  set("reel-frame-counter",`Кадр ${pad(i+1)} / ${list.length}`);
 }
 window.setCinemaReelStyle=function(style){
   const next=["cassette","projection"].includes(style)?style:"35mm";
@@ -3897,6 +3914,7 @@ window.setCinemaReelStyle=function(style){
   stopReel();
   reelStyle=next;store.set("reelStyle",next);
   filmSpin=true;store.set("filmSpin",true);filmLabel();
+  const title=$("reel-format-title");if(title)title.textContent=uiText(next==="cassette"?"Кассетная дека · 3D Cover Flow":next==="projection"?"Проекционный тракт · 35 мм":"Кинолента 35-мм");
   const host=$("film-reel-host");if(!host)return;
   host.innerHTML=mainReelMarkup();
   trackEl=$("film-reel-track");runEl=null;
@@ -3909,12 +3927,9 @@ renderBlank();
 const loaded=new Set();
 function loadPoster(f){
   return new Promise(r=>{
-    if(!f.poster_path)return r();
-    const size=reelStyle==="cassette"?"w500":"w185";
-    const url="https://image.tmdb.org/t/p/"+size+f.poster_path;
-    if(loaded.has(url))return r();
-    const i=new Image();i.onload=i.onerror=()=>{loaded.add(url);r();};
-    i.src=url;
+    if(!f.poster_path||loaded.has(f.poster_path))return r();
+    const i=new Image();i.onload=i.onerror=()=>{loaded.add(f.poster_path);r();};
+    i.src="https://image.tmdb.org/t/p/w185"+f.poster_path;
   });
 }
 const warmPosters=(pool,selected)=>{
@@ -3986,27 +4001,19 @@ async function spinReel(pool,film,cc){
   const others=shuffle((pool.films||[]).filter(f=>f.id!==film.id));
   if(reelStyle==="projection"){
     if(!cur||cur.film.id!==film.id)return;
-    const host=$("film-reel-host"),seq=[];for(let i=0;i<24;i++)seq.push(others.length?others[i%others.length]:film);seq.push(film);
-    window.KGCinemaReel.mountProjectionTrack(host,seq[0],{country:cname(cc)});startFilmReelSound();
-    const landed=await window.KGCinemaReel.spinProjectionTrack(host,seq,film,{reducedMotion:RM,cancelled:()=>!cur||cur.film.id!==film.id,shouldSkip:()=>fSkip,meta:{country:cname(cc)}});stopFilmReelSound();
-    if(!landed||!cur||cur.film.id!==film.id)return;buzz([25,50,60]);reveal(film,pool);return;
+    const host=$("film-reel-host"),all=pool.films||[],seq=[];for(let i=0;i<24;i++)seq.push(others.length?others[i%others.length]:film);seq.push(film);
+    window.KGCinemaReel.mountProjectionTrack(host,seq[0],{country:cname(cc)});set("reel-frame-counter","Кадры проектора запускаются…");startFilmReelSound();
+    const landed=await window.KGCinemaReel.spinProjectionTrack(host,seq,film,{duration:3900,reducedMotion:RM,cancelled:()=>!cur||cur.film.id!==film.id,shouldSkip:()=>fSkip,meta:{country:cname(cc)},onFrame:(_f,i)=>set("reel-frame-counter","Кадр "+pad(i+1)+" / "+pad(seq.length))});stopFilmReelSound();
+    if(!landed||!cur||cur.film.id!==film.id)return;const k=all.findIndex(f=>f.id===film.id);set("reel-frame-counter","Фильм "+pad((k<0?0:k)+1)+" / "+pad(all.length));buzz([25,50,60]);reveal(film,pool);return;
   }
   if(reelStyle==="cassette"){
     if(!cur||cur.film.id!==film.id)return;
-    const selection=cur,host=$("film-reel-host");
-    const seq=others.slice(0,20).concat(film);
-    let cancelled=false;
-    const cancel=()=>{cancelled=true;};
-    spinCancel=cancel;
-    const landed=await window.KGCinemaReel.spinCassetteDeck(host,seq,seq,film,{
-      reducedMotion:RM,cancelled:()=>cancelled||cur!==selection||reelStyle!=="cassette"
-    });
-    if(spinCancel===cancel)spinCancel=null;
-    if(!landed||cancelled||cur!==selection||reelStyle!=="cassette")return;
-    buzz([25,50,60]);reveal(film,pool);return;
+    const host=$("film-reel-host"),all=pool.films||[],seq=[];for(let i=0;i<20;i++)seq.push(others.length?others[i%others.length]:film);seq.push(film);
+    startFilmReelSound();const landed=await window.KGCinemaReel.spinCassetteDeck(host,seq,seq,film,{duration:3900,reducedMotion:RM,cancelled:()=>!cur||cur.film.id!==film.id,onOpen:f=>window.KGFilmCard.openDialog(f,document.activeElement),onRandom:f=>window.KGFilmCard.openDialog(f,document.activeElement),onFrame:(_f,i)=>set("reel-frame-counter","Кассета "+pad(i+1)+" / "+pad(seq.length))});stopFilmReelSound();
+    if(!landed||!cur||cur.film.id!==film.id)return;const k=all.findIndex(f=>f.id===film.id);set("reel-frame-counter","Фильм "+pad((k<0?0:k)+1)+" / "+pad(all.length));buzz([25,50,60]);reveal(film,pool);return;
   }
   if(!others.length||RM){renderStatic(pool,film,cc);reveal(film,pool);return;}
-  const NEED=26,TAIL=6;
+  const NEED=26,T=4600,TAIL=6;
   const seq=[];
   for(let i=0;i<NEED;i++)seq.push(others[i%others.length]);
   seq.push(film);
@@ -4016,11 +4023,12 @@ async function spinReel(pool,film,cc){
   strip={list:seq,pool,cc,idx:NEED,busy:true};
   mountRun(seq,NEED,"");
   [...runEl.children].forEach(c=>c.classList.add("spinning"));
+  set("reel-frame-counter","Кадр -- / "+pad(pool.films.length));
   startFilmReelSound();
   const x0=centerX(0),x1=centerX(NEED);
   const completed=await new Promise(resolve=>{
     spinCancel=window.KGCinemaReel.spin({
-      run:runEl,root:null,startX:x0,endX:x1,stepWidth:STEP,
+      run:runEl,root:null,startX:x0,endX:x1,duration:T,stepWidth:STEP,
       chosenIndex:NEED,reducedMotion:RM,
       onStep:(row,progress)=>{
         if(progress>.6)buzz(7);
@@ -4034,6 +4042,8 @@ async function spinReel(pool,film,cc){
   if(!completed||!cur||cur.film.id!==film.id){strip.busy=false;stopFilmReelSound();return;}
   strip.busy=false;
   stopFilmReelSound();
+  const k=pool.films.findIndex(f=>f.id===film.id);
+  set("reel-frame-counter",`Кадр ${pad((k<0?0:k)+1)} / ${pad(pool.films.length)}`);
   buzz([25,50,60]);
   reveal(film,pool);
 }
@@ -4050,7 +4060,7 @@ function globeFilmContext(cc) {
   // страна и прогресс
   const countryCounts=window.KGWatchedCountryCounts?window.KGWatchedCountryCounts():{};const n=countryCounts[cc]||0,open=countOpenedCountries(countryCounts),all=COUNTRIES.length,pct=Math.round(open/all*100);
   const tag=uiText(cur&&cur.pool.oscar?"ОСКАР":cur&&cur.pool.top1?"ТОП-1":"НАХОДКА");
-  return cc?`<div class="px-margin-mobile py-3.5 flex flex-col gap-2.5">
+  return cc?`<div class="p-3.5 rounded-xl bg-surface-container-high flex flex-col gap-2.5">
     <div class="flex items-center justify-between gap-2">
       <div class="flex items-center gap-2 min-w-0"><div class="w-7 h-7 rounded-full bg-cinema-velvet-deep flex items-center justify-center text-secondary flex-shrink-0"><span class="material-symbols-outlined text-[16px]">travel_explore</span></div>
         <span class="font-label-md text-label-md text-primary font-bold truncate">${esc(uiText("Кинематограф: {country}", {country: cname(cc)}))}</span></div>
@@ -4099,18 +4109,19 @@ window.show=function(cc,pool,film){
   };
   detailsEl.classList.add("veiled");
   refresh();
+  set("discovery-timestamp",pool.oscar?uiText("Лауреат «Оскара»"):pool.top1?uiText("Топ-1 страны"):pool.worst?uiText("Из худших"):uiText("Случайная находка · {country}", {country:cname(cc)}));
   $("kg-globe-film-context").innerHTML=globeFilmContext(cc);
   ag.hidden=$("again").hidden;
-  if(reelStyle!=="cassette")renderBlank();
+  renderBlank();
   window.KGFilmCard.hydrate(model,film,refresh,()=>globeFilm===model);
   stopReel();warmPosters(pool,film);
-  const selection = cur, displayStyle = reelStyle;
+  const selection = cur;
   spinTimer=setTimeout(async()=>{
     try{
       await scrollToFilmReel(card, fromSpin ? 620 : 500);
-      if(cur!==selection||reelStyle!==displayStyle)return;
+      if(cur!==selection)return;
       await spinReel(pool,film,cc);
-    }catch(e){console.warn('[Moven] reel',e);if(cur===selection){stopFilmReelSound();renderStatic(pool,film,cc);reveal(film,pool);}}
+    }catch(e){console.warn('[Moven: Explore] reel',e);if(cur===selection){stopFilmReelSound();renderStatic(pool,film,cc);reveal(film,pool);}}
   },0);
 };
 document.addEventListener("kg:watched-change",()=>{
@@ -4156,33 +4167,33 @@ window.KGCountryApp={
   showCountryOnGlobe:code=>{closeJ();const country=gc(code);G.currentCountry=country;focusedCC=code;G.showSingleBeacon(country);G.orientGlobeToCountry(country,false,0.055,G.CAMERA_DIST_FOCUS,true);hero(country);setTimeout(()=>G.dollyBack(country),1800);window.scrollTo({top:0,behavior:"smooth"});},
   searchCountry:async code=>{if(!apiKey){closeJ();showKeyUi();$("tmdb-key-banner").scrollIntoView({behavior:"smooth",block:"center"});return;}closeJ();await spin(code);}
 };
-console.info("[Moven] Bridge v6 ready");
+console.info("[Moven: Explore] Bridge v6 ready");
 })();
 </script>
 
-<script src="globe-visuals.js?v=6"></script>
+<script src="globe-visuals.js?v=5"></script>
 <script src="watch-history.js?v=16"></script>
-<script src="country-pages.js?v=37"></script>
-<script src="profile-page.js?v=16"></script>
-<script src="cinema-diary.js?v=15"></script>
-<script src="profile-editor.js?v=9"></script>
-<script src="login-page.js?v=9"></script>
-<script src="password-recovery.js?v=9"></script>
-<script src="recovery-code.js?v=8"></script>
-<script src="account-page.js?v=13"></script>
+<script src="country-pages.js?v=36"></script>
+<script src="profile-page.js?v=15"></script>
+<script src="cinema-diary.js?v=14"></script>
+<script src="profile-editor.js?v=8"></script>
+<script src="login-page.js?v=8"></script>
+<script src="password-recovery.js?v=8"></script>
+<script src="recovery-code.js?v=7"></script>
+<script src="account-page.js?v=12"></script>
 <script src="mood-vibe-additions.js?v=2"></script>
-<script src="mood-page.js?v=46"></script>
-<script src="mood-vibe-page.js?v=31"></script>
-<script src="oscar-page.js?v=51"></script>
-<script src="oscar-design.js?v=28"></script>
+<script src="mood-page.js?v=44"></script>
+<script src="mood-vibe-page.js?v=30"></script>
+<script src="oscar-page.js?v=48"></script>
+<script src="oscar-design.js?v=27"></script>
 <script src="curated-collections.js?v=2"></script>
-<script src="film-card.js?v=13"></script>
-<script src="collections.js?v=122"></script>
-<script src="film-interactions.js?v=29"></script>
+<script src="film-card.js?v=7"></script>
+<script src="collections.js?v=117"></script>
+<script src="film-interactions.js?v=27"></script>
 <script src="legal-watch.js?v=8"></script>
-<script src="global-search.js?v=19"></script>
-<script src="home-releases.js?v=10"></script>
-<script src="settings-page.js?v=63"></script>
+<script src="global-search.js?v=18"></script>
+<script src="home-releases.js?v=9"></script>
+<script src="settings-page.js?v=61"></script>
 <script>
 (() => {
   const earth = document.getElementById("earth-canvas-container");

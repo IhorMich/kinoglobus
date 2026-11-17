@@ -1,6 +1,6 @@
 /* Shared TMDB person profiles and related-film carousels. */
 (function(){
-  const pools=new Map(),relatedCache=new Map(),personCache=new Map(),personFilmPools=new Map(),personBackdropWarmCache=new Map();
+  const pools=new Map(),relatedCache=new Map(),personCache=new Map(),personFilmPools=new Map(),personBackdropWarmCache=new Map(),personTaggedBackdropCache=new Map();
   let scrollFrame=0,personScrollFrame=0,personOpenRequest=0;
   const image=(path,size="w342")=>path?`https://image.tmdb.org/t/p/${size}${path}`:"";
   const esc=value=>String(value||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -45,16 +45,22 @@
     host.replaceChildren(img);
     requestAnimationFrame(()=>requestAnimationFrame(()=>img.classList.add("is-ready")));
   }
-  async function personTaggedBackdrop(personId){
-    try{
-      const data=await tmdb(`person/${personId}/tagged_images`,{page:"1"},"en-US");
-      return (data.results||[])
-        .filter(img=>img.file_path&&img.media_type==="movie"&&(img.aspect_ratio||0)>=1.35&&(img.width||0)>=700)
-        .sort((a,b)=>(b.vote_count||0)-(a.vote_count||0))
-        .map(img=>img.file_path);
-    }catch{
-      return [];
-    }
+  function personTaggedBackdrop(personId){
+    const key=String(personId);
+    if(personTaggedBackdropCache.has(key))return personTaggedBackdropCache.get(key);
+    const request=(async()=>{
+      try{
+        const data=await tmdb(`person/${personId}/tagged_images`,{page:"1"},"en-US");
+        return (data.results||[])
+          .filter(img=>img.file_path&&img.media_type==="movie"&&(img.aspect_ratio||0)>=1.35&&(img.width||0)>=700)
+          .sort((a,b)=>(b.vote_count||0)-(a.vote_count||0))
+          .map(img=>img.file_path);
+      }catch{
+        return [];
+      }
+    })();
+    personTaggedBackdropCache.set(key,request);
+    return request;
   }
   async function personAltPortrait(personId,excludePath){
     try{
@@ -70,56 +76,59 @@
   }
   async function applyPersonBackdrop(root,credits,personId,sourceFilmId,mainProfilePath){
     const host=root.querySelector("[data-kg-person-backdrop]");
-    if(!host)return;
-    // 1. Кадры, где этот человек отмечен
+    if(!host||host.dataset.kgBackdropSource==="tagged")return;
+
+    // 1. Несколько лучших tagged images прогружаем параллельно.
     const tagged=await personTaggedBackdrop(personId);
-    for(const path of tagged.slice(0,6)){
-      const loaded=await warmPersonBackdrop(path);
-      if(!root.isConnected)return;
-      if(loaded){
-        const shown=new Image();
-        shown.alt="";
-        shown.decoding="async";
-        shown.src=loaded.src;
-        fadeInto(host,shown);
-        return;
-      }
+    if(!root.isConnected)return;
+    const taggedImages=await Promise.all(tagged.slice(0,6).map(warmPersonBackdrop));
+    if(!root.isConnected)return;
+    const taggedImage=taggedImages.find(Boolean);
+    if(taggedImage){
+      const shown=new Image();
+      shown.alt="";
+      shown.decoding="async";
+      shown.src=taggedImage.src;
+      host.dataset.kgBackdropSource="tagged";
+      fadeInto(host,shown);
+      return;
     }
-    // 2. Backdrop из фильмов — старая логика
-    for(const film of personBackdropCandidates(credits,personId,sourceFilmId).slice(0,4)){
-      const loaded=await warmPersonBackdrop(film.backdrop_path);
-      if(!root.isConnected)return;
-      if(loaded){
-        const shown=new Image();
-        shown.alt="";
-        shown.decoding="async";
-        shown.src=loaded.src;
-        fadeInto(host,shown);
-        return;
-      }
+
+    // Первый вызов запускает tagged images сразу при открытии профиля.
+    // Остальные варианты выбираются, когда готова фильмография.
+    if(credits==null)return;
+
+    // 2. Backdrop фильмов также загружаем параллельно, сохраняя приоритет списка.
+    const filmCandidates=personBackdropCandidates(credits,personId,sourceFilmId).slice(0,4);
+    const filmImages=await Promise.all(filmCandidates.map(film=>warmPersonBackdrop(film.backdrop_path)));
+    if(!root.isConnected)return;
+    const filmImage=filmImages.find(Boolean);
+    if(filmImage){
+      const shown=new Image();
+      shown.alt="";
+      shown.decoding="async";
+      shown.src=filmImage.src;
+      host.dataset.kgBackdropSource="film";
+      fadeInto(host,shown);
+      return;
     }
-    // 3. Другой портрет, отличный от основного фото
+
+    // 3. Другой портрет, отличный от основного фото.
     const altPortraits=await personAltPortrait(personId,mainProfilePath);
-    for(const path of altPortraits.slice(0,4)){
-      const src=`https://image.tmdb.org/t/p/w1280${path}`;
-      const loaded=await new Promise(resolve=>{
-        const img=new Image();
-        img.onload=()=>resolve(img);
-        img.onerror=()=>resolve(null);
-        img.src=src;
-        if(img.complete)resolve(img.naturalWidth?img:null);
-      });
-      if(!root.isConnected)return;
-      if(loaded){
-        const shown=new Image();
-        shown.alt="";
-        shown.decoding="async";
-        shown.src=loaded.src;
-        shown.style.objectPosition="center 20%";
-        fadeInto(host,shown);
-        return;
-      }
+    const portraitImages=await Promise.all(altPortraits.slice(0,4).map(warmPersonBackdrop));
+    if(!root.isConnected)return;
+    const portraitImage=portraitImages.find(Boolean);
+    if(portraitImage){
+      const shown=new Image();
+      shown.alt="";
+      shown.decoding="async";
+      shown.src=portraitImage.src;
+      shown.style.objectPosition="center 20%";
+      host.dataset.kgBackdropSource="portrait";
+      fadeInto(host,shown);
+      return;
     }
+
     // 4. Последний fallback
     loadPersonBackdrop(root,credits);
   }
@@ -135,6 +144,24 @@
     const portrait=new Image();portrait.className="h-full w-full object-cover";portrait.alt=name;portrait.decoding="sync";portrait.src=src;
     host.replaceChildren(portrait);
     return portrait;
+  }
+  function seedPersonBackdrop(root,sourceElement,id){
+    const host=root.querySelector("[data-kg-person-backdrop]");
+    if(!host)return;
+    const filmCard=sourceElement?.closest?.(".kg-film-detail");
+    const localSource=(sourceElement?.matches?.("img")?sourceElement:null)||
+      sourceElement?.querySelector?.("img")||
+      [...(filmCard?.querySelectorAll?.(`[data-kg-person-id="${id}"] img`)||[])][0]||
+      sourceElement?.closest?.("[data-kg-person-id]")?.querySelector?.("img");
+    const src=localSource?.currentSrc||localSource?.src;
+    if(!src)return;
+    const preview=new Image();
+    preview.alt="";
+    preview.decoding="async";
+    preview.src=src;
+    preview.style.objectPosition="center 20%";
+    host.dataset.kgBackdropSource="preview";
+    fadeInto(host,preview);
   }
   function upgradePersonPortrait(root,profilePath,name){
     if(!profilePath)return;
@@ -167,7 +194,7 @@
 .kgpi-film .kgpi-poster>img{display:block;width:100%;height:100%;object-fit:cover}
 .kgpi-film .kgpi-poster>span{display:grid;place-items:center;width:100%;height:100%;text-align:center}
 .kgpi-film-title{overflow-wrap:anywhere}
-.kgpi-profile-credit{display:grid;grid-template-columns:76px minmax(0,1fr);gap:12px;align-items:center;min-height:136px}.kgpi-profile-credit-poster-wrap{position:relative;display:block;width:76px;height:112px}.kgpi-profile-credit-poster{display:block;box-sizing:border-box;flex:none;width:76px!important;min-width:76px;max-width:76px;height:112px!important;min-height:112px;max-height:112px;aspect-ratio:2/3;object-fit:cover;border-radius:9px;background:rgb(var(--kg-surface-container-high))}.kgpi-profile-credit-poster.is-empty{display:flex;align-items:center;justify-content:center}.kgpi-profile-credit-rating{position:absolute;right:4px;bottom:4px;padding:2px 5px;border-radius:6px;background:rgb(var(--kg-canvas-obsidian)/.86);color:rgb(var(--kg-primary));font-size:11px;font-weight:700;line-height:1.25}.kgpi-profile-credit:focus-visible{outline:2px solid rgb(var(--kg-primary-container));outline-offset:2px}.kgpi-bio-clamp{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}.kgpi-hero{isolation:isolate;overflow:hidden}.kgpi-hero-backdrop{position:absolute;z-index:-1;inset:0;overflow:hidden;pointer-events:none;opacity:.92;mask-image:linear-gradient(to bottom,#000 0%,#000 70%,transparent 100%)}.kgpi-hero-backdrop:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgb(var(--kg-canvas-obsidian)/.25) 0%,rgb(var(--kg-canvas-obsidian)/.55) 55%,rgb(var(--kg-canvas-obsidian)) 100%);box-shadow:inset 0 0 120px rgb(var(--kg-primary-container)/.08)}.kgpi-hero-backdrop img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 30%;filter:brightness(.55) saturate(1.05) blur(10px);transform:scale(1.08);transition:opacity .5s ease}.kgpi-hero-backdrop img.kgpi-fade{opacity:0}.kgpi-hero-backdrop img.kgpi-fade.is-ready{opacity:1}.kgpi-hero-backdrop img.kgpi-fade{opacity:0;transition:opacity .5s ease}.kgpi-hero-backdrop img.kgpi-fade.is-ready{opacity:1}.kgpi-modal [data-kg-person-image]{position:relative}.kgpi-modal [data-kg-person-image] img.kgpi-portrait-top{position:absolute;inset:0;opacity:0;transition:opacity .35s ease}.kgpi-modal [data-kg-person-image] img.kgpi-portrait-top.is-ready{opacity:1}.kgpi-hero-backdrop img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 30%;filter:brightness(.55) saturate(1.05) blur(10px);transform:scale(1.08);transition:opacity .5s ease}.kgpi-hero-content{position:relative;z-index:1}`;
+.kgpi-profile-credit{display:grid;grid-template-columns:76px minmax(0,1fr);gap:12px;align-items:center;min-height:136px}.kgpi-profile-credit-poster-wrap{position:relative;display:block;width:76px;height:112px}.kgpi-profile-credit-poster{display:block;box-sizing:border-box;flex:none;width:76px!important;min-width:76px;max-width:76px;height:112px!important;min-height:112px;max-height:112px;aspect-ratio:2/3;object-fit:cover;border-radius:9px;background:rgb(var(--kg-surface-container-high))}.kgpi-profile-credit-poster.is-empty{display:flex;align-items:center;justify-content:center}.kgpi-profile-credit-rating{position:absolute;right:4px;bottom:4px;padding:2px 5px;border-radius:6px;background:rgb(var(--kg-canvas-obsidian)/.86);color:rgb(var(--kg-primary));font-size:11px;font-weight:700;line-height:1.25}.kgpi-profile-credit:focus-visible{outline:2px solid rgb(var(--kg-primary-container));outline-offset:2px}.kgpi-bio-clamp{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}.kgpi-hero{isolation:isolate;overflow:hidden}.kgpi-hero-backdrop{position:absolute;z-index:-1;inset:0;overflow:hidden;pointer-events:none;opacity:.92;mask-image:linear-gradient(to bottom,#000 0%,#000 70%,transparent 100%)}.kgpi-hero-backdrop:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgb(var(--kg-canvas-obsidian)/.25) 0%,rgb(var(--kg-canvas-obsidian)/.55) 55%,rgb(var(--kg-canvas-obsidian)) 100%);box-shadow:inset 0 0 120px rgb(var(--kg-primary-container)/.08)}.kgpi-hero-backdrop img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 30%;filter:brightness(.62) saturate(1.05) blur(2px);transform:scale(1.02);transition:opacity .5s ease}.kgpi-hero-backdrop img.kgpi-fade{opacity:0}.kgpi-hero-backdrop img.kgpi-fade.is-ready{opacity:1}.kgpi-hero-backdrop img.kgpi-fade{opacity:0;transition:opacity .5s ease}.kgpi-hero-backdrop img.kgpi-fade.is-ready{opacity:1}.kgpi-modal [data-kg-person-image]{position:relative}.kgpi-modal [data-kg-person-image] img.kgpi-portrait-top{position:absolute;inset:0;opacity:0;transition:opacity .35s ease}.kgpi-modal [data-kg-person-image] img.kgpi-portrait-top.is-ready{opacity:1}.kgpi-hero-backdrop img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 30%;filter:brightness(.62) saturate(1.05) blur(2px);transform:scale(1.02);transition:opacity .5s ease}.kgpi-hero-content{position:relative;z-index:1}`;
     document.head.appendChild(style);
   }
   function registerPool(key,films){
@@ -262,6 +289,8 @@
     // body would sit behind an open Journey dialog and look like a dead click.
     const ownerDialog=sourceElement?.closest?.("dialog[open]");
     (ownerDialog||document.body).appendChild(root);
+    seedPersonBackdrop(root,sourceElement,id);
+    applyPersonBackdrop(root,null,id,sourceFilmId,null);
     window.KGFilmCard?.stopTrailers();
     const dialog=root.querySelector(".kgpi-modal");
     root.addEventListener("click",e=>{

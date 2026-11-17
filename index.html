@@ -14,9 +14,10 @@ html.kg-launch-reveal body>:not(#kg-launch-splash){visibility:visible!important;
 @media(prefers-reduced-motion:reduce){#kg-launch-splash,body>:not(#kg-launch-splash){transition-duration:150ms}}
 </style>
 <title>Moven: Explore</title>
-<link rel="icon" type="image/png" sizes="32x32" href="assets/branding/moven-icon-32.png">
-<link rel="apple-touch-icon" sizes="180x180" href="assets/branding/moven-icon-180.png">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/branding/moven-icon-32.png?v=2">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/branding/moven-icon-180.png?v=2">
 <link rel="manifest" href="moven.webmanifest">
+<meta name="theme-color" content="#0c0d12">
 <meta name="application-name" content="Moven: Explore">
 <meta name="description" content="Explore the world of cinema">
 <link rel="stylesheet" href="app-theme.css?v=57">
@@ -80,6 +81,64 @@ try {
 <script src="watched-button.js?v=3"></script>
 <link rel="stylesheet" href="settings-page.css?v=10">
 </head><body class="bg-canvas-obsidian font-body-md text-on-surface flex flex-col min-h-screen relative">
+<style id="moven-splash-css">
+#moven-splash{position:fixed;inset:0;z-index:2147483000;display:flex;flex-direction:column;align-items:center;justify-content:space-between;
+  background:radial-gradient(circle at 50% 46%,#161821 0%,#0c0d12 55%,#060709 100%);color:#fff;overflow:hidden;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased;
+  padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);transition:opacity .55s ease,visibility .55s ease;user-select:none;-webkit-user-select:none}
+#moven-splash.is-hiding{opacity:0;visibility:hidden;pointer-events:none}
+#moven-splash .ms-glow{position:absolute;inset:0;pointer-events:none;background:radial-gradient(60% 60% at 50% 46%,rgba(180,195,220,.09) 0%,rgba(130,145,175,.025) 50%,transparent 80%);filter:blur(48px)}
+#moven-splash .ms-vignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 40%,rgba(0,0,0,.6) 100%)}
+#moven-splash .ms-top,#moven-splash .ms-foot{position:relative;z-index:2;flex:0 0 auto}
+#moven-splash .ms-top{height:44px}
+#moven-splash .ms-hero{position:relative;z-index:2;flex:1 1 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;margin-top:-24px}
+#moven-splash .ms-icon{position:relative;width:144px;height:144px}
+#moven-splash .ms-aura{position:absolute;inset:-16px;border-radius:42px;background:linear-gradient(180deg,rgba(219,234,254,.10),rgba(226,232,240,.05) 50%,transparent);filter:blur(22px);opacity:.7;animation:ms-pulse 4s ease-in-out infinite}
+#moven-splash .ms-rim{position:relative;width:100%;height:100%;border-radius:34px;padding:1.5px;background:linear-gradient(180deg,rgba(255,255,255,.22),rgba(255,255,255,.05),rgba(0,0,0,.6));box-shadow:0 24px 50px rgba(0,0,0,.85)}
+#moven-splash .ms-face{position:relative;width:100%;height:100%;border-radius:32.5px;overflow:hidden;background:#0c0d11}
+#moven-splash .ms-face img{display:block;width:100%;height:100%;object-fit:cover;pointer-events:none;-webkit-user-drag:none}
+#moven-splash .ms-face:after{content:"";position:absolute;inset:0;background:linear-gradient(to top right,transparent,rgba(255,255,255,.04),rgba(255,255,255,.12));pointer-events:none}
+#moven-splash .ms-brand{margin-top:36px;text-align:center;padding:0 16px}
+#moven-splash h1{margin:0;padding-left:.28em;font-size:27px;font-weight:600;letter-spacing:.28em;text-transform:uppercase;line-height:1;
+  background:linear-gradient(180deg,#fff 0%,#e6e8ee 52%,#b5bac7 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+#moven-splash p.ms-tag{margin:14px 0 0;padding-left:.35em;font-size:10px;font-weight:500;letter-spacing:.35em;text-transform:uppercase;color:#9ba0aa;opacity:.85}
+#moven-splash .ms-foot{padding-bottom:30px;display:flex;flex-direction:column;align-items:center}
+#moven-splash .ms-bar{position:relative;width:128px;height:1.5px;border-radius:99px;overflow:hidden;background:rgba(255,255,255,.08);margin-bottom:16px}
+#moven-splash .ms-bar:after{content:"";position:absolute;inset:0;transform:translateX(-100%);background:linear-gradient(90deg,transparent,rgba(255,255,255,.8),transparent);animation:ms-shimmer 2.4s cubic-bezier(.4,0,.2,1) infinite}
+#moven-splash .ms-note{padding-left:.2em;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:rgba(95,99,111,.85)}
+@keyframes ms-pulse{0%,100%{opacity:.55;transform:scaleX(.96)}50%{opacity:.95;transform:scaleX(1)}}
+@keyframes ms-shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(180%)}}
+@media (prefers-reduced-motion:reduce){#moven-splash .ms-aura,#moven-splash .ms-bar:after{animation:none}#moven-splash{transition:none}}
+</style>
+<div id="moven-splash" role="status" aria-label="Moven">
+<div class="ms-glow" aria-hidden="true"></div><div class="ms-vignette" aria-hidden="true"></div>
+<div class="ms-top" aria-hidden="true"></div>
+<section class="ms-hero">
+<div class="ms-icon"><div class="ms-aura" aria-hidden="true"></div><div class="ms-rim"><div class="ms-face"><img alt="" src="assets/branding/moven-icon-512.png?v=2" decoding="sync"></div></div></div>
+<div class="ms-brand"><h1>Moven</h1><p class="ms-tag">Cinema in Motion</p></div>
+</section>
+<footer class="ms-foot"><div class="ms-bar" aria-hidden="true"></div><div class="ms-note">Crafted for film lovers</div></footer>
+</div>
+<script>
+(function(){
+  var el=document.getElementById("moven-splash"); if(!el) return;
+  // Показываем один раз за запуск приложения (не при каждой внутренней перезагрузке страницы)
+  try{ if(sessionStorage.getItem("moven-splash-shown")==="1"){ el.parentNode.removeChild(el); return; } }catch(_){}
+  var MIN_MS=1600, MAX_MS=6000, t0=Date.now(), done=false, loaded=document.readyState==="complete";
+  function hide(){
+    if(done) return; done=true;
+    try{ sessionStorage.setItem("moven-splash-shown","1"); }catch(_){}
+    el.classList.add("is-hiding");
+    setTimeout(function(){ if(el.parentNode) el.parentNode.removeChild(el); },700);
+  }
+  function check(){ if(loaded && Date.now()-t0>=MIN_MS) hide(); }
+  if(!loaded) window.addEventListener("load",function(){ loaded=true; check(); });
+  setTimeout(check,Math.max(0,MIN_MS-(Date.now()-t0)));
+  setTimeout(hide,MAX_MS);
+  el.addEventListener("click",function(){ if(loaded) hide(); });
+})();
+</script>
+
 <div id="kg-launch-splash" role="status" aria-label="Moven — Cinema in Motion">
   <section class="kg-launch-splash__center" aria-label="Moven brand">
     <h1>MOVEN</h1>
@@ -2382,6 +2441,8 @@ const SAMPLE_SOUNDS={
 // Звуки, которые играют ТОЛЬКО в финале; при вращении используется щелчок рулетки
 const SAMPLE_WIN_ONLY={"smp-reveal":true};
 const SAMPLE_TICK_LEN=0.09;   // сколько секунд начала файла играет как «тик» при вращении
+// Подъём громкости «ударов» у басовых треков (их низкий бас плохо слышен на динамиках телефона)
+const SAMPLE_TICK_BOOST={"m-oblivion":2.11,"m-moonwalker":2.19,"m-horror":1.84,"m-heroes":1.8,"m-darkrolls":1.5,"m-tension":1.74,"m-percussion":1.46,"m-multiverse":1.41};
 const SAMPLE_TICK_VOL=0.55;   // громкость тика
 const SAMPLE_WIN_VOL=0.9;     // громкость финального звука (полный файл)
 const sampleBuf={}, sampleOnset={}, samplePending={};
@@ -2401,8 +2462,9 @@ function sampleTick(key,e){
   try{
     const t=ac.currentTime,src=ac.createBufferSource(),g=ac.createGain();
     src.buffer=buf;src.playbackRate.value=0.9+e*0.4;   // чем дальше прогресс, тем выше тон
-    g.gain.setValueAtTime(SAMPLE_TICK_VOL,t);
-    g.gain.setValueAtTime(SAMPLE_TICK_VOL,t+SAMPLE_TICK_LEN-0.02);
+    const tv=SAMPLE_TICK_VOL*(SAMPLE_TICK_BOOST[String(key).replace("smp-","")]||1);
+    g.gain.setValueAtTime(tv,t);
+    g.gain.setValueAtTime(tv,t+SAMPLE_TICK_LEN-0.02);
     g.gain.linearRampToValueAtTime(0.0001,t+SAMPLE_TICK_LEN);
     const o=sampleOnset[key]||0;
     src.connect(g);g.connect(soundOutput);src.start(t,o,SAMPLE_TICK_LEN+0.02);
@@ -2569,7 +2631,7 @@ function playReelSample(nodes, level){
   const cfg=nodes.profile.sample; if(!cfg)return;
   const buf=reelBuf[cfg.file]; if(!buf){loadReelSample(cfg.file);return;}
   const now=ac.currentTime,src=ac.createBufferSource(),g=ac.createGain();
-  const r=cfg.rate||[1,1],v=cfg.vol*(.45+.55*level);
+  const r=cfg.rate||[1,1],v=cfg.vol*(SAMPLE_TICK_BOOST[cfg.file]||1)*(.45+.55*level);
   src.buffer=buf;src.playbackRate.value=r[0]+(r[1]-r[0])*level;
   g.gain.setValueAtTime(v,now);g.gain.setValueAtTime(v,now+cfg.len*.6);g.gain.linearRampToValueAtTime(.0001,now+cfg.len);
   src.connect(g);g.connect(nodes.output);nodes.voices.add(src);

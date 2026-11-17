@@ -290,7 +290,7 @@
     // body would sit behind an open Journey dialog and look like a dead click.
     const ownerDialog=sourceElement?.closest?.("dialog[open]");
     (ownerDialog||document.body).appendChild(root);
-    applyPersonBackdrop(root,id);
+    // Wait for the person's profile data before choosing the backdrop fallback.
     window.KGFilmCard?.stopTrailers();
     const dialog=root.querySelector(".kgpi-modal");
     root.addEventListener("click",e=>{

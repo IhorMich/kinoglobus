@@ -47,8 +47,10 @@
         </div>
         ${section.more ? `<button type="button" class="shrink-0 text-right font-label-sm text-label-sm text-primary hover:underline" data-release-action="expand" aria-expanded="false" aria-controls="kg-release-${section.id}-feed" hidden></button>` : ""}
       </div>
-      <div id="kg-release-${section.id}-feed"></div>
-      <div id="kg-release-${section.id}-detail"></div>`;
+      <div>
+        <div id="kg-release-${section.id}-feed"></div>
+        <div id="kg-release-${section.id}-detail" class="w-full mt-2" data-home-inline-film hidden></div>
+      </div>`;
     if (section.id === "upcoming") {
       document.getElementById("kg-home-feature").after(element);
     } else {

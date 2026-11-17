@@ -99,10 +99,11 @@ const style = document.createElement("style");
 style.textContent = `
 .kg-film-detail{display:flex;flex-direction:column;gap:14px;width:100%;max-width:100%;min-width:0;box-sizing:border-box;padding:14px;background:rgb(var(--kg-surface-panel));border:0;border-radius:0;scroll-margin-top:84px}
 #kg-globe-film > .kg-film-detail,
-#kg-home-europe-detail > .kg-film-detail,
+[data-home-inline-film] > .kg-film-detail,
 #cl-result > .kg-film-detail,
 #oscar-reel-detail > .kg-film-detail {background:transparent}
-:is(#kg-globe-film, #kg-home-europe-detail, #cl-result, #oscar-reel-detail) [data-kg-film-description] {
+:is(#kg-globe-film, #cl-result, #oscar-reel-detail) [data-kg-film-description],
+[data-home-inline-film] [data-kg-film-description] {
   padding: 0;
   border-radius: 0;
   background: transparent;

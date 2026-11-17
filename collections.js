@@ -1050,9 +1050,14 @@ function renderSelectedPanel(refresh = false){
     if(!placeListPanel())renderFilms();return;
   }
   const html=selectedFilmHtml(selected);
-  if(selected._detailTarget && (selected._placement==="mood"||selected._placement==="oscar"||selected._placement==="related")){
-    const target=$(selected._detailTarget)||(selected._placement==="mood"?$("mood-film-detail"):$("oscar-film-detail"));
-    if(target){target.innerHTML=html;paintWatchedButtons(target);}
+  const detailId = selected._placement === "home-europe" ? "kg-home-europe-detail" : selected._detailTarget;
+  if (detailId) {
+    const target = $(detailId) || (selected._placement === "mood" ? $("mood-film-detail") : $("oscar-film-detail"));
+    if (target) {
+      target.innerHTML = html;
+      if (target.hasAttribute("data-home-inline-film")) target.hidden = false;
+      paintWatchedButtons(target);
+    }
     return;
   }
   if(selected._placement==="home"){
@@ -1061,11 +1066,6 @@ function renderSelectedPanel(refresh = false){
       homeEditorial.featureDetails={...homeEditorial.featureDetails,...selected};
       renderHomeFeature(film,homeEditorial.featureDetails,selected);
     }
-    return;
-  }
-  if(selected._placement==="home-europe"){
-    const detail=$("kg-home-europe-detail");
-    if(detail){detail.innerHTML=html;detail.hidden=false;paintWatchedButtons(detail);}
     return;
   }
   if(selected._placement==="roulette"){
@@ -1087,7 +1087,6 @@ function openFilm(f,placement="list",detailTarget=null,{opener=document.activeEl
   window.KGFilmCard.stopTrailers();
   if (previous) closeInlineFilm(previous, false);
   if(placement==="list")$("cl-result").replaceChildren();
-  if(placement==="home-europe")$("kg-home-europe-detail").hidden=false;
   const relatedPool=f._kgGlobalRelated?null:Array.isArray(f._kgRelatedPool)?f._kgRelatedPool:(placement==="list"||placement==="roulette"?D.all:placement==="home-europe"?null:placement.startsWith("home")?homeEditorial.films:null);
   const relatedContext=relatedPool&&relatedPool.length?`${placement}:${D.t&&D.t.id||"all"}:${detailTarget||""}`:"";
   if(relatedContext&&window.KGFilmInteractions)window.KGFilmInteractions.registerPool(relatedContext,relatedPool);
@@ -1136,7 +1135,7 @@ function closeInlineFilm(film = D.selected, restoreFocus = true) {
     const target = film._detailTarget ? $(film._detailTarget) :
       film._placement === "roulette" ? $("cl-result") : $("kg-home-europe-detail");
     target?.replaceChildren();
-    if (target?.id==="kg-home-europe-detail") target.hidden=true;
+    if (target?.hasAttribute("data-home-inline-film")) target.hidden = true;
   }
   if (restoreFocus) {
     restoreFilmOpener(film);
@@ -1149,7 +1148,11 @@ function closeInlineFilm(film = D.selected, restoreFocus = true) {
 window.KGOpenFilmFromRelated=(film,placement,detailTarget,options)=>openFilm(film,placement,detailTarget,options);
 window.KGCloseFilmFromRelated=(detailTarget,restoreFocus=false)=>{
   if (D.selected && D.selected._detailTarget===detailTarget) closeInlineFilm(D.selected,restoreFocus);
-  else $(detailTarget)?.replaceChildren();
+  else {
+    const target = $(detailTarget);
+    target?.replaceChildren();
+    if (target?.hasAttribute("data-home-inline-film")) target.hidden = true;
+  }
 };
 
 /* ---------- рулетка с плёнкой прямо в подборке ---------- */

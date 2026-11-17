@@ -1506,20 +1506,11 @@ body {
   transform: translateY(-2.5vh);
   text-align: center;
 }
-.kg-launch-splash__icon {
-  display: block;
-  width: clamp(132px, 37vw, 148px);
-  height: auto;
-  aspect-ratio: 1;
-  border-radius: 26.5%;
-  box-shadow: 0 24px 50px -12px rgba(0,0,0,.8), 0 1px 1px rgba(255,255,255,.16) inset;
-  animation: kg-launch-icon-glow 4s ease-in-out infinite;
-}
 .kg-launch-splash__center h1 {
-  margin: 34px 0 0 0.28em;
+  margin: 0 0 0 0.28em;
   color: #e9ebf0;
   font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  font-size: 27px;
+  font-size: 30px;
   font-weight: 600;
   line-height: 1;
   letter-spacing: .28em;
@@ -1558,15 +1549,76 @@ body {
   background: rgba(255,255,255,.1);
   animation: kg-launch-rule-glow 3.6s ease-in-out infinite;
 }
-@keyframes kg-launch-icon-glow {
-  0%, 100% { box-shadow: 0 24px 50px -12px rgba(0,0,0,.8), 0 1px 1px rgba(255,255,255,.16), 0 0 28px rgba(180,195,220,.07); }
-  50% { box-shadow: 0 24px 50px -12px rgba(0,0,0,.8), 0 1px 1px rgba(255,255,255,.16), 0 0 36px rgba(180,195,220,.13); }
-}
 @keyframes kg-launch-rule-glow {
   0%, 100% { opacity: .58; transform: scaleX(.96); }
   50% { opacity: .95; transform: scaleX(1); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .kg-launch-splash__icon, .kg-launch-splash__rule { animation: none; }
+  .kg-launch-splash__rule { animation: none; }
   #kg-launch-splash { transition-duration: 150ms; }
+}
+
+
+/* Keep the year and rating filter aligned with the primary filter controls. */
+#year-rating-filter {
+  border: 0 !important;
+  background: transparent;
+  box-shadow: none;
+}
+#year-rating-filter > summary,
+#year-rating-filter[open] > summary {
+  border: 1px solid rgb(var(--kg-surface-border-subtle) / .58) !important;
+  border-radius: 12px;
+  background: rgb(var(--kg-surface-panel));
+  box-shadow: none;
+}
+#year-rating-filter > summary:hover,
+#year-rating-filter[open] > summary {
+  background: rgb(var(--kg-surface-container));
+}
+#year-rating-filter > summary + div {
+  background: rgb(var(--kg-surface-panel));
+}
+.kg-year-field {
+  border: 1px solid rgb(var(--kg-surface-border-subtle) / .7);
+  background: rgb(var(--kg-surface-container-lowest));
+  box-shadow: none !important;
+  transition: border-color .16s ease, background-color .16s ease;
+}
+.kg-year-field:focus-within {
+  border-color: rgb(var(--kg-primary-container) / .72);
+}
+#year-rating-filter .kg-year-field input {
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  box-shadow: none;
+  appearance: textfield;
+  color: rgb(var(--kg-on-surface));
+  font-family: var(--kg-font-interface);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.25;
+  caret-color: rgb(var(--kg-primary));
+}
+:root[data-kg-theme="steel"] #year-rating-filter > summary,
+:root[data-kg-theme="steel"] #year-rating-filter[open] > summary {
+  border-color: var(--kg-metal-edge) !important;
+  background: var(--kg-metal-control);
+  box-shadow: var(--kg-metal-control-shadow);
+}
+:root[data-kg-theme="steel"] #year-rating-filter > summary:hover {
+  background: var(--kg-metal-control);
+}
+:root[data-kg-theme="steel"] #year-rating-filter > summary + div {
+  background: var(--kg-metal-panel);
+}
+:root[data-kg-theme="steel"] .kg-year-field {
+  border-color: rgb(241 245 249 / .2);
+  background: #141b28;
+}
+:root[data-kg-theme="steel"] .kg-year-field:focus-within {
+  border-color: rgb(var(--kg-primary) / .72);
 }

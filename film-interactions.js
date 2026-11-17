@@ -55,16 +55,29 @@
     const request=(async()=>{
       // Do not pass en-US here: it can hide non-English and unlabelled film stills.
       const data=await tmdb(`person/${personId}/tagged_images`,{page:String(page)},null);
+      const raw=data.results||[];
       const unique=new Map();
-      for(const img of data.results||[]){
-        if(!img.file_path)continue;
+      const rejected={missingPath:0,profilePosterLogo:0,tooSmall:0,notWide:0};
+      const rows=[];
+      for(const img of raw){
+        if(!img.file_path){rejected.missingPath++;continue;}
         const type=String(img.image_type||"").toLowerCase();
-        if(/profile|poster|logo/.test(type))continue;
+        const mediaType=String(img.media_type||img.media?.media_type||"");
+        const mediaTitle=img.media?.title||img.media?.name||img.media?.original_title||"";
         const width=Number(img.width)||0;
         const height=Number(img.height)||0;
         const ratio=Number(img.aspect_ratio)||(height?width/height:0);
-        // Include classic 4:3 movie frames as well as modern widescreen stills.
-        if(width<480||ratio<1.15)continue;
+        let rejectedReason="";
+        if(/profile|poster|logo/.test(type)){rejected.profilePosterLogo++;rejectedReason="poster/profile/logo";}
+        else if(width<480){rejected.tooSmall++;rejectedReason="width < 480";}
+        else if(ratio<1.15){rejected.notWide++;rejectedReason="ratio < 1.15";}
+        rows.push({
+          file_path:img.file_path,image_type:img.image_type||"",media_type:mediaType,
+          media_title:mediaTitle,width,height,aspect_ratio:ratio,
+          vote_count:Number(img.vote_count)||0,vote_average:Number(img.vote_average)||0,
+          accepted:!rejectedReason,rejected_reason:rejectedReason
+        });
+        if(rejectedReason)continue;
         const typeBonus=/backdrop|still/.test(type)?12:0;
         const score=typeBonus+(Number(img.vote_count)||0)*2+
           (Number(img.vote_average)||0)*3+(ratio>=1.5?2:0)+(width>=1000?1:0);
@@ -74,7 +87,11 @@
       return {
         paths:[...unique.values()].sort((a,b)=>b.score-a.score).map(item=>item.path),
         totalPages:Math.max(1,Number(data.total_pages)||1),
-        rawCount:(data.results||[]).length
+        totalResults:Number(data.total_results)||raw.length,
+        page:Number(data.page)||0,
+        rawCount:raw.length,
+        rejected,
+        rows
       };
     })();
     // Cache successful responses only. Network/auth errors must be retryable.
@@ -120,7 +137,9 @@
       const loadPage=async page=>{
         try{return await personTaggedBackdrop(personId,page);}
         catch(error){
-          console.debug("[Moven] Tagged image request failed", {personId,page,error});
+          console.error("[Moven backdrop] TMDB tagged_images request failed", {
+            personId,page,message:error?.message||String(error)
+          });
           return null;
         }
       };
@@ -146,10 +165,20 @@
       let pagesChecked=0;
       let rawTagged=0;
       let usable=0;
+      const diagnostics=[];
       if(firstPage){
         pagesChecked=1;
         rawTagged+=firstPage.rawCount;
         usable+=firstPage.paths.length;
+        diagnostics.push(firstPage);
+        console.groupCollapsed(`[Moven backdrop] Actor ${personId}: tagged images`);
+        console.log("TMDB response", {
+          page:firstPage.page,totalPages:firstPage.totalPages,
+          totalResults:firstPage.totalResults,rawCount:firstPage.rawCount,
+          candidates:firstPage.paths.length,rejected:firstPage.rejected
+        });
+        console.table(firstPage.rows);
+        console.groupEnd();
         // Fast first pass: only the highest-ranked candidates from page 1.
         const firstImage=await firstLoaded(firstPage.paths.slice(0,6));
         if(showTagged(firstImage))return;
@@ -163,19 +192,33 @@
           );
           if(!root.isConnected||host.dataset.kgBackdropSource==="tagged")return;
           const extraPaths=[];
+          const firstSignature=firstPage.paths.join("|");
           for(const page of extraPages){
             if(!page)continue;
+            // Some TMDB responses repeat page 1 even when a later page is requested.
+            if(page.paths.join("|")===firstSignature)continue;
             pagesChecked++;
             rawTagged+=page.rawCount;
             usable+=page.paths.length;
+            diagnostics.push(page);
             extraPaths.push(...page.paths);
+          }
+          if(extraPaths.length){
+            console.info("[Moven backdrop] Additional tagged pages", {
+              personId,pagesChecked,rawTagged,candidates:usable,
+              identicalPagesSkipped:extraPages.filter(page=>page&&page.paths.join("|")===firstSignature).length
+            });
           }
           const extraImage=await firstLoaded([...new Set(extraPaths)].slice(0,16));
           if(showTagged(extraImage))return;
         }
       }
-      console.debug("[Moven] No loadable tagged film still; using actor portrait", {
-        personId,pagesChecked,rawTagged,usable
+      console.warn("[Moven backdrop] No tagged frame could be displayed; using actor portrait", {
+        personId,pagesChecked,rawTagged,usable,
+        firstPage:diagnostics[0]?{
+          page:diagnostics[0].page,totalPages:diagnostics[0].totalPages,
+          totalResults:diagnostics[0].totalResults,rejected:diagnostics[0].rejected
+        }:null
       });
 
       // No tagged still found: use this person's own profile image, more blurred.

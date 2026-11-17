@@ -109,9 +109,17 @@ style.textContent = `
   border-radius: 0;
   background: transparent;
 }
-.kg-film-list-shell:has(>.kg-film-detail){padding:0;background:none;box-shadow:none;overflow:visible}
-.kg-film-list-shell:has(>.kg-film-detail)>[data-act="open"]{padding:12px;border-radius:12px;background:rgb(var(--kg-surface-panel))}
-article:has(>[data-oscar-detail-host]>.kg-film-detail),article:has(>[id^="mood-film-detail-"]>.kg-film-detail){padding-inline:0}
+.kg-film-list-shell:has(>.kg-film-detail){padding:0!important;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;overflow:visible}
+.kg-film-list-shell:has(>.kg-film-detail)>[data-act="open"]{padding:12px;border-radius:12px;background:transparent!important;box-shadow:none!important}
+article:has(>[data-oscar-detail-host]>.kg-film-detail),
+article:has(>[id^="mood-film-detail-"]>.kg-film-detail),
+article[data-vibe-film]:has(+ [id^="mood-film-detail-v"]>.kg-film-detail),
+article:has(+ [id^="mood-film-detail-"]>.kg-film-detail),
+div[data-collection-grid-detail]:has(>.kg-film-detail),
+#oscar-reel:has(#oscar-reel-detail>.kg-film-detail),
+div.relative:has(> [id^="mood-roulette-winner-detail-"]>.kg-film-detail){
+  padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;overflow:visible!important
+}
 #kg-home-feature:has(>.kg-film-detail){padding:0;background:none;box-shadow:none}
 #kg-home-feature:has(>.kg-film-detail)>p{padding-inline:2px}
 .kg-film-detail-summary {

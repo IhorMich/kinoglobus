@@ -170,6 +170,8 @@ window.KGInterfaceDictionaries.en = Object.freeze({
   "{count} {unit} онлайн": "{count} countries online",
   "Крутить глобус": "Spin the globe",
   "Найти фильм": "Find a film",
+  "Крутите глобус — находите фильмы по странам": "Spin the globe to discover films by country",
+  "Нажмите «Крутить глобус», чтобы найти первую страну.": "Tap “Spin the globe” to find your first country.",
   "Ищем страну…": "Finding a country…",
   "Сканирование...": "Scanning…",
   "Подборка": "Collection",

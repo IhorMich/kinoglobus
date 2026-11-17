@@ -1293,6 +1293,18 @@ body {
   margin-block-start: 0;
   border: 0;
   border-radius: 0;
+  isolation: isolate;
+}
+#roulette-section::before {
+  position: absolute;
+  z-index: -1;
+  inset: -30px 0 -42px;
+  content: "";
+  pointer-events: none;
+  background:
+    linear-gradient(to bottom, rgb(var(--kg-canvas-obsidian) / .5), transparent 20%, transparent 72%, rgb(var(--kg-canvas-obsidian) / .12) 84%, rgb(var(--kg-canvas-obsidian)) 100%),
+    linear-gradient(to bottom, rgb(var(--kg-black) / .25), rgb(var(--kg-black) / .45) 45%, rgb(var(--kg-black) / .65)),
+    url("assets/globe/milky-way.jpg") center 45% / cover no-repeat;
 }
 
 #tmdb-key-banner:not(.hidden) + #roulette-section,
@@ -1310,6 +1322,30 @@ body {
   border-radius: 0;
   margin-inline: 0;
   align-self: center;
+}
+.kg-empty-country-hint {
+  color: rgb(var(--kg-on-surface-variant));
+  font: 500 12px/1.4 var(--kg-font-interface);
+  text-align: center;
+  text-wrap: balance;
+  text-shadow: 0 1px 5px rgb(var(--kg-black) / .9);
+}
+#kg-globe-empty-hint {
+  position: absolute;
+  z-index: 40;
+  bottom: 12px;
+  left: 50%;
+  width: min(340px, calc(100% - 24px));
+  padding: 0 8px;
+  transform: translateX(-50%);
+}
+#kg-map-empty-hint {
+  position: absolute;
+  right: 9px;
+  bottom: 9px;
+  left: 9px;
+  padding: 8px 11px;
+  pointer-events: none;
 }
 
 

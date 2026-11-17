@@ -19,7 +19,7 @@ html.kg-launch-reveal body>:not(#kg-launch-splash){visibility:visible!important;
 <link rel="manifest" href="moven.webmanifest">
 <meta name="application-name" content="Moven: Explore">
 <meta name="description" content="Explore the world of cinema">
-<link rel="stylesheet" href="app-theme.css?v=55">
+<link rel="stylesheet" href="app-theme.css?v=56">
 <script>
 try {
   if (!navigator.connection?.saveData) {
@@ -4309,7 +4309,7 @@ console.info("[Moven: Explore] Bridge v6 ready");
 <script src="curated-collections.js?v=2"></script>
 <script src="film-card.js?v=11"></script>
 <script src="collections.js?v=119"></script>
-<script src="film-interactions.js?v=30"></script>
+<script src="film-interactions.js?v=31"></script>
 <script src="legal-watch.js?v=9"></script>
 <script src="global-search.js?v=18"></script>
 <script src="home-releases.js?v=11"></script>
@@ -4318,8 +4318,10 @@ console.info("[Moven: Explore] Bridge v6 ready");
 (() => {
   const earth = document.getElementById("earth-canvas-container");
   const actions = document.getElementById("globe-search-actions");
+  const section = document.getElementById("roulette-section");
+  const starEnd = document.getElementById("btn-mode-surprise");
   const bottomNav = document.querySelector("body > nav");
-  if (!earth || !actions) return;
+  if (!earth || !actions || !section || !starEnd) return;
 
   let fittedHeight;
   function fitGlobe() {
@@ -4328,9 +4330,12 @@ console.info("[Moven: Explore] Bridge v6 ready");
     const belowEarth = actions.getBoundingClientRect().bottom - earthRect.bottom;
     const bottomBarHeight = bottomNav?.offsetHeight ?? 0;
     const height = Math.round(window.innerHeight - bottomBarHeight - belowEarth - earthRect.top - window.scrollY - 8);
-    if (height === fittedHeight) return;
-    fittedHeight = height;
-    earth.style.setProperty("--kg-earth-room", `${height}px`);
+    if (height !== fittedHeight) {
+      fittedHeight = height;
+      earth.style.setProperty("--kg-earth-room", `${height}px`);
+    }
+    const skyHeight=Math.max(220,starEnd.getBoundingClientRect().bottom-section.getBoundingClientRect().top+240);
+    section.style.setProperty("--kg-space-sky-height",`${skyHeight}px`);
   }
 
   let fitFrame = 0;
@@ -4345,7 +4350,7 @@ console.info("[Moven: Explore] Bridge v6 ready");
   const sizeChanges = new ResizeObserver(scheduleGlobeFit);
   for (const element of [
     document.getElementById("tmdb-key-banner"), document.getElementById("hero-hologram-display"),
-    actions, bottomNav
+    actions, starEnd, bottomNav
   ]) if (element) sizeChanges.observe(element);
   window.addEventListener("resize", scheduleGlobeFit);
   fitGlobe();

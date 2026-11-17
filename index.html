@@ -1,17 +1,15 @@
 <!DOCTYPE html><html class="dark kg-launch-pending" lang="ru" data-kg-theme="midnight" data-kg-button-accent="blue"><head><meta charset="utf-8">
 <style>
-html.kg-launch-pending,html.kg-launch-pending body{min-height:100%;background:#07060a!important}
+html.kg-launch-pending,html.kg-launch-pending body{background:#07060a!important}
 html.kg-launch-pending body>:not(#kg-launch-splash){visibility:hidden!important;opacity:0!important}
-body>:not(#kg-launch-splash){transition:opacity 650ms ease}
-html.kg-launch-reveal body>:not(#kg-launch-splash){visibility:visible!important;opacity:1!important}
-#kg-launch-splash{position:fixed;inset:0;z-index:2147483647;display:flex;flex-direction:column;align-items:center;justify-content:space-between;overflow:hidden;box-sizing:border-box;padding:max(22px,env(safe-area-inset-top)) 24px max(28px,env(safe-area-inset-bottom));color:#f4f5f7;background:radial-gradient(circle at 50% 46%,#161821 0%,#0c0d12 55%,#030405 100%);opacity:1;transition:opacity 650ms ease;isolation:isolate}
-.kg-launch-splash__center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;transform:translateY(-2.5vh);text-align:center}
+#kg-launch-splash{position:fixed;top:0;left:0;width:100vw;height:100vh;height:100svh;z-index:2147483647;display:flex;flex-direction:column;align-items:center;justify-content:space-between;overflow:hidden;box-sizing:border-box;padding:max(22px,env(safe-area-inset-top)) 24px max(28px,env(safe-area-inset-bottom));color:#f4f5f7;background:radial-gradient(circle at 50% 46%,#161821 0%,#0c0d12 55%,#030405 100%);opacity:1;transition:opacity 650ms ease;isolation:isolate}
+.kg-launch-splash__center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;transform:none;text-align:center}
 .kg-launch-splash__center h1{margin:0 0 0 .28em;color:#e9ebf0;font:600 30px/1 Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:.28em;text-shadow:0 1px 2px rgba(0,0,0,.55)}
 .kg-launch-splash__center p{margin:14px 0 0 .35em;color:#8b8e99;font:500 10px/1.4 Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:.35em;text-transform:uppercase}
 .kg-launch-splash__footer{display:flex;flex-direction:column;align-items:center;gap:15px;color:#777b86;font:500 9px/1.4 Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:.2em;text-align:center;text-transform:uppercase}
 .kg-launch-splash__rule{width:128px;height:1.5px;border-radius:999px;background:rgba(255,255,255,.1)}
 #kg-launch-splash.kg-launch-splash--hidden{opacity:0;pointer-events:none}
-@media(prefers-reduced-motion:reduce){#kg-launch-splash,body>:not(#kg-launch-splash){transition-duration:150ms}}
+@media(prefers-reduced-motion:reduce){#kg-launch-splash{transition-duration:150ms}}
 </style>
 <title>Moven: Explore</title>
 <link rel="icon" type="image/png" sizes="32x32" href="assets/branding/moven-icon-32.png?v=2">
@@ -68,7 +66,7 @@ try {
 </script><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"><meta content="mobile_tab" name="shell-type"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,400&amp;family=Noto+Serif:ital,wght@0,400;0,600;0,700;1,400&amp;display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "white": "rgb(var(--kg-white) / <alpha-value>)", "black": "rgb(var(--kg-black) / <alpha-value>)", "success": "rgb(var(--kg-success) / <alpha-value>)", "success-strong": "rgb(var(--kg-success-strong) / <alpha-value>)", "surface-container-lowest": "rgb(var(--kg-surface-container-lowest) / <alpha-value>)", "text-muted": "rgb(var(--kg-text-muted) / <alpha-value>)", "tertiary": "rgb(var(--kg-tertiary) / <alpha-value>)", "on-tertiary": "rgb(var(--kg-on-tertiary) / <alpha-value>)", "on-primary-container": "rgb(var(--kg-on-primary-container) / <alpha-value>)", "on-primary-fixed-variant": "rgb(var(--kg-on-primary-fixed-variant) / <alpha-value>)", "background": "rgb(var(--kg-surface) / <alpha-value>)", "on-background": "rgb(var(--kg-on-surface) / <alpha-value>)", "on-tertiary-fixed": "rgb(var(--kg-on-tertiary-fixed) / <alpha-value>)", "surface-bright": "rgb(var(--kg-surface-bright) / <alpha-value>)", "outline": "rgb(var(--kg-outline) / <alpha-value>)", "surface": "rgb(var(--kg-surface) / <alpha-value>)", "on-error": "rgb(var(--kg-on-error) / <alpha-value>)", "surface-border-subtle": "rgb(var(--kg-surface-border-subtle) / <alpha-value>)", "on-secondary-fixed-variant": "rgb(var(--kg-secondary-container) / <alpha-value>)", "secondary": "rgb(var(--kg-secondary) / <alpha-value>)", "surface-variant": "rgb(var(--kg-surface-container-highest))", "on-primary": "rgb(var(--kg-on-primary) / <alpha-value>)", "surface-tint": "rgb(var(--kg-surface-tint) / <alpha-value>)", "tertiary-fixed": "rgb(var(--kg-tertiary-fixed) / <alpha-value>)", "on-surface-variant": "rgb(var(--kg-on-surface-variant) / <alpha-value>)", "on-tertiary-fixed-variant": "rgb(var(--kg-on-tertiary-fixed-variant) / <alpha-value>)", "on-secondary": "rgb(var(--kg-on-secondary) / <alpha-value>)", "inverse-primary": "rgb(var(--kg-inverse-primary) / <alpha-value>)", "surface-dim": "rgb(var(--kg-surface) / <alpha-value>)", "inverse-surface": "rgb(var(--kg-on-surface) / <alpha-value>)", "on-error-container": "rgb(var(--kg-on-error-container) / <alpha-value>)", "error": "rgb(var(--kg-error) / <alpha-value>)", "feedback-error": "rgb(var(--kg-feedback-error) / <alpha-value>)", "surface-panel": "rgb(var(--kg-surface-panel) / <alpha-value>)", "primary-fixed-dim": "rgb(var(--kg-primary-fixed-dim) / <alpha-value>)", "secondary-fixed-dim": "rgb(var(--kg-secondary) / <alpha-value>)", "cinema-amber-glow": "rgb(var(--kg-cinema-amber-glow) / .28)", "tertiary-fixed-dim": "rgb(var(--kg-tertiary-fixed-dim) / <alpha-value>)", "secondary-fixed": "rgb(var(--kg-secondary-fixed) / <alpha-value>)", "outline-variant": "rgb(var(--kg-outline-variant) / <alpha-value>)", "on-secondary-fixed": "rgb(var(--kg-on-secondary-fixed) / <alpha-value>)", "on-secondary-container": "rgb(var(--kg-on-secondary-container) / <alpha-value>)", "primary": "rgb(var(--kg-primary) / <alpha-value>)", "inverse-on-surface": "rgb(var(--kg-inverse-on-surface) / <alpha-value>)", "primary-container": "rgb(var(--kg-primary-container) / <alpha-value>)", "on-primary-fixed": "rgb(var(--kg-on-primary-fixed) / <alpha-value>)", "surface-container-highest": "rgb(var(--kg-surface-container-highest) / <alpha-value>)", "surface-container": "rgb(var(--kg-surface-container) / <alpha-value>)", "surface-container-high": "rgb(var(--kg-surface-container-high) / <alpha-value>)", "cinema-velvet-glow": "rgb(var(--kg-cinema-velvet-glow) / .35)", "surface-border": "rgb(var(--kg-surface-border) / <alpha-value>)", "surface-container-low": "rgb(var(--kg-surface-container-low) / <alpha-value>)", "on-surface": "rgb(var(--kg-on-surface) / <alpha-value>)", "on-tertiary-container": "rgb(var(--kg-on-tertiary-container) / <alpha-value>)", "cinema-velvet-deep": "rgb(var(--kg-cinema-velvet) / <alpha-value>)", "error-container": "rgb(var(--kg-error-container) / <alpha-value>)", "secondary-container": "rgb(var(--kg-secondary-container) / <alpha-value>)", "tertiary-container": "rgb(var(--kg-tertiary-container) / <alpha-value>)", "primary-fixed": "rgb(var(--kg-primary-fixed) / <alpha-value>)", "canvas-obsidian": "rgb(var(--kg-canvas-obsidian) / <alpha-value>)" }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, spacing: { "space-xs": "0.25rem", "gutter-mobile": "0.75rem", "space-sm": "0.5rem", "margin": "1.5rem", "gutter": "1rem", "space-md": "0.875rem", "space-xl": "2rem", "margin-mobile": "1rem", "space-lg": "1.25rem" }, fontFamily: { "label-sm": ["var(--kg-font-interface)"], "body-md": ["var(--kg-font-interface)"], "micro-caption": ["var(--kg-font-interface)"], "display-hero-mobile": ["var(--kg-font-heading)"], "label-lg": ["var(--kg-font-interface)"], "body-sm": ["var(--kg-font-interface)"], "headline-md": ["var(--kg-font-heading)"], "headline-sm": ["var(--kg-font-heading)"], "display-hero": ["var(--kg-font-heading)"], "label-md": ["var(--kg-font-interface)"], "body-lg": ["var(--kg-font-interface)"], "headline-lg": ["var(--kg-font-heading)"] }, fontSize: { "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }], "body-md": ["15px", { "lineHeight": "22px", "fontWeight": "400" }], "micro-caption": ["11px", { "lineHeight": "14px", "fontWeight": "500" }], "display-hero-mobile": ["26px", { "lineHeight": "30px", "letterSpacing": "-0.01em", "fontWeight": "700" }], "label-lg": ["16px", { "lineHeight": "20px", "fontWeight": "700" }], "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }], "headline-md": ["20px", { "lineHeight": "24px", "fontWeight": "600" }], "headline-sm": ["18px", { "lineHeight": "22px", "fontWeight": "600" }], "display-hero": ["34px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "label-md": ["14px", { "lineHeight": "18px", "letterSpacing": "0.01em", "fontWeight": "600" }], "body-lg": ["18px", { "lineHeight": "26px", "fontWeight": "400" }], "headline-lg": ["24px", { "lineHeight": "28px", "fontWeight": "700" }] } } } };</script><style>@layer base{html,body{width:100vw;margin:0;padding:0;background-color:rgb(var(--kg-canvas-obsidian));color:rgb(var(--kg-on-surface));}body{overscroll-behavior:none;}.pb-safe{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 0.5rem);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><style>
     body {
-      min-height: max(884px, 100dvh);
+      min-height: max(884px, 100svh);
     }
     @keyframes hintPulse {
       0%, 100% { transform: translateY(0); opacity: 0.85; }
@@ -81,64 +79,6 @@ try {
 <script src="watched-button.js?v=3"></script>
 <link rel="stylesheet" href="settings-page.css?v=10">
 </head><body class="bg-canvas-obsidian font-body-md text-on-surface flex flex-col min-h-screen relative">
-<style id="moven-splash-css">
-#moven-splash{position:fixed;inset:0;z-index:2147483000;display:flex;flex-direction:column;align-items:center;justify-content:space-between;
-  background:radial-gradient(circle at 50% 46%,#161821 0%,#0c0d12 55%,#060709 100%);color:#fff;overflow:hidden;
-  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased;
-  padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);transition:opacity .55s ease,visibility .55s ease;user-select:none;-webkit-user-select:none}
-#moven-splash.is-hiding{opacity:0;visibility:hidden;pointer-events:none}
-#moven-splash .ms-glow{position:absolute;inset:0;pointer-events:none;background:radial-gradient(60% 60% at 50% 46%,rgba(180,195,220,.09) 0%,rgba(130,145,175,.025) 50%,transparent 80%);filter:blur(48px)}
-#moven-splash .ms-vignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 40%,rgba(0,0,0,.6) 100%)}
-#moven-splash .ms-top,#moven-splash .ms-foot{position:relative;z-index:2;flex:0 0 auto}
-#moven-splash .ms-top{height:44px}
-#moven-splash .ms-hero{position:relative;z-index:2;flex:1 1 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;margin-top:-24px}
-#moven-splash .ms-icon{position:relative;width:144px;height:144px}
-#moven-splash .ms-aura{position:absolute;inset:-16px;border-radius:42px;background:linear-gradient(180deg,rgba(219,234,254,.10),rgba(226,232,240,.05) 50%,transparent);filter:blur(22px);opacity:.7;animation:ms-pulse 4s ease-in-out infinite}
-#moven-splash .ms-rim{position:relative;width:100%;height:100%;border-radius:34px;padding:1.5px;background:linear-gradient(180deg,rgba(255,255,255,.22),rgba(255,255,255,.05),rgba(0,0,0,.6));box-shadow:0 24px 50px rgba(0,0,0,.85)}
-#moven-splash .ms-face{position:relative;width:100%;height:100%;border-radius:32.5px;overflow:hidden;background:#0c0d11}
-#moven-splash .ms-face img{display:block;width:100%;height:100%;object-fit:cover;pointer-events:none;-webkit-user-drag:none}
-#moven-splash .ms-face:after{content:"";position:absolute;inset:0;background:linear-gradient(to top right,transparent,rgba(255,255,255,.04),rgba(255,255,255,.12));pointer-events:none}
-#moven-splash .ms-brand{margin-top:36px;text-align:center;padding:0 16px}
-#moven-splash h1{margin:0;padding-left:.28em;font-size:27px;font-weight:600;letter-spacing:.28em;text-transform:uppercase;line-height:1;
-  background:linear-gradient(180deg,#fff 0%,#e6e8ee 52%,#b5bac7 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-#moven-splash p.ms-tag{margin:14px 0 0;padding-left:.35em;font-size:10px;font-weight:500;letter-spacing:.35em;text-transform:uppercase;color:#9ba0aa;opacity:.85}
-#moven-splash .ms-foot{padding-bottom:30px;display:flex;flex-direction:column;align-items:center}
-#moven-splash .ms-bar{position:relative;width:128px;height:1.5px;border-radius:99px;overflow:hidden;background:rgba(255,255,255,.08);margin-bottom:16px}
-#moven-splash .ms-bar:after{content:"";position:absolute;inset:0;transform:translateX(-100%);background:linear-gradient(90deg,transparent,rgba(255,255,255,.8),transparent);animation:ms-shimmer 2.4s cubic-bezier(.4,0,.2,1) infinite}
-#moven-splash .ms-note{padding-left:.2em;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:rgba(95,99,111,.85)}
-@keyframes ms-pulse{0%,100%{opacity:.55;transform:scaleX(.96)}50%{opacity:.95;transform:scaleX(1)}}
-@keyframes ms-shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(180%)}}
-@media (prefers-reduced-motion:reduce){#moven-splash .ms-aura,#moven-splash .ms-bar:after{animation:none}#moven-splash{transition:none}}
-</style>
-<div id="moven-splash" role="status" aria-label="Moven">
-<div class="ms-glow" aria-hidden="true"></div><div class="ms-vignette" aria-hidden="true"></div>
-<div class="ms-top" aria-hidden="true"></div>
-<section class="ms-hero">
-<div class="ms-icon"><div class="ms-aura" aria-hidden="true"></div><div class="ms-rim"><div class="ms-face"><img alt="" src="assets/branding/moven-icon-512.png?v=2" decoding="sync"></div></div></div>
-<div class="ms-brand"><h1>Moven</h1><p class="ms-tag">Cinema in Motion</p></div>
-</section>
-<footer class="ms-foot"><div class="ms-bar" aria-hidden="true"></div><div class="ms-note">Crafted for film lovers</div></footer>
-</div>
-<script>
-(function(){
-  var el=document.getElementById("moven-splash"); if(!el) return;
-  // Показываем один раз за запуск приложения (не при каждой внутренней перезагрузке страницы)
-  try{ if(sessionStorage.getItem("moven-splash-shown")==="1"){ el.parentNode.removeChild(el); return; } }catch(_){}
-  var MIN_MS=1600, MAX_MS=6000, t0=Date.now(), done=false, loaded=document.readyState==="complete";
-  function hide(){
-    if(done) return; done=true;
-    try{ sessionStorage.setItem("moven-splash-shown","1"); }catch(_){}
-    el.classList.add("is-hiding");
-    setTimeout(function(){ if(el.parentNode) el.parentNode.removeChild(el); },700);
-  }
-  function check(){ if(loaded && Date.now()-t0>=MIN_MS) hide(); }
-  if(!loaded) window.addEventListener("load",function(){ loaded=true; check(); });
-  setTimeout(check,Math.max(0,MIN_MS-(Date.now()-t0)));
-  setTimeout(hide,MAX_MS);
-  el.addEventListener("click",function(){ if(loaded) hide(); });
-})();
-</script>
-
 <div id="kg-launch-splash" role="status" aria-label="Moven — Cinema in Motion">
   <section class="kg-launch-splash__center" aria-label="Moven brand">
     <h1>MOVEN</h1>
@@ -4423,6 +4363,7 @@ console.info("[Moven: Explore] Bridge v6 ready");
   const splash = document.getElementById("kg-launch-splash");
   if (!splash) return;
   const started = Date.now();
+  const root = document.documentElement;
   let dismissed = false;
   const dismiss = () => {
     if (dismissed) return;
@@ -4431,12 +4372,11 @@ console.info("[Moven: Explore] Bridge v6 ready");
     window.setTimeout(() => {
       splash.classList.add("kg-launch-splash--hidden");
       splash.setAttribute("aria-hidden", "true");
-      document.documentElement.classList.add("kg-launch-reveal");
-      document.documentElement.classList.remove("kg-launch-pending");
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       window.setTimeout(() => {
         splash.remove();
-        document.documentElement.classList.remove("kg-launch-reveal");
-      }, 700);
+        root.classList.remove("kg-launch-pending");
+      }, reducedMotion ? 180 : 700);
     }, delay);
   };
   if (document.readyState === "complete") dismiss();

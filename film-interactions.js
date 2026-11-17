@@ -1,7 +1,7 @@
 /* Shared TMDB person profiles and related-film carousels. */
 (function(){
   const pools=new Map(),relatedCache=new Map(),personCache=new Map(),personFilmPools=new Map(),personBackdropWarmCache=new Map();
-  let scrollFrame=0,personScrollFrame=0;
+  let scrollFrame=0,personScrollFrame=0,personOpenRequest=0;
   const image=(path,size="w342")=>path?`https://image.tmdb.org/t/p/${size}${path}`:"";
   const esc=value=>String(value||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   async function tmdb(path,params={},language="ru-RU"){
@@ -90,7 +90,7 @@
   }
   function filmButton(f){const title=f.title||f.name||uiText("Фильм"),year=(f.release_date||"").slice(0,4);return `<div class="kgpi-film"><button class="w-full text-left" type="button" data-kg-related-open="${f.id}"><span class="kgpi-poster">${image(f.poster_path)?`<img loading="lazy" src="${image(f.poster_path)}" alt="${esc(uiText("Постер «{title}»", {title}))}" onerror="this.style.visibility='hidden'">`:`<span class="flex h-full w-full items-center justify-center text-xs text-[rgb(var(--kg-text-muted))]">${uiText("Нет постера")}</span>`}</span><span class="kgpi-film-title block mt-1 text-xs font-semibold leading-tight">${esc(title)}</span><span class="block text-[10px] text-[rgb(var(--kg-text-muted))]">${year}</span></button></div>`; }
   function modal(){return document.getElementById("kg-person-modal");}
-  function closePerson(){const root=modal();root?.querySelectorAll("[data-kg-person-detail]").forEach(panel=>{if(panel.id)window.KGCloseFilmFromRelated?.(panel.id);});root?.remove();}
+  function closePerson(){personOpenRequest++;const root=modal();root?.querySelectorAll("[data-kg-person-detail]").forEach(panel=>{if(panel.id)window.KGCloseFilmFromRelated?.(panel.id);});root?.remove();}
   function ageFromBirthday(birthday, deathday) {
     if (!birthday) return "—";
     const born = new Date(birthday + "T00:00:00");
@@ -144,25 +144,22 @@
     }
   }
   async function showPerson(id,name,role,sourceElement=null){
-    ensureStyles();closePerson();window.KGFilmCard?.stopTrailers();
+    ensureStyles();closePerson();
+    const request=++personOpenRequest;
     const root=document.createElement("div");root.id="kg-person-modal";root.className="kgpi-backdrop";root.setAttribute("role","presentation");root.dataset.personId=id;
     root.innerHTML=`<section class="kgpi-modal" role="dialog" aria-modal="true" aria-label="${esc(uiText("Профиль {name}", {name}))}"><header class="sticky top-0 z-20 h-16 px-4 flex items-center justify-between bg-canvas-obsidian"><div class="flex items-center gap-2 min-w-0"><button type="button" data-kg-person-close aria-label="${uiText("Назад")}" class="w-10 h-10 rounded-full text-[rgb(var(--kg-primary))] text-2xl">‹</button><div class="min-w-0"><span class="block text-[9px] uppercase tracking-[.2em] text-[rgb(var(--kg-primary-container))]">${esc(uiText(role||"Кинематографист"))}</span><h2 class="text-base font-semibold truncate">${esc(name)}</h2></div></div><button type="button" data-kg-person-close aria-label="${uiText("Закрыть профиль")}" class="w-10 h-10 rounded-full bg-surface-container-high text-xl">×</button></header><div class="pb-10"><section class="kgpi-hero relative px-4 pt-3"><div data-kg-person-backdrop class="kgpi-hero-backdrop" aria-hidden="true"></div><div class="kgpi-hero-content flex flex-col items-center text-center"><div data-kg-person-image class="w-[188px] h-[250px] rounded-[9px] overflow-hidden flex items-center justify-center"><span class="material-symbols-outlined text-5xl text-[rgb(var(--kg-text-muted))]">person</span></div><h1 data-kg-person-title class="mt-4 text-2xl font-bold font-serif text-[rgb(var(--kg-primary))]"></h1><p data-kg-person-original class="text-sm text-[rgb(var(--kg-text-muted))]"></p><div class="flex flex-wrap justify-center gap-2 mt-3"><span data-kg-person-location class="px-3 py-1 rounded-full text-xs text-[rgb(var(--kg-on-surface-variant))]"></span><span data-kg-person-department class="px-3 py-1 rounded-full text-xs text-[rgb(var(--kg-secondary-fixed))]"></span></div><div data-kg-person-stats class="w-full grid grid-cols-3 gap-1.5 mt-5 py-3 px-2"><div class="flex flex-col items-center"><span data-kg-person-age-label class="text-[9px] uppercase tracking-wider text-[rgb(var(--kg-text-muted))] text-center">${uiText("Возраст")}</span><span data-kg-person-age class="text-sm font-semibold mt-1"></span></div><div class="flex flex-col items-center"><span class="text-[9px] uppercase tracking-wider text-[rgb(var(--kg-text-muted))]">${uiText("Фильмы")}</span><span data-kg-person-count class="text-sm font-semibold text-[rgb(var(--kg-primary))] mt-1">—</span></div><div class="flex flex-col items-center"><span class="text-[9px] uppercase tracking-wider text-[rgb(var(--kg-text-muted))]">${uiText("Профессия")}</span><span data-kg-person-stat-role class="text-sm font-semibold text-[rgb(var(--kg-primary-fixed))] mt-1"></span></div></div><button type="button" data-kg-person-best class="w-full h-12 mt-4 rounded-full bg-[rgb(var(--kg-primary-container))] text-[rgb(var(--kg-on-primary-fixed))] font-semibold flex items-center justify-center gap-2 active:scale-[.98] transition-transform"><span class="material-symbols-outlined">local_fire_department</span><span data-kg-person-best-label>${uiText("Смотреть лучшие роли")}</span></button></div></section><section class="px-4 mt-7"><div class="flex items-center justify-between mb-3"><h2 data-kg-person-bio-heading class="text-lg font-semibold text-[rgb(var(--kg-warm-text-28))]">${uiText("Об актёре")}</h2><span class="text-[9px] uppercase tracking-widest text-[rgb(var(--kg-primary-container))]">${uiText("Биография")}</span></div><div class="py-1"><p data-kg-person-bio class="text-sm leading-relaxed text-[rgb(var(--kg-on-surface-variant))] kgpi-bio-clamp"></p><button type="button" data-kg-person-bio-toggle class="mt-3 text-xs font-semibold text-[rgb(var(--kg-primary-container))]">${uiText("Читать полностью")}</button></div></section><section class="px-4 mt-7"><div class="flex items-center justify-between mb-3"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-[rgb(var(--kg-primary-container))]">movie</span><h2 class="text-lg font-semibold text-[rgb(var(--kg-warm-text-28))]">${uiText("Фильмография в Moven")}</h2></div><span data-kg-person-credit-total class="text-xs text-[rgb(var(--kg-primary-container))]"></span></div><p data-kg-person-credit-subtitle class="text-xs text-[rgb(var(--kg-text-muted))] mb-3"></p><div data-kg-person-films class="flex flex-col gap-2.5"><span class="text-sm text-[rgb(var(--kg-text-muted))]">${uiText("Загружаем фильмы…")}</span></div></section></div></section>`;
     seedPersonPortrait(root,sourceElement,id,name);
+    const sourceFilmCard=sourceElement?.closest?.(".kg-film-detail");
+    const sourceFilm=sourceFilmCard&&window.KGFilmCard?.modelFor(sourceFilmCard);
+    const sourceBackdrop=sourceFilm?.backdrop_path;
+    const contextFrame=sourceBackdrop?await warmPersonBackdrop(sourceBackdrop):null;
+    if(request!==personOpenRequest)return;
+    if(contextFrame)root.querySelector("[data-kg-person-backdrop]").replaceChildren(contextFrame);
     // Native modal dialogs live in the browser top layer. A profile appended to
     // body would sit behind an open Journey dialog and look like a dead click.
     const ownerDialog=sourceElement?.closest?.("dialog[open]");
     (ownerDialog||document.body).appendChild(root);
-    const sourceFilmCard=sourceElement?.closest?.(".kg-film-detail");
-    const sourceFilm=sourceFilmCard&&window.KGFilmCard?.modelFor(sourceFilmCard);
-    const sourceBackdrop=sourceFilm?.backdrop_path;
-    const contextFramePromise=sourceBackdrop?warmPersonBackdrop(sourceBackdrop):Promise.resolve(null);
-    let personBackdropCredits=null,contextFrameSettled=false,contextFrameImage=null;
-    contextFramePromise.then(contextFrame=>{
-      contextFrameSettled=true;contextFrameImage=contextFrame;
-      if(!root.isConnected)return;
-      if(contextFrame)root.querySelector("[data-kg-person-backdrop]").replaceChildren(contextFrame);
-      else if(personBackdropCredits)loadPersonBackdrop(root,personBackdropCredits);
-    });
+    window.KGFilmCard?.stopTrailers();
     const dialog=root.querySelector(".kgpi-modal");
     root.addEventListener("click",e=>{
       if(e.target===root||e.target.closest("[data-kg-person-close]")){closePerson();return;}
@@ -225,8 +222,7 @@
       if(!credits.length)credits=allCredits;
       credits.sort((a,b)=>(b.popularity||0)-(a.popularity||0));
       const dedup=[...new Map(credits.map(f=>[String(f.id),f])).values()].slice(0,30);personFilmPools.set(String(id),dedup);
-      personBackdropCredits=dedup;
-      if(!sourceBackdrop||(contextFrameSettled&&!contextFrameImage))loadPersonBackdrop(root,dedup);
+      if(!contextFrame)loadPersonBackdrop(root,dedup);
       root.querySelector("[data-kg-person-count]").textContent=String(dedup.length);
       root.querySelector("[data-kg-person-credit-total]").textContent=uiText(interfaceLanguage==="en"&&dedup.length===1?"{count} фильм":"{count} фильмов", {count: dedup.length});
       root.querySelector("[data-kg-person-credit-subtitle]").textContent=uiText(actor?"Главные и заметные роли {name}":"Фильмы, снятые {name}", {name: data.name||name});

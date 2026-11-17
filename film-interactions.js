@@ -1,6 +1,6 @@
 /* Shared TMDB person profiles and related-film carousels. */
 (function(){
-  const pools=new Map(),relatedCache=new Map(),personCache=new Map(),personFilmPools=new Map(),personBackdropWarmCache=new Map(),personTaggedBackdropCache=new Map();
+  const pools=new Map(),relatedCache=new Map(),personCache=new Map(),personFilmPools=new Map(),personBackdropWarmCache=new Map(),personTaggedBackdropCache=new Map(),personAltPortraitCache=new Map();
   const personBackdropPreloadStarted=new Set(),personBackdropPreloadTasks=new Map();
   let scrollFrame=0,personScrollFrame=0,personOpenRequest=0;
   const image=(path,size="w342")=>path?`https://image.tmdb.org/t/p/${size}${path}`:"";
@@ -81,26 +81,37 @@
     return cached;
   }
   async function personAltPortrait(personId,excludePath){
-    try{
-      const data=await tmdb(`person/${personId}/images`,{},"en-US");
-      const profiles=(data.profiles||[])
-        .filter(p=>p.file_path&&p.file_path!==excludePath)
-        .sort((a,b)=>(b.vote_average||0)-(a.vote_average||0)||(b.vote_count||0)-(a.vote_count||0));
-      const wide=profiles.filter(p=>(p.aspect_ratio||0)>=0.9);
-      return (wide.length?wide:profiles).map(p=>p.file_path);
-    }catch{
-      return [];
+    const key=String(personId||"");
+    if(!key)return [];
+    if(!personAltPortraitCache.has(key)){
+      const request=tmdb(`person/${key}/images`,{},"en-US").then(data=>{
+        const profiles=(data.profiles||[])
+          .filter(p=>p.file_path)
+          .sort((a,b)=>(Number(b.vote_average)||0)-(Number(a.vote_average)||0)||
+            (Number(b.vote_count)||0)-(Number(a.vote_count)||0));
+        const wide=profiles.filter(p=>(Number(p.aspect_ratio)||0)>=0.9);
+        return (wide.length?wide:profiles).map(p=>p.file_path);
+      }).catch(error=>{
+        personAltPortraitCache.delete(key);
+        console.warn("[Moven backdrop] Actor profile images unavailable",{
+          personId:key,message:error?.message||String(error)
+        });
+        return [];
+      });
+      personAltPortraitCache.set(key,request);
     }
+    const paths=await personAltPortraitCache.get(key);
+    return paths.filter(path=>path!==excludePath);
   }
   function preloadPersonBackdrop(personId){
     const key=String(personId||"");
-    if(!key)return Promise.resolve(null);
+    if(!key)return Promise.resolve([]);
     if(personBackdropPreloadTasks.has(key))return personBackdropPreloadTasks.get(key);
     personBackdropPreloadStarted.add(key);
-    const task=personTaggedBackdrop(key,1).then(async data=>{
-      // Decode all tagged posters before allowing the profile modal to appear.
-      await Promise.all(data.posterPaths.map(path=>warmPersonBackdrop(path)));
-      return data;
+    const task=personAltPortrait(key,null).then(async paths=>{
+      // Warm the actor's own profile images; tagged movie posters are not actor portraits.
+      await Promise.all(paths.map(path=>warmPersonBackdrop(path,"h632")));
+      return paths;
     }).catch(error=>{
       personBackdropPreloadStarted.delete(key);
       personBackdropPreloadTasks.delete(key);
@@ -116,33 +127,38 @@
     if(host.__kgBackdropTask)return host.__kgBackdropTask;
 
     const task=(async()=>{
-      let taggedPoster=null;
       const mainPath=()=>host.__kgMainProfilePath||null;
+      let alternatePortrait=null;
       try{
-        const data=await personTaggedBackdrop(personId,1);
-        const candidates=(data?.posterPaths||[]).filter(path=>path!==mainPath());
-        // A separate tagged poster is preferred, but its endpoint is optional:
-        // a failed/empty tagged-images response must not block the portrait fallback.
-        taggedPoster=candidates.length?await Promise.any(candidates.map(path=>
-          warmPersonBackdrop(path,"w780").then(img=>img||Promise.reject())
-        )).catch(()=>null):null;
+        const candidates=await personAltPortrait(personId,mainPath());
+        // Use the best available image from the actor's own profile gallery, in ranked order.
+        for(const path of candidates){
+          alternatePortrait=await warmPersonBackdrop(path,"h632");
+          if(alternatePortrait)break;
+        }
       }catch(error){
-        console.warn("[Moven backdrop] Tagged posters unavailable; trying profile portrait",{
+        console.warn("[Moven backdrop] Could not load alternate actor portrait",{
           personId,message:error?.message||String(error)
         });
       }
-      const fallbackPortrait=!taggedPoster&&mainPath()?await warmPersonBackdrop(mainPath(),"h632"):null;
-      const background=taggedPoster||fallbackPortrait;
+      const fallbackPortrait=!alternatePortrait&&mainPath()
+        ?await warmPersonBackdrop(mainPath(),"h632"):null;
+      const background=alternatePortrait||fallbackPortrait;
       if(!root.isConnected||!background||host.dataset.kgBackdropSource==="poster")return;
       const shown=new Image();
       shown.alt="";
       shown.decoding="async";
       shown.src=background.src;
-      shown.className=taggedPoster?"kgpi-poster-backdrop":"kgpi-poster-backdrop kgpi-portrait-backdrop";
-      // Alternate the background placement so profiles don't all look identical.
+      shown.className=alternatePortrait
+        ?"kgpi-poster-backdrop kgpi-actor-profile-backdrop"
+        :"kgpi-poster-backdrop kgpi-portrait-backdrop";
       shown.classList.add((personHash(personId)&1)?"kgpi-poster-right":"kgpi-poster-left");
       host.dataset.kgBackdropSource="poster";
+      host.dataset.kgBackdropKind=alternatePortrait?"alternate-profile":"main-profile-fallback";
       fadeInto(host,shown);
+      console.info("[Moven backdrop] Actor profile background selected",{
+        personId,source:host.dataset.kgBackdropKind
+      });
     })();
     host.__kgBackdropTask=task;
     try{await task;}
@@ -192,7 +208,7 @@
 .kgpi-film .kgpi-poster>img{display:block;width:100%;height:100%;object-fit:cover}
 .kgpi-film .kgpi-poster>span{display:grid;place-items:center;width:100%;height:100%;text-align:center}
 .kgpi-film-title{overflow-wrap:anywhere}
-.kgpi-profile-credit{display:grid;grid-template-columns:76px minmax(0,1fr);gap:12px;align-items:center;min-height:136px}.kgpi-profile-credit-poster-wrap{position:relative;display:block;width:76px;height:112px}.kgpi-profile-credit-poster{display:block;box-sizing:border-box;flex:none;width:76px!important;min-width:76px;max-width:76px;height:112px!important;min-height:112px;max-height:112px;aspect-ratio:2/3;object-fit:cover;border-radius:9px;background:rgb(var(--kg-surface-container-high))}.kgpi-profile-credit-poster.is-empty{display:flex;align-items:center;justify-content:center}.kgpi-profile-credit-rating{position:absolute;right:4px;bottom:4px;padding:2px 5px;border-radius:6px;background:rgb(var(--kg-canvas-obsidian)/.86);color:rgb(var(--kg-primary));font-size:11px;font-weight:700;line-height:1.25}.kgpi-profile-credit:focus-visible{outline:2px solid rgb(var(--kg-primary-container));outline-offset:2px}.kgpi-bio-clamp{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}.kgpi-hero{isolation:isolate;overflow:hidden}.kgpi-hero-backdrop{position:absolute;z-index:-1;inset:0;overflow:hidden;pointer-events:none;opacity:.92;mask-image:linear-gradient(to bottom,#000 0%,#000 70%,transparent 100%)}.kgpi-hero-backdrop:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgb(var(--kg-canvas-obsidian)/.25) 0%,rgb(var(--kg-canvas-obsidian)/.55) 55%,rgb(var(--kg-canvas-obsidian)) 100%);box-shadow:inset 0 0 120px rgb(var(--kg-primary-container)/.08)}.kgpi-hero-backdrop img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 30%;filter:brightness(.62) saturate(1.05) blur(8px);transform:scale(1.12);transition:opacity .35s ease}.kgpi-hero-backdrop img.kgpi-poster-backdrop{position:absolute;top:0;width:72%;height:100%;object-fit:cover;filter:brightness(.5) saturate(.9) blur(8px);transform:scale(1.12)}.kgpi-hero-backdrop img.kgpi-poster-left{left:-5%}.kgpi-hero-backdrop img.kgpi-poster-right{right:-5%}.kgpi-hero-backdrop img.kgpi-portrait-backdrop{filter:brightness(.38) saturate(.72) blur(12px);transform:scale(1.16)}.kgpi-hero-backdrop img.kgpi-fade{opacity:0}.kgpi-hero-backdrop img.kgpi-fade.is-ready{opacity:1}.kgpi-hero-backdrop img.kgpi-fade{opacity:0;transition:opacity .5s ease}.kgpi-hero-backdrop img.kgpi-fade.is-ready{opacity:1}.kgpi-hero-backdrop img.kgpi-poster-backdrop{filter:brightness(.5) saturate(.92) blur(7px);transform:scale(1.12)}.kgpi-modal [data-kg-person-image]{position:relative}.kgpi-modal [data-kg-person-image] img.kgpi-portrait-top{position:absolute;inset:0;opacity:0;transition:opacity .35s ease}.kgpi-modal [data-kg-person-image] img.kgpi-portrait-top.is-ready{opacity:1}.kgpi-hero-backdrop img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 30%;filter:brightness(.62) saturate(1.05) blur(2px);transform:scale(1.02);transition:opacity .5s ease}.kgpi-hero-content{position:relative;z-index:1}`;
+.kgpi-profile-credit{display:grid;grid-template-columns:76px minmax(0,1fr);gap:12px;align-items:center;min-height:136px}.kgpi-profile-credit-poster-wrap{position:relative;display:block;width:76px;height:112px}.kgpi-profile-credit-poster{display:block;box-sizing:border-box;flex:none;width:76px!important;min-width:76px;max-width:76px;height:112px!important;min-height:112px;max-height:112px;aspect-ratio:2/3;object-fit:cover;border-radius:9px;background:rgb(var(--kg-surface-container-high))}.kgpi-profile-credit-poster.is-empty{display:flex;align-items:center;justify-content:center}.kgpi-profile-credit-rating{position:absolute;right:4px;bottom:4px;padding:2px 5px;border-radius:6px;background:rgb(var(--kg-canvas-obsidian)/.86);color:rgb(var(--kg-primary));font-size:11px;font-weight:700;line-height:1.25}.kgpi-profile-credit:focus-visible{outline:2px solid rgb(var(--kg-primary-container));outline-offset:2px}.kgpi-bio-clamp{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}.kgpi-hero{isolation:isolate;overflow:hidden}.kgpi-hero-backdrop{position:absolute;z-index:-1;inset:0;overflow:hidden;pointer-events:none;opacity:.92;mask-image:linear-gradient(to bottom,#000 0%,#000 70%,transparent 100%)}.kgpi-hero-backdrop:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgb(var(--kg-canvas-obsidian)/.25) 0%,rgb(var(--kg-canvas-obsidian)/.55) 55%,rgb(var(--kg-canvas-obsidian)) 100%);box-shadow:inset 0 0 120px rgb(var(--kg-primary-container)/.08)}.kgpi-hero-backdrop img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 30%;filter:brightness(.62) saturate(1.05) blur(8px);transform:scale(1.12);transition:opacity .35s ease}.kgpi-hero-backdrop img.kgpi-poster-backdrop{position:absolute;top:0;width:72%;height:100%;object-fit:cover;filter:brightness(.5) saturate(.9) blur(8px);transform:scale(1.12)}.kgpi-hero-backdrop img.kgpi-poster-left{left:-5%}.kgpi-hero-backdrop img.kgpi-poster-right{right:-5%}.kgpi-hero-backdrop img.kgpi-portrait-backdrop{filter:brightness(.38) saturate(.72) blur(12px);transform:scale(1.16)}.kgpi-hero-backdrop img.kgpi-actor-profile-backdrop{filter:brightness(.5) saturate(.92) blur(8px);transform:scale(1.12)}.kgpi-hero-backdrop img.kgpi-fade{opacity:0}.kgpi-hero-backdrop img.kgpi-fade.is-ready{opacity:1}.kgpi-hero-backdrop img.kgpi-fade{opacity:0;transition:opacity .5s ease}.kgpi-hero-backdrop img.kgpi-fade.is-ready{opacity:1}.kgpi-hero-backdrop img.kgpi-poster-backdrop{filter:brightness(.5) saturate(.92) blur(7px);transform:scale(1.12)}.kgpi-modal [data-kg-person-image]{position:relative}.kgpi-modal [data-kg-person-image] img.kgpi-portrait-top{position:absolute;inset:0;opacity:0;transition:opacity .35s ease}.kgpi-modal [data-kg-person-image] img.kgpi-portrait-top.is-ready{opacity:1}.kgpi-hero-backdrop img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 30%;filter:brightness(.62) saturate(1.05) blur(2px);transform:scale(1.02);transition:opacity .5s ease}.kgpi-hero-content{position:relative;z-index:1}`;
     document.head.appendChild(style);
   }
   function registerPool(key,films){

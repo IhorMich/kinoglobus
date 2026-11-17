@@ -5,7 +5,7 @@
 <link rel="manifest" href="moven.webmanifest">
 <meta name="application-name" content="Moven: Explore">
 <meta name="description" content="Explore the world of cinema">
-<link rel="stylesheet" href="app-theme.css?v=46">
+<link rel="stylesheet" href="app-theme.css?v=47">
 <script src="steel-motion.js?v=4" defer></script>
 <script src="interface-en.js?v=48"></script>
 <script src="interface-i18n.js?v=2"></script>
@@ -2378,9 +2378,9 @@ function sampleWin(key){
   try{
     const src=ac.createBufferSource(),g=ac.createGain(),t=ac.currentTime;
     const isMusic=key.startsWith("smp-m-");
-    const duration=isMusic?Math.min(buf.duration,1.9):buf.duration;
+    const duration=isMusic?Math.min(buf.duration,.85):buf.duration;
     src.buffer=buf;g.gain.value=SAMPLE_WIN_VOL;
-    if(isMusic){g.gain.setValueAtTime(SAMPLE_WIN_VOL,t+Math.max(0,duration-.28));g.gain.linearRampToValueAtTime(.0001,t+duration);}
+    if(isMusic){g.gain.setValueAtTime(SAMPLE_WIN_VOL,t+Math.max(0,duration-.18));g.gain.linearRampToValueAtTime(.0001,t+duration);}
     src.connect(g);g.connect(soundOutput);src.start(t,sampleOnset[key]||0);
     if(isMusic)src.stop(t+duration+.02);
   }catch(_){}
@@ -2409,29 +2409,29 @@ function sWin(){
   if(SAMPLE_SOUNDS[snd]){sampleWin(snd);return;}
   if(snd==="arcade"){[523,659,784,1047].forEach((f,i)=>tone(f,0.14,0.05,"square",i*0.1));return;}
   if(snd==="casino"){
-    [1760,2093,2637,2093,2637,3136,2637,3136].forEach((f,i)=>tone(f,0.3,0.05,"triangle",i*0.065));
-    [523.25,659.25,783.99].forEach(f=>tone(f,1.1,0.06,"sine",0.1));return;}
+    [1760,2093,2637,2093,2637,3136,2637,3136].forEach((f,i)=>tone(f,0.2,0.05,"triangle",i*0.065));
+    [523.25,659.25,783.99].forEach(f=>tone(f,0.65,0.06,"sine",0.1));return;}
   if(snd==="marimba"){
-    [261.63,329.63,392,493.88,523.25,659.25].forEach((f,i)=>{tone(f,0.55,0.13,"sine",i*0.08);tone(f*4,0.08,0.04,"sine",i*0.08);});return;}
+    [261.63,329.63,392,493.88,523.25,659.25].forEach((f,i)=>{tone(f,0.45,0.13,"sine",i*0.08);tone(f*4,0.08,0.04,"sine",i*0.08);});return;}
   if(snd==="space"){
-    [392,587.33,783.99,1174.66].forEach((f,i)=>{tone(f,1.8,0.05,"sine",i*0.06);tone(f*1.006,1.8,0.04,"sine",i*0.06);});return;}
+    [392,587.33,783.99,1174.66].forEach((f,i)=>{tone(f,0.65,0.05,"sine",i*0.06);tone(f*1.006,0.65,0.04,"sine",i*0.06);});return;}
   if(snd==="film"){
     [220,277,330,392,440].forEach((f,i)=>{tone(f,0.4,0.08,"triangle",i*0.07);click(0.35,800+i*120);});
-    tone(110,1.2,0.06,"sine",0.35);return;}
+    tone(110,0.55,0.06,"sine",0.28);return;}
   if(snd==="orchestra"){
     [261.63,329.63,392,523.25,659.25,783.99].forEach((f,i)=>{
-      tone(f,1.4,0.08,"triangle",i*0.09);tone(f*2,0.9,0.03,"sine",i*0.09);});return;}
+      tone(f,0.5,0.08,"triangle",i*0.09);tone(f*2,0.35,0.03,"sine",i*0.09);});return;}
   if(snd==="jazz"){
     [233.08,293.66,349.23,415.3,466.16,587.33].forEach((f,i)=>{
-      tone(f,0.7,0.1,"triangle",i*0.1);tone(f*1.5,0.25,0.04,"sine",i*0.1);});return;}
+      tone(f,0.4,0.1,"triangle",i*0.1);tone(f*1.5,0.18,0.04,"sine",i*0.1);});return;}
   if(snd==="synth"){
     [220,277.18,329.63,440,554.37,659.25].forEach((f,i)=>{
       tone(f,0.5,0.07,"sawtooth",i*0.08);tone(f*2,0.3,0.03,"square",i*0.08);});return;}
   if(snd==="chimes"){
     [523.25,659.25,783.99,1046.5,1318.5,1568].forEach((f,i)=>{
-      tone(f,1.2,0.07,"sine",i*0.12);tone(f*2,0.4,0.025,"sine",i*0.12);});return;}
+      tone(f,0.22,0.07,"sine",i*0.12);tone(f*2,0.15,0.025,"sine",i*0.12);});return;}
   const notes=snd==="bells"?[523.25,659.25,783.99,1046.5,1318.5]:[523.25,659.25,783.99,1046.5];
-  const gap=snd==="bells"?0.1:0.06,len=snd==="bells"?0.8:1.4;
+  const gap=snd==="bells"?0.1:0.06,len=snd==="bells"?0.5:0.65;
   notes.forEach((f,i)=>{tone(f,len,0.1,"sine",i*gap);tone(f*2,len*0.6,0.03,"sine",i*gap);});
 }
 // Frame crossings trigger the selected sound. All reel voices share an output
@@ -2563,12 +2563,13 @@ function playReelFound(cfg){
   const one=(c,delay)=>{
     const b=reelBuf[c.file]; if(!b)return;
     const t=ac.currentTime+delay,src=ac.createBufferSource(),g=ac.createGain(),fi=c.fadeIn||.004;
+    const len=Math.min(c.len,cfg.pre?(delay===0?0.18:0.78):0.78);
     src.buffer=b;
-    g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(c.vol,t+fi);
-    g.gain.setValueAtTime(c.vol,t+Math.max(fi,c.len*.7));g.gain.linearRampToValueAtTime(.0001,t+c.len);
+    g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(c.vol,t+Math.min(fi,len*.25));
+    g.gain.setValueAtTime(c.vol,t+Math.max(fi,len*.7));g.gain.linearRampToValueAtTime(.0001,t+len);
     src.connect(g);g.connect(soundOutput);
     src.onended=()=>{src.disconnect();g.disconnect();};
-    src.start(t,reelOnset[c.file]||0,c.len+.02);
+    src.start(t,reelOnset[c.file]||0,len+.02);
   };
   if(cfg.pre)one(cfg.pre,0);
   one(cfg,cfg.pre?.04:0);
@@ -4226,7 +4227,7 @@ console.info("[Moven: Explore] Bridge v6 ready");
 <script src="oscar-page.js?v=48"></script>
 <script src="oscar-design.js?v=27"></script>
 <script src="curated-collections.js?v=2"></script>
-<script src="film-card.js?v=7"></script>
+<script src="film-card.js?v=8"></script>
 <script src="collections.js?v=117"></script>
 <script src="film-interactions.js?v=28"></script>
 <script src="legal-watch.js?v=9"></script>

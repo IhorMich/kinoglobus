@@ -1628,3 +1628,12 @@ body {
 :root[data-kg-theme="steel"] .kg-year-field:focus-within {
   border-color: rgb(var(--kg-primary) / .72);
 }
+
+/* The daily pick sits directly on the page canvas like other film details. */
+#kg-home-feature:not(:has(> .kg-film-detail)) {
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}

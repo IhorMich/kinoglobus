@@ -39,7 +39,7 @@ function markup(f, {closable = true, inline = false} = {}) {
   const average=Number(f.average ?? f.vote_average)||0;
   const rating=average>0?`<div class="shrink-0 px-2.5 py-1 rounded-lg bg-primary-container/15 flex items-center gap-1.5"><span class="material-symbols-outlined text-primary-container text-[16px]" style="font-variation-settings:'FILL' 1;">star</span><span class="font-label-sm text-label-sm text-primary">${average.toFixed(1)} TMDB</span><span class="font-micro-caption text-micro-caption text-text-muted">(${votes})</span></div>`:"";
   const certBadge=f.cert?`<span class="absolute top-3 right-3 px-2 py-0.5 rounded bg-cinema-velvet-deep/90 text-secondary font-label-sm text-label-sm">${esc(f.cert)}</span>`:"";
-  const fact=(label,value,sub)=>`<div class="p-3.5 rounded-xl bg-surface-container flex flex-col gap-1"><span class="font-micro-caption text-micro-caption uppercase text-text-muted">${uiText(label)}</span>${value}${sub?`<span class="font-body-sm text-body-sm text-text-muted">${sub}</span>`:""}</div>`;
+  const fact=(label,value,sub)=>`<div class="py-2 flex flex-col gap-1"><span class="font-micro-caption text-micro-caption uppercase text-text-muted">${uiText(label)}</span>${value}${sub?`<span class="font-body-sm text-body-sm text-text-muted">${sub}</span>`:""}</div>`;
   const loading=f._detailsLoaded?"—":uiText("Загружаем…");
   const dirName=f.dirs&&f.dirs.length?(f.dirsFull&&f.dirsFull.length?f.dirsFull.map(d=>personLink(d,"Режиссёр")).join(", "):esc(f.dirs.join(", "))):loading;
   const releaseText=f.release?new Date(f.release+"T00:00:00").toLocaleDateString(interfaceLanguage,{day:"numeric",month:"long",year:"numeric"}):loading;
@@ -70,7 +70,7 @@ ${kgBookmarkButton(f)}
 </div>
 ${closable ? `<button type="button" data-act="close-film" aria-label="${uiText("Свернуть карточку")}" class="kg-film-detail-close"><span class="material-symbols-outlined" aria-hidden="true">close</span></button>` : ""}
 </div>
-<div data-film-part="description" data-kg-film-description class="p-4 rounded-xl bg-surface-container flex flex-col gap-2"><h4 class="font-label-md text-label-md text-primary-fixed">${uiText("О фильме")}</h4>
+<div data-film-part="description" data-kg-film-description class="flex flex-col gap-2"><h4 class="font-label-md text-label-md text-primary-fixed">${uiText("О фильме")}</h4>
 ${f.tagline&&f.taglineLang===f.overviewLang ? `<blockquote class="italic text-primary-fixed">«${esc(f.tagline)}»</blockquote>` : ""}
 <p class="text-body-md text-on-surface leading-relaxed">${esc(f.overview)}</p>${languageNote ? `<small class="text-text-muted">${esc(languageNote)}</small>` : ""}</div>
 <div data-film-part="trailer" class="flex flex-col gap-2">
@@ -97,7 +97,8 @@ ${fact("Мировые сборы",`<span class="font-headline-sm text-headline-
 
 const style = document.createElement("style");
 style.textContent = `
-.kg-film-detail{display:flex;flex-direction:column;gap:14px;width:100%;max-width:100%;min-width:0;box-sizing:border-box;padding:14px;background:rgb(var(--kg-surface-panel));border:0;border-radius:0;scroll-margin-top:84px}
+.kg-film-detail{display:flex;flex-direction:column;gap:14px;width:100%;max-width:100%;min-width:0;box-sizing:border-box;padding:0;background:transparent;border:0;border-radius:0;scroll-margin-top:84px}
+.kg-film-detail [data-kg-film-description]{padding:0;border-radius:0;background:transparent}
 #kg-globe-film > .kg-film-detail,
 [data-home-inline-film] > .kg-film-detail,
 #cl-result > .kg-film-detail,

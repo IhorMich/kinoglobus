@@ -34,6 +34,8 @@
     personBackdropWarmCache.set(src,promise);
     return promise;
   }
+  // Stable per-person positioning for poster backgrounds.
+  const personHash=value=>{let h=2166136261;for(const c of String(value)){h^=c.charCodeAt(0);h=Math.imul(h,16777619);}return h>>>0;};
   // Один плавный показ вместо резкой подмены: картинка уже загружена, появляется из opacity 0.
   function fadeInto(host,img){
     if(!host||!img)return;

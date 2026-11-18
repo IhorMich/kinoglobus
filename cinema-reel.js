@@ -497,6 +497,7 @@
       const currentStep=Math.round((x-startX)/stepWidth);
       if(currentStep!==lastStep){lastStep=currentStep;options.onStep?.(currentStep,progress,x,remaining);}
       options.onProgress?.(progress,x,remaining);
+      if(done)return;
       if(rawProgress<1){
         emitReelMotion(searchReelSpeed(progress), Math.abs(x - startX) / stepWidth, Math.abs(currentStep));
         raf=requestAnimationFrame(step);return;

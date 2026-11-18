@@ -247,6 +247,9 @@
     .kgc-stat-film b{display:block;font-size:14px}.kgc-stat-film small{display:block;margin-top:4px;color:rgb(var(--kg-text-muted))}
     .kgc-stat-note{margin:8px 0 0;color:rgb(var(--kg-text-muted));font-size:12px;line-height:1.6}
     #kg-country-people.kg-cast-rail{gap:var(--kg-cast-gap)}
+    [data-country-search-reel][hidden]{display:none}
+    .kgc-search-reel-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;color:rgb(var(--kg-primary));font-size:13px}
+    #kgc-search-frame{position:absolute;left:50%;top:50%;width:94px;height:128px;transform:translate(-50%,-50%);z-index:5;pointer-events:none;border:2px solid rgb(var(--kg-primary-container));border-radius:10px;box-shadow:0 0 18px rgb(var(--kg-primary-container)/.5)}
     .kgc-stat-content h2{margin:0;font:700 21px var(--kg-font-heading)}
   `;
   document.head.appendChild(style);
@@ -736,13 +739,48 @@
     if(!fresh.length){recent.clear();fresh=available;}
     return fresh.length?fresh[Math.floor(Math.random()*fresh.length)]:null;
   }
+  async function animateCountrySearch(host,films,winner,active) {
+    const reel=window.KGCinemaReel;
+    if(!reel || !host || !active())return false;
+    const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const pool=[...new Map(films.filter(f=>movieCatalog.allows(f)).map(f=>[Number(f.id),f])).values()];
+    const others=pool.filter(f=>Number(f.id)!==Number(winner.id));
+    const sequence=Array.from({length:26},(_,i)=>others.length?others[i%others.length]:winner);sequence.push(winner);
+    let skip=false,stop=()=>{};
+    host.innerHTML=`<div class="kgc-search-reel-head"><b>${uiText('Ищем фильм…')}</b><button type="button" class="kgc-catalog-action" data-country-search-skip>${uiText('Показать результат')}</button></div><div data-country-search-stage></div>`;
+    host.hidden=false;
+    const stage=host.querySelector('[data-country-search-stage]');
+    const onSkip=event=>{if(event.target.closest('[data-country-search-skip]')){skip=true;stop();}};
+    host.addEventListener('click',onSkip);
+    host.scrollIntoView({behavior:reducedMotion?'instant':'smooth',block:'center'});
+    const options={reducedMotion,cancelled:()=>!active(),shouldSkip:()=>skip,meta:{country:app.countryName(state.code)}};
+    window.startFilmReelSound?.();
+    try {
+      if(reel.isCassetteMode()){stage.innerHTML=reel.render({mode:'cassette'});return await reel.spinCassetteDeck(stage,pool,sequence,winner,options) && active();}
+      if(reel.isProjectionMode()){stage.innerHTML=reel.render({mode:'projection'});return await reel.spinProjectionTrack(stage,sequence,winner,options) && active();}
+      stage.innerHTML=reel.render({mode:'35mm',windowId:'kgc-search-window',trackId:'kgc-search-track',runId:'kgc-search-run',frameId:'kgc-search-frame'});
+      const run=stage.querySelector('#kgc-search-run'),track=stage.querySelector('#kgc-search-track');
+      const tail=others.length?others:[winner],items=[...sequence,...Array.from({length:6},(_,i)=>tail[i%tail.length])];
+      run.innerHTML=items.map(f=>`<div class="film-cell">${poster(f,'w185')?`<img src="${poster(f,'w185')}" alt="${esc(f.title||uiText('Фильм'))}" draggable="false">`:`<div class="nop">${esc(f.title||uiText('Фильм'))}</div>`}<span class="yr">${esc(year(f))}</span></div>`).join('');
+      const center=i=>8+i*90+40-track.clientWidth/2;
+      return await new Promise(resolve=>{
+        stop=reel.spin({run,frame:stage.querySelector('#kgc-search-frame'),root:stage,startX:center(0),endX:center(26),chosenIndex:26,stepWidth:90,reducedMotion,
+          onProgress:()=>{if(!active())stop();},onFinish:()=>resolve(active()),onCancel:()=>resolve(skip && active())});
+      });
+    } finally {
+      host.removeEventListener('click',onSkip);window.stopFilmReelSound?.();
+    }
+  }
+
   async function findCountryFilm(button) {
     const code=button.dataset.countrySearch,label=button.innerHTML;
-    const active=()=>dialog.open && root.dataset.page==='country' && root.dataset.code===code && button.isConnected;
+    const active=()=>dialog.open && !root.hidden && root.dataset.page==='country' && root.dataset.code===code && button.isConnected;
     const status=root.querySelector('[data-country-search-status]');
+    const host=root.querySelector('[data-country-search-reel]');
     button.disabled=true;button.setAttribute('aria-busy','true');
     button.innerHTML=`<span class="material-symbols-outlined">progress_activity</span>${uiText("Ищем фильм…")}`;
     if(status){status.hidden=true;status.textContent='';}
+    if(host){host.hidden=false;host.innerHTML=`<p class="kgc-muted" role="status">${uiText('Ищем фильм…')}</p>`;}
     try {
       const first=await app.getCountryFilms(code,1);if(!active())return;
       const pages=Math.max(1,Math.min(500,Number(first.total_pages)||Math.ceil(Number(first.total_results||0)/20)||1));
@@ -755,11 +793,14 @@
       const recent=countrySearchHistory.get(code)||new Set();
       const film=chooseCountryFilm(films,new Set(app.watched().map(f=>Number(f.id))),recent);
       if(!film){if(status){status.hidden=false;status.textContent=uiText("Для этой страны пока не удалось найти фильм.");}return;}
+      const landed=await animateCountrySearch(host,films,film,active);
+      if(!landed || !active())return;
       countrySearchHistory.set(code,recent);recent.add(Number(film.id));
       await openMovie({...film,_kgCountry:code},button);
     }catch(error){
       if(active() && status){status.hidden=false;status.textContent=uiText("Не удалось найти фильм. Повторите поиск.");}
     }finally{
+      if(host?.isConnected)host.hidden=true;
       if(button.isConnected){button.disabled=false;button.removeAttribute('aria-busy');button.innerHTML=label;}
     }
   }
@@ -834,6 +875,7 @@
     root.innerHTML=`
       <header class="kgc-head"><button class="kgc-icon" data-atlas-back aria-label="${passportFromCatalog ? uiText("Назад к каталогу") : uiText("Назад к атласу")}"><span class="material-symbols-outlined">arrow_back</span></button><div class="kgc-head-title"><div class="kgc-head-title-row"><b>${uiText("Путешествие")}</b></div></div><button class="kgc-icon" data-country-share="${code}" aria-label="${uiText("Поделиться")}"><span class="material-symbols-outlined">share</span></button><button class="kgc-icon" data-country-favorite="${code}" aria-label="${favoriteLabel(saved)}"><span class="material-symbols-outlined" aria-hidden="true">${saved ? 'bookmark_added' : 'bookmark_add'}</span></button><button class="kgc-icon kgc-account-icon" data-kga-account aria-label="${uiText("Профиль")}"><span class="material-symbols-outlined">person</span></button></header>
       <section class="kgc-hero-full${nWatched?' kgc-hero-opened':''}">${flagBackdrop(code)}<div class="kgc-hero-copy"><h1 class="kgc-country-name">${esc(name)}</h1><span class="kgc-passport-label">${uiText("Кинопаспорт страны")}</span>${nWatched?'':`<p class="kgc-blurb">${esc(uiText(editorial))}</p>`}<div class="kgc-action-row"><button type="button" class="kgc-btn" data-country-search="${code}" ${loading?'disabled':''}><span class="material-symbols-outlined">casino</span>${uiText("Найти фильм этой страны")}</button></div></div></section>
+      <div class="kgc-pad" data-country-search-reel hidden></div>
       <p class="kgc-muted kgc-pad" data-country-search-status role="status" hidden></p>
       ${watchedCountrySection(marked)}
       ${message? `<p class="kgc-muted kgc-pad" style="margin:0;padding-top:0">${esc(message)}</p>` : ''}

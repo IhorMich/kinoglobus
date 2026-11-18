@@ -10,6 +10,9 @@ html.kg-launch-pending body>:not(#kg-launch-splash){visibility:hidden!important;
 .kg-launch-splash__footer{position:absolute;left:24px;right:24px;bottom:max(28px,env(safe-area-inset-bottom));display:flex;flex-direction:column;align-items:center;gap:15px;padding:0;color:#777b86;font:500 9px/14px Arial,Helvetica,sans-serif;letter-spacing:.2em;text-align:center;text-transform:uppercase;transform:none!important;animation:none!important;transition:none!important}
 .kg-launch-splash__rule{width:128px;height:1.5px;border-radius:999px;background:rgba(255,255,255,.1);animation:none!important}
 #kg-launch-splash.kg-launch-splash--hidden{opacity:0;pointer-events:none}
+#kg-launch-splash{height:auto!important;width:auto!important}
+#kg-launch-splash .kg-launch-splash__center,#kg-launch-splash .kg-launch-splash__footer{opacity:1;transition:opacity 420ms ease!important}
+#kg-launch-splash.kg-launch-splash--settling .kg-launch-splash__center,#kg-launch-splash.kg-launch-splash--settling .kg-launch-splash__footer{opacity:0;transition:none!important}
 @media(prefers-reduced-motion:reduce){#kg-launch-splash{transition-duration:150ms}}</style>
 <title>Moven: Explore</title>
 <link rel="icon" type="image/png" sizes="32x32" href="assets/branding/moven-icon-32.png?v=2">
@@ -79,7 +82,7 @@ try {
 <script src="watched-button.js?v=3"></script>
 <link rel="stylesheet" href="settings-page.css?v=10">
 </head><body class="bg-canvas-obsidian font-body-md text-on-surface flex flex-col min-h-screen relative">
-<div id="kg-launch-splash" role="status" aria-label="Moven — Cinema in Motion">
+<div id="kg-launch-splash" class="kg-launch-splash--settling" role="status" aria-label="Moven — Cinema in Motion">
   <div class="kg-launch-splash__center" aria-label="Moven brand">
     <div class="kg-launch-splash__logo" role="heading" aria-level="1">MOVEN</div>
     <div class="kg-launch-splash__tagline">Cinema in Motion</div>
@@ -89,6 +92,20 @@ try {
     <span>Crafted for film lovers</span>
   </footer>
 </div>
+<script>
+/* Текст сплеша показываем только когда размер окна перестал меняться:
+   при первом запуске WebView несколько раз пересчитывает высоту (системные панели, вырез),
+   и центрированный текст из-за этого «прыгал». Пока окно не стабильно — текст прозрачный. */
+(function(){
+  var s=document.getElementById("kg-launch-splash");if(!s)return;
+  var t0=Date.now(),since=t0,last="",done=false;
+  function size(){var v=window.visualViewport;return innerWidth+"x"+innerHeight+"|"+(v?Math.round(v.width)+"x"+Math.round(v.height)+"+"+Math.round(v.offsetTop):"");}
+  function reveal(){if(done)return;done=true;s.classList.remove("kg-launch-splash--settling");}
+  function tick(){var n=Date.now(),z=size();if(z!==last){last=z;since=n;}if(n-since>=200||n-t0>=1100)reveal();else requestAnimationFrame(tick);}
+  window.addEventListener("resize",function(){since=Date.now();});
+  requestAnimationFrame(tick);setTimeout(reveal,1300);
+})();
+</script>
 
 <!-- Static cinema backdrop -->
 <div class="kg-ambient-background fixed inset-0 pointer-events-none overflow-hidden -z-10 select-none" aria-hidden="true">

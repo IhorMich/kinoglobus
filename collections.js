@@ -322,6 +322,23 @@ async function loadMeta(t,force=false){
 }
 
 /* ---------- экраны и навигация ---------- */
+const mediaSwitch=document.createElement("div");
+mediaSwitch.className="kg-media-switch";mediaSwitch.setAttribute("role","tablist");mediaSwitch.setAttribute("aria-label",uiText("Тип контента"));
+home.id="view-films";home.setAttribute("role","tabpanel");home.setAttribute("aria-labelledby","kg-mode-films");
+const seriesPage=document.createElement("section");seriesPage.id="view-series";seriesPage.className="kg-series-page";seriesPage.hidden=true;
+seriesPage.setAttribute("role","tabpanel");seriesPage.setAttribute("aria-labelledby","kg-mode-series");
+seriesPage.innerHTML=`<h1 class="sr-only">${uiText("Сериалы")}</h1>`;
+mediaSwitch.innerHTML=[["home","films","Фильмы"],["series","series","Сериалы"]].map(([route,id,label])=>`<button type="button" role="tab" id="kg-mode-${id}" data-media-view="${route}" aria-controls="view-${id}" aria-selected="${route==='home'}" tabindex="${route==='home'?0:-1}">${uiText(label)}</button>`).join("");
+home.before(mediaSwitch);home.after(seriesPage);
+mediaSwitch.addEventListener("click",event=>{const tab=event.target.closest('[data-media-view]');if(tab)showView(tab.dataset.mediaView);});
+mediaSwitch.addEventListener("keydown",event=>{
+  const tabs=[...mediaSwitch.querySelectorAll('[role="tab"]')],index=tabs.indexOf(event.target);
+  if(index<0 || !['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;
+  event.preventDefault();
+  const next=event.key==='Home'?0:event.key==='End'?tabs.length-1:(index+(event.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;
+  showView(tabs[next].dataset.mediaView);tabs[next].focus();
+});
+
 const vc=document.createElement("div");vc.id="view-collections";
 vc.className="flex flex-col w-full px-gutter-mobile gap-space-lg select-none";vc.style.display="none";
 const vd=document.createElement("div");vd.id="view-collection";
@@ -397,12 +414,15 @@ function showView(v, remember = true){
   if(v!=="collection")rStop();
   if(D.selected) closeInlineFilm(D.selected,false);
   home.style.display=v==="home"?"":"none";
+  seriesPage.hidden=v!=="series";
+  mediaSwitch.hidden=!["home","series"].includes(v);
+  mediaSwitch.querySelectorAll('[role="tab"]').forEach(tab=>{const selected=tab.dataset.mediaView===v;tab.setAttribute('aria-selected',String(selected));tab.tabIndex=selected?0:-1;});
   sectionNav.style.display=["collections","collection","mood","oscar"].includes(v)?"":"none";
   vc.style.display=v==="collections"?"":"none";
   vd.style.display=v==="collection"?"":"none";
   vm.style.display=v==="mood"?"":"none";
   vo.style.display=v==="oscar"?"":"none";
-  const act=["collection","mood","oscar"].includes(v)?"collections":v;
+  const act=v==="series"?"home":["collection","mood","oscar"].includes(v)?"collections":v;
   paintBottomNav(nav, act);
   const section=v==="collection"?"collections":v;
   sectionNav.querySelectorAll("[data-collection-route]").forEach(button=>{

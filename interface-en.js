@@ -1756,5 +1756,7 @@ window.KGInterfaceDictionaries.en = Object.freeze({
   "Снять отметку «Просмотрено»?": "Remove watched status?",
   "Убрать из закладок?": "Remove from bookmarks?",
   "Снять отметку": "Remove status",
-  "Убрать": "Remove"
+  "Убрать": "Remove",
+  "Тип контента": "Content type",
+  "Сериалы": "TV series"
 });

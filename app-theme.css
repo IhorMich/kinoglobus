@@ -1715,3 +1715,11 @@ body {
 .kg-confirm-actions button{min-height:44px;border:1px solid rgb(var(--kg-primary)/.18);border-radius:12px;background:rgb(var(--kg-surface-container));color:rgb(var(--kg-on-surface));font:600 14px var(--kg-font-interface);cursor:pointer}
 .kg-confirm-actions [data-removal-confirm]{background:rgb(var(--kg-primary-container));color:rgb(var(--kg-on-primary))}
 .kg-confirm-actions button:focus-visible{outline:2px solid rgb(var(--kg-primary));outline-offset:2px}
+
+/* Main-screen content type selector; the series panel intentionally starts empty. */
+.kg-media-switch{display:grid;grid-template-columns:1fr 1fr;gap:4px;flex:none;margin:10px 16px 16px;padding:4px;border:1px solid var(--kg-nav-control-border);border-radius:999px;background:var(--kg-nav-control-fill)}
+.kg-media-switch[hidden],.kg-series-page[hidden]{display:none}
+.kg-media-switch button{min-height:42px;min-width:0;border:0;border-radius:999px;background:transparent;color:rgb(var(--kg-text-muted));font:600 14px var(--kg-font-interface);cursor:pointer}
+.kg-media-switch button[aria-selected="true"]{background:var(--kg-primary-button-fill);color:rgb(var(--kg-on-primary));box-shadow:0 3px 12px rgb(var(--kg-primary-container)/.18)}
+.kg-media-switch button:focus-visible{outline:2px solid rgb(var(--kg-primary));outline-offset:2px}
+.kg-series-page{flex:1;min-height:55dvh;background:rgb(var(--kg-canvas-obsidian))}

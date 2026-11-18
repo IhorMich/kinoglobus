@@ -246,6 +246,7 @@
     .kgc-stat-film{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px;border:0;border-radius:12px;background:rgb(var(--kg-surface-container));color:inherit;font:inherit;text-align:left;cursor:pointer}
     .kgc-stat-film b{display:block;font-size:14px}.kgc-stat-film small{display:block;margin-top:4px;color:rgb(var(--kg-text-muted))}
     .kgc-stat-note{margin:8px 0 0;color:rgb(var(--kg-text-muted));font-size:12px;line-height:1.6}
+    #kg-country-people.kg-cast-rail{gap:var(--kg-cast-gap)}
     .kgc-stat-content h2{margin:0;font:700 21px var(--kg-font-heading)}
   `;
   document.head.appendChild(style);
@@ -721,7 +722,7 @@
       const films=(result.results||[]).map(f=>({...f,_kgCountry:code}));
       state.films=films;state.total=result.total_results||0;
       renderCountry(code,films,state.total,marked,false);
-      loadPeopleAndFeature(films,code);
+      loadCountryDirectors(films,code);
     }catch(error){
       if(state.code!==code)return;
       const local=marked.map(f=>({...localSavedFilm(f),_kgCountry:code}));
@@ -791,7 +792,6 @@
     const catalogCount = loading ? '…' : total == null ? '—' : fmt(total);
     const catalogFoot = total == null ? uiText("Нет данных") : uiText("фильмов в каталоге TMDB");
     const filmCount = total ?? films.length;
-    const featureImage = featured?.backdrop_path ? `https://image.tmdb.org/t/p/w780${featured.backdrop_path}` : poster(featured,'w780');
     const favoriteCountries = favorites();
     const saved = favoriteCountries.includes(code);
     const tabs=unique([code,...Object.keys(counts).sort((a,b)=>(counts[b]||0)-(counts[a]||0)),...favoriteCountries,...shortCountries]).filter(c=>app.countries().includes(c)).slice(0,7);
@@ -807,8 +807,8 @@
       <div class="kgc-section" style="margin-top:7px"><div style="display:flex;align-items:center;gap:8px"><span class="material-symbols-outlined kgc-section-icon">badge</span><h3>${uiText("Синефильский паспорт")}</h3></div><span class="kgc-kicker">${nWatched?uiText("Статус: золотой"):uiText("Статус: новый")}</span></div>
       <section class="kgc-passport-grid"><button type="button" class="kgc-passport-tile" data-passport-section="catalog"><div class="kgc-passport-label"><span>${uiText("Каталог")}</span><span class="material-symbols-outlined">movie</span></div><div><div class="kgc-passport-value">${catalogCount}</div><div class="kgc-passport-foot">${catalogFoot}</div></div></button><button type="button" class="kgc-passport-tile" data-passport-section="rating"><div class="kgc-passport-label"><span>${uiText("Средний рейтинг")}</span><span class="kgc-rating">★ ${avg?avg.toFixed(1):'—'}</span></div><div><div class="kgc-passport-value">${avg?avg.toFixed(1):'—'}</div><div class="kgc-passport-foot">${uiText("средний балл загруженных фильмов")}</div></div></button><button type="button" class="kgc-passport-tile" data-passport-section="stamps"><div class="kgc-passport-label"><span>${uiText("Штампы")}</span><span class="material-symbols-outlined">verified</span></div><div class="kgc-passport-value">—</div><div class="kgc-passport-foot">${uiText("Система наград")}</div></button><button type="button" class="kgc-passport-tile" data-passport-section="epochs"><div class="kgc-passport-label"><span>${uiText("Эпохи в выборке")}</span><span class="material-symbols-outlined">history_edu</span></div><div><div class="kgc-passport-value" style="font-size:17px">${range}</div><div class="kgc-passport-foot">${uiText("годы загруженных фильмов")}</div></div></button></section>
       <div class="kgc-section"><div style="display:flex;align-items:center;gap:8px"><span class="material-symbols-outlined kgc-section-icon rose">military_tech</span><h3>${uiText("Рекомендуемый фильм")}</h3></div><span class="kgc-kicker">${featured?uiText("Выбор страны"):uiText("Каталог")}</span></div>
-      ${featured?`<article class="kgc-feature-card" data-film-id="${featured.id}"><div class="kgc-feature-image" ${featureImage ? `style="background-image:url('${esc(featureImage)}')"` : ''}><span class="kgc-feature-badge"><span class="material-symbols-outlined">star</span> ${Number(featured.vote_average||0).toFixed(1)} / 10 · ${uiText("{count} оценок", {count: fmt(featured.vote_count || 0)})}</span><span class="kgc-feature-runtime" data-feature-runtime>${year(featured)}</span></div><div class="kgc-feature-copy"><div class="kgc-feature-title">${esc(featured.title||uiText("Фильм"))}</div><div class="kgc-feature-original">${esc(featured.original_title||'')}</div><div class="kgc-feature-original" data-feature-director>${total == null ? uiText("Нет данных") : uiText("Загружаем режиссёра…")}</div><div class="kgc-feature-meta"><span class="kgc-chip neutral">★ ${Number(featured.vote_average||0).toFixed(1)} · ${uiText("{count} оценок", {count: fmt(featured.vote_count || 0)})}</span><span class="kgc-chip neutral" data-feature-runtime-chip>${year(featured)}</span><span class="kgc-feature-genre-list" data-feature-genres></span></div><div class="kgc-feature-cast" data-feature-cast></div><p class="kgc-feature-desc">${esc((featured.overview||'').slice(0,260)||uiText("Описание пока недоступно в TMDB."))}</p><div class="kgc-feature-actions"><button type="button" class="kgc-btn velvet" data-film-id="${featured.id}" data-country-trailer><span class="material-symbols-outlined">play_arrow</span>${uiText("Трейлер")}</button><button type="button" class="kgc-btn secondary" data-film-id="${featured.id}">${uiText("О фильме")}　<span class="material-symbols-outlined">north_east</span></button></div></div></article>`:`<div class="kgc-pad"><div class="kgc-empty">${esc(message||uiText("Каталог TMDB пока не вернул фильмы для этой страны."))}</div></div>`}
-      <div class="kgc-section"><div style="display:flex;align-items:center;gap:8px"><span style="color:rgb(var(--kg-primary))">🎭</span><h3>${uiText("Мэтры кинематографа")}</h3></div><span class="kgc-kicker" data-master-count>TMDB</span></div><div class="kgc-rowcards" id="kg-country-people"><div class="kgc-empty">${loading ? uiText("Загружаем участников…") : total == null ? uiText("Нет данных") : uiText("Для этого списка TMDB пока не вернул режиссёров.")}</div></div>
+      ${featured?`<div class="kgc-films-grid" data-country-recommendation>${countryFilmCard(featured)}</div>`:`<div class="kgc-pad"><div class="kgc-empty">${esc(message||uiText("Каталог TMDB пока не вернул фильмы для этой страны."))}</div></div>`}
+      <div class="kgc-section"><div style="display:flex;align-items:center;gap:8px"><span style="color:rgb(var(--kg-primary))">🎭</span><h3>${uiText("Мэтры кинематографа")}</h3></div><span class="kgc-kicker" data-master-count>TMDB</span></div><div class="kgc-rowcards kg-cast-rail" id="kg-country-people"><div class="kgc-empty">${loading ? uiText("Загружаем участников…") : total == null ? uiText("Нет данных") : uiText("Для этого списка TMDB пока не вернул режиссёров.")}</div></div>
       <div class="kgc-section"><div style="display:flex;align-items:center;gap:8px"><span style="color:rgb(var(--kg-primary))">▣</span><h3>${uiText("Коллекция картин")}</h3></div><span class="kgc-muted">${total == null && !films.length ? uiText("Нет данных") : uiText("{count} лент", {count: fmt(filmCount)})}</span></div><div class="kgc-filter">${[['all',total == null && !films.length ? uiText("Все ленты") : uiText("Все ленты ({count})", {count: fmt(filmCount)})],['classic',uiText("Золотая классика")],['newwave','1970–1999'],['modern','2000+']].map(([key,label])=>`<button class="${key==='all'?'active':''}" data-country-filter="${key}">${label}</button>`).join('')}</div><div class="kgc-films-grid" id="kg-country-films"></div>
       <section id="kg-country-locations"><div class="kgc-section"><div style="display:flex;align-items:center;gap:8px"><span style="color:rgb(var(--kg-primary))">◎</span><h3>${uiText("Атлас кинолокаций")}</h3></div><span class="kgc-muted">${esc(code)}</span></div><div class="kgc-pad" style="padding-top:0"><div class="kgc-location-card"><div class="kgc-location-grid"></div><div class="kgc-location-ping">${esc(code)}</div><div class="kgc-location-copy"><b>${esc(uiText("{country} · Кинематограф", {country: name}))}</b><small>${total == null ? uiText("Нет данных") : uiText("TMDB не предоставляет координаты съёмок по этим фильмам. Откройте страну на глобусе и исследуйте отмеченные вами кинематографические открытия.")}</small><button type="button" class="kgc-btn secondary" data-country-globe="${code}" style="margin-top:9px;padding:8px 11px">${uiText("Показать на глобусе　↗")}</button></div></div></div></section>
       ${latest?`<div class="kgc-section"><h3>${uiText("Последняя отмеченная лента")}</h3></div><div class="kgc-pad" style="padding-top:0"><button class="kgc-country-pill has" data-open-saved="${esc(latest.id)}">${flag(code)} ${esc(latest.title||uiText("Фильм"))} · ${esc(latest.year||'')}</button></div>`:''}
@@ -817,7 +817,7 @@
     renderPassportSection();
   }
 
-  async function loadPeopleAndFeature(films,code){
+  async function loadCountryDirectors(films,code){
     const found=new Map();
     await Promise.all(films.slice(0,8).map(async film=>{
       try{
@@ -829,18 +829,7 @@
     if(state.code!==code)return;
     const people=root.querySelector('#kg-country-people');
     const directors=[...found.values()].slice(0,12);
-    if(people)people.innerHTML=directors.length?directors.map(p=>`<button class="kgc-person" data-kg-person-id="${p.id}" data-kg-person-name="${esc(p.name)}" data-kg-person-role="Режиссёр">${p.photo?`<img class="kgc-avatar" src="https://image.tmdb.org/t/p/w185${p.photo}" alt="">`:`<span class="kgc-avatar">${esc(String(p.name||'К').split(/\s+/).map(x=>x[0]).slice(0,2).join(''))}</span>`}<b class="kgc-person-name">${esc(p.name)}</b><span class="kgc-person-role">${uiText("Режиссёр")}</span><small class="kgc-person-films">${(p.films||[]).slice(0,3).map(esc).join(' · ')||uiText("Фильмы в каталоге TMDB")}</small><span class="kgc-person-footer"><span>${uiText("Фильмов в выборке: {count}", {count: (p.films || []).length})}</span><span class="material-symbols-outlined">north_east</span></span></button>`).join(''):`<div class="kgc-empty">${uiText("TMDB не вернул режиссёров для первой страницы каталога.")}</div>`;
-    const feature=pickCountryFeature(films);
-    let details=feature&&state.details.get(String(feature.id));
-    if(feature&&!details){try{details=await app.getFilmDetails(feature.id);state.details.set(String(feature.id),details)}catch(_){}}
-    if(state.code!==code)return;
-    if(details){
-      const director=root.querySelector('[data-feature-director]');if(director)director.innerHTML=details.dirsFull?.length?`${uiText("Режиссёр ·")} ${details.dirsFull.slice(0,2).map(p=>`<button type="button" class="kgc-inline-person" data-kg-person-id="${p.id}" data-kg-person-name="${esc(p.name)}" data-kg-person-role="Режиссёр">${esc(p.name)}</button>`).join(', ')}`:uiText("Съёмочная группа не указана");
-      const runtime=root.querySelector('[data-feature-runtime]');if(runtime)runtime.textContent=[details.runtime?uiText("{minutes} мин", {minutes: details.runtime}):'',year(feature)].filter(Boolean).join(' · ');
-      const runtimeChip=root.querySelector('[data-feature-runtime-chip]');if(runtimeChip)runtimeChip.textContent=[details.runtime?uiText("{minutes} мин", {minutes: details.runtime}):'',year(feature)].filter(Boolean).join(' · ');
-      const chips=root.querySelector('[data-feature-genres]');if(chips)chips.innerHTML=(details.genres||[]).slice(0,3).map(g=>`<span class="kgc-chip neutral">${esc(uiText(g))}</span>`).join('');
-      const cast=root.querySelector('[data-feature-cast]');if(cast&&details.castFull?.length)cast.innerHTML=`<span class="kgc-cast-label">${uiText("В главных ролях")}</span> ${details.castFull.slice(0,5).map(p=>`<button type="button" class="kgc-inline-person" data-kg-person-id="${p.id}" data-kg-person-name="${esc(p.name)}" data-kg-person-role="Актёр">${esc(p.name)}</button>`).join(' · ')}`;
-    }
+    if(people)people.innerHTML=directors.length?directors.map(p=>`<button type="button" class="kg-person-card flex flex-col items-center text-center py-1" data-kg-person-id="${p.id}" data-kg-person-profile="${esc(p.photo||'')}" data-kg-person-name="${esc(p.name)}" data-kg-person-role="Режиссёр"><span class="kg-cast-avatar rounded-full overflow-hidden mb-1 bg-surface-variant flex items-center justify-center">${p.photo?`<img class="w-full h-full object-cover" loading="lazy" src="https://image.tmdb.org/t/p/w185${esc(p.photo)}" alt="">`:'<span class="material-symbols-outlined text-text-muted" aria-hidden="true">person</span>'}</span><span class="kg-cast-name text-on-surface font-semibold">${esc(p.name)}</span><span class="font-micro-caption text-micro-caption text-text-muted">${uiText("Режиссёр")}</span></button>`).join(''):`<div class="kgc-empty">${uiText("TMDB не вернул режиссёров для первой страницы каталога.")}</div>`;
     const masterCount=root.querySelector('[data-master-count]');if(masterCount)masterCount.textContent=uiText("Все ({count})", {count: directors.length});
   }
 
@@ -848,10 +837,13 @@
     const y=Number(year(f));
     return filter==='classic'?y&&y<1970:filter==='newwave'?y>=1970&&y<2000:filter==='modern'?y>=2000:true;
   }
+  function countryFilmCard(f){
+    return `<article class="kgc-filmcard" data-film-id="${f.id}"><div style="position:relative;display:block;aspect-ratio:2/3;background:rgb(var(--kg-surface-container-high));cursor:pointer" data-film-id="${f.id}" role="button" tabindex="0" aria-label="${esc(uiText("Открыть фильм {title}", {title: f.title}))}">${poster(f)?`<img loading="lazy" src="${poster(f)}" alt="${esc(uiText("Постер «{title}»", {title: f.title}))}" style="width:100%;height:100%;object-fit:cover">`:`<span class="kgc-filmph">${esc(f.title)}</span>`}<span class="kgc-feature-badge">★ ${Number(f.vote_average||0).toFixed(1)}</span><span class="kgc-feature-runtime" style="top:auto;right:7px;bottom:7px">${esc(year(f))}</span></div><div class="kgc-filmcopy" data-film-id="${f.id}" role="button" tabindex="0"><b>${esc(f.title||uiText("Фильм"))}</b><small>${esc(year(f))}${f.original_title&&f.original_title!==f.title?` · ${esc(f.original_title)}`:''}</small><span class="kgc-film-actions"><small>TMDB · ★ ${Number(f.vote_average||0).toFixed(1)}</small></span></div></article>`;
+  }
   function paintFilms(films,filter){
     const box=root.querySelector('#kg-country-films');if(!box)return;
     const filtered=films.filter(f=>matchesFilter(f,filter));
-    box.innerHTML=filtered.length?filtered.map(f=>`<article class="kgc-filmcard" data-film-id="${f.id}"><div style="position:relative;display:block;aspect-ratio:2/3;background:rgb(var(--kg-surface-container-high));cursor:pointer" data-film-id="${f.id}" role="button" tabindex="0" aria-label="${esc(uiText("Открыть фильм {title}", {title: f.title}))}">${poster(f)?`<img loading="lazy" src="${poster(f)}" alt="${esc(uiText("Постер «{title}»", {title: f.title}))}" style="width:100%;height:100%;object-fit:cover">`:`<span class="kgc-filmph">${esc(f.title)}</span>`}<span class="kgc-feature-badge">★ ${Number(f.vote_average||0).toFixed(1)}</span><span class="kgc-feature-runtime" style="top:auto;right:7px;bottom:7px">${esc(year(f))}</span></div><div class="kgc-filmcopy" data-film-id="${f.id}" role="button" tabindex="0"><b>${esc(f.title||uiText("Фильм"))}</b><small>${esc(year(f))}${f.original_title&&f.original_title!==f.title?` · ${esc(f.original_title)}`:''}</small><span class="kgc-film-actions"><small>TMDB · ★ ${Number(f.vote_average||0).toFixed(1)}</small></span></div></article>`).join(''):`<div class="kgc-empty" style="grid-column:1/-1">${uiText("В этой категории пока нет картин в загруженной части каталога.")}</div>`;
+    box.innerHTML=filtered.length?filtered.map(countryFilmCard).join(''):`<div class="kgc-empty" style="grid-column:1/-1">${uiText("В этой категории пока нет картин в загруженной части каталога.")}</div>`;
     if(films.length<state.total&&films.length>0)box.insertAdjacentHTML('beforeend',`<button class="kgc-btn secondary kgc-load-more" type="button" data-load-more>${state.loadingMore?uiText("Загружаем…"):uiText("Показать ещё фильмы")}</button>`);
     if(passportSection==='catalog') {const copy=passportDetail.querySelector('[data-passport-films]');if(copy)copy.innerHTML=box.innerHTML;}
     const summary=countryStatistics(films);
@@ -987,7 +979,7 @@
     if(state.loadingMore||state.films.length>=state.total||!app.key())return;
     state.loadingMore=true;paintFilms(state.films,state.filter);
     const code=state.code,page=state.page+1;
-    try{const result=await app.getCountryFilms(code,page);if(state.code!==code)return;const known=new Set(state.films.map(f=>String(f.id)));state.films.push(...(result.results||[]).filter(f=>!known.has(String(f.id))).map(f=>({...f,_kgCountry:code})));state.page=page;paintFilms(state.films,state.filter);loadPeopleAndFeature(state.films,code);}
+    try{const result=await app.getCountryFilms(code,page);if(state.code!==code)return;const known=new Set(state.films.map(f=>String(f.id)));state.films.push(...(result.results||[]).filter(f=>!known.has(String(f.id))).map(f=>({...f,_kgCountry:code})));state.page=page;paintFilms(state.films,state.filter);loadCountryDirectors(state.films,code);}
     catch(_){const more=root.querySelector('[data-load-more]');if(more)more.textContent=uiText("Не удалось загрузить · повторить");}
     finally{state.loadingMore=false;paintFilms(state.films,state.filter);renderPassportSection();}
   }

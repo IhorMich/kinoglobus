@@ -466,7 +466,7 @@ window.KGHandleBack = () => {
 };
 
 /* ================= КАТАЛОГ ================= */
-let catBuilt=false,activeCat="all",sortMode="curated";
+let catBuilt=false,activeCat="all",sortMode="rating";
 let catalogLayout="list",collectionFilmLayout="list";
 
 function layoutSwitch(layout,scope){
@@ -608,7 +608,7 @@ function buildCatalog(){
 ${Object.keys(CAT).filter(k=>counts[k]).map(k=>`<button type="button" data-f="${k}" class="${chipCls(false)}"><span>${uiText(CAT[k][0])} (${counts[k]})</span></button>`).join("")}</section>
 ${spotlightHtml(spotlightTheme())}
 <section class="flex flex-wrap items-center justify-between gap-2"><div class="flex items-center gap-1.5 bg-surface-panel px-3 py-1.5 rounded-xl"><span class="material-symbols-outlined text-[17px] text-text-muted">swap_vert</span>
-<select id="cat-sort" class="bg-transparent text-text-muted font-label-sm text-label-sm focus:outline-none focus:text-primary cursor-pointer"><option class="bg-surface-panel text-on-surface" value="curated">${uiText("По кураторскому списку")}</option><option class="bg-surface-panel text-on-surface" value="rating">${uiText("По рейтингу (высокий)")}</option><option class="bg-surface-panel text-on-surface" value="count">${uiText("По числу фильмов")}</option><option class="bg-surface-panel text-on-surface" value="title">${uiText("По алфавиту")}</option></select></div>
+<select id="cat-sort" class="bg-transparent text-text-muted font-label-sm text-label-sm focus:outline-none focus:text-primary cursor-pointer"><option class="bg-surface-panel text-on-surface" value="rating">${uiText("По рейтингу (высокий)")}</option><option class="bg-surface-panel text-on-surface" value="count">${uiText("По числу фильмов")}</option><option class="bg-surface-panel text-on-surface" value="title">${uiText("По алфавиту")}</option></select></div>
 <button type="button" data-act="random" class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-secondary-container text-on-secondary-container font-label-sm text-label-sm shadow-[0_0_14px_rgb(var(--kg-secondary-container)/0.25)] transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"><span class="material-symbols-outlined text-[18px]">casino</span><span>${uiText("Случайная")}</span></button></section>
 <p id="cat-note" class="font-micro-caption text-micro-caption text-text-muted px-1" style="display:none"></p>
 <div class="flex items-center justify-between gap-2"><p id="cat-search-status" role="status" class="font-label-sm text-label-sm text-text-muted px-1"></p>${layoutSwitch(catalogLayout,"catalog")}</div>
@@ -737,13 +737,14 @@ async function loadAllMeta(force=false){
   if(!apiKey){if(note){note.textContent=uiText("Введите ключ TMDB на экране «Глобус», чтобы увидеть число фильмов и рейтинги подборок.");note.style.display="";}return false;}
   if(note)note.style.display="none";
   const results=await Promise.allSettled(catalogThemes.map(t=>loadMeta(t,force).then(()=>{if(catBuilt)paintMeta(t.id);})));
-  if(sortMode!=="curated")sortCatalog();
+  sortCatalog();
   return results.every(r=>r.status==="fulfilled");
 }
 function initCatalog(){
   if(!catBuilt)buildCatalog();
   updateWeeklySpotlight();
   catalogThemes.forEach(t=>paintMeta(t.id));
+  sortCatalog();
   if(!dailyRefreshPromise)loadAllMeta();
 }
 vc.addEventListener("input",e=>{
@@ -1645,7 +1646,7 @@ async function refreshAllCollections(forceAll=false){
     if(firstPage){saveThemeMeta(t,firstPage);if(catBuilt)paintMeta(t.id);}
     return data;
   });
-  if(sortMode!=="curated")sortCatalog();
+  sortCatalog();
   const activeIndex=view==="collection"&&D.t?catalogThemes.findIndex(t=>t.id===D.t.id):-1;
   if(activeIndex>=0){
     const result=results[activeIndex];

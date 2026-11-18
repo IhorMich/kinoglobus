@@ -68,13 +68,49 @@
     spirited:["Spirited Away",2001],spider:["Spider-Man: Into the Spider-Verse",2018],pino:["Guillermo del Toro's Pinocchio",2022],heron:["The Boy and the Heron",2023],
     rotk:["The Lord of the Rings: The Return of the King",2003],titanic:["Titanic",1997],benhur:["Ben-Hur",1959]
   };
+  // Category winners; awardYear is the ceremony year, not the release year.
+  const FOREIGN_WINNERS = [
+    ["mother", "All About My Mother", "Todo sobre mi madre", 1999, 2000, "ES", "Педро Альмодовар", "Всё о моей матери"],
+    ["tiger", "Crouching Tiger, Hidden Dragon", "臥虎藏龍", 2000, 2001, "TW", "Энг Ли", "Крадущийся тигр, затаившийся дракон"],
+    ["nomans", "No Man's Land", "Ničija zemlja", 2001, 2002, "BA", "Данис Танович", "Ничья земля"],
+    ["africa", "Nowhere in Africa", "Nirgendwo in Afrika", 2001, 2003, "DE", "Каролина Линк", "Нигде в Африке"],
+    ["barbarians", "The Barbarian Invasions", "Les Invasions barbares", 2003, 2004, "CA", "Дени Аркан", "Нашествия варваров"],
+    ["sea", "The Sea Inside", "Mar adentro", 2004, 2005, "ES", "Алехандро Аменабар", "Море внутри"],
+    ["tsotsi", "Tsotsi", "Tsotsi", 2005, 2006, "ZA", "Гэвин Худ", "Цоци"],
+    ["lives", "The Lives of Others", "Das Leben der Anderen", 2006, 2007, "DE", "Флориан Хенкель фон Доннерсмарк", "Жизнь других"],
+    ["counterfeiters", "The Counterfeiters", "Die Fälscher", 2007, 2008, "AT", "Штефан Рузовицки", "Фальшивомонетчики"],
+    ["departures", "Departures", "おくりびと", 2008, 2009, "JP", "Ёдзиро Такита", "Ушедшие"],
+    ["secret", "The Secret in Their Eyes", "El secreto de sus ojos", 2009, 2010, "AR", "Хуан Хосе Кампанелья", "Тайна в его глазах"],
+    ["betterworld", "In a Better World", "Hævnen", 2010, 2011, "DK", "Сюзанна Бир", "Месть"],
+    ["separation", "A Separation", "جدایی نادر از سیمین", 2011, 2012, "IR", "Асгар Фархади", "Развод Надера и Симин"],
+    ["amour", "Amour", "Amour", 2012, 2013, "AT", "Михаэль Ханеке", "Любовь"],
+    ["beauty", "The Great Beauty", "La grande bellezza", 2013, 2014, "IT", "Паоло Соррентино", "Великая красота"],
+    ["ida", "Ida", "Ida", 2013, 2015, "PL", "Павел Павликовский", "Ида"],
+    ["saul", "Son of Saul", "Saul fia", 2015, 2016, "HU", "Ласло Немеш", "Сын Саула"],
+    ["salesman", "The Salesman", "فروشنده", 2016, 2017, "IR", "Асгар Фархади", "Коммивояжёр"],
+    ["fantasticwoman", "A Fantastic Woman", "Una mujer fantástica", 2017, 2018, "CL", "Себастьян Лелио", "Фантастическая женщина"],
+    ["roma", "Roma", "Roma", 2018, 2019, "MX", "Альфонсо Куарон", "Рома"],
+    ["parasite", "Parasite", "기생충", 2019, 2020, "KR", "Пон Чжун Хо", "Паразиты"],
+    ["anotherround", "Another Round", "Druk", 2020, 2021, "DK", "Томас Винтерберг", "Ещё по одной"],
+    ["drivemycar", "Drive My Car", "ドライブ・マイ・カー", 2021, 2022, "JP", "Рюсукэ Хамагути", "Сядь за руль моей машины"],
+    ["allquiet", "All Quiet on the Western Front", "Im Westen nichts Neues", 2022, 2023, "DE", "Эдвард Бергер", "На Западном фронте без перемен"],
+    ["zone", "The Zone of Interest", "The Zone of Interest", 2023, 2024, "GB", "Джонатан Глейзер", "Зона интересов"],
+    ["stillhere", "I'm Still Here", "Ainda Estou Aqui", 2024, 2025, "BR", "Вальтер Саллес", "Я всё ещё здесь"],
+    ["sentimental", "Sentimental Value", "Affeksjonsverdi", 2025, 2026, "NO", "Йоаким Триер", "Сентиментальная ценность"],
+    ["fanny", "Fanny and Alexander", "Fanny och Alexander", 1982, 1984, "SE", "Ингмар Бергман", "Фанни и Александр"],
+    ["beautiful", "Life Is Beautiful", "La vita è bella", 1997, 1999, "IT", "Роберто Бениньи", "Жизнь прекрасна"],
+    ["paradiso", "Cinema Paradiso", "Nuovo Cinema Paradiso", 1988, 1990, "IT", "Джузеппе Торнаторе", "Новый кинотеатр «Парадизо»"]
+  ].map(([key,english,original,year,awardYear,country,director,title])=>({key,english,original,year,awardYear,country,director,title}));
+  const FOREIGN_BATCH = 6;
+  const foreignByKey = new Map(FOREIGN_WINNERS.map(film=>[film.key,film]));
+  FOREIGN_WINNERS.forEach(film=>{F[film.key]=[film.english,film.year];});
   const PEOPLE={cuaron:"Alfonso Cuarón",inarritu:"Alejandro G. Iñárritu",nolan:"Christopher Nolan",pta:"Paul Thomas Anderson"};
 
   const featuredTitle=(key,russian,includeYear=false)=>{
     if(filmLanguage==="ru")return russian;
     const [title,year]=F[key];
     const english=key==="beauty"?"The Great Beauty":key==="fanny"?"Fanny and Alexander":title;
-    const display=filmLanguage==="en"?english:title;
+    const display=filmLanguage==="en"?english:(foreignByKey.get(key)?.original||title);
     return esc(includeYear?`${display} (${year})`:display);
   };
 
@@ -98,15 +134,48 @@
   const foreignCard=(k,...a)=>`<div>${foreignCard0(k,...a)}${box(k)}</div>`;
   const animRow=(k,...a)=>`<div>${animRow0(k,...a)}${box(k)}</div>`;
   const clubRow=(k,...a)=>`<div>${clubRow0(k,...a)}${box(k)}</div>`;
-  const foreign=sec("foreign",
-    `<div class="bg-surface-panel rounded-xl p-space-md shadow-md"><div class="flex items-center gap-2 text-primary font-headline-sm text-headline-sm"><span class="text-xl">🌍</span><h3>${uiText("Лучший иностранный фильм")}</h3></div><p class="font-micro-caption text-micro-caption text-secondary mt-1 uppercase tracking-widest font-bold">Best International Feature Film</p><p class="font-body-sm text-body-sm text-text-muted mt-2 leading-relaxed">${uiText("Вручается с 1956 года (до 2020-го называлась «Лучший фильм на иностранном языке»). Главная витрина мирового кино: каждая страна выдвигает по одному фильму.")}</p><div class="mt-3 bg-surface-container-lowest/80 px-3 py-2 rounded-lg flex items-center gap-2"><span class="material-symbols-outlined text-primary-container text-[16px] shrink-0">public</span><span class="font-micro-caption text-micro-caption text-on-surface">${uiText("Свежий победитель, 98-я церемония:")} <strong class="text-primary font-bold">${uiText("«Сентиментальная ценность»")}</strong> ${uiText("Йоакима Триера")}</span></div></div>`+
-    `<div class="flex flex-col gap-space-sm">`+
-    foreignCard("parasite","KR","Южная Корея • Пон Чжун Хо","Паразиты","Gisaengchung (기생충)","Четыре «Оскара», включая «Лучший фильм». Первый неанглоязычный фильм, победивший в главной номинации.",pill("4 Оскара")+pill2("Золотая пальмовая ветвь"),true)+
-    foreignCard("beauty","IT","Италия • Паоло Соррентино","Великая красота","La grande bellezza","Римская сатира Соррентино: победитель 2014 года среди иностранных фильмов.",pill("Оскар")+pill2("BAFTA"),false)+
-    `<div class="grid grid-cols-2 gap-space-sm">`+
-    gridCard("fanny","SE","И. Бергман","Фанни и Александр","Семейная сага Бергмана: четыре «Оскара», включая «Лучший иностранный фильм».","4 Оскара")+
-    gridCard("zone","GB","Дж. Глейзер","Зона интересов","Победитель 2024 года: «Международный фильм» и «Лучший звук».","2 Оскара")+box("foreign-grid","col-span-2")+
-    `</div></div>`);
+  function shuffledForeign(previousFirst) {
+    const order=[...FOREIGN_WINNERS];
+    for(let i=order.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      [order[i],order[j]]=[order[j],order[i]];
+    }
+    // A fresh visit must visibly change the first film, even by chance.
+    if(order[0].key===previousFirst){
+      const next=1+Math.floor(Math.random()*(order.length-1));
+      [order[0],order[next]]=[order[next],order[0]];
+    }
+    return order;
+  }
+  function foreignWinnerCard(film,big=false) {
+    return foreignCard(film.key,film.country,film.director,film.title,film.original,"",
+      pill(uiText("Оскар {year}",{year:film.awardYear})),big);
+  }
+  function foreignBatchHtml(films,start=0) {
+    const leading=start===0?films.slice(0,2):[];
+    const tiles=start===0?films.slice(2):films;
+    const target=`foreign-grid-${start}`;
+    return leading.map((film,index)=>foreignWinnerCard(film,index===0)).join("")+
+      `<div class="grid grid-cols-2 gap-space-sm">${tiles.map(film=>
+        gridCard(film.key,film.country,film.director,film.title,"",uiText("Оскар {year}",{year:film.awardYear}))
+          .replace('data-kgo-target="oscar-kgo-detail-foreign-grid"',`data-kgo-target="oscar-kgo-detail-${target}"`)
+      ).join("")}${box(target,"col-span-2")}</div>`;
+  }
+  function foreignSection(order,shown=FOREIGN_BATCH) {
+    return sec("foreign",
+      `<div class="bg-surface-panel rounded-xl p-space-md shadow-md"><h3 class="text-primary font-headline-sm text-headline-sm">${uiText("Лучший фильм на иностранном языке")}</h3></div>`+
+      `<div data-kgo-foreign-list class="flex flex-col gap-space-sm">${foreignBatchHtml(order.slice(0,shown))}</div>`+
+      `<button type="button" data-kgo-foreign-more class="w-full py-3 rounded-xl bg-surface-panel text-primary font-label-sm text-label-sm" ${shown>=order.length?"hidden":""}>${uiText("Показать ещё")}</button>`);
+  }
+  function refreshForeign(root) {
+    const section=root.querySelector("#kgo-foreign");if(!section)return;
+    root._kgoDeps?.closeFilm("oscar");
+    root._kgoForeignOrder=shuffledForeign(root._kgoForeignOrder?.[0]?.key);
+    root._kgoForeignShown=FOREIGN_BATCH;
+    section.outerHTML=foreignSection(root._kgoForeignOrder);
+    hydrate(root.querySelector("#kgo-foreign"));
+  }
+  KG.refreshForeign=refreshForeign;
 
   function big5Card(k,title,who,cer){
     return `<div ${open(k,"big5")} class="bg-surface-panel rounded-xl p-2 flex flex-col shadow-md cursor-pointer">${slot(k,"w-full aspect-[3/4] rounded-lg mb-1.5",yr(F[k][1]).replace("bg-surface-container-lowest/90","bg-cinema-velvet-deep").replace("text-primary","text-secondary-fixed"))}<h5 class="font-label-sm text-label-sm text-on-surface font-bold truncate">${featuredTitle(k,title)}</h5><span class="font-micro-caption text-micro-caption text-primary-container font-semibold">${uiText("5 главных наград")}</span><span class="font-micro-caption text-micro-caption text-text-muted mt-0.5 truncate">${uiText(who)}</span><span class="font-micro-caption text-micro-caption text-text-muted truncate">${uiText("церемония {year}", {year: cer})}</span></div>`;
@@ -155,7 +224,9 @@
     if(!back||!hero)return;
     back.remove();wrap.classList.remove("overflow-hidden");
     const tmp=document.createElement("div");
-    tmp.innerHTML=HEAD+foreign+big5+anim+dirs+club;
+    root._kgoForeignOrder=shuffledForeign(root._kgoForeignOrder?.[0]?.key);
+    root._kgoForeignShown=FOREIGN_BATCH;
+    tmp.innerHTML=HEAD+foreignSection(root._kgoForeignOrder)+big5+anim+dirs+club;
     while(tmp.firstChild)wrap.insertBefore(tmp.firstChild,hero);
     // Оставляем постер и название зала славы сразу под навигацией страницы.
     const pills=root.querySelector("#kgo-pills");
@@ -165,6 +236,19 @@
       root._kgoBound=true;
       root.addEventListener("click",async e=>{
         const d=root._kgoDeps;
+        const more=e.target.closest("[data-kgo-foreign-more]");
+        if(more){
+          const list=root.querySelector("[data-kgo-foreign-list]");
+          const previous=root._kgoForeignShown;
+          const additions=root._kgoForeignOrder.slice(previous,previous+FOREIGN_BATCH);
+          const batch=document.createElement("div");
+          batch.innerHTML=foreignBatchHtml(additions,previous);
+          list.appendChild(batch);
+          root._kgoForeignShown=previous+additions.length;
+          more.hidden=root._kgoForeignShown>=root._kgoForeignOrder.length;
+          hydrate(batch);
+          return;
+        }
         const p=e.target.closest("[data-kgo-pill]");
         if(p){
           root.querySelectorAll("[data-kgo-pill]").forEach(b=>b.className=pillCls(b===p));

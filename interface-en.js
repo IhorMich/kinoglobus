@@ -636,6 +636,7 @@ window.KGInterfaceDictionaries.en = Object.freeze({
   "Описания на русском пока нет.": "No synopsis available yet.",
   "Подходящих фильмов не нашлось.": "No matching films found.",
   "Отобранные шедевры": "Curated films",
+  "Лучший фильм на иностранном языке": "Best Foreign Language Film",
   "Показать ещё": "Show more",
   "Реж.": "Dir.",
   "Все подборки": "All collections",

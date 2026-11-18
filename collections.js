@@ -414,7 +414,10 @@ function showView(v, remember = true){
   if(v==="collections") initCatalog();
   if(v==="mood"&&(!vm.dataset.ready||vm.dataset.key!==apiKey)){window.KGMoodPage.render(vm,pageDeps);vm.dataset.ready="true";vm.dataset.key=apiKey;}
   if(v==="mood"&&window.KGMoodVibePage){window.KGMoodVibePage.init(vm,pageDeps);if(window._kgMoodSeen)window.KGMoodVibePage.reset(vm,pageDeps);window._kgMoodSeen=true;}
-  if(v==="oscar"&&(!vo.dataset.ready||vo.dataset.key!==apiKey)){window.KGOscarPage.render(vo,pageDeps);vo.dataset.ready="true";vo.dataset.key=apiKey;}
+  if(v==="oscar"){
+    if(!vo.dataset.ready||vo.dataset.key!==apiKey){window.KGOscarPage.render(vo,pageDeps);vo.dataset.ready="true";vo.dataset.key=apiKey;}
+    else window.KGOscarPage.refreshForeign?.(vo);
+  }
 }
 nav.addEventListener("click",e=>{
   const a=e.target.closest("[data-view]");if(!a)return;e.preventDefault();

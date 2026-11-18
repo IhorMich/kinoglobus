@@ -20,13 +20,13 @@ public class MainActivity extends BridgeActivity {
     }
 
     @Override
-    protected void onResume() {
+    public void onResume() {
         super.onResume();
         acceptingBack = true;
     }
 
     @Override
-    protected void onPause() {
+    public void onPause() {
         acceptingBack = false;
         rootBackGate.reset();
         super.onPause();

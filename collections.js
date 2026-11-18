@@ -615,7 +615,8 @@ ${spotlightHtml(spotlightTheme())}
 }
 
 function paintMeta(id){
-  const m=META[id] || (T[id]?.films ? {n:T[id].films.length} : null);if(!m)return;
+  const t=T[id];if(!t)return;
+  const m=META[id] || (t.films ? {n:t.films.length} : null);if(!m)return;
   const customArt = getThemeCover(id);
   document.querySelectorAll(`#view-collections [data-t="${id}"]`).forEach(el=>{
     if(el.id==="spot"){
@@ -629,7 +630,7 @@ function paintMeta(id){
     const r=el.querySelector('[data-k="r"]');
     if(r){const sp=el.id==="spot";r.textContent=sp?(m.r||"—"):(el.dataset.cat==="retro"&&el.classList.contains("collection-card")?"★ "+(m.r||"—"):"★ "+(m.r||"—"));}
     const c=el.querySelector('[data-k="cnt"]');
-    if(c){const g=gnames(T[id])[0]||"";c.textContent=el.id==="spot"?`${nf(m.n)} ${fw(m.n)}`:`${nf(m.n)} ${fw(m.n)}${g?" · "+g:""}`;}
+    if(c){const g=gnames(t)[0]||"";c.textContent=el.id==="spot"?`${nf(m.n)} ${fw(m.n)}`:`${nf(m.n)} ${fw(m.n)}${g?" · "+g:""}`;}
     const img=el.querySelector('[data-k="img"]');
     if(img){
       // Сохраняем авторскую кураторскую обложку вместо случайного первого постера

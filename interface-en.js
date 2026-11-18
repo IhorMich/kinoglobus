@@ -1749,5 +1749,7 @@ window.KGInterfaceDictionaries.en = Object.freeze({
   "Фильмы в выборке": "Films in this sample",
   "Сбросить фильтр": "Reset filter",
   "Нет данных для этой выборки.": "No data for this sample.",
-  "Действия с фильмом": "Film actions"
+  "Действия с фильмом": "Film actions",
+  "Для этой страны пока не удалось найти фильм.": "No film could be found for this country yet.",
+  "Не удалось найти фильм. Повторите поиск.": "Could not find a film. Try again."
 });

@@ -259,7 +259,7 @@
   };
   function openMovie(film, opener, autoplayTrailer = false) {
     if (!dialog.open) return;
-    window.KGFilmCard.openDialog({...window.KGFilmCard.savedFilm(film), _kgGlobalRelated:true},opener,{autoplayTrailer});
+    return window.KGFilmCard.openDialog({...window.KGFilmCard.savedFilm(film), _kgGlobalRelated:true},opener,{autoplayTrailer});
   }
 
   async function loadLatestPoster(film, slot) {
@@ -727,6 +727,43 @@
     }
   }
 
+  const countrySearchHistory = new Map();
+  function chooseCountryFilm(films,watchedIds,recent) {
+    const pool=[...new Map(films.filter(f=>Number.isSafeInteger(Number(f?.id)) && Number(f.id)>0 && movieCatalog.allows(f)).map(f=>[Number(f.id),f])).values()];
+    const unwatched=pool.filter(f=>!watchedIds.has(Number(f.id)));
+    const available=unwatched.length?unwatched:pool;
+    let fresh=available.filter(f=>!recent.has(Number(f.id)));
+    if(!fresh.length){recent.clear();fresh=available;}
+    return fresh.length?fresh[Math.floor(Math.random()*fresh.length)]:null;
+  }
+  async function findCountryFilm(button) {
+    const code=button.dataset.countrySearch,label=button.innerHTML;
+    const active=()=>dialog.open && root.dataset.page==='country' && root.dataset.code===code && button.isConnected;
+    const status=root.querySelector('[data-country-search-status]');
+    button.disabled=true;button.setAttribute('aria-busy','true');
+    button.innerHTML=`<span class="material-symbols-outlined">progress_activity</span>${uiText("Ищем фильм…")}`;
+    if(status){status.hidden=true;status.textContent='';}
+    try {
+      const first=await app.getCountryFilms(code,1);if(!active())return;
+      const pages=Math.max(1,Math.min(500,Number(first.total_pages)||Math.ceil(Number(first.total_results||0)/20)||1));
+      const page=1+Math.floor(Math.random()*pages);
+      let films=first.results||[];
+      if(page>1){
+        try{const result=await app.getCountryFilms(code,page);films=[...(result.results||[]),...films];}catch(_){/* Use the available first page if this page cannot be loaded. */}
+        if(!active())return;
+      }
+      const recent=countrySearchHistory.get(code)||new Set();
+      const film=chooseCountryFilm(films,new Set(app.watched().map(f=>Number(f.id))),recent);
+      if(!film){if(status){status.hidden=false;status.textContent=uiText("Для этой страны пока не удалось найти фильм.");}return;}
+      countrySearchHistory.set(code,recent);recent.add(Number(film.id));
+      await openMovie({...film,_kgCountry:code},button);
+    }catch(error){
+      if(active() && status){status.hidden=false;status.textContent=uiText("Не удалось найти фильм. Повторите поиск.");}
+    }finally{
+      if(button.isConnected){button.disabled=false;button.removeAttribute('aria-busy');button.innerHTML=label;}
+    }
+  }
+
   function countryStatistics(films) {
     const rated=films.filter(f=>Number.isFinite(Number(f.vote_average)) && Number(f.vote_average)>0 && Number(f.vote_average)<=10);
     const dated=films.filter(f=>/^\d{4}$/.test(String(f.release_date||'').slice(0,4)) && Number(String(f.release_date).slice(0,4))>1800);
@@ -796,7 +833,8 @@
     const latest=marked.slice().sort((a,b)=>String(b.watchedAt||'').localeCompare(String(a.watchedAt||'')))[0];
     root.innerHTML=`
       <header class="kgc-head"><button class="kgc-icon" data-atlas-back aria-label="${passportFromCatalog ? uiText("Назад к каталогу") : uiText("Назад к атласу")}"><span class="material-symbols-outlined">arrow_back</span></button><div class="kgc-head-title"><div class="kgc-head-title-row"><b>${uiText("Путешествие")}</b></div></div><button class="kgc-icon" data-country-share="${code}" aria-label="${uiText("Поделиться")}"><span class="material-symbols-outlined">share</span></button><button class="kgc-icon" data-country-favorite="${code}" aria-label="${favoriteLabel(saved)}"><span class="material-symbols-outlined" aria-hidden="true">${saved ? 'bookmark_added' : 'bookmark_add'}</span></button><button class="kgc-icon kgc-account-icon" data-kga-account aria-label="${uiText("Профиль")}"><span class="material-symbols-outlined">person</span></button></header>
-      <section class="kgc-hero-full${nWatched?' kgc-hero-opened':''}">${flagBackdrop(code)}<div class="kgc-hero-copy"><h1 class="kgc-country-name">${esc(name)}</h1><span class="kgc-passport-label">${uiText("Кинопаспорт страны")}</span>${nWatched?'':`<p class="kgc-blurb">${esc(uiText(editorial))}</p>`}<div class="kgc-action-row"><button type="button" class="kgc-btn" data-country-search="${code}"><span class="material-symbols-outlined">casino</span>${uiText("Найти фильм этой страны")}</button></div></div></section>
+      <section class="kgc-hero-full${nWatched?' kgc-hero-opened':''}">${flagBackdrop(code)}<div class="kgc-hero-copy"><h1 class="kgc-country-name">${esc(name)}</h1><span class="kgc-passport-label">${uiText("Кинопаспорт страны")}</span>${nWatched?'':`<p class="kgc-blurb">${esc(uiText(editorial))}</p>`}<div class="kgc-action-row"><button type="button" class="kgc-btn" data-country-search="${code}" ${loading?'disabled':''}><span class="material-symbols-outlined">casino</span>${uiText("Найти фильм этой страны")}</button></div></div></section>
+      <p class="kgc-muted kgc-pad" data-country-search-status role="status" hidden></p>
       ${watchedCountrySection(marked)}
       ${message? `<p class="kgc-muted kgc-pad" style="margin:0;padding-top:0">${esc(message)}</p>` : ''}
       <div class="kgc-section" style="margin-top:7px"><div style="display:flex;align-items:center;gap:8px"><span class="material-symbols-outlined kgc-section-icon">badge</span><h3>${uiText("Синефильский паспорт")}</h3></div><span class="kgc-kicker">${nWatched?uiText("Статус: золотой"):uiText("Статус: новый")}</span></div>
@@ -940,7 +978,7 @@
       settings.querySelector('#kgs-token')?.focus();
       return;
     }
-    if(target.dataset.countrySearch){const code=target.dataset.countrySearch;target.disabled=true;target.dataset.originalLabel=target.innerHTML;target.innerHTML=`<span class="material-symbols-outlined">progress_activity</span>${uiText("Ищем фильм…")}`;Promise.resolve(app.searchCountry(code)).catch(error=>console.warn('[Moven] Country search failed:',error)).finally(()=>{if(target.isConnected){target.disabled=false;target.innerHTML=target.dataset.originalLabel;}});return;}
+    if(target.dataset.countrySearch){findCountryFilm(target);return;}
     if(target.hasAttribute('data-kga-account')){window.KGOpenAccountPage?.('register');return;}
     if (target.dataset.countryFavorite) {
       const code = target.dataset.countryFavorite;

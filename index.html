@@ -34,7 +34,7 @@ try {
 } catch (_) {}
 </script>
 <script src="steel-motion.js?v=4" defer></script>
-<script src="interface-en.js?v=55"></script>
+<script src="interface-en.js?v=56"></script>
 <script src="interface-i18n.js?v=2"></script>
 <script src="catalog-safety.js?v=1"></script>
 <script>
@@ -4307,7 +4307,6 @@ window.KGCountryApp={
   getCountryFilms:async(code,page=1)=>api({with_origin_country:code,sort_by:"popularity.desc","vote_count.gte":10,include_adult:"false",page}),
   getFilmDetails:filmDetails,
   showCountryOnGlobe:code=>{closeJ();const country=gc(code);G.currentCountry=country;focusedCC=code;G.showSingleBeacon(country);G.orientGlobeToCountry(country,false,0.055,G.CAMERA_DIST_FOCUS,true);hero(country);setTimeout(()=>G.dollyBack(country),1800);window.scrollTo({top:0,behavior:"smooth"});},
-  searchCountry:async code=>{if(!apiKey){closeJ();showKeyUi();$("tmdb-key-banner").scrollIntoView({behavior:"smooth",block:"center"});return;}closeJ();await spin(code);}
 };
 console.info("[Moven: Explore] Bridge v6 ready");
 })();
@@ -4315,7 +4314,7 @@ console.info("[Moven: Explore] Bridge v6 ready");
 
 <script src="globe-visuals.js?v=5"></script>
 <script src="watch-history.js?v=16"></script>
-<script src="country-pages.js?v=46"></script>
+<script src="country-pages.js?v=47"></script>
 <script src="profile-page.js?v=15"></script>
 <script src="cinema-diary.js?v=14"></script>
 <script src="profile-editor.js?v=8"></script>

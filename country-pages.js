@@ -159,6 +159,11 @@
     .kgc-catalog-banner{position:relative;isolation:isolate;min-height:142px;display:grid;align-content:space-between;gap:20px;padding:12px}
     .kgc-catalog-banner .kgc-flag-backdrop{z-index:-2}
     .kgc-catalog-banner::after{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgb(var(--kg-surface-container) / 0.333),rgb(var(--kg-surface-container) / 0.620) 45%,rgb(var(--kg-surface-container)))}
+    .kgc-catalog-country-open{display:grid;gap:11px;width:100%;min-height:44px;color:inherit;text-decoration:none;cursor:pointer;border-radius:7px}
+    .kgc-catalog-country-open.kgc-catalog-banner{min-height:142px;gap:20px;border-radius:0}
+    .kgc-catalog-country-open:focus-visible{outline:2px solid rgb(var(--kg-primary));outline-offset:3px}
+    .kgc-catalog-country-open:hover h2{color:rgb(var(--kg-primary))}
+    .kgc-catalog-country-arrow{margin-left:auto;color:rgb(var(--kg-primary));font-size:20px}
     .kgc-catalog-country{display:flex;align-items:center;gap:8px;min-width:0}
     .kgc-catalog-country h2{margin:0;color:rgb(var(--kg-on-surface));font:700 17px/1.2 var(--kg-font-heading);overflow-wrap:anywhere}
     .kgc-catalog-banner h2{font-size:23px}
@@ -436,15 +441,16 @@
   function catalogCard(row, rank, hero) {
     const {code, name, region, films} = row;
     const film = films[0];
-    const heading = `<div class="kgc-catalog-country">${flag(code)}<div><h2>${esc(name)}</h2><small>${esc(uiText(region))}</small></div></div>`;
+    const heading = `<div class="kgc-catalog-country">${flag(code)}<div><h2>${esc(name)}</h2><small>${esc(uiText(region))}</small></div><span class="kgc-catalog-country-arrow" aria-hidden="true">→</span></div>`;
     const badges = `<div class="kgc-catalog-badges"><span class="kgc-catalog-badge${film ? ' open' : ''}">${film ? uiText("✓ Открыта · №{rank}", {rank: String(rank).padStart(2,'0')}) : uiText("Не исследована")}</span>${film ? `<span class="kgc-catalog-badge">${uiText("Сеансы · {count}", {count: fmt(films.length)})}</span>` : ''}</div>`;
+    const countryLink = (content, banner = false) => `<a href="#country-${code}" class="kgc-catalog-country-open${banner ? ' kgc-catalog-banner' : ''}" data-open-country="${code}" aria-label="${esc(uiText("Паспорт страны {country}", {country: name}))}">${content}</a>`;
     const passport = `<button type="button" class="kgc-catalog-action${hero ? ' primary' : ''}" data-open-country="${code}" aria-label="${esc(uiText("Паспорт страны {country}", {country: name}))}">${uiText("Паспорт →")}</button>`;
     const canOpenFeature = film || (app.key() && !unavailableFeatures.has(code));
     const feature = canOpenFeature
       ? `<button type="button" class="kgc-catalog-action" data-catalog-feature="${code}" aria-label="${esc(uiText("Шедевр страны {country}", {country:name}))}">${uiText("Шедевр")}</button>`
       : '';
     if (catalog.view === 'grid') {
-      return `<article class="kgc-catalog-card"><div class="kgc-catalog-card-body">${heading}${badges}<div class="kgc-catalog-actions">${passport}${feature}</div></div></article>`;
+      return `<article class="kgc-catalog-card"><div class="kgc-catalog-card-body">${countryLink(heading+badges)}<div class="kgc-catalog-actions">${passport}${feature}</div></div></article>`;
     }
     const directors = film && (film.director || (Array.isArray(film.dirs) ? film.dirs.join(', ') : film.dirs));
     const filmInfo = film ? [directors, film.year, film.score > 0 ? '★ '+film.score : '', film.runtime ? uiText("{minutes} мин", {minutes: film.runtime}) : ''].filter(Boolean).join(' · ') : '';
@@ -456,9 +462,9 @@
       ? window.KGWatchedButtonHtml(true, `data-catalog-unwatch="${Number(film.id)}"`)
       : '';
     return `<article class="kgc-catalog-card">
-      ${hero ? `<div class="kgc-catalog-banner">${flagBackdrop(code)}${badges}${heading}</div>` : ''}
+      ${hero ? countryLink(flagBackdrop(code)+badges+heading,true) : ''}
       <div class="kgc-catalog-card-body">
-        ${hero ? '' : heading+badges}
+        ${hero ? '' : countryLink(heading+badges)}
         ${preview}
         <div class="kgc-catalog-actions">${passport}${watchButton}${kgBookmarkButton(film)}
           ${feature}

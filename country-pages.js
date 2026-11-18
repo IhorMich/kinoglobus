@@ -978,7 +978,7 @@
   const mapButton=document.getElementById('mapBtn');
   const originalMapClick=mapButton?.onclick;
   if(mapButton)mapButton.onclick=function(event){originalMapClick?.call(this,event);showAtlas();};
-  document.addEventListener('click',event=>{
+  document.addEventListener('click',async event=>{
     const target=event.target.closest('[data-open-country],[data-atlas-back],[data-atlas-close],[data-country-search],[data-open-map],[data-open-globe],[data-atlas-scroll-map],[data-country-filter],[data-load-more],[data-country-favorite],[data-country-share],[data-kga-account],[data-film-id],[data-open-saved]');
     if(!target || !dialog.contains(target))return;
     if(target.dataset.openCountry){country(target.dataset.openCountry);return;}
@@ -1012,12 +1012,18 @@
     if(target.hasAttribute('data-kga-account')){window.KGOpenAccountPage?.('register');return;}
     if (target.dataset.countryFavorite) {
       const code = target.dataset.countryFavorite;
-      const list = favorites();
-      const saved = !list.includes(code);
-      const next = saved ? [...list, code] : list.filter(item => item !== code);
-      localStorage.setItem('kgCountryFavorites', JSON.stringify(next));
-      target.querySelector('.material-symbols-outlined').textContent = saved ? 'bookmark_added' : 'bookmark_add';
-      target.setAttribute('aria-label', favoriteLabel(saved));
+      const saved = !favorites().includes(code);
+      target.disabled=true;
+      try {
+        if(!saved && !await window.KGConfirmRemoval({kind:'bookmark',title:app.countryName(code)}))return;
+        const list=favorites();
+        const next=saved ? unique([...list,code]) : list.filter(item=>item!==code);
+        localStorage.setItem('kgCountryFavorites',JSON.stringify(next));
+        if(target.isConnected){
+          target.querySelector('.material-symbols-outlined').textContent=saved?'bookmark_added':'bookmark_add';
+          target.setAttribute('aria-label',favoriteLabel(saved));
+        }
+      } finally {if(target.isConnected)target.disabled=false;}
       return;
     }
     if(target.dataset.countryShare){const code=target.dataset.countryShare,url=location.href.split('#')[0]+'#country-'+encodeURIComponent(code);if(navigator.share)navigator.share({title:app.countryName(code)+' · '+uiText('Moven'),url}).catch(()=>{});else navigator.clipboard?.writeText(url).then(()=>{target.textContent='✓';setTimeout(()=>{if(target.isConnected)target.textContent='↗'},1200)}).catch(()=>{});return;}

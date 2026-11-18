@@ -523,7 +523,7 @@ document.addEventListener("click", async event=>{
     closeTrailer(card,true);
   } else if (window.KGToggleWatched && !pendingWatched.has(film.id)) {
     pendingWatched.add(film.id);
-    window.KGPaintWatchedButton?.(button,!window.KGIsFilmWatched?.(film.id));
+    if(!window.KGIsFilmWatched?.(film.id))window.KGPaintWatchedButton?.(button,true);
     try { await window.KGToggleWatched(film); }
     catch (error) { console.warn("[Moven] Не удалось обновить просмотр:",error); }
     finally { pendingWatched.delete(film.id); paintWatched(); }

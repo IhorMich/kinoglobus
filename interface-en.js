@@ -1752,5 +1752,9 @@ window.KGInterfaceDictionaries.en = Object.freeze({
   "Действия с фильмом": "Film actions",
   "Для этой страны пока не удалось найти фильм.": "No film could be found for this country yet.",
   "Не удалось найти фильм. Повторите поиск.": "Could not find a film. Try again.",
-  "Показать результат": "Show result"
+  "Показать результат": "Show result",
+  "Снять отметку «Просмотрено»?": "Remove watched status?",
+  "Убрать из закладок?": "Remove from bookmarks?",
+  "Снять отметку": "Remove status",
+  "Убрать": "Remove"
 });

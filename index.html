@@ -18,7 +18,7 @@ html.kg-launch-pending body>:not(#kg-launch-splash){visibility:hidden!important;
 <meta name="theme-color" content="#0c0d12">
 <meta name="application-name" content="Moven: Explore">
 <meta name="description" content="Explore the world of cinema">
-<link rel="stylesheet" href="app-theme.css?v=68">
+<link rel="stylesheet" href="app-theme.css?v=69">
 <script>
 try {
   if (!navigator.connection?.saveData) {
@@ -34,7 +34,7 @@ try {
 } catch (_) {}
 </script>
 <script src="steel-motion.js?v=4" defer></script>
-<script src="interface-en.js?v=57"></script>
+<script src="interface-en.js?v=58"></script>
 <script src="interface-i18n.js?v=2"></script>
 <script src="catalog-safety.js?v=1"></script>
 <script>
@@ -1694,11 +1694,17 @@ function kgBookmarkIds() {
 function kgIsBookmarked(id) {
   return kgBookmarkIds().includes(Number(id));
 }
-function kgToggleBookmark(id, film) {
+async function kgToggleBookmark(id, film) {
   id = Number(id);
-  const ids = kgBookmarkIds();
-  const enabled = !ids.includes(id);
   if (!Number.isSafeInteger(id) || id <= 0) return false;
+  let ids = kgBookmarkIds();
+  const enabled = !ids.includes(id);
+  if (!enabled) {
+    const title=film?.title || (store.get("kgBookmarkFilms",{})||{})[id]?.title;
+    if (!await window.KGConfirmRemoval({kind:"bookmark",title})) return kgIsBookmarked(id);
+    ids=kgBookmarkIds();
+    if(!ids.includes(id))return false;
+  }
   const details = store.get("kgBookmarkFilms",{}) || {};
   if (enabled && movieCatalog.allows({...film,id}) && film.title) {
     details[id] = {
@@ -1737,13 +1743,15 @@ function kgBookmarkButton(film,position = "") {
   const label = bookmarkLabel(enabled);
   return `<button type="button" class="kg-bookmark-button${position ? " kg-bookmark-" + position : ""}" data-kg-bookmark="${id}" data-kg-bookmark-film="${encodeURIComponent(metadata)}" aria-pressed="${enabled}" aria-label="${label}" title="${label}"><span class="material-symbols-outlined" aria-hidden="true">bookmark</span></button>`;
 }
-document.addEventListener("click",event => {
+document.addEventListener("click",async event => {
   const button = event.target.closest("[data-kg-bookmark]");
   if (!button) return;
   event.preventDefault();
   event.stopPropagation();
   const film = JSON.parse(decodeURIComponent(button.dataset.kgBookmarkFilm));
-  kgToggleBookmark(button.dataset.kgBookmark,film);
+  button.disabled=true;
+  try {await kgToggleBookmark(button.dataset.kgBookmark,film);}
+  finally {if(button.isConnected)button.disabled=false;}
 },true);
 const savedFilmLanguage = store.get("kgFilmLanguage", "auto");
 const filmLanguagePreference = ["ru", "en", "original"].includes(savedFilmLanguage) ? savedFilmLanguage : "auto";
@@ -4313,8 +4321,9 @@ console.info("[Moven: Explore] Bridge v6 ready");
 </script>
 
 <script src="globe-visuals.js?v=5"></script>
-<script src="watch-history.js?v=16"></script>
-<script src="country-pages.js?v=53"></script>
+<script src="confirm-action.js?v=1"></script>
+<script src="watch-history.js?v=17"></script>
+<script src="country-pages.js?v=54"></script>
 <script src="profile-page.js?v=15"></script>
 <script src="cinema-diary.js?v=14"></script>
 <script src="profile-editor.js?v=8"></script>
@@ -4328,7 +4337,7 @@ console.info("[Moven: Explore] Bridge v6 ready");
 <script src="oscar-page.js?v=48"></script>
 <script src="oscar-design.js?v=30"></script>
 <script src="curated-collections.js?v=3"></script>
-<script src="film-card.js?v=14"></script>
+<script src="film-card.js?v=15"></script>
 <script src="collections.js?v=126"></script>
 <script src="film-interactions.js?v=42"></script>
 <script src="legal-watch.js?v=9"></script>

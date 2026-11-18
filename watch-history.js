@@ -19,10 +19,13 @@
   }, {});
   window.KGIsFilmWatched = id => watched.some(item => Number(item.id) === Number(id));
 
-  window.KGUnmarkWatched = id => {
+  window.KGUnmarkWatched = async id => {
     id = Number(id);
-    const record = watched.find(item => Number(item.id) === id);
-    if (!record) return Promise.resolve(false);
+    let record = watched.find(item => Number(item.id) === id);
+    if (!record) return false;
+    if (!await window.KGConfirmRemoval({kind:'watched',title:record.title})) return window.KGIsFilmWatched(id);
+    record = watched.find(item => Number(item.id) === id);
+    if (!record) return false;
     watched = watched.filter(item => Number(item.id) !== id);
     const credited = [...new Set(((record.countries && record.countries.length) ? record.countries : [record.cc]).filter(code => /^[A-Z]{2}$/.test(String(code || ''))))];
     credited.forEach(code => {

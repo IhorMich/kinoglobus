@@ -807,6 +807,16 @@
     shell.scrollTo({top:0,behavior:'instant'});
   }
   window.KGSelectWatchedCountry=country;
+  window.KGOpenCountryPassport = code => {
+    if (!app.countries().includes(code)) return;
+    window.KGFilmCard.stopTrailers();
+    [...document.querySelectorAll('dialog[open]')].reverse().forEach(open => {
+      if (open !== dialog) open.close();
+    });
+    if (!dialog.open) dialog.showModal();
+    showAtlas();
+    return country(code);
+  };
   const mapButton=document.getElementById('mapBtn');
   const originalMapClick=mapButton?.onclick;
   if(mapButton)mapButton.onclick=function(event){originalMapClick?.call(this,event);showAtlas();};

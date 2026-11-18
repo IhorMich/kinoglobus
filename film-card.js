@@ -34,7 +34,10 @@ function markup(f, {closable = true, inline = false} = {}) {
   const watched=!!window.KGIsFilmWatched?.(f.id),title=esc(f.title||uiText("Фильм"));
   const original = f.originalTitle || f.original_title;
   const orig=[year, original && original!==f.title ? esc(original) : ""].filter(Boolean).join(" · ");
-  const countries=(f.countries&&f.countries.length?f.countries:(f._cc?[f._cc]:[])).map(cc=>`${esc(cname(cc))} ${fl(cc)}`).join(" · ");
+  const countryCodes=[...new Set(f.countries?.length ? f.countries : f.production_countries?.length ? f.production_countries.map(country=>country.iso_3166_1) : f._cc ? [f._cc] : [])].filter(Boolean);
+  const countries=countryCodes.map(cc=>window.KGCountryApp?.countries().includes(cc)
+    ? `<button type="button" class="kg-film-country-link" data-kg-film-country="${esc(cc)}" aria-label="${esc(uiText("Паспорт страны {country}",{country:cname(cc)}))}">${esc(cname(cc))} ${fl(cc)}</button>`
+    : `${esc(cname(cc))} ${fl(cc)}`).join(" · ");
   const genres=(f.genres?.length ? f.genres : genreLine(f).split(", ").filter(Boolean)).map(genre => uiText(genre)).join(" · ");
   const voteCount=Number(f.votes ?? f.vote_count)||0;
   const votes=voteCount>=1000?(voteCount/1000).toFixed(1)+"k":String(voteCount);
@@ -495,6 +498,14 @@ function savedFilm(record) {
     _cc:record._cc || record.cc || record.countries?.[0] || ""
   };
 }
+
+document.addEventListener("click", event=>{
+  const button=event.target.closest("[data-kg-film-country]");
+  if(!button || !button.closest(".kg-film-detail"))return;
+  event.preventDefault();
+  event.stopImmediatePropagation();
+  window.KGOpenCountryPassport?.(button.dataset.kgFilmCountry);
+},true);
 
 document.addEventListener("click", async event=>{
   const button=event.target.closest("[data-film-watched], [data-kg-film-note], [data-trailer-action]");

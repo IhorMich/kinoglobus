@@ -1700,3 +1700,8 @@ body {
   background: linear-gradient(135deg, rgb(var(--kg-primary-container) / .10), rgb(var(--kg-surface-panel)) 55%);
   box-shadow: 0 0 0 1px rgb(var(--kg-primary-container) / .08), 0 8px 24px rgb(var(--kg-black) / .22);
 }
+
+/* Film production countries open their Journey passports. */
+.kg-film-country-link{display:inline-flex;align-items:center;gap:4px;min-height:32px;padding:2px 0;border:0;background:transparent;color:rgb(var(--kg-primary));font:inherit;text-align:left;cursor:pointer;text-decoration:underline;text-decoration-color:rgb(var(--kg-primary)/.45);text-underline-offset:3px}
+.kg-film-country-link:hover{text-decoration-color:currentColor}
+.kg-film-country-link:focus-visible{outline:2px solid rgb(var(--kg-primary));outline-offset:3px;border-radius:3px}

@@ -16,13 +16,9 @@ function trailerThumb(v,f){
 function markup(f, {closable = true, inline = false} = {}) {
   if (f.backdrop_path && ((f.castFull && f.castFull.length) || (f.dirsFull && f.dirsFull.length)))
     window.KGPersonBackdropWarm?.(f.backdrop_path);
-  // Заранее прогреваем tagged-кадры режиссёров и первых актёров,
-  // чтобы фон был готов к моменту открытия профиля.
-  (f.dirsFull||[]).slice(0,2).forEach(person=>window.KGPreloadPersonBackdrop?.(person.id));
-  (f.castFull||[]).slice(0,6).forEach(person=>window.KGPreloadPersonBackdrop?.(person.id));
   const year=String(f.release_date||f.year||"").slice(0,4);
-  const personLink=(p,role)=>p&&p.id?`<button type="button" data-kg-person-id="${p.id}" data-kg-person-name="${esc(p.name)}" data-kg-person-role="${role}" class="kg-person-link">${esc(p.name)}</button>`:esc(p&&p.name||"");
-  const cast=(f.castFull||[]).map(c=>`<button type="button" data-kg-person-id="${c.id||""}" data-kg-person-name="${esc(c.name)}" data-kg-person-role="Актёр" class="kg-person-card flex flex-col items-center text-center py-1" ${c.id?"":"disabled"}>
+  const personLink=(p,role)=>p&&p.id?`<button type="button" data-kg-person-id="${p.id}" data-kg-person-profile="${esc(p.photo||"")}" data-kg-person-name="${esc(p.name)}" data-kg-person-role="${role}" class="kg-person-link">${esc(p.name)}</button>`:esc(p&&p.name||"");
+  const cast=(f.castFull||[]).map(c=>`<button type="button" data-kg-person-id="${c.id||""}" data-kg-person-profile="${esc(c.photo||"")}" data-kg-person-name="${esc(c.name)}" data-kg-person-role="Актёр" class="kg-person-card flex flex-col items-center text-center py-1" ${c.id?"":"disabled"}>
 <div class="kg-cast-avatar rounded-full overflow-hidden mb-1 bg-surface-variant flex items-center justify-center">${c.photo?`<img class="w-full h-full object-cover" loading="lazy" alt="" src="${P(c.photo,"w185")}">`:'<span class="material-symbols-outlined text-text-muted">person</span>'}</div>
 <span class="kg-cast-name text-on-surface font-semibold">${esc(c.name)}</span><span class="font-micro-caption text-micro-caption text-text-muted truncate w-full">${esc(c.role)}</span></button>`).join("");
   const video=f._trailer;

@@ -1,7 +1,7 @@
 /* Shared TMDB person profiles and related-film carousels. */
 (function(){
   const pools=new Map(),relatedCache=new Map(),personCache=new Map(),personFilmPools=new Map(),personBackdropWarmCache=new Map(),personTaggedBackdropCache=new Map(),personAltPortraitCache=new Map();
-  const personBackdropPreloadStarted=new Set(),personBackdropPreloadTasks=new Map();
+  const personBackdropPreloadTasks=new Map();
   let scrollFrame=0,personScrollFrame=0,personOpenRequest=0;
   const image=(path,size="w342")=>path?`https://image.tmdb.org/t/p/${size}${path}`:"";
   const esc=value=>String(value||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -101,34 +101,30 @@
       personAltPortraitCache.set(key,request);
     }
     const paths=await personAltPortraitCache.get(key);
-    return paths.filter(path=>path!==excludePath);
+    // Keep one alternate portrait only. If it cannot be loaded, the caller
+    // falls back to the person's primary profile_path with stronger blur.
+    return paths.filter(path=>path!==excludePath).slice(0,1);
   }
-  function preloadPersonBackdrop(personId){
+  function preloadPersonBackdrop(personId,mainProfilePath=null){
     const key=String(personId||"");
-    if(!key)return Promise.resolve([]);
-    if(personBackdropPreloadTasks.has(key))return personBackdropPreloadTasks.get(key);
-    personBackdropPreloadStarted.add(key);
-    const task=personAltPortrait(key,null).then(async paths=>{
-      // Warm the actor's own profile images; tagged movie posters are not actor portraits.
-      await Promise.all(paths.map(path=>warmPersonBackdrop(path,"h632")));
-      return paths;
+    if(!key)return Promise.resolve(null);
+    const taskKey=`${key}:${mainProfilePath||""}`;
+    if(personBackdropPreloadTasks.has(taskKey))return personBackdropPreloadTasks.get(taskKey);
+    const task=personAltPortrait(key,mainProfilePath).then(async paths=>{
+      const portrait=paths[0]?await warmPersonBackdrop(paths[0],"h632"):null;
+      return portrait;
     }).catch(error=>{
-      personBackdropPreloadStarted.delete(key);
-      personBackdropPreloadTasks.delete(key);
+      personBackdropPreloadTasks.delete(taskKey);
       throw error;
     });
-    personBackdropPreloadTasks.set(key,task);
+    personBackdropPreloadTasks.set(taskKey,task);
     return task;
   }
   async function preparePersonBackdrop(personId,mainProfilePath=null){
     let alternatePortrait=null;
     try{
       const candidates=await personAltPortrait(personId,mainProfilePath);
-      // Try actor gallery images in ranked order and wait for a successful decode.
-      for(const path of candidates){
-        alternatePortrait=await warmPersonBackdrop(path,"h632");
-        if(alternatePortrait)break;
-      }
+      if(candidates[0])alternatePortrait=await warmPersonBackdrop(candidates[0],"h632");
     }catch(error){
       console.warn("[Moven backdrop] Could not load alternate actor portrait",{
         personId,message:error?.message||String(error)
@@ -203,7 +199,7 @@
 .kgpi-film .kgpi-poster>img{display:block;width:100%;height:100%;object-fit:cover}
 .kgpi-film .kgpi-poster>span{display:grid;place-items:center;width:100%;height:100%;text-align:center}
 .kgpi-film-title{overflow-wrap:anywhere}
-.kgpi-profile-credit{display:grid;grid-template-columns:76px minmax(0,1fr);gap:12px;align-items:center;min-height:136px}.kgpi-profile-credit-poster-wrap{position:relative;display:block;width:76px;height:112px}.kgpi-profile-credit-poster{display:block;box-sizing:border-box;flex:none;width:76px!important;min-width:76px;max-width:76px;height:112px!important;min-height:112px;max-height:112px;aspect-ratio:2/3;object-fit:cover;border-radius:9px;background:rgb(var(--kg-surface-container-high))}.kgpi-profile-credit-poster.is-empty{display:flex;align-items:center;justify-content:center}.kgpi-profile-credit-rating{position:absolute;right:4px;bottom:4px;padding:2px 5px;border-radius:6px;background:rgb(var(--kg-canvas-obsidian)/.86);color:rgb(var(--kg-primary));font-size:11px;font-weight:700;line-height:1.25}.kgpi-profile-credit:focus-visible{outline:2px solid rgb(var(--kg-primary-container));outline-offset:2px}.kgpi-bio-clamp{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}.kgpi-hero{isolation:isolate;overflow:hidden}.kgpi-hero-backdrop{position:absolute;z-index:-1;inset:0;overflow:hidden;pointer-events:none;opacity:.92;mask-image:linear-gradient(to bottom,#000 0%,#000 70%,transparent 100%)}.kgpi-hero-backdrop:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgb(var(--kg-canvas-obsidian)/.25) 0%,rgb(var(--kg-canvas-obsidian)/.55) 55%,rgb(var(--kg-canvas-obsidian)) 100%);box-shadow:inset 0 0 120px rgb(var(--kg-primary-container)/.08)}.kgpi-hero-backdrop img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 30%;filter:brightness(.62) saturate(1.05) blur(8px);transform:scale(1.12);transition:opacity .35s ease}.kgpi-hero-backdrop img.kgpi-poster-backdrop{position:absolute;top:0;width:72%;height:100%;object-fit:cover;filter:brightness(.5) saturate(.9) blur(8px);transform:scale(1.12)}.kgpi-hero-backdrop img.kgpi-poster-left{left:-5%}.kgpi-hero-backdrop img.kgpi-poster-right{right:-5%}.kgpi-hero-backdrop img.kgpi-portrait-backdrop{filter:brightness(.38) saturate(.72) blur(12px);transform:scale(1.16)}.kgpi-hero-backdrop img.kgpi-actor-profile-backdrop{filter:brightness(.5) saturate(.92) blur(8px);transform:scale(1.12)}.kgpi-hero-backdrop img.kgpi-fade{opacity:0}.kgpi-hero-backdrop img.kgpi-fade.is-ready{opacity:1}.kgpi-hero-backdrop img.kgpi-fade{opacity:0;transition:opacity .5s ease}.kgpi-hero-backdrop img.kgpi-fade.is-ready{opacity:1}.kgpi-hero-backdrop img.kgpi-poster-backdrop{filter:brightness(.5) saturate(.92) blur(10px);transform:scale(1.12)}.kgpi-modal [data-kg-person-image]{position:relative}.kgpi-modal [data-kg-person-image] img.kgpi-portrait-top{position:absolute;inset:0;opacity:0;transition:opacity .35s ease}.kgpi-modal [data-kg-person-image] img.kgpi-portrait-top.is-ready{opacity:1}.kgpi-hero-backdrop img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 30%;filter:brightness(.62) saturate(1.05) blur(2px);transform:scale(1.02);transition:opacity .5s ease}.kgpi-hero-content{position:relative;z-index:1}
+.kgpi-profile-credit{display:grid;grid-template-columns:76px minmax(0,1fr);gap:12px;align-items:center;min-height:136px}.kgpi-profile-credit-poster-wrap{position:relative;display:block;width:76px;height:112px}.kgpi-profile-credit-poster{display:block;box-sizing:border-box;flex:none;width:76px!important;min-width:76px;max-width:76px;height:112px!important;min-height:112px;max-height:112px;aspect-ratio:2/3;object-fit:cover;border-radius:9px;background:rgb(var(--kg-surface-container-high))}.kgpi-profile-credit-poster.is-empty{display:flex;align-items:center;justify-content:center}.kgpi-profile-credit-rating{position:absolute;right:4px;bottom:4px;padding:2px 5px;border-radius:6px;background:rgb(var(--kg-canvas-obsidian)/.86);color:rgb(var(--kg-primary));font-size:11px;font-weight:700;line-height:1.25}.kgpi-profile-credit:focus-visible{outline:2px solid rgb(var(--kg-primary-container));outline-offset:2px}.kgpi-bio-clamp{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}.kgpi-hero{isolation:isolate;overflow:hidden}.kgpi-hero-backdrop{position:absolute;z-index:-1;inset:0;overflow:hidden;pointer-events:none;opacity:.92;mask-image:linear-gradient(to bottom,#000 0%,#000 70%,transparent 100%)}.kgpi-hero-backdrop:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgb(var(--kg-canvas-obsidian)/.25) 0%,rgb(var(--kg-canvas-obsidian)/.55) 55%,rgb(var(--kg-canvas-obsidian)) 100%);box-shadow:inset 0 0 120px rgb(var(--kg-primary-container)/.08)}.kgpi-hero-backdrop img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 30%;filter:brightness(.62) saturate(1.05) blur(8px);transform:scale(1.12);transition:opacity .35s ease}.kgpi-hero-backdrop img.kgpi-poster-backdrop{position:absolute;top:0;width:72%;height:100%;object-fit:cover;filter:brightness(.5) saturate(.9) blur(8px);transform:scale(1.12)}.kgpi-hero-backdrop img.kgpi-poster-left{left:-5%}.kgpi-hero-backdrop img.kgpi-poster-right{right:-5%}.kgpi-hero-backdrop img.kgpi-portrait-backdrop{filter:brightness(.38) saturate(.72) blur(12px);transform:scale(1.16)}.kgpi-hero-backdrop img.kgpi-actor-profile-backdrop{filter:brightness(.5) saturate(.92) blur(8px);transform:scale(1.12)}.kgpi-hero-backdrop img.kgpi-fade{opacity:0}.kgpi-hero-backdrop img.kgpi-fade.is-ready{opacity:1}.kgpi-hero-backdrop img.kgpi-fade{opacity:0;transition:opacity .5s ease}.kgpi-hero-backdrop img.kgpi-fade.is-ready{opacity:1}.kgpi-hero-backdrop img.kgpi-poster-backdrop{filter:brightness(.5) saturate(.92) blur(10px);transform:scale(1.12)}.kgpi-hero-backdrop img.kgpi-portrait-backdrop{filter:brightness(.34) saturate(.65) blur(18px);transform:scale(1.2)}.kgpi-modal [data-kg-person-image]{position:relative}.kgpi-modal [data-kg-person-image] img.kgpi-portrait-top{position:absolute;inset:0;opacity:0;transition:opacity .35s ease}.kgpi-modal [data-kg-person-image] img.kgpi-portrait-top.is-ready{opacity:1}.kgpi-hero-backdrop img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 30%;filter:brightness(.62) saturate(1.05) blur(2px);transform:scale(1.02);transition:opacity .5s ease}.kgpi-hero-content{position:relative;z-index:1}
 .kgpi-modal{position:relative;isolation:isolate}
 .kgpi-hero{position:relative;isolation:isolate;overflow:hidden}
 .kgpi-hero>.kgpi-hero-backdrop{position:absolute;z-index:-1;inset:0;width:100%;height:100%;opacity:.92}
@@ -406,14 +402,24 @@
   function paint(section,films){const list=section.querySelector("[data-kg-related-list]");if(!list)return;list.innerHTML=films.length?films.map(filmButton).join(""):`<span class="text-xs text-[rgb(var(--kg-text-muted))]">${uiText("В этом списке больше нет похожих фильмов.")}</span>`;}
   // Apply carousel poster sizing on every screen, not just after opening a person profile.
   ensureStyles();
-  const observer=new MutationObserver(records=>records.forEach(record=>record.addedNodes.forEach(node=>{if(node.nodeType!==1)return;if(node.matches?.("[data-kg-related-films]"))related(node);node.querySelectorAll?.("[data-kg-related-films]").forEach(related);if(node.matches?.("[data-kg-person-id]"))preloadPersonBackdrop(node.dataset.kgPersonId);node.querySelectorAll?.("[data-kg-person-id]").forEach(person=>preloadPersonBackdrop(person.dataset.kgPersonId));}))) ;
+  const personVisibilityObserver="IntersectionObserver" in window?new IntersectionObserver(entries=>entries.forEach(entry=>{
+    if(!entry.isIntersecting)return;
+    const person=entry.target;
+    preloadPersonBackdrop(person.dataset.kgPersonId,person.dataset.kgPersonProfile||null);
+    personVisibilityObserver.unobserve(person);
+  }),{rootMargin:"120px 0px"}):null;
+  const watchPerson=node=>{
+    if(!node?.matches?.("[data-kg-person-id]")||!node.dataset.kgPersonId)return;
+    if(personVisibilityObserver)personVisibilityObserver.observe(node);
+  };
+  const observer=new MutationObserver(records=>records.forEach(record=>record.addedNodes.forEach(node=>{if(node.nodeType!==1)return;if(node.matches?.("[data-kg-related-films]"))related(node);node.querySelectorAll?.("[data-kg-related-films]").forEach(related);watchPerson(node);node.querySelectorAll?.("[data-kg-person-id]").forEach(watchPerson);}))) ;
   observer.observe(document.documentElement,{childList:true,subtree:true});
   document.querySelectorAll("[data-kg-related-films]").forEach(related);
-  // Start poster downloads as soon as actor cards enter the page, including touch devices.
-  document.querySelectorAll("[data-kg-person-id]").forEach(node=>preloadPersonBackdrop(node.dataset.kgPersonId));
+  // Warm one alternate portrait only when its person card is near the viewport.
+  document.querySelectorAll("[data-kg-person-id]").forEach(watchPerson);
   const warmPersonFromTarget=event=>{
     const person=event.target.closest?.("[data-kg-person-id]");
-    if(person?.dataset.kgPersonId)preloadPersonBackdrop(person.dataset.kgPersonId);
+    if(person?.dataset.kgPersonId)preloadPersonBackdrop(person.dataset.kgPersonId,person.dataset.kgPersonProfile||null);
   };
   document.addEventListener("pointerover",warmPersonFromTarget,{passive:true});
   document.addEventListener("focusin",warmPersonFromTarget);

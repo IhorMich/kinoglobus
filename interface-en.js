@@ -1733,5 +1733,20 @@ window.KGInterfaceDictionaries.en = Object.freeze({
   "Сначала добавьте фильм в закладки.": "Bookmark a film first.",
   "Редактировать запись": "Edit entry",
   "Записи": "Entries",
-  "Записей пока нет.": "No entries yet."
+  "Записей пока нет.": "No entries yet.",
+  "Система наград": "Awards system",
+  "средний балл загруженных фильмов": "average of loaded films",
+  "годы загруженных фильмов": "years of loaded films",
+  "Просмотренные фильмы, сохранённые на устройстве": "Watched films saved on this device",
+  "{loaded} из {total} фильмов каталога TMDB": "{loaded} of {total} films in the TMDB catalogue",
+  "Назад к паспорту страны": "Back to country passport",
+  "{label}: {count} фильмов": "{label}: {count} films",
+  "Средняя оценка TMDB · шкала от 1 до 10": "Average TMDB rating · scale of 1 to 10",
+  "Распределение по десятилетиям": "Distribution by decade",
+  "По средней оценке TMDB каждого фильма, округлённой до целого. Без оценки: {count}.": "Based on each film’s average TMDB rating, rounded to a whole number. Unrated: {count}.",
+  "По году выхода фильма. Без даты: {count}.": "Based on release year. Undated: {count}.",
+  "Фильмы: {label}": "Films: {label}",
+  "Фильмы в выборке": "Films in this sample",
+  "Сбросить фильтр": "Reset filter",
+  "Нет данных для этой выборки.": "No data for this sample."
 });

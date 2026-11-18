@@ -286,7 +286,25 @@ function saveThemeMeta(t,d){
   META[t.id]=meta;store.set("kgThemeMeta",META);return meta;
 }
 async function loadMeta(t,force=false){
-  if (t.films) return META[t.id] || {n:t.films.length};
+  if (t.films) {
+    const cached=META[t.id];
+    if (cached?.p && !force && Date.now()-cached.ts<FRESH) return cached;
+    if (!apiKey || !t.films.length) return cached || {n:t.films.length};
+    if(metaInflight.has(t.id))return metaInflight.get(t.id);
+    const request=(async()=>{
+      try{
+        const result=await requestTmdb("movie/"+t.films[0].id,{language:filmLocale,append_to_response:"translations"},{fresh:force});
+        if(result.id!==t.films[0].id)throw new Error("Постер подборки не найден.");
+        const meta={...(cached||{}),n:t.films.length,r:result.vote_average?Number(result.vote_average).toFixed(1):"",p:result.poster_path||"",b:result.backdrop_path||"",ts:Date.now()};
+        META[t.id]=meta;store.set("kgThemeMeta",META);metaRetryAfter.delete(t.id);return meta;
+      }catch(error){
+        metaRetryAfter.set(t.id,Date.now()+15*60*1000);
+        return cached || {n:t.films.length};
+      }
+    })();
+    metaInflight.set(t.id,request);
+    try{return await request;}finally{metaInflight.delete(t.id);}
+  }
   if(metaInflight.has(t.id))return metaInflight.get(t.id);
   const m=META[t.id];
   if(!force&&m&&Date.now()-m.ts<FRESH)return m;
@@ -603,7 +621,9 @@ function paintMeta(id){
     if(el.id==="spot"){
       const bg=el.querySelector('[data-k="bg"]');
       // Приоритет отдаётся авторской широкоформатной арт-обложке
-      const src=customArt || (m.b?P(m.b,"w780"):P(m.p,"w500"));
+      const src=t.films
+        ? (m.b?P(m.b,"w780"):P(m.p,"w500")) || customArt
+        : customArt || (m.b?P(m.b,"w780"):P(m.p,"w500"));
       if(src) bg.style.backgroundImage=`url('${src}')`;
     }
     const r=el.querySelector('[data-k="r"]');
@@ -613,7 +633,10 @@ function paintMeta(id){
     const img=el.querySelector('[data-k="img"]');
     if(img){
       // Сохраняем авторскую кураторскую обложку вместо случайного первого постера
-      if(customArt){
+      if(t.films && m.p){
+        img.onload=()=>img.classList.remove("opacity-0");
+        img.src=P(m.p,"w185");
+      } else if(customArt){
         img.src = customArt;
         img.classList.remove("opacity-0");
       } else if(m.p){

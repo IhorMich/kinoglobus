@@ -1692,11 +1692,11 @@ body {
   border-color: rgb(var(--kg-primary) / .72);
 }
 
-/* The daily pick sits directly on the page canvas like other film details. */
-#kg-home-feature:not(:has(> .kg-film-detail)) {
-  padding: 0 !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-  box-shadow: none !important;
+/* Keep the daily pick distinct and follow the current button accent. */
+:root[data-kg-theme] #kg-home-feature:not(:has(> .kg-film-detail)) {
+  padding: .875rem;
+  border: 1px solid rgb(var(--kg-primary-container) / .75);
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgb(var(--kg-primary-container) / .10), rgb(var(--kg-surface-panel)) 55%);
+  box-shadow: 0 0 0 1px rgb(var(--kg-primary-container) / .08), 0 8px 24px rgb(var(--kg-black) / .22);
 }

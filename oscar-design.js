@@ -46,7 +46,10 @@
           el.insertAdjacentHTML("afterbegin",`<img class="absolute inset-0 w-full h-full object-cover" loading="lazy" alt="" src="https://image.tmdb.org/t/p/w342${f.poster_path}">`);
         }
         const r=root.querySelector(`[data-kgo-rate="${k}"]`);
-        if(r&&f.vote_average)r.textContent="★ "+Number(f.vote_average).toFixed(1)+" TMDB";
+        if(r&&Number(f.vote_average)>0){
+          r.textContent="★ "+Number(f.vote_average).toFixed(1)+(r.hasAttribute("data-kgo-rate-compact")?"":" TMDB");
+          r.hidden=false;
+        }
       }catch(e){console.warn("[Moven] oscar-design:",k,e);}
     }));
     await Promise.all([...root.querySelectorAll("[data-kgo-person]")].map(async el=>{
@@ -104,7 +107,7 @@
   const FOREIGN_BATCH = 6;
   const foreignByKey = new Map(FOREIGN_WINNERS.map(film=>[film.key,film]));
   FOREIGN_WINNERS.forEach(film=>{F[film.key]=[film.english,film.year];});
-  const PEOPLE={cuaron:"Alfonso Cuarón",inarritu:"Alejandro G. Iñárritu",nolan:"Christopher Nolan",pta:"Paul Thomas Anderson"};
+  const PEOPLE={cuaron:"Alfonso Cuarón",inarritu:"Alejandro G. Iñárritu",nolan:"Christopher Nolan",pta:"Paul Thomas Anderson",ford:"John Ford",wyler:"William Wyler",capra:"Frank Capra",spielberg:"Steven Spielberg",eastwood:"Clint Eastwood",lean:"David Lean",scorsese:"Martin Scorsese",bong:"Bong Joon Ho"};
 
   const featuredTitle=(key,russian,includeYear=false)=>{
     if(filmLanguage==="ru")return russian;
@@ -147,19 +150,17 @@
     }
     return order;
   }
-  function foreignWinnerCard(film,big=false) {
-    return foreignCard(film.key,film.country,film.director,film.title,film.original,"",
-      pill(uiText("Оскар {year}",{year:film.awardYear})),big);
+  function foreignWinnerCard(film) {
+    const title=filmLanguage==="ru"?film.title:filmLanguage==="en"?film.english:film.original;
+    const country=cname(film.country);
+    const badges=`<span class="absolute top-2 left-2 z-10 px-2 py-1 rounded-lg bg-surface-container-lowest/90 text-primary font-micro-caption text-micro-caption font-semibold">${uiText("Оскар {year}",{year:film.awardYear})}</span><span data-kgo-rate="${film.key}" data-kgo-rate-compact hidden class="absolute bottom-2 right-2 z-10 px-2 py-1 rounded-lg bg-surface-container-lowest/90 text-primary font-label-sm text-label-sm font-semibold"></span>`;
+    return `<div data-kgo-foreign-card class="min-w-0"><button type="button" ${open(film.key,"foreign-grid")} aria-label="${esc(uiText("Открыть фильм {title}",{title}))}" class="block w-full min-w-0 p-0 text-left cursor-pointer">${slot(film.key,"kgo-foreign-poster w-full aspect-[2/3] rounded-xl",badges)}<span class="block mt-2 text-sm font-semibold leading-snug text-on-surface" style="display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;min-height:2.75em">${esc(title)}</span><span class="flex items-center gap-1 mt-1 min-w-0 text-text-muted font-micro-caption text-micro-caption">${fl(film.country)}<span class="truncate">${esc(country)} · ${film.year}</span></span></button></div>`;
   }
   function foreignBatchHtml(films,start=0) {
-    const leading=start===0?films.slice(0,2):[];
-    const tiles=start===0?films.slice(2):films;
     const target=`foreign-grid-${start}`;
-    return leading.map((film,index)=>foreignWinnerCard(film,index===0)).join("")+
-      `<div class="grid grid-cols-2 gap-space-sm">${tiles.map(film=>
-        gridCard(film.key,film.country,film.director,film.title,"",uiText("Оскар {year}",{year:film.awardYear}))
-          .replace('data-kgo-target="oscar-kgo-detail-foreign-grid"',`data-kgo-target="oscar-kgo-detail-${target}"`)
-      ).join("")}${box(target,"col-span-2")}</div>`;
+    return `<div class="grid grid-cols-2 gap-3">${films.map(film=>
+      foreignWinnerCard(film).replace('data-kgo-target="oscar-kgo-detail-foreign-grid"',`data-kgo-target="oscar-kgo-detail-${target}"`)
+    ).join("")}${box(target,"col-span-2")}</div>`;
   }
   function foreignSection(order,shown=FOREIGN_BATCH) {
     return sec("foreign",
@@ -197,11 +198,11 @@
     `</div>`);
 
   function person(k,name,badge,films){
-    return `<div data-kgo-person-card role="button" tabindex="0" class="bg-surface-panel rounded-xl p-2.5 flex flex-col items-center text-center shadow-md w-[108px] shrink-0 cursor-pointer"><div data-kgo-person="${k}" class="w-14 h-14 rounded-full overflow-hidden bg-surface-container-highest mb-2 flex items-center justify-center text-text-muted"><span data-kgo-ph class="material-symbols-outlined">person</span></div><h5 class="font-label-sm text-label-sm text-on-surface font-bold leading-tight">${uiText(name)}</h5><span class="font-micro-caption text-micro-caption text-primary mt-1 font-bold">${uiText(badge)}</span><span class="font-micro-caption text-micro-caption text-text-muted">${uiText(films)}</span></div>`;
+    return `<div data-kgo-person-card role="button" tabindex="0" class="bg-surface-panel rounded-xl p-2.5 flex flex-col items-center text-center shadow-md w-[108px] shrink-0 cursor-pointer"><div data-kgo-person="${k}" class="w-14 h-14 rounded-full overflow-hidden bg-surface-container-highest mb-2 flex items-center justify-center text-text-muted"><span data-kgo-ph class="material-symbols-outlined">person</span></div><h5 class="font-label-sm text-label-sm text-on-surface font-bold leading-tight">${interfaceLanguage==="en"?esc(PEOPLE[k]):uiText(name)}</h5><span class="font-micro-caption text-micro-caption text-primary mt-1 font-bold">${uiText(badge)}</span><span class="font-micro-caption text-micro-caption text-text-muted">${uiText(films)}</span></div>`;
   }
   const dirs=sec("dir",
     head("movie_edit","Режиссёры-триумфаторы","Рекорд по «Оскарам» за режиссуру у Джона Форда: четыре статуэтки")+
-    `<div class="flex gap-space-xs overflow-x-auto pb-1">${person("cuaron","А. Куарон","2 Оскара","Гравитация, Рома")}${person("inarritu","А. Иньярриту","2 подряд","Бёрдмэн, Выживший")}${person("nolan","К. Нолан","Оскар 2024","Оппенгеймер")}${person("pta","П. Т. Андерсон","Оскар 2026","One Battle After Another")}</div>`);
+    `<div class="flex gap-space-xs overflow-x-auto pb-1">${person("cuaron","А. Куарон","2 Оскара","Гравитация, Рома")}${person("inarritu","А. Иньярриту","2 подряд","Бёрдмэн, Выживший")}${person("nolan","К. Нолан","Оскар 2024","Оппенгеймер")}${person("pta","П. Т. Андерсон","Оскар 2026","One Battle After Another")}${person("ford","Джон Форд","4 Оскара","Осведомитель, Гроздья гнева")}${person("wyler","Уильям Уайлер","3 Оскара","Бен-Гур, Лучшие годы нашей жизни")}${person("capra","Фрэнк Капра","3 Оскара","Это случилось однажды ночью")}${person("spielberg","С. Спилберг","2 Оскара","Список Шиндлера, Спасти рядового Райана")}${person("eastwood","Клинт Иствуд","2 Оскара","Непрощённый, Малышка на миллион")}${person("lean","Дэвид Лин","2 Оскара","Мост через реку Квай, Лоуренс Аравийский")}${person("scorsese","М. Скорсезе","Оскар 2007","Отступники")}${person("bong","Пон Чжун Хо","Оскар 2020","Паразиты")}</div>`);
 
   function clubRow0(k,n,title,sub,score,full){
     return `<div ${open(k,k)} class="bg-surface-panel rounded-xl p-3 shadow-md flex items-center justify-between cursor-pointer"><div class="flex items-center gap-3 min-w-0"><div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center font-bold font-headline-sm text-primary shrink-0">${n}</div><div class="flex flex-col min-w-0"><h5 class="font-label-md text-label-md text-on-surface font-bold truncate">${featuredTitle(k,title,true)}</h5><span class="font-micro-caption text-micro-caption text-text-muted truncate">${uiText(sub)}</span></div></div><span class="px-2 py-1 rounded ${full?"bg-secondary-container/50 text-secondary":"bg-surface-container-high text-on-surface-variant"} font-micro-caption text-micro-caption font-bold shrink-0">${score}</span></div>`;

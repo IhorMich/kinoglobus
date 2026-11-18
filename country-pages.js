@@ -11,9 +11,9 @@
   const flag = code => `<span class="kgc-flag-mark" data-flag="${code}" aria-hidden="true">${app.countryFlag(code)}</span>`;
   const fabricPath = 'assets/flags/flag-fabric.jpg';
   const flagBackdrop = code => `
-    <div class="kgc-flag-backdrop" data-flag="${code}" aria-hidden="true">
+    <div class="kgc-flag-backdrop" data-flag="${code}" style="--kgc-flag-filter:url(#kgc-fabric-folds-${code})" aria-hidden="true">
       <svg class="kgc-flag-filter" width="0" height="0" focusable="false">
-        <filter id="kgc-fabric-folds" x="0%" y="0%" width="100%" height="100%" color-interpolation-filters="sRGB">
+        <filter id="kgc-fabric-folds-${code}" x="0%" y="0%" width="100%" height="100%" color-interpolation-filters="sRGB">
           <feFlood flood-color="rgb(var(--kg-neutral-110))" result="neutral"/>
           <feImage href="${fabricPath}" preserveAspectRatio="xMidYMid slice" result="fabricPhoto"/>
           <feComposite in="fabricPhoto" in2="neutral" operator="over" result="fabric"/>
@@ -76,7 +76,7 @@
     .kgc-flag-backdrop{position:absolute;inset:0;clip-path:inset(0);isolation:isolate}
     .kgc-flag-filter{position:absolute}
     .kgc-flag-art{position:absolute;inset:-13% -8% -8%;display:grid;place-items:center}
-    [data-flag-fabric="filter"] .kgc-flag-art{filter:url(#kgc-fabric-folds)}
+    [data-flag-fabric="filter"] .kgc-flag-art{filter:var(--kgc-flag-filter)}
     [data-flag-fabric="overlay"] .kgc-flag-backdrop::after{
       content:'';position:absolute;inset:0;pointer-events:none;
       background:url("${fabricPath}") center / cover;mix-blend-mode:hard-light;opacity:.78
@@ -167,6 +167,12 @@
     .kgc-catalog-country{display:flex;align-items:center;gap:8px;min-width:0}
     .kgc-catalog-country h2{margin:0;color:rgb(var(--kg-on-surface));font:700 17px/1.2 var(--kg-font-heading);overflow-wrap:anywhere}
     .kgc-catalog-banner h2{font-size:23px}
+    .kgc-catalog-feed[data-view="grid"] .kgc-catalog-banner{padding:10px;min-height:170px}
+    .kgc-catalog-feed[data-view="grid"] .kgc-catalog-country{flex-wrap:wrap;gap:5px}
+    .kgc-catalog-feed[data-view="grid"] .kgc-catalog-country>div{flex:1;min-width:80px}
+    .kgc-catalog-feed[data-view="grid"] .kgc-catalog-banner h2{font-size:18px}
+    .kgc-catalog-feed[data-view="grid"] .kgc-catalog-country-arrow{display:none}
+
     .kgc-catalog-country small{font-size:11px;color:rgb(var(--kg-primary))}
     .kgc-catalog-card-body{display:grid;gap:11px;padding:12px}
     .kgc-catalog-badges{display:flex;flex-wrap:wrap;gap:5px;justify-content:space-between}
@@ -438,19 +444,20 @@
 
   const unavailableFeatures = new Set();
 
-  function catalogCard(row, rank, hero) {
+  function catalogCard(row, rank) {
     const {code, name, region, films} = row;
     const film = films[0];
     const heading = `<div class="kgc-catalog-country">${flag(code)}<div><h2>${esc(name)}</h2><small>${esc(uiText(region))}</small></div><span class="kgc-catalog-country-arrow" aria-hidden="true">→</span></div>`;
     const badges = `<div class="kgc-catalog-badges"><span class="kgc-catalog-badge${film ? ' open' : ''}">${film ? uiText("✓ Открыта · №{rank}", {rank: String(rank).padStart(2,'0')}) : uiText("Не исследована")}</span>${film ? `<span class="kgc-catalog-badge">${uiText("Сеансы · {count}", {count: fmt(films.length)})}</span>` : ''}</div>`;
     const countryLink = (content, banner = false) => `<a href="#country-${code}" class="kgc-catalog-country-open${banner ? ' kgc-catalog-banner' : ''}" data-open-country="${code}" aria-label="${esc(uiText("Паспорт страны {country}", {country: name}))}">${content}</a>`;
-    const passport = `<button type="button" class="kgc-catalog-action${hero ? ' primary' : ''}" data-open-country="${code}" aria-label="${esc(uiText("Паспорт страны {country}", {country: name}))}">${uiText("Паспорт →")}</button>`;
+    const passport = `<button type="button" class="kgc-catalog-action primary" data-open-country="${code}" aria-label="${esc(uiText("Паспорт страны {country}", {country: name}))}">${uiText("Паспорт →")}</button>`;
     const canOpenFeature = film || (app.key() && !unavailableFeatures.has(code));
     const feature = canOpenFeature
       ? `<button type="button" class="kgc-catalog-action" data-catalog-feature="${code}" aria-label="${esc(uiText("Шедевр страны {country}", {country:name}))}">${uiText("Шедевр")}</button>`
       : '';
+    const banner = countryLink(flagBackdrop(code)+badges+heading,true);
     if (catalog.view === 'grid') {
-      return `<article class="kgc-catalog-card" data-catalog-country="${code}"><div class="kgc-catalog-card-body">${countryLink(heading+badges)}<div class="kgc-catalog-actions">${passport}${feature}</div></div></article>`;
+      return `<article class="kgc-catalog-card" data-catalog-country="${code}">${banner}<div class="kgc-catalog-card-body"><div class="kgc-catalog-actions">${passport}${feature}</div></div></article>`;
     }
     const directors = film && (film.director || (Array.isArray(film.dirs) ? film.dirs.join(', ') : film.dirs));
     const filmInfo = film ? [directors, film.year, film.score > 0 ? '★ '+film.score : '', film.runtime ? uiText("{minutes} мин", {minutes: film.runtime}) : ''].filter(Boolean).join(' · ') : '';
@@ -462,9 +469,8 @@
       ? window.KGWatchedButtonHtml(true, `data-catalog-unwatch="${Number(film.id)}"`)
       : '';
     return `<article class="kgc-catalog-card" data-catalog-country="${code}">
-      ${hero ? countryLink(flagBackdrop(code)+badges+heading,true) : ''}
+      ${banner}
       <div class="kgc-catalog-card-body">
-        ${hero ? '' : countryLink(heading+badges)}
         ${preview}
         <div class="kgc-catalog-actions">${passport}${watchButton}${kgBookmarkButton(film)}
           ${feature}
@@ -497,7 +503,7 @@
       return terms.every(term => text.includes(term)) || search?.countries.has(row.code);
     });
     feed.dataset.view = catalog.view;
-    feed.innerHTML = matches.length ? matches.map(({row,rank},index) => catalogCard(row,rank,index === 0)).join('')
+    feed.innerHTML = matches.length ? matches.map(({row,rank}) => catalogCard(row,rank)).join('')
       : search?.status === 'loading' ? ''
       : `<p class="kgc-catalog-empty">${uiText("Страны не найдены. Измените запрос или сбросьте фильтры.")}</p>`;
     root.querySelector('[data-catalog-reset]').hidden = matches.length > 0 || search?.status === 'loading';

@@ -1064,6 +1064,24 @@
     event.preventDefault();event.stopPropagation();
     country(code).catch(error=>console.warn('[Moven] country passport:',error));
   },true);
+  // Android Back, the edge gesture and Escape reuse the visible screen's own route.
+  window.KGHandleJourneyBack = () => {
+    if(!dialog.open)return false;
+    const routes=[
+      '#kgc-passport-detail:not([hidden]) [data-passport-back]',
+      '#kg-country-app:not([hidden]) [data-country-search-result]:not([hidden]) [data-act="close-film"]',
+      '#kg-country-app:not([hidden]) [data-atlas-back]',
+      '#kg-country-app:not([hidden]) [data-catalog-exit]',
+      '#kg-watch-history:not([hidden]) [data-atlas-close]',
+      '#kg-country-app:not([hidden]) [data-atlas-close]'
+    ];
+    const back=routes.map(selector=>dialog.querySelector(selector)).find(button=>button?.getClientRects().length);
+    if(!back)return false;
+    back.click();return true;
+  };
+  dialog.addEventListener('cancel',event=>{
+    if(window.KGHandleJourneyBack())event.preventDefault();
+  });
   if(typeof window.renderJourney==='function'){
     const originalRender=window.renderJourney;
     window.renderJourney=function(){originalRender();showAtlas();};

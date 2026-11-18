@@ -440,11 +440,10 @@ window.KGHandleBack = () => {
     return;
   }
   if (topDialog) {
-    const trailerClose = topDialog.querySelector('[data-trailer-action="close"]:not([hidden])');
+    const trailerClose = [...topDialog.querySelectorAll('[data-trailer-action="close"]:not([hidden])')].find(button=>button.getClientRects().length);
     if (trailerClose) { trailerClose.click(); return; }
     if (topDialog.id === "journey") {
-      const back = topDialog.querySelector("#kg-country-app:not([hidden]) [data-atlas-back], #kg-watch-history:not([hidden]) [data-atlas-close], #kg-country-app:not([hidden]) [data-atlas-close]");
-      if (back) { back.click(); return; }
+      if (window.KGHandleJourneyBack?.()) return;
     }
     if (typeof topDialog.requestClose === "function") topDialog.requestClose();
     else if (topDialog.dispatchEvent(new Event("cancel", {cancelable:true}))) topDialog.close();

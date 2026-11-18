@@ -437,31 +437,32 @@ window.KGHandleBack = () => {
   const person = (topDialog || document).querySelector("#kg-person-modal");
   if (person) {
     person.querySelector("[data-kg-person-close]")?.click();
-    return;
+    return true;
   }
   if (topDialog) {
     const trailerClose = [...topDialog.querySelectorAll('[data-trailer-action="close"]:not([hidden])')].find(button=>button.getClientRects().length);
-    if (trailerClose) { trailerClose.click(); return; }
+    if (trailerClose) { trailerClose.click(); return true; }
     if (topDialog.id === "journey") {
-      if (window.KGHandleJourneyBack?.()) return;
+      if (window.KGHandleJourneyBack?.()) return true;
     }
     if (typeof topDialog.requestClose === "function") topDialog.requestClose();
     else if (topDialog.dispatchEvent(new Event("cancel", {cancelable:true}))) topDialog.close();
-    return;
+    return true;
   }
   const search = document.querySelector("#kg-global-search:not([hidden]) [data-kgs-close]");
-  if (search) { search.click(); return; }
+  if (search) { search.click(); return true; }
   const trailerClose = [...document.querySelectorAll('[data-trailer-action="close"]:not([hidden])')]
     .find(button => button.getClientRects().length);
-  if (trailerClose) { trailerClose.click(); return; }
-  if (D.selected) { closeInlineFilm(); return; }
+  if (trailerClose) { trailerClose.click(); return true; }
+  if (D.selected) { closeInlineFilm(); return true; }
   const previous = previousViews.pop();
-  if (!previous) return;
+  if (!previous) return false;
   if (previous.view === "collection" && previous.collectionId) {
     openCollection(previous.collectionId, {returning:true});
   } else {
     showView(previous.view, false);
   }
+  return true;
 };
 
 /* ================= КАТАЛОГ ================= */

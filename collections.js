@@ -288,8 +288,8 @@ function saveThemeMeta(t,d){
 async function loadMeta(t,force=false){
   if (t.films) {
     const cached=META[t.id];
-    if (cached?.p && !force && Date.now()-cached.ts<FRESH) return cached;
-    if (!apiKey || !t.films.length) return cached || {n:t.films.length};
+    if (cached?.p && cached.n===t.films.length && !force && Date.now()-cached.ts<FRESH) return cached;
+    if (!apiKey || !t.films.length) return {...(cached||{}),n:t.films.length};
     if(metaInflight.has(t.id))return metaInflight.get(t.id);
     const request=(async()=>{
       try{
@@ -616,7 +616,7 @@ ${spotlightHtml(spotlightTheme())}
 
 function paintMeta(id){
   const t=T[id];if(!t)return;
-  const m=META[id] || (t.films ? {n:t.films.length} : null);if(!m)return;
+  const m=t.films ? {...(META[id]||{}),n:t.films.length} : META[id];if(!m)return;
   const customArt = getThemeCover(id);
   document.querySelectorAll(`#view-collections [data-t="${id}"]`).forEach(el=>{
     if(el.id==="spot"){

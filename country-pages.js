@@ -638,9 +638,7 @@
       const entry = button.dataset.openCatalog || 'all';
       catalog.atlasEntry = entry;
       if (entry) {
-        Object.assign(catalog, {status:entry === 'all' ? 'all' : 'opened', region:'all', query:''});
-        if (entry === 'screenings') catalog.view = 'grid';
-        if (entry === 'opened') catalog.view = 'cards';
+        Object.assign(catalog, {status:entry === 'all' ? 'all' : 'opened', region:'all', query:'', view:'cards'});
       }
       showCatalog();
       root.querySelector('[data-catalog-exit]')?.focus({preventScroll:true});

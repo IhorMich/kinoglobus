@@ -383,6 +383,7 @@ ${[["light","Лёгкое"],["find","Открытие"],["wild","Случайн�
 <div class="pt-2 text-[11px] text-text-muted font-micro-caption flex items-center justify-center gap-3">
 <a class="hover:text-primary-container transition-colors" href="https://developer.themoviedb.org/docs" rel="noopener noreferrer" target="_blank">TMDB API Docs</a>
 </div>
+<div class="pt-2 border-t border-surface-border-subtle/60 text-[10px] text-text-muted/80 font-micro-caption tracking-wide text-center" data-kgs-build-number>Сборка приложения: DEV-2026.11.18.01</div>
 </section>
 </div>
 <div class="kgs-nav" data-kgs-nav></div>

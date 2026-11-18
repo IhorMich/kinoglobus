@@ -1616,7 +1616,7 @@ body {
 :root body :is(
   dialog:not(#kg-edit-sheet),
   .kg-search-screen, .kgpi-backdrop, .kgpi-modal,
-  #kg-country-app, #kg-watch-history, .kga-shell,
+  #kg-country-app, #kg-watch-history, #kgc-passport-detail, #journey .kg-in, .kgc-catalog, .kga-shell,
   .kg-diary-header, .kg-diary-nav, .kg-diary-editor-head,
   .kga-head, .kg-profile-header, .kg-edit-header, .kg-edit-toolbar, .kg-edit-nav,
   .kg-recovery-header, .kg-film-dialog-header, .kgc-head,

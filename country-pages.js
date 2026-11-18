@@ -783,7 +783,7 @@
   function renderCountry(code,films,total,marked,loading=false,message=''){
     if(root.dataset.code!==code)return;
     state.code=code;state.films=films;state.total=total;state.marked=marked;
-    const name=app.countryName(code),counts=app.counts(),nWatched=marked.length;
+    const name=app.countryName(code),nWatched=marked.length;
     const {average:avg,range}=countryStatistics(films);
     const featured=pickCountryFeature(films);
     const catalogCount = loading ? '…' : total == null ? '—' : fmt(total);
@@ -791,13 +791,11 @@
     const filmCount = total ?? films.length;
     const favoriteCountries = favorites();
     const saved = favoriteCountries.includes(code);
-    const tabs=unique([code,...Object.keys(counts).sort((a,b)=>(counts[b]||0)-(counts[a]||0)),...favoriteCountries,...shortCountries]).filter(c=>app.countries().includes(c)).slice(0,7);
     const genres=unique(films.flatMap(f=>f._genres||[])).slice(0,3);
     const editorial={JP:'«От самурайского эпоса Акиры Куросавы до анимационной магии Studio Ghibli и медитативного неонуара».',FR:'«От поэтического реализма и новой волны до авторского кино, которое меняет язык экрана».',KR:'«От пронзительных семейных драм до смелых жанровых историй и нового корейского нуара».',IT:'«От неореализма послевоенных улиц до барочной красоты итальянского авторского кино».',AU:'«Большие пейзажи, независимый дух и истории, в которых чувствуется дыхание целого континента».',US:'«От золотого века Голливуда до независимого кино — большая история американского экрана».',GB:'«Классическая школа актёрского мастерства, остроумные драмы и смелое британское кино».',DE:'«От экспрессионистских теней до точных, бескомпромиссных историй современного немецкого кино».',IN:'«Музыка, масштабные семейные саги и десятки кинематографических традиций одной страны».',PL:'«Поэтическое авторское кино и истории, оставившие глубокий след в мировой культуре».'}[code]||uiText("«Откройте для себя кино {country}: заметные авторы, истории и фильмы разных эпох».", {country: name});
     const latest=marked.slice().sort((a,b)=>String(b.watchedAt||'').localeCompare(String(a.watchedAt||'')))[0];
     root.innerHTML=`
       <header class="kgc-head"><button class="kgc-icon" data-atlas-back aria-label="${passportFromCatalog ? uiText("Назад к каталогу") : uiText("Назад к атласу")}"><span class="material-symbols-outlined">arrow_back</span></button><div class="kgc-head-title"><div class="kgc-head-title-row"><b>${uiText("Путешествие")}</b></div></div><button class="kgc-icon" data-country-share="${code}" aria-label="${uiText("Поделиться")}"><span class="material-symbols-outlined">share</span></button><button class="kgc-icon" data-country-favorite="${code}" aria-label="${favoriteLabel(saved)}"><span class="material-symbols-outlined" aria-hidden="true">${saved ? 'bookmark_added' : 'bookmark_add'}</span></button><button class="kgc-icon kgc-account-icon" data-kga-account aria-label="${uiText("Профиль")}"><span class="material-symbols-outlined">person</span></button></header>
-      <div class="kgc-country-tabs" role="group" aria-label="${uiText("Выбор страны для просмотра")}">${tabs.map(c=>`<button type="button" class="kgc-country-tab ${c===code?'active':''}" data-open-country="${c}" aria-pressed="${c===code}">${flag(c)}<span>${esc(app.countryName(c))}</span></button>`).join('')}</div>
       <section class="kgc-hero-full${nWatched?' kgc-hero-opened':''}">${flagBackdrop(code)}<div class="kgc-hero-copy"><h1 class="kgc-country-name">${esc(name)}</h1><span class="kgc-passport-label">${uiText("Кинопаспорт страны")}</span>${nWatched?'':`<p class="kgc-blurb">${esc(uiText(editorial))}</p>`}<div class="kgc-action-row"><button type="button" class="kgc-btn" data-country-search="${code}"><span class="material-symbols-outlined">casino</span>${uiText("Найти фильм этой страны")}</button></div></div></section>
       ${watchedCountrySection(marked)}
       ${message? `<p class="kgc-muted kgc-pad" style="margin:0;padding-top:0">${esc(message)}</p>` : ''}

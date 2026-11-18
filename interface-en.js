@@ -1748,5 +1748,6 @@ window.KGInterfaceDictionaries.en = Object.freeze({
   "Фильмы: {label}": "Films: {label}",
   "Фильмы в выборке": "Films in this sample",
   "Сбросить фильтр": "Reset filter",
-  "Нет данных для этой выборки.": "No data for this sample."
+  "Нет данных для этой выборки.": "No data for this sample.",
+  "Действия с фильмом": "Film actions"
 });

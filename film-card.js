@@ -156,7 +156,7 @@ div.relative:has(> [id^="mood-roulette-winner-detail-"]>.kg-film-detail){
   border-radius: 999px;
   background: var(--kg-nav-control-fill);
 }
-.kg-film-detail .kg-film-detail-actions > button {
+:is(.kg-film-detail,.kgc-catalog-card) .kg-film-detail-actions > button {
   display: grid;
   place-items: center;
   width: 100%;
@@ -171,31 +171,31 @@ div.relative:has(> [id^="mood-roulette-winner-detail-"]>.kg-film-detail){
   cursor: pointer;
   transition: color .15s, background-color .15s, transform .15s;
 }
-.kg-film-detail .kg-film-detail-actions > button:hover {
+:is(.kg-film-detail,.kgc-catalog-card) .kg-film-detail-actions > button:hover {
   outline: none;
   color: rgb(var(--kg-primary));
 }
-:root[data-kg-theme] .kg-film-detail .kg-film-detail-actions > button[aria-pressed="true"] {
+:root[data-kg-theme] :is(.kg-film-detail,.kgc-catalog-card) .kg-film-detail-actions > button[aria-pressed="true"] {
   background: rgb(var(--kg-primary) / .14);
   box-shadow: none;
   color: rgb(var(--kg-primary));
 }
-.kg-film-detail .kg-film-detail-actions > button:active {
+:is(.kg-film-detail,.kgc-catalog-card) .kg-film-detail-actions > button:active {
   transform: scale(.96);
 }
-.kg-film-detail .kg-film-detail-actions > button:focus-visible {
+:is(.kg-film-detail,.kgc-catalog-card) .kg-film-detail-actions > button:focus-visible {
   outline: 2px solid rgb(var(--kg-primary));
   outline-offset: -2px;
 }
-.kg-film-detail .kg-film-detail-actions .kg-watched-button > span {
+:is(.kg-film-detail,.kgc-catalog-card) .kg-film-detail-actions .kg-watched-button > span {
   display: none;
 }
-.kg-film-detail .kg-film-detail-actions .kg-watched-icon {
+:is(.kg-film-detail,.kgc-catalog-card) .kg-film-detail-actions .kg-watched-icon {
   width: 22px;
   height: 22px;
   color: inherit;
 }
-:root[data-kg-theme] .kg-film-detail .kg-film-detail-actions .material-symbols-outlined {
+:root[data-kg-theme] :is(.kg-film-detail,.kgc-catalog-card) .kg-film-detail-actions .material-symbols-outlined {
   font-size: 22px;
   color: inherit;
 }

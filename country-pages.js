@@ -482,15 +482,12 @@
     const heading = `<div class="kgc-catalog-country">${flag(code)}<div><h2>${esc(name)}</h2><small>${esc(uiText(region))}</small></div><span class="kgc-catalog-country-arrow" aria-hidden="true">→</span></div>`;
     const badges = `<div class="kgc-catalog-badges"><span class="kgc-catalog-badge${film ? ' open' : ''}">${film ? uiText("✓ Открыта · №{rank}", {rank: String(rank).padStart(2,'0')}) : uiText("Не исследована")}</span>${film ? `<span class="kgc-catalog-badge">${uiText("Сеансы · {count}", {count: fmt(films.length)})}</span>` : ''}</div>`;
     const countryLink = (content, banner = false) => `<a href="#country-${code}" class="kgc-catalog-country-open${banner ? ' kgc-catalog-banner' : ''}" data-open-country="${code}" aria-label="${esc(uiText("Паспорт страны {country}", {country: name}))}">${content}</a>`;
-    const passport = `<button type="button" class="kgc-catalog-action primary" data-open-country="${code}" aria-label="${esc(uiText("Паспорт страны {country}", {country: name}))}">${uiText("Паспорт →")}</button>`;
     const canOpenFeature = film || (app.key() && !unavailableFeatures.has(code));
+    const featureLabel=uiText("Шедевр страны {country}",{country:name});
     const feature = canOpenFeature
-      ? `<button type="button" class="kgc-catalog-action" data-catalog-feature="${code}" aria-label="${esc(uiText("Шедевр страны {country}", {country:name}))}">${uiText("Шедевр")}</button>`
+      ? `<button type="button" data-catalog-feature="${code}" aria-label="${esc(featureLabel)}" title="${esc(featureLabel)}"><span class="material-symbols-outlined" aria-hidden="true">auto_awesome</span></button>`
       : '';
     const banner = countryLink(flagBackdrop(code)+badges+heading,true);
-    if (catalog.view === 'grid') {
-      return `<article class="kgc-catalog-card" data-catalog-country="${code}">${banner}<div class="kgc-catalog-card-body"><div class="kgc-catalog-actions">${passport}${feature}</div></div></article>`;
-    }
     const directors = film && (film.director || (Array.isArray(film.dirs) ? film.dirs.join(', ') : film.dirs));
     const filmInfo = film ? [directors, film.year, film.score > 0 ? '★ '+film.score : '', film.runtime ? uiText("{minutes} мин", {minutes: film.runtime}) : ''].filter(Boolean).join(' · ') : '';
     const preview = film ? `<button type="button" class="kgc-catalog-film" data-open-saved="${esc(film.id)}">
@@ -500,14 +497,13 @@
     const watchButton = film && window.KGWatchedButtonHtml
       ? window.KGWatchedButtonHtml(true, `data-catalog-unwatch="${Number(film.id)}"`)
       : '';
+    const actions=watchButton+kgBookmarkButton(film)+feature;
     return `<article class="kgc-catalog-card" data-catalog-country="${code}">
       ${banner}
-      <div class="kgc-catalog-card-body">
-        ${preview}
-        <div class="kgc-catalog-actions">${passport}${watchButton}${kgBookmarkButton(film)}
-          ${feature}
-        </div>
-      </div>
+      ${preview||actions?`<div class="kgc-catalog-card-body">
+        ${catalog.view==='grid'?'':preview}
+        ${actions?`<div class="kg-film-detail-actions" role="group" aria-label="${esc(uiText('Действия с фильмом'))}" ${!film?'style="grid-template-columns:1fr;width:52px"':''}>${actions}</div>`:''}
+      </div>`:''}
     </article>`;
   }
 
@@ -593,25 +589,26 @@
       if (saved) openMovie({...saved,_kgCountry:code},button);
       return;
     }
+    const paintFeature=(icon,label)=>{
+      button.innerHTML=`<span class="material-symbols-outlined" aria-hidden="true">${icon}</span>`;
+      button.setAttribute('aria-label',label);button.title=label;
+    };
     button.disabled = true;
-    button.textContent = uiText("Загрузка…");
+    paintFeature('progress_activity',uiText("Загрузка…"));
     try {
       const response = await app.getCountryFilms(code,1);
       if (!button.isConnected || !dialog.open) return;
       const film = pickCountryFeature(response.results) || saved;
       if (!film) {
         unavailableFeatures.add(code);
-        button.textContent = uiText("Фильмы не найдены");
+        paintFeature('auto_awesome',uiText("Фильмы не найдены"));
         button.removeAttribute('data-catalog-feature');
-        button.removeAttribute('aria-label');
         return;
       }
       openMovie({...film,_kgCountry:code},button);
-      button.textContent = uiText("Шедевр");
-      button.setAttribute('aria-label', uiText("Шедевр страны {country}", {country:app.countryName(code)}));
+      paintFeature('auto_awesome',uiText("Шедевр страны {country}", {country:app.countryName(code)}));
     } catch (error) {
-      button.textContent = uiText("Повторить");
-      button.removeAttribute('aria-label');
+      paintFeature('refresh',uiText("Повторить"));
       console.warn('[Moven] Не удалось загрузить фильм страны:',error);
     } finally {
       button.disabled = !button.hasAttribute('data-catalog-feature');

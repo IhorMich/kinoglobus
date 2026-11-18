@@ -1335,6 +1335,29 @@ rotatingGroup.add(flagPinGroup);
 
       // Animation Loop
       const clock = new THREE.Clock();
+      // Fit the entire atmosphere, including the globe's vertical offset.
+      // Sphere tangent angles account for perspective and narrow viewports.
+      function fitEarthInViewport() {
+        const radius = earthRadius * 1.045;
+        const depth = camera.position.z;
+        const offsetY = Math.abs(camera.position.y - tiltGroup.position.y);
+        const verticalAngle = Math.atan2(offsetY, depth)
+          + Math.asin(radius / Math.hypot(depth, offsetY));
+        const horizontalAngle = Math.asin(radius / depth);
+        const padding = 0.92;
+        const halfFov = Math.atan(Math.max(
+          Math.tan(verticalAngle) / padding,
+          Math.tan(horizontalAngle) / (camera.aspect * padding)
+        ));
+        const nextFov = Math.max(defaultFov, halfFov * 2 * 180 / Math.PI);
+        // Camera distance already eases the zoom. Delaying FOV independently
+        // lets the globe cross the canvas edges during zoom and resize.
+        if (Math.abs(nextFov - camera.fov) > 0.0001) {
+          camera.fov = nextFov;
+          camera.updateProjectionMatrix();
+        }
+      }
+
       let globeInView = true;
       const globeVisibility = new IntersectionObserver(([entry]) => {
         globeInView = entry.isIntersecting;
@@ -1353,10 +1376,7 @@ rotatingGroup.add(flagPinGroup);
           camera.position.z = currentCameraZ;
           // Keep the globe slightly lower in the star field, with a stable screen offset while zooming.
           camera.position.y = currentCameraY + 0.4 * (currentCameraZ / defaultDist);
-          const fitFov=2*Math.atan(earthRadius/(currentCameraZ*.9))*180/Math.PI;
-          const targetFov=Math.max(defaultFov,fitFov);
-          const nextFov=camera.fov+(targetFov-camera.fov)*.08;
-          if(Math.abs(nextFov-camera.fov)>.01){camera.fov=nextFov;camera.updateProjectionMatrix();}
+          fitEarthInViewport();
         }
 
         // Marker rise + cinematic pulse
@@ -1444,6 +1464,7 @@ if (areaRing) {
         viewportWidth = nextWidth;
         viewportHeight = nextHeight;
         camera.aspect = viewportWidth / viewportHeight;
+        fitEarthInViewport();
         camera.updateProjectionMatrix();
         renderer.setSize(viewportWidth, viewportHeight, false);
       }

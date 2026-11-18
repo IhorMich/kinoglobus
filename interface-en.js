@@ -1400,6 +1400,8 @@ window.KGInterfaceDictionaries.en = Object.freeze({
   "{count} фильм": "{count} film",
   "{count} фильмов": "{count} films",
   "Главные и заметные роли {name}": "Lead and notable roles for {name}",
+  "Все фильмы с участием {name}": "All films featuring {name}",
+  "Смотреть фильмографию": "View filmography",
   "Фильмы, снятые {name}": "Films directed by {name}",
   "Фильмы не найдены.": "No films found.",
   "Не удалось загрузить профиль. Проверьте подключение к TMDB.": "Could not load the profile. Check your TMDB connection.",

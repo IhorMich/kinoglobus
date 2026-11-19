@@ -1,6 +1,13 @@
 // English translations for the Moven interface.
 window.KGInterfaceDictionaries ??= {};
 window.KGInterfaceDictionaries.en = Object.freeze({
+  "Любимые": "Favorites",
+  "Добавить в любимые": "Add to favorites",
+  "Убрать из любимых": "Remove from favorites",
+  "Пока нет любимых": "No favorites yet",
+  "В этом разделе пока пусто": "Nothing in this section yet",
+  "Нажмите на сердечко в карточке фильма или сериала.": "Tap the heart on a film or series card.",
+  "Не удалось изменить список любимых.": "Could not update your favorites.",
   "Не помню дату": "I don't remember the date",
   "Дата неизвестна": "Date unknown",
   "Выберите дату": "Choose a date",

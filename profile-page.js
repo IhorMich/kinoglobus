@@ -130,7 +130,7 @@
             <button type="button" class="kg-profile-button gold" data-profile-edit>${icon("edit_note")}<span>Редактировать</span></button>
             <button type="button" class="kg-profile-button" data-profile-share>${icon("share")}<span>Поделиться</span></button>
           </div>
-          <div class="kg-profile-actions"><button type="button" class="kg-profile-button" data-profile-diary>${icon("history_edu")}<span>Кинодневник</span></button><button type="button" class="kg-profile-button" data-profile-diary="bookmarks">${icon("bookmark")}<span>Закладки</span></button></div>
+          <div class="kg-profile-actions"><button type="button" class="kg-profile-button" data-profile-diary>${icon("history_edu")}<span>Кинодневник</span></button><button type="button" class="kg-profile-button" data-profile-diary="bookmarks">${icon("bookmark")}<span>Закладки</span></button><button type="button" class="kg-profile-button" data-profile-favorites aria-label="${uiText('Любимые')}">${window.KGFavorites.icon()}<span>Любимые</span><b data-profile-favorite-count aria-hidden="true">0</b></button></div>
         </section>
         <section class="kg-profile-archive">
           <div class="kg-profile-head"><h2>Кинематографический архив</h2><button type="button" class="kg-profile-gold" data-profile-action="history">История</button></div>
@@ -218,6 +218,7 @@
 
   function renderProfile() {
     const format = new Intl.NumberFormat(interfaceLanguage);
+    dialog.querySelector("[data-profile-favorite-count]").textContent=String(window.KGFavorites.list().length);
     dialog.querySelector("h1").textContent = profile.name;
     dialog.querySelector("[data-profile-handle]").textContent = profile.handle;
     dialog.querySelector("[data-profile-bio]").textContent = profile.bio;
@@ -308,6 +309,7 @@
       profile = null;
       dialog.close();
     }
+    if(event.target.closest("[data-profile-favorites]")){window.KGFavorites.open();return;}
     const diaryButton = event.target.closest("[data-profile-diary]");
     if (diaryButton) {
       window.KGOpenCinemaDiary({
@@ -350,6 +352,7 @@
     }
   });
 
+  document.addEventListener("kg:favorite-change",()=>{dialog.querySelector("[data-profile-favorite-count]").textContent=String(window.KGFavorites.list().length);});
   window.KGOpenDemoProfile = () => openProfile();
   window.KGStartDemoSession = (message, name = "") => {
     const displayName = name.trim();

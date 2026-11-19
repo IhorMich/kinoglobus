@@ -4,6 +4,6 @@
 
 .kg-sd-episode-note{position:absolute;right:5px;bottom:5px;display:grid;place-items:center;width:32px;height:32px;padding:0;border:0;border-radius:50%;background:var(--sd-card);color:var(--sd-muted)}.kg-sd-episode-note.has-note{color:var(--sd-accent);background:rgb(var(--kg-primary)/.12)}.kg-sd-episode-text>span,.kg-sd-episode-text>time{padding-right:26px}
 
-.kg-series-detail .kg-film-detail-actions{width:96px}.kg-sd-episode-text>span,.kg-sd-episode-text>time{padding-right:0}
+.kg-series-detail .kg-film-detail-actions{width:142px}.kg-sd-episode-text>span,.kg-sd-episode-text>time{padding-right:0}
 
 .kg-sd-watch-check{width:22px;height:22px;flex:none}.kg-sd-watch-check circle{fill:none}.kg-sd-episode-check[aria-pressed=true] .kg-sd-watch-check circle{fill:var(--sd-accent);stroke:var(--sd-accent)}.kg-sd-episode-check[aria-pressed=true] .kg-sd-watch-check path{stroke:rgb(var(--kg-on-primary))}.kg-sd-episode-check[aria-pressed=true]{background:transparent}

@@ -678,17 +678,16 @@
       state.statisticsStatus='local';
       renderCountry(code,local,null,marked,false,uiText("Для каталога TMDB добавьте ключ в настройках. Ваши просмотренные фильмы уже доступны."));return;
     }
+    loadCountryStatistics();
     try{
       const result=await app.getCountryFilms(code,1);if(state.code!==code)return;
       const films=(result.results||[]).map(f=>({...f,_kgCountry:code}));
       state.films=films;state.total=result.total_results||0;
       renderCountry(code,films,state.total,marked,false);
       loadCountryDirectors(films,code);
-      loadCountryStatistics();
     }catch(error){
       if(state.code!==code)return;
       const local=marked.map(f=>({...localSavedFilm(f),_kgCountry:code}));
-      state.statisticsStatus='local';
       renderCountry(code,local,null,marked,false,uiText("Не удалось загрузить каталог TMDB. Ниже показаны ваши отмеченные фильмы."));
     }
   }
@@ -794,17 +793,29 @@
   }
 
   function countryStatistics(films) {
-    const rated=films.filter(f=>Number.isFinite(Number(f.vote_average)) && Number(f.vote_average)>0 && Number(f.vote_average)<=10);
-    const dated=films.filter(f=>/^\d{4}$/.test(String(f.release_date||'').slice(0,4)) && Number(String(f.release_date).slice(0,4))>1800);
-    const ratings=Array.from({length:10},(_,i)=>({key:String(10-i),label:`${10-i} ★`,films:rated.filter(f=>Math.max(1,Math.round(Number(f.vote_average)))===10-i)}));
-    const decades=[...new Set(dated.map(f=>Math.floor(Number(String(f.release_date).slice(0,4))/10)*10))].sort((a,b)=>b-a);
-    const epochs=decades.map(d=>({key:String(d),label:`${d}–${d+9}`,films:dated.filter(f=>Math.floor(Number(String(f.release_date).slice(0,4))/10)*10===d)}));
-    const years=dated.map(f=>Number(String(f.release_date).slice(0,4)));
-    return {rated,dated,ratings,epochs,average:rated.length?rated.reduce((sum,f)=>sum+Number(f.vote_average),0)/rated.length:0,range:years.length?`${years.reduce((a,b)=>Math.min(a,b),Infinity)} — ${years.reduce((a,b)=>Math.max(a,b),-Infinity)}`:'—'};
+    const rated=[],dated=[],ratings=Array.from({length:10},(_,i)=>({key:String(10-i),label:`${10-i} ★`,films:[]})),decades=new Map();
+    let sum=0,first=Infinity,last=-Infinity;
+    for(const f of films){
+      const score=Number(f.vote_average),yearText=String(f.release_date||'').slice(0,4),year=Number(yearText);
+      if(Number.isFinite(score) && score>0 && score<=10){rated.push(f);sum+=score;ratings[10-Math.max(1,Math.round(score))].films.push(f);}
+      if(/^\d{4}$/.test(yearText) && year>1800){
+        dated.push(f);first=Math.min(first,year);last=Math.max(last,year);
+        const decade=Math.floor(year/10)*10;if(!decades.has(decade))decades.set(decade,[]);decades.get(decade).push(f);
+      }
+    }
+    const epochs=[...decades].sort(([a],[b])=>b-a).map(([d,films])=>({key:String(d),label:`${d}–${d+9}`,films}));
+    return {rated,dated,ratings,epochs,average:rated.length?sum/rated.length:0,range:dated.length?`${first} — ${last}`:'—'};
+  }
+  let completeStatisticsSummary=null;
+  function passportStatistics(){
+    if(state.statisticsStatus==='ready'){
+      if(completeStatisticsSummary?.films!==state.statistics)completeStatisticsSummary={films:state.statistics,summary:countryStatistics(state.statistics)};
+      return completeStatisticsSummary.summary;
+    }
+    return state.statisticsStatus==='local'?countryStatistics(state.films):null;
   }
   function refreshStatistics() {
-    const films=state.statisticsStatus==='ready'?state.statistics:state.statisticsStatus==='local'?state.films:null;
-    const summary=films?countryStatistics(films):null;
+    const summary=passportStatistics();
     const label=state.statisticsStatus==='error'?uiText('Не удалось рассчитать · повторить'):state.statisticsStatus==='local'?uiText('Просмотренные фильмы, сохранённые на устройстве'):summary?uiText('По всему каталогу страны'):uiText('Считаем весь каталог…');
     const rating=root.querySelector('[data-passport-section="rating"]');
     if(rating){rating.querySelector('.kgc-passport-value').textContent=summary?(summary.average?summary.average.toFixed(1):'—'):'…';rating.querySelector('.kgc-rating').textContent=summary?'★ '+(summary.average?summary.average.toFixed(1):'—'):'';rating.querySelector('.kgc-passport-foot').textContent=label;}
@@ -812,12 +823,13 @@
     if(epochs){epochs.querySelector('.kgc-passport-value').textContent=summary?summary.range:'…';epochs.querySelector('.kgc-passport-foot').textContent=label;}
   }
   async function loadCountryStatistics() {
-    const code=state.code,run=++state.statisticsRun;
+    const code=state.code,run=++state.statisticsRun;let progressAt=0;
     const active=()=>state.code===code && state.statisticsRun===run && dialog.open && root.dataset.page==='country' && root.dataset.code===code;
     state.statisticsStatus='loading';refreshStatistics();renderPassportSection();
     try{
       const films=await window.KGCountryStatistics.load({key:code+':'+interfaceLanguage,request:(page,filters)=>app.getCountryFilms(code,page,filters),active,onProgress:(loaded,total)=>{
         if(!active())return;
+        const now=Date.now();if(now-progressAt<150 && loaded<total)return;progressAt=now;
         state.statisticsProgress=uiText('{loaded} из {total} фильмов каталога TMDB',{loaded:fmt(loaded),total:fmt(total)});
         const progress=passportDetail.querySelector('[data-statistics-progress]');if(progress)progress.textContent=state.statisticsProgress;
       }});
@@ -842,7 +854,7 @@
   function renderPassportSection() {
     if(!passportSection)return;
     const titles={catalog:'Каталог',rating:'Средний рейтинг',stamps:'Штампы',epochs:'Эпохи кинематографа'};
-    const title=uiText(titles[passportSection]),statisticsFilms=state.statisticsStatus==='ready'?state.statistics:state.films,stats=countryStatistics(statisticsFilms);
+    const title=uiText(titles[passportSection]),statisticsFilms=state.statisticsStatus==='ready'?state.statistics:state.films,stats=passportStatistics();
     const sample=state.total==null ? uiText('Просмотренные фильмы, сохранённые на устройстве') : uiText('{loaded} из {total} фильмов каталога TMDB',{loaded:fmt(state.films.length),total:fmt(state.total)});
     passportDetail.innerHTML=`<header class="kgc-head"><button type="button" class="kgc-icon" data-passport-back aria-label="${uiText('Назад к паспорту страны')}">←</button><div class="kgc-head-title"><b>${esc(title)}</b><small>${esc(app.countryName(state.code))}</small></div></header>`;
     if(passportSection==='stamps')return;

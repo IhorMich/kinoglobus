@@ -1766,5 +1766,8 @@ window.KGInterfaceDictionaries.en = Object.freeze({
   "Не удалось рассчитать весь каталог. Повторите загрузку.": "Could not calculate the entire catalogue. Please retry.",
   "Весь каталог страны · {count} фильмов": "Entire country catalogue \u00b7 {count} films",
   "Эпохи кинематографа": "Cinema eras",
-  "Фильмы каталога": "Catalogue films"
+  "Фильмы каталога": "Catalogue films",
+  "Определяем размер каталога…": "Determining catalogue size\u2026",
+  "В этой категории пока нет фильмов.": "No films in this category yet.",
+  "Показано {shown} из {total}": "Showing {shown} of {total}"
 });

@@ -45,7 +45,7 @@
     return {get:(store,key)=>operation(store,key),put:(store,key,value)=>operation(store,key,value,true),prune};
   }
   // Store only fields needed for the charts, film list and opening a film card.
-  function compact(f){return {id:f.id,title:f.title,original_title:f.original_title,release_date:f.release_date,vote_average:f.vote_average,vote_count:f.vote_count,poster_path:f.poster_path,origin_country:f.origin_country};}
+  function compact(f){return {id:f.id,title:f.title,original_title:f.original_title,release_date:f.release_date,vote_average:f.vote_average,vote_count:f.vote_count,poster_path:f.poster_path,origin_country:f.origin_country,popularity:f.popularity,adult:f.adult};}
   function createLoader({storage=persistentStorage(),concurrency=8,spacing=35,wait=pause}={}){
     const cache=new Map(),queue=[];let running=0,nextStart=0;
     function schedule(task,check){return new Promise((resolve,reject)=>{queue.push({task,check,resolve,reject});pump();});}
@@ -88,22 +88,34 @@
         check();result={total_results:result.total_results,total_pages:result.total_pages,results:result.results.map(compact)};
         entry.pages.set(id,result);await storage.put('pages',[key,id],{key,time:entry.time,result});check();return result;
       }
-      function add(result){for(const film of result.results)films.set(String(film.id),film);onProgress(films.size,expected);}
-      async function segment(low,high){
-        const first=await page(low,high,1);if(low===10 && high===null)expected=Number(first.total_results)||0;
-        const pages=Number(first.total_pages)||0;
-        if(pages>500){
+      function add(result){
+        for(const film of result.results)films.set(String(film.id),film);
+        onProgress(films.size,Math.max(expected,films.size));
+      }
+      const leaves=[];
+      async function plan(low,high){
+        const first=await page(low,high,1),pages=Number(first.total_pages)||0;
+        if(pages>500 || Number(first.total_results)>10000){
           const upper=high??Math.max(...first.results.map(f=>Number(f.vote_count)||0));
           if(upper<=low)throw new Error('Country catalogue cannot be partitioned completely');
           const middle=Math.floor((low+upper)/2);
-          await Promise.all([segment(low,middle),segment(middle+1,upper)]);return;
+          await Promise.all([plan(low,middle),plan(middle+1,upper)]);return;
         }
+        leaves.push({low,high,first,pages});
+      }
+      async function segment({low,high,first,pages}){
         add(first);let next=2;
         await Promise.all(Array.from({length:Math.min(concurrency,Math.max(0,pages-1))},async()=>{
           while(next<=pages){check();add(await page(low,high,next++));}
         }));
       }
-      try{await segment(10,null);check();}catch(error){failed=true;throw error;}
+      try{
+        onProgress(0,null);await plan(10,null);check();
+        // The broad discover count may be capped. Only disjoint, accessible
+        // leaf queries can supply the denominator for the full catalogue.
+        expected=leaves.reduce((sum,leaf)=>sum+(Number(leaf.first.total_results)||0),0);
+        await Promise.all(leaves.map(segment));check();onProgress(films.size,films.size);
+      }catch(error){failed=true;throw error;}
       entry.films=[...films.values()];entry.pages.clear();entry.time=Date.now();
       await storage.put('films',key,{time:entry.time,films:entry.films});
       await storage.put('catalogues',key,{key,time:entry.time,complete:true});
@@ -112,5 +124,18 @@
     }
     return {load};
   }
-  window.KGCountryStatistics={...createLoader(),createLoader};
+  const eraQueries={
+    all:{},classic:{'primary_release_date.gte':'1801-01-01','primary_release_date.lte':'1969-12-31'},
+    newwave:{'primary_release_date.gte':'1970-01-01','primary_release_date.lte':'1999-12-31'},
+    modern:{'primary_release_date.gte':'2000-01-01'}
+  };
+  function matchesEra(f,filter){
+    const text=String(f.release_date||'').slice(0,4),year=/^\d{4}$/.test(text)?Number(text):0;
+    return filter==='classic'?year>1800 && year<1970:filter==='newwave'?year>=1970 && year<2000:filter==='modern'?year>=2000:true;
+  }
+  function cataloguePage(films,filter='all',limit=20){
+    const matching=films.filter(f=>matchesEra(f,filter)),visible=Math.max(20,limit);
+    return {films:matching.slice(0,visible),total:matching.length,hasMore:matching.length>visible};
+  }
+  window.KGCountryStatistics={...createLoader(),createLoader,matchesEra,cataloguePage,eraQuery:filter=>({...eraQueries[filter]||{}})};
 })();

@@ -38,9 +38,9 @@ try {
 } catch (_) {}
 </script>
 <script src="steel-motion.js?v=4" defer></script>
-<script src="interface-en.js?v=69"></script>
+<script src="interface-en.js?v=70"></script>
 <script src="interface-i18n.js?v=2"></script>
-<script src="catalog-safety.js?v=2"></script>
+<script src="catalog-safety.js?v=3"></script>
 <script>
 function readPaletteColor(token, asNumber = false) {
   const channels = getComputedStyle(document.documentElement).getPropertyValue(token).trim();
@@ -1848,6 +1848,7 @@ let themeId=store.get("theme","");
 if(!THEMES.some(t=>t.id===themeId)) themeId="";
 const cache={}; let cur=null; // {cc, pool, film}
 
+let quickSearchMode = "";
 const NOGENRE=["worst"];
 const savedCategories = store.get("cats",[]);
 const sel = new Set(Array.isArray(savedCategories)
@@ -1858,9 +1859,10 @@ $("chips").innerHTML=`<button class="chip" data-k="any">🌐 Любой жанр
  +Object.entries(GENRES).filter(([k])=>k).map(([k,v])=>`<button class="chip" data-k="${k}">${v}</button>`).join("")
  +`<button class="chip" data-k="worst">📉 Худшие из худших</button>`;
 function paintChips(){
+  const top=quickSearchMode==="top1";
   const anyGenre=[...sel].some(k=>!NOGENRE.includes(k));
   document.querySelectorAll("#chips .chip").forEach(b=>{const k=b.dataset.k;
-    b.setAttribute("aria-pressed",k==="any"?!anyGenre:sel.has(k));});
+    b.hidden=top&&k==="worst";b.setAttribute("aria-pressed",k==="any"?!anyGenre:sel.has(k));});
   $("worstBox").hidden=!sel.has("worst");
   $("rmin").disabled=sel.has("worst");
   if($("rmax")) $("rmax").disabled=sel.has("worst");
@@ -1869,6 +1871,7 @@ function paintChips(){
   if($("extraSum")) paintExtraSum();
 }
 $("chips").onclick=e=>{const b=e.target.closest(".chip");if(!b)return;const k=b.dataset.k;
+ if(k==="worst"&&quickSearchMode==="top1")return;
  if(k==="any"){[...sel].forEach(x=>{if(!NOGENRE.includes(x))sel.delete(x)});}
  else sel.has(k)?sel.delete(k):sel.add(k);
  store.set("cats",[...sel]);paintChips();};
@@ -1921,9 +1924,10 @@ $("surpriseChips").onclick=e=>{
   const button = e.target.closest("[data-s]");
   if (button) selectSurpriseScenario(button.dataset.s);
 };
-let quickSearchMode = "";
-function selectQuickSearch(mode) {
-  quickSearchMode = quickSearchMode === mode ? "" : mode;
+function selectQuickSearch(mode, toggle = true) {
+  quickSearchMode = toggle && quickSearchMode === mode ? "" : mode;
+  if(quickSearchMode==="top1"&&sel.delete("worst"))store.set("cats",[...sel]);
+  paintChips();
   $("btn-top-one").setAttribute("aria-pressed", String(quickSearchMode === "top1"));
   $("btn-oscar-laureate").setAttribute("aria-pressed", String(quickSearchMode === "oscar"));
   paintGo();
@@ -3126,11 +3130,9 @@ function joinRu(list){
   return list.slice(0,-1).join(", ")+" и "+list[list.length-1];
 }
 function topCaption(cc,pool,film){
-  const year=(film.release_date||"").slice(0,4);
   const when=pool.exactYear?`Лучший фильм ${pool.exactYear} года.`
     :pool.yearSpan?`Лучший фильм за ${pool.yearSpan} годы.`
-    :year?`Лучший фильм ${year} года.`
-    :"Лучший фильм.";
+    :"Лучший фильм страны.";
   const made=(film.origin_country||[]).filter(Boolean);
   const codes=made.length?made:[cc];
   const where=joinRu(codes.map(cname).filter(Boolean));
@@ -3179,6 +3181,7 @@ function poolLine(pool){
       :`По оценке набралось мало фильмов, взяты ${n} картин с любым числом отзывов.`;
     return head+(pool.light?"Лёгкое удивление. ":"")+base+(pool.scoreMin?` Оценка не ниже ${pool.scoreMin}.`:"");
   }
+  if(pool.top1&&pool.exact)return uiText("Топ-1 страны по взвешенной оценке TMDB с учётом выбранных фильтров.");
   if(pool.top1&&pool.exactYear){
     return head+`Топ-1, ${pool.exactYear}${genre}: лучший фильм этой страны за ${pool.exactYear} год среди картин, которые оценили хотя бы ${pool.votes} зрителей.`;
   }
@@ -3318,17 +3321,16 @@ function topQuery(){
   const years=yearQuery();
   return {
     g:theme?theme.g:[...sel].filter(k=>!NOGENRE.includes(k)).join(","),
-    worst:sel.has("worst"),
-    rmin:sel.has("worst")?"":$("rmin").value,rmax:sel.has("worst")?"":$("rmax").value,
+    worst:false,
+    rmin:$("rmin").value,rmax:$("rmax").value,
     y:years.y,yto:years.yto,
     theme:theme?theme.id:"",themeName:theme?theme.name:"",
     countries:countryFilters.size?[...countryFilters]:(theme?theme.cc:null)
   };
 }
 function topYear(q){
-  if(q.y&&q.yto&&q.y!==q.yto) return {from:q.y,to:q.yto,exact:"",span:q.y+"–"+q.yto};
-  const one=q.y||q.yto||"";
-  return one?{from:one,to:one,exact:one,span:""}:{from:"",to:"",exact:"",span:""};
+  if(q.y&&q.yto&&q.y===q.yto)return {from:q.y,to:q.yto,exact:q.y,span:""};
+  return {from:q.y||"",to:q.yto||"",exact:"",span:q.y||q.yto?`${q.y||'…'}–${q.yto||'…'}`:""};
 }
 function spinOrder(list){
   let order=shuffle(list);
@@ -3336,52 +3338,19 @@ function spinOrder(list){
     order=order.filter(c=>c!==cur.cc).concat(cur.cc);
   return order;
 }
-function topVotes(cc,q){
-  const span=topYear(q);
-  const bounded=!!(span.from||span.to);
-  const narrow=!span.span;
-  if(q.worst) return bounded?[15]:[30];
-  const big=BIG.has(cc);
-  if(bounded&&narrow) return big?[1000,400,150]:[200,80,40];
-  if(bounded) return big?[1500,600,200]:[250,100,50];
-  return big?[3000,1200,400]:[400,150,60];
-}
-// A few perfect scores must not beat a film that thousands of people rated.
-function weighed(f){
-  const v=f.vote_count||0, r=Number(f.vote_average)||0, m=800;
-  return (v/(v+m))*r + (m/(v+m))*6.6;
-}
-function fromCountry(f,cc){
-  const list=f.origin_country;
-  return !list||!list.length||list.includes(cc);
-}
+function fromCountry(f,cc){const list=f.origin_country;return !list||!list.length||list.includes(cc);}
 async function topOfCountry(cc,q){
-  for(const votes of topVotes(cc,q)){
-    const span=topYear(q);
-    const base=poolBase(cc,{...q,y:span.from,yto:span.to},votes);
-    if(span.exact) base.primary_release_year=span.exact;
-    const pages=[rouletteApi({...base,page:1})];
-    if((span.from||span.to)&&!q.worst) pages.push(rouletteApi({...base,page:1,sort_by:"popularity.desc"}));
-    const got=await Promise.all(pages);
-    const floor=scoreFloor(q), ceil=scoreCeil(q);
-    const ids=new Set();
-    let films=[];
-    for(const row of got.flatMap(p=>p.results||[])){
-      if(!row||ids.has(row.id)) continue;
-      const ry=(row.release_date||"").slice(0,4);
-      if(span.from&&ry<span.from) continue;
-      if(span.to&&ry>span.to) continue;
-      if(floor&&Number(row.vote_average)<floor) continue;
-      if(ceil&&Number(row.vote_average)>ceil) continue;
-      if(!fromCountry(row,cc)) continue;
-      ids.add(row.id);
-      films.push(row);
-    }
-    if(!films.length) continue;
-    if(!q.worst) films.sort((a,b)=>weighed(b)-weighed(a));
-    return tagPool({films:films.slice(0,20),votes,total:films.length,top1:true,exactYear:span.exact,yearSpan:span.span,byRating:true,scoreMin:floor||""},q);
-  }
-  return null;
+  const span=topYear(q),base=poolBase(cc,{...q,worst:false,y:span.from,yto:span.to},1);
+  if(span.exact)base.primary_release_year=span.exact;
+  const series=!!window.KGSeries?.active,floor=scoreFloor({...q,worst:false}),ceil=scoreCeil({...q,worst:false});
+  try{
+    const result=await window.KGExactTop.search({params:base,cacheKey:JSON.stringify(['top-exact-v1',series?'tv':'movie',filmLocale,cc,base]),
+      fetchPage:(params,options)=>series?window.KGSeries.discover(params,options):api(params,options),allows:movieCatalog.allows,
+      matches:f=>{const year=(f.release_date||'').slice(0,4);return fromCountry(f,cc)&&(!span.from||year&&year>=span.from)&&(!span.to||year&&year<=span.to)&&(!floor||Number(f.vote_average)>=floor)&&(!ceil||Number(f.vote_average)<=ceil);},
+      onProgress:()=>{if(quickSearchMode==='top1'&&$('go').disabled){const text=$('btn-spin-text').querySelector('span:last-child');if(text)text.textContent=uiText('Проверяем рейтинг · {country}',{country:cname(cc)});}}
+    });
+    return result?tagPool({...result,total:result.checked,top1:true,exactYear:span.exact,yearSpan:span.span,byRating:true,scoreMin:floor||''},q):null;
+  }catch(error){if(error.code?.startsWith('TOP_'))throw new Error(uiText('Не удалось подтвердить первое место. Каталог изменился или проверка не завершена. Повторите поиск.'));throw error;}
 }
 async function presentFilmSearchResult(cc, pool, film, frameOnly, themedCountries = []) {
   await filmDetails(film.id);
@@ -4245,7 +4214,7 @@ window.show=function(cc,pool,film){
   };
   if(!preserveFrame){detailsEl.classList.add("veiled");refresh();}
   else pendingRerollReveal={model,refresh};
-  set("discovery-timestamp",pool.oscar?uiText("Лауреат «Оскара»"):pool.top1?uiText("Топ-1 страны"):pool.worst?uiText("Из худших"):uiText("Случайная находка · {country}", {country:cname(cc)}));
+  set("discovery-timestamp",pool.oscar?uiText("Лауреат «Оскара»"):pool.top1&&pool.exact?uiText("Топ-1 страны · {time}",{time:new Date(pool.calculatedAt).toLocaleTimeString(interfaceLanguage,{hour:"2-digit",minute:"2-digit"})}):pool.top1?uiText("Топ-1 страны"):pool.worst?uiText("Из худших"):uiText("Случайная находка · {country}", {country:cname(cc)}));
   $("kg-globe-film-context").innerHTML=globeFilmContext(cc);
   ag.hidden=$("again").hidden;
   if(!preserveFrame)renderBlank();
@@ -4324,7 +4293,7 @@ window.KGDiscoveryBridge={
     for(const key of ['year','yearTo','rmin','rmax'])$(key).value=state[key]??(key==='rmin'?'6':'');
     playMode=state.mode==='surprise'?'surprise':'filters';surprise=Object.hasOwn(SURPRISE_NOTE,state.surprise)?state.surprise:'light';themeId=state.theme||'';
     $("chips").innerHTML=`<button class="chip" data-k="any">${uiText('🌐 Любой жанр')}</button>`+Object.entries(discoveryGenres()).filter(([k])=>k).map(([k,v])=>`<button class="chip" data-k="${k}">${uiText(v)}</button>`).join('')+`<button class="chip" data-k="worst">${uiText('📉 Худшие из худших')}</button>`;
-    pills(gBox,'#chips .chip');applyMode();selectQuickSearch(state.quick||'');paintChips();paintCountryFilters();paintExtraSum();syncDesign();
+    pills(gBox,'#chips .chip');applyMode();selectQuickSearch(state.quick||'',false);paintChips();paintCountryFilters();paintExtraSum();syncDesign();
     if(countryFilters.size)frameSelectedCountry([...countryFilters].at(-1));
     $("kg-globe-empty-hint").textContent=uiText('Крутите глобус — находите фильмы по странам');
   },
@@ -4345,6 +4314,7 @@ console.info("[Moven: Explore] Bridge v6 ready");
 })();
 </script>
 
+<script src="exact-top.js?v=1"></script>
 <script src="globe-visuals.js?v=5"></script>
 <script src="confirm-action.js?v=2"></script>
 <script src="watch-history.js?v=18"></script>

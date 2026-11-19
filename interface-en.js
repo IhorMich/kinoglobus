@@ -1,6 +1,11 @@
 // English translations for the Moven interface.
 window.KGInterfaceDictionaries ??= {};
 window.KGInterfaceDictionaries.en = Object.freeze({
+  "Проверяем рейтинг · {country}": "Checking ranking · {country}",
+  "Топ-1 страны · {time}": "Country No. 1 · {time}",
+  "Лучший фильм страны.": "The country’s best film.",
+  "Топ-1 страны по взвешенной оценке TMDB с учётом выбранных фильтров.": "Country No. 1 by weighted TMDB score with your selected filters.",
+  "Не удалось подтвердить первое место. Каталог изменился или проверка не завершена. Повторите поиск.": "Could not verify first place. The catalogue changed or verification did not finish. Please try again.",
   "Любимые": "Favorites",
   "Добавить в любимые": "Add to favorites",
   "Убрать из любимых": "Remove from favorites",

@@ -88,7 +88,14 @@ const movieCatalog = (() => {
       status: response.status,
       async json() {
         const data = await response.json();
-        return response.ok ? sanitize(window.KGSeries?.normalizeResponse(data,endpoint)||data, endpoint) : data;
+        if(!response.ok)return data;
+        const normalized=window.KGSeries?.normalizeResponse(data,endpoint)||data,result=sanitize(normalized,endpoint);
+        if(/^discover\/(?:movie|tv)$/.test(endpoint)&&['vote_average.desc','vote_count.desc'].includes(url.searchParams.get('sort_by'))){
+          const rows=Array.isArray(normalized.results)?normalized.results:[],ratings=rows.map(f=>Number(f.vote_average)),votes=rows.map(f=>Number(f.vote_count));
+          const valid=Array.isArray(normalized.results)&&ratings.every(r=>Number.isFinite(r)&&r>=0&&r<=10)&&votes.every(v=>Number.isInteger(v)&&v>=0);
+          result._kgRankingPage={count:rows.length,valid,rMin:ratings.length?Math.min(...ratings):null,rMax:ratings.length?Math.max(...ratings):null,vMax:votes.length?Math.max(...votes):null,ratingDescending:valid&&ratings.every((r,i)=>!i||r<=ratings[i-1]),votesDescending:valid&&votes.every((v,i)=>!i||v<=votes[i-1])};
+        }
+        return result;
       }
     };
   }

@@ -1,0 +1,18 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict'),path=require('node:path');
+const window={KGSeries:{rawId:id=>Number(id)}};vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../series-hub.js'),'utf8'),{window,Date,Map,Set,console});
+const hub=window.KGSeriesHub;
+const a={id:1,title:'A',next_episode_to_air:{season_number:2,episode_number:3,air_date:'2026-11-20'},last_episode_to_air:{season_number:2,episode_number:2,air_date:'2026-11-12'}};
+const b={id:2,title:'B',last_episode_to_air:{season_number:1,episode_number:8,air_date:'2026-11-19'},next_episode_to_air:{season_number:1,episode_number:9,air_date:'2026-11-19'}};
+const c={id:3,title:'C',next_episode_to_air:{season_number:1,episode_number:1,air_date:'2026-12-01'}};
+const d={id:4,title:'D',next_episode_to_air:{season_number:1,episode_number:1,air_date:null}};
+const schedule=hub.scheduleFor([a,b,c,d,b],'2026-11-19');assert.equal(schedule.length,3);assert.deepEqual(Array.from(schedule,x=>x.episode.air_date),['2026-11-19','2026-11-19','2026-11-20']);assert.equal(schedule.some(x=>x.show.id===3),false);
+assert.equal(hub.scheduleFor([a,b],'2026-12-02').length,0);
+const q=hub.categoryQuery('week','2026-11-19');assert.equal(q['air_date.gte'],'2026-11-19');assert.equal(q['air_date.lte'],'2026-11-26');
+assert.equal(hub.categoryQuery('crime').with_genres,'80|9648');assert.equal(hub.categoryQuery('scifi').with_genres,'10765');assert.equal(hub.categoryQuery('complete').with_status,'3');
+assert.equal(hub.service({networks:[{name:'Netflix'}]}),'netflix');assert.equal(hub.service({networks:[{name:'HBO Max'}]}),'max');assert.equal(hub.service({networks:[{name:'Apple TV+'}]}),'apple');assert.equal(hub.service({networks:[{name:'Hulu'}],production_companies:[{name:'FX Productions'}]}),'fx');assert.equal(hub.service({networks:[{name:'Unknown'}]}),'other');
+console.log('PASS: actual episode dates only, week bounds, deduplication, category queries and original-platform classification');
+const start=hub.parallaxState(0);assert.equal(start.scale,1.08);assert.equal(start.dark,.30);assert.equal(start.opacity,1);
+const middle=hub.parallaxState(180);assert.equal(middle.y,68.4);assert.equal(middle.opacity,.5);assert.equal(middle.textY,-28.8);
+const end=hub.parallaxState(450);assert.ok(Math.abs(end.dark-.85)<1e-9);assert.equal(end.opacity,0);assert.equal(end.blur,3.5);
+assert.equal(hub.parallaxState(-240).scale,1.28);assert.equal(hub.parallaxState(-999).scale,1.28);
+console.log('PASS: reference parallax ratio, darkness, text dissolve, blur and overscroll zoom');

@@ -46,6 +46,7 @@
     home=filmPanel;panel=seriesPanel;panel.replaceChildren();panel.className=home.className;
     slots=[...home.children].filter(node=>!['kg-home-releases','kg-home-editorial'].includes(node.id)).map(node=>{const slot=document.createComment('shared discovery frame');node.before(slot);return {node,slot};});
     states.tv=savedSeriesState();
+    window.KGSeriesHub?.mount(panel);
   }
   function refreshLabels(){
     if(!active)return;
@@ -60,7 +61,7 @@
     const bridge=window.KGDiscoveryBridge;if(!bridge || bridge.busy())return false;
     states[active?'tv':'movie']=bridge.snapshot();
     bridge.reset();active=series;
-    if(active)for(const {node} of slots)panel.append(node);
+    if(active)for(const {node} of slots)panel.insertBefore(node,panel.querySelector('#kg-series-hub'));
     else for(const {node,slot} of slots)slot.after(node);
     bridge.restore(states[active?'tv':'movie']);
     document.documentElement.dataset.kgMedia=active?'tv':'movie';

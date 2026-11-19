@@ -12,10 +12,11 @@
     const cached=cache.get(cacheKey);
     if(cacheKey&&cached&&Date.now()-cached.time<TTL&&(!cached.value||cached.value.films.every(allows)))return cached.value?{...cached.value,films:cached.value.films.slice()}:null;
     const start=Date.now(),known=new Map(),leaders=new Map();let best=null,requests=0;
-    const maxRating=Math.min(10,Number(params['vote_average.lte'])||10),base={...params,'vote_count.gte':1,include_adult:'false'};
+    const minVotes=Math.max(1,Math.ceil(Number(params['vote_count.gte'])||1));
+    const maxRating=Math.min(10,Number(params['vote_average.lte'])||10),base={...params,'vote_count.gte':minVotes,include_adult:'false'};
     delete base['vote_count.lte'];
     function consider(rows){
-      for(const f of rows){if(!valid(f)||!allows(f)||!matches(f))continue;
+      for(const f of rows){if(!valid(f)||Number(f.vote_count)<minVotes||!allows(f)||!matches(f))continue;
         const id=Number(f.id),signature=`${Number(f.vote_average)}:${Number(f.vote_count)}`;
         if(known.has(id)&&known.get(id)!==signature)throw failure('TOP_CATALOG_CHANGED');known.set(id,signature);
         if(!best||score(f)>score(best))best=f;
@@ -38,7 +39,7 @@
     if(seed.total_results===0){if(cacheKey)cache.set(cacheKey,{time:Date.now(),value:null});return null;}
     const maxVotes=seed._kgRankingPage.vMax;
     if(!Number.isInteger(maxVotes)||maxVotes<1)throw failure();
-    const stack=[[1,maxVotes]];
+    const stack=[[minVotes,maxVotes]];
     while(stack.length){
       let [lo,hi]=stack.pop();
       if(best){if(score(best)+EPS>=bound(maxRating,lo,hi))continue;lo=Math.max(lo,proofVotes(score(best),maxRating));}
@@ -61,7 +62,7 @@
         if(best&&score(best)+EPS>=bound(frontier,lo,hi))break;
       }
     }
-    const value=best?{films:[...leaders.values()].sort((a,b)=>score(b)-score(a)),winner:best,votes:1,exact:true,checked:known.size,requests,weightedScore:score(best),calculatedAt:new Date().toISOString()}:null;
+    const value=best?{films:[...leaders.values()].sort((a,b)=>score(b)-score(a)),winner:best,votes:minVotes,exact:true,checked:known.size,requests,weightedScore:score(best),calculatedAt:new Date().toISOString()}:null;
     if(cacheKey){cache.set(cacheKey,{time:Date.now(),value});if(cache.size>128)cache.delete(cache.keys().next().value);}
     return value?{...value,films:value.films.slice()}:null;
   }

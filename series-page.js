@@ -49,6 +49,10 @@
     window.KGSeriesHub?.mount(panel);
   }
   function refreshLabels(){
+    for(const [id,source] of [['btn-top-one',active?'Топ-1 сериалов':'Топ-1 всех времён'],['btn-oscar-laureate',active?'Лауреат Эмми':'Лауреат Оскар']]){
+      const label=document.querySelector(`#${id} span:last-child`),text=uiText(source);
+      if(label&&label.textContent!==text)label.textContent=text;
+    }
     if(!active)return;
     const roots=['kg-globe-empty-hint','btn-spin-text','surprise-description-text','err','reel-frame-counter'];
     for(const id of roots){const node=document.getElementById(id);if(!node)continue;const walk=document.createTreeWalker(node,NodeFilter.SHOW_TEXT);let text;while(text=walk.nextNode()){
@@ -67,7 +71,8 @@
     document.documentElement.dataset.kgMedia=active?'tv':'movie';
     document.querySelector('[data-kg-search-open]')?.setAttribute('aria-label',uiText(active?'Поиск сериалов, актёров и режиссёров':'Поиск фильмов, актёров и режиссёров'));
     observer?.disconnect();
-    if(active){observer=new MutationObserver(refreshLabels);observer.observe(panel,{subtree:true,childList:true,characterData:true});refreshLabels();}
+    if(active){observer=new MutationObserver(refreshLabels);observer.observe(panel,{subtree:true,childList:true,characterData:true});}
+    refreshLabels();
     document.dispatchEvent(new CustomEvent('kg:media-change',{detail:{mediaType:active?'tv':'movie'}}));
     return true;
   }

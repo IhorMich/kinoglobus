@@ -38,7 +38,7 @@ try {
 } catch (_) {}
 </script>
 <script src="steel-motion.js?v=4" defer></script>
-<script src="interface-en.js?v=71"></script>
+<script src="interface-en.js?v=72"></script>
 <script src="interface-i18n.js?v=2"></script>
 <script src="catalog-safety.js?v=3"></script>
 <script>
@@ -1904,10 +1904,11 @@ $("themes").onclick=e=>{
   store.set("theme",themeId);paintThemes();paintGo();
   if(themeId) showHint("themeNote"); else hideHints();
 };
+function surpriseDescription(){return window.KGSeries?.active?window.KGSeriesDiscovery.notes[surprise]:SURPRISE_NOTE[surprise];}
 function paintSurprise(){
   document.querySelectorAll("#surpriseChips .chip").forEach(b=>{
     b.setAttribute("aria-pressed", playMode==="surprise"&&b.dataset.s===surprise?"true":"false");});
-  $("surpriseNote").textContent=SURPRISE_NOTE[surprise];
+  $("surpriseNote").textContent=uiText(surpriseDescription());
 }
 function selectSurpriseScenario(value){
   if (!Object.hasOwn(SURPRISE_NOTE, value)) return;
@@ -2238,6 +2239,7 @@ function poolBase(cc,o,t){
   return base;
 }
 async function buildPool(cc,o){
+  if(o.seriesSurprise)return window.KGSeriesDiscovery.surprisePool(cc,o);
   if(o.wild){
     const base={with_origin_country:cc,"vote_count.gte":10,sort_by:"popularity.desc"};
     const p1=await rouletteApi({...base,page:1});
@@ -2285,6 +2287,7 @@ async function buildPool(cc,o){
 
 function currentQuery(){
   if(playMode==="surprise"){
+    if(window.KGSeries?.active)return window.KGSeriesDiscovery.surpriseQuery(surprise);
     if(surprise==="find") return {g:pick(discoveryGenreIds()),find:true,worst:false,rmin:"",rmax:"",y:"",yto:"",theme:"",themeName:""};
     if(surprise==="wild") return {g:"",wild:true,worst:false,rmin:"",rmax:"",y:"",yto:"",theme:"",themeName:""};
     return {g:pick(discoveryGenreIds()),light:true,worst:false,rmin:"",rmax:"",y:"",yto:"",theme:"",themeName:""};
@@ -2316,9 +2319,9 @@ function tagPool(result,q){
 }
 async function getPool(cc,q){
   q=q||currentQuery();
-  const key=[window.KGSeries?.active?"tv":"movie",cc,q.g,q.worst,q.rmin,q.rmax,q.y,q.yto,q.light?"L200":"",q.find?"F":"",q.theme||""].join("|");
+  const key=[window.KGSeries?.active?"tv":"movie",cc,q.g,q.worst,q.rmin,q.rmax,q.y,q.yto,q.seriesSurprise||"",q.light?"L200":"",q.find?"F":"",q.theme||""].join("|");
   if(!q.wild && key in cache) return cache[key];   // null is cached too: "not enough films"
-  const o={g:q.g,worst:q.worst,rmin:q.rmin,rmax:q.rmax,y:q.y,yto:q.yto,light:q.light,find:q.find,wild:q.wild};
+  const o={g:q.g,worst:q.worst,rmin:q.rmin,rmax:q.rmax,y:q.y,yto:q.yto,light:q.light,find:q.find,wild:q.wild,seriesSurprise:q.seriesSurprise};
   const result=tagPool(await buildPool(cc,o),q);
   if(!q.wild) cache[key]=result;
   return result;
@@ -3164,7 +3167,7 @@ function show(cc,pool,film){
   cur={cc,pool,film};
   $("flag").innerHTML=flag(cc);
   $("cname").textContent=cname(cc);
-  $("cmeta").textContent=pool.oscar?oscarCaption(cc,film):pool.top1?topCaption(cc,pool,film):poolLine(pool);
+  $("cmeta").textContent=pool.emmy?window.KGSeriesDiscovery.awardText(film):pool.oscar?oscarCaption(cc,film):pool.top1?topCaption(cc,pool,film):poolLine(pool);
   const po=$("poster");po.classList.remove("ok");po.onload=()=>po.classList.add("ok");
   if(film.poster_path)po.src="https://image.tmdb.org/t/p/w342"+film.poster_path;else{po.removeAttribute("src");po.classList.add("ok");}
   $("title").textContent=film.title+(film.original_title&&film.original_title!==film.title?` (${film.original_title})`:"");
@@ -3175,7 +3178,7 @@ function show(cc,pool,film){
   paintRating(film.vote_count,film.vote_average);
   $("crew").hidden=true;$("crew").innerHTML="";
   $("over").textContent=filmSynopsis(film.overview)||"Описание пока недоступно.";
-  $("again").hidden=!!pool.top1||!!pool.oscar||!!pool.saved;
+  $("again").hidden=!!pool.top1||!!pool.oscar||!!pool.emmy||!!pool.saved;
   paintCrew(film);
   $("result").hidden=false;
   [...$("result").children].forEach((c,i)=>c.style.animationDelay=(i*70)+"ms");
@@ -3353,9 +3356,10 @@ function spinOrder(list){
 }
 function fromCountry(f,cc){const list=f.origin_country;return !list||!list.length||list.includes(cc);}
 async function topOfCountry(cc,q){
-  const span=topYear(q),base=poolBase(cc,{...q,worst:false,y:span.from,yto:span.to},1);
+  const span=topYear(q);let base=poolBase(cc,{...q,worst:false,y:span.from,yto:span.to},1);
+  if(window.KGSeries?.active)base=window.KGSeriesDiscovery.topParams(base);
   if(span.exact)base.primary_release_year=span.exact;
-  const series=!!window.KGSeries?.active,floor=scoreFloor({...q,worst:false}),ceil=scoreCeil({...q,worst:false});
+  const series=!!window.KGSeries?.active,floor=Number(base['vote_average.gte'])||0,ceil=scoreCeil({...q,worst:false});
   try{
     const result=await window.KGExactTop.search({params:base,cacheKey:JSON.stringify(['top-exact-v1',series?'tv':'movie',filmLocale,cc,base]),
       fetchPage:(params,options)=>series?window.KGSeries.discover(params,options):api(params,options),allows:movieCatalog.allows,
@@ -3464,6 +3468,7 @@ async function oscarFilms(){
   return localized;
 }
 async function spinOscar(){
+  if(window.KGSeries?.active)return window.KGSeriesDiscovery.spinEmmy();
   if ($("go").disabled) return;
   $("err").textContent="";
   if(!apiKey){showKeyUi();$("err").textContent="Сначала введите ключ TMDB.";return;}
@@ -3519,7 +3524,8 @@ async function spin(countryCode = ""){
       closePlayer();
       window.KGFrameSelectedCountry(manualCountries[0],manualCountries);
     } else reelStart(themedCountries);
-    const order=shuffle(q.countries||COUNTRIES);
+    const shuffled=shuffle(q.countries||COUNTRIES);
+    const order=q.seriesSurprise&&!q.countries?window.KGSeriesDiscovery.countryOrder(shuffled,cur?.cc):shuffled;
     const cap=q.countries?order.length:Math.min(order.length,18);
     for(let i=0;i<cap;i+=3){   // проверяем небольшими параллельными партиями, чтобы поиск оставался отзывчивым
       const batch=order.slice(i,i+3);
@@ -3786,7 +3792,7 @@ function syncDesign(){
   sChips.forEach((c,i)=>{const on=surpriseScenarios[i]===surprise;
     c.setAttribute("aria-pressed", String(on));
     c.style.background=on?"rgb(var(--kg-surface-container-high))":"rgb(var(--kg-surface-panel))";c.style.color=on?"rgb(var(--kg-primary))":"rgb(var(--kg-on-surface))";c.style.boxShadow=on?"0 0 10px rgb(var(--kg-selection-glow)/.25)":"";});
-  const d=$("surprise-description-text");if(d)d.textContent=uiText(SURPRISE_NOTE[surprise]);
+  const d=$("surprise-description-text");if(d)d.textContent=uiText(surpriseDescription());
   $("genre-filter-summary").textContent=sumText("filterSum","Категории");
   $("year-rating-filter-summary").textContent=sumText("extraSum","Год и оценка");
   const themeSummary=sumText("themeSum","Тематические подборки");
@@ -4141,7 +4147,7 @@ function reveal(film,pool){
 function globeFilmContext(cc) {
   // страна и прогресс
   const countryCounts=window.KGWatchedCountryCounts?window.KGWatchedCountryCounts():{};const n=countryCounts[cc]||0,open=countOpenedCountries(countryCounts),all=COUNTRIES.length,pct=Math.round(open/all*100);
-  const tag=uiText(cur&&cur.pool.oscar?"ОСКАР":cur&&cur.pool.top1?"ТОП-1":"НАХОДКА");
+  const tag=uiText(cur&&cur.pool.emmy?"ЭММИ":cur&&cur.pool.oscar?"ОСКАР":cur&&cur.pool.top1?"ТОП-1":"НАХОДКА");
   return cc?`<div class="flex flex-col gap-2.5">
     <div class="flex items-center justify-between gap-2">
       <div class="flex items-center gap-2 min-w-0"><div class="w-7 h-7 rounded-full bg-cinema-velvet-deep flex items-center justify-center text-secondary flex-shrink-0"><span class="material-symbols-outlined text-[16px]">travel_explore</span></div>
@@ -4227,7 +4233,7 @@ window.show=function(cc,pool,film){
   };
   if(!preserveFrame){detailsEl.classList.add("veiled");refresh();}
   else pendingRerollReveal={model,refresh};
-  set("discovery-timestamp",pool.oscar?uiText("Лауреат «Оскара»"):pool.top1&&pool.exact?uiText("Топ-1 страны · {time}",{time:new Date(pool.calculatedAt).toLocaleTimeString(interfaceLanguage,{hour:"2-digit",minute:"2-digit"})}):pool.top1?uiText("Топ-1 страны"):pool.worst?uiText("Из худших"):uiText("Случайная находка · {country}", {country:cname(cc)}));
+  set("discovery-timestamp",pool.emmy?window.KGSeriesDiscovery.awardText(film):pool.oscar?uiText("Лауреат «Оскара»"):pool.top1&&pool.exact?uiText("Топ-1 страны · {time}",{time:new Date(pool.calculatedAt).toLocaleTimeString(interfaceLanguage,{hour:"2-digit",minute:"2-digit"})}):pool.top1?uiText("Топ-1 страны"):pool.worst?uiText("Из худших"):uiText("Случайная находка · {country}", {country:cname(cc)}));
   $("kg-globe-film-context").innerHTML=globeFilmContext(cc);
   ag.hidden=$("again").hidden;
   if(!preserveFrame)renderBlank();
@@ -4327,7 +4333,7 @@ console.info("[Moven: Explore] Bridge v6 ready");
 })();
 </script>
 
-<script src="exact-top.js?v=1"></script>
+<script src="exact-top.js?v=2"></script>
 <script src="globe-visuals.js?v=5"></script>
 <script src="confirm-action.js?v=2"></script>
 <script src="watch-history.js?v=18"></script>
@@ -4349,7 +4355,9 @@ console.info("[Moven: Explore] Bridge v6 ready");
 <script src="oscar-design.js?v=30"></script>
 <script src="curated-collections.js?v=3"></script>
 <script src="film-card.js?v=20"></script>
-<script src="series-page.js?v=4"></script>
+<script src="series-page.js?v=5"></script>
+<script src="emmy-winners.js?v=1"></script>
+<script src="series-discovery.js?v=1"></script>
 <script src="series-detail.js?v=5"></script>
 <script src="watch-entry.js?v=1"></script>
 <script src="series-hub.js?v=4"></script>

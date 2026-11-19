@@ -1,6 +1,21 @@
 // English translations for the Moven interface.
 window.KGInterfaceDictionaries ??= {};
 window.KGInterfaceDictionaries.en = Object.freeze({
+  "Топ-1 сериалов": "Top TV series",
+  "Лауреат Эмми": "Emmy winner",
+  "Лауреат «Эмми»": "Emmy winner",
+  "ЭММИ": "EMMY",
+  "Ищем сериал…": "Finding a series…",
+  "Лучший драматический сериал": "Outstanding Drama Series",
+  "Лучший комедийный сериал": "Outstanding Comedy Series",
+  "Лучший мини-сериал или антология": "Outstanding Limited or Anthology Series",
+  "Эмми · {category} · {year}": "Emmy · {category} · {year}",
+  "Не удалось загрузить лауреатов «Эмми». Повторите поиск.": "Could not load Emmy winners. Please try again.",
+  "Все лауреаты «Эмми» из списка уже отмечены просмотренными.": "All Emmy winners in this list are already marked as watched.",
+  "Неочевидный сериал: случайные страна и жанр, оценка от 7 и минимум 200 оценок. Просмотренное исключено.": "An unexpected series: a random country and genre, rated 7 or higher with at least 200 votes. Watched series are excluded.",
+  "Скрытая жемчужина: оценка от 7, от 30 до 1500 оценок и небольшая популярность. Просмотренное исключено.": "A hidden gem: rated 7 or higher, with 30–1,500 votes and low popularity. Watched series are excluded.",
+  "Необычный жанр и случайная страна. Оценка от 7 и минимум 50 оценок. Просмотренное исключено.": "An unusual genre and a random country. Rated 7 or higher with at least 50 votes. Watched series are excluded.",
+
   "Проверяем рейтинг · {country}": "Checking ranking · {country}",
   "Топ-1 страны · {time}": "Country No. 1 · {time}",
   "Лучший фильм страны.": "The country’s best film.",

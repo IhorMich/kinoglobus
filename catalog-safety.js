@@ -35,7 +35,7 @@ const movieCatalog = (() => {
 
   function sanitize(data, endpoint) {
     if (!data || typeof data !== 'object') return data;
-    const movie = /^movie\/\d+$/.test(endpoint);
+    const movie = /^(?:movie|tv)\/\d+$/.test(endpoint);
     const person = /^person\/\d+$/.test(endpoint);
     if ((movie && !allows(data)) || (person && !allowsPerson(data))) {
       if (movie && data.id != null) blockedIds.add(Number(data.id));
@@ -61,7 +61,7 @@ const movieCatalog = (() => {
     }
     const personCredits = person || /^person\/\d+\/(?:movie|combined)_credits$/.test(endpoint);
     const result = clean(data);
-    const filmResults = /^(?:discover\/movie|search\/(?:movie|person|multi|tv)|movie\/\d+\/(?:recommendations|similar))$/.test(endpoint);
+    const filmResults = /^(?:discover\/(?:movie|tv)|search\/(?:movie|person|multi|tv)|(?:movie|tv)\/\d+\/(?:recommendations|similar))$/.test(endpoint);
     if (Array.isArray(result.results) && filmResults) {
       result.results = endpoint === 'search/person'
         ? result.results.filter(allowsPerson).map(clean)
@@ -72,11 +72,12 @@ const movieCatalog = (() => {
 
   async function request(input, options) {
     const url = new URL(input);
+    window.KGSeries?.route(url);
     const endpoint = url.pathname.replace(/^\/3\//, '');
     if (/^(?:discover|search)\//.test(endpoint) || url.searchParams.has('include_adult')) {
       url.searchParams.set('include_adult', 'false');
     }
-    if (/^movie\/\d+$/.test(endpoint)) {
+    if (/^(?:movie|tv)\/\d+$/.test(endpoint)) {
       const parts = new Set((url.searchParams.get('append_to_response') || '').split(',').filter(Boolean));
       parts.add('keywords');
       url.searchParams.set('append_to_response', [...parts].join(','));
@@ -87,7 +88,7 @@ const movieCatalog = (() => {
       status: response.status,
       async json() {
         const data = await response.json();
-        return response.ok ? sanitize(data, endpoint) : data;
+        return response.ok ? sanitize(window.KGSeries?.normalizeResponse(data,endpoint)||data, endpoint) : data;
       }
     };
   }

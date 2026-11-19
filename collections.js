@@ -330,6 +330,7 @@ seriesPage.setAttribute("role","tabpanel");seriesPage.setAttribute("aria-labelle
 seriesPage.innerHTML=`<h1 class="sr-only">${uiText("Сериалы")}</h1>`;
 mediaSwitch.innerHTML=[["home","films","Кино"],["series","series","Сериалы"]].map(([route,id,label])=>`<button type="button" role="tab" id="kg-mode-${id}" data-media-view="${route}" aria-controls="view-${id}" aria-selected="${route==='home'}" tabindex="${route==='home'?0:-1}">${uiText(label)}</button>`).join("");
 document.querySelector(".kg-main-header-actions").prepend(mediaSwitch);home.after(seriesPage);
+window.KGSeries.mount(home,seriesPage);
 mediaSwitch.addEventListener("click",event=>{const tab=event.target.closest('[data-media-view]');if(tab)showView(tab.dataset.mediaView);});
 mediaSwitch.addEventListener("keydown",event=>{
   const tabs=[...mediaSwitch.querySelectorAll('[role="tab"]')],index=tabs.indexOf(event.target);
@@ -405,6 +406,7 @@ function rememberView(destination, collectionId = null) {
 }
 
 function showView(v, remember = true){
+  if(!window.KGSeries.setMode(v==="series"))return;
   if (remember && v !== view) rememberView(v);
   if(v!==view) window.KGFilmCard.stopTrailers();
   if(v!=="mood"&&window.KGMoodPage)window.KGMoodPage.stop(vm);

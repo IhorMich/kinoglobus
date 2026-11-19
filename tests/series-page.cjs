@@ -1,0 +1,24 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict'),path=require('node:path');
+const values=new Map(),requests=[],delegated=[],events=[];let allowRemoval=false,payload;
+const window={KGIsFilmWatched:id=>id===42,KGToggleWatched:film=>{delegated.push(film.id);return true;},kgIsBookmarked:id=>id===42,kgToggleBookmark:id=>{delegated.push(id);return true;},KGConfirmRemoval:async()=>allowRemoval};
+const context=vm.createContext({window,Map,Set,URL,Number,JSON,console,CustomEvent:class{constructor(type,options){this.type=type;this.detail=options.detail;}},document:{querySelectorAll:()=>[],dispatchEvent:e=>events.push(e)},localStorage:{getItem:k=>values.get(k)??null,setItem:(k,v)=>values.set(k,v)},filmLocale:'ru-RU',localizeFilmListItem:f=>f,requestTmdb:async(endpoint,params)=>{requests.push({endpoint,params});return {results:[]};},fetch:async url=>{requests.push(new URL(url));return {ok:true,status:200,json:async()=>structuredClone(payload)};},paintBookmarkButton:()=>{}});
+const read=name=>fs.readFileSync(path.join(__dirname,'..',name),'utf8');vm.runInContext(read('catalog-safety.js'),context);vm.runInContext(read('series-page.js'),context);
+const api=window.KGSeries;context.catalog=vm.runInContext('movieCatalog',context);
+(async()=>{
+ const series=api.normalize({id:42,adult:false,name:'Сериал',original_name:'Series',first_air_date:'2024-05-01',episode_run_time:[45]});
+ assert.notEqual(series.id,42);assert.equal(api.rawId(series.id),42);assert.equal(api.isSeriesId(42),false);assert.equal(series.title,'Сериал');assert.equal(series.release_date,'2024-05-01');assert.equal(series.runtime,45);assert.equal(api.normalize(series).id,series.id);
+ const params=api.query({'primary_release_date.gte':'2000-01-01','primary_release_date.lte':'2024-12-31',primary_release_year:2020,with_genres:'10759',with_origin_country:'JP'});
+ assert.equal(params['first_air_date.gte'],'2000-01-01');assert.equal(params['first_air_date.lte'],'2024-12-31');assert.equal(params.first_air_date_year,2020);assert.ok(!('primary_release_year' in params));assert.equal(params.with_genres,'10759');
+ await api.discover({'primary_release_date.gte':'2000-01-01',with_genres:'18'});assert.equal(requests[0].endpoint,'discover/tv');assert.equal(requests[0].params['first_air_date.gte'],'2000-01-01');
+ payload={id:42,adult:false,name:'Series',first_air_date:'2001-01-01',created_by:[{id:9,name:'Creator'}],credits:{cast:[{id:8,name:'Actor'}],crew:[]},content_ratings:{results:[{iso_3166_1:'US',rating:'TV-14'}]}};
+ const response=await context.catalog.request(`https://api.themoviedb.org/3/movie/${series.id}?append_to_response=credits,release_dates,translations`);const details=await response.json();const sent=requests.at(-1);
+ assert.equal(sent.pathname,'/3/tv/42');assert.ok(sent.searchParams.get('append_to_response').includes('content_ratings'));assert.ok(!sent.searchParams.get('append_to_response').includes('release_dates'));assert.equal(details.id,series.id);assert.equal(details.credits.cast[0].id,8);assert.equal(details.credits.crew[0].id,9);assert.equal(details.release_dates.results[0].release_dates[0].certification,'TV-14');
+ await context.catalog.request(`https://api.themoviedb.org/3/movie/${series.id}/videos`);assert.equal(requests.at(-1).pathname,'/3/tv/42/videos');
+ await context.catalog.request('https://api.themoviedb.org/3/movie/42');assert.equal(requests.at(-1).pathname,'/3/movie/42');
+ payload={results:[{id:42,adult:false,name:'Series'},{id:43,adult:true,name:'Adult'}]};const list=await (await context.catalog.request('https://api.themoviedb.org/3/discover/tv')).json();assert.equal(list.results.length,1);assert.equal(list.results[0].id,series.id);
+ assert.equal(window.KGIsFilmWatched(42),true);assert.equal(window.KGIsFilmWatched(series.id),false);await window.KGToggleWatched(series);assert.equal(window.KGIsFilmWatched(series.id),true);assert.equal(window.KGIsFilmWatched(42),true);assert.equal(values.has('watched'),false);
+ await window.KGToggleWatched(series);assert.equal(window.KGIsFilmWatched(series.id),true,'cancel preserves the TV mark');allowRemoval=true;await window.KGToggleWatched(series);assert.equal(window.KGIsFilmWatched(series.id),false);
+ await window.kgToggleBookmark(series.id,series);assert.equal(window.kgIsBookmarked(series.id),true);assert.equal(window.kgIsBookmarked(42),true);assert.equal(values.has('kgBookmarks'),false);await window.kgToggleBookmark(42,{});assert.equal(delegated.at(-1),42);
+ window.KGDiscoveryBridge={busy:()=>true};assert.equal(api.setMode(true),false);assert.equal(api.active,false);
+ console.log('PASS: TV date/genre queries, typed IDs, details/videos routing, creators/cast, safe catalogue filtering, isolated marks/bookmarks and busy-mode guard');
+})().catch(error=>{console.error(error);process.exitCode=1});

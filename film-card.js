@@ -75,7 +75,7 @@ ${kgBookmarkButton(f)}
 </div>
   ${closable ? (f._relatedPrevious ? `<button type="button" data-kg-related-back aria-label="${uiText("Вернуться к предыдущему фильму")}" class="kg-film-detail-close"><span class="material-symbols-outlined" aria-hidden="true">arrow_back</span></button>` : `<button type="button" data-act="close-film" aria-label="${uiText("Свернуть карточку")}" class="kg-film-detail-close"><span class="material-symbols-outlined" aria-hidden="true">close</span></button>`) : ""}
 </div>
-<div data-film-part="description" data-kg-film-description class="flex flex-col gap-2"><h4 class="font-label-md text-label-md text-primary-fixed">${uiText("О фильме")}</h4>
+<div data-film-part="description" data-kg-film-description class="flex flex-col gap-2"><h4 class="font-label-md text-label-md text-primary-fixed">${uiText(window.KGSeries?.isSeriesId(f.id)?"О сериале":"О фильме")}</h4>
 ${f.tagline&&f.taglineLang===f.overviewLang ? `<blockquote class="italic text-primary-fixed">«${esc(f.tagline)}»</blockquote>` : ""}
 <p class="text-body-md text-on-surface leading-relaxed">${esc(f.overview)}</p>${languageNote ? `<small class="text-text-muted">${esc(languageNote)}</small>` : ""}</div>
 <div data-film-part="trailer" class="flex flex-col gap-2">

@@ -1773,5 +1773,18 @@ window.KGInterfaceDictionaries.en = Object.freeze({
   "Рейтинг: {rating} ★": "Rating: {rating} \u2605",
   "Эпоха: {start}–{end}": "Era: {start}\u2013{end}",
   "Назад к среднему рейтингу": "Back to average rating",
-  "Назад к эпохам": "Back to cinema eras"
+  "Назад к эпохам": "Back to cinema eras",
+  "Сериал": "TV series",
+  "О сериале": "About the series",
+  "Найди сериал, режиссёра или актёра": "Find a TV series, director or actor",
+  "Поиск сериалов, актёров и режиссёров": "Search TV series, actors and directors",
+  "Открыть сериал {title}": "Open TV series {title}",
+  "Боевик и приключения": "Action & Adventure",
+  "Детский": "Kids",
+  "Новости": "News",
+  "Реалити-шоу": "Reality",
+  "Фантастика и фэнтези": "Sci-Fi & Fantasy",
+  "Мыльная опера": "Soap",
+  "Ток-шоу": "Talk",
+  "Война и политика": "War & Politics"
 });

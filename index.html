@@ -1926,6 +1926,12 @@ $("surpriseChips").onclick=e=>{
 };
 function selectQuickSearch(mode, toggle = true) {
   quickSearchMode = toggle && quickSearchMode === mode ? "" : mode;
+  if(quickSearchMode&&playMode==="surprise"){
+    playMode="filters";
+    store.set("playMode",playMode);
+    applyMode(true);
+    hideHints();
+  }
   if(quickSearchMode==="top1"&&sel.delete("worst"))store.set("cats",[...sel]);
   paintChips();
   $("btn-top-one").setAttribute("aria-pressed", String(quickSearchMode === "top1"));
@@ -1941,8 +1947,8 @@ function goLabel(){
   return t?"🎲 "+t.name:uiText("Крутить глобус");
 }
 function paintGo(){ if(!$("go").disabled) $("go").textContent=goLabel(); }
-function applyMode(){
-  selectQuickSearch("");
+function applyMode(preserveQuick = false){
+  if(!preserveQuick) selectQuickSearch("");
   const sur=playMode==="surprise";
   $("btn-mode-surprise").setAttribute("aria-pressed",String(sur));
   $("surprise-levels-panel").classList.toggle("hidden",!sur);

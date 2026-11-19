@@ -41,3 +41,4 @@ test('Emmy search refreshes only chosen candidates, retries a failed card and us
  ctx.presentFilmSearchResult=async(cc,pool,film)=>shown.push({cc,pool,film});
  await api.spinEmmy();assert.equal(requested.length,2);assert.equal(shown.length,1);assert.equal(shown[0].pool.emmy,true);assert.ok(shown[0].film.id>1e12);assert.equal(nodes.err.textContent,'');
 });
+test('global TV top seeds countries from eligible shows without dropping any fallback country',async()=>{const {api,window}=harness();let query;window.KGSeries.discover=async p=>{query=p;return {total_results:1,results:[{...film(),origin_country:['JP','US']}]};};const order=await api.topCountries({with_origin_country:'FR',with_genres:'16'},['FR','US','JP','GB']);assert.deepEqual(Array.from(order),['JP','US','FR','GB']);assert.equal(query.with_origin_country,undefined);assert.equal(query.with_genres,'16');assert.equal(query['vote_count.gte'],200);assert.equal(query['vote_average.gte'],7);});

@@ -38,7 +38,7 @@ try {
 } catch (_) {}
 </script>
 <script src="steel-motion.js?v=4" defer></script>
-<script src="interface-en.js?v=73"></script>
+<script src="interface-en.js?v=74"></script>
 <script src="interface-i18n.js?v=2"></script>
 <script src="catalog-safety.js?v=3"></script>
 <script>
@@ -3363,8 +3363,7 @@ async function topOfCountry(cc,q){
   try{
     const result=await window.KGExactTop.search({params:base,cacheKey:JSON.stringify(['top-exact-v1',series?'tv':'movie',filmLocale,cc,base]),
       fetchPage:(params,options)=>series?window.KGSeries.discover(params,options):api(params,options),allows:movieCatalog.allows,
-      matches:f=>{const year=(f.release_date||'').slice(0,4);return fromCountry(f,cc)&&(!span.from||year&&year>=span.from)&&(!span.to||year&&year<=span.to)&&(!floor||Number(f.vote_average)>=floor)&&(!ceil||Number(f.vote_average)<=ceil);},
-      onProgress:()=>{if(quickSearchMode==='top1'&&$('go').disabled){const text=$('btn-spin-text').querySelector('span:last-child');if(text)text.textContent=uiText('Проверяем рейтинг · {country}',{country:cname(cc)});}}
+      matches:f=>{const year=(f.release_date||'').slice(0,4);return fromCountry(f,cc)&&(!span.from||year&&year>=span.from)&&(!span.to||year&&year<=span.to)&&(!floor||Number(f.vote_average)>=floor)&&(!ceil||Number(f.vote_average)<=ceil);}
     });
     return result?tagPool({...result,total:result.checked,top1:true,exactYear:span.exact,yearSpan:span.span,byRating:true,scoreMin:floor||''},q):null;
   }catch(error){if(error.code?.startsWith('TOP_'))throw new Error(uiText('Не удалось подтвердить первое место. Каталог изменился или проверка не завершена. Повторите поиск.'));throw error;}
@@ -3396,17 +3395,24 @@ async function spinTop(){
     } else {
       reelStart(themedCountries);
     }
-    const order=spinOrder(q.countries||COUNTRIES);
-    const cap=q.y||q.yto||q.countries?Math.min(order.length,40):Math.min(order.length,24);
+    const series=!!window.KGSeries?.active;
+    let order=spinOrder(q.countries||COUNTRIES),firstError;
+    if(series&&!q.countries){
+      const span=topYear(q),base=poolBase('',{...q,worst:false,y:span.from,yto:span.to},1);
+      if(span.exact)base.primary_release_year=span.exact;
+      try{order=await window.KGSeriesDiscovery.topCountries(base,order);}catch(error){firstError=error;}
+    }
+    const cap=series?order.length:q.y||q.yto||q.countries?Math.min(order.length,40):Math.min(order.length,24);
     const extra=[];   // фильмы из уже загруженных стран, для вида прокрутки
     for(let i=0;i<cap;i+=3){
       const batch=order.slice(i,i+3);
-      const pools=await Promise.all(batch.map(cc=>topOfCountry(cc,q)));
+      const settled=await Promise.allSettled(batch.map(cc=>topOfCountry(cc,q)));
+      const pools=settled.map(result=>{if(result.status==='fulfilled')return result.value;firstError??=result.reason;return null;});
       pools.forEach(p=>{if(p)extra.push(...p.films);});
       for(let k=0;k<batch.length;k++){
         const pool=pools[k];
         if(!pool||!pool.films.length) continue;
-        if(discoverySeen(pool.films[0].id)) continue;
+        if(!series&&discoverySeen(pool.films[0].id)) continue;
         const film=pool.films[0];
         const ids=new Set([film.id]);
         const filler=shuffle(extra.filter(f=>f.poster_path&&!ids.has(f.id)&&ids.add(f.id))).slice(0,40);
@@ -3415,6 +3421,7 @@ async function spinTop(){
         return;
       }
     }
+    if(firstError)throw firstError;
     $("err").textContent=q.y||q.yto
       ?"За этот период подходящий фильм не нашёлся. Попробуйте другие годы или сбросьте историю."
       :"Лучший фильм не нашёлся. Смягчите фильтры или сбросьте историю.";
@@ -4358,7 +4365,7 @@ console.info("[Moven: Explore] Bridge v6 ready");
 <script src="film-card.js?v=20"></script>
 <script src="series-page.js?v=5"></script>
 <script src="emmy-winners.js?v=2"></script>
-<script src="series-discovery.js?v=2"></script>
+<script src="series-discovery.js?v=3"></script>
 <script src="series-detail.js?v=5"></script>
 <script src="watch-entry.js?v=1"></script>
 <script src="series-hub.js?v=4"></script>

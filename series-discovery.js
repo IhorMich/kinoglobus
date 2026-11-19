@@ -31,6 +31,20 @@
   }
   function countryOrder(order,previous){return order.filter(cc=>cc!==previous).concat(order.includes(previous)?[previous]:[]);}
   function topParams(base){return {...base,'vote_count.gte':MIN_VOTES,'vote_average.gte':Math.max(7,Number(base['vote_average.gte'])||0)};}
+  async function topCountries(base,order){
+    // Seed the random country order from actual eligible TV results, then keep
+    // every remaining country as a fallback. The exact winner is still proved separately.
+    const params={...topParams(base),sort_by:'vote_count.desc',page:1};delete params.with_origin_country;
+    const data=await window.KGSeries.discover(params,{fresh:true});
+    if(data.total_results===0&&Array.isArray(data.results)&&data.results.length===0)return [];
+    const allowed=new Set(order),available=new Set();
+    for(const f of data.results||[]){
+      if(!movieCatalog.allows(f)||Number(f.vote_count)<params['vote_count.gte']||Number(f.vote_average)<params['vote_average.gte'])continue;
+      if(params['vote_average.lte']&&Number(f.vote_average)>Number(params['vote_average.lte']))continue;
+      for(const cc of f.origin_country||[])if(allowed.has(cc))available.add(cc);
+    }
+    return [...shuffle([...available]),...order.filter(cc=>!available.has(cc))];
+  }
   async function emmySeries(){
     // Verified lightweight snapshots keep discovery independent of catalogue size.
     // Fresh details for the chosen series are loaded before the shared reel presents it.
@@ -91,5 +105,5 @@
     }catch(error){$('err').textContent=error.message;}
     finally{reelAbort();unlockSpin();}
   }
-  window.KGSeriesDiscovery={MIN_VOTES,candidates,remember,spinEmmy,notes,surpriseQuery,surprisePool,qualifies,countryOrder,topParams,emmySeries,awardText};
+  window.KGSeriesDiscovery={MIN_VOTES,topCountries,candidates,remember,spinEmmy,notes,surpriseQuery,surprisePool,qualifies,countryOrder,topParams,emmySeries,awardText};
 })();

@@ -26,7 +26,6 @@ window.KGInterfaceDictionaries.en = Object.freeze({
   "Скрытая жемчужина: оценка от 7, от 30 до 1500 оценок и небольшая популярность. Просмотренное исключено.": "A hidden gem: rated 7 or higher, with 30–1,500 votes and low popularity. Watched series are excluded.",
   "Необычный жанр и случайная страна. Оценка от 7 и минимум 50 оценок. Просмотренное исключено.": "An unusual genre and a random country. Rated 7 or higher with at least 50 votes. Watched series are excluded.",
 
-  "Проверяем рейтинг · {country}": "Checking ranking · {country}",
   "Топ-1 страны · {time}": "Country No. 1 · {time}",
   "Лучший фильм страны.": "The country’s best film.",
   "Топ-1 страны по взвешенной оценке TMDB с учётом выбранных фильтров.": "Country No. 1 by weighted TMDB score with your selected filters.",

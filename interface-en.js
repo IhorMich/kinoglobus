@@ -238,7 +238,7 @@ window.KGInterfaceDictionaries.en = Object.freeze({
   "Настоящее открытие": "Hidden gems",
   "Полная случайность": "Completely random",
   "Случайная страна и редкий шедевр с рейтингом от ⭐ 7.0, который пропустил массовый зритель.": "A random country and an overlooked film rated 7.0 or higher.",
-  "Случайные страна и жанр. Оценка не ниже 6, фильмы оценило много зрителей.": "A random country and genre. Films have plenty of votes and a rating of at least 6.",
+  "Случайные страна и жанр. Оценка не ниже 6 и не менее 200 оценок зрителей.": "A random country and genre. Films have at least 200 votes and a rating of 6 or higher.",
   "Случайные страна и жанр. Оценка от 7 при небольшом числе голосов: фильм хороший, но его мало кто видел.": "A random country and genre. Discover a lesser-known film rated 7 or higher.",
   "Случайная страна. Жанр и оценка не задаются.": "A random country with any genre and rating.",
   "Кинорадар стран": "World cinema radar",

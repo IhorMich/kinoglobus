@@ -38,7 +38,7 @@ try {
 } catch (_) {}
 </script>
 <script src="steel-motion.js?v=4" defer></script>
-<script src="interface-en.js?v=70"></script>
+<script src="interface-en.js?v=71"></script>
 <script src="interface-i18n.js?v=2"></script>
 <script src="catalog-safety.js?v=3"></script>
 <script>
@@ -1616,7 +1616,7 @@ const THEMES=[
   {id:"jpcrime",name:"Японское криминальное кино",cc:["JP"],g:"80|9648"}
 ];
 const SURPRISE_NOTE={
-  light:"Случайные страна и жанр. Оценка не ниже 6, фильмы оценило много зрителей.",
+  light:"Случайные страна и жанр. Оценка не ниже 6 и не менее 200 оценок зрителей.",
   find:"Случайные страна и жанр. Оценка от 7 при небольшом числе голосов: фильм хороший, но его мало кто видел.",
   wild:"Случайная страна. Жанр и оценка не задаются.",
 };
@@ -2256,13 +2256,20 @@ async function buildPool(cc,o){
     }
     return null;
   }
-  const floors=o.light?(BIG.has(cc)?[800,200,50]:[200,50,20]):[20];
+  const floors=o.light?(BIG.has(cc)?[800,200]:[200]):[20];
   const floor=scoreFloor(o);
   for(const t of floors){
     const base=poolBase(cc,o,t);
-    const got=withScore(await takePool(base,MAX_POOL),floor,scoreCeil(o));
+    let got=withScore(await takePool(base,o.light?MIN_POOL:MAX_POOL),floor,scoreCeil(o));
+    if(o.light&&got){
+      // Keep the promise locally too, including cached or inconsistent provider rows.
+      const films=got.films.filter(f=>Number.isInteger(Number(f.vote_count))&&Number(f.vote_count)>=t);
+      got=films.length>=MIN_POOL?{...got,films}:null;
+    }
     if(got) return {films:got.films,votes:t,total:got.total,worst:!!o.worst,light:!!o.light,byRating:true,scoreMin:floor||""};
   }
+  // Light surprise must never relax its audience threshold to the generic fallback.
+  if(o.light) return null;
   const base=poolBase(cc,o,1);
   if(!o.worst) base.sort_by="vote_count.desc";
   const got=withScore(await takePool(base,MIN_POOL),floor,scoreCeil(o));
@@ -2303,7 +2310,7 @@ function tagPool(result,q){
 }
 async function getPool(cc,q){
   q=q||currentQuery();
-  const key=[window.KGSeries?.active?"tv":"movie",cc,q.g,q.worst,q.rmin,q.rmax,q.y,q.yto,q.light?"L":"",q.find?"F":"",q.theme||""].join("|");
+  const key=[window.KGSeries?.active?"tv":"movie",cc,q.g,q.worst,q.rmin,q.rmax,q.y,q.yto,q.light?"L200":"",q.find?"F":"",q.theme||""].join("|");
   if(!q.wild && key in cache) return cache[key];   // null is cached too: "not enough films"
   const o={g:q.g,worst:q.worst,rmin:q.rmin,rmax:q.rmax,y:q.y,yto:q.yto,light:q.light,find:q.find,wild:q.wild};
   const result=tagPool(await buildPool(cc,o),q);

@@ -23,6 +23,7 @@
   const title=f=>f.title||f.name||uiText('Сериал');
   const image=(f,portrait=false)=>art.get(window.KGSeries.rawId(f.id))||(portrait?f.poster_path||f.backdrop_path:f.backdrop_path||f.poster_path)&&`https://image.tmdb.org/t/p/${portrait?'w500':'w780'}${portrait?f.poster_path||f.backdrop_path:f.backdrop_path||f.poster_path}`||'';
   function service(f){
+    if(f._hubService&&f._hubService!=='all'&&Object.hasOwn(platforms,f._hubService))return f._hubService;
     const names=(f.networks||[]).map(n=>n.name||'').join(' ').toLowerCase();
     if(/netflix/.test(names))return 'netflix';if(/apple/.test(names))return 'apple';if(/hbo|\bmax\b/.test(names))return 'max';if(/amazon|prime/.test(names))return 'prime';
     if(/\bfx\b/.test(names)||(f.production_companies||[]).some(c=>/\bfx\b/i.test(c.name||'')))return 'fx';
@@ -55,7 +56,7 @@
   function bookmark(f){return kgBookmarkButton(f);}
   function remember(shows){for(const f of shows)if(f?.id)allShows.set(String(f.id),f);}
   function heroMarkup(f){
-    if(!f)return `<div class="kg-sh-message">${esc(uiText('Сериалы появятся после загрузки каталога.'))}</div>`;
+    if(!f)return `<div class="kg-sh-hero" data-sh-hero hidden></div>`;
     return `<div class="kg-sh-hero" data-sh-hero data-service="${service(f)}"><div class="kg-sh-showcase-ribbon"><span><i></i><b>${esc(uiText('Выбор Moven'))} · ${esc(serviceLabel(f))}</b></span>${icon('spark',13)}</div><div class="kg-sh-hero-card"><div class="kg-sh-parallax"><div class="kg-sh-bg-layer is-active" style="background-image:url('${esc(image(f))}')"></div><div class="kg-sh-bg-layer"></div></div><div class="kg-sh-darkness"></div><div class="kg-sh-hero-shade"></div><span class="kg-sh-scroll-cue" aria-hidden="true">↓</span><div class="kg-sh-hero-copy"><div class="kg-sh-content-crossfade"><div class="kg-sh-badges"><span class="kg-sh-exclusive">${esc(uiText('Выбор Moven'))}</span><span class="kg-sh-provider" data-sh-hero-platform>${esc(serviceLabel(f))}</span>${badge(f)}<span class="kg-sh-meta-badge">${esc(seasons(f))} · ${esc(episodes(f))}</span><span class="kg-sh-format">${esc(uiText(f.status==='Ended'?'Завершён':'Сериал'))}</span></div><div><h2>${esc(title(f))}</h2><p class="kg-sh-hero-sub">${esc([f.original_title!==title(f)?f.original_title:'',(f.genres||[]).slice(0,3).map(g=>g.name||g).join(', ')].filter(Boolean).join(' · '))}</p></div><p class="kg-sh-synopsis">${esc(f.overview||uiText('Откройте карточку, чтобы узнать больше о сериале.'))}</p><div class="kg-sh-hero-actions"><button type="button" class="kg-sh-primary" data-sh-open="${f.id}">${icon('info',20)}${esc(uiText('О сериале'))}</button>${bookmark(f)}</div></div></div></div></div>`;
   }
   function premiereMarkup(f){
@@ -74,7 +75,7 @@
     const slides=expanded?data.premieres:data.premieres.slice(0,6);remember([data.hero,...data.popular,...data.premieres,...data.schedule.map(x=>x.show)]);
     const liveHero=root.querySelector('[data-sh-hero]');
     const holder=document.createElement('div');holder.innerHTML=`<div class="kg-sh-categories">${categories.map(([key,text])=>`<button type="button" data-sh-category="${key}" aria-pressed="${category===key}">${key==='all'?icon('spark',14):''}${esc(uiText(text))}</button>`).join('')}</div>${heroMarkup(data.hero)}<section class="kg-sh-platforms">${heading('Стриминговые сервисы',`<span>${esc(uiText('Платформы'))}</span>`)}<div class="kg-sh-platform-scroll">${Object.entries(platforms).map(([key,label])=>`<button type="button" data-sh-platform="${key}" aria-pressed="${platform===key}">${key==='all'?icon('grid',18):`<img src="assets/series-hub/${key}.svg" alt="">`}${esc(uiText(key==='all'?'Все':label))}</button>`).join('')}</div><div class="kg-sh-filter-status" data-sh-filter-status hidden><span>${icon('filter',15)}<span data-sh-filter-text></span></span><button type="button" data-sh-reset>${esc(uiText('Сбросить'))}</button></div></section><section class="kg-sh-schedule">${heading('График выхода новых серий',`<span>${esc(uiText('Неделя'))}</span>`)}<div class="kg-sh-scroll" data-sh-schedule>${data.schedule.length?data.schedule.slice(0,12).map(scheduleMarkup).join(''):`<p class="kg-sh-message">${esc(uiText(loading?'Загружаем расписание…':!apiKey?'Добавьте ключ TMDB, чтобы загрузить расписание.':'На ближайшую неделю подтверждённых дат пока нет.'))}</p>`}</div></section><section class="kg-sh-premieres">${heading('Громкие премьеры и продолжения',`<button type="button" data-sh-more aria-expanded="${expanded}">${esc(uiText(expanded?'Свернуть':'Все'))}${icon('chevron',16)}</button>`)}<div class="kg-sh-scroll">${slides.map(premiereMarkup).join('')}</div></section><section class="kg-sh-popular-section">${heading('Популярно в сети',`<span>${esc(uiText('Рейтинг'))}</span>`)}<div class="kg-sh-grid">${data.popular.slice(0,expanded?20:6).map(popularMarkup).join('')}</div></section><div class="kg-sh-empty" data-sh-empty hidden>${icon('info',30)}<h4>${esc(uiText('Релизы не найдены'))}</h4><p>${esc(uiText('На данной платформе пока нет добавленных премьер в этом разделе.'))}</p><button type="button" data-sh-reset>${esc(uiText('Показать все сериалы'))}</button></div><p class="kg-sh-data-status" data-sh-status role="status"></p>`;
-    if(liveHero){for(const child of [...root.children])if(child!==liveHero)child.remove();for(const child of [...holder.children]){if(child.matches('[data-sh-hero]'))continue;if(child.matches('.kg-sh-categories'))root.insertBefore(child,liveHero);else root.append(child);}updateHero(data.hero,animate);}else{root.append(...holder.children);heroKey=String(data.hero?.id);queueParallax();}
+    if(liveHero){liveHero.hidden=!data.hero;for(const child of [...root.children])if(child!==liveHero)child.remove();for(const child of [...holder.children]){if(child.matches('[data-sh-hero]'))continue;if(child.matches('.kg-sh-categories'))root.insertBefore(child,liveHero);else root.append(child);}updateHero(data.hero,animate);}else{root.append(...holder.children);heroKey=String(data.hero?.id);queueParallax();}
     localizeInterfaceMarkup(root);root.querySelectorAll('.kg-sh-categories,.kg-sh-platform-scroll,.kg-sh-scroll').forEach((el,i)=>el.scrollLeft=rails[i]||0);if(focused)root.querySelector(`[${focused[0]}="${focused[1]}"]`)?.focus({preventScroll:true});if(animate)root.querySelectorAll('[data-sh-card]').forEach(card=>card.classList.add('is-fading'));applyPlatform(platform,animate);
   }
   function applyPlatform(value,animate=true){
@@ -86,7 +87,7 @@
       else{card.classList.add('is-fading');if(animate)fadeTimers.set(card,setTimeout(()=>{if(card.classList.contains('is-fading'))card.classList.add('is-hidden');},240));else card.classList.add('is-hidden');}
     });
     const status=root.querySelector('[data-sh-filter-status]');status.hidden=value==='all';root.querySelector('[data-sh-filter-text]').textContent=uiText('Выбрано: {platform} · Найдено тайтлов: {count}',{platform:platforms[value],count:matches.size});
-    root.querySelector('[data-sh-empty]').hidden=value==='all'||matches.size>0;
+    root.querySelector('[data-sh-empty]').hidden=loading||value==='all'||matches.size>0;
     const candidates=[...allShows.values()].filter(f=>value==='all'||service(f)===value);
     const selected=value==='all'?(featured.get(category)||data.hero):candidates.find(f=>f.id===data.hero?.id)||candidates[0]||seeds().find(f=>service(f)===value);
     if(selected)updateHero(selected,animate);
@@ -97,6 +98,7 @@
     const version=++heroVersion;clearTimeout(heroTimer);const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
     const next=document.createElement('div');next.innerHTML=heroMarkup(f);const target=next.firstElementChild;
     const content=hero.querySelector('.kg-sh-content-crossfade'),ribbon=hero.querySelector('.kg-sh-showcase-ribbon');
+    if(!content||!ribbon){hero.replaceWith(target);queueParallax();return;}
     content.classList.toggle('is-fading',animate&&!reduced);ribbon.classList.toggle('is-fading',animate&&!reduced);
     const layers=[...hero.querySelectorAll('.kg-sh-bg-layer')],incoming=layers.find(l=>!l.classList.contains('is-active'))||layers[1];
     const preload=new Image();preload.src=image(f);incoming.style.backgroundImage=target.querySelector('.kg-sh-bg-layer').style.backgroundImage;
@@ -118,6 +120,7 @@
     const copy=hero.querySelector('.kg-sh-hero-copy');copy.style.transform=`translate3d(0,${state.textY.toFixed(2)}px,0) scale(${state.textScale})`;copy.style.opacity=state.opacity.toFixed(3);copy.style.filter=state.blur>.3?`blur(${state.blur.toFixed(1)}px)`:'none';
     hero.querySelector('.kg-sh-scroll-cue').style.opacity=state.cue.toFixed(2);
   });}
+  function platformResults(rows,selected){return rows.filter(movieCatalog.allows).map(f=>selected==='all'?f:{...f,_hubService:selected});}
   async function tmdb(path,params={}){return requestTmdb(path,{language:filmLocale,include_adult:'false',...params});}
   async function networkQuery(selected){
     if(selected==='all')return {};
@@ -128,9 +131,9 @@
     }
     return networkCache.get(selected);
   }
-  const cacheName=()=>`kgSeriesHub.v1.${filmLocale}.${dateKey()}.${category}.${platform}`;
+  const cacheName=()=>`kgSeriesHub.v2.${filmLocale}.${dateKey()}.${category}.${platform}`;
   function cached(){try{const record=JSON.parse(localStorage.getItem(cacheName()));return record&&Date.now()-record.time<CACHE_TTL&&['popular','premieres','schedule'].every(k=>Array.isArray(record.data?.[k]))?record.data:null;}catch{return null;}}
-  function storeCache(){try{const key=cacheName();localStorage.setItem(key,JSON.stringify({time:Date.now(),data}));const keys=Object.keys(localStorage).filter(k=>k.startsWith('kgSeriesHub.v1.')&&k!==key);for(const k of keys){const value=JSON.parse(localStorage.getItem(k)||'null');if(!value||Date.now()-value.time>CACHE_TTL)localStorage.removeItem(k);}}catch{}}
+  function storeCache(){try{const key=cacheName();localStorage.setItem(key,JSON.stringify({time:Date.now(),data}));const keys=Object.keys(localStorage).filter(k=>k.startsWith('kgSeriesHub.v2.')&&k!==key);for(const k of keys){const value=JSON.parse(localStorage.getItem(k)||'null');if(!value||Date.now()-value.time>CACHE_TTL)localStorage.removeItem(k);}}catch{}}
   async function detailsFor(shows,token){
     const unique=[...new Map(shows.filter(Boolean).map(f=>[f.id,f])).values()],output=new Map();let next=0;
     await Promise.all(Array.from({length:Math.min(4,unique.length)},async()=>{while(next<unique.length){if(token!==generation)return;const f=unique[next++];try{const raw=await tmdb(`tv/${window.KGSeries.rawId(f.id)}`);output.set(f.id,localizeFilmListItem({...f,...raw}));}catch{output.set(f.id,f);}}}));return output;
@@ -141,23 +144,27 @@
     const token=++generation;
     const stored=!force&&cached();if(stored){data=stored;loadedKey=key;loading=false;render(true);return;}
     if(!apiKey){root.querySelector('[data-sh-status]').textContent=uiText('Добавьте ключ TMDB, чтобы обновлять сериалы и расписание.');return;}
-    loadedKey=key;loading=true;root.querySelector('[data-sh-status]').textContent=uiText('Обновляем сериалы…');
+    loadedKey=key;loading=true;root.setAttribute('aria-busy','true');root.querySelector('[data-sh-empty]').hidden=true;root.querySelector('[data-sh-status]').textContent=uiText('Обновляем сериалы…');
     if(!data.schedule.length)root.querySelector('[data-sh-schedule]').innerHTML=`<p class="kg-sh-message" role="status">${esc(uiText('Загружаем расписание…'))}</p>`;
     try{
       const today=dateKey(),networks=await networkQuery(platform);if(token!==generation)return;const queries=await Promise.allSettled([
         tmdb('discover/tv',{...categoryQuery(category,today),...networks}),tmdb('discover/tv',{...categoryQuery(category,today),...networks,...(category==='week'?{}:{'air_date.gte':dayAfter(today,-30),'air_date.lte':dayAfter(today,7)})}),category==='all'&&platform==='all'?tmdb('tv/on_the_air',{page:1}):tmdb('discover/tv',{...categoryQuery(category,today),...networks,'air_date.gte':today,'air_date.lte':dayAfter(today,7)})
       ]);
       if(token!==generation)return;
-      const lists=queries.map(r=>r.status==='fulfilled'?(r.value.results||[]).filter(movieCatalog.allows):[]);if(!lists.some(x=>x.length))throw new Error('empty');
+      if(queries.every(r=>r.status==='rejected'))throw new Error('unavailable');
+      const lists=queries.map(r=>r.status==='fulfilled'?platformResults(r.value.results||[],platform):[]);
       const popular=(lists[0].length?lists[0]:lists[2]).slice(0,12),premieres=lists[1].slice(0,10),schedule=lists[2].slice(0,16);
       const hero=popular.find(f=>f.backdrop_path)||premieres[0]||popular[0]||schedule[0];
+      // Render network-qualified rows before the optional per-show metadata requests.
+      allShows.clear();data={hero:hero||null,popular,premieres:premieres.length?premieres:popular,schedule:[]};render(true);
+      root.querySelector('[data-sh-empty]').hidden=!!hero;root.querySelector('[data-sh-status]').textContent=uiText('Обновляем сериалы…');
       const details=await detailsFor([hero,...popular.slice(0,8),...premieres.slice(0,6),...schedule],token);if(token!==generation)return;
       const enriched=items=>items.map(f=>details.get(f.id)||f).filter(movieCatalog.allows);
       const heroCandidate=details.get(hero?.id)||hero;
       const safeHero=movieCatalog.allows(heroCandidate)?heroCandidate:enriched(popular)[0];if(platform==='all')featured.set(category,safeHero);
       data={hero:safeHero,popular:enriched(popular),premieres:enriched(premieres.length?premieres:popular),schedule:scheduleFor(enriched(schedule))};
-      loading=false;render(true);storeCache();root.querySelector('[data-sh-status]').textContent='';
-    }catch{if(token!==generation)return;loading=false;if(!data.schedule.length)root.querySelector('[data-sh-schedule]').innerHTML=`<div class="kg-sh-message"><p>${esc(uiText('Не удалось загрузить расписание.'))}</p><button type="button" data-sh-retry>${esc(uiText('Повторить'))}</button></div>`;root.querySelector('[data-sh-status]').innerHTML=`${esc(uiText('Не удалось обновить сериалы.'))} <button type="button" data-sh-retry>${esc(uiText('Повторить'))}</button>`;}
+      loading=false;root.removeAttribute('aria-busy');render(true);storeCache();root.querySelector('[data-sh-status]').textContent='';
+    }catch{if(token!==generation)return;loading=false;root.removeAttribute('aria-busy');root.querySelector('[data-sh-empty]').hidden=true;if(!data.schedule.length)root.querySelector('[data-sh-schedule]').innerHTML=`<div class="kg-sh-message"><p>${esc(uiText('Не удалось загрузить расписание.'))}</p><button type="button" data-sh-retry>${esc(uiText('Повторить'))}</button></div>`;root.querySelector('[data-sh-status]').innerHTML=`${esc(uiText('Не удалось обновить сериалы.'))} <button type="button" data-sh-retry>${esc(uiText('Повторить'))}</button>`;}
   }
   function mount(panel){
     if(root)return;root=document.createElement('section');root.id='kg-series-hub';root.className='kg-sh kg-home-full-width';root.setAttribute('aria-label',uiText('Сериалы: новинки и расписание'));panel.append(root);
@@ -174,5 +181,5 @@
     document.addEventListener('kg:media-change',event=>{if(event.detail.mediaType==='tv')load();else{generation++;loading=false;}});
     document.addEventListener('kg-bookmark-change',()=>{if(root)root.querySelectorAll('[data-kg-bookmark]').forEach(b=>paintBookmarkButton(b,kgIsBookmarked(b.dataset.kgBookmark)));});
   }
-  window.KGSeriesHub={mount,load,scheduleFor,categoryQuery,service,applyPlatform,parallaxState};
+  window.KGSeriesHub={mount,load,scheduleFor,categoryQuery,service,applyPlatform,parallaxState,platformResults};
 })();

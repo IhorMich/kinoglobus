@@ -1,5 +1,5 @@
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict'),path=require('node:path');
-const window={KGSeries:{rawId:id=>Number(id)}};vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../series-hub.js'),'utf8'),{window,Date,Map,Set,console});
+const window={KGSeries:{rawId:id=>Number(id)}};vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../series-hub.js'),'utf8'),{window,Date,Map,Set,console,movieCatalog:{allows:f=>f?.adult===false}});
 const hub=window.KGSeriesHub;
 const a={id:1,title:'A',next_episode_to_air:{season_number:2,episode_number:3,air_date:'2026-11-20'},last_episode_to_air:{season_number:2,episode_number:2,air_date:'2026-11-12'}};
 const b={id:2,title:'B',last_episode_to_air:{season_number:1,episode_number:8,air_date:'2026-11-19'},next_episode_to_air:{season_number:1,episode_number:9,air_date:'2026-11-19'}};
@@ -16,3 +16,6 @@ const middle=hub.parallaxState(180);assert.equal(middle.y,68.4);assert.equal(mid
 const end=hub.parallaxState(450);assert.ok(Math.abs(end.dark-.85)<1e-9);assert.equal(end.opacity,0);assert.equal(end.blur,3.5);
 assert.equal(hub.parallaxState(-240).scale,1.28);assert.equal(hub.parallaxState(-999).scale,1.28);
 console.log('PASS: reference parallax ratio, darkness, text dissolve, blur and overscroll zoom');
+
+const rows=hub.platformResults([{id:99,adult:false,name:'A'},{id:100,adult:true,name:'B'}],'prime');assert.equal(rows.length,1);assert.equal(hub.service(rows[0]),'prime');assert.equal(hub.service({...rows[0],networks:[{name:'Netflix'}]}),'prime');assert.equal(hub.service(hub.platformResults([{id:99,adult:false}], 'all')[0]),'other');
+console.log('PASS: network-qualified results remain visible without optional metadata, mixed networks and adult filtering');

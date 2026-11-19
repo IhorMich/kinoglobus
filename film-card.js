@@ -14,6 +14,7 @@ function trailerThumb(v,f){
   return src?`<img src="${src}" alt="" class="absolute inset-0 w-full h-full object-cover opacity-80" loading="eager" decoding="async" onerror="this.remove()">`:"";
 }
 function markup(f, {closable = true, inline = false} = {}) {
+  if(window.KGSeries?.isSeriesId(f.id)&&window.KGSeriesDetail)return window.KGSeriesDetail.markup(f,{closable,inline});
   if (f.backdrop_path && ((f.castFull && f.castFull.length) || (f.dirsFull && f.dirsFull.length)))
     window.KGPersonBackdropWarm?.(f.backdrop_path);
   const year=String(f.release_date||f.year||"").slice(0,4);
@@ -247,6 +248,7 @@ function mount(host, film, options) {
   const card = host.firstElementChild;
   if (card?.matches(".kg-film-detail") && mountedFilms.get(card) === film) update(card, film, options);
   else host.replaceChildren(create(film, options));
+  window.KGSeriesDetail?.enhance(host.firstElementChild,film);
   return host.firstElementChild;
 }
 
@@ -269,6 +271,7 @@ function playTrailer(card, film, focus = true) {
   const stage = card.querySelector("[data-kg-film-trailer]");
   if (!film._trailer || !stage || stage.querySelector("iframe")) return;
   stopTrailers();
+  if(card.matches(".kg-series-detail")){film._seriesTrailerOpen=true;card.querySelector('[data-film-part="trailer"]').hidden=false;}
   const frame = document.createElement("iframe");
   frame.src = embedSrc(film._trailer,true);
   frame.allow = trailerFramePermissions;
@@ -357,7 +360,7 @@ async function openDialog(film, opener, {autoplayTrailer = false} = {}) {
   stopTrailers();
   const dialog = document.createElement("dialog");
   dialog.className="kg-film-dialog";
-  dialog.setAttribute("aria-label",uiText("Фильм"));
+  dialog.setAttribute("aria-label",uiText(window.KGSeries?.isSeriesId(id)?"Сериал":"Фильм"));
   dialog.innerHTML=`<header class="kg-film-dialog-header"><button type="button" autofocus data-kg-film-back><span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>${uiText("Назад")}</button></header><div data-kg-film-dialog-content></div>`;
   const host=dialog.querySelector("[data-kg-film-dialog-content]");
   const relatedPool=film._kgRelatedPool;
@@ -366,6 +369,7 @@ async function openDialog(film, opener, {autoplayTrailer = false} = {}) {
   dialog.__kgPoolKeys=key?[key]:[];
   const model=createModel(film,{_kgRelatedContext:key, _kgGlobalRelated:film._kgGlobalRelated ?? !key});
   let activeModel=model;
+  dialog.__kgSetActiveModel=value=>{activeModel=value;};
   dialog.__kgCurrentModel=model;
   dialog.__kgRelatedHistory=[];
   const refresh=forModel=>()=>{if(activeModel===forModel)mount(host,forModel,{closable:false});};
@@ -402,6 +406,7 @@ async function openDialog(film, opener, {autoplayTrailer = false} = {}) {
 function modelFor(card){return mountedFilms.get(card)||window.KGInlineFilmModel?.(card)||window.KGGlobeFilmModel?.(card)||null;}
 
 function openInlineRelated(film,current,opener,pool=[],oscar=false){
+  if(window.KGSeries?.isSeriesId(current?.id)&&opener?.closest?.("dialog.kg-film-dialog"))return false;
   const id=Number(film?.id),parentCard=opener?.closest?.(".kg-film-detail");
   if(!parentCard||modelFor(parentCard)!==current||!Number.isSafeInteger(id)||id<=0||!movieCatalog.allows(film))return false;
   const related=parentCard.querySelector(":scope > [data-film-part=related]");
@@ -453,6 +458,7 @@ async function navigateDialogRelated(film,dialog,opener,pool=[],oscar=false){
   const model=createModel(film,{_kgRelatedContext:key,_kgGlobalRelated:film._kgGlobalRelated??!key,
     _kgRelatedPool:pool,_oscarContext:!!oscar,_relatedPrevious:current});
   dialog.__kgCurrentModel=model;
+  dialog.__kgSetActiveModel?.(model);
   host.replaceChildren();
   const refresh=()=>{if(dialog.open&&dialog.__kgCurrentModel===model)mount(host,model,{closable:false});};
   refresh();

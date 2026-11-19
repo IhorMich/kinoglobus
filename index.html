@@ -20,6 +20,7 @@ html.kg-launch-pending body>:not(#kg-launch-splash){visibility:hidden!important;
 <meta name="description" content="Explore the world of cinema">
 <link rel="stylesheet" href="app-theme.css?v=72">
 <link rel="stylesheet" href="series-hub.css?v=2">
+<link rel="stylesheet" href="series-detail.css?v=1">
 <script>
 try {
   if (!navigator.connection?.saveData) {
@@ -35,7 +36,7 @@ try {
 } catch (_) {}
 </script>
 <script src="steel-motion.js?v=4" defer></script>
-<script src="interface-en.js?v=65"></script>
+<script src="interface-en.js?v=66"></script>
 <script src="interface-i18n.js?v=2"></script>
 <script src="catalog-safety.js?v=2"></script>
 <script>
@@ -3247,7 +3248,7 @@ async function filmDetails(id){
   const rel=(j.release_dates&&j.release_dates.results)||[];
   const certOf=cc=>{const c=rel.find(x=>x.iso_3166_1===cc);const d=c&&(c.release_dates||[]).find(x=>String(x.certification||"").trim());return d?String(d.certification).trim():"";};
   const cert=certOf("RU")||certOf("US")||(rel.map(x=>certOf(x.iso_3166_1)).find(Boolean)||"");
-  return detailCache[id]={adult:j.adult, cert,runtime:j.runtime||0,dirs,dirsFull:dirsFull.map(d=>({...d,photo:(crew.find(c=>c.id===d.id)||{}).profile_path||""})),writers:writers.slice(0,3),cast,castFull:(j.credits&&j.credits.cast||[]).slice(0,10).map(c=>({id:c.id,name:c.name,role:c.character||"",photo:c.profile_path||""})),genres,budget:j.budget||0,revenue:j.revenue||0,
+  return detailCache[id]={...(window.KGSeries?.isSeriesId(id)?{seasons:j.seasons||[],number_of_seasons:j.number_of_seasons,number_of_episodes:j.number_of_episodes,created_by:j.created_by||[],first_air_date:j.first_air_date,last_air_date:j.last_air_date,status:j.status,in_production:j.in_production,networks:j.networks||[],backdrop_path:j.backdrop_path}:{}),adult:j.adult, cert,runtime:j.runtime||0,dirs,dirsFull:dirsFull.map(d=>({...d,photo:(crew.find(c=>c.id===d.id)||{}).profile_path||""})),writers:writers.slice(0,3),cast,castFull:(j.credits&&j.credits.cast||[]).slice(0,10).map(c=>({id:c.id,name:c.name,role:c.character||"",photo:c.profile_path||""})),genres,budget:j.budget||0,revenue:j.revenue||0,
     title:selectMovieText(j, "title").text, localizedPoster:selectFilmPoster(j), posterPath:j.poster_path || "",
     tagline:tg.text,taglineLang:tg.lang,overview:ov.text,overviewLang:ov.lang,
     release:j.release_date||"",originalTitle:j.original_title||"",originalLang:j.original_language||"",
@@ -4360,8 +4361,9 @@ console.info("[Moven: Explore] Bridge v6 ready");
 <script src="oscar-page.js?v=48"></script>
 <script src="oscar-design.js?v=30"></script>
 <script src="curated-collections.js?v=3"></script>
-<script src="film-card.js?v=16"></script>
+<script src="film-card.js?v=17"></script>
 <script src="series-page.js?v=2"></script>
+<script src="series-detail.js?v=1"></script>
 <script src="series-hub.js?v=3"></script>
 <script src="collections.js?v=129"></script>
 <script src="film-interactions.js?v=43"></script>

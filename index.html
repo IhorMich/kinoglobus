@@ -38,7 +38,7 @@ try {
 } catch (_) {}
 </script>
 <script src="steel-motion.js?v=4" defer></script>
-<script src="interface-en.js?v=72"></script>
+<script src="interface-en.js?v=73"></script>
 <script src="interface-i18n.js?v=2"></script>
 <script src="catalog-safety.js?v=3"></script>
 <script>
@@ -4234,6 +4234,7 @@ window.show=function(cc,pool,film){
   if(!preserveFrame){detailsEl.classList.add("veiled");refresh();}
   else pendingRerollReveal={model,refresh};
   set("discovery-timestamp",pool.emmy?window.KGSeriesDiscovery.awardText(film):pool.oscar?uiText("Лауреат «Оскара»"):pool.top1&&pool.exact?uiText("Топ-1 страны · {time}",{time:new Date(pool.calculatedAt).toLocaleTimeString(interfaceLanguage,{hour:"2-digit",minute:"2-digit"})}):pool.top1?uiText("Топ-1 страны"):pool.worst?uiText("Из худших"):uiText("Случайная находка · {country}", {country:cname(cc)}));
+  $("discovery-timestamp").classList.toggle("truncate",!pool.emmy);
   $("kg-globe-film-context").innerHTML=globeFilmContext(cc);
   ag.hidden=$("again").hidden;
   if(!preserveFrame)renderBlank();
@@ -4356,8 +4357,8 @@ console.info("[Moven: Explore] Bridge v6 ready");
 <script src="curated-collections.js?v=3"></script>
 <script src="film-card.js?v=20"></script>
 <script src="series-page.js?v=5"></script>
-<script src="emmy-winners.js?v=1"></script>
-<script src="series-discovery.js?v=1"></script>
+<script src="emmy-winners.js?v=2"></script>
+<script src="series-discovery.js?v=2"></script>
 <script src="series-detail.js?v=5"></script>
 <script src="watch-entry.js?v=1"></script>
 <script src="series-hub.js?v=4"></script>

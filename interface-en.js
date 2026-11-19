@@ -1,6 +1,16 @@
 // English translations for the Moven interface.
 window.KGInterfaceDictionaries ??= {};
 window.KGInterfaceDictionaries.en = Object.freeze({
+  "Лучший сериал": "Outstanding Series",
+  "Лучший анимационный сериал": "Outstanding Animated Program",
+  "Награда за актёрскую игру": "Acting award",
+  "Лучшая главная роль": "Lead acting award",
+  "Лучшая роль второго плана": "Supporting acting award",
+  "Лучшая гостевая роль": "Guest acting award",
+  "Лучшая озвучка": "Voice-over award",
+  "Награда за режиссуру": "Directing award",
+  "Награда за сценарий": "Writing award",
+
   "Топ-1 сериалов": "Top TV series",
   "Лауреат Эмми": "Emmy winner",
   "Лауреат «Эмми»": "Emmy winner",

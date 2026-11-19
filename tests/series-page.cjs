@@ -20,5 +20,16 @@ const api=window.KGSeries;context.catalog=vm.runInContext('movieCatalog',context
  await window.KGToggleWatched(series);assert.equal(window.KGIsFilmWatched(series.id),true,'cancel preserves the TV mark');allowRemoval=true;await window.KGToggleWatched(series);assert.equal(window.KGIsFilmWatched(series.id),false);
  await window.kgToggleBookmark(series.id,series);assert.equal(window.kgIsBookmarked(series.id),true);assert.equal(window.kgIsBookmarked(42),true);assert.equal(values.has('kgBookmarks'),false);await window.kgToggleBookmark(42,{});assert.equal(delegated.at(-1),42);
  window.KGDiscoveryBridge={busy:()=>true};assert.equal(api.setMode(true),false);assert.equal(api.active,false);
+ // Mounting must keep the visibility class while sharing the film layout.
+ const fakeHome={className:'flex flex-col movie-layout',children:[]},classes=new Set();
+ const fakePanel={className:'',replaceChildren(){},classList:{add:name=>classes.add(name)}};
+ api.mount(fakeHome,fakePanel);assert.equal(fakePanel.className,fakeHome.className);assert.ok(classes.has('kg-series-page'),'the series visibility class survives mounting');
+ let resets=0,restores=0;window.KGDiscoveryBridge={busy:()=>false,snapshot:()=>({}),reset:()=>resets++,restore:()=>restores++};
+ context.document.documentElement={dataset:{}};context.document.querySelector=()=>null;context.document.getElementById=()=>null;
+ context.MutationObserver=class{observe(){}disconnect(){}};
+ assert.equal(api.setMode(true),true);assert.equal(api.active,true);assert.equal(context.document.documentElement.dataset.kgMedia,'tv');
+ assert.equal(api.setMode(false),true);assert.equal(api.active,false);assert.equal(context.document.documentElement.dataset.kgMedia,'movie');assert.equal(resets,2);assert.equal(restores,2);
+ assert.match(read('app-theme.css'),/#view-series\[hidden\]\{display:none!important\}/,'hidden series panel beats layout display rules');
+ console.log('PASS: preserved panel visibility, repeated media switches and hidden CSS precedence');
  console.log('PASS: TV date/genre queries, typed IDs, details/videos routing, creators/cast, safe catalogue filtering, isolated marks/bookmarks and busy-mode guard');
 })().catch(error=>{console.error(error);process.exitCode=1});

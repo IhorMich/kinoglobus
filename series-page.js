@@ -43,7 +43,7 @@
   const write=(key,value)=>{try{localStorage.setItem(key,JSON.stringify(value));}catch{}};
   const savedSeriesState=()=>({cats:read('series.cats',[]),countries:read('series.countryFilters',[]),year:read('series.year',''),yearTo:read('series.yearTo',''),rmin:read('series.rmin','6'),rmax:read('series.rmax',''),mode:read('series.playMode','filters'),surprise:read('series.surprise','light'),quick:'',theme:''});
   function mount(filmPanel,seriesPanel){
-    home=filmPanel;panel=seriesPanel;panel.replaceChildren();panel.className=home.className;
+    home=filmPanel;panel=seriesPanel;panel.replaceChildren();panel.className=home.className;panel.classList.add('kg-series-page');
     slots=[...home.children].filter(node=>!['kg-home-releases','kg-home-editorial'].includes(node.id)).map(node=>{const slot=document.createComment('shared discovery frame');node.before(slot);return {node,slot};});
     states.tv=savedSeriesState();
     window.KGSeriesHub?.mount(panel);

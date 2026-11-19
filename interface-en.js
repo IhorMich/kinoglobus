@@ -1759,5 +1759,12 @@ window.KGInterfaceDictionaries.en = Object.freeze({
   "Убрать": "Remove",
   "Тип контента": "Content type",
   "Сериалы": "TV series",
-  "Кино": "Films"
+  "Кино": "Films",
+  "По всему каталогу страны": "Across the entire country catalogue",
+  "Считаем весь каталог…": "Calculating the entire catalogue\u2026",
+  "Не удалось рассчитать · повторить": "Calculation failed \u00b7 retry",
+  "Не удалось рассчитать весь каталог. Повторите загрузку.": "Could not calculate the entire catalogue. Please retry.",
+  "Весь каталог страны · {count} фильмов": "Entire country catalogue \u00b7 {count} films",
+  "Эпохи кинематографа": "Cinema eras",
+  "Фильмы каталога": "Catalogue films"
 });

@@ -289,8 +289,9 @@
   });
   let notes = store.get(notesKey,{}) || {};
 
-  function makeEntry(film) {
-    const note = notes[String(film.id)] || {};
+  const entryId=entry=>String(entry.film._diaryKey||entry.film.id);
+  function makeEntry(film, suppliedNote) {
+    const note = suppliedNote || notes[String(film.id)] || {};
     const date = readDate(note.date || film.watchedAt);
     const code = film.countries?.[0] || film.cc || "";
     return {film,note,date,key:date ? dayKey(date) : "",code:/^[A-Z]{2}$/.test(code) ? code : ""};
@@ -304,10 +305,10 @@
   function savedNotes() {
     const films = new Map(entries.map(entry => [String(entry.film.id), entry.film]));
     const saved = store.get("kgBookmarkFilms", {}) || {};
-    return Object.entries(notes).map(([id, note]) => makeEntry({
+    return Object.entries(notes).filter(([,note])=>note.diary!==false).map(([id, note]) => makeEntry({
       ...(movieCatalog.savedFilm(note.film) || movieCatalog.savedFilm(saved[id]) || films.get(id)),
       id: Number(id)
-    })).sort((a, b) => b.key.localeCompare(a.key));
+    })).concat((window.KGSeriesDetail?.diaryEntries?.()||[]).map(entry=>makeEntry(entry.film,entry.note))).sort((a, b) => b.key.localeCompare(a.key));
   }
 
   function currentList() {
@@ -376,7 +377,7 @@
           <span class="kg-diary-muted block" data-tags></span><span class="kg-diary-stars block" data-stars hidden></span>
         </span>
       </span>
-      </button>${kgBookmarkButton(film, "edge")}</div>
+      </button>${kgBookmarkButton(film._episodeLog?.series||film, "edge")}</div>
       <div class="kg-diary-film-action" hidden><button type="button" class="kg-diary-edit" data-edit></button></div>
       <div class="kg-diary-note-content">
         <strong data-note-title hidden></strong>
@@ -394,15 +395,15 @@
       image.addEventListener("error", () => { poster.innerHTML = icon("movie"); }, {once:true});
     }
     const select = card.querySelector("[data-film-select]");
-    const id = String(film.id);
+    const id = entryId(entry);
     select.dataset.filmSelect = id;
-    select.setAttribute("aria-label",uiText("Открыть фильм {title}",{title:filmName(film)}));
+    select.setAttribute("aria-label",uiText(window.KGSeries?.isSeriesId(film.id)?"Открыть сериал {title}":"Открыть фильм {title}",{title:filmName(film)}));
     const action = card.querySelector(".kg-diary-film-action");
     action.id = "kg-diary-film-action-" + id;
     action.hidden = false;
     const edit = action.querySelector("button");
     edit.dataset.edit = id;
-    edit.textContent = uiText(Object.hasOwn(notes,id) ? "Редактировать запись" : "Добавить запись");
+    edit.textContent = uiText(Object.hasOwn(notes,id)||film._episodeLog ? "Редактировать запись" : "Добавить запись");
     card.querySelector(".kg-diary-film-name").textContent = filmName(film);
     card.querySelector("[data-date]").textContent = date ? dateLabel.format(date) : source === "watched" ? uiText("Дата не указана") : "";
     card.querySelector("[data-meta]").textContent = [film.original,film.year,code && countryName(code)].filter(Boolean).join(" · ");
@@ -436,7 +437,7 @@
     const totals = {
       watched:entries.length, countries:new Set(entries.map(entry => entry.code).filter(Boolean)).size,
       rating:ratings.length ? ratings.reduce((sum,rating) => sum + rating,0)/ratings.length : null,
-      notes:Object.values(notes).filter(note => note.text).length
+      notes:savedNotes().filter(entry => String(entry.note.text||'').trim()).length
     };
     for (const [key,value] of Object.entries(totals)) {
       dialog.querySelector(`[data-stat="${key}"]`).textContent = value === null ? "—" : number.format(value);
@@ -577,12 +578,39 @@
     };
   }
 
+  function refreshAfterNote(id,date){
+    notes=store.get(notesKey,{})||{};
+    document.dispatchEvent(new CustomEvent("kg:diary-note-change",{detail:{id}}));
+    if(!dialog.open)return;
+    const scroll=dialog.querySelector('.kg-diary-scroll'),top=scroll.scrollTop;
+    selectedFilm=id;refreshEntries();bookmarks=bookmarks.map(entry=>makeEntry(entry.film));filter='all';day='';
+    month=(date||dayKey(new Date())).slice(0,7);calendar.value=month;render();scroll.scrollTop=top;
+    dialog.querySelector(`[data-edit="${id}"]`)?.focus({preventScroll:true});showStatus('Запись сохранена.');
+  }
+  function compactNote(entry,films){
+    const film=entry.film,id=String(film.id);
+    if(film._episodeLog){const log=film._episodeLog;window.KGSeriesDetail.openEpisodeNote(log.series,log.episode,log.season);return;}
+    const draft=(store.get(draftKey,{})||{})[id],initial={date:entry.key||dayKey(new Date()),...(draft||entry.note)};
+    window.KGViewingNote.open({kind:window.KGSeries?.isSeriesId(film.id)?'series':'film',title:filmName(film),subtitle:[film.original,film.year].filter(Boolean).join(' · '),poster:film.poster,runtime:film.runtime,release:film.release_date||film.release||'',initial,legacy:true,
+      choices:films.map(e=>({id:entryId(e),title:filmName(e.film)})),selected:id,onSelect:value=>openNote(value,films),
+      onSave:value=>{
+        const {adult,title,original,year,poster,cc}=film;
+        const next={...(store.get(notesKey,{})||{}),[id]:{...value,film:{id:Number(id),adult,title,original,year,poster,cc:film.countries?.[0]||cc}}};
+        localStorage.setItem(notesKey,JSON.stringify(next));
+        const drafts=store.get(draftKey,{})||{};if(Object.hasOwn(drafts,id)){delete drafts[id];store.set(draftKey,drafts);}
+        refreshAfterNote(id,value.date);
+      },
+      onDraft:value=>{const drafts=store.get(draftKey,{})||{};localStorage.setItem(draftKey,JSON.stringify({...drafts,[id]:value}));},
+      onDelete:Object.hasOwn(notes,id)?()=>{const next={...(store.get(notesKey,{})||{})};delete next[id];localStorage.setItem(notesKey,JSON.stringify(next));const drafts=store.get(draftKey,{})||{};if(Object.hasOwn(drafts,id)){delete drafts[id];store.set(draftKey,drafts);}refreshAfterNote(id,initial.date);}:null
+    });
+  }
   function openNote(id = "", films = currentList()) {
     if (!films.length) {
       showStatus(source === "notes" ? "Записей пока нет." :
         source === "bookmarks" ? "Сначала добавьте фильм в закладки." : "Сначала отметьте фильм как просмотренный.");
       return;
     }
+    if(window.KGViewingNote){const entry=films.find(e=>entryId(e)===String(id))||films[0];compactNote(entry,films);return;}
     editorEntries = films;
     fields.film.replaceChildren(...films.map(({film}) => new Option(filmName(film),film.id)));
     fields.film.value = id || String(films[0].film.id);
@@ -701,8 +729,8 @@
       return;
     }
     if (filmSelect) {
-      const entry=currentList().find(item=>String(item.film.id)===filmSelect);
-      if(entry) window.KGFilmCard.openDialog(window.KGFilmCard.savedFilm(entry.film),button);
+      const entry=currentList().find(item=>entryId(item)===filmSelect);
+      if(entry) window.KGFilmCard.openDialog(window.KGFilmCard.savedFilm(entry.film._episodeLog?.series||entry.film),button);
       return;
     }
     if (button.hasAttribute("data-add")) openNote(selectedFilm);
@@ -720,7 +748,7 @@
     }
     if (button.hasAttribute("data-copy")) {
       const summary = uiText("Кинодневник · Фильмов: {films} · Заметок: {notes}",{
-        films:number.format(entries.length),notes:number.format(entries.filter(entry => entry.note.text).length)
+        films:number.format(entries.length),notes:number.format(savedNotes().filter(entry => String(entry.note.text||'').trim()).length)
       });
       try {
         if (navigator.share) await navigator.share({title:uiText("Кинодневник"),text:summary});
@@ -739,6 +767,7 @@
     dialog.querySelector('[data-source="bookmarks"]').focus({preventScroll:true});
   });
 
+  document.addEventListener('kg:episode-note-change',()=>{if(dialog.open)render();});
   window.KGHasCinemaDiaryNote = id => Object.hasOwn(store.get(notesKey,{}) || {}, String(id));
   window.KGOpenCinemaDiaryNote = film => {
     const id = Number(film?.id);
@@ -746,6 +775,7 @@
     notes = store.get(notesKey,{}) || {};
     const record = filmRecord(film._cc, film);
     record.poster = film.localizedPoster?.path || record.poster;
+    record.release_date=film.release_date||film.release||"";record.runtime=film.runtime;
     openNote(String(id), [makeEntry(record)]);
   };
 

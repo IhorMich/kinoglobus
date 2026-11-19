@@ -4,9 +4,9 @@
   let activeDialog=null;
   window.KGConfirmRemoval=({kind,title})=>{
     if(activeDialog?.open)return Promise.resolve(false);
-    const watched=kind==='watched',opener=document.activeElement;
-    const heading=uiText(watched?'Снять отметку «Просмотрено»?':'Убрать из закладок?');
-    const confirmLabel=uiText(watched?'Снять отметку':'Убрать');
+    const watched=kind==='watched',note=kind==='note',opener=document.activeElement;
+    const heading=uiText(watched?'Снять отметку «Просмотрено»?':note?'Удалить заметку?':'Убрать из закладок?');
+    const confirmLabel=uiText(watched?'Снять отметку':note?'Удалить':'Убрать');
     const dialog=document.createElement('dialog');
     dialog.className='kg-confirm-dialog';dialog.setAttribute('aria-labelledby','kg-removal-title');
     dialog.innerHTML=`<h2 id="kg-removal-title">${esc(heading)}</h2><p>${esc(title||uiText('Фильм'))}</p><div class="kg-confirm-actions"><button type="button" data-removal-cancel autofocus>${uiText('Отмена')}</button><button type="button" data-removal-confirm>${esc(confirmLabel)}</button></div>`;

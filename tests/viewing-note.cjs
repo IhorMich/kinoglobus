@@ -1,0 +1,10 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict'),path=require('node:path');
+process.env.TZ='Europe/Warsaw';
+const window={};vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../viewing-note.js'),'utf8'),{window,Date,Number,String,Set,Intl});
+const note=window.KGViewingNote;
+assert.equal(note.normalizeRating(4.5),4.5);assert.equal(note.normalizeRating(9),5);assert.equal(note.normalizeRating(-1),0);assert.equal(note.normalizeRating(NaN),0);
+assert.throws(()=>note.timestamp('2026-02-30',12,0));assert.throws(()=>note.timestamp('2026-11-19',24,0));assert.throws(()=>note.timestamp('2026-11-19',12,60));assert.throws(()=>note.timestamp('2026-03-29',2,30),'nonexistent DST completion time is rejected');
+const field=value=>({value}),fields={date:field('2026-11-19'),hour:field('21'),minute:field('45'),score:field('9'),text:field('  A note  '),spoiler:{checked:true},diary:{checked:false},tags:field('#one, two, one')};
+const old={title:'Old title',vibe:'Old vibe',metrics:{visual:70},customField:'keep me',rating:3};
+const value=note.values(old,fields);assert.equal(value.rating,4.5);assert.equal(value.date,'2026-11-19');assert.equal(value.time,'21:45');assert.equal(value.completedAt,'2026-11-19T20:45:00.000Z');assert.equal(value.text,'  A note  ');assert.equal(value.spoiler,true);assert.equal(value.diary,false);assert.deepEqual(Array.from(value.tags),['one','two']);assert.equal(value.title,old.title);assert.equal(value.vibe,old.vibe);assert.equal(value.metrics.visual,70);assert.equal(value.customField,'keep me');assert.equal(old.rating,3);
+console.log('PASS: compatible half-star ratings, local completion time, DST validation, tag deduplication and preservation of old note fields');

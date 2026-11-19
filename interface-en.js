@@ -1758,5 +1758,6 @@ window.KGInterfaceDictionaries.en = Object.freeze({
   "Снять отметку": "Remove status",
   "Убрать": "Remove",
   "Тип контента": "Content type",
-  "Сериалы": "TV series"
+  "Сериалы": "TV series",
+  "Кино": "Films"
 });

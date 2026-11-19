@@ -328,8 +328,8 @@ home.id="view-films";home.setAttribute("role","tabpanel");home.setAttribute("ari
 const seriesPage=document.createElement("section");seriesPage.id="view-series";seriesPage.className="kg-series-page";seriesPage.hidden=true;
 seriesPage.setAttribute("role","tabpanel");seriesPage.setAttribute("aria-labelledby","kg-mode-series");
 seriesPage.innerHTML=`<h1 class="sr-only">${uiText("Сериалы")}</h1>`;
-mediaSwitch.innerHTML=[["home","films","Фильмы"],["series","series","Сериалы"]].map(([route,id,label])=>`<button type="button" role="tab" id="kg-mode-${id}" data-media-view="${route}" aria-controls="view-${id}" aria-selected="${route==='home'}" tabindex="${route==='home'?0:-1}">${uiText(label)}</button>`).join("");
-home.before(mediaSwitch);home.after(seriesPage);
+mediaSwitch.innerHTML=[["home","films","Кино"],["series","series","Сериалы"]].map(([route,id,label])=>`<button type="button" role="tab" id="kg-mode-${id}" data-media-view="${route}" aria-controls="view-${id}" aria-selected="${route==='home'}" tabindex="${route==='home'?0:-1}">${uiText(label)}</button>`).join("");
+document.querySelector(".kg-main-header-actions").prepend(mediaSwitch);home.after(seriesPage);
 mediaSwitch.addEventListener("click",event=>{const tab=event.target.closest('[data-media-view]');if(tab)showView(tab.dataset.mediaView);});
 mediaSwitch.addEventListener("keydown",event=>{
   const tabs=[...mediaSwitch.querySelectorAll('[role="tab"]')],index=tabs.indexOf(event.target);

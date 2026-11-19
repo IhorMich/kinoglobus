@@ -344,7 +344,7 @@ let dialogSequence = 0;
 async function openDialog(film, opener, {autoplayTrailer = false} = {}) {
   const id = Number(film?.id);
   if (!Number.isSafeInteger(id) || id <= 0) return;
-  if (apiKey) {
+  if (apiKey && !movieCatalog.allows(film)) {
     try {
       const details = await filmDetails(id);
       if (!movieCatalog.allows(film)) {

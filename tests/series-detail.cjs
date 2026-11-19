@@ -20,3 +20,7 @@ detail.persistEpisode(parent,episode,1,{rating:3,text:'Private',diary:false,seri
 failOnce=true;assert.throws(()=>detail.persistEpisode(parent,episode,1,{text:'Must not survive'}));assert.equal(detail.readEpisodeNotes(parent.id)['1:2'].text,'Private','failed mark write restores note');assert.ok(detail.readMarks(parent.id).has('1:2'));
 detail.persistEpisode(parent,episode,1,null);assert.equal(detail.readMarks(parent.id).has('1:2'),false);assert.equal(Object.hasOwn(detail.readEpisodeNotes(parent.id),'1:2'),false);assert.equal(detail.diaryEntries().length,0);assert.ok(events.some(e=>e.type==='kg:episode-note-change'));
 console.log('PASS: episode notes and watched marks save together, private notes stay out of diary, failures roll back, deletion clears the entry');
+values.set('kgSeries.episodes.v1.123',JSON.stringify(['1:1']));
+const checks=detail.markup({id:1e12+123,title:'Series',adult:false,seasons:[{season_number:1,episode_count:2}],_seriesSeason:1,_seriesEpisodes:[{episode_number:1},{episode_number:2}],_seriesEpisodeStatus:'ready'});
+assert.equal((checks.match(/class="kg-sd-watch-check"/g)||[]).length,2);assert.match(checks,/data-series-watched="1:1" aria-pressed="true"/);assert.match(checks,/data-series-watched="1:2" aria-pressed="false"/);assert.equal((checks.match(/d="m7 12 3 3 7-7"/g)||[]).length,2);
+console.log('PASS: every episode has a check outline and only saved watched episodes select the filled state');

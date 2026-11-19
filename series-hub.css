@@ -28,3 +28,5 @@
 .kg-sh-card{transition:transform .15s}.kg-sh-bg-layer,.kg-sh-content-crossfade,.kg-sh-showcase-ribbon,.kg-sh-darkness{transition:none}.kg-sh-hero-copy{will-change:transform}.kg-sh-content-crossfade{will-change:auto}.kg-sh-bg-layer{will-change:transform}.kg-sh-platform-scroll{gap:8px}.kg-sh-platform-scroll button{padding-inline:12px;min-width:54px;justify-content:center}.kg-sh-platform-scroll button .kg-sh-logo{height:22px;width:40px;object-fit:contain}.kg-sh-platform-scroll button .kg-sh-logo-netflix{width:14px;height:24px}.kg-sh-platform-scroll button .kg-sh-logo-prime{width:48px;height:28px}.kg-sh-platform-scroll button .kg-sh-logo-fx{width:28px;filter:brightness(0) invert(1)}.kg-sh-platform-scroll button .kg-sh-logo-apple{width:36px}
 
 .kg-sh-day i,.kg-sh-showcase-ribbon i,.kg-sh-filter-status>span>svg{animation:none}
+
+.kg-sh .kg-sh-showcase-ribbon{width:100%;text-align:left;cursor:pointer;border:1px solid rgb(var(--kg-white)/.07)}.kg-sh-hero-card[data-sh-open]{cursor:pointer}

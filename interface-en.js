@@ -1,6 +1,15 @@
 // English translations for the Moven interface.
 window.KGInterfaceDictionaries ??= {};
 window.KGInterfaceDictionaries.en = Object.freeze({
+  "Не помню дату": "I don't remember the date",
+  "Дата неизвестна": "Date unknown",
+  "Выберите дату": "Choose a date",
+  "Указать время": "Add time",
+  "Подтвердить без даты": "Confirm without date",
+  "Подтвердить ({date})": "Confirm ({date})",
+  "Подтвердить": "Confirm",
+  "Просмотр фильма": "Movie viewing",
+  "Просмотр сериала": "Series viewing",
   "Отметка серии": "Episode log",
   "Заметка к сериалу": "Series note",
   "Заметка к фильму": "Film note",

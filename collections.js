@@ -824,7 +824,7 @@ vc.addEventListener("keydown",e=>{
 /* ================= СТРАНИЦА ПОДБОРКИ ================= */
 let D={t:null,all:[],total:0,totals:{},cc:"",sort:"rating",shown:5,selected:null,picked:null};
 async function markPageWatched(film){
-  if(window.KGMarkWatched) return window.KGMarkWatched(film);
+  if(window.KGToggleWatched) return window.KGIsFilmWatched(film.id)?true:window.KGToggleWatched(film);
   const details=await filmDetails(film.id).catch(()=>null);
   const cc=(film.origin_country||[])[0]||(details&&details.countries||[])[0]||"";
   if(!watched.some(item=>Number(item.id)===Number(film.id))){

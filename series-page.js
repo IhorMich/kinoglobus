@@ -78,7 +78,7 @@
     id=Number(id);let saved=records(kind);const enabled=!saved[id];
     if(!enabled && !await window.KGConfirmRemoval({kind:kind==='watched'?'watched':'bookmark',title:film?.title||saved[id]?.title}))return !!records(kind)[id];
     saved=records(kind);
-    if(enabled){if(!movieCatalog.allows({...film,id}))return false;saved[id]={...film,id,media_type:'tv',_tmdbId:rawId(id),savedAt:new Date().toISOString()};}
+    if(enabled){if(!movieCatalog.allows({...film,id}))return false;const {_watchLog,...source}=film;saved[id]={...source,id,media_type:'tv',_tmdbId:rawId(id),savedAt:new Date().toISOString(),...(kind==='watched'?(window.KGWatchEntry?.metadata(_watchLog)||{watchedAt:new Date().toISOString()}):{})};}
     else delete saved[id];
     write(`kgSeries.${kind}`,saved);
     if(kind==='bookmarks')document.querySelectorAll(`[data-kg-bookmark="${id}"]`).forEach(button=>paintBookmarkButton(button,enabled));

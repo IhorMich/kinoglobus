@@ -71,7 +71,7 @@ ${rating ? `<div class="mt-2 flex" data-kg-film-rating>${rating}</div>` : ""}
 <div data-kg-film-actions class="kg-film-detail-actions" role="group">
 ${window.KGWatchedButtonHtml(watched, `data-film-watched="${Number(f.id)}"`)}
 ${kgBookmarkButton(f)}
-<button type="button" data-kg-film-note aria-label="${diaryLabel}" title="${diaryLabel}"><span class="material-symbols-outlined" aria-hidden="true">add</span></button>
+
 </div>
 </div>
   ${closable ? (f._relatedPrevious ? `<button type="button" data-kg-related-back aria-label="${uiText("Вернуться к предыдущему фильму")}" class="kg-film-detail-close"><span class="material-symbols-outlined" aria-hidden="true">arrow_back</span></button>` : `<button type="button" data-act="close-film" aria-label="${uiText("Свернуть карточку")}" class="kg-film-detail-close"><span class="material-symbols-outlined" aria-hidden="true">close</span></button>`) : ""}
@@ -148,9 +148,9 @@ div.relative:has(> [id^="mood-roulette-winner-detail-"]>.kg-film-detail){
 }
 .kg-film-detail-actions {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 2px;
-  width: min(100%, 156px);
+  width: min(100%, 104px);
   margin-top: 12px;
   padding: 2px;
   border: 1px solid var(--kg-nav-control-border);
@@ -529,7 +529,6 @@ document.addEventListener("click", async event=>{
     closeTrailer(card,true);
   } else if (window.KGToggleWatched && !pendingWatched.has(film.id)) {
     pendingWatched.add(film.id);
-    if(!window.KGIsFilmWatched?.(film.id))window.KGPaintWatchedButton?.(button,true);
     try { await window.KGToggleWatched(film); }
     catch (error) { console.warn("[Moven] Не удалось обновить просмотр:",error); }
     finally { pendingWatched.delete(film.id); paintWatched(); }

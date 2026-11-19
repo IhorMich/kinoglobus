@@ -587,30 +587,33 @@
     month=(date||dayKey(new Date())).slice(0,7);calendar.value=month;render();scroll.scrollTop=top;
     dialog.querySelector(`[data-edit="${id}"]`)?.focus({preventScroll:true});showStatus('Запись сохранена.');
   }
-  function compactNote(entry,films){
+  function compactNote(entry,films,options={}){
     const film=entry.film,id=String(film.id);
     if(film._episodeLog){const log=film._episodeLog;window.KGSeriesDetail.openEpisodeNote(log.series,log.episode,log.season);return;}
     const draft=(store.get(draftKey,{})||{})[id],initial={date:entry.key||dayKey(new Date()),...(draft||entry.note)};
-    window.KGViewingNote.open({kind:window.KGSeries?.isSeriesId(film.id)?'series':'film',title:filmName(film),subtitle:[film.original,film.year].filter(Boolean).join(' · '),poster:film.poster,runtime:film.runtime,release:film.release_date||film.release||'',initial,legacy:true,
+    return window.KGViewingNote.open({watchAction:!!options.watchAction,onClose:options.onClose,kind:window.KGSeries?.isSeriesId(film.id)?'series':'film',title:filmName(film),subtitle:[film.original,film.year].filter(Boolean).join(' · '),poster:film.poster,runtime:film.runtime,release:film.release_date||film.release||'',initial,legacy:true,
       choices:films.map(e=>({id:entryId(e),title:filmName(e.film)})),selected:id,onSelect:value=>openNote(value,films),
-      onSave:value=>{
+      onSave:async value=>{
         const {adult,title,original,year,poster,cc}=film;
+        const prior=(store.get(notesKey,{})||{})[id];
         const next={...(store.get(notesKey,{})||{}),[id]:{...value,film:{id:Number(id),adult,title,original,year,poster,cc:film.countries?.[0]||cc}}};
         localStorage.setItem(notesKey,JSON.stringify(next));
+        try{if(options.commit&&!await options.commit(value))throw new Error('watch not saved');}
+        catch(error){const current=store.get(notesKey,{})||{};if(prior===undefined)delete current[id];else current[id]=prior;localStorage.setItem(notesKey,JSON.stringify(current));throw error;}
         const drafts=store.get(draftKey,{})||{};if(Object.hasOwn(drafts,id)){delete drafts[id];store.set(draftKey,drafts);}
-        refreshAfterNote(id,value.date);
+        refreshAfterNote(id,value.date);options.onSaved?.();
       },
       onDraft:value=>{const drafts=store.get(draftKey,{})||{};localStorage.setItem(draftKey,JSON.stringify({...drafts,[id]:value}));},
       onDelete:Object.hasOwn(notes,id)?()=>{const next={...(store.get(notesKey,{})||{})};delete next[id];localStorage.setItem(notesKey,JSON.stringify(next));const drafts=store.get(draftKey,{})||{};if(Object.hasOwn(drafts,id)){delete drafts[id];store.set(draftKey,drafts);}refreshAfterNote(id,initial.date);}:null
     });
   }
-  function openNote(id = "", films = currentList()) {
+  function openNote(id = "", films = currentList(), options={}) {
     if (!films.length) {
       showStatus(source === "notes" ? "Записей пока нет." :
         source === "bookmarks" ? "Сначала добавьте фильм в закладки." : "Сначала отметьте фильм как просмотренный.");
       return;
     }
-    if(window.KGViewingNote){const entry=films.find(e=>entryId(e)===String(id))||films[0];compactNote(entry,films);return;}
+    if(window.KGViewingNote){const entry=films.find(e=>entryId(e)===String(id))||films[0];return compactNote(entry,films,options);}
     editorEntries = films;
     fields.film.replaceChildren(...films.map(({film}) => new Option(filmName(film),film.id)));
     fields.film.value = id || String(films[0].film.id);
@@ -769,14 +772,14 @@
 
   document.addEventListener('kg:episode-note-change',()=>{if(dialog.open)render();});
   window.KGHasCinemaDiaryNote = id => Object.hasOwn(store.get(notesKey,{}) || {}, String(id));
-  window.KGOpenCinemaDiaryNote = film => {
+  window.KGOpenCinemaDiaryNote = (film,options={}) => {
     const id = Number(film?.id);
     if (noteDialog.open || !Number.isSafeInteger(id) || id <= 0) return;
     notes = store.get(notesKey,{}) || {};
     const record = filmRecord(film._cc, film);
     record.poster = film.localizedPoster?.path || record.poster;
     record.release_date=film.release_date||film.release||"";record.runtime=film.runtime;
-    openNote(String(id), [makeEntry(record)]);
+    return openNote(String(id), [makeEntry(record)],options);
   };
 
   window.KGOpenCinemaDiary = ({avatar, closeParent: onNavigate, initialSource} = {}) => {

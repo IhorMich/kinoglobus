@@ -125,7 +125,7 @@
     record.cc = creditedCountry;
     record.countries = creditedCountry ? [creditedCountry] : [];
     record.productionCountries = countries;
-    record.watchedAt = new Date().toISOString();
+    Object.assign(record,window.KGWatchEntry?.metadata(film._watchLog)||{watchedAt:new Date().toISOString()});
     if (prior) watched = watched.map(item => Number(item.id) === id ? record : item);
     else watched.unshift(record);
     if (creditedCountry) {
@@ -155,7 +155,7 @@
         enriched.cc = nextCountry;
         enriched.countries = nextCountry ? [nextCountry] : [];
         enriched.productionCountries = allCountries;
-        enriched.watchedAt = current.watchedAt;
+        for(const key of ['watchedAt','addedAt','watchDateUnknown','watchDate','watchTime','watchTimeKnown'])enriched[key]=current[key];
         watched = watched.map(item => Number(item.id) === id ? enriched : item);
         const previousCountry = (current.countries || [])[0] || current.cc || '';
         if (nextCountry && previousCountry !== nextCountry) {

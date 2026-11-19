@@ -3,3 +3,5 @@
 .kg-series-detail .kg-sd-icon{display:inline-block;width:20px;height:20px;vertical-align:middle;flex:none}.kg-sd-badges .kg-sd-icon,.kg-sd-still>i .kg-sd-icon{width:14px;height:14px}.kg-sd-trailer-button{line-height:18px;white-space:nowrap}.kg-sd-episode-check .kg-sd-icon{width:20px;height:20px}
 
 .kg-sd-episode-note{position:absolute;right:5px;bottom:5px;display:grid;place-items:center;width:32px;height:32px;padding:0;border:0;border-radius:50%;background:var(--sd-card);color:var(--sd-muted)}.kg-sd-episode-note.has-note{color:var(--sd-accent);background:rgb(var(--kg-primary)/.12)}.kg-sd-episode-text>span,.kg-sd-episode-text>time{padding-right:26px}
+
+.kg-series-detail .kg-film-detail-actions{width:96px}.kg-sd-episode-text>span,.kg-sd-episode-text>time{padding-right:0}

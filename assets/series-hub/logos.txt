@@ -1,0 +1,3 @@
+Netflix, Apple TV, HBO: Simple Icons develop/icons (github.com/simple-icons/simple-icons).
+Prime Video: Simple Icons 11.15.0/icons/primevideo.svg.
+FX: TMDB network 88 official network logo, image.tmdb.org.

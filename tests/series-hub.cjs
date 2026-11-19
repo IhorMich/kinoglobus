@@ -12,10 +12,10 @@ assert.equal(hub.categoryQuery('crime').with_genres,'80|9648');assert.equal(hub.
 assert.equal(hub.service({networks:[{name:'Netflix'}]}),'netflix');assert.equal(hub.service({networks:[{name:'HBO Max'}]}),'max');assert.equal(hub.service({networks:[{name:'Apple TV+'}]}),'apple');assert.equal(hub.service({networks:[{name:'Hulu'}],production_companies:[{name:'FX Productions'}]}),'fx');assert.equal(hub.service({networks:[{name:'Unknown'}]}),'other');
 console.log('PASS: actual episode dates only, week bounds, deduplication, category queries and original-platform classification');
 const start=hub.parallaxState(0);assert.equal(start.scale,1.08);assert.equal(start.dark,.30);assert.equal(start.opacity,1);
-const middle=hub.parallaxState(180);assert.equal(middle.y,68.4);assert.equal(middle.opacity,.5);assert.equal(middle.textY,-28.8);
-const end=hub.parallaxState(450);assert.ok(Math.abs(end.dark-.85)<1e-9);assert.equal(end.opacity,0);assert.equal(end.blur,3.5);
+const middle=hub.parallaxState(180);assert.equal(middle.y,68.4);assert.equal(middle.opacity,1);assert.equal(middle.textY,-28.8);
+const end=hub.parallaxState(450);assert.equal(end.dark,.30);assert.equal(end.opacity,1);assert.equal(end.blur,0);
 assert.equal(hub.parallaxState(-240).scale,1.28);assert.equal(hub.parallaxState(-999).scale,1.28);
-console.log('PASS: reference parallax ratio, darkness, text dissolve, blur and overscroll zoom');
+console.log('PASS: parallax travel and overscroll zoom without fading, dimming or blur');
 
 const rows=hub.platformResults([{id:99,adult:false,name:'A'},{id:100,adult:true,name:'B'}],'prime');assert.equal(rows.length,1);assert.equal(hub.service(rows[0]),'prime');assert.equal(hub.service({...rows[0],networks:[{name:'Netflix'}]}),'prime');assert.equal(hub.service(hub.platformResults([{id:99,adult:false}], 'all')[0]),'other');
 console.log('PASS: network-qualified results remain visible without optional metadata, mixed networks and adult filtering');

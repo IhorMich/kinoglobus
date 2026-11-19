@@ -1,7 +1,7 @@
 /* Series home editorial block, adapted from the supplied Stitch layout. */
 (() => {
   const DAY=86400000,CACHE_TTL=60*60*1000;
-  const platforms={all:'Все сервисы',netflix:'Netflix',apple:'Apple TV+',max:'HBO / Max',prime:'Prime Video',fx:'FX'};
+  const platforms={all:'Все',netflix:'Netflix',apple:'TV+',max:'HBO',prime:'Prime',fx:'FX'};
   const seedRows=[
     [194764,'Пингвин','The Penguin','max',0], [94997,'Дом Дракона','House of the Dragon','max',1],
     [136315,'Медведь','The Bear','fx',2], [95480,'Медленные лошади','Slow Horses','apple',3],
@@ -47,10 +47,10 @@
     return query;
   }
   const categories=[['all','Все новинки'],['week','Премьеры недели'],['crime','Триллер & Детектив'],['scifi','Фантастика'],['complete','Завершенные сезоны']];
-  let root,category='all',platform='all',generation=0,loadedKey='',loading=false,expanded=false,filterVersion=0;
+  let root,category='all',platform='all',generation=0,loadedKey='',loading=false,expanded=false;
   const networkCache=new Map(),featured=new Map();
-  let heroTimer,heroVersion=0,heroFrame=0,heroKey='';
-  let data={hero:null,popular:[],premieres:[],schedule:[]},allShows=new Map(),fadeTimers=new Map();
+  let heroFrame=0,heroKey='';
+  let data={hero:null,popular:[],premieres:[],schedule:[]},allShows=new Map();
   const heading=(text,aside='')=>`<div class="kg-sh-heading"><h3>${esc(uiText(text))}</h3>${aside}</div>`;
   const badge=f=>`<span class="kg-sh-score">${icon('star',11)} ${Number(f.vote_average)>0?Number(f.vote_average).toFixed(1):'—'}</span>`;
   function bookmark(f){return kgBookmarkButton(f);}
@@ -69,56 +69,52 @@
     const today=dateKey(),label=e.air_date===today?uiText('Сегодня'):e.air_date===dayAfter(today,1)?uiText('Завтра'):new Date(e.air_date+'T12:00:00').toLocaleDateString(interfaceLanguage,{day:'numeric',month:'short'});
     return `<article class="kg-sh-card kg-sh-episode ${e.air_date===today?'is-today':''}" data-sh-card data-sh-id="${f.id}" data-service="${service(f)}"><div class="kg-sh-episode-top"><span class="kg-sh-day">${e.air_date===today?'<i></i>':''}${esc(label)}</span><span>${esc(new Date(e.air_date+'T12:00:00').toLocaleDateString(interfaceLanguage,{weekday:'short'}))}</span></div><button type="button" class="kg-sh-episode-body" data-sh-open="${f.id}"><img src="${esc(image(f,true))}" alt="" loading="lazy"><span><b>${esc(title(f))}</b><small>${esc(uiText('Сезон {season} · Эпизод {episode}',{season:e.season_number,episode:e.episode_number}))}</small><span class="kg-sh-truncate">${esc(e.name||uiText('Новая серия'))}</span></span></button><div class="kg-sh-episode-foot"><span>${icon('calendar',14)}${esc(serviceLabel(f))}</span><button type="button" data-sh-open="${f.id}">${esc(uiText('Подробнее'))}${icon('chevron',14)}</button></div></article>`;
   }
-  function render(animate=false){
+  function render(){
     if(!root)return;const rails=[...root.querySelectorAll('.kg-sh-categories,.kg-sh-platform-scroll,.kg-sh-scroll')].map(el=>el.scrollLeft);const focused=root.contains(document.activeElement)?['data-sh-platform','data-sh-category','data-sh-more','data-sh-open','data-kg-bookmark'].map(key=>[key,document.activeElement.getAttribute(key)]).find(([,value])=>value!==null):null;
-    for(const timer of fadeTimers.values())clearTimeout(timer);fadeTimers.clear();
     const slides=expanded?data.premieres:data.premieres.slice(0,6);remember([data.hero,...data.popular,...data.premieres,...data.schedule.map(x=>x.show)]);
     const liveHero=root.querySelector('[data-sh-hero]');
-    const holder=document.createElement('div');holder.innerHTML=`<div class="kg-sh-categories">${categories.map(([key,text])=>`<button type="button" data-sh-category="${key}" aria-pressed="${category===key}">${key==='all'?icon('spark',14):''}${esc(uiText(text))}</button>`).join('')}</div>${heroMarkup(data.hero)}<section class="kg-sh-platforms">${heading('Стриминговые сервисы',`<span>${esc(uiText('Платформы'))}</span>`)}<div class="kg-sh-platform-scroll">${Object.entries(platforms).map(([key,label])=>`<button type="button" data-sh-platform="${key}" aria-pressed="${platform===key}">${key==='all'?icon('grid',18):`<img src="assets/series-hub/${key}.svg" alt="">`}${esc(uiText(key==='all'?'Все':label))}</button>`).join('')}</div><div class="kg-sh-filter-status" data-sh-filter-status hidden><span>${icon('filter',15)}<span data-sh-filter-text></span></span><button type="button" data-sh-reset>${esc(uiText('Сбросить'))}</button></div></section><section class="kg-sh-schedule">${heading('График выхода новых серий',`<span>${esc(uiText('Неделя'))}</span>`)}<div class="kg-sh-scroll" data-sh-schedule>${data.schedule.length?data.schedule.slice(0,12).map(scheduleMarkup).join(''):`<p class="kg-sh-message">${esc(uiText(loading?'Загружаем расписание…':!apiKey?'Добавьте ключ TMDB, чтобы загрузить расписание.':'На ближайшую неделю подтверждённых дат пока нет.'))}</p>`}</div></section><section class="kg-sh-premieres">${heading('Громкие премьеры и продолжения',`<button type="button" data-sh-more aria-expanded="${expanded}">${esc(uiText(expanded?'Свернуть':'Все'))}${icon('chevron',16)}</button>`)}<div class="kg-sh-scroll">${slides.map(premiereMarkup).join('')}</div></section><section class="kg-sh-popular-section">${heading('Популярно в сети',`<span>${esc(uiText('Рейтинг'))}</span>`)}<div class="kg-sh-grid">${data.popular.slice(0,expanded?20:6).map(popularMarkup).join('')}</div></section><div class="kg-sh-empty" data-sh-empty hidden>${icon('info',30)}<h4>${esc(uiText('Релизы не найдены'))}</h4><p>${esc(uiText('На данной платформе пока нет добавленных премьер в этом разделе.'))}</p><button type="button" data-sh-reset>${esc(uiText('Показать все сериалы'))}</button></div><p class="kg-sh-data-status" data-sh-status role="status"></p>`;
-    if(liveHero){liveHero.hidden=!data.hero;for(const child of [...root.children])if(child!==liveHero)child.remove();for(const child of [...holder.children]){if(child.matches('[data-sh-hero]'))continue;if(child.matches('.kg-sh-categories'))root.insertBefore(child,liveHero);else root.append(child);}updateHero(data.hero,animate);}else{root.append(...holder.children);heroKey=String(data.hero?.id);queueParallax();}
-    localizeInterfaceMarkup(root);root.querySelectorAll('.kg-sh-categories,.kg-sh-platform-scroll,.kg-sh-scroll').forEach((el,i)=>el.scrollLeft=rails[i]||0);if(focused)root.querySelector(`[${focused[0]}="${focused[1]}"]`)?.focus({preventScroll:true});if(animate)root.querySelectorAll('[data-sh-card]').forEach(card=>card.classList.add('is-fading'));applyPlatform(platform,animate);
+    const holder=document.createElement('div');holder.innerHTML=`<div class="kg-sh-categories">${categories.map(([key,text])=>`<button type="button" data-sh-category="${key}" aria-pressed="${category===key}">${key==='all'?icon('spark',14):''}${esc(uiText(text))}</button>`).join('')}</div>${heroMarkup(data.hero)}<section class="kg-sh-platforms">${heading('Сервисы')}<div class="kg-sh-platform-scroll">${Object.entries(platforms).map(([key,label])=>`<button type="button" data-sh-platform="${key}" aria-label="${esc(uiText(label))}" title="${esc(uiText(label))}" aria-pressed="${platform===key}">${key==='all'?icon('grid',18):`<img class="kg-sh-logo kg-sh-logo-${key}" src="assets/series-hub/${key}.${key==='fx'?'png':'svg'}?v=3" alt="">`}${key==='all'||key==='netflix'?esc(uiText(label)):''}</button>`).join('')}</div><div class="kg-sh-filter-status" data-sh-filter-status hidden><span>${icon('filter',15)}<span data-sh-filter-text></span></span><button type="button" data-sh-reset>${esc(uiText('Сбросить'))}</button></div></section><section class="kg-sh-schedule">${heading('График выхода новых серий',`<span>${esc(uiText('Неделя'))}</span>`)}<div class="kg-sh-scroll" data-sh-schedule>${data.schedule.length?data.schedule.slice(0,12).map(scheduleMarkup).join(''):`<p class="kg-sh-message">${esc(uiText(loading?'Загружаем расписание…':!apiKey?'Добавьте ключ TMDB, чтобы загрузить расписание.':'На ближайшую неделю подтверждённых дат пока нет.'))}</p>`}</div></section><section class="kg-sh-premieres">${heading('Громкие премьеры и продолжения',`<button type="button" data-sh-more aria-expanded="${expanded}">${esc(uiText(expanded?'Свернуть':'Все'))}${icon('chevron',16)}</button>`)}<div class="kg-sh-scroll">${slides.map(premiereMarkup).join('')}</div></section><section class="kg-sh-popular-section">${heading('Популярно в сети',`<span>${esc(uiText('Рейтинг'))}</span>`)}<div class="kg-sh-grid">${data.popular.slice(0,expanded?20:6).map(popularMarkup).join('')}</div></section><div class="kg-sh-empty" data-sh-empty hidden>${icon('info',30)}<h4>${esc(uiText('Релизы не найдены'))}</h4><p>${esc(uiText('На данной платформе пока нет добавленных премьер в этом разделе.'))}</p><button type="button" data-sh-reset>${esc(uiText('Показать все сериалы'))}</button></div><p class="kg-sh-data-status" data-sh-status role="status"></p>`;
+    if(liveHero){liveHero.hidden=!data.hero;for(const child of [...root.children])if(child!==liveHero)child.remove();for(const child of [...holder.children]){if(child.matches('[data-sh-hero]'))continue;if(child.matches('.kg-sh-categories'))root.insertBefore(child,liveHero);else root.append(child);}updateHero(data.hero);}else{root.append(...holder.children);heroKey=String(data.hero?.id);queueParallax();}
+    localizeInterfaceMarkup(root);root.querySelectorAll('.kg-sh-categories,.kg-sh-platform-scroll,.kg-sh-scroll').forEach((el,i)=>el.scrollLeft=rails[i]||0);if(focused)root.querySelector(`[${focused[0]}="${focused[1]}"]`)?.focus({preventScroll:true});applyPlatform(platform);
   }
-  function applyPlatform(value,animate=true){
-    if(!root || !Object.hasOwn(platforms,value))return;platform=value;const version=++filterVersion,matches=new Set();animate=animate&&!window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+  function applyPlatform(value){
+    if(!root || !Object.hasOwn(platforms,value))return;platform=value;const matches=new Set();
     root.querySelectorAll('[data-sh-platform]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.shPlatform===value)));
     root.querySelectorAll('[data-sh-card]').forEach(card=>{
-      const match=value==='all'||card.dataset.service===value;clearTimeout(fadeTimers.get(card));
-      if(match){matches.add(card.dataset.shId);card.classList.remove('is-hidden');if(animate)requestAnimationFrame(()=>version===filterVersion&&card.isConnected&&card.classList.remove('is-fading'));else card.classList.remove('is-fading');}
-      else{card.classList.add('is-fading');if(animate)fadeTimers.set(card,setTimeout(()=>{if(card.classList.contains('is-fading'))card.classList.add('is-hidden');},240));else card.classList.add('is-hidden');}
+      const match=value==='all'||card.dataset.service===value;
+      if(match)matches.add(card.dataset.shId);
+      card.classList.remove('is-fading');card.classList.toggle('is-hidden',!match);
     });
     const status=root.querySelector('[data-sh-filter-status]');status.hidden=value==='all';root.querySelector('[data-sh-filter-text]').textContent=uiText('Выбрано: {platform} · Найдено тайтлов: {count}',{platform:platforms[value],count:matches.size});
     root.querySelector('[data-sh-empty]').hidden=loading||value==='all'||matches.size>0;
     const candidates=[...allShows.values()].filter(f=>value==='all'||service(f)===value);
     const selected=value==='all'?(featured.get(category)||data.hero):candidates.find(f=>f.id===data.hero?.id)||candidates[0]||seeds().find(f=>service(f)===value);
-    if(selected)updateHero(selected,animate);
+    if(selected)updateHero(selected);
   }
-  function updateHero(f,animate=true){
+  function updateHero(f){
     const hero=root?.querySelector('[data-sh-hero]');if(!hero||!f)return;
     remember([f]);const key=JSON.stringify([f.id,f.vote_average,f.number_of_episodes,f.overview]);if(key===heroKey)return;heroKey=key;
-    const version=++heroVersion;clearTimeout(heroTimer);const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
     const next=document.createElement('div');next.innerHTML=heroMarkup(f);const target=next.firstElementChild;
     const content=hero.querySelector('.kg-sh-content-crossfade'),ribbon=hero.querySelector('.kg-sh-showcase-ribbon');
     if(!content||!ribbon){hero.replaceWith(target);queueParallax();return;}
-    content.classList.toggle('is-fading',animate&&!reduced);ribbon.classList.toggle('is-fading',animate&&!reduced);
-    const layers=[...hero.querySelectorAll('.kg-sh-bg-layer')],incoming=layers.find(l=>!l.classList.contains('is-active'))||layers[1];
-    const preload=new Image();preload.src=image(f);incoming.style.backgroundImage=target.querySelector('.kg-sh-bg-layer').style.backgroundImage;
-    requestAnimationFrame(()=>{if(version!==heroVersion)return;layers.forEach(l=>l.classList.toggle('is-active',l===incoming));});
-    const swap=()=>{if(version!==heroVersion)return;content.innerHTML=target.querySelector('.kg-sh-content-crossfade').innerHTML;ribbon.innerHTML=target.querySelector('.kg-sh-showcase-ribbon').innerHTML;hero.dataset.service=service(f);localizeInterfaceMarkup(hero);requestAnimationFrame(()=>{if(version!==heroVersion)return;content.classList.remove('is-fading');ribbon.classList.remove('is-fading');});queueParallax();};
-    if(animate&&!reduced)heroTimer=setTimeout(swap,190);else swap();
+    const layers=[...hero.querySelectorAll('.kg-sh-bg-layer')];
+    layers[0].style.backgroundImage=target.querySelector('.kg-sh-bg-layer').style.backgroundImage;
+    layers.forEach((layer,index)=>layer.classList.toggle('is-active',index===0));
+    content.innerHTML=target.querySelector('.kg-sh-content-crossfade').innerHTML;ribbon.innerHTML=target.querySelector('.kg-sh-showcase-ribbon').innerHTML;
+    hero.dataset.service=service(f);localizeInterfaceMarkup(hero);queueParallax();
   }
   function parallaxState(scroll){
-    if(scroll<0){const pull=Math.min(-scroll/240,1);return {y:0,scale:1.08+pull*.20,dark:.20,textY:0,textScale:1+pull*.04,opacity:1,blur:0,cue:1};}
-    const progress=Math.min(scroll,450)/450;
-    return {y:scroll*.38,scale:1.08,dark:.30+progress*.55,textY:-scroll*.16,textScale:1,opacity:Math.max(0,1-scroll/360),blur:progress*3.5,cue:Math.max(0,1-scroll/80)};
+    if(scroll<0){const pull=Math.min(-scroll/240,1);return {y:0,scale:1.08+pull*.20,dark:.30,textY:0,textScale:1+pull*.04,opacity:1,blur:0,cue:1};}
+    return {y:scroll*.38,scale:1.08,dark:.30,textY:-scroll*.16,textScale:1,opacity:1,blur:0,cue:Math.max(0,1-scroll/80)};
   }
   function queueParallax(){if(heroFrame)return;heroFrame=requestAnimationFrame(()=>{heroFrame=0;const hero=root?.querySelector('.kg-sh-hero-card');if(!hero||!window.KGSeries.active||window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches)return;
     const rect=hero.getBoundingClientRect();if(rect.bottom<0||rect.top>window.innerHeight)return;
     // The reference begins at the top; here the same progress starts when this card reaches the viewport top.
     const state=parallaxState(window.pageYOffset<0?window.pageYOffset:Math.max(0,-rect.top));
     hero.querySelector('.kg-sh-parallax').style.transform=`translate3d(0,${state.y.toFixed(2)}px,0) scale(${state.scale.toFixed(4)})`;
-    hero.querySelector('.kg-sh-darkness').style.opacity=state.dark.toFixed(3);
-    const copy=hero.querySelector('.kg-sh-hero-copy');copy.style.transform=`translate3d(0,${state.textY.toFixed(2)}px,0) scale(${state.textScale})`;copy.style.opacity=state.opacity.toFixed(3);copy.style.filter=state.blur>.3?`blur(${state.blur.toFixed(1)}px)`:'none';
-    hero.querySelector('.kg-sh-scroll-cue').style.opacity=state.cue.toFixed(2);
+    hero.querySelector('.kg-sh-darkness').style.opacity='.30';
+    const copy=hero.querySelector('.kg-sh-hero-copy');copy.style.transform=`translate3d(0,${state.textY.toFixed(2)}px,0) scale(${state.textScale})`;copy.style.opacity='1';copy.style.filter='none';
+    hero.querySelector('.kg-sh-scroll-cue').hidden=state.cue<1;
   });}
   function platformResults(rows,selected){return rows.filter(movieCatalog.allows).map(f=>selected==='all'?f:{...f,_hubService:selected});}
   async function tmdb(path,params={}){return requestTmdb(path,{language:filmLocale,include_adult:'false',...params});}

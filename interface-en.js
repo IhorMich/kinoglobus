@@ -1769,5 +1769,9 @@ window.KGInterfaceDictionaries.en = Object.freeze({
   "Фильмы каталога": "Catalogue films",
   "Определяем размер каталога…": "Determining catalogue size\u2026",
   "В этой категории пока нет фильмов.": "No films in this category yet.",
-  "Показано {shown} из {total}": "Showing {shown} of {total}"
+  "Показано {shown} из {total}": "Showing {shown} of {total}",
+  "Рейтинг: {rating} ★": "Rating: {rating} \u2605",
+  "Эпоха: {start}–{end}": "Era: {start}\u2013{end}",
+  "Назад к среднему рейтингу": "Back to average rating",
+  "Назад к эпохам": "Back to cinema eras"
 });

@@ -133,9 +133,21 @@
     const text=String(f.release_date||'').slice(0,4),year=/^\d{4}$/.test(text)?Number(text):0;
     return filter==='classic'?year>1800 && year<1970:filter==='newwave'?year>=1970 && year<2000:filter==='modern'?year>=2000:true;
   }
+  function matchesCatalogueFilter(f,filter){
+    const rating=/^rating:(10|[1-9])$/.exec(filter),decade=/^decade:(\d{4})$/.exec(filter);
+    if(rating){const score=Number(f.vote_average);return Number.isFinite(score) && score>0 && score<=10 && Math.max(1,Math.round(score))===Number(rating[1]);}
+    if(decade){const year=Number(String(f.release_date||'').slice(0,4)),start=Number(decade[1]);return year>=start && year<start+10;}
+    return matchesEra(f,filter);
+  }
+  function queryForFilter(filter){
+    const rating=/^rating:(10|[1-9])$/.exec(filter),decade=/^decade:(\d{4})$/.exec(filter);
+    if(rating){const n=Number(rating[1]);return {'vote_average.gte':n===1?0.000001:n-.5,'vote_average.lte':Math.min(10,n+.5-0.000001)};}
+    if(decade){const n=Number(decade[1]);return {'primary_release_date.gte':`${n}-01-01`,'primary_release_date.lte':`${n+9}-12-31`};}
+    return {...eraQueries[filter]||{}};
+  }
   function cataloguePage(films,filter='all',limit=20){
-    const matching=films.filter(f=>matchesEra(f,filter)),visible=Math.max(20,limit);
+    const matching=films.filter(f=>matchesCatalogueFilter(f,filter)),visible=Math.max(20,limit);
     return {films:matching.slice(0,visible),total:matching.length,hasMore:matching.length>visible};
   }
-  window.KGCountryStatistics={...createLoader(),createLoader,matchesEra,cataloguePage,eraQuery:filter=>({...eraQueries[filter]||{}})};
+  window.KGCountryStatistics={...createLoader(),createLoader,matchesEra,matchesCatalogueFilter,cataloguePage,queryForFilter,eraQuery:queryForFilter};
 })();

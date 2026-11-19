@@ -10,10 +10,10 @@
   const fmt = value => new Intl.NumberFormat(interfaceLanguage).format(Number(value) || 0);
   const flag = code => `<span class="kgc-flag-mark" data-flag="${code}" aria-hidden="true">${app.countryFlag(code)}</span>`;
   const fabricPath = 'assets/flags/flag-fabric.jpg';
-  const flagBackdrop = code => `
-    <div class="kgc-flag-backdrop" data-flag="${code}" style="--kgc-flag-filter:url(#kgc-fabric-folds-${code})" aria-hidden="true">
+  const flagBackdrop = (code,variant='hero') => `
+    <span class="kgc-flag-backdrop" data-flag="${code}" style="--kgc-flag-filter:url(#kgc-fabric-folds-${variant}-${code})" aria-hidden="true">
       <svg class="kgc-flag-filter" width="0" height="0" focusable="false">
-        <filter id="kgc-fabric-folds-${code}" x="0%" y="0%" width="100%" height="100%" color-interpolation-filters="sRGB">
+        <filter id="kgc-fabric-folds-${variant}-${code}" x="0%" y="0%" width="100%" height="100%" color-interpolation-filters="sRGB">
           <feFlood flood-color="rgb(var(--kg-neutral-110))" result="neutral"/>
           <feImage href="${fabricPath}" preserveAspectRatio="xMidYMid slice" result="fabricPhoto"/>
           <feComposite in="fabricPhoto" in2="neutral" operator="over" result="fabric"/>
@@ -22,7 +22,7 @@
             <feFuncR type="linear" slope=".72" intercept=".15"/>
             <feFuncG type="linear" slope=".72" intercept=".50"/>
           </feComponentTransfer>
-          <feDisplacementMap in="SourceGraphic" in2="surface" scale="40" xChannelSelector="R" yChannelSelector="G" result="draped"/>
+          <feDisplacementMap in="SourceGraphic" in2="surface" scale="${variant==='opened'?10:40}" xChannelSelector="R" yChannelSelector="G" result="draped"/>
           <feComponentTransfer in="fabric" result="lighting">
             <feFuncR type="linear" slope=".83" intercept=".14"/>
             <feFuncG type="linear" slope=".80" intercept=".12"/>
@@ -32,8 +32,8 @@
           <feComposite in2="draped" operator="in"/>
         </filter>
       </svg>
-      <div class="kgc-flag-art">${app.countryFlag(code)}</div>
-    </div>`;
+      <span class="kgc-flag-art">${app.countryFlag(code)}</span>
+    </span>`;
   const year = film => String(film?.release_date || '').slice(0, 4) || uiText("Год неизвестен");
   const poster = (film, size='w342') => film?.poster_path ? `https://image.tmdb.org/t/p/${size}${film.poster_path}` : '';
   const root = document.createElement('div');
@@ -43,7 +43,7 @@
   passportDetail.id = 'kgc-passport-detail';
   passportDetail.hidden = true;
   shell.append(passportDetail);
-  let passportSection = '', passportScroll = 0, passportBucket = null;
+  let passportSection = '', passportScroll = 0, passportBucket = null, collectionOrigin = null;
 
   const fabric = new Image();
   fabric.onload = () => {
@@ -204,7 +204,17 @@
   style.textContent += `
     .kgc-country-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
     .kgc-open-country{display:flex;align-items:center;gap:9px;min-height:64px;min-width:0;padding:11px;border:1px solid rgb(var(--kg-primary-container)/.28);border-radius:14px;background:rgb(var(--kg-surface-panel));color:rgb(var(--kg-on-surface));text-align:left;cursor:pointer}
-    .kgc-open-country>span:nth-child(2){flex:1;min-width:0}
+    .kgc-country-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+    .kgc-open-country{flex-direction:column;align-items:stretch;gap:0;padding:0;overflow:hidden;box-shadow:0 4px 16px rgb(var(--kg-black)/.16)}
+    .kgc-mini-flag{position:relative;display:block;isolation:isolate;width:100%;aspect-ratio:1.65;overflow:hidden;background:rgb(var(--kg-surface-container-high))}
+    .kgc-mini-flag .kgc-flag-art{inset:-8% -5%}
+    .kgc-mini-flag::after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgb(var(--kg-black)/.02) 55%,rgb(var(--kg-black)/.24));box-shadow:inset 0 1px 0 rgb(var(--kg-white)/.14)}
+    .kgc-mini-flag .kgc-flag-art .flag-emoji{font-size:64px}
+    .kgc-mini-flag [data-flag="NP"] .kgc-flag-art :is(img,svg),.kgc-mini-flag [data-flag="CH"] .kgc-flag-art :is(img,svg){object-fit:contain}
+    .kgc-open-country-copy{display:block;min-width:0;padding:10px 11px 12px}
+    .kgc-collection-selection{grid-column:1/-1;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .kgc-collection-selection .kgc-chip{font-size:12px;padding:7px 10px}
+    #kg-country-collection{scroll-margin-top:12px}
     .kgc-open-country b{display:block;font-size:13px;overflow-wrap:anywhere}
     .kgc-open-country small{display:block;margin-top:4px;color:rgb(var(--kg-text-muted));font-size:11px}
     .kgc-open-country:hover{border-color:rgb(var(--kg-primary))}
@@ -307,6 +317,7 @@
     root.querySelectorAll('[data-atlas-map-zoom]').forEach(button=>{button.disabled=Number(button.dataset.atlasMapZoom)<0?atlasMapScale===1:atlasMapScale===3;});
   }
   function atlas(){
+    collectionOrigin=null;
     parkAtlasMap();
     root.dataset.page='atlas';
     delete root.dataset.code;
@@ -337,7 +348,7 @@
       ${latest?`<div class="kg-bookmark-card"><button data-open-saved="${esc(latest.id)}" class="kgc-pad" style="display:block;width:100%;text-align:left;border:0;background:transparent;padding-top:0"><div class="kgc-panel kgc-feature"><span data-kgc-latest-poster><span class="kgc-poster kgc-poster-placeholder">${uiText("Нет постера")}</span></span><span class="kgc-latest-copy"><span class="kgc-chip">${uiText("Просмотрено")}</span><b class="kgc-filmname">${esc(latest.title||uiText("Фильм"))}</b><small class="kgc-muted">${esc([latest.year,latestCountry?app.countryName(latestCountry):''].filter(Boolean).join(' · '))}</small></span></div></button></div>`:`<div class="kgc-pad" style="padding-top:0"><div class="kgc-empty">${uiText("Здесь появится последний фильм, который вы отметили как просмотренный.")}</div></div>`}
       <div class="kgc-section"><h3>${uiText("🌐 Атлас кинолокаций")}</h3><span class="kgc-muted">${uiText("{count} отмечено", {count: opened})}</span></div>
       <div class="kgc-pad" style="padding-top:0"><div class="kgc-panel kgc-map"><div id="kg-country-map-host"></div><div class="kgc-map-zoom" role="group" aria-label="${uiText("Масштаб карты")}"><button type="button" data-atlas-map-zoom="-1" aria-label="${uiText("Уменьшить карту")}">−</button><output data-atlas-map-scale>100%</output><button type="button" data-atlas-map-zoom="1" aria-label="${uiText("Увеличить карту")}">+</button></div><div class="kgc-map-controls"><span class="kgc-muted" style="flex:1">${uiText("Нажмите на отмеченную страну")}</span><button class="kgc-btn secondary" data-open-globe>${uiText("Вернуться к 3D-глобусу")}</button></div></div></div>
-      ${seenCountries.length?`<div class="kgc-section"><h3>${uiText("Открытые страны")}</h3><span class="kgc-muted">${seenCountries.length}</span></div><div class="kgc-pad" style="padding-top:0"><div class="kgc-country-list">${seenCountries.map(c=>`<button type="button" class="kgc-open-country" data-open-country="${c}" aria-label="${esc(uiText("Паспорт страны {country}",{country:app.countryName(c)}))}">${flag(c)}<span><b>${esc(app.countryName(c))}</b><small>${uiText("{count} просмотрено",{count:counts[c]})}</small></span></button>`).join('')}</div></div>`:''}
+      ${seenCountries.length?`<div class="kgc-section"><h3>${uiText("Открытые страны")}</h3><span class="kgc-muted">${seenCountries.length}</span></div><div class="kgc-pad" style="padding-top:0"><div class="kgc-country-list">${seenCountries.map(c=>`<button type="button" class="kgc-open-country" data-open-country="${c}" aria-label="${esc(uiText("Паспорт страны {country}",{country:app.countryName(c)}))}"><span class="kgc-mini-flag">${flagBackdrop(c,'opened')}</span><span class="kgc-open-country-copy"><b>${esc(app.countryName(c))}</b><small>${uiText("{count} просмотрено",{count:counts[c]})}</small></span></button>`).join('')}</div></div>`:''}
       <div class="kgc-pad" style="padding-top:0"><button type="button" class="kgc-catalog-link" data-open-catalog="all">${uiText("Все страны")} <span aria-hidden="true">→</span></button></div>
       <div class="kgc-foot"><button class="kgc-btn secondary" data-atlas-close style="width:100%">${uiText("Закрыть атлас")}</button></div>`;
     const mapHost=root.querySelector('#kg-country-map-host');
@@ -661,6 +672,7 @@
   }
   let passportFromCatalog = false;
   async function country(code){
+    collectionOrigin=null;
     clearCountrySearchResult();
     if(!app.countries().includes(code))return atlas();
     closePassportSection();
@@ -875,7 +887,7 @@
     if(passportBucket!==null && !rows.some(row=>row.key===passportBucket))passportBucket=null;
     const selected=rows.find(row=>row.key===passportBucket),films=selected?selected.films:rating?stats.rated:stats.dated;
     const ordered=films.slice().sort(rating?(a,b)=>Number(b.vote_average)-Number(a.vote_average):(a,b)=>String(b.release_date).localeCompare(String(a.release_date)));
-    const chart=rows.map(row=>`<button type="button" class="kgc-stat-bar" data-passport-bucket="${row.key}" aria-pressed="${passportBucket===row.key}" aria-label="${esc(uiText('{label}: {count} фильмов',{label:row.label,count:row.films.length}))}"><span>${esc(row.label)}</span><span class="kgc-stat-track" aria-hidden="true"><span class="kgc-stat-fill" style="width:${total?100*row.films.length/total:0}%"></span></span><small>${fmt(row.films.length)}</small></button>`).join('');
+    const chart=rows.map(row=>`<button type="button" class="kgc-stat-bar" data-passport-bucket="${row.key}" aria-label="${esc(uiText('{label}: {count} фильмов',{label:row.label,count:row.films.length}))}"><span>${esc(row.label)}</span><span class="kgc-stat-track" aria-hidden="true"><span class="kgc-stat-fill" style="width:${total?100*row.films.length/total:0}%"></span></span><small>${fmt(row.films.length)}</small></button>`).join('');
     passportDetail.insertAdjacentHTML('beforeend',`<main class="kgc-stat-content"><section class="kgc-stat-summary"><span class="kgc-kicker">${esc(statisticsSample)}</span><strong class="kgc-stat-number">${rating?(stats.average?stats.average.toFixed(1):'—'):stats.range}</strong><p class="kgc-stat-note">${esc(rating?uiText('Средняя оценка TMDB · шкала от 1 до 10'):uiText('Распределение по десятилетиям'))}</p><div class="kgc-stat-chart${rating ? '' : ' kgc-stat-epochs'}">${chart}</div><p class="kgc-stat-note">${esc(rating?uiText('По средней оценке TMDB каждого фильма, округлённой до целого. Без оценки: {count}.',{count:statisticsFilms.length-total}):uiText('По году выхода фильма. Без даты: {count}.',{count:statisticsFilms.length-total}))}</p></section><h2>${esc(selected?uiText('Фильмы: {label}',{label:selected.label}):uiText('Фильмы каталога'))}</h2>${selected?`<button type="button" class="kgc-btn secondary" data-passport-clear>${uiText('Сбросить фильтр')}</button>`:''}<div class="kgc-stat-films">${ordered.slice(0,passportListLimit).map(f=>`<button type="button" class="kgc-stat-film" data-film-id="${f.id}"><span><b>${esc(f.title||uiText('Фильм'))}</b><small>${esc(year(f))}</small></span><span>★ ${Number(f.vote_average)>0?Number(f.vote_average).toFixed(1):'—'}</span></button>`).join('')||`<p class="kgc-empty">${uiText('Нет данных для этой выборки.')}</p>`}</div>${ordered.length>passportListLimit?`<button type="button" class="kgc-btn secondary" data-statistics-more>${uiText('Показать ещё фильмы')}</button>`:''}</main>`);
   }
   passportDetail.addEventListener('click',event=>{
@@ -886,8 +898,7 @@
       const section=passportSection,top=passportScroll;closePassportSection();shell.scrollTo({top,behavior:'instant'});
       root.querySelector(`[data-passport-section="${section}"]`)?.focus({preventScroll:true});
     }else if(button.hasAttribute('data-passport-bucket')){
-      passportBucket=passportBucket===button.dataset.passportBucket?null:button.dataset.passportBucket;passportListLimit=20;
-      renderPassportSection();passportDetail.querySelector(`[data-passport-bucket="${button.dataset.passportBucket}"]`)?.focus({preventScroll:true});
+      openCollectionFromStatistics(passportSection==='rating'?`rating:${button.dataset.passportBucket}`:`decade:${button.dataset.passportBucket}`);
     }else if(button.hasAttribute('data-passport-clear')){passportBucket=null;renderPassportSection();}
   });
   root.addEventListener('click',event=>{
@@ -922,7 +933,7 @@
       <div class="kgc-section"><div style="display:flex;align-items:center;gap:8px"><span class="material-symbols-outlined kgc-section-icon rose">military_tech</span><h3>${uiText("Рекомендуемый фильм")}</h3></div><span class="kgc-kicker">${featured?uiText("Выбор страны"):uiText("Каталог")}</span></div>
       ${featured?`<div class="kgc-films-grid" data-country-recommendation>${countryFilmCard(featured)}</div>`:`<div class="kgc-pad"><div class="kgc-empty">${esc(message||uiText("Каталог TMDB пока не вернул фильмы для этой страны."))}</div></div>`}
       <div class="kgc-section"><div style="display:flex;align-items:center;gap:8px"><span style="color:rgb(var(--kg-primary))">🎭</span><h3>${uiText("Мэтры кинематографа")}</h3></div><span class="kgc-kicker" data-master-count>TMDB</span></div><div class="kgc-rowcards kg-cast-rail" id="kg-country-people"><div class="kgc-empty">${loading ? uiText("Загружаем участников…") : total == null ? uiText("Нет данных") : uiText("Для этого списка TMDB пока не вернул режиссёров.")}</div></div>
-      <div class="kgc-section"><div style="display:flex;align-items:center;gap:8px"><span style="color:rgb(var(--kg-primary))">▣</span><h3>${uiText("Коллекция картин")}</h3></div><span class="kgc-muted" data-country-catalog-count>${total == null && !films.length ? uiText("Нет данных") : uiText("{count} лент", {count: fmt(filmCount)})}</span></div><div class="kgc-filter">${[['all',total == null && !films.length ? uiText("Все ленты") : uiText("Все ленты ({count})", {count: fmt(filmCount)})],['classic',uiText("Золотая классика")],['newwave','1970–1999'],['modern','2000+']].map(([key,label])=>`<button class="${key==='all'?'active':''}" data-country-filter="${key}">${label}</button>`).join('')}</div><div class="kgc-films-grid" id="kg-country-films"></div>
+      <div class="kgc-section" id="kg-country-collection" tabindex="-1"><div style="display:flex;align-items:center;gap:8px"><span style="color:rgb(var(--kg-primary))">▣</span><h3>${uiText("Коллекция картин")}</h3></div><span class="kgc-muted" data-country-catalog-count>${total == null && !films.length ? uiText("Нет данных") : uiText("{count} лент", {count: fmt(filmCount)})}</span></div><div class="kgc-filter">${[['all',total == null && !films.length ? uiText("Все ленты") : uiText("Все ленты ({count})", {count: fmt(filmCount)})],['classic',uiText("Золотая классика")],['newwave','1970–1999'],['modern','2000+']].map(([key,label])=>`<button class="${key==='all'?'active':''}" data-country-filter="${key}">${label}</button>`).join('')}</div><div class="kgc-films-grid" id="kg-country-films"></div>
       ${latest?`<div class="kgc-section"><h3>${uiText("Последняя отмеченная лента")}</h3></div><div class="kgc-pad" style="padding-top:0"><button class="kgc-country-pill has" data-open-saved="${esc(latest.id)}">${flag(code)} ${esc(latest.title||uiText("Фильм"))} · ${esc(latest.year||'')}</button></div>`:''}
       <div class="kgc-foot"><button class="kgc-btn secondary" data-atlas-back style="width:100%">${passportFromCatalog ? uiText("←　К каталогу стран") : uiText("←　К атласу открытий")}</button></div>`;
     paintFilms(films,state.filter);
@@ -945,6 +956,23 @@
     const masterCount=root.querySelector('[data-master-count]');if(masterCount)masterCount.textContent=uiText("Все ({count})", {count: directors.length});
   }
 
+  function collectionFilterLabel(filter){
+    const rating=/^rating:(10|[1-9])$/.exec(filter),decade=/^decade:(\d{4})$/.exec(filter);
+    return rating?uiText('Рейтинг: {rating} ★',{rating:rating[1]}):decade?uiText('Эпоха: {start}–{end}',{start:decade[1],end:Number(decade[1])+9}):'';
+  }
+  function openCollectionFromStatistics(filter){
+    collectionOrigin={section:passportSection,scroll:shell.scrollTop,passportScroll};
+    closePassportSection();state.filter=filter;catalogueFeed(filter).limit=20;
+    paintFilms(state.films,filter);
+    const collection=root.querySelector('#kg-country-collection');
+    if(collection){const headerHeight=root.querySelector('.kgc-head')?.getBoundingClientRect().height||0;const top=shell.scrollTop+collection.getBoundingClientRect().top-shell.getBoundingClientRect().top-headerHeight-12;shell.scrollTo({top:Math.max(0,top),behavior:'instant'});collection.focus({preventScroll:true});}
+  }
+  function returnToStatistics(){
+    if(!collectionOrigin)return;
+    const origin=collectionOrigin;collectionOrigin=null;paintFilms(state.films,state.filter);
+    openPassportSection(origin.section);passportScroll=origin.passportScroll;
+    shell.scrollTo({top:origin.scroll,behavior:'instant'});
+  }
   function catalogueFeed(filter){
     if(!state.catalogFeeds.has(filter))state.catalogFeeds.set(filter,{films:[],page:0,total:0,hasMore:false,limit:20,loading:false,error:false});
     return state.catalogFeeds.get(filter);
@@ -955,7 +983,7 @@
     feed.loading=true;feed.error=false;paintFilms(state.films,state.filter);
     const page=more?feed.page+1:1;
     try{
-      const result=await app.getCountryFilms(code,page,window.KGCountryStatistics.eraQuery(filter));
+      const result=await app.getCountryFilms(code,page,window.KGCountryStatistics.queryForFilter(filter));
       if(state.catalogFeeds!==feeds)return;
       const existing=page===1?[]:feed.films,known=new Set(existing.map(f=>Number(f.id)));
       feed.films=[...existing,...(result.results||[]).filter(f=>!known.has(Number(f.id))).map(f=>({...f,_kgCountry:code}))];
@@ -973,7 +1001,9 @@
     const loading=!complete && !local && feed.loading;
     const empty=loading?uiText('Загружаем…'):feed.error?uiText('Не удалось загрузить · повторить'):uiText('В этой категории пока нет фильмов.');
     const note=complete||local?uiText('Показано {shown} из {total}',{shown:fmt(selection.films.length),total:fmt(selection.total)}):'';
-    box.innerHTML=(note?`<p class="kgc-muted" style="grid-column:1/-1" data-catalog-page-note>${esc(note)}</p>`:'')+(selection.films.length?selection.films.map(countryFilmCard).join(''):`<div class="kgc-empty" style="grid-column:1/-1" role="status">${esc(empty)}</div>`);
+    const selectedLabel=collectionFilterLabel(filter);
+    const selectionControls=(collectionOrigin?`<div style="grid-column:1/-1"><button type="button" class="kgc-btn secondary" data-return-statistics>← ${uiText(collectionOrigin.section==='rating'?'Назад к среднему рейтингу':'Назад к эпохам')}</button></div>`:'')+(selectedLabel?`<div class="kgc-collection-selection"><span class="kgc-chip">${esc(selectedLabel)}</span><button type="button" class="kgc-btn secondary" data-country-filter="all">${uiText('Сбросить фильтр')}</button></div>`:'');
+    box.innerHTML=selectionControls+(note?`<p class="kgc-muted" style="grid-column:1/-1" data-catalog-page-note>${esc(note)}</p>`:'')+(selection.films.length?selection.films.map(countryFilmCard).join(''):`<div class="kgc-empty" style="grid-column:1/-1" role="status">${esc(empty)}</div>`);
     if(selection.hasMore || (!complete && !local && feed.error))box.insertAdjacentHTML('beforeend',`<button class="kgc-btn secondary kgc-load-more" type="button" data-load-more ${loading?'disabled':''}>${loading?uiText('Загружаем…'):feed.error?uiText('Не удалось загрузить · повторить'):uiText('Показать ещё фильмы')}</button>`);
     const total=complete?state.statistics.length:state.total,display=total==null?'—':fmt(total)+(state.catalogTotalLimited && !complete?'+':'');
     const tile=root.querySelector('[data-passport-section="catalog"] .kgc-passport-value');if(tile)tile.textContent=display;
@@ -1053,10 +1083,12 @@
   const originalMapClick=mapButton?.onclick;
   if(mapButton)mapButton.onclick=function(event){originalMapClick?.call(this,event);showAtlas();};
   document.addEventListener('click',async event=>{
-    const target=event.target.closest('[data-open-country],[data-atlas-back],[data-atlas-close],[data-country-search],[data-open-map],[data-open-globe],[data-atlas-scroll-map],[data-country-filter],[data-load-more],[data-country-favorite],[data-country-share],[data-kga-account],[data-film-id],[data-open-saved]');
+    const target=event.target.closest('[data-open-country],[data-return-statistics],[data-atlas-back],[data-atlas-close],[data-country-search],[data-open-map],[data-open-globe],[data-atlas-scroll-map],[data-country-filter],[data-load-more],[data-country-favorite],[data-country-share],[data-kga-account],[data-film-id],[data-open-saved]');
     if(!target || !dialog.contains(target))return;
     if(target.dataset.openCountry){country(target.dataset.openCountry);return;}
+    if(target.hasAttribute('data-return-statistics')){returnToStatistics();return;}
     if(target.hasAttribute('data-atlas-back')){
+      if(collectionOrigin){returnToStatistics();return;}
       if(passportFromCatalog) showCatalog(true);
       else {atlas();shell.scrollTo({top:0,behavior:'instant'});}
       return;
@@ -1148,6 +1180,7 @@
     const routes=[
       '#kgc-passport-detail:not([hidden]) [data-passport-back]',
       '#kg-country-app:not([hidden]) [data-country-search-result]:not([hidden]) [data-act="close-film"]',
+      '#kg-country-app:not([hidden]) [data-return-statistics]',
       '#kg-country-app:not([hidden]) [data-atlas-back]',
       '#kg-country-app:not([hidden]) [data-catalog-exit]',
       '#kg-watch-history:not([hidden]) [data-atlas-close]',
@@ -1166,7 +1199,7 @@
   }
   dialog.addEventListener('close', () => {
     if (dialog.open) return;
-    clearCountrySearchResult();
+    collectionOrigin=null;clearCountrySearchResult();
     closePassportSection();
     root.dataset.page = '';
     root.hidden = false;

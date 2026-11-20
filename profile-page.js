@@ -2,17 +2,17 @@
 (() => {
   let profile = null;
   const artwork = [
-    "https://lh3.googleusercontent.com/aida-public/AB6AXuAedOqHqwFMp4C6tHLaz7m7kf_r8q1boKLkZF86QqFPKTjer5WPP4bstCixK1VZXBlFl1SW34tHD3Evg7SEtVq5oHritG-z7_k7b6bFHEmpFEd5BdOdrOhM-mT3bXF9VMXw8rGH-0tvdrRC96vnn76UCOOvYhEQ3O0HSxbppqX-r9yVZzVlC1U0mBEYakIOBfre4lPJIeCzlaCW-YySqXvywzb_WbMwe9-lZJr2r4I",
-    "https://lh3.googleusercontent.com/aida-public/AB6AXuCiGOQazWwzodAJ3IU0NNlG-Go-lL3XL-qdJLQzpoIqZ6JdM7W_XbElHqiwsMp5IJ0cW7zQQY-3QNCE-WepZQNCms078T548Bx7Q7t6hCUCrYyaec4IvxUi4yccD8gJk6wKzq2db7pjUAD3EUZl0UpG2UrvdRLlgrlPNFQ38BV_5UxRMJqTTMtqD5YhWUSR8CPubAgVX5LpY9WvCZRhMOj0DB3VnkGlbTSO12CMZFI",
-    "https://lh3.googleusercontent.com/aida-public/AB6AXuA2j_NtDQ2-Bf6YICU9S9qfJXj68MeIqT9qQ2ZC3fY6bNR7-6978EG-S3hWZMLu7ApKD7_ZUL1jg14nxnZN3_a4s5wG7yL5q3U_zluWDQCnHnI4hn-Y_y2rHl39o_gwpkpGbysVgCxobqWljcHFaaogJU-vhBSlb5d9sprfe5vMoeQ1mZtdl6_U9hQk3jwXMgWfGdxhX4sTxFdKmf726xglurvJvA4nxAxxBUnrS6Q",
-    "https://lh3.googleusercontent.com/aida-public/AB6AXuCvscCji5XuEsppvPgcEjt2qWn5A825vEdWQLgLKZ-FDK9eRRFmzBh0rpNP5u4LorFJHzI6vxAeY4S0KqChkjy5yFWoO6o957IwBPGoDDL-5ax2dbanCdpOAyTMUoRHZosqaePjTJ_Wubx0vy5G22XOQdozKi-nXN5HIz-hzPRQh_4WONqZdOe56DfkT2E2TpSh6N8oP3Px-mYZovZt0E0ReE9vEOPRqpgTDnW30gw",
-    "https://lh3.googleusercontent.com/aida-public/AB6AXuAHE_yDQRSjsZ0nCoM-AviWxcVZustBrZ5L56EITnnOTCgnkYdWbNfS5DnlfviZAhKjsuP8zrTezf9FBoY34zqw2AmPYsvVVta6VY2JN3V8XBwmSPGOEkSS3pgSPGApz_Uyi3B84SD3SqjziuHKBhCD3fV6dchyTDe_O3NERfCDfs8sCVuJPnPFfgd5aRn6nweTsWPGfYVkQvhiFJWqqU3SuMwm4joMgACMnV_2lkw",
-    "https://lh3.googleusercontent.com/aida-public/AB6AXuAhVBrF3nDYFsY7fG2kn06-saeUe5OmURtVuuLvTG79AfmFPwEnsx0d4n-ez8JWpLUSlSWl30zRiDQ-SHyOa6hy-7muEjIax_WyyI4L3cZwkisH3o5wJIAL5wKtAWdIgM5XPwoL0IhGLteiSUE35ual1JIc3esae_-io8_neuY3NWgv_ZmDSI1NoBwITJrnKC4xIXvkx6AmfGSUYm8bF2g7BN2Xu3EIPFn1wFvgeek",
-    "https://lh3.googleusercontent.com/aida-public/AB6AXuDTzq1pP4fQxZDP37B1DoEgBDra_o_lyZG7WqzR4kq25Q7l2-yfwgsRUv-yoir4NHGXez89GGJUNEuGCpV9AKDbnJJU8FnlhP2xs_dO9c94RWg2puJJAUc3c8_YA7-omI7QjCkgSirntNSvF9ajR0R-JW7EiARebTkbZ0notAp5yaHI3-v-SouLMiykppnk5b2QkWo7NCGeB9IM94HAvbBRw2z_Vl96auJg5bj3t3Y",
-    "https://lh3.googleusercontent.com/aida-public/AB6AXuDjmdnnH6sSIK58c4fuNS9G_ZuEPD_Z7cfslknV_aj1mqNwJQlk2f7pbg2j_H7VjwtszzSS6geSom4LnUwT_lOIiPNtPu_vpjX_Nxd4FawlOluUrlv8gpdIiZB00fAhb8BqUOzbI9psgqPjwmwlr62hvN-4KJ3hjG0o5FUnnszm6ABRTqXRvMWG-_lRaFAkNhb3SnHjNeP3l-qZEqVHjsLW2560iReWpclwkc1VRFs",
-    "https://lh3.googleusercontent.com/aida-public/AB6AXuAkkjD64wiWi8r0zU7f394tHo2C3BX5OYhUDjd6ceyPkvEoSaMdAxA6erqrBx3YfebMQ9r2YXzTKW9ACVue8XDVWCaH9_AkuNkklluv0Dk83lFLCKrtW6QOV8NejHnwsd3Ny7cuJ6btKrWaBRM29fX0Ax22nlpW9b4vg8k3IXCZ_4wK8zXvPuR6ZJgCVy08_6OakPPlrNymw7B6O51Ykr6YmZ0s4_DIRJUHMdgupZ4",
-    "https://lh3.googleusercontent.com/aida-public/AB6AXuDTIBWjgDQ6QIjS59ZdMhehaWfGvaKmbVBLqt5kjRhrXRo04ps8LOU30jhDTvSdsCNbSzgUX1d3cGW9XldiPo5q9G-OTZm7b4xaSREbrcRgUQFXUOYlLOZ3X1Q_mYKcSkpyE82sXMjHnw37QUhL6hGw8vnsodszwf1rsoe_Qz_S7mjj7uDOxSOvKzIX3cOEcmjIQWI-NtBQGJzugG4BsqF8J8a1nvN2CVatllGvfps",
-    "https://lh3.googleusercontent.com/aida-public/AB6AXuAQHrZIEpJSMcZbhrcOI5JgNbDR35NR60Vqz-SVdGX5beHsqomhgaTOxknxkojVQh652FU9ZqMXbcCrwLk29OWWpq-nggxzq8q1M3I_ts8p8CRYFBiQRfoocXSN6rtJY_ydXEZz6r2wvrhd74rwtpMbJh5ZLDtV07UsUlAZ0PKMMKoT6SdKcMOQZCNfkwwcioKDaLDlR2xeG_13BWo7xk7LHW4WCwdCpeY1ycUzBAY"
+    "assets/interface/profile-page-01.jpg",
+    "assets/interface/profile-page-02.jpg",
+    "assets/interface/profile-page-03.jpg",
+    "assets/interface/profile-page-04.jpg",
+    "assets/interface/profile-page-05.jpg",
+    "assets/interface/profile-page-06.jpg",
+    "assets/interface/profile-page-07.jpg",
+    "assets/interface/profile-page-08.jpg",
+    "assets/interface/profile-page-09.jpg",
+    "assets/interface/profile-page-10.jpg",
+    "assets/interface/profile-page-11.jpg"
   ];
   const icon = name => `<span class="material-symbols-outlined" aria-hidden="true">${name}</span>`;
   const still = (index, className = "") => `<img class="${className}" src="${artwork[index]}" alt="" loading="lazy" decoding="async">`;

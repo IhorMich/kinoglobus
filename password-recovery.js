@@ -40,7 +40,7 @@
       display:flex;align-items:end;justify-content:space-between;gap:8px;
       min-height:112px;margin:12px 0 20px;padding:12px;border-radius:12px;
       background:linear-gradient(0deg,rgb(var(--kg-neutral-60)),rgb(var(--kg-neutral-60)/0.63137) 48%,transparent),
-        linear-gradient(90deg,rgb(var(--kg-surface-container-lowest)/0.8),transparent,rgb(var(--kg-surface-container-lowest)/0.8)),url('https://lh3.googleusercontent.com/aida-public/AB6AXuCDXEm1gmfdzdgAZucKCEpHCRDyayusIFBEYIKPawHrzghT_OghVz2zx4A76pRBnJoZ33Ja97MmDVj6sORveFZwtabFhG-uO0WAHAcP6Si1HPWTJ8OO41uLhVv23AhL84Nxc5jFA2v0ykurU7-egdcF6JLTfqNE6O6iWdaZjSzTeTp2DnBSc4SUUaJNVo3WiCZ3aDctR9qXbPd9hOKiN8l0HIE1huXRNW3KZShyzMyQ') center/cover rgb(var(--kg-neutral-60));
+        linear-gradient(90deg,rgb(var(--kg-surface-container-lowest)/0.8),transparent,rgb(var(--kg-surface-container-lowest)/0.8)),url('assets/interface/password-recovery-01.jpg') center/cover rgb(var(--kg-neutral-60));
       box-shadow:0 16px 36px -10px rgb(var(--kg-secondary-container)/0.30196);
     }
     .kg-recovery-atlas-info {display:flex;align-items:center;gap:8px}

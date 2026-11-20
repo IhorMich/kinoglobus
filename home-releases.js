@@ -2,7 +2,7 @@
 (() => {
   const root = document.getElementById("kg-home-releases");
   const sections = [
-    {id: "digital", icon: "high_quality", title: "Новинки в качестве", subtitle: "Уже в цифровом релизе", more: "Все новинки", type: "4", from: -60, to: 0, limit: 6},
+    {id: "digital", icon: "high_quality", title: "Новинки в качестве", subtitle: "Уже в цифровом релизе", type: "4", from: -60, to: 0, limit: 6},
     {id: "cinema", icon: "theaters", title: "Сейчас в кинотеатрах", subtitle: "Недавние премьеры на большом экране", theatrical: true, type: "3|2", from: -21, to: 0, limit: 7},
     {id: "upcoming", icon: "theaters", title: "Скоро в кинотеатрах", subtitle: "Премьеры на ближайшие 30 дней", theatrical: true, type: "3|2", from: 1, to: 30, limit: 7}
   ].map(section => ({...section, films: [], expanded: false}));
@@ -70,12 +70,7 @@
       } else if (action === "retry") {
         loadSection(section, context);
       } else if (action === "expand") {
-        if (section.theatrical) {
-          expandTheatrical(section, button);
-        } else {
-          section.expanded = !section.expanded;
-          render(section);
-        }
+        expandTheatrical(section, button);
       } else if (action === "film") {
         const film = section.films.find(item => String(item.id) === button.dataset.id);
         if (!film) return;
@@ -143,7 +138,7 @@
     }
     section.visible = section.films.length;
     const previous = button.previousElementSibling;
-    button.insertAdjacentHTML("beforebegin", section.films.slice(start).map(film => posterCard(film, false)).join(""));
+    button.insertAdjacentHTML("beforebegin", section.films.slice(start).map(film => posterCard(film, section.id === "digital")).join(""));
     const firstAdded = previous?.nextElementSibling;
     button.insertAdjacentHTML("afterend", theatricalMore(section));
     const nextButton = button.nextElementSibling;
@@ -171,15 +166,7 @@
       message(section, "За этот период в выбранном регионе релизов нет.");
       return;
     }
-    if (section.theatrical) {
-      feed.innerHTML = `<div class="${railClass}">${films.slice(0, section.visible).map(film => posterCard(film, false)).join("")}${theatricalMore(section)}</div>`;
-      return;
-    }
-    moreButton.hidden = films.length <= limit;
-    moreButton.textContent = uiText(expanded ? "Свернуть" : section.more) + (expanded ? " ↑" : " →");
-    moreButton.setAttribute("aria-expanded", String(expanded));
-    const filmsToShow = expanded ? films : films.slice(0, limit);
-    feed.innerHTML = `<div class="${expanded ? "grid grid-cols-2 sm:grid-cols-3 gap-3 [&>div]:w-full" : railClass}">${filmsToShow.map(film => posterCard(film, true)).join("")}</div>`;
+    feed.innerHTML = `<div class="${railClass}">${films.slice(0, section.visible).map(film => posterCard(film, section.id === "digital")).join("")}${theatricalMore(section)}</div>`;
   }
 
   const releaseFilms = result => (result.results || [])
@@ -212,17 +199,12 @@
         const details = await filmDetails(film.id);
         if (context !== current) return;
         Object.assign(film, {title:details.title || film.title, localizedPoster:details.localizedPoster});
-        if (section.theatrical) {
+        {
           const card = section.feed.querySelector(`[data-release-action="film"][data-id="${film.id}"]`)?.parentElement;
-          if (card && !card.contains(document.activeElement)) card.outerHTML = posterCard(film, false);
+          if (card && !card.contains(document.activeElement)) card.outerHTML = posterCard(film, section.id === "digital");
         }
       }));
-      if (context === current && section.id === "digital" && section.films.length) {
-        const carousel = section.feed.firstElementChild;
-        const left = carousel?.scrollLeft || 0;
-        render(section);
-        if (section.feed.firstElementChild) section.feed.firstElementChild.scrollLeft = left;
-      }
+
     } catch {
       if (context === current) message(section, "Не удалось загрузить релизы.", "retry", "Повторить загрузку");
     }

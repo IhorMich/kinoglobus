@@ -4,6 +4,7 @@
   const platforms={all:'Все',netflix:'Netflix',apple:'Apple TV+',max:'HBO',prime:'Prime Video',fx:'FX',disney:'Disney+',hulu:'Hulu',paramount:'Paramount+',peacock:'Peacock',hbomax:'HBO Max',amc:'AMC+',starz:'Starz',showtime:'Showtime',crunchyroll:'Crunchyroll'};
   const mainKeys=Object.keys(platforms), networks={netflix:213,apple:2552,max:49,prime:1024,fx:88,disney:2739,hulu:453,paramount:4330,peacock:3353,hbomax:3186,amc:4661,starz:318,showtime:67,crunchyroll:1112};
   const aliases={netflix:/^Netflix$/i,apple:/^Apple TV(?:\+| Plus)?$/i,max:/^HBO$/i,prime:/^Amazon Prime Video$|^Prime Video$/i,fx:/^FX$/i,disney:/^Disney\+$/i,hulu:/^Hulu$/i,paramount:/^Paramount(?: Plus|\+)(?: Premium| Essential)?$/i,peacock:/^Peacock( Premium)?$/i,hbomax:/^Max$|^HBO Max$/i,amc:/^AMC(?:\+| Plus)$/i,starz:/^Starz$/i,showtime:/^Showtime$/i,crunchyroll:/^Crunchyroll$/i};
+  const networkOnly=k=>k==='max'||k==='showtime';
   const logos=new Map(),providerIds=new Map();let regions=[],region='US',mode='original',regionToken=0,providerKey='',providerPending=null,regionalExpanded=false;
   const readPref=k=>{try{return localStorage.getItem(k)}catch{return null}};
   const savePref=(k,v)=>{try{localStorage.setItem(k,v)}catch{}};
@@ -42,7 +43,7 @@
     return !!variants[k]?.test(n);
   }
   function updatePlatforms(){const rail=root?.querySelector('.kg-sh-platform-scroll');if(!rail)return;const left=rail.scrollLeft;rail.innerHTML=platformMarkup();rail.scrollLeft=left;const controls=root.querySelector('.kg-sh-region-controls');if(controls){controls.outerHTML=regionControls();}localizeInterfaceMarkup(root.querySelector('.kg-sh-platforms'));}
-  function regionControls(){const codes=[...new Set([region,...regions.map(x=>x.iso_3166_1),'PL','UA','DE','GB','US'])];return `<div class="kg-sh-region-controls"><label>${esc(uiText('Страна'))} <select data-sh-region>${codes.map(c=>`<option value="${esc(c)}" ${c===region?'selected':''}>${esc(countryLabel(c))}</option>`).join('')}</select></label><button type="button" data-sh-mode>${esc(uiText(mode==='original'?'Оригинальные сериалы':'Доступны для просмотра'))} ↔</button><button type="button" data-sh-auto>${esc(uiText('Авто'))}</button></div>`}
+  function regionControls(){const codes=[...new Set([region,...regions.map(x=>x.iso_3166_1),'PL','UA','DE','GB','US'])];return `<div class="kg-sh-region-controls"><label>${esc(uiText('Страна'))} <select data-sh-region>${codes.map(c=>`<option value="${esc(c)}" ${c===region?'selected':''}>${esc(countryLabel(c))}</option>`).join('')}</select></label><button type="button" data-sh-mode ${networkOnly(platform)?'disabled':''}>${esc(uiText(mode==='original'?'Оригинальные сериалы':'Доступны для просмотра'))} ↔</button><button type="button" data-sh-auto>${esc(uiText('Авто'))}</button></div>`}
 
   const seedRows=[
     [194764,'Пингвин','The Penguin','max',0], [94997,'Дом Дракона','House of the Dragon','max',1],
@@ -187,10 +188,11 @@
   // One filter per selection, shared by every feed. Never silently widen it.
   function buildStreamingFilter(selected, selectedMode, selectedRegion, ids=[]){
     if(selected==='all')return {};
-    if(selectedMode==='original')return networks[selected]?{with_networks:networks[selected]}:null;
+    if(networkOnly(selected)||selectedMode==='original')return networks[selected]?{with_networks:networks[selected]}:null;
     return ids.length?{with_watch_providers:[...new Set(ids)].join('|'),watch_region:selectedRegion}:null;
   }
   async function networkQuery(selected, selectedMode, selectedRegion){
+    if(networkOnly(selected))selectedMode='original';
     if(selected!=='all'&&selectedMode==='available')await loadProviders();
     if(selectedRegion!==region)throw new Error('Region changed');
     if(selected!=='all'&&selectedMode==='available'&&!providerKey)throw new Error('Provider lookup failed');
@@ -212,7 +214,7 @@
         queue.push(async()=>{
           if(token!==generation){resolve(null);return;}
           try{const raw=await tmdb(`tv/${window.KGSeries.rawId(f.id)}`);resolve(movieCatalog.allows(raw)?{...f,...localizeFilmListItem(raw),_hubService:f._hubService}:null);}
-          catch(error){console.warn('[SeriesHub v12] detail',window.KGSeries.rawId(f.id),error.code||error.name);resolve(error.code==='CATALOG_RESTRICTED'?null:undefined);}
+          catch(error){console.warn('[SeriesHub v12.2] detail',window.KGSeries.rawId(f.id),error.code||error.name);resolve(error.code==='CATALOG_RESTRICTED'?null:undefined);}
         });pump();
       }));return cache.get(f.id).then(value=>{if(value===undefined)cache.delete(f.id);return value;});
     };
@@ -260,12 +262,12 @@
       const enriched=rows.flatMap((f,i)=>details[i]?[{...details[i],_hubService:f._hubService}]:[]).filter(movieCatalog.allows);
       if(details.some(f=>f===undefined))errors.add(k);
       const incoming=k==='schedule'?scheduleFor(enriched,today,period):enriched;
-      console.info('[SeriesHub v12]',selected,k,{page,filter,received:result.results.length,allowed:rows.length,verified:enriched.length,shown:incoming.length});
+      console.info('[SeriesHub v12.2]',selected,k,{page,filter,received:result.results.length,allowed:rows.length,verified:enriched.length,shown:incoming.length});
       const key=x=>k==='schedule'?`${x.show.id}:${x.episode.season_number}:${x.episode.episode_number}`:String(x.id);
       data[k]=[...new Map([...(data[k]||[]),...incoming].map(x=>[key(x),x])).values()];
       if(k==='schedule')data[k].sort((a,b)=>a.episode.air_date.localeCompare(b.episode.air_date));
       if(!details.some(f=>f===undefined))pages[k]={page,done:page>=Math.min(result.total_pages||1,500)};
-    }catch(error){if(token===generation){errors.add(k);console.warn("[SeriesHub v12] feed",k,error.name);}}finally{if(token===generation){busy.delete(k);if(!loading)updateFeed(k);}}
+    }catch(error){if(token===generation){errors.add(k);console.warn("[SeriesHub v12.2] feed",k,error.name);}}finally{if(token===generation){busy.delete(k);if(!loading)updateFeed(k);}}
   }
   async function moreFeed(k){
     if(loading||!Object.hasOwn(limits,k)||busy.has(k)||!apiKey)return;
@@ -307,13 +309,13 @@
     root.addEventListener('change',event=>{if(event.target.matches('[data-sh-region]')){region=event.target.value;savePref('kgSeriesRegion',region);platform='all';loadProviders();load(true)}});
     root.addEventListener('click',event=>{
       if(event.target.closest('[data-sh-regional]')){regionalExpanded=!regionalExpanded;updatePlatforms();return;}
-      if(event.target.closest('[data-sh-mode]')){mode=mode==='original'?'available':'original';savePref('kgSeriesMode',mode);load(true);return;}
+      if(event.target.closest('[data-sh-mode]')){if(networkOnly(platform))return;mode=mode==='original'?'available':'original';savePref('kgSeriesMode',mode);load(true);return;}
       if(event.target.closest('[data-sh-auto]')){region=guessRegion();savePref('kgSeriesRegion',region);platform='all';loadProviders();load(true);return;}
 
       if(event.target.closest('[data-kg-bookmark]'))return;
       const periodButton=event.target.closest('[data-sh-period]');if(periodButton){period=period===7?30:7;load(true);return;}
       if(event.target.closest('[data-sh-sort]')){sortMode=(sortMode+1)%3;load(true);return;}
-      const platformButton=event.target.closest('[data-sh-platform]');if(platformButton){selectPlatform(platformButton.dataset.shPlatform);if(platform.startsWith('provider_')){mode='available';savePref('kgSeriesMode',mode)}load(true);return;}
+      const platformButton=event.target.closest('[data-sh-platform]');if(platformButton){selectPlatform(platformButton.dataset.shPlatform);if(networkOnly(platform)){mode='original';savePref('kgSeriesMode',mode)}else if(platform.startsWith('provider_')){mode='available';savePref('kgSeriesMode',mode)}updatePlatforms();load(true);return;}
       if(event.target.closest('[data-sh-reset]')){selectPlatform('all');load();return;}
       const categoryButton=event.target.closest('[data-sh-category]');if(categoryButton){category=categoryButton.dataset.shCategory;expanded=false;render();load();return;}
       const more=event.target.closest('[data-sh-feed-more]');if(more){moreFeed(more.dataset.shFeedMore);return;}

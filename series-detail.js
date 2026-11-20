@@ -14,7 +14,7 @@
   const episodeCheck=()=>`<svg class="kg-sd-watch-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m7 12 3 3 7-7"/></svg>`;
   function episodeMarkup(f,e,marks,logs={}){
     const watched=marks.has(`${f._seriesSeason}:${e.episode_number}`),key=`${f._seriesSeason}:${e.episode_number}`,open=f._seriesOpenEpisode===key;
-    return `<article class="kg-sd-episode ${watched?'is-watched':''}"><button type="button" class="kg-sd-episode-info" data-series-episode="${key}" aria-expanded="${open}"><span class="kg-sd-still">${e.still_path?`<img src="${esc(img(e.still_path,'w300'))}" alt="" loading="lazy">`:sym('tv')}${watched?`<i>${sym('check')}</i>`:''}${e.runtime?`<small>${esc(uiText('{minutes} мин',{minutes:e.runtime}))}</small>`:''}</span><span class="kg-sd-episode-text"><b>${e.episode_number}. ${esc(e.name||uiText('Эпизод {episode}',{episode:e.episode_number}))}</b><span class="${open?'':'is-clamped'}">${esc(e.overview||uiText('Описание серии пока недоступно.'))}</span><time>${esc(dateText(e.air_date))}</time></span></button><button type="button" class="kg-sd-episode-check" data-series-watched="${key}" aria-pressed="${watched}" aria-label="${esc(uiText(watched?'Снять отметку «Просмотрено»':'Отметить серию просмотренной'))}">${episodeCheck()}</button></article>`;
+    return `<article class="kg-sd-episode ${watched?'is-watched':''}"><button type="button" class="kg-sd-episode-info" data-series-episode="${key}" aria-haspopup="dialog"><span class="kg-sd-still">${e.still_path?`<img src="${esc(img(e.still_path,'w300'))}" alt="" loading="lazy">`:sym('tv')}${watched?`<i>${sym('check')}</i>`:''}${e.runtime?`<small>${esc(uiText('{minutes} мин',{minutes:e.runtime}))}</small>`:''}</span><span class="kg-sd-episode-text"><b>${e.episode_number}. ${esc(e.name||uiText('Эпизод {episode}',{episode:e.episode_number}))}</b><span class="${open?'':'is-clamped'}">${esc(e.overview||uiText('Описание серии пока недоступно.'))}</span><time>${esc(dateText(e.air_date))}</time></span></button><button type="button" class="kg-sd-episode-check" data-series-watched="${key}" aria-pressed="${watched}" aria-label="${esc(uiText(watched?'Снять отметку «Просмотрено»':'Отметить серию просмотренной'))}">${episodeCheck()}</button></article>`;
   }
   function episodesMarkup(f){
     const seasons=f.seasons||[],selected=f._seriesSeason??initialSeason(seasons);f._seriesSeason=selected;
@@ -42,6 +42,12 @@
     catch(error){keys.forEach((k,i)=>{try{before[i]===null?localStorage.removeItem(k):localStorage.setItem(k,before[i]);}catch{}});throw error;}
     document.querySelectorAll('.kg-series-detail').forEach(card=>{const model=window.KGFilmCard.modelFor(card);if(model?.id===series.id)repaint(card,model);});
     document.dispatchEvent(new CustomEvent('kg:episode-note-change',{detail:{id:series.id,season,episode:episode.episode_number}}));
+  }
+  function unmarkEpisode(series,season,number){
+    const marks=readMarks(series.id);marks.delete(`${season}:${number}`);
+    localStorage.setItem(storageKey(series.id),JSON.stringify([...marks]));
+    document.querySelectorAll('.kg-series-detail').forEach(card=>{const model=window.KGFilmCard.modelFor(card);if(model?.id===series.id)repaint(card,model);});
+    document.dispatchEvent(new CustomEvent('kg:episode-note-change',{detail:{id:series.id,season,episode:number}}));
   }
   function openEpisodeNote(series,episode,season){
     const key=`${season}:${episode.episode_number}`,initial=readEpisodeNotes(series.id)[key]||{};
@@ -72,11 +78,11 @@
     if(button.hasAttribute('data-series-season')){f._seriesSeason=Number(button.dataset.seriesSeason);f._seriesOpenEpisode=null;loadSeason(card,f);return;}
     if(button.hasAttribute('data-series-retry')){loadSeason(card,f,true);return;}
     if(button.hasAttribute('data-series-expand')){f._seriesExpanded=!f._seriesExpanded;button.setAttribute('aria-expanded',String(f._seriesExpanded));card.querySelector('[data-kg-film-description]>p').classList.toggle('is-clamped',!f._seriesExpanded);button.innerHTML=uiText(f._seriesExpanded?'Свернуть':'Читать далее')+sym(f._seriesExpanded?'expand_less':'expand_more');return;}
-    if(button.hasAttribute('data-series-episode')){f._seriesOpenEpisode=f._seriesOpenEpisode===button.dataset.seriesEpisode?null:button.dataset.seriesEpisode;repaint(card,f);return;}
+    if(button.hasAttribute('data-series-episode')){const [season,number]=button.dataset.seriesEpisode.split(':').map(Number),episode=f._seriesEpisodes?.find(e=>e.episode_number===number);if(episode)window.KGEpisodePage.open(f,episode,season,{episodes:f._seriesEpisodes,opener:button});return;}
     if(button.hasAttribute('data-series-trailer')){f._seriesTrailerOpen=true;const region=card.querySelector('[data-film-part="trailer"]');region.hidden=false;window.KGFilmCard.playTrailer(card,f,false);region.scrollIntoView({behavior:'smooth',block:'center'});return;}
     if(button.hasAttribute('data-series-note')){const [season,number]=button.dataset.seriesNote.split(':').map(Number),episode=f._seriesEpisodes?.find(e=>e.episode_number===number);if(episode)openEpisodeNote(f,episode,season);return;}
     const key=button.dataset.seriesWatched,lock=`${f.id}:${key}`;if(pending.has(lock))return;pending.add(lock);
-    try{const marks=readMarks(f.id);if(!marks.has(key)){const episode=f._seriesEpisodes?.find(e=>e.episode_number===Number(key.split(':')[1]));if(episode)openEpisodeNote(f,episode,f._seriesSeason);return;}if(marks.has(key)){if(!await window.KGConfirmRemoval({kind:'watched',title:`${f.title} · ${seasonLabel(f._seriesSeason)} · ${key.split(':')[1]}`}))return;marks.delete(key);}else marks.add(key);localStorage.setItem(storageKey(f.id),JSON.stringify([...marks]));document.querySelectorAll('.kg-series-detail').forEach(other=>{const model=window.KGFilmCard.modelFor(other);if(model?.id===f.id)repaint(other,model);});document.dispatchEvent(new CustomEvent('kg:episode-note-change',{detail:{id:f.id}}));}finally{pending.delete(lock);}
+    try{const marks=readMarks(f.id);if(!marks.has(key)){const episode=f._seriesEpisodes?.find(e=>e.episode_number===Number(key.split(':')[1]));if(episode)openEpisodeNote(f,episode,f._seriesSeason);return;}if(!await window.KGConfirmRemoval({kind:'watched',title:`${f.title} · ${seasonLabel(f._seriesSeason)} · ${key.split(':')[1]}`}))return;unmarkEpisode(f,f._seriesSeason,Number(key.split(':')[1]));}finally{pending.delete(lock);}
   });
-  window.KGSeriesDetail={markup,enhance,progress,initialSeason,readMarks,openEpisodeNote,readEpisodeNotes,diaryEntries,persistEpisode};
+  window.KGSeriesDetail={markup,enhance,progress,initialSeason,readMarks,openEpisodeNote,readEpisodeNotes,diaryEntries,persistEpisode,unmarkEpisode};
 })();

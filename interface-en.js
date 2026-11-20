@@ -1,6 +1,22 @@
 // English translations for the Moven interface.
 window.KGInterfaceDictionaries ??= {};
 window.KGInterfaceDictionaries.en = Object.freeze({
+  "Серия": "Episode",
+  "Действия": "Actions",
+  "Просмотрен в дневнике": "Logged as watched",
+  "Ещё не просмотрено": "Not watched yet",
+  "Вышел {date}": "Released {date}",
+  "Запись о просмотре": "Viewing log",
+  "Просмотрено {date}": "Watched {date}",
+  "Серия ещё не отмечена просмотренной": "This episode is not marked as watched yet",
+  "Моя заметка к серии": "My episode note",
+  "Синопсис серии": "Episode synopsis",
+  "Создатели и состав": "Creators and cast",
+  "Следующий эпизод": "Next episode",
+  "Следующий сезон": "Next season",
+  "Не удалось обновить сведения о серии.": "Could not refresh episode details.",
+  "Не удалось загрузить следующий эпизод.": "Could not load the next episode.",
+
   "Найденный сериал": "Series discovery",
   "Лучший сериал": "Outstanding Series",
   "Лучший анимационный сериал": "Outstanding Animated Program",

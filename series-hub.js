@@ -1,7 +1,7 @@
 /* Series home editorial block, adapted from the supplied Stitch layout. */
 (() => {
   const DAY=86400000;
-  const platforms={all:'Все',netflix:'Netflix',apple:'Apple TV+',max:'HBO',prime:'Prime Video',fx:'FX',disney:'Disney+',hulu:'Hulu',paramount:'Paramount+',peacock:'Peacock',hbomax:'HBO Max',amc:'AMC+',starz:'Starz',showtime:'Showtime',crunchyroll:'Crunchyroll'};
+  const platforms={all:'Все',netflix:'Netflix',prime:'Prime Video',disney:'Disney+',hbomax:'HBO Max',apple:'Apple TV+',hulu:'Hulu',paramount:'Paramount+',peacock:'Peacock',max:'HBO',crunchyroll:'Crunchyroll',fx:'FX',showtime:'Showtime',starz:'Starz',amc:'AMC+'};
   const mainKeys=Object.keys(platforms), networks={netflix:213,apple:2552,max:49,prime:1024,fx:88,disney:2739,hulu:453,paramount:4330,peacock:3353,hbomax:3186,amc:4661,starz:318,showtime:67,crunchyroll:1112};
   const aliases={netflix:/^Netflix$/i,apple:/^Apple TV(?:\+| Plus)?$/i,max:/^HBO$/i,prime:/^Amazon Prime Video$|^Prime Video$/i,fx:/^FX$/i,disney:/^Disney\+$/i,hulu:/^Hulu$/i,paramount:/^Paramount(?: Plus|\+)(?: Premium| Essential)?$/i,peacock:/^Peacock( Premium)?$/i,hbomax:/^Max$|^HBO Max$/i,amc:/^AMC(?:\+| Plus)$/i,starz:/^Starz$/i,showtime:/^Showtime$/i,crunchyroll:/^Crunchyroll$/i};
   const networkOnly=k=>k==='max'||k==='showtime';

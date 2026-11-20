@@ -734,7 +734,7 @@ localizeInterfaceMarkup(document.querySelector("main"));
     const defaultDist = 5.45;
     const focusDist = 4.75;
     const minZoomDist = 3.15;
-    const defaultFov = 37;
+    const defaultFov = 31;
 
     let targetCameraZ = defaultDist;
     let currentCameraZ = defaultDist;
@@ -1097,11 +1097,11 @@ rotatingGroup.add(flagPinGroup);
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
       // Cinema Lighting: Soft ambient & directional space lighting without blinding specular hotspot
-      const dirLight = new THREE.DirectionalLight(readPaletteColor('--kg-globe-sunlight', true), 1.15);
+      const dirLight = new THREE.DirectionalLight(0xffffff, 1.45);
       dirLight.position.set(4, 2, 4);
       scene.add(dirLight);
 
-      const ambLight = new THREE.AmbientLight(readPaletteColor('--kg-globe-ambient-light', true), 0.24);
+      const ambLight = new THREE.AmbientLight(0xc8ddff, 0.40);
       scene.add(ambLight);
 
       const hemiLight = new THREE.HemisphereLight(readPaletteColor('--kg-globe-sky-light', true), readPaletteColor('--kg-globe-ground-light', true), 0.22);
@@ -1172,43 +1172,125 @@ rotatingGroup.add(flagPinGroup);
 
       // Preserve the natural color balance of the Earth texture.
       const fallbackEarthTexture = createEarthTexture();
-      const earthMat = new THREE.MeshLambertMaterial({
-        map: fallbackEarthTexture
+      const earthMat = new THREE.MeshPhongMaterial({
+        map: fallbackEarthTexture,
+        specular: new THREE.Color(0x0b1016),
+        shininess: 38,
+        normalScale: new THREE.Vector2(0.22, 0.22)
       });
-      earthMat.onBeforeCompile = (shader) => {
-        shader.fragmentShader = shader.fragmentShader.replace(
-          '#include <map_fragment>',
-          `#include <map_fragment>
-           vec3 earthColor = diffuseColor.rgb;
-           float earthLuminance = dot(earthColor, vec3(0.2126, 0.7152, 0.0722));
-           float oceanSignal = earthColor.b - max(earthColor.r, earthColor.g) * 0.82;
-           float earthOceanMask = smoothstep(-0.008, 0.065, oceanSignal);
-           vec3 blueOcean = vec3(max(earthColor.r * 0.78, 0.029), max(earthColor.g * 0.88, 0.116), max(earthColor.b * 1.28, 0.332));
-           earthColor = mix(earthColor, blueOcean, earthOceanMask * 0.95);
-           diffuseColor.rgb = clamp(mix(vec3(earthLuminance), earthColor, 1.12) * 1.02, 0.0, 1.0);`
+
+      const textureLoader = new THREE.TextureLoader();
+
+      const configureColorTexture = (tex) => {
+        tex.encoding = THREE.sRGBEncoding;
+        tex.anisotropy = Math.min(
+          8,
+          renderer.capabilities.getMaxAnisotropy()
         );
-        shader.fragmentShader = shader.fragmentShader.replace(
-          '#include <emissivemap_fragment>',
-          `#include <emissivemap_fragment>
-           totalEmissiveRadiance += vec3(0.035, 0.16, 0.42) * earthOceanMask;`
+        tex.needsUpdate = true;
+        earthMat.map = tex;
+        earthMat.needsUpdate = true;
+        fallbackEarthTexture.dispose();
+      };
+
+      const loadLegacyEarth = () => {
+        textureLoader.load(
+          './assets/globe/earth_atmos_2048.jpg',
+          configureColorTexture,
+          undefined,
+          (error) => {
+            console.warn('[Moven] Earth fallback error', error);
+          }
         );
       };
 
-      const textureLoader = new THREE.TextureLoader();
-      textureLoader.setCrossOrigin('anonymous');
+      if (renderer.capabilities.maxTextureSize >= 4096) {
+        textureLoader.load(
+          './assets/globe/earth-day-4k.jpg',
+          configureColorTexture,
+          undefined,
+          loadLegacyEarth
+        );
+      } else {
+        loadLegacyEarth();
+      }
+
+      if (renderer.capabilities.maxTextureSize >= 2048) {
+        textureLoader.load(
+          './assets/globe/earth-normal.png',
+          (tex) => {
+            tex.encoding = THREE.LinearEncoding;
+            earthMat.normalMap = tex;
+            earthMat.needsUpdate = true;
+          },
+          undefined,
+          (error) => console.warn('[Moven] Normal map error', error)
+        );
+
+        textureLoader.load(
+          './assets/globe/earth-specular.png',
+          (tex) => {
+            tex.encoding = THREE.LinearEncoding;
+            earthMat.specularMap = tex;
+            earthMat.needsUpdate = true;
+          },
+          undefined,
+          (error) => console.warn('[Moven] Specular map error', error)
+        );
+      }
+
+
+      // Night city lights
       textureLoader.load(
-        './assets/globe/earth_atmos_2048.jpg',
-        (tex) => {
-          tex.encoding = THREE.sRGBEncoding;
-          tex.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
-          tex.needsUpdate = true;
-          earthMat.map = tex;
+        './assets/globe/earth-night.jpg',
+        (earthNightTexture) => {
+
+          earthNightTexture.encoding = THREE.sRGBEncoding;
+          earthNightTexture.anisotropy = Math.min(
+            4,
+            renderer.capabilities.getMaxAnisotropy()
+          );
+
+          earthMat.emissive.setHex(0xffffff);
+          earthMat.emissiveIntensity = 1.3;
+          earthMat.emissiveMap = earthNightTexture;
+
+          earthMat.onBeforeCompile = (shader) => {
+
+            shader.fragmentShader =
+              shader.fragmentShader.replace(
+                '#include <emissivemap_fragment>',
+                `
+                #include <emissivemap_fragment>
+
+                #if NUM_DIR_LIGHTS > 0
+
+                  float sunAngle = dot(
+                    normalize(vNormal),
+                    normalize(directionalLights[0].direction)
+                  );
+
+                  float nightMask = 1.0 - smoothstep(
+                    -0.30, 0.05, sunAngle
+                  );
+
+                  totalEmissiveRadiance *= nightMask;
+
+                #else
+
+                  totalEmissiveRadiance *= 0.0;
+
+                #endif
+                `
+              );
+          };
+
           earthMat.needsUpdate = true;
-          fallbackEarthTexture.dispose();
+
         },
         undefined,
         (error) => {
-          console.warn('[Moven: Explore] Не удалось загрузить текстуру Земли; оставляем запасную поверхность.', error);
+          console.warn('[Moven] Night texture error', error);
         }
       );
 
@@ -1218,14 +1300,105 @@ rotatingGroup.add(flagPinGroup);
       // Atmospheric cloud layer
       const cloudsGeo = new THREE.SphereGeometry(earthRadius + 0.012, 48, 48);
       const cloudsMat = new THREE.MeshLambertMaterial({
-        color: readPaletteColor('--kg-white', true),
+        color: 0xffffff,
         transparent: true,
-        opacity: 0.18,
-        blending: THREE.AdditiveBlending,
+        opacity: 0.58,
+        blending: THREE.NormalBlending,
         depthWrite: false
       });
+
       cloudsMesh = new THREE.Mesh(cloudsGeo, cloudsMat);
+      cloudsMesh.visible = false;
       rotatingGroup.add(cloudsMesh);
+
+      // Atmospheric scattering
+      const atmosphereGeo = new THREE.SphereGeometry(
+        earthRadius * 1.045, 64, 48
+      );
+
+      const atmosphereMat = new THREE.ShaderMaterial({
+        uniforms: {
+          glowColor: {
+            value: new THREE.Color(0x398fff)
+          },
+          glowStrength: {
+            value: 0.85
+          }
+        },
+
+        vertexShader: `
+          varying vec3 vNormal;
+          varying vec3 vViewDirection;
+
+          void main() {
+            vec4 mvPosition =
+              modelViewMatrix * vec4(position, 1.0);
+
+            vNormal = normalize(normalMatrix * normal);
+            vViewDirection = normalize(-mvPosition.xyz);
+
+            gl_Position =
+              projectionMatrix * mvPosition;
+          }
+        `,
+
+        fragmentShader: `
+          uniform vec3 glowColor;
+          uniform float glowStrength;
+
+          varying vec3 vNormal;
+          varying vec3 vViewDirection;
+
+          void main() {
+            float facing = abs(dot(
+              normalize(vNormal),
+              normalize(vViewDirection)
+            ));
+
+            float intensity = pow(
+              1.0 - facing, 3.0
+            ) * glowStrength;
+
+            gl_FragColor = vec4(
+              glowColor * intensity,
+              intensity
+            );
+          }
+        `,
+
+        side: THREE.BackSide,
+        blending: THREE.AdditiveBlending,
+        transparent: true,
+        depthWrite: false,
+        depthTest: true
+      });
+
+      const atmosphereMesh = new THREE.Mesh(
+        atmosphereGeo,
+        atmosphereMat
+      );
+
+      atmosphereMesh.visible = false;
+      rotatingGroup.add(atmosphereMesh);
+
+
+      textureLoader.load(
+        './assets/globe/earth-clouds.jpg',
+        (tex) => {
+          tex.encoding = THREE.LinearEncoding;
+          tex.anisotropy = Math.min(
+            4,
+            renderer.capabilities.getMaxAnisotropy()
+          );
+          cloudsMat.alphaMap = tex;
+          cloudsMat.needsUpdate = true;
+          cloudsMesh.visible = true;
+        },
+        undefined,
+        (error) => {
+          console.warn('[Moven] Cloud texture error', error);
+        }
+      );
 
       // Build beacon dots structure (all hidden initially for pristine look)
       createCountryBeacons();
@@ -1343,13 +1516,13 @@ rotatingGroup.add(flagPinGroup);
       // Fit the entire atmosphere, including the globe's vertical offset.
       // Sphere tangent angles account for perspective and narrow viewports.
       function fitEarthInViewport() {
-        const radius = earthRadius * 1.045;
+        const radius = earthRadius * 1.015;
         const depth = camera.position.z;
         const offsetY = Math.abs(camera.position.y - tiltGroup.position.y);
         const verticalAngle = Math.atan2(offsetY, depth)
           + Math.asin(radius / Math.hypot(depth, offsetY));
         const horizontalAngle = Math.asin(radius / depth);
-        const padding = 0.92;
+        const padding = 0.96;
         const halfFov = Math.atan(Math.max(
           Math.tan(verticalAngle) / padding,
           Math.tan(horizontalAngle) / (camera.aspect * padding)
@@ -1448,7 +1621,7 @@ if (areaRing) {
           rotatingGroup.rotation.x = currentRotX;
 
           if (cloudsMesh) {
-            cloudsMesh.rotation.y = currentRotY * 1.04 + elapsedTime * 0.0006;
+            cloudsMesh.rotation.y = elapsedTime * 0.0006;
           }
         }
 

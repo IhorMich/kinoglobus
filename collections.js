@@ -204,6 +204,11 @@ function toast(msg,icon){
 }
 
 /* ---------- загрузка данных TMDB ---------- */
+// Bayesian rating: avoids promoting films with very few votes.
+function weighed(f){
+  const v=Math.max(0,Number(f.vote_count)||0), r=Number(f.vote_average)||0;
+  return (v*r+100*6.5)/(v+100);
+}
 const floorOf=cc=>BIG.has(cc)?300:60;
 const qs=(t,cc)=>({with_origin_country:cc,with_genres:t.g,"vote_count.gte":floorOf(cc),"vote_average.gte":"6.5"});
 const DAY_MS=24*60*60*1000;
@@ -253,9 +258,12 @@ async function loadTheme(t,pages,force=false){
       return data;
     }
     const jobs=[];
-    t.cc.forEach(cc=>{for(let p=1;p<=pages;p++)jobs.push(api({...qs(t,cc),page:p},{fresh:force}).then(r=>({cc,p,total:r.total_results||0,films:(r.results||[]).map(f=>({...f,_cc:cc}))})));});
+    t.cc.forEach(cc=>{for(let p=1;p<=pages;p++)jobs.push(()=>api({...qs(t,cc),page:p},{fresh:force}).then(r=>({cc,p,total:r.total_results||0,films:(r.results||[]).map(f=>({...f,_cc:cc}))})));});
     try{
-      const parts=await Promise.all(jobs);
+      const results=await settleWithLimit(jobs,3,job=>job());
+      const parts=results.filter(r=>r.status==="fulfilled").map(r=>r.value);
+      if(!parts.length)throw results[0]?.reason || new Error("Не удалось загрузить подборку.");
+      const partial=parts.length!==jobs.length;
       const aggregate=selected=>{
         const totals={},ids=new Set();let films=[];
         selected.forEach(x=>{if(x.p===1)totals[x.cc]=x.total;films.push(...x.films.filter(f=>!ids.has(f.id)&&ids.add(f.id)));});
@@ -264,6 +272,10 @@ async function loadTheme(t,pages,force=false){
         return {total,totals,films};
       };
       const data=aggregate(parts);
+      if(partial){
+        if(cached)return {...cached.data,_stale:true};
+        return {...data,_partial:true};
+      }
       const refreshedAt=Date.now(),date=localDateKey();
       themeDataCache.set(key,{data,ts:refreshedAt,date});themeRetryAfter.delete(key);
       if(pages>1)themeDataCache.set(themeDataKey(t,1),{data:aggregate(parts.filter(x=>x.p===1)),ts:refreshedAt,date});
@@ -312,7 +324,7 @@ async function loadMeta(t,force=false){
   const request=(async()=>{
     try{
       const d=await loadTheme(t,1,force);
-      if(d._stale){if(m&&!force)return m;throw new Error("Метаданные подборки временно недоступны.");}
+      if(d._stale||d._partial){if(m&&!force)return m;throw new Error("Метаданные подборки временно недоступны.");}
       const meta=saveThemeMeta(t,d);metaRetryAfter.delete(t.id);
       return meta;
     }catch(error){metaRetryAfter.set(t.id,Date.now()+15*60*1000);throw error;}
@@ -400,6 +412,12 @@ const previousViews = [];
 function rememberView(destination, collectionId = null) {
   const currentId = view === "collection" ? D.t?.id ?? null : null;
   if (destination === view && collectionId === currentId) return;
+  // Top-level tabs replace the navigation trail rather than extending it.
+  if (destination !== "collection") {
+    previousViews.length = 0;
+    if (destination !== "home") previousViews.push({view:"home", collectionId:null});
+    return;
+  }
   const previous = previousViews.at(-1);
   if (previous?.view === destination && previous.collectionId === collectionId) previousViews.pop();
   else previousViews.push({view, collectionId:currentId});
@@ -758,7 +776,7 @@ async function loadAllMeta(force=false){
   const note=$("cat-note");
   if(!apiKey){if(note){note.textContent=uiText("Введите ключ TMDB на экране «Глобус», чтобы увидеть число фильмов и рейтинги подборок.");note.style.display="";}return false;}
   if(note)note.style.display="none";
-  const results=await Promise.allSettled(catalogThemes.map(t=>loadMeta(t,force).then(()=>{if(catBuilt)paintMeta(t.id);})));
+  const results=await settleWithLimit(catalogThemes,4,async t=>{await loadMeta(t,force);if(catBuilt)paintMeta(t.id);});
   sortCatalog();
   return results.every(r=>r.status==="fulfilled");
 }
@@ -767,7 +785,7 @@ function initCatalog(){
   updateWeeklySpotlight();
   catalogThemes.forEach(t=>paintMeta(t.id));
   sortCatalog();
-  if(!dailyRefreshPromise)loadAllMeta();
+  loadAllMeta().catch(error=>console.warn("[Moven] Collection metadata failed",error));
 }
 vc.addEventListener("input",e=>{
   if(e.target.id==="cat-search")filterCatalog();
@@ -1034,13 +1052,14 @@ async function openCollection(id,opt){
     return;
   }
   try{
-    const r=await loadTheme(t,2);
+    const r=await loadTheme(t,2,Boolean(opt?.retry));
     if(D.t!==t)return;
-    if(r._stale){$("cl-films").insertAdjacentHTML("afterbegin",`<p role="status" class="font-micro-caption text-micro-caption text-text-muted">${uiText("Не удалось обновить данные; показана сохранённая подборка.")}</p>`);return;}
+    if(r._stale && initial){$("cl-films").insertAdjacentHTML("afterbegin",`<p role="status" class="font-micro-caption text-micro-caption text-text-muted">${uiText("Не удалось обновить данные; показана сохранённая подборка.")}</p>`);return;}
     D.all=r.films;D.total=r.total;D.totals=r.totals;
     if (t.films && r.films.some(f => f.vote_count)) saveThemeMeta(t, r);
     $("cl-count").textContent=collectionFilmCount(r.total);
     renderFilms();
+    if(r._partial || r._stale) $("cl-films").insertAdjacentHTML("afterbegin",`<p role="status" class="font-micro-caption text-micro-caption text-text-muted">${uiText("Часть данных недоступна.")} <button type="button" data-act="retry" class="text-primary underline">${uiText("Повторить")}</button></p>`);
     if(opt&&opt.spin)inPageRoulette();
   }catch(e){
     if(initial){
@@ -1388,6 +1407,7 @@ vd.addEventListener("click",e=>{
   }
   const el=e.target.closest("[data-act]");if(!el)return;
   const a=el.dataset.act;
+  if(a==="retry"){openCollection(D.t.id,{returning:true,retry:true});return;}
   if(a==="close-film"){closeInlineFilm();return;}
   if(a==="back"){e.preventDefault();showView("collections");return;}
   if(a==="goto"){e.preventDefault();openCollection(el.dataset.t);return;}
@@ -1434,7 +1454,7 @@ function uniqueHomeFilms(candidatesByCountry){
   const seen=new Set();
   const films=[];
   for(const cc of HOME_EUROPE){
-    const film=(candidatesByCountry.get(cc)||[]).find(f=>f.id!=null&&!seen.has(String(f.id))&&movieCatalog.allows(f));
+    const film=(Array.isArray(candidatesByCountry.get(cc))?candidatesByCountry.get(cc):[]).find(f=>f?.id!=null&&!seen.has(String(f.id))&&movieCatalog.allows(f));
     if(!film)continue;
     seen.add(String(film.id));
     films.push({...film,_cc:cc});
@@ -1445,7 +1465,7 @@ function homePaletteFilms(films,featured,alternatives){
   const used=new Set(films.map(f=>String(f.id)));
   return films.flatMap(f=>{
     if(String(f.id)!==String(featured.id))return [f];
-    const replacement=(alternatives.get(f._cc)||[]).find(x=>x.id!=null&&!used.has(String(x.id))&&movieCatalog.allows(x));
+    const replacement=(Array.isArray(alternatives.get(f._cc))?alternatives.get(f._cc):[]).find(x=>x?.id!=null&&!used.has(String(x.id))&&movieCatalog.allows(x));
     return replacement?[{...replacement,_cc:f._cc}]:[];
   });
 }
@@ -1691,7 +1711,7 @@ async function refreshAllCollections(forceAll=false){
     const cached=themeDataCache.get(themeDataKey(t,2));
     if(!forceAll&&cached&&cached.date===localDateKey()&&Date.now()-cached.ts<DAY_MS)return cached.data;
     const data=await loadTheme(t,2,true);
-    if(data._stale)throw new Error("Сохранённые данные подборки не удалось обновить.");
+    if(data._stale||data._partial)throw new Error("Сохранённые данные подборки не удалось обновить.");
     const firstPage=themeDataCache.get(themeDataKey(t,1))?.data;
     if(firstPage){saveThemeMeta(t,firstPage);if(catBuilt)paintMeta(t.id);}
     return data;
@@ -1724,11 +1744,11 @@ async function refreshDailyData(force=false,ignoreCooldown=false){
   dailyAttemptAt=Date.now();
   const pending=(async()=>{
     if(typeof window.invalidateFilmDataCaches==="function")window.invalidateFilmDataCaches();
-    const results=await Promise.all([
+    const results=await Promise.allSettled([
       loadHomeEditorial(true),
       refreshAllCollections(force)
     ]);
-    if(results.every(Boolean)){
+    if(results.every(r=>r.status==="fulfilled"&&r.value)){
       const now=Date.now();
       store.set("kgDailyRefreshAt",now);
       store.set("kgDailyRefreshDate",localDateKey());
@@ -1759,15 +1779,21 @@ const refreshForNewKey=()=>{
 $("tmdb-key-save").addEventListener("click",refreshForNewKey);
 $("saveKey").addEventListener("click",()=>setTimeout(refreshForNewKey,0));
 
-const savedHome=store.get("kgHomeEditorial",null);
-if(savedHome&&(savedHome.language||"ru")===filmLanguage&&Array.isArray(savedHome.films)&&savedHome.films.length){
-  homeEditorial.films=uniqueHomeFilms(new Map(savedHome.films.map(f=>[f._cc,[f]])));
-  homeEditorial.alternatives=new Map(Array.isArray(savedHome.alternatives)?savedHome.alternatives:[]);
-  homeEditorial.loadedKey=homeEditorial.films.length===savedHome.films.length&&homeEditorial.alternatives.size?apiKey:"";
-  renderHomeEditorial();
+// Cached editorial data must never prevent the collections UI from starting.
+try {
+  const savedHome=store.get("kgHomeEditorial",null);
+  if(savedHome&&(savedHome.language||"ru")===filmLanguage&&Array.isArray(savedHome.films)&&savedHome.films.length){
+    homeEditorial.films=uniqueHomeFilms(new Map(savedHome.films.filter(f=>f&&HOME_EUROPE.includes(f._cc)).map(f=>[f._cc,[f]])));
+    homeEditorial.alternatives=new Map(Array.isArray(savedHome.alternatives)?savedHome.alternatives.filter(e=>Array.isArray(e)&&HOME_EUROPE.includes(e[0])&&Array.isArray(e[1])):[]);
+    homeEditorial.loadedKey=homeEditorial.films.length===savedHome.films.length&&homeEditorial.alternatives.size?apiKey:"";
+    renderHomeEditorial();
+  }
+} catch(error) {
+  console.warn("[Moven] Editorial cache recovery failed",error);
+  homeEditorial.films=[];homeEditorial.alternatives=new Map();homeEditorial.loadedKey="";
 }
-if(dailyRefreshDue())refreshDailyData();
-else if(!homeEditorial.films.length||homeEditorial.loadedKey!==apiKey)loadHomeEditorial();
+if(dailyRefreshDue())refreshDailyData().catch(error=>console.warn("[Moven] Daily refresh failed",error));
+else if(!homeEditorial.films.length||homeEditorial.loadedKey!==apiKey)loadHomeEditorial().catch(error=>console.warn("[Moven] Editorial refresh failed",error));
 scheduleDailyRefresh();
 showView("home");
 window.MOVEN_THEME_COVERS = THEME_COVERS;

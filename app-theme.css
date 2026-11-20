@@ -1733,3 +1733,9 @@ body {
 .kg-main-header-actions:has(>.kg-media-switch:not([hidden]))>.kg-header-action{border:0;background:transparent;box-shadow:none}
 .kg-main-header-actions:has(>.kg-media-switch:not([hidden])) .kg-header-search{flex:none;width:44px;justify-content:center;padding:0;border-radius:50%;gap:0}
 .kg-main-header-actions:has(>.kg-media-switch:not([hidden])) .kg-header-search>span:last-child{display:none}
+
+/* Shared secondary-tab header: search + grouped settings/profile. */
+.kg-secondary-header-actions { gap: 8px; height: 46px; }
+.kg-header-account-group { display:flex; flex:none; align-items:center; gap:2px; height:44px; padding:0 2px; box-sizing:border-box; border:1px solid var(--kg-nav-control-border); border-radius:999px; background:var(--kg-nav-control-fill); }
+.kg-main-header-actions .kg-header-account-group .kg-header-action { width:40px; height:40px; border:0; background:transparent; box-shadow:none; }
+#journey > .kg-dialog-top-nav { flex:none; position:relative; width:100%; z-index:6; background:rgb(var(--kg-surface-container-lowest)); }

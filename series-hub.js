@@ -1,6 +1,6 @@
 /* Series home editorial block, adapted from the supplied Stitch layout. */
 (() => {
-  const DAY=86400000,CACHE_TTL=60*60*1000;
+  const DAY=86400000;
   const platforms={all:'Все',netflix:'Netflix',apple:'Apple TV+',max:'HBO',prime:'Prime Video',fx:'FX',disney:'Disney+',hulu:'Hulu',paramount:'Paramount+',peacock:'Peacock',hbomax:'HBO Max',amc:'AMC+',starz:'Starz',showtime:'Showtime',bbc:'BBC',crunchyroll:'Crunchyroll'};
   const mainKeys=Object.keys(platforms), networks={netflix:213,apple:2552,max:49,prime:1024,fx:88,disney:2739,hulu:453,paramount:4330,peacock:3353,hbomax:3186,amc:4661,starz:318,showtime:67,bbc:4,crunchyroll:1112};
   const aliases={netflix:/^Netflix$/i,apple:/^Apple TV(?:\+| Plus)?$/i,max:/^HBO$/i,prime:/^Amazon Prime Video$|^Prime Video$/i,fx:/^FX$/i,disney:/^Disney\+$/i,hulu:/^Hulu$/i,paramount:/^Paramount(?: Plus|\+)(?: Premium| Essential)?$/i,peacock:/^Peacock( Premium)?$/i,hbomax:/^Max$|^HBO Max$/i,amc:/^AMC(?:\+| Plus)$/i,starz:/^Starz$/i,showtime:/^Showtime$/i,bbc:/^BBC iPlayer$/i,crunchyroll:/^Crunchyroll$/i};
@@ -184,36 +184,40 @@
   }
   function platformResults(rows,selected){return rows.filter(movieCatalog.allows).map(f=>selected==='all'?f:{...f,_hubService:selected});}
   async function tmdb(path,params={}){return requestTmdb(path,{language:filmLocale,include_adult:'false',...params});}
-  // Keep network IDs separate from regional provider IDs. Each feed can try its own fallback.
-  async function networkQuery(selected, selectedMode, selectedRegion){
-    if(selected==='all')return {candidates:[{}],notice:''};
-    await loadProviders();
-    if(selectedRegion!==region)throw new Error('Region changed');
-    const ids=providerIds.get(selected)||[];
-    const network=networks[selected]?{with_networks:networks[selected]}:null;
-    const provider=ids.length?{with_watch_providers:ids.join('|'),watch_region:selectedRegion}:null;
-    const candidates=selectedMode==='original'?[network,provider].filter(Boolean):[provider].filter(Boolean);
-    if(!candidates.length&&!providerKey)throw new Error('Provider lookup failed');
-    return {candidates,notice:candidates.length?'':'Для этой платформы нет данных в выбранной стране. Попробуйте изменить страну или режим.'};
+  // One filter per selection, shared by every feed. Never silently widen it.
+  function buildStreamingFilter(selected, selectedMode, selectedRegion, ids=[]){
+    if(selected==='all')return {};
+    if(selectedMode==='original')return networks[selected]?{with_networks:networks[selected]}:null;
+    return ids.length?{with_watch_providers:[...new Set(ids)].join('|'),watch_region:selectedRegion}:null;
   }
-  async function discoverFeed(query,candidates,page){
-    let lastError,empty=null;
-    for(const params of candidates){
-      try{const result=await tmdb('discover/tv',{...query,...params,page});
-        if(result.results?.length)return {result,params};empty={result,params};
-      }catch(error){lastError=error;}
-    }
-    if(lastError)throw lastError;
-    return empty;
+  async function networkQuery(selected, selectedMode, selectedRegion){
+    if(selected!=='all'&&selectedMode==='available')await loadProviders();
+    if(selectedRegion!==region)throw new Error('Region changed');
+    if(selected!=='all'&&selectedMode==='available'&&!providerKey)throw new Error('Provider lookup failed');
+    const filter=buildStreamingFilter(selected,selectedMode,selectedRegion,providerIds.get(selected)||[]);
+    return {filter,notice:filter===null?'Для этой платформы нет данных в выбранной стране или режиме. Попробуйте изменить страну или режим.':''};
+  }
+  async function discoverFeed(query,filter,page){
+    const result=await tmdb('discover/tv',{...query,...filter,page});
+    if(!Array.isArray(result.results))throw new Error('Invalid TMDB results');
+    return result;
   }
   let activeFilter=null;
-  const cacheName=()=>`kgSeriesHub.v3.${filmLocale}.${dateKey()}.${category}.${platform}.${period}.${sortMode}`;
-  function cached(){try{const record=JSON.parse(localStorage.getItem(cacheName()));return record&&Date.now()-record.time<CACHE_TTL&&['popular','premieres','schedule'].every(k=>Array.isArray(record.data?.[k]))?record.data:null;}catch{return null;}}
-  function storeCache(){try{const key=cacheName();localStorage.setItem(key,JSON.stringify({time:Date.now(),data}));const keys=Object.keys(localStorage).filter(k=>k.startsWith('kgSeriesHub.v2.')&&k!==key);for(const k of keys){const value=JSON.parse(localStorage.getItem(k)||'null');if(!value||Date.now()-value.time>CACHE_TTL)localStorage.removeItem(k);}}catch{}}
-  async function detailsFor(shows,token){
-    const unique=[...new Map(shows.filter(Boolean).map(f=>[f.id,f])).values()],output=new Map();let next=0;
-    await Promise.all(Array.from({length:Math.min(4,unique.length)},async()=>{while(next<unique.length){if(token!==generation)return;const f=unique[next++];try{const raw=await tmdb(`tv/${window.KGSeries.rawId(f.id)}`);output.set(f.id,localizeFilmListItem({...f,...raw}));}catch{output.set(f.id,f);}}}));return output;
+  // Shared per-generation detail queue: at most four concurrent requests across all feeds.
+  function detailQueue(){
+    const cache=new Map(),queue=[];let running=0;
+    function pump(){while(running<4&&queue.length){const job=queue.shift();running++;job().finally(()=>{running--;pump();});}}
+    return (f,token)=>{
+      if(!cache.has(f.id))cache.set(f.id,new Promise(resolve=>{
+        queue.push(async()=>{
+          if(token!==generation){resolve(null);return;}
+          try{const raw=await tmdb(`tv/${window.KGSeries.rawId(f.id)}`);resolve(movieCatalog.allows(raw)?{...f,...localizeFilmListItem(raw),_hubService:f._hubService}:null);}
+          catch(error){console.warn('[SeriesHub v12] detail',window.KGSeries.rawId(f.id),error.code||error.name);resolve(error.code==='CATALOG_RESTRICTED'?null:undefined);}
+        });pump();
+      }));return cache.get(f.id).then(value=>{if(value===undefined)cache.delete(f.id);return value;});
+    };
   }
+  let getDetail=detailQueue();
   function feedMarkup(k){
     const rows=data[k]||[],filtered=rows.filter(x=>platform==='all'||service(k==='schedule'?x.show:x)===platform);
     const cards=filtered.slice(0,limits[k]).map(x=>k==='schedule'?scheduleMarkup(x):k==='popular'?popularMarkup(x):premiereMarkup(x,k==='top')).join('');
@@ -248,20 +252,20 @@
     if(busy.has(k)||pages[k]?.done)return;
     busy.add(k);errors.delete(k);if(!loading)updateFeed(k);
     try{
-      const candidates=activeFilter?.candidates||[];if(token!==generation)return;if(!candidates.length){pages[k]={page:0,done:true};return;}
+      const filter=activeFilter?.filter,selected=platform;if(token!==generation)return;if(filter==null){pages[k]={page:0,done:true};return;}
       const page=(pages[k]?.page||0)+1,today=dateKey();
-      const selection=pages[k]?.params?[pages[k].params]:candidates;
-      const found=await discoverFeed(feedQuery(k,today),selection,page);if(token!==generation)return;
-      const {result,params}=found;
-      const rows=platformResults((result.results||[]).map(f=>localizeFilmListItem(window.KGSeries.normalize(f))),platform);
-      const details=await detailsFor(rows,token);if(token!==generation)return;
-      const enriched=rows.map(f=>({...f,...(details.get(f.id)||{}),_hubService:f._hubService})).filter(movieCatalog.allows);
+      const result=await discoverFeed(feedQuery(k,today),filter,page);if(token!==generation)return;
+      const rows=platformResults(result.results.map(f=>localizeFilmListItem(window.KGSeries.normalize(f))),selected);
+      const details=await Promise.all(rows.map(f=>getDetail(f,token)));if(token!==generation)return;
+      const enriched=rows.flatMap((f,i)=>details[i]?[{...details[i],_hubService:f._hubService}]:[]).filter(movieCatalog.allows);
+      if(details.some(f=>f===undefined))errors.add(k);
       const incoming=k==='schedule'?scheduleFor(enriched,today,period):enriched;
+      console.info('[SeriesHub v12]',selected,k,{page,filter,received:result.results.length,allowed:rows.length,verified:enriched.length,shown:incoming.length});
       const key=x=>k==='schedule'?`${x.show.id}:${x.episode.season_number}:${x.episode.episode_number}`:String(x.id);
       data[k]=[...new Map([...(data[k]||[]),...incoming].map(x=>[key(x),x])).values()];
       if(k==='schedule')data[k].sort((a,b)=>a.episode.air_date.localeCompare(b.episode.air_date));
-      pages[k]={page,params,done:page>=Math.min(result.total_pages||1,500)};
-    }catch{if(token===generation)errors.add(k);}finally{if(token===generation){busy.delete(k);if(!loading)updateFeed(k);}}
+      if(!details.some(f=>f===undefined))pages[k]={page,done:page>=Math.min(result.total_pages||1,500)};
+    }catch(error){if(token===generation){errors.add(k);console.warn("[SeriesHub v12] feed",k,error.name);}}finally{if(token===generation){busy.delete(k);if(!loading)updateFeed(k);}}
   }
   async function moreFeed(k){
     if(loading||!Object.hasOwn(limits,k)||busy.has(k)||!apiKey)return;
@@ -272,7 +276,7 @@
   async function load(force=false){
     if(!root || !window.KGSeries.active)return;
     const key=String(apiKey||'')+':'+category+':'+platform+':'+period+':'+sortMode+':'+region+':'+mode;if(!force&&loading&&loadedKey===key)return;
-    const token=++generation;resetFeeds();loadProviders();
+    const token=++generation;resetFeeds();getDetail=detailQueue();loadProviders();
     
     if(!apiKey){root.querySelector('[data-sh-status]').textContent=uiText('Добавьте ключ TMDB, чтобы обновлять сериалы и расписание.');return;}
     loadedKey=key;loading=true;root.setAttribute('aria-busy','true');root.querySelector('[data-sh-empty]').hidden=true;root.querySelector('[data-sh-status]').textContent='';
@@ -320,5 +324,5 @@
     document.addEventListener('kg:media-change',event=>{if(event.detail.mediaType==='tv')load();else{generation++;loading=false;}});
     document.addEventListener('kg-bookmark-change',()=>{if(root)root.querySelectorAll('[data-kg-bookmark]').forEach(b=>paintBookmarkButton(b,kgIsBookmarked(b.dataset.kgBookmark)));});
   }
-  window.KGSeriesHub={mount,mountDiscovery,heroMarkup,load,scheduleFor,categoryQuery,service,applyPlatform,parallaxState,platformResults,matchesProvider,discoverFeed};
+  window.KGSeriesHub={mount,mountDiscovery,heroMarkup,load,scheduleFor,categoryQuery,service,applyPlatform,parallaxState,platformResults,matchesProvider,discoverFeed,buildStreamingFilter};
 })();

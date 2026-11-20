@@ -1430,6 +1430,17 @@ const HOME_EUROPE=["FR","IT","ES","DE","GB","PL","SE","DK","NO","FI","PT","NL","
 const homeEditorial={films:[],details:new Set(),directorData:new Map(),loadedKey:"",token:0,loading:false,pending:null,observer:null,scrollAnchorId:null};
 const homePosterWarmCache=new Set();
 const homeEditorialRoot=$("kg-home-editorial");
+function uniqueHomeFilms(candidatesByCountry){
+  const seen=new Set();
+  const films=[];
+  for(const cc of HOME_EUROPE){
+    const film=(candidatesByCountry.get(cc)||[]).find(f=>f.id!=null&&!seen.has(String(f.id))&&movieCatalog.allows(f));
+    if(!film)continue;
+    seen.add(String(film.id));
+    films.push({...film,_cc:cc});
+  }
+  return films;
+}
 function homeFilmYear(f){return (f.release_date||"").slice(0,4);}
 function homeFeatureMarkup(f,d,expandedFilm=null){
   const title=esc(d?.title||f.title||f.original_title||uiText("Фильм"));
@@ -1576,17 +1587,17 @@ async function loadHomeEditorial(force=false){
         response=await api({with_origin_country:cc,sort_by:"popularity.desc","vote_count.gte":1,include_adult:"false",page:1},{fresh:force});
         films=response.results||[];
       }
-      return films.length?{...films[0],_cc:cc}:null;
+      return films;
     }));
     if(token!==homeEditorial.token)return false;
     results.forEach((result,i)=>{if(result.status==="rejected")console.warn(`[Moven] Не удалось загрузить фильмы ${HOME_EUROPE[i]}:`,result.reason);});
     const succeeded=results.some(result=>result.status==="fulfilled");
     const byCountry=new Map();
     results.forEach((result,i)=>{
-      if(result.status==="fulfilled"){if(result.value)byCountry.set(HOME_EUROPE[i],result.value);}
-      else if(oldByCountry.has(HOME_EUROPE[i]))byCountry.set(HOME_EUROPE[i],oldByCountry.get(HOME_EUROPE[i]));
+      if(result.status==="fulfilled"){byCountry.set(HOME_EUROPE[i],result.value);}
+      else if(oldByCountry.has(HOME_EUROPE[i]))byCountry.set(HOME_EUROPE[i],[oldByCountry.get(HOME_EUROPE[i])]);
     });
-    const films=HOME_EUROPE.map(cc=>byCountry.get(cc)).filter(Boolean);
+    const films=uniqueHomeFilms(byCountry);
     if(!succeeded||!films.length){
       const error=results.find(result=>result.status==="rejected");
       if(!homeEditorial.films.length)renderHomeEditorialMessage(error&&error.reason&&error.reason.message||"Не удалось загрузить европейские фильмы.","retry");
@@ -1733,12 +1744,12 @@ $("saveKey").addEventListener("click",()=>setTimeout(refreshForNewKey,0));
 
 const savedHome=store.get("kgHomeEditorial",null);
 if(savedHome&&(savedHome.language||"ru")===filmLanguage&&Array.isArray(savedHome.films)&&savedHome.films.length){
-  homeEditorial.films=savedHome.films.filter(movieCatalog.allows);
-  homeEditorial.loadedKey=apiKey;
+  homeEditorial.films=uniqueHomeFilms(new Map(savedHome.films.map(f=>[f._cc,[f]])));
+  homeEditorial.loadedKey=homeEditorial.films.length===savedHome.films.length?apiKey:"";
   renderHomeEditorial();
 }
 if(dailyRefreshDue())refreshDailyData();
-else if(!homeEditorial.films.length)loadHomeEditorial();
+else if(!homeEditorial.films.length||homeEditorial.loadedKey!==apiKey)loadHomeEditorial();
 scheduleDailyRefresh();
 showView("home");
 window.MOVEN_THEME_COVERS = THEME_COVERS;

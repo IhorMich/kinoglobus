@@ -1571,7 +1571,7 @@ rotatingGroup.add(flagPinGroup);
         if (isSpinning) { touchGesture = null; return; }
         if (e.touches.length >= 2) {
           const a=e.touches[0],b=e.touches[1],dx=b.clientX-a.clientX,dy=b.clientY-a.clientY;
-          touchGesture={mode:'multi',lastDistance:Math.max(1,Math.hypot(dx,dy)),lastMidY:(a.clientY+b.clientY)/2};
+          touchGesture={mode:'multi',lastDistance:Math.max(1,Math.hypot(dx,dy)),lastMidY:(a.clientY+b.clientY)/2,lastMidX:(a.clientX+b.clientX)/2};
           isDragging=false;
           return;
         }
@@ -1594,11 +1594,15 @@ rotatingGroup.add(flagPinGroup);
         if(touchGesture.mode==='multi'){
           if(e.touches.length<2){touchGesture=null;return;}
           const a=e.touches[0],b=e.touches[1],dx=b.clientX-a.clientX,dy=b.clientY-a.clientY;
-          const distance=Math.max(1,Math.hypot(dx,dy)),midY=(a.clientY+b.clientY)/2;
+          const distance=Math.max(1,Math.hypot(dx,dy)),midY=(a.clientY+b.clientY)/2,midX=(a.clientX+b.clientX)/2;
           if(e.cancelable)e.preventDefault();
           targetRotX=Math.max(-1.45,Math.min(1.45,targetRotX+(midY-touchGesture.lastMidY)*.006));
           targetCameraZ=Math.max(minZoomDist,Math.min(8.5,targetCameraZ*touchGesture.lastDistance/distance));
-          touchGesture.lastDistance=distance;touchGesture.lastMidY=midY;
+          targetRotY += (midX-touchGesture.lastMidX)*.006;
+          touchGesture.lastMidX=midX;
+          touchGesture.lastDistance=distance;
+          touchGesture.lastMidY=midY;
+          countryTapStart=null;
           return;
         }
         if(e.touches.length!==1)return;
@@ -1616,7 +1620,14 @@ rotatingGroup.add(flagPinGroup);
         isDragging = true;
         if (e.cancelable) e.preventDefault();
         const totalX = t.clientX - touchGesture.lastX;
+        const totalY = t.clientY - touchGesture.lastY;
+
         targetRotY += totalX * 0.008;
+        targetRotX = Math.max(-1.45, Math.min(
+          1.45, targetRotX + totalY * 0.008
+        ));
+
+        countryTapStart = null;
         touchGesture.lastX = t.clientX;
         touchGesture.lastY = t.clientY;
       }, { passive: false });

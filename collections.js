@@ -387,6 +387,40 @@ function paintBottomNav(panel, current) {
 }
 
 window.KGMountBottomNav = (dialog, container, current, close = () => dialog.close()) => {
+  // Reuse the primary controls in the two full-screen dialog tabs.
+  if (current === "journey" || current === "history") {
+    let header = container.querySelector(":scope > .kg-dialog-top-nav");
+    if (!header) {
+      const source = document.querySelector("body > .kg-main-header .kg-main-header-actions");
+      header = document.createElement("header");
+      header.className = "kg-main-header kg-dialog-top-nav";
+      const actions = document.createElement("nav");
+      actions.className = "kg-main-header-actions kg-secondary-header-actions";
+      actions.setAttribute("aria-label", source.getAttribute("aria-label"));
+      const group = document.createElement("div");
+      group.className = "kg-header-account-group";
+      for (const [selector, action] of [[".kg-header-search", "search"], ["[data-path=nastrojki]", "settings"], ["#kg-account-open", "profile"]]) {
+        const original = source.querySelector(selector);
+        const control = original.cloneNode(true);
+        control.removeAttribute("id");
+        control.removeAttribute("data-path");
+        control.removeAttribute("data-kg-search-open");
+        control.addEventListener("click", event => {
+          event.preventDefault();
+          // Global search is outside the modal's top layer.
+          if (action === "search") close();
+          original.click();
+        });
+        (action === "search" ? actions : group).append(control);
+      }
+      actions.append(group);
+      header.append(actions);
+      container.prepend(header);
+    }
+    const avatar = document.querySelector("#kg-account-open img");
+    const copy = header.querySelector(".kg-header-account-group img");
+    if (avatar && copy) copy.src = avatar.src;
+  }
   let footer = container.querySelector(":scope > .kg-dialog-bottom-nav");
   if (!footer) {
     footer = nav.cloneNode(true);
@@ -436,6 +470,18 @@ function showView(v, remember = true){
   home.style.display=v==="home"?"":"none";
   seriesPage.hidden=v!=="series";
   mediaSwitch.hidden=!["home","series"].includes(v);
+  const headerActions=mediaSwitch.parentElement;
+  const settings=headerActions.querySelector('[data-path="nastrojki"]');
+  const profile=headerActions.querySelector('#kg-account-open');
+  let accountGroup=headerActions.querySelector('.kg-header-account-group');
+  if(mediaSwitch.hidden){
+    headerActions.classList.add('kg-secondary-header-actions');
+    if(!accountGroup){accountGroup=document.createElement('div');accountGroup.className='kg-header-account-group';headerActions.append(accountGroup);accountGroup.append(settings,profile);}
+  }else{
+    headerActions.classList.remove('kg-secondary-header-actions');
+    if(accountGroup){headerActions.append(settings,profile);accountGroup.remove();}
+  }
+
   mediaSwitch.querySelectorAll('[role="tab"]').forEach(tab=>{const selected=tab.dataset.mediaView===v;tab.setAttribute('aria-selected',String(selected));tab.tabIndex=selected?0:-1;});
   sectionNav.style.display=["collections","collection","mood","oscar"].includes(v)?"":"none";
   vc.style.display=v==="collections"?"":"none";

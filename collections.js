@@ -1427,7 +1427,7 @@ if(typeof _showFilm==="function")window.show=function(){if(reelCard)reelCard.sty
 
 /* ---------- Главная: редакционная карточка и европейская палитра ---------- */
 const HOME_EUROPE=["FR","IT","ES","DE","GB","PL","SE","DK","NO","FI","PT","NL","BE","IE"];
-const homeEditorial={films:[],details:new Set(),directorData:new Map(),loadedKey:"",token:0,loading:false,pending:null,observer:null,scrollAnchorId:null};
+const homeEditorial={films:[],alternatives:new Map(),details:new Set(),directorData:new Map(),loadedKey:"",token:0,loading:false,pending:null,observer:null,scrollAnchorId:null};
 const homePosterWarmCache=new Set();
 const homeEditorialRoot=$("kg-home-editorial");
 function uniqueHomeFilms(candidatesByCountry){
@@ -1440,6 +1440,21 @@ function uniqueHomeFilms(candidatesByCountry){
     films.push({...film,_cc:cc});
   }
   return films;
+}
+function homePaletteFilms(films,featured,alternatives){
+  const used=new Set(films.map(f=>String(f.id)));
+  return films.flatMap(f=>{
+    if(String(f.id)!==String(featured.id))return [f];
+    const replacement=(alternatives.get(f._cc)||[]).find(x=>x.id!=null&&!used.has(String(x.id))&&movieCatalog.allows(x));
+    return replacement?[{...replacement,_cc:f._cc}]:[];
+  });
+}
+function currentHomePalette(){
+  const films=homeEditorial.films;
+  return films.length?homePaletteFilms(films,films[(homeDayNumber()-1)%films.length],homeEditorial.alternatives):[];
+}
+function findHomeFilm(id){
+  return [...homeEditorial.films,...currentHomePalette()].find(f=>String(f.id)===String(id));
 }
 function homeFilmYear(f){return (f.release_date||"").slice(0,4);}
 function homeFeatureMarkup(f,d,expandedFilm=null){
@@ -1509,8 +1524,9 @@ function renderHomeEditorial(){
   const dayIndex=(homeDayNumber()-1)%films.length,featured=films[dayIndex];
   const selected=D.selected&&D.selected._placement==="home"&&String(D.selected.id)===String(featured.id)?D.selected:null;
   renderHomeFeature(featured,homeEditorial.featureDetails||null,selected);
-  carousel.innerHTML=films.map(homeFilmCard).join("");
-  warmHomePosters(films);
+  const palette=currentHomePalette();
+  carousel.innerHTML=palette.map(homeFilmCard).join("");
+  warmHomePosters(palette);
   carousel.scrollLeft=scrollLeft;
   if(anchorTop!==null)requestAnimationFrame(()=>{
     const restored=carousel.querySelector(`[data-home-meta="${homeEditorial.scrollAnchorId}"]`);
@@ -1532,7 +1548,7 @@ function renderHomeEditorial(){
     homeEditorial.details.add(featured.id);
     trailerFor(featured).catch(()=>{});
     filmDetails(featured.id).then(d=>{
-      if(!homeEditorial.films.length||homeEditorial.films[dayIndex].id!==featured.id)return;
+      if(!homeEditorial.films.length||homeEditorial.films[dayIndex]?.id!==featured.id)return;
       homeEditorial.featureDetails=d;homeEditorial.directorData.set(featured.id,d);
       const selected=D.selected&&D.selected._placement==="home"&&String(D.selected.id)===String(featured.id)?D.selected:null;
       renderHomeFeature(featured,d,selected);
@@ -1544,7 +1560,7 @@ function renderHomeEditorial(){
 async function loadHomeDirector(id){
   if(homeEditorial.details.has(Number(id)))return;
   homeEditorial.details.add(Number(id));
-  const f=homeEditorial.films.find(x=>String(x.id)===String(id));
+  const f=findHomeFilm(id);
   if(!f)return;
   try{
     const d=await filmDetails(f.id),target=document.querySelector(`[data-home-director="${f.id}"]`);
@@ -1604,9 +1620,10 @@ async function loadHomeEditorial(force=false){
       return false;
     }
     homeEditorial.films=films;
+    homeEditorial.alternatives=byCountry;
     homeEditorial.loadedKey=apiKey;
     homeEditorial.details.clear();homeEditorial.directorData.clear();homeEditorial.featureDetails=null;
-    store.set("kgHomeEditorial",{films,language:filmLanguage,ts:Date.now()});
+    store.set("kgHomeEditorial",{films,alternatives:[...byCountry],language:filmLanguage,ts:Date.now()});
     renderHomeEditorial();
     return results.every(result=>result.status==="fulfilled");
   })();
@@ -1631,7 +1648,7 @@ homeEditorialRoot.addEventListener("click",async e=>{
     const banner=$("tmdb-key-banner");banner.classList.remove("hidden");banner.scrollIntoView({behavior:"smooth",block:"center"});$("tmdb-key-input").focus();return;
   }
   if(action==="retry"){homeEditorial.loadedKey="";loadHomeEditorial();return;}
-  const film=homeEditorial.films.find(f=>String(f.id)===button.dataset.id);
+  const film=findHomeFilm(button.dataset.id);
   if(!film)return;
   if(action==="open"){
     if(button.dataset.homeMeta){homeEditorial.scrollAnchorId=String(film.id);openFilm(film,"home-europe",null,{opener:button});}
@@ -1745,7 +1762,8 @@ $("saveKey").addEventListener("click",()=>setTimeout(refreshForNewKey,0));
 const savedHome=store.get("kgHomeEditorial",null);
 if(savedHome&&(savedHome.language||"ru")===filmLanguage&&Array.isArray(savedHome.films)&&savedHome.films.length){
   homeEditorial.films=uniqueHomeFilms(new Map(savedHome.films.map(f=>[f._cc,[f]])));
-  homeEditorial.loadedKey=homeEditorial.films.length===savedHome.films.length?apiKey:"";
+  homeEditorial.alternatives=new Map(Array.isArray(savedHome.alternatives)?savedHome.alternatives:[]);
+  homeEditorial.loadedKey=homeEditorial.films.length===savedHome.films.length&&homeEditorial.alternatives.size?apiKey:"";
   renderHomeEditorial();
 }
 if(dailyRefreshDue())refreshDailyData();

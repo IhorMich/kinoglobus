@@ -30,3 +30,6 @@
 .kg-sh-day i,.kg-sh-showcase-ribbon i,.kg-sh-filter-status>span>svg{animation:none}
 
 .kg-sh .kg-sh-showcase-ribbon{width:100%;text-align:left;cursor:pointer;border:1px solid rgb(var(--kg-white)/.07)}.kg-sh-hero-card[data-sh-open]{cursor:pointer}
+
+/* Search winners reuse the Moven showcase inside the existing reel result. */
+.kg-sh-discovery{padding-bottom:0}.kg-sh-discovery .kg-sh-hero{padding:0}

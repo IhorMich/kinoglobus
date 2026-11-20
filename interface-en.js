@@ -1,6 +1,7 @@
 // English translations for the Moven interface.
 window.KGInterfaceDictionaries ??= {};
 window.KGInterfaceDictionaries.en = Object.freeze({
+  "Найденный сериал": "Series discovery",
   "Лучший сериал": "Outstanding Series",
   "Лучший анимационный сериал": "Outstanding Animated Program",
   "Награда за актёрскую игру": "Acting award",

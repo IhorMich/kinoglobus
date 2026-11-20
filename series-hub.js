@@ -55,9 +55,9 @@
   const badge=f=>`<span class="kg-sh-score">${icon('star',11)} ${Number(f.vote_average)>0?Number(f.vote_average).toFixed(1):'—'}</span>`;
   function bookmark(f){return kgBookmarkButton(f);}
   function remember(shows){for(const f of shows)if(f?.id)allShows.set(String(f.id),f);}
-  function heroMarkup(f){
+  function heroMarkup(f,{label='Выбор Moven'}={}){
     if(!f)return `<div class="kg-sh-hero" data-sh-hero hidden></div>`;
-    return `<div class="kg-sh-hero" data-sh-hero data-service="${service(f)}"><button type="button" class="kg-sh-showcase-ribbon" data-sh-open="${f.id}" aria-label="${esc(uiText('Открыть сериал {title}',{title:title(f)}))}"><span><i></i><b>${esc(uiText('Выбор Moven'))} · ${esc(serviceLabel(f))}</b></span>${icon('spark',13)}</button><div class="kg-sh-hero-card" data-sh-open="${f.id}"><div class="kg-sh-parallax"><div class="kg-sh-bg-layer is-active" style="background-image:url('${esc(image(f))}')"></div><div class="kg-sh-bg-layer"></div></div><div class="kg-sh-darkness"></div><div class="kg-sh-hero-shade"></div><span class="kg-sh-scroll-cue" aria-hidden="true">↓</span><div class="kg-sh-hero-copy"><div class="kg-sh-content-crossfade"><div class="kg-sh-badges"><span class="kg-sh-exclusive">${esc(uiText('Выбор Moven'))}</span><span class="kg-sh-provider" data-sh-hero-platform>${esc(serviceLabel(f))}</span>${badge(f)}<span class="kg-sh-meta-badge">${esc(seasons(f))} · ${esc(episodes(f))}</span><span class="kg-sh-format">${esc(uiText(f.status==='Ended'?'Завершён':'Сериал'))}</span></div><div><h2>${esc(title(f))}</h2><p class="kg-sh-hero-sub">${esc([f.original_title!==title(f)?f.original_title:'',(f.genres||[]).slice(0,3).map(g=>g.name||g).join(', ')].filter(Boolean).join(' · '))}</p></div><p class="kg-sh-synopsis">${esc(f.overview||uiText('Откройте карточку, чтобы узнать больше о сериале.'))}</p><div class="kg-sh-hero-actions"><button type="button" class="kg-sh-primary" data-sh-open="${f.id}">${icon('info',20)}${esc(uiText('О сериале'))}</button>${bookmark(f)}</div></div></div></div></div>`;
+    return `<div class="kg-sh-hero" data-sh-hero data-service="${service(f)}"><button type="button" class="kg-sh-showcase-ribbon" data-sh-open="${f.id}" aria-label="${esc(uiText('Открыть сериал {title}',{title:title(f)}))}"><span><i></i><b>${esc(uiText(label))} · ${esc(serviceLabel(f))}</b></span>${icon('spark',13)}</button><div class="kg-sh-hero-card" data-sh-open="${f.id}"><div class="kg-sh-parallax"><div class="kg-sh-bg-layer is-active" style="background-image:url('${esc(image(f))}')"></div><div class="kg-sh-bg-layer"></div></div><div class="kg-sh-darkness"></div><div class="kg-sh-hero-shade"></div><span class="kg-sh-scroll-cue" aria-hidden="true">↓</span><div class="kg-sh-hero-copy"><div class="kg-sh-content-crossfade"><div class="kg-sh-badges"><span class="kg-sh-exclusive">${esc(uiText(label))}</span><span class="kg-sh-provider" data-sh-hero-platform>${esc(serviceLabel(f))}</span>${badge(f)}<span class="kg-sh-meta-badge">${esc(seasons(f))} · ${esc(episodes(f))}</span><span class="kg-sh-format">${esc(uiText(f.status==='Ended'?'Завершён':'Сериал'))}</span></div><div><h2>${esc(title(f))}</h2><p class="kg-sh-hero-sub">${esc([f.original_title!==title(f)?f.original_title:'',(f.genres||[]).slice(0,3).map(g=>g.name||g).join(', ')].filter(Boolean).join(' · '))}</p></div><p class="kg-sh-synopsis">${esc(f.overview||uiText('Откройте карточку, чтобы узнать больше о сериале.'))}</p><div class="kg-sh-hero-actions"><button type="button" class="kg-sh-primary" data-sh-open="${f.id}">${icon('info',20)}${esc(uiText('О сериале'))}</button>${bookmark(f)}</div></div></div></div></div>`;
   }
   function premiereMarkup(f){
     return `<article class="kg-sh-card kg-sh-premiere" data-sh-card data-sh-id="${f.id}" data-service="${service(f)}"><div class="kg-sh-portrait"><button type="button" class="kg-sh-art-button" data-sh-open="${f.id}" aria-label="${esc(uiText('Открыть сериал {title}',{title:title(f)}))}"><img src="${esc(image(f,true))}" alt="" loading="lazy"></button><span class="kg-sh-ribbon">${esc(uiText(f._hubReference?'В подборке':Number(f.number_of_seasons)>1?'Новый сезон':'Премьера'))}</span>${bookmark(f)}<div class="kg-sh-poster-foot">${badge(f)}<span class="kg-sh-service">${esc(serviceLabel(f))}</span></div></div><button type="button" class="kg-sh-title" data-sh-open="${f.id}">${esc(title(f))}</button><p class="kg-sh-muted kg-sh-truncate">${esc(seasons(f))}${f.genres?.[0]?' · '+esc(f.genres[0].name||f.genres[0]):''}</p></article>`;
@@ -108,15 +108,32 @@
     if(scroll<0){const pull=Math.min(-scroll/240,1);return {y:0,scale:1.08+pull*.20,dark:.30,textY:0,textScale:1+pull*.04,opacity:1,blur:0,cue:1};}
     return {y:scroll*.38,scale:1.08,dark:.30,textY:-scroll*.16,textScale:1,opacity:1,blur:0,cue:Math.max(0,1-scroll/80)};
   }
-  function queueParallax(){if(heroFrame)return;heroFrame=requestAnimationFrame(()=>{heroFrame=0;const hero=root?.querySelector('.kg-sh-hero-card');if(!hero||!window.KGSeries.active||window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches)return;
-    const rect=hero.getBoundingClientRect();if(rect.bottom<0||rect.top>window.innerHeight)return;
-    // The reference begins at the top; here the same progress starts when this card reaches the viewport top.
-    const state=parallaxState(window.pageYOffset<0?window.pageYOffset:Math.max(0,-rect.top));
-    hero.querySelector('.kg-sh-parallax').style.transform=`translate3d(0,${state.y.toFixed(2)}px,0) scale(${state.scale.toFixed(4)})`;
-    hero.querySelector('.kg-sh-darkness').style.opacity='.30';
-    const copy=hero.querySelector('.kg-sh-hero-copy');copy.style.transform=`translate3d(0,${state.textY.toFixed(2)}px,0) scale(${state.textScale})`;copy.style.opacity='1';copy.style.filter='none';
-    hero.querySelector('.kg-sh-scroll-cue').hidden=state.cue<1;
+  function queueParallax(){if(heroFrame)return;heroFrame=requestAnimationFrame(()=>{
+    heroFrame=0;if(!window.KGSeries.active||window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches)return;
+    for(const hero of document.querySelectorAll('.kg-sh-hero-card')){
+      const rect=hero.getBoundingClientRect();if(!rect.height||rect.bottom<0||rect.top>window.innerHeight)continue;
+      const state=parallaxState(window.pageYOffset<0?window.pageYOffset:Math.max(0,-rect.top));
+      hero.querySelector('.kg-sh-parallax').style.transform=`translate3d(0,${state.y.toFixed(2)}px,0) scale(${state.scale.toFixed(4)})`;
+      hero.querySelector('.kg-sh-darkness').style.opacity='.30';
+      const copy=hero.querySelector('.kg-sh-hero-copy');copy.style.transform=`translate3d(0,${state.textY.toFixed(2)}px,0) scale(${state.textScale})`;copy.style.opacity='1';copy.style.filter='none';
+      hero.querySelector('.kg-sh-scroll-cue').hidden=state.cue<1;
+    }
   });}
+  function mountDiscovery(host,model){
+    const f={...model,original_title:model.originalTitle||model.original_title,vote_average:model.average??model.vote_average,vote_count:model.votes??model.vote_count};
+    host.__kgSeriesDiscoveryFilm=f;
+    const markup=`<div class="kg-sh kg-sh-discovery" data-selected-film="${f.id}">${heroMarkup(f,{label:'Найденный сериал'})}</div>`;
+    if(host.__kgSeriesDiscoveryMarkup!==markup||!host.querySelector('.kg-sh-discovery')){host.innerHTML=markup;host.__kgSeriesDiscoveryMarkup=markup;}
+    if(!host.__kgSeriesDiscoveryBound){
+      host.__kgSeriesDiscoveryBound=true;
+      host.addEventListener('click',event=>{
+        if(event.target.closest('[data-kg-bookmark]'))return;
+        const open=event.target.closest('[data-sh-open]'),film=host.__kgSeriesDiscoveryFilm;
+        if(open&&film&&open.dataset.shOpen===String(film.id))window.KGFilmCard.openDialog({...film,_kgGlobalRelated:true},open.matches('button,a')?open:open.querySelector('.kg-sh-primary')||open);
+      });
+    }
+    queueParallax();return host.firstElementChild;
+  }
   function platformResults(rows,selected){return rows.filter(movieCatalog.allows).map(f=>selected==='all'?f:{...f,_hubService:selected});}
   async function tmdb(path,params={}){return requestTmdb(path,{language:filmLocale,include_adult:'false',...params});}
   async function networkQuery(selected){
@@ -179,5 +196,5 @@
     document.addEventListener('kg:media-change',event=>{if(event.detail.mediaType==='tv')load();else{generation++;loading=false;}});
     document.addEventListener('kg-bookmark-change',()=>{if(root)root.querySelectorAll('[data-kg-bookmark]').forEach(b=>paintBookmarkButton(b,kgIsBookmarked(b.dataset.kgBookmark)));});
   }
-  window.KGSeriesHub={mount,load,scheduleFor,categoryQuery,service,applyPlatform,parallaxState,platformResults};
+  window.KGSeriesHub={mount,mountDiscovery,heroMarkup,load,scheduleFor,categoryQuery,service,applyPlatform,parallaxState,platformResults};
 })();

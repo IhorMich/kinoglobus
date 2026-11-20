@@ -206,6 +206,68 @@
         </span>
 </div>
 </section>
+
+<section class="rounded-2xl bg-surface-panel border border-surface-border-subtle p-4 space-y-3.5 transition-colors duration-300" data-purpose="graphics-performance">
+
+  <div class="flex items-center gap-2">
+    <span class="material-symbols-outlined text-primary-container" aria-hidden="true">language</span>
+    <h2 class="font-headline-sm text-headline-sm text-primary">Графика и производительность</h2>
+  </div>
+
+  <p class="text-xs text-text-muted">
+    Настройте качество отображения 3D-глобуса.
+  </p>
+
+  <div class="space-y-2" role="radiogroup" aria-label="Качество графики">
+
+    <button type="button" role="radio" data-kgs-graphics="economy" aria-checked="false" class="kgs-reel-choice bg-surface-container-low w-full flex items-center justify-between gap-3 p-3 rounded-xl border border-surface-border-subtle text-left">
+      <div class="flex items-center gap-3 min-w-0">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="text-primary-container shrink-0" style="flex-shrink:0" aria-hidden="true">
+  <rect x="2" y="6" width="18" height="12" rx="2"/>
+  <path d="M22 10v4"/>
+  <path d="M11 8l-3 5h5l-2 3"/>
+</svg>
+        <div class="min-w-0">
+          <div class="kgs-reel-title text-xs font-medium text-on-surface-variant uppercase">Экономичный</div>
+          <div class="text-[10px] text-text-muted">2K · 30 FPS</div>
+          <div class="text-[10px] text-text-muted">Сниженная нагрузка на устройство</div>
+        </div>
+      </div>
+      <span aria-hidden="true" class="kgs-reel-radio w-4 h-4 rounded-full border border-outline shrink-0"></span>
+    </button>
+
+    <button type="button" role="radio" data-kgs-graphics="balanced" aria-checked="false" class="kgs-reel-choice bg-surface-container-low w-full flex items-center justify-between gap-3 p-3 rounded-xl border border-surface-border-subtle text-left">
+      <div class="flex items-center gap-3 min-w-0">
+        <span class="material-symbols-outlined text-primary-container" aria-hidden="true">tune</span>
+        <div class="min-w-0">
+          <div class="kgs-reel-title text-xs font-medium text-on-surface-variant uppercase">Сбалансированный</div>
+          <div class="text-[10px] text-text-muted">2K · 30 FPS</div>
+          <div class="text-[10px] text-text-muted">Динамические облака</div>
+        </div>
+      </div>
+      <span aria-hidden="true" class="kgs-reel-radio w-4 h-4 rounded-full border border-outline shrink-0"></span>
+    </button>
+
+    <button type="button" role="radio" data-kgs-graphics="maximum" aria-checked="false" class="kgs-reel-choice bg-surface-container-low w-full flex items-center justify-between gap-3 p-3 rounded-xl border border-surface-border-subtle text-left">
+      <div class="flex items-center gap-3 min-w-0">
+        <span class="material-symbols-outlined text-primary-container" aria-hidden="true">auto_awesome</span>
+        <div class="min-w-0">
+          <div class="kgs-reel-title text-xs font-medium text-on-surface-variant uppercase">Максимальный</div>
+          <div class="text-[10px] text-text-muted">4K · 60 FPS</div>
+          <div class="text-[10px] text-text-muted">Максимальная детализация и эффекты</div>
+        </div>
+      </div>
+      <span aria-hidden="true" class="kgs-reel-radio w-4 h-4 rounded-full border border-outline shrink-0"></span>
+    </button>
+
+  </div>
+
+  <p class="text-[10px] text-text-muted">
+    Настройки применяются автоматически и сохраняются на устройстве.
+  </p>
+
+</section>
+
 <section class="rounded-2xl bg-surface-panel border border-surface-border-subtle p-4 space-y-3.5 transition-colors duration-300" data-purpose="artifacts-and-markers">
 <div class="flex items-center justify-between">
 <div class="flex items-center gap-2">
@@ -624,4 +686,79 @@ ${[["light","Лёгкое"],["find","Открытие"],["wild","Случайн�
   });
   soundSelect?.addEventListener("change", syncSounds);
   sync();
+})();
+
+
+// Moven: globe graphics preferences
+(function () {
+  const dialog = document.getElementById("settings");
+  if (!dialog) return;
+
+  const buttons = [...dialog.querySelectorAll("[data-kgs-graphics]")];
+  if (!buttons.length) return;
+
+  const validModes = ["economy", "balanced", "maximum"];
+
+  function getQuality() {
+    if (window.KGGlobeGraphics) {
+      return window.KGGlobeGraphics.getQuality();
+    }
+
+    try {
+      const saved = localStorage.getItem("kgGlobeQuality");
+      return validModes.includes(saved) ? saved : "maximum";
+    } catch {
+      return "maximum";
+    }
+  }
+
+  function refreshGraphicsSettings() {
+    const quality = getQuality();
+
+    buttons.forEach(button => {
+      const selected = button.dataset.kgsGraphics === quality;
+      button.setAttribute("aria-checked", String(selected));
+      button.tabIndex = selected ? 0 : -1;
+    });
+  }
+
+  buttons.forEach((button, index) => {
+    button.addEventListener("click", () => {
+      const quality = button.dataset.kgsGraphics;
+      if (!validModes.includes(quality)) return;
+
+      try {
+        localStorage.setItem("kgGlobeQuality", quality);
+      } catch {}
+
+      window.KGGlobeGraphics?.setQuality(quality);
+
+      refreshGraphicsSettings();
+    });
+
+    button.addEventListener("keydown", event => {
+      const keys = ["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp"];
+      if (!keys.includes(event.key)) return;
+
+      event.preventDefault();
+
+      const direction =
+        event.key === "ArrowRight" || event.key === "ArrowDown"
+          ? 1 : -1;
+
+      const next = buttons[
+        (index + direction + buttons.length) % buttons.length
+      ];
+
+      next.click();
+      next.focus();
+    });
+  });
+
+  new MutationObserver(refreshGraphicsSettings).observe(dialog, {
+    attributes: true,
+    attributeFilter: ["open"]
+  });
+
+  refreshGraphicsSettings();
 })();

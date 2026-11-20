@@ -15,6 +15,7 @@ https://creativecommons.org/licenses/by/4.0/
 
 Files:
 - earth-day-4k.jpg
+- earth-day-2k.jpg
 - earth-clouds.jpg
 - earth-night.jpg
 - earth-specular.png

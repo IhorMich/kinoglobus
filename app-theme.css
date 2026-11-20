@@ -1428,6 +1428,7 @@ body {
   background:
     linear-gradient(to bottom, rgb(var(--kg-canvas-obsidian)) 0%, rgb(var(--kg-canvas-obsidian) / .9) 8%, rgb(var(--kg-canvas-obsidian) / .5) 18%, transparent 30%, transparent 92%, rgb(var(--kg-canvas-obsidian) / .22) 96%, rgb(var(--kg-canvas-obsidian)) 100%),
     linear-gradient(to bottom, rgb(var(--kg-black) / .25), rgb(var(--kg-black) / .45) 45%, rgb(var(--kg-black) / .65)),
+    linear-gradient(rgba(0, 0, 0, .25), rgba(0, 0, 0, .25)),
     url("assets/globe/milky-way.jpg") center 45% / cover no-repeat;
 }
 

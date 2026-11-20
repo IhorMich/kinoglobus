@@ -1181,118 +1181,58 @@ rotatingGroup.add(flagPinGroup);
 
       const textureLoader = new THREE.TextureLoader();
 
-      const configureColorTexture = (tex) => {
-        tex.encoding = THREE.sRGBEncoding;
-        tex.anisotropy = Math.min(
-          8,
-          renderer.capabilities.getMaxAnisotropy()
-        );
-        tex.needsUpdate = true;
-        earthMat.map = tex;
-        earthMat.needsUpdate = true;
-        fallbackEarthTexture.dispose();
-      };
-
-      const loadLegacyEarth = () => {
-        textureLoader.load(
-          './assets/globe/earth_atmos_2048.jpg',
-          configureColorTexture,
-          undefined,
-          (error) => {
-            console.warn('[Moven] Earth fallback error', error);
-          }
-        );
-      };
-
-      if (renderer.capabilities.maxTextureSize >= 4096) {
-        textureLoader.load(
-          './assets/globe/earth-day-4k.jpg',
-          configureColorTexture,
-          undefined,
-          loadLegacyEarth
-        );
-      } else {
-        loadLegacyEarth();
-      }
-
-      if (renderer.capabilities.maxTextureSize >= 2048) {
-        textureLoader.load(
-          './assets/globe/earth-normal.png',
-          (tex) => {
-            tex.encoding = THREE.LinearEncoding;
-            earthMat.normalMap = tex;
-            earthMat.needsUpdate = true;
-          },
-          undefined,
-          (error) => console.warn('[Moven] Normal map error', error)
-        );
-
-        textureLoader.load(
-          './assets/globe/earth-specular.png',
-          (tex) => {
-            tex.encoding = THREE.LinearEncoding;
-            earthMat.specularMap = tex;
-            earthMat.needsUpdate = true;
-          },
-          undefined,
-          (error) => console.warn('[Moven] Specular map error', error)
-        );
-      }
-
-
-      // Night city lights
-      textureLoader.load(
-        './assets/globe/earth-night.jpg',
-        (earthNightTexture) => {
-
-          earthNightTexture.encoding = THREE.sRGBEncoding;
-          earthNightTexture.anisotropy = Math.min(
-            4,
-            renderer.capabilities.getMaxAnisotropy()
-          );
-
-          earthMat.emissive.setHex(0xffffff);
-          earthMat.emissiveIntensity = 1.3;
-          earthMat.emissiveMap = earthNightTexture;
-
-          earthMat.onBeforeCompile = (shader) => {
-
-            shader.fragmentShader =
-              shader.fragmentShader.replace(
-                '#include <emissivemap_fragment>',
-                `
-                #include <emissivemap_fragment>
-
-                #if NUM_DIR_LIGHTS > 0
-
-                  float sunAngle = dot(
-                    normalize(vNormal),
-                    normalize(directionalLights[0].direction)
-                  );
-
-                  float nightMask = 1.0 - smoothstep(
-                    -0.30, 0.05, sunAngle
-                  );
-
-                  totalEmissiveRadiance *= nightMask;
-
-                #else
-
-                  totalEmissiveRadiance *= 0.0;
-
-                #endif
-                `
-              );
-          };
-
-          earthMat.needsUpdate = true;
-
+      const graphicsProfiles = {
+        economy: {
+          fps: 30, pixelRatio: 1,
+          highRes: false, clouds: false,
+          night: false, normal: false, specular: false
         },
-        undefined,
-        (error) => {
-          console.warn('[Moven] Night texture error', error);
+        balanced: {
+          fps: 30, pixelRatio: 1.5,
+          highRes: false, clouds: true,
+          night: true, normal: false, specular: false
+        },
+        maximum: {
+          fps: 60, pixelRatio: 2,
+          highRes: true, clouds: true,
+          night: true, normal: true, specular: true
         }
-      );
+      };
+
+      function readGraphicsQuality() {
+        try {
+          const value = localStorage.getItem("kgGlobeQuality");
+          return Object.prototype.hasOwnProperty.call(graphicsProfiles, value)
+            ? value : "maximum";
+        } catch {
+          return "maximum";
+        }
+      }
+
+      let graphicsQuality = readGraphicsQuality();
+      let graphicsProfile = graphicsProfiles[graphicsQuality];
+      let graphicsRevision = 0;
+
+      earthMat.onBeforeCompile = (shader) => {
+        shader.fragmentShader = shader.fragmentShader.replace(
+          '#include <emissivemap_fragment>',
+          `
+          #include <emissivemap_fragment>
+          #if NUM_DIR_LIGHTS > 0
+            float sunAngle = dot(
+              normalize(vNormal),
+              normalize(directionalLights[0].direction)
+            );
+            float nightMask = 1.0 - smoothstep(
+              -0.18, 0.15, sunAngle
+            );
+            totalEmissiveRadiance *= nightMask;
+          #else
+            totalEmissiveRadiance *= 0.0;
+          #endif
+          `
+        );
+      };
 
       earthMesh = new THREE.Mesh(earthGeo, earthMat);
       rotatingGroup.add(earthMesh);
@@ -1313,51 +1253,63 @@ rotatingGroup.add(flagPinGroup);
 
       // Atmospheric scattering
       const atmosphereGeo = new THREE.SphereGeometry(
-        earthRadius * 1.045, 64, 48
+        earthRadius * 1.018, 64, 48
       );
 
       const atmosphereMat = new THREE.ShaderMaterial({
         uniforms: {
+          sunDirection: {
+            value: dirLight.position.clone().normalize()
+          },
           glowColor: {
-            value: new THREE.Color(0x398fff)
+            value: new THREE.Color(0x559dff)
           },
           glowStrength: {
-            value: 0.85
+            value: 0.38
           }
         },
 
         vertexShader: `
-          varying vec3 vNormal;
-          varying vec3 vViewDirection;
+          varying vec3 vWorldNormal;
+          varying vec3 vWorldPosition;
 
           void main() {
-            vec4 mvPosition =
-              modelViewMatrix * vec4(position, 1.0);
+            vec4 worldPosition = modelMatrix * vec4(position, 1.0);
 
-            vNormal = normalize(normalMatrix * normal);
-            vViewDirection = normalize(-mvPosition.xyz);
+            vWorldPosition = worldPosition.xyz;
+            vWorldNormal = normalize(mat3(modelMatrix) * normal);
 
-            gl_Position =
-              projectionMatrix * mvPosition;
+            gl_Position = projectionMatrix *
+              viewMatrix * worldPosition;
           }
         `,
 
         fragmentShader: `
+          uniform vec3 sunDirection;
           uniform vec3 glowColor;
           uniform float glowStrength;
 
-          varying vec3 vNormal;
-          varying vec3 vViewDirection;
+          varying vec3 vWorldNormal;
+          varying vec3 vWorldPosition;
 
           void main() {
-            float facing = abs(dot(
-              normalize(vNormal),
-              normalize(vViewDirection)
-            ));
+            vec3 N = normalize(vWorldNormal);
+            vec3 V = normalize(cameraPosition - vWorldPosition);
 
-            float intensity = pow(
-              1.0 - facing, 3.0
-            ) * glowStrength;
+            float facing = abs(dot(N, V));
+
+            float rim = pow(
+              1.0 - clamp(facing, 0.0, 1.0), 3.5
+            );
+
+            float sunlight = smoothstep(
+              -0.30, 0.65,
+              dot(N, normalize(sunDirection))
+            );
+
+            float intensity = rim *
+              (0.08 + sunlight * 0.92) *
+              glowStrength;
 
             gl_FragColor = vec4(
               glowColor * intensity,
@@ -1382,23 +1334,191 @@ rotatingGroup.add(flagPinGroup);
       rotatingGroup.add(atmosphereMesh);
 
 
-      textureLoader.load(
-        './assets/globe/earth-clouds.jpg',
-        (tex) => {
-          tex.encoding = THREE.LinearEncoding;
-          tex.anisotropy = Math.min(
-            4,
-            renderer.capabilities.getMaxAnisotropy()
-          );
-          cloudsMat.alphaMap = tex;
-          cloudsMat.needsUpdate = true;
-          cloudsMesh.visible = true;
-        },
-        undefined,
-        (error) => {
-          console.warn('[Moven] Cloud texture error', error);
+      function replaceGraphicsTexture(material, key, texture) {
+        const previous = material[key];
+        material[key] = texture;
+        material.needsUpdate = true;
+
+        if (previous && previous !== texture) {
+          previous.dispose();
         }
-      );
+      }
+
+      function loadGraphicsTexture(
+        file, revision, colorTexture,
+        onReady, onError, anisotropy = 4
+      ) {
+        textureLoader.load(
+          './assets/globe/' + file,
+          (tex) => {
+            if (revision !== graphicsRevision) {
+              tex.dispose();
+              return;
+            }
+
+            tex.encoding = colorTexture
+              ? THREE.sRGBEncoding
+              : THREE.LinearEncoding;
+
+            tex.anisotropy = Math.min(
+              anisotropy,
+              renderer.capabilities.getMaxAnisotropy()
+            );
+
+            tex.needsUpdate = true;
+            onReady(tex);
+          },
+          undefined,
+          (error) => {
+            if (revision !== graphicsRevision) return;
+            console.warn('[Moven] Texture error:', file, error);
+            if (onError) onError();
+          }
+        );
+      }
+
+      function applyGraphicsQuality(mode) {
+        if (!Object.prototype.hasOwnProperty.call(graphicsProfiles, mode)) {
+          mode = "maximum";
+        }
+
+        graphicsQuality = mode;
+        graphicsProfile = graphicsProfiles[mode];
+
+        const profile = graphicsProfile;
+
+        // Day and night lighting by graphics profile.
+        if (profile.night) {
+          dirLight.position.set(4, 2, 5);
+          dirLight.intensity = 1.25;
+          ambLight.intensity = 0.48;
+          hemiLight.intensity = 0.28;
+        } else {
+          dirLight.position.set(4, 2, 4);
+          dirLight.intensity = 1.45;
+          ambLight.intensity = 0.40;
+          hemiLight.intensity = 0.22;
+        }
+        atmosphereMesh.visible = mode === "maximum";
+
+        atmosphereMat.uniforms.sunDirection.value
+          .copy(dirLight.position).normalize();
+
+        const revision = ++graphicsRevision;
+        const maxTextureSize = renderer.capabilities.maxTextureSize;
+
+        renderer.setPixelRatio(
+          Math.min(window.devicePixelRatio || 1, profile.pixelRatio)
+        );
+
+        replaceGraphicsTexture(earthMat, "normalMap", null);
+        replaceGraphicsTexture(earthMat, "specularMap", null);
+        replaceGraphicsTexture(earthMat, "emissiveMap", null);
+        replaceGraphicsTexture(cloudsMat, "alphaMap", null);
+
+        cloudsMesh.visible = false;
+        earthMat.emissive.setHex(0x000000);
+        earthMat.emissiveIntensity = 0;
+
+        earthMat.specular.setHex(
+          profile.specular ? 0x030405 : 0x000000
+        );
+
+        const setDayMap = (tex) => {
+          replaceGraphicsTexture(earthMat, "map", tex);
+        };
+
+        const loadLegacy = () => {
+          loadGraphicsTexture(
+            "earth_atmos_2048.jpg",
+            revision, true, setDayMap
+          );
+        };
+
+        const load2K = () => {
+          loadGraphicsTexture(
+            "earth-day-2k.jpg",
+            revision, true, setDayMap, loadLegacy, 4
+          );
+        };
+
+        if (profile.highRes && maxTextureSize >= 4096) {
+          loadGraphicsTexture(
+            "earth-day-4k.jpg",
+            revision, true, setDayMap, load2K, 8
+          );
+        } else {
+          load2K();
+        }
+
+        if (maxTextureSize >= 2048) {
+          if (profile.normal) {
+            loadGraphicsTexture(
+              "earth-normal.png",
+              revision, false,
+              (tex) => replaceGraphicsTexture(
+                earthMat, "normalMap", tex
+              )
+            );
+          }
+
+          if (profile.specular) {
+            loadGraphicsTexture(
+              "earth-specular.png",
+              revision, false,
+              (tex) => replaceGraphicsTexture(
+                earthMat, "specularMap", tex
+              )
+            );
+          }
+
+          if (false) {
+            loadGraphicsTexture(
+              "earth-night.jpg",
+              revision, true,
+              (tex) => {
+                earthMat.emissive.setHex(0xffffff);
+                earthMat.emissiveIntensity = 0.85;
+
+                replaceGraphicsTexture(
+                  earthMat, "emissiveMap", tex
+                );
+              }
+            );
+          }
+
+          if (profile.clouds) {
+            loadGraphicsTexture(
+              "earth-clouds.jpg",
+              revision, false,
+              (tex) => {
+                replaceGraphicsTexture(
+                  cloudsMat, "alphaMap", tex
+                );
+                cloudsMesh.visible = true;
+              }
+            );
+          }
+        }
+
+        try {
+          localStorage.setItem("kgGlobeQuality", mode);
+        } catch {}
+
+        console.info("[Moven] Globe graphics:", mode);
+      }
+
+      window.KGGlobeGraphics = {
+        getQuality: () => graphicsQuality,
+
+        setQuality: (mode) => {
+          if (mode !== graphicsQuality) {
+            applyGraphicsQuality(mode);
+          }
+        }
+      };
+
+      applyGraphicsQuality(graphicsQuality);
 
       // Build beacon dots structure (all hidden initially for pristine look)
       createCountryBeacons();
@@ -1542,14 +1662,47 @@ rotatingGroup.add(flagPinGroup);
       });
       globeVisibility.observe(container);
       const settings = document.getElementById("settings");
+      let lastGlobeFrame = null;
+      let lastGlobeUpdate = null;
+
       function animate() {
         requestAnimationFrame(animate);
-        if (!globeInView || document.hidden || settings.open) return;
+
+        if (!globeInView || document.hidden || settings.open) {
+          lastGlobeFrame = null;
+          lastGlobeUpdate = null;
+          return;
+        }
+
+        const now = performance.now();
+        const interval = 1000 / graphicsProfile.fps;
+
+        if (lastGlobeFrame !== null &&
+            now - lastGlobeFrame < interval - 1) {
+          return;
+        }
+
+        const frameScale = lastGlobeUpdate === null
+          ? 1
+          : Math.min(4, (now - lastGlobeUpdate) / (1000 / 60));
+
+        lastGlobeFrame = lastGlobeFrame === null
+          ? now
+          : now - Math.max(0, (now - lastGlobeFrame) % interval);
+
+        lastGlobeUpdate = now;
+
+        const smooth = (factor) =>
+          1 - Math.pow(
+            1 - Math.max(0, Math.min(1, factor)),
+            frameScale
+          );
+
         const elapsedTime = clock.getElapsedTime();
 
                 // Camera smooth zoom lerp
-        currentCameraZ += (targetCameraZ - currentCameraZ) * zoomLerpFactor;
-        currentCameraY += (targetCameraY - currentCameraY) * zoomLerpFactor;
+        currentCameraZ += (targetCameraZ - currentCameraZ) * smooth(zoomLerpFactor);
+        currentCameraY += (targetCameraY - currentCameraY) * smooth(zoomLerpFactor);
         if (camera) {
           camera.position.z = currentCameraZ;
           // Keep the globe slightly lower in the star field, with a stable screen offset while zooming.
@@ -1559,10 +1712,10 @@ rotatingGroup.add(flagPinGroup);
 
         // Marker rise + cinematic pulse
 if (flagPinGroup && flagPinGroup.visible) {
-  const s = flagPinGroup.scale.x + (targetFlagScale - flagPinGroup.scale.x) * 0.1;
+  const s = flagPinGroup.scale.x + (targetFlagScale - flagPinGroup.scale.x) * smooth(0.1);
   flagPinGroup.scale.set(s, s, s);
 
-  markerPulseT += 0.016;
+  markerPulseT += 0.016 * frameScale;
   const t = markerPulseT;
 
   const pulse1 = flagPinGroup.getObjectByName('pulse1');
@@ -1610,12 +1763,12 @@ if (areaRing) {
  
         // Idle slow rotation
         if (!isSpinning && !isDragging && !countryFramed) {
-          targetRotY += driftSpeed;
+          targetRotY += driftSpeed * frameScale;
         }
         if (rotatingGroup) {
           const diffY = shortestAngleDist(currentRotY, targetRotY);
-          currentRotY += diffY * lerpSpeed;
-          currentRotX += (targetRotX - currentRotX) * lerpSpeed;
+          currentRotY += diffY * smooth(lerpSpeed);
+          currentRotX += (targetRotX - currentRotX) * smooth(lerpSpeed);
 
           rotatingGroup.rotation.y = currentRotY;
           rotatingGroup.rotation.x = currentRotX;
@@ -4542,7 +4695,7 @@ console.info("[Moven: Explore] Bridge v6 ready");
 <script src="legal-watch.js?v=9"></script>
 <script src="global-search.js?v=19"></script>
 <script src="home-releases.js?v=12"></script>
-<script src="settings-page.js?v=62"></script>
+<script src="settings-page.js?v=65"></script>
 <script>
 (() => {
   const earth = document.getElementById("earth-canvas-container");

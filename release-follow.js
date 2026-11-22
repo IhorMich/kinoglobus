@@ -237,12 +237,23 @@
     } catch { return item.trailer; }
   }
 
-  document.addEventListener("click",event => {
+  document.addEventListener("click",async event => {
     const opener = event.target.closest("[data-kg-follow]");
     if (!opener) return;
     try {
       const draft = JSON.parse(opener.dataset.followItem);
       const item = current(draft.key);
+      if (item && opener.hasAttribute("data-follow-compact")) {
+        const confirmed = await window.KGConfirmRemoval({
+          kind:"follow",title:item.title,
+          onSettings:() => {
+            const latest = current(item.key);
+            window.KGReleaseSettings.open(latest || draft,opener,!!latest);
+          }
+        });
+        if (confirmed) remove(item);
+        return;
+      }
       window.KGReleaseSettings.open(item || draft,opener,!!item);
     } catch { message("Не удалось сохранить подписку",opener); }
   });

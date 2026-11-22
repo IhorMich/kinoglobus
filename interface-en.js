@@ -53,6 +53,7 @@ window.KGInterfaceDictionaries.en = Object.freeze({
   "Премьера фильма": "Film premiere",
   "Завтра, {date}": "Tomorrow, {date}",
   "Не удалось сохранить подписку": "Could not save subscription",
+  "Перестать следить?": "Stop following?",
   "Перестать следить": "Unfollow",
   "Перейти в календарь": "Open calendar",
   "Добавлено в календарь": "Added to calendar",

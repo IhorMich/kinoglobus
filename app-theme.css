@@ -1715,6 +1715,7 @@ body {
 .kg-confirm-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .kg-confirm-actions button{min-height:44px;border:1px solid rgb(var(--kg-primary)/.18);border-radius:12px;background:rgb(var(--kg-surface-container));color:rgb(var(--kg-on-surface));font:600 14px var(--kg-font-interface);cursor:pointer}
 .kg-confirm-actions [data-removal-confirm]{background:rgb(var(--kg-primary-container));color:rgb(var(--kg-on-primary))}
+.kg-confirm-actions [data-removal-settings]{grid-column:1 / -1}
 .kg-confirm-actions button:focus-visible{outline:2px solid rgb(var(--kg-primary));outline-offset:2px}
 
 /* Main-screen content type selector and mutually exclusive content panels. */

@@ -169,8 +169,8 @@
       hero.querySelector('.kg-sh-scroll-cue').hidden=state.cue<1;
     }
   });}
-  function openSeries(film, opener){
-    return window.KGFilmCard.openDialog({...film,_kgGlobalRelated:true},opener);
+  function openSeries(film, opener, options){
+    return window.KGFilmCard.openDialog({...film,_kgGlobalRelated:true},opener,options);
   }
   function mountDiscovery(host,model){
     const f={...model,original_title:model.originalTitle||model.original_title,vote_average:model.average??model.vote_average,vote_count:model.votes??model.vote_count};

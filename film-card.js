@@ -341,7 +341,7 @@ function hydrate(model, source, refresh, active, onTrailer) {
 }
 
 let dialogSequence = 0;
-async function openDialog(film, opener, {autoplayTrailer = false} = {}) {
+async function openDialog(film, opener, {autoplayTrailer = false, showEpisodes = false} = {}) {
   const id = Number(film?.id);
   if (!Number.isSafeInteger(id) || id <= 0) return;
   if (apiKey && !movieCatalog.allows(film)) {
@@ -377,6 +377,7 @@ async function openDialog(film, opener, {autoplayTrailer = false} = {}) {
   document.body.append(dialog);
   dialog.showModal();
   dialog.scrollTop=0;
+  if(showEpisodes) requestAnimationFrame(()=>host.querySelector('[data-film-part="episodes"]')?.scrollIntoView({block:"start"}));
   dialog.addEventListener("click",event=>{
     if (event.target===dialog || event.target.closest("[data-kg-film-back]")) {
       if(event.target.closest("[data-kg-film-back]") && dialog.__kgRelatedHistory.length){

@@ -406,6 +406,10 @@ seriesCollections.className="flex flex-col w-full px-gutter-mobile gap-space-lg 
 seriesCollections.hidden=true;
 seriesCalendar.before(seriesCollections);
 window.KGSeriesCalendar.mount(seriesCalendar,()=>showView("series-collections"));
+const seriesGold=document.createElement("section");
+seriesGold.className="kg-gold";seriesGold.hidden=true;
+seriesCalendar.after(seriesGold);
+window.KGSeriesGold.mount(seriesGold);
 
 const vc=document.createElement("div");vc.id="view-collections";
 vc.className="flex flex-col w-full px-gutter-mobile gap-space-lg select-none";vc.style.display="none";
@@ -422,7 +426,7 @@ sectionNav.style.display="none";
 const collectionTabs=[["collections","Коллекции"],["mood","Коллекция по настроению"],["oscar","Оскар"]];
 function renderCollectionTabs(tabs, media){
   sectionNav.dataset.media=media;
-  sectionNav.innerHTML=`<div class="grid grid-cols-3 gap-1.5 rounded-xl bg-surface-panel p-1.5">`+
+  sectionNav.innerHTML=`<div class="grid ${media==="tv"?"grid-cols-4":"grid-cols-3"} gap-1.5 rounded-xl bg-surface-panel p-1.5">`+
     tabs.map(([route,label])=>`<button type="button" data-collection-route="${route}" aria-current="false" class="min-w-0 px-1.5 py-2 rounded-lg text-text-muted hover:text-primary font-micro-caption text-micro-caption leading-tight">${uiText(label)}</button>`).join("")+
     "</div>";
 }
@@ -508,7 +512,7 @@ function rememberView(destination, collectionId = null) {
   // Top-level tabs replace the navigation trail rather than extending it.
   if (destination !== "collection" && destination !== "series-collection") {
     previousViews.length = 0;
-    if (destination === "series-calendar" || destination === "series-mood") {
+    if (["series-calendar","series-mood","series-gold"].includes(destination)) {
       previousViews.push({view:"series", collectionId:null},{view:"series-collections", collectionId:null});
     } else if (destination !== "home") {
       previousViews.push({view:destination==="series-collections"?"series":"home", collectionId:null});
@@ -521,12 +525,13 @@ function rememberView(destination, collectionId = null) {
 }
 
 function showView(v, remember = true){
-  const seriesSelection=["series-collections","series-collection","series-calendar","series-mood"].includes(v);
+  const seriesSelection=["series-collections","series-collection","series-calendar","series-mood","series-gold"].includes(v);
   const moodView=v==="mood"||v==="series-mood";
   if(!window.KGSeries.setMode(v==="series"||seriesSelection))return;
   if(v==="series-collections"&&(view!==v||!seriesCollections.firstChild)) renderTvCatalog();
   if(view==="series-calendar"&&v!==view)window.KGSeriesCalendar.hide();
   const enterCalendar=v==="series-calendar"&&v!==view;
+  const enterGold=v==="series-gold"&&v!==view;
   if (remember && v !== view) rememberView(v);
   if(v!==view) window.KGFilmCard.stopTrailers();
   if(v!==view&&["mood","series-mood"].includes(view)){
@@ -545,6 +550,8 @@ function showView(v, remember = true){
   home.style.display=v==="home"?"":"none";
   seriesPage.hidden=v!=="series";
   seriesCalendar.hidden=v!=="series-calendar";
+  seriesGold.hidden=v!=="series-gold";
+  if(enterGold)window.KGSeriesGold.show();
   seriesCollections.hidden=v!=="series-collections";
   if(enterCalendar)window.KGSeriesCalendar.show();
   mediaSwitch.hidden=!["home","series"].includes(v);
@@ -562,7 +569,7 @@ function showView(v, remember = true){
 
   mediaSwitch.querySelectorAll('[role="tab"]').forEach(tab=>{const selected=tab.dataset.mediaView===v;tab.setAttribute('aria-selected',String(selected));tab.tabIndex=selected?0:-1;});
   sectionNav.style.display=seriesSelection||["collections","collection","mood","oscar"].includes(v)?"":"none";
-  const sectionTabs=seriesSelection?[["series-collections","Коллекции"],["series-mood","Коллекция по настроению"],["series-calendar","Календарь"]]:collectionTabs;
+  const sectionTabs=seriesSelection?[["series-collections","Коллекции"],["series-mood","Коллекция по настроению"],["series-gold","Золотой фонд"],["series-calendar","Календарь"]]:collectionTabs;
   if(sectionNav.dataset.media!==(seriesSelection?"tv":"movie")) renderCollectionTabs(sectionTabs,seriesSelection?"tv":"movie");
   vc.style.display=v==="collections"?"":"none";
   vd.style.display=(v==="collection"&&vd.dataset.collectionMedia==="movie")||(v==="series-collection"&&vd.dataset.collectionMedia==="tv")?"":"none";
@@ -1998,6 +2005,7 @@ const refreshForNewKey=()=>{
   homeEditorial.loadedKey="";
   if(view==="mood"||view==="series-mood"){vm.dataset.key="";showView(view);}
   if(view==="oscar"){vo.dataset.key="";showView("oscar");}
+  if(view==="series-gold")window.KGSeriesGold.show();
   refreshDailyData(true,true);
 };
 $("tmdb-key-save").addEventListener("click",refreshForNewKey);

@@ -532,6 +532,7 @@ function showView(v, remember = true){
   if(view==="series-calendar"&&v!==view)window.KGSeriesCalendar.hide();
   const enterCalendar=v==="series-calendar"&&v!==view;
   const enterGold=v==="series-gold"&&v!==view;
+  if(view==="series-gold"&&v!==view)window.KGSeriesGold.hide();
   if (remember && v !== view) rememberView(v);
   if(v!==view) window.KGFilmCard.stopTrailers();
   if(v!==view&&["mood","series-mood"].includes(view)){

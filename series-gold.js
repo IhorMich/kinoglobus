@@ -19,7 +19,31 @@
   let root, snapshot, generation=0, era="all", genre="all", sort="rating", layout="list", shown=5, phase="", episodePhase="";
   const metadata=new Map();
   let minis=[];
-  let entries=[], episodes=[], episodeRequest=0;
+  let entries=[], episodes=[], episodeRequest=0, dailyTimer, displayedDay;
+
+  function localDay(date){
+    return Math.floor(Date.UTC(date.getFullYear(),date.getMonth(),date.getDate())/86400000);
+  }
+
+  function dailySeries(day){
+    if(!entries.length)return null;
+    const pool=[...entries].sort((a,b)=>a.id-b.id);
+    // Step through the full pool in a varied order before repeating any series.
+    const index=day*(pool.length===limit?73:1)%pool.length;
+    return pool[index];
+  }
+
+  function refreshDaily(){
+    clearTimeout(dailyTimer);
+    if(root.hidden)return;
+    const now=new Date();
+    if(entries.length&&displayedDay!==localDay(now)){
+      render();
+      updateVisibleDetails();
+    }
+    const midnight=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1);
+    dailyTimer=setTimeout(refreshDaily,midnight-now);
+  }
 
   async function loadRanking(){
     const params={sort_by:"vote_average.desc","vote_count.gte":minVotes,without_genres:"10763,10764,10767"};
@@ -98,10 +122,12 @@
   }
 
   function hero(show){
-    return `<article class="kg-gold-hero">
+    return `<section class="kg-gold-daily" aria-labelledby="kg-gold-daily-title">
+      <header><h2 id="kg-gold-daily-title">${label("Сериал дня")}</h2><span>${label("№ {rank} в топ-250",{rank:number(show._goldRank)})}</span></header>
+      <article class="kg-gold-hero">
       <div class="kg-gold-hero-art">
         <button type="button" data-gold-open="${show.id}" aria-label="${esc(show.title)}">${goldImage(art(show.backdrop_path,"w780"),art(show.poster_path,"w500"))}</button>
-        <span class="kg-gold-rank">#${show._goldRank}</span>${kgBookmarkButton(show)}
+        ${kgBookmarkButton(show)}
         <div class="kg-gold-score">★ ${score(show)} <small>${number(show.vote_count)} ${label("оценок TMDB")}</small></div>
       </div>
       <div class="kg-gold-hero-body">
@@ -112,7 +138,7 @@
         <div class="kg-gold-tags">${tags(show)}</div>
         <div class="kg-gold-actions">${watchedButton(show,true)}<button type="button" data-gold-open="${show.id}" data-gold-seasons>${icon("view_list")}${label("Сезоны и серии")}</button></div>
       </div>
-    </article>`;
+    </article></section>`;
   }
 
   function card(show){
@@ -144,11 +170,20 @@
   function render(){
     if(root.hidden)return;
     const rows=visible(), count=entries.filter(watched).length;
+    displayedDay=localDay(new Date());
+    const featured=dailySeries(displayedDay);
     const focus=root.contains(document.activeElement)?document.activeElement.dataset.goldFocus:null;
     const railPositions=new Map(Array.from(root.querySelectorAll("[data-gold-rail]"),rail=>[rail.dataset.goldRail,rail.scrollLeft]));
     root.innerHTML=`
-      <header class="kg-gold-heading"><h1>${label("Золотой фонд TV")}</h1><p>${label("250 лучших сериалов всех времён по рейтингу TMDB. В рейтинг входят сериалы с минимум 200 голосами.")}</p></header>
+      <header class="kg-gold-heading">
+        <img src="./assets/series-gold/gold-hero.webp" width="1376" height="768" alt="">
+        <div class="kg-gold-heading-copy">
+          <h1>${label("Золотой фонд TV")}</h1>
+          <p>${label("От классики до современных хитов. 250 лучших сериалов по рейтингу TMDB.")}</p>
+        </div>
+      </header>
       ${entries.length?progress(count):""}
+      ${featured?hero(featured):""}
       ${entries.length?`<div class="kg-gold-filters" data-gold-rail="eras" role="group" aria-label="${label("Эпохи")}">${eras.map(([id,title])=>{
         const total=entries.filter(show=>inEra(show,id)&&inGenre(show,genre)).length;
         return `<button type="button" data-gold-era="${id}" data-gold-focus="era-${id}" aria-pressed="${era===id}">${label(title)} (${number(total)})</button>`;
@@ -158,14 +193,14 @@
         return total||genre===String(id)?`<button type="button" data-gold-genre="${id}" data-gold-focus="genre-${id}" aria-pressed="${genre===String(id)}">${label(id==="all"?"Все жанры":genreLabel(id))} (${number(total)})</button>`:"";
       }).join("")}</div>
       <div class="kg-gold-toolbar">
-      <label>${icon("swap_vert")}<select data-gold-sort data-gold-focus="sort" aria-label="${label("Сортировка:")}">${[["rating","По рейтингу"],["votes","По числу голосов"],["new","Свежие"]].map(([id,title])=>`<option value="${id}" ${sort===id?"selected":""}>${label(title)}</option>`).join("")}</select></label>
+      <label class="kg-gold-sort">${icon("swap_vert")}<select data-gold-sort data-gold-focus="sort" aria-label="${label("Сортировка:")}">${[["rating","По рейтингу"],["votes","По числу голосов"],["new","Свежие"]].map(([id,title])=>`<option value="${id}" ${sort===id?"selected":""}>${label(title)}</option>`).join("")}</select><span class="kg-gold-sort-chevron" aria-hidden="true"></span></label>
       <div role="group" aria-label="${label("Вид списка")}">${[["list","view_list","Списком"],["grid","grid_view","Сеткой"]].map(([id,symbol,title])=>`<button type="button" data-gold-layout="${id}" data-gold-focus="layout-${id}" aria-pressed="${layout===id}" aria-label="${label(title)}">${icon(symbol)}</button>`).join("")}</div></div>`:""}
       ${phase?`<p class="kg-gold-muted" role="status">${label(phase==="loading"?"Загружаем сериалы…":phase==="key"?"Добавьте ключ TMDB, чтобы загрузить сериалы подборки.":"Не удалось загрузить сериалы. Попробуйте ещё раз.")}</p>`:""}
       ${phase==="error"?`<button type="button" class="kg-gold-button" data-gold-retry>${label("Повторить")}</button>`:""}
-      ${rows.length?hero(rows[0]):!phase?`<p class="kg-gold-muted">${label("Подходящих сериалов не нашлось.")}</p>`:""}
-      ${rows.length>1?`<section class="kg-gold-list"><header><h2>${label("Топ сериалов")}</h2><span>${number(rows.length)}</span></header>
-        <div class="kg-gold-cards ${layout==="grid"?"is-grid":""}">${rows.slice(1,shown+1).map(card).join("")}</div>
-        ${rows.length>shown+1?`<button type="button" class="kg-gold-button" data-gold-more data-gold-focus="more">${label("Показать ещё")}</button>`:""}</section>`:""}
+      ${!rows.length&&!phase?`<p class="kg-gold-muted">${label("Подходящих сериалов не нашлось.")}</p>`:""}
+      ${rows.length?`<section class="kg-gold-list"><header><h2>${label("Топ сериалов")}</h2><span>${number(rows.length)}</span></header>
+        <div class="kg-gold-cards ${layout==="grid"?"is-grid":""}">${rows.slice(0,shown).map(card).join("")}</div>
+        ${rows.length>shown?`<button type="button" class="kg-gold-button" data-gold-more data-gold-focus="more">${label("Показать ещё")}</button>`:""}</section>`:""}
       ${miniSeriesGroup()}
       ${era==="all"&&genre==="all"?episodeGroup("pilot","Величайшие пилоты")+episodeGroup("finale","Лучшие финалы"):""}
       ${entries.length&&era==="all"&&genre==="all"&&episodePhase==="loading"?`<p class="kg-gold-muted" role="status">${label("Загружаем эпизоды…")}</p>`:""}
@@ -187,7 +222,10 @@
 
   async function updateVisibleDetails(){
     const request=generation;
-    const rows=visible().slice(0,shown+1).filter(show=>!metadata.has(show.id));
+    const shownRows=visible().slice(0,shown);
+    const featured=dailySeries(displayedDay);
+    if(featured&&!shownRows.includes(featured))shownRows.push(featured);
+    const rows=shownRows.filter(show=>!metadata.has(show.id));
     for(let start=0;start<rows.length;start+=4){
       if(request!==generation||root.hidden)return;
       await Promise.all(rows.slice(start,start+4).map(loadDetails));
@@ -244,6 +282,7 @@
   }
 
   async function show(force=false){
+    refreshDaily();
     const key=`${apiKey}:${filmLocale}`;
     if(!apiKey){generation++;episodeRequest++;snapshot=null;entries=[];episodes=[];minis=[];phase="key";render();return;}
     if(!force&&snapshot?.key===key&&Date.now()-snapshot.time<ttl){render();updateVisibleDetails();return;}
@@ -267,6 +306,9 @@
 
   function mount(panel){
     root=panel;
+    document.addEventListener("visibilitychange",()=>{
+      if(document.visibilityState==="visible")refreshDaily();
+    });
     root.addEventListener("error",event=>{
       const image=event.target;
       if(!image.matches?.("img[data-gold-image]"))return;
@@ -301,5 +343,5 @@
     });
     document.addEventListener("kg:watched-change",()=>{if(!root.hidden&&entries.length)render();});
   }
-  window.KGSeriesGold={mount,show};
+  window.KGSeriesGold={mount,show,hide:()=>clearTimeout(dailyTimer)};
 })();

@@ -257,7 +257,12 @@
       window.KGReleaseSettings.open(item || draft,opener,!!item);
     } catch { message("Не удалось сохранить подписку",opener); }
   });
-  document.addEventListener("visibilitychange",()=>{if(!document.hidden)refresh();});
+  document.addEventListener("visibilitychange",()=>{
+    if (!document.hidden) {
+      alerts.synchronize(Object.values(subscriptions())).catch(()=>{});
+      refresh();
+    }
+  });
   document.addEventListener("DOMContentLoaded",()=>{
     alerts.synchronize(Object.values(subscriptions())).catch(()=>{});
     if (!document.hidden) refresh();

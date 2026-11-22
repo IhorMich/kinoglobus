@@ -139,7 +139,7 @@
     };
   }
 
-  async function exportCalendar(row, fullSeason, time, lead) {
+  async function exportCalendar(row, fullSeason, lead) {
     const {show,episode} = row;
     const listed = fullSeason ? await seasonFor(show,episode.season_number) : [];
     const today = key(new Date());
@@ -152,14 +152,17 @@
       id:`tv-${show.id}-${episode.season_number}-${item.episode_number}`,
       date:item.air_date, title:`${show.title} · S${episode.season_number}E${item.episode_number}`
     }));
-    return exportReminders(events,time,Number(lead));
+    return exportReminders(events,Number(lead));
   }
 
-  async function exportReminders(entries, time, lead) {
+  async function exportReminders(entries, lead) {
+    if (!entries.length) throw new Error('No release dates');
+    const time = window.KGReleaseAlerts.releaseTime;
+    const trigger = lead >= 1440 ? `-P${lead/1440}D` : lead ? `-PT${lead}M` : 'PT0M';
     const events = entries.flatMap(item => [
       'BEGIN:VEVENT', `UID:${calendarFile(item.id)}@moven`, `DTSTAMP:${stamp()}`,
       `DTSTART:${item.date.replace(/-/g,'')}T${time.replace(':','')}00`, `SUMMARY:${calendarFile(item.title)}`,
-      'BEGIN:VALARM', `TRIGGER:${lead ? '-PT'+lead+'M' : 'PT0M'}`,
+      'BEGIN:VALARM', `TRIGGER:${trigger}`,
       'ACTION:DISPLAY', `DESCRIPTION:${calendarFile(item.title)}`, 'END:VALARM', 'END:VEVENT'
     ]);
     const content = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Moven//Series Calendar//EN','CALSCALE:GREGORIAN',
@@ -186,10 +189,9 @@
         <label><input type="radio" name="scope" value="episode" checked>${label('Только этот эпизод')}</label>
         <label><input type="radio" name="scope" value="season">${label('Оставшиеся серии сезона')}</label>
       </div>
-      <label class="kg-cal-reminder-time">${label('Ваше местное время')} <input type="time" name="time" value="19:00" required></label>
       <fieldset><legend>${label('Когда уведомить')}</legend>
         <label><input type="radio" name="lead" value="15" checked>${label('За 15 минут')}</label>
-        <label><input type="radio" name="lead" value="0">${label('В выбранное время')}</label>
+        <label><input type="radio" name="lead" value="0">${label('{time} по времени телефона',{time:window.KGReleaseAlerts.releaseTime})}</label>
       </fieldset>
       <p class="kg-cal-status" role="status"></p>
       <button class="kg-cal-collapse" type="submit">${icon('calendar_month')}${label('Добавить в календарь')}</button>
@@ -204,7 +206,7 @@
       submit.disabled = true;
       dialog.querySelector('[role="status"]').textContent = '';
       try {
-        await exportCalendar(row,form.get('scope') === 'season',form.get('time'),form.get('lead'));
+        await exportCalendar(row,form.get('scope') === 'season',form.get('lead'));
         dialog.close();
       } catch {
         dialog.querySelector('[role="status"]').textContent = uiText('Не удалось экспортировать напоминание.');

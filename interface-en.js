@@ -1,6 +1,8 @@
 // English translations for the Moven interface.
 window.KGInterfaceDictionaries ??= {};
 window.KGInterfaceDictionaries.en = Object.freeze({
+  "{time} по времени телефона": "{time} in your device’s time zone",
+  "До времени напоминания в день релиза": "Before the release-day reminder",
   "Отслеживание релизов": "Release tracking",
   "О напоминаниях": "About reminders",
   "Вы следите за проектом": "You are following this title",

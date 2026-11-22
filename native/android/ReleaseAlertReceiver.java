@@ -14,6 +14,8 @@ import android.net.Uri;
 import android.os.Build;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import java.util.Calendar;
+import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -56,8 +58,29 @@ public class ReleaseAlertReceiver extends BroadcastReceiver {
                 if (event != null) alarm.cancel(pending(context, event.optString("id")));
             }
         }
-        storage(context).edit().putString("events", events.toString()).apply();
+        SharedPreferences preferences = storage(context);
+        SharedPreferences.Editor editor = preferences.edit().putString("events", events.toString());
+        long cutoff = System.currentTimeMillis() - 35L * 24 * 60 * 60 * 1000;
+        for (Map.Entry<String, ?> mark : preferences.getAll().entrySet()) {
+            if (mark.getKey().startsWith("delivered:") && mark.getValue() instanceof Long
+                    && (Long) mark.getValue() < cutoff) editor.remove(mark.getKey());
+        }
+        editor.apply();
         schedule(context, events);
+    }
+
+    private static long localWhen(JSONObject event) {
+        String date = event.optString("date");
+        if (!date.matches("\\d{4}-\\d{2}-\\d{2}")) return event.optLong("at");
+        String[] parts = date.split("-");
+        Calendar local = Calendar.getInstance();
+        local.clear();
+        local.set(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]) - 1,
+                Integer.parseInt(parts[2]), event.optInt("hour", 9), 0, 0);
+        int lead = event.optInt("lead");
+        local.add(Calendar.DATE, -(lead / 1440));
+        local.add(Calendar.MINUTE, -(lead % 1440));
+        return local.getTimeInMillis();
     }
 
     private static void schedule(Context context, JSONArray events) {
@@ -67,8 +90,9 @@ public class ReleaseAlertReceiver extends BroadcastReceiver {
             JSONObject event = events.optJSONObject(i);
             if (event == null) continue;
             String id = event.optString("id");
-            long at = event.optLong("at");
-            if (!id.isEmpty() && id.length() <= 150 && at > System.currentTimeMillis()) {
+            long at = localWhen(event);
+            if (!id.isEmpty() && id.length() <= 150 && at > System.currentTimeMillis()
+                    && !storage(context).contains("delivered:" + id)) {
                 PendingIntent action = pending(context, id);
                 if ((Build.VERSION.SDK_INT < 31 || alarm.canScheduleExactAlarms())) {
                     try {
@@ -105,8 +129,9 @@ public class ReleaseAlertReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
-            schedule(context, stored(context));
+        if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction()) ||
+                Intent.ACTION_TIMEZONE_CHANGED.equals(intent.getAction())) {
+            replace(context, stored(context));
             return;
         }
         if (!ACTION.equals(intent.getAction()) || intent.getData() == null) return;
@@ -115,7 +140,13 @@ public class ReleaseAlertReceiver extends BroadcastReceiver {
         for (int i = 0; i < events.length(); i++) {
             JSONObject event = events.optJSONObject(i);
             if (event != null && id.equals(event.optString("id"))) {
-                notify(context, id, event.optString("title"), event.optString("body"));
+                SharedPreferences preferences = storage(context);
+                String delivered = "delivered:" + id;
+                long now = System.currentTimeMillis();
+                if (localWhen(event) <= now && canNotify(context) && !preferences.contains(delivered)) {
+                    notify(context, id, event.optString("title"), event.optString("body"));
+                    preferences.edit().putLong(delivered, now).apply();
+                }
                 return;
             }
         }

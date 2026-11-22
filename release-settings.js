@@ -21,8 +21,8 @@
   const image = path => /^\/[\w.-]+$/.test(path || "") ? `https://image.tmdb.org/t/p/w342${path}` : "";
   const dateLabel = date => new Date(date+"T12:00:00").toLocaleDateString(interfaceLanguage,{dateStyle:"medium"});
   const when = [
-    ["В день релиза","В выбранное время"],
-    ["За 2 часа","До выбранного времени"],
+    ["В день релиза","{time} по времени телефона"],
+    ["За 2 часа","До времени напоминания в день релиза"],
     ["За 1 день","Накануне релиза"],
     ["За 1 неделю","Для планирования"]
   ];
@@ -45,7 +45,6 @@
     const date = item.kind === "series" ? events.map(e=>e.date).sort()[0] : item.date;
     const poster = image(item.poster);
     const avatarPath = document.querySelector("#kg-account-open img")?.getAttribute("src") || "assets/interface/index-01.jpg";
-    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const sub = [
       item.original && item.original!==item.title ? item.original : "",
       item.kind === "episode" ? item.episodeTitle || uiText("Эпизод {episode}",{episode:item.number})
@@ -90,10 +89,8 @@
         </section>
         <fieldset class="kg-rs-section" data-rs-reminders>
           <legend>${icon("clock")}${label("Когда напоминать")}</legend>
-          <div class="kg-rs-leads">${when.map(([title,hint],index)=>`<label><span><strong>${label(title)}</strong><small>${label(hint)}</small></span>
+          <div class="kg-rs-leads">${when.map(([title,hint],index)=>`<label><span><strong>${label(title)}</strong><small>${label(hint,{time:alerts.releaseTime})}</small></span>
             <input type="radio" name="lead" value="${alerts.leadOptions[index]}" ${preferences.lead===alerts.leadOptions[index]?"checked":""}></label>`).join("")}</div>
-          <label class="kg-rs-time"><span>${label("Ваше местное время")}<small>${esc(timezone)}</small></span>
-            <input type="time" name="time" value="${esc(preferences.time)}" required></label>
           ${!alerts.native() && events.length ? `<button type="button" class="kg-rs-secondary" data-rs-export>${icon("calendar")}${label("Экспортировать напоминание")}</button>` : ""}
         </fieldset>
         <section class="kg-rs-section">
@@ -116,7 +113,7 @@
     const submit = form.querySelector("[type=submit]");
     const read = () => ({
       releases:release.checked,trailers:form.elements.trailers.checked,includeCalendar:form.elements.calendar.checked,
-      lead:Number(form.elements.lead.value),time:form.elements.time.value
+      lead:Number(form.elements.lead.value)
     });
     const update = () => {
       form.querySelector("[data-rs-reminders]").disabled = !release.checked;
@@ -150,7 +147,7 @@
       if (action?.hasAttribute("data-rs-export")) {
         const options = read();
         try {
-          await window.KGSeriesCalendar.exportReminders(alerts.events({...item,settings:options}),options.time,options.lead);
+          await window.KGSeriesCalendar.exportReminders(alerts.events({...item,settings:options}),options.lead);
         } catch { status.textContent = uiText("Не удалось экспортировать напоминание."); }
       }
       if (action?.hasAttribute("data-rs-remove")) {
@@ -163,9 +160,7 @@
       if (submit.disabled) return;
       const options = read();
       if (!options.releases && !options.trailers) { status.textContent=uiText("Выберите, что отслеживать."); return; }
-      if (!alerts.leadOptions.includes(options.lead) || !alerts.timePattern.test(options.time)) {
-        status.textContent=uiText("Укажите время напоминания."); return;
-      }
+
       status.textContent = "";
       submit.disabled = true;
       try {

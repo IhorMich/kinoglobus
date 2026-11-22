@@ -4,6 +4,11 @@
   const label=(key,params)=>esc(uiText(key,params));
   const icon=name=>`<span class="material-symbols-outlined" aria-hidden="true">${name}</span>`;
   const art=(path,size)=>/^\/[\w.-]+$/.test(path||"")?`https://image.tmdb.org/t/p/${size}${path}`:"";
+  function goldImage(primary,fallback,lazy=false){
+    const source=primary||fallback;
+    const backup=primary&&fallback&&primary!==fallback?fallback:"";
+    return `<span class="kg-gold-image" aria-hidden="true">${icon("movie")}${source?`<img data-gold-image src="${esc(source)}" alt="" decoding="async"${lazy?' loading="lazy"':""}${backup?` data-gold-fallback="${esc(backup)}"`:""}>`:""}</span>`;
+  }
   const year=show=>Number(show.first_air_date?.slice(0,4))||0;
   const score=show=>Number(show.vote_average||0).toFixed(1);
   const number=value=>new Intl.NumberFormat(interfaceLanguage).format(value);
@@ -83,23 +88,19 @@
     const rows=minis.filter(show=>inEra(show,era)&&inGenre(show,genre));
     if(!rows.length)return "";
     return `<section class="kg-gold-episode-group kg-gold-mini-group"><header><h2>${label("Культовые мини-сериалы")}</h2><span>${number(rows.length)}</span></header>
-      <div class="kg-gold-episode-strip">${rows.map(show=>{
-        const cover=art(show.backdrop_path||show.poster_path,"w500");
-        return `<article class="kg-gold-mini">
+      <div class="kg-gold-episode-strip" data-gold-rail="minis">${rows.map(show=>`<article class="kg-gold-mini">
           <button type="button" class="kg-gold-mini-open" data-gold-open="${show.id}">
-            ${cover?`<img src="${cover}" alt="" loading="lazy">`:""}
+            ${goldImage(art(show.backdrop_path,"w780"),art(show.poster_path,"w342"))}
             <span class="kg-gold-mini-copy"><strong>${esc(show.title)}</strong><small>${detailsLine(show)}</small><span>★ ${score(show)}</span></span>
           </button>
           <div class="kg-gold-mini-actions">${watchedButton(show)}${kgBookmarkButton(show)}</div>
-        </article>`;
-      }).join("")}</div></section>`;
+        </article>`).join("")}</div></section>`;
   }
 
   function hero(show){
-    const backdrop=art(show.backdrop_path||show.poster_path,"w780");
     return `<article class="kg-gold-hero">
       <div class="kg-gold-hero-art">
-        <button type="button" data-gold-open="${show.id}" aria-label="${esc(show.title)}">${backdrop?`<img src="${backdrop}" alt="">`:""}</button>
+        <button type="button" data-gold-open="${show.id}" aria-label="${esc(show.title)}">${goldImage(art(show.backdrop_path,"w780"),art(show.poster_path,"w500"))}</button>
         <span class="kg-gold-rank">#${show._goldRank}</span>${kgBookmarkButton(show)}
         <div class="kg-gold-score">★ ${score(show)} <small>${number(show.vote_count)} ${label("оценок TMDB")}</small></div>
       </div>
@@ -115,10 +116,9 @@
   }
 
   function card(show){
-    const poster=art(show.poster_path||show.backdrop_path,"w185");
     return `<article class="kg-gold-card">
       <button type="button" class="kg-gold-card-open" data-gold-open="${show.id}">
-        <span class="kg-gold-poster">${poster?`<img src="${poster}" alt="" loading="lazy">`:""}<span class="kg-gold-rank">#${show._goldRank}</span></span>
+        <span class="kg-gold-poster">${goldImage(art(show.poster_path,"w185"),art(show.backdrop_path,"w300"),true)}<span class="kg-gold-rank">#${show._goldRank}</span></span>
         <span class="kg-gold-card-copy"><strong>${esc(show.title)}</strong><small>${detailsLine(show)}</small><span class="kg-gold-tags">${tags(show)}</span><span>★ ${score(show)} <small>· ${number(show.vote_count)} ${label("оценок TMDB")}</small></span></span>
       </button>
       ${watchedButton(show)}
@@ -128,11 +128,12 @@
   function episodeGroup(kind,title){
     const rows=episodes.filter(row=>row.kind===kind);
     if(!rows.length)return "";
-    return `<section class="kg-gold-episode-group"><h2>${label(title)}</h2><p class="kg-gold-muted">${label("Из сериалов Золотого фонда")}</p><div class="${kind==="pilot"?"kg-gold-episode-strip":"kg-gold-finale-list"}">
+    const isPilot=kind==="pilot";
+    return `<section class="kg-gold-episode-group"><h2>${label(title)}</h2><p class="kg-gold-muted">${label("Из сериалов Золотого фонда")}</p><div ${isPilot?'class="kg-gold-episode-strip" data-gold-rail="pilots"':'class="kg-gold-finale-list"'}>
       ${rows.map(row=>{
-        const {show,episode}=row,still=art(episode.still_path||show.backdrop_path,"w500");
+        const {show,episode}=row;
         return `<button type="button" class="kg-gold-episode" data-gold-episode="${row.key}">
-          ${kind==="pilot"&&still?`<img src="${still}" alt="" loading="lazy">`:""}
+          ${isPilot?goldImage(art(episode.still_path,"w300"),art(show.backdrop_path,"w300")||art(show.poster_path,"w342")):""}
           <span><strong>${esc(episode.name||show.title)}</strong><small>${esc(show.title)} · S${episode.season_number}E${episode.episode_number}</small></span>
           <b>★ ${score(episode)}</b>
         </button>`;
@@ -144,14 +145,15 @@
     if(root.hidden)return;
     const rows=visible(), count=entries.filter(watched).length;
     const focus=root.contains(document.activeElement)?document.activeElement.dataset.goldFocus:null;
+    const railPositions=new Map(Array.from(root.querySelectorAll("[data-gold-rail]"),rail=>[rail.dataset.goldRail,rail.scrollLeft]));
     root.innerHTML=`
       <header class="kg-gold-heading"><h1>${label("Золотой фонд TV")}</h1><p>${label("250 лучших сериалов всех времён по рейтингу TMDB. В рейтинг входят сериалы с минимум 200 голосами.")}</p></header>
       ${entries.length?progress(count):""}
-      ${entries.length?`<div class="kg-gold-filters" role="group" aria-label="${label("Эпохи")}">${eras.map(([id,title])=>{
+      ${entries.length?`<div class="kg-gold-filters" data-gold-rail="eras" role="group" aria-label="${label("Эпохи")}">${eras.map(([id,title])=>{
         const total=entries.filter(show=>inEra(show,id)&&inGenre(show,genre)).length;
         return `<button type="button" data-gold-era="${id}" data-gold-focus="era-${id}" aria-pressed="${era===id}">${label(title)} (${number(total)})</button>`;
       }).join("")}</div>
-      <div class="kg-gold-filters kg-gold-genres" role="group" aria-label="${label("Жанры")}">${["all",...genreOrder].map(id=>{
+      <div class="kg-gold-filters kg-gold-genres" data-gold-rail="genres" role="group" aria-label="${label("Жанры")}">${["all",...genreOrder].map(id=>{
         const total=entries.filter(show=>inEra(show,era)&&inGenre(show,String(id))).length;
         return total||genre===String(id)?`<button type="button" data-gold-genre="${id}" data-gold-focus="genre-${id}" aria-pressed="${genre===String(id)}">${label(id==="all"?"Все жанры":genreLabel(id))} (${number(total)})</button>`:"";
       }).join("")}</div>
@@ -161,13 +163,14 @@
       ${phase?`<p class="kg-gold-muted" role="status">${label(phase==="loading"?"Загружаем сериалы…":phase==="key"?"Добавьте ключ TMDB, чтобы загрузить сериалы подборки.":"Не удалось загрузить сериалы. Попробуйте ещё раз.")}</p>`:""}
       ${phase==="error"?`<button type="button" class="kg-gold-button" data-gold-retry>${label("Повторить")}</button>`:""}
       ${rows.length?hero(rows[0]):!phase?`<p class="kg-gold-muted">${label("Подходящих сериалов не нашлось.")}</p>`:""}
-      ${rows.length>1?`<section class="kg-gold-list"><header><h2>${label("Элита телеэкрана")}</h2><span>${number(rows.length)}</span></header>
+      ${rows.length>1?`<section class="kg-gold-list"><header><h2>${label("Топ сериалов")}</h2><span>${number(rows.length)}</span></header>
         <div class="kg-gold-cards ${layout==="grid"?"is-grid":""}">${rows.slice(1,shown+1).map(card).join("")}</div>
         ${rows.length>shown+1?`<button type="button" class="kg-gold-button" data-gold-more data-gold-focus="more">${label("Показать ещё")}</button>`:""}</section>`:""}
       ${miniSeriesGroup()}
       ${era==="all"&&genre==="all"?episodeGroup("pilot","Величайшие пилоты")+episodeGroup("finale","Лучшие финалы"):""}
       ${entries.length&&era==="all"&&genre==="all"&&episodePhase==="loading"?`<p class="kg-gold-muted" role="status">${label("Загружаем эпизоды…")}</p>`:""}
       ${entries.length?`<footer class="kg-gold-footer">${label("Рейтинг, постеры и сведения об эпизодах предоставлены TMDB.")}</footer>`:""}`;
+    for(const rail of root.querySelectorAll("[data-gold-rail]"))rail.scrollLeft=railPositions.get(rail.dataset.goldRail)??0;
     if(focus)root.querySelector(`[data-gold-focus="${focus}"]`)?.focus({preventScroll:true});
   }
 
@@ -264,6 +267,17 @@
 
   function mount(panel){
     root=panel;
+    root.addEventListener("error",event=>{
+      const image=event.target;
+      if(!image.matches?.("img[data-gold-image]"))return;
+      const fallback=image.dataset.goldFallback;
+      if(fallback){
+        delete image.dataset.goldFallback;
+        image.src=fallback;
+      }else{
+        image.hidden=true;
+      }
+    },true);
     root.addEventListener("change",event=>{
       if(event.target.matches("[data-gold-sort]")){sort=event.target.value;shown=5;render();updateVisibleDetails();}
     });

@@ -20,7 +20,7 @@ window.KGInterfaceDictionaries.en = Object.freeze({
   "Отметить просмотренным": "Mark as watched",
   "Убрать отметку о просмотре": "Remove watched status",
   "оценок TMDB": "TMDB votes",
-  "Элита телеэкрана": "TV greats",
+  "Топ сериалов": "Top TV Shows",
   "Величайшие пилоты": "Standout pilots",
   "Лучшие финалы": "Standout finales",
   "Рейтинг, постеры и сведения об эпизодах предоставлены TMDB.": "Ratings, posters, and episode details are provided by TMDB.",

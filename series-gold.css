@@ -1,8 +1,9 @@
 .kg-gold {
-  display: grid; gap: 16px; width: min(100%, 760px); margin-inline: auto;
+  display: grid; grid-template-columns: minmax(0,1fr); gap: 16px; min-width: 0; width: min(100%, 760px); margin-inline: auto;
   padding: 12px 16px 32px; font: 14px var(--kg-font-interface); color: rgb(var(--kg-on-surface));
 }
 .kg-gold[hidden] { display: none; }
+.kg-gold > *, .kg-gold-episode-group { min-inline-size: 0; }
 .kg-gold h1, .kg-gold h2, .kg-gold p { margin: 0; }
 .kg-gold h1, .kg-gold h2, .kg-gold-title { font-family: var(--kg-font-heading); }
 .kg-gold h1 { font-size: 29px; }
@@ -19,7 +20,8 @@
   display: flex; gap: 8px; flex-wrap: wrap; align-items: center; justify-content: space-between;
 }
 .kg-gold-progress progress { width: 100%; height: 7px; accent-color: rgb(var(--kg-primary-container)); margin-top: 8px; }
-.kg-gold-filters, .kg-gold-episode-strip { display: flex; gap: 6px; overflow-x: auto; padding: 2px 1px 4px; }
+.kg-gold-filters, .kg-gold-episode-strip { display: flex; gap: 6px; min-inline-size: 0; max-inline-size: 100%;
+  overflow-x: auto; overflow-y: hidden; overscroll-behavior-inline: contain; padding: 2px 1px 4px; }
 .kg-gold-filters button, .kg-gold-toolbar button, .kg-gold-toolbar label, .kg-gold-button, .kg-gold-actions button,
 .kg-gold [data-gold-watch] {
   min-height: 40px; padding: 6px 10px; border-radius: 999px; background: rgb(var(--kg-surface-container-high));
@@ -34,7 +36,14 @@
 .kg-gold .material-symbols-outlined { font-size: 18px; }
 .kg-gold-hero-art { position: relative; min-height: 190px; color: rgb(var(--kg-white)); }
 .kg-gold-hero-art > button:first-child { display: block; width: 100%; }
-.kg-gold-hero-art img { width: 100%; height: clamp(210px, 56vw, 370px); object-fit: cover; }
+.kg-gold-image {
+  position: relative; display: grid; place-items: center; width: 100%; overflow: hidden;
+  background: rgb(var(--kg-surface-container-high)); color: rgb(var(--kg-on-surface-variant));
+}
+.kg-gold-image img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.kg-gold-image img[hidden] { display: none; }
+.kg-gold-image > .material-symbols-outlined { font-size: 28px; }
+.kg-gold-hero-art .kg-gold-image { height: clamp(210px, 56vw, 370px); }
 .kg-gold-hero-art::after { content: ""; position: absolute; inset: 40% 0 0; background: linear-gradient(transparent,rgb(var(--kg-black) / .80)); pointer-events: none; }
 .kg-gold-hero-art > .kg-bookmark-button { position: absolute; top: 10px; right: 10px; z-index: 1; }
 .kg-gold-rank, .kg-gold-score { position: absolute; z-index: 1; left: 8px; padding: 3px 7px; border-radius: 7px; color: rgb(var(--kg-white)); background: rgb(var(--kg-black) / .70); }
@@ -50,7 +59,7 @@
 .kg-gold-card { position: relative; }
 .kg-gold-card-open { display: flex; gap: 10px; align-items: center; width: 100%; text-align: start; padding: 8px 49px 8px 8px; }
 .kg-gold-poster { position: relative; width: 78px; aspect-ratio: 2/3; flex: none; overflow: hidden; border-radius: 7px; background: rgb(var(--kg-surface-container-high)); }
-.kg-gold-poster img, .kg-gold-episode img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.kg-gold-poster .kg-gold-image { height: 100%; }
 .kg-gold-card-copy { display: grid; gap: 4px; min-width: 0; overflow-wrap: anywhere; }
 .kg-gold-card > button[data-gold-watch] { position: absolute; right: 7px; bottom: 7px; min-width: 36px; min-height: 36px; }
 .kg-gold-cards.is-grid { grid-template-columns: repeat(auto-fit,minmax(100px,1fr)); }
@@ -59,9 +68,9 @@
 .kg-gold-episode-group h2 { margin-bottom: 3px; }
 .kg-gold-episode-group p { margin-bottom: 6px; }
 .kg-gold-episode { width: 100%; display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 8px; align-items: center; text-align: start; padding: 8px; }
-.kg-gold-episode span { display: grid; gap: 3px; }
+.kg-gold-episode > span:not(.kg-gold-image) { display: grid; gap: 3px; }
 .kg-gold-episode-strip .kg-gold-episode { width: min(210px,70vw); flex: none; }
-.kg-gold-episode-strip img { grid-column: 1 / -1; height: 112px; border-radius: 8px; }
+.kg-gold-episode-strip .kg-gold-episode .kg-gold-image { grid-column: 1 / -1; height: 112px; border-radius: 8px; }
 .kg-gold-footer { font-size: 12px; line-height: 1.5; text-align: center; }
 
 .kg-gold-genres { margin-top: -9px; }
@@ -72,7 +81,7 @@
 .kg-gold-mini-group header { display: flex; align-items: baseline; justify-content: space-between; }
 .kg-gold-mini { position: relative; overflow: hidden; width: min(246px,76vw); flex: none; border-radius: 14px; background: rgb(var(--kg-surface-panel)); }
 .kg-gold-mini-open { width: 100%; text-align: start; }
-.kg-gold-mini-open img { width: 100%; aspect-ratio: 16/9; object-fit: cover; }
+.kg-gold-mini-open .kg-gold-image { aspect-ratio: 16/9; }
 .kg-gold-mini-copy { display: grid; gap: 4px; padding: 10px 10px 46px; }
 .kg-gold-mini-actions { position: absolute; right: 8px; bottom: 8px; display: flex; align-items: center; gap: 6px; }
 .kg-gold-mini-actions [data-gold-watch], .kg-gold-mini-actions .kg-bookmark-button { width: 36px; min-width: 36px; height: 36px; min-height: 36px; padding: 0; }

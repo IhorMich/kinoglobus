@@ -352,6 +352,11 @@ mediaSwitch.addEventListener("keydown",event=>{
   showView(tabs[next].dataset.mediaView);tabs[next].focus();
 });
 
+const seriesCalendar=document.createElement("section");
+seriesCalendar.className="kg-cal";seriesCalendar.hidden=true;
+seriesPage.after(seriesCalendar);
+window.KGSeriesCalendar.mount(seriesCalendar,()=>showView("series"));
+
 const vc=document.createElement("div");vc.id="view-collections";
 vc.className="flex flex-col w-full px-gutter-mobile gap-space-lg select-none";vc.style.display="none";
 const vd=document.createElement("div");vd.id="view-collection";
@@ -449,7 +454,7 @@ function rememberView(destination, collectionId = null) {
   // Top-level tabs replace the navigation trail rather than extending it.
   if (destination !== "collection") {
     previousViews.length = 0;
-    if (destination !== "home") previousViews.push({view:"home", collectionId:null});
+    if (destination !== "home") previousViews.push({view:destination==="series-calendar"?"series":"home", collectionId:null});
     return;
   }
   const previous = previousViews.at(-1);
@@ -458,7 +463,9 @@ function rememberView(destination, collectionId = null) {
 }
 
 function showView(v, remember = true){
-  if(!window.KGSeries.setMode(v==="series"))return;
+  if(!window.KGSeries.setMode(v==="series"||v==="series-calendar"))return;
+  if(view==="series-calendar"&&v!==view)window.KGSeriesCalendar.hide();
+  const enterCalendar=v==="series-calendar"&&v!==view;
   if (remember && v !== view) rememberView(v);
   if(v!==view) window.KGFilmCard.stopTrailers();
   if(v!=="mood"&&window.KGMoodPage)window.KGMoodPage.stop(vm);
@@ -469,6 +476,8 @@ function showView(v, remember = true){
   if(D.selected) closeInlineFilm(D.selected,false);
   home.style.display=v==="home"?"":"none";
   seriesPage.hidden=v!=="series";
+  seriesCalendar.hidden=v!=="series-calendar";
+  if(enterCalendar)window.KGSeriesCalendar.show();
   mediaSwitch.hidden=!["home","series"].includes(v);
   const headerActions=mediaSwitch.parentElement;
   const settings=headerActions.querySelector('[data-path="nastrojki"]');
@@ -488,7 +497,7 @@ function showView(v, remember = true){
   vd.style.display=v==="collection"?"":"none";
   vm.style.display=v==="mood"?"":"none";
   vo.style.display=v==="oscar"?"":"none";
-  const act=v==="series"?"home":["collection","mood","oscar"].includes(v)?"collections":v;
+  const act=v==="series"?"home":["collection","mood","oscar","series-calendar"].includes(v)?"collections":v;
   paintBottomNav(nav, act);
   const section=v==="collection"?"collections":v;
   sectionNav.querySelectorAll("[data-collection-route]").forEach(button=>{
@@ -509,6 +518,8 @@ nav.addEventListener("click",e=>{
   const a=e.target.closest("[data-view]");if(!a)return;e.preventDefault();
   if(a.dataset.view==="journey"){$("mapBtn").click();return;}
   if(a.dataset.view==="history"){window.KGOpenWatchHistory();return;}
+  if(a.dataset.view==="home"&&view==="series-calendar"){showView("series");return;}
+  if(a.dataset.view==="collections"&&window.KGSeries.active){showView("series-calendar");return;}
   showView(a.dataset.view);
 });
 sectionNav.addEventListener("click",e=>{

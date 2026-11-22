@@ -97,5 +97,5 @@
   const originalBookmark=window.kgIsBookmarked,originalToggleBookmark=window.kgToggleBookmark;
   window.kgIsBookmarked=id=>isSeriesId(id)?isBookmarked(id):originalBookmark(id);
   window.kgToggleBookmark=(id,film)=>isSeriesId(id)?toggleRecord('bookmarks',id,film):originalToggleBookmark(id,film);
-  window.KGSeries={get active(){return active;},genreLabels,isSeriesId,rawId,normalize,route,normalizeResponse,query,discover,mount,setMode,isWatched,storageKey:key=>active && filterKeys.has(key)?'series.'+key:key};
+  window.KGSeries={get active(){return active;},genreLabels,isSeriesId,rawId,normalize,route,normalizeResponse,query,discover,mount,setMode,isWatched,bookmarkIds:()=>Object.keys(records("bookmarks")).map(Number).filter(isSeriesId),storageKey:key=>active && filterKeys.has(key)?'series.'+key:key};
 })();

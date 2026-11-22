@@ -1987,10 +1987,19 @@ const tvThemes=[
   ["auhorror", "Австралийские детективы", "80|9648", "noir"],
   ["gbdrama", "Британские драмы", "18"],
   ["jpcrime", "Японские криминальные сериалы", "80|9648"],
-  ["frcom", "Французские комедии", "35"]
+  ["frcom", "Французские комедии", "35"],
+  ["tr", "Турецкие мелодрамы", "10766", "drama", {id:"tv-tr-soap"}],
+  ["gbdet", "Канадские детективы", "80|9648", "noir", {id:"tv-ca-mystery",cc:["CA"],cover:""}],
+  ["brazil", "Бразильские криминальные сериалы", "80|9648", "noir"],
+  ["thhorror", "Тайские драмы", "18", "drama", {id:"tv-th-drama",cover:""}],
+  ["inromance", "Индийские драмы", "18", "drama"],
+  ["jpauteur", "Японские драмы", "18"],
+  ["esdrama", "Испанские криминальные сериалы", "80|9648", "noir", {id:"tv-es-crime"}],
+  ["auhorror", "Австралийские драмы", "18", "drama", {id:"tv-au-drama",cover:""}],
+  ["usanimation", "Американская анимация", "16"]
 ].map(([source,name,g,category,options])=>{
   const original=T[source];
-  return {id:`tv-${source}`,name,g,cc:original.cc,region:where(original),category:CAT[category||cat(original)][0],series:true,cover:getThemeCover(source),...options};
+  return {id:`tv-${source}`,name,g,cc:original.cc,region:options?.cc?.map(cname).join(", ")||where(original),category:CAT[category||cat(original)][0],series:true,cover:getThemeCover(source),...options};
 });
 let tvCountry="",tvQuery="",tvLayout="list",tvCatalogSort="rating";
 const tvMetadata=new Map();

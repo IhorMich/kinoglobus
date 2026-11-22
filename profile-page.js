@@ -1,377 +1,277 @@
-/* Profile view for the local Moven demo session. */
+/* Profile dashboard in the local Moven session. */
 (() => {
   let profile = null;
-  const artwork = [
-    "assets/interface/profile-page-01.jpg",
-    "assets/interface/profile-page-02.jpg",
-    "assets/interface/profile-page-03.jpg",
-    "assets/interface/profile-page-04.jpg",
-    "assets/interface/profile-page-05.jpg",
-    "assets/interface/profile-page-06.jpg",
-    "assets/interface/profile-page-07.jpg",
-    "assets/interface/profile-page-08.jpg",
-    "assets/interface/profile-page-09.jpg",
-    "assets/interface/profile-page-10.jpg",
-    "assets/interface/profile-page-11.jpg"
+  const avatarDefault = "assets/interface/profile-page-01.jpg";
+  const esc = value => String(value ?? "").replace(/[&<>"']/g, ch =>
+    ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[ch]);
+  const label = (key,params) => esc(uiText(key,params));
+  const paths = {
+    search:"m21 21-5-5m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z",
+    person:"M20 21H4a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4ZM16 9a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z",
+    settings:"M12 8a4 4 0 1 1 0 8 4 4 0 0 1 0-8Zm2-5 1 3 3-1 2 2-1 3 3 1v2l-3 1 1 3-2 2-3-1-1 3h-2l-1-3-3 1-2-2 1-3-3-1v-2l3-1-1-3 2-2 3 1 1-3Z",
+    favorite:"M20.8 4.6a5.5 5.5 0 0 0-7.8 0l-1 1-1-1a5.5 5.5 0 0 0-7.8 7.8l8.8 8.8 8.8-8.8a5.5 5.5 0 0 0 0-7.8Z",
+    bookmark:"M6 3h12v19l-6-4-6 4V3Z", diary:"M4 3h15v18H4zm4 0v18m-6-14h4m-4 5h4m-4 5h4",
+    notes:"M4 4h16v12H9l-5 4zm4 8 1-3 5-4 2 2-5 4-3 1Z",
+    calendar:"M8 3v4m8-4v4M4 10h16M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z",
+    stats:"m3 18 6-7 4 4 7-9M3 18h.01M9 11h.01M13 15h.01M20 6h.01",
+    bell:"M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9m-8 12a2 2 0 0 0 4 0",
+    tv:"M3 5h18v13H3zm5 16h8", movie:"M3 5h18v15H3zM3 9h18m-13-4 3 4m5-4 3 4",
+    chevron:"m9 18 6-6-6-6", back:"M20 12H4m7-7-7 7 7 7",
+    logout:"M12 4H5v16h7m2-8h8m-3-3 3 3-3 3", star:"m12 3 2.7 5.7 6.3.9-4.5 4.4 1 6.2-5.5-3-5.5 3 1-6.2L3 9.6l6.3-.9Z"
+  };
+  const icon = name => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${paths[name]}"/></svg>`;
+  const title = item => item.title || item.original || uiText("Без названия");
+  const number = value => new Intl.NumberFormat(interfaceLanguage,{maximumFractionDigits:1}).format(value);
+  const fromDate = value => new Date(value+"T12:00:00");
+  const localDay = d => [d.getFullYear(),d.getMonth()+1,d.getDate()].map(v=>String(v).padStart(2,"0")).join("-");
+  const formatDay = (date,options) => date.toLocaleDateString(interfaceLanguage,options);
+  const quick = [
+    ["favorites","favorite","Любимые","Любимые фильмы и сериалы"],
+    ["bookmarks","bookmark","Закладки","Буду смотреть"],
+    ["diary","diary","Кинодневник","История"],
+    ["notes","notes","Рецензии","Мои записи"],
+    ["calendar","calendar","Мой календарь","Расписание релизов"],
+    ["stats","stats","Статистика","Вкусы и просмотры"]
   ];
-  const icon = name => `<span class="material-symbols-outlined" aria-hidden="true">${name}</span>`;
-  const still = (index, className = "") => `<img class="${className}" src="${artwork[index]}" alt="" loading="lazy" decoding="async">`;
-  const sampleFilms = [
-    ["Чунцинский экспресс", "1994", 1, "2.39:1"],
-    ["Апокалипсис сегодня", "1979", 2, "2.35:1"],
-    ["Падшие ангелы", "1995", 4, "1.85:1"],
-    ["Любовное настроение", "2000", 3, "1.66:1"]
+  const footer = [
+    ["home","movie","Главная"],["series","tv","Сериалы"],["calendar","calendar","Календарь"],["profile","person","Моё"]
   ];
-  const sampleCollections = [
-    ["folder_special", "Ночной Гонконг 90-х", [4, 5, 3, 6], "8 фильмов", "Создана 2 недели назад", 34, 210],
-    ["workspace_premium", "Золотая пальмовая ветвь 1970–1999", [7, 8, 2, 9], "24 фильма", "Создана месяц назад", 118, 890]
-  ];
-  const badges = [
-    ["filter_vintage", "Плёночный алхимик", "50+ фильмов на 35mm"],
-    ["military_tech", "Каннский марафонец", "Все лауреаты 90-х"],
-    ["bedtime", "Полуночный зритель", "Сеансы после 02:00"]
-  ];
-
-  const styles = document.createElement("style");
-  styles.textContent = `
-    #kg-profile {
-      position:fixed;inset:0;margin:0 auto;width:100%;max-width:none;
-      height:100dvh;max-height:100dvh;padding:0;border:0;overflow:hidden;
-      background:rgb(var(--kg-neutral-35));color:rgb(var(--kg-neutral-127));font:14px/1.45 var(--kg-font-interface);color-scheme:dark;
-      --profile-gold:rgb(var(--kg-primary-fixed-dim));--profile-muted:rgb(var(--kg-warm-text-19));--profile-card:rgb(var(--kg-neutral-70));--profile-tile:rgb(var(--kg-neutral-86));
-    }
-    #kg-profile::backdrop {background:rgb(var(--kg-neutral-17)/0.93725)}
-    #kg-profile [hidden] {display:none}
-    .kg-profile-shell {display:flex;flex-direction:column;height:100%}
-    .kg-profile-header {display:flex;align-items:center;gap:8px;background:rgb(var(--kg-neutral-35));flex:none}
-    .kg-profile-header {padding:env(safe-area-inset-top,0px) 4% 0;min-height:calc(62px + env(safe-area-inset-top,0px))}
-    .kg-profile-brand {flex:1;color:var(--profile-gold);font-size:21px;font-weight:600;line-height:1.1}
-    .kg-profile-brand small {display:block;color:var(--profile-muted);font-size:9px;letter-spacing:.12em;text-transform:uppercase}
-    .kg-profile-header button {min-width:32px;min-height:44px;color:var(--profile-muted)}
-    .kg-profile-header img {width:32px;height:32px;border:1px solid rgb(var(--kg-accent-muted));border-radius:50%;object-fit:cover}
-    .kg-profile-scroll {flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;padding:8px 5% 36px}
-    .kg-profile-scroll > section {margin-bottom:24px}
-    .kg-profile-card {background:var(--profile-card);border-radius:14px;padding:14px}
-    .kg-profile-hero {background:radial-gradient(ellipse at top right,rgb(var(--kg-warm-surface-26)/0.6),transparent 74%),linear-gradient(rgb(var(--kg-neutral-82)),rgb(var(--kg-neutral-62)))}
-    .kg-profile-identity,.kg-profile-line {display:flex;align-items:center;gap:10px}
-    .kg-profile-line.between {justify-content:space-between}
-    .kg-profile-avatar {position:relative;width:clamp(58px,19vw,86px);aspect-ratio:1;flex:none}
-    .kg-profile-avatar img {width:100%;height:100%;object-fit:cover;border-radius:50%;border:2px solid rgb(var(--kg-accent-strong));background:rgb(var(--kg-neutral-92))}
-    .kg-profile-avatar span {position:absolute;bottom:-2px;left:50%;transform:translateX(-50%);border-radius:99px;padding:1px 7px;background:var(--profile-gold);color:rgb(var(--kg-warm-surface-06));font-size:10px;font-weight:700}
-    .kg-profile-identity h1 {font-size:clamp(18px,5.3vw,25px);font-weight:600;line-height:1.2;overflow-wrap:anywhere}
-    .kg-profile-handle {color:var(--profile-gold);font-size:12px;overflow-wrap:anywhere;margin-top:4px}
-    .kg-profile-pills {display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
-    .kg-profile-pill {padding:3px 8px;border-radius:99px;background:rgb(var(--kg-neutral-94));color:var(--profile-muted);font-size:11px}
-    .kg-profile-copy {color:var(--profile-muted);font-size:13px;line-height:1.6;margin-top:12px;overflow-wrap:anywhere}
-    .kg-profile-actions {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:14px}
-    .kg-profile-button {display:flex;align-items:center;justify-content:center;gap:5px;padding:7px;min-height:40px;border-radius:9px;background:rgb(var(--kg-neutral-94));font-size:12px;font-weight:700}
-    .kg-profile-button.gold,.kg-profile-tabs button[aria-pressed="true"] {background:var(--profile-gold);color:rgb(var(--kg-warm-surface-05))}
-    #kg-profile button:focus-visible,#kg-profile a:focus-visible {outline:2px solid var(--profile-gold);outline-offset:2px}
-    #kg-profile .material-symbols-outlined {font-size:18px}
-    .kg-profile-status {color:var(--profile-gold);text-align:center;margin-bottom:10px}
-    .kg-profile-status:empty {display:none}
-    .kg-profile-head {display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
-    .kg-profile-head h2 {font-size:17px;font-weight:700}
-    .kg-profile-head small,.kg-profile-meta {color:var(--profile-muted);font-size:11px}
-    .kg-profile-archive h2 {font-size:11px;letter-spacing:.055em;text-transform:uppercase;color:var(--profile-muted)}
-    .kg-profile-grid {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
-    .kg-profile-stat {display:grid;place-items:center;text-align:center;padding:10px 2px;border-radius:12px;background:var(--profile-card);font-size:11px;color:var(--profile-muted)}
-    .kg-profile-stat strong {font-size:21px;color:var(--profile-gold)}
-    .kg-profile-stat:nth-child(3) strong {color:rgb(var(--kg-cool-highlight-01))}
-    .kg-profile-spotlight {margin-top:10px;background:var(--profile-tile)}
-    .kg-profile-spotlight strong {display:block;font-size:16px}
-    .kg-profile-gold {color:var(--profile-gold)}
-    .kg-profile-frame {position:relative;display:block;aspect-ratio:2/3;background:rgb(var(--kg-neutral-94));border-radius:7px;overflow:hidden}
-    .kg-profile-frame img {width:100%;height:100%;object-fit:cover}
-    .kg-profile-frame small {position:absolute;bottom:3px;right:4px;background:rgb(var(--kg-neutral-35)/0.90196);padding:0 4px;border-radius:3px;color:var(--profile-gold);font-size:9px}
-    .kg-profile-film strong {display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;margin-top:5px}
-    .kg-profile-tabs {display:flex;gap:8px;overflow:auto;margin-bottom:18px;padding:2px}
-    .kg-profile-tabs button {white-space:nowrap;border-radius:99px;background:var(--profile-tile);padding:8px 12px;font-size:12px}
-    .kg-profile-collection + .kg-profile-collection {margin-top:10px}
-    .kg-profile-collection h3 {font-weight:700;font-size:15px}
-    .kg-profile-collection .kg-profile-grid {margin:10px 0}
-    .kg-profile-badges {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;text-align:center}
-    .kg-profile-badges .kg-profile-card {padding:10px 5px}
-    .kg-profile-badges strong {display:block;font-size:11px;margin:6px 0 2px}
-    .kg-profile-badge-icon {display:inline-grid;place-items:center;width:42px;height:42px;border-radius:50%;background:rgb(var(--kg-white)/0.04706);color:var(--profile-gold)}
-    .kg-profile-activity img {width:58px;aspect-ratio:2/3;object-fit:cover;border-radius:7px}
-    .kg-profile-activity blockquote {margin-top:12px;background:rgb(var(--kg-neutral-52));padding:10px;border-radius:8px;font-style:italic;color:var(--profile-muted)}
-    .kg-profile-club {background:linear-gradient(120deg,rgb(var(--kg-on-primary-fixed-variant)),rgb(var(--kg-neutral-85)) 58%,rgb(var(--kg-warm-surface-19)))}
-    .kg-profile-club h2 {font-size:17px;font-weight:700;color:var(--profile-gold)}
-  `;
-  document.head.appendChild(styles);
 
   const dialog = document.createElement("dialog");
   dialog.id = "kg-profile";
-  dialog.setAttribute("aria-labelledby", "kg-profile-title");
-  dialog.innerHTML = `
-    <div class="kg-profile-shell">
-      <header class="kg-profile-header">
-        <button type="button" data-profile-back aria-label="Назад" autofocus>${icon("arrow_back_ios_new")}</button>
-        <div class="kg-profile-brand"><img class="kg-brand-mark" src="assets/branding/moven-icon-192.png" width="24" height="24" alt=""> Moven<small>Личный кабинет</small></div>
-        <button type="button" data-profile-action="search" aria-label="Поиск">${icon("search")}</button>
-        <button type="button" data-profile-logout aria-label="Выйти">${icon("logout")}</button>
-        ${still(0)}
-      </header>
-      <div class="kg-profile-scroll">
-        <p class="kg-profile-status" role="status"></p>
-        <section class="kg-profile-card kg-profile-hero">
-          <div class="kg-profile-identity">
-            <div class="kg-profile-avatar">${still(0)}<span>35mm</span></div>
-            <div>
-              <h1 id="kg-profile-title"></h1>
-              <p class="kg-profile-handle" data-profile-handle></p>
-              <div class="kg-profile-pills"><span class="kg-profile-pill">Демо-профиль</span><span class="kg-profile-pill" data-profile-club-badge>Moven Club</span><span data-profile-badges class="contents"></span></div>
-            </div>
-          </div>
-          <p class="kg-profile-copy" data-profile-bio></p>
-          <p class="kg-profile-meta" data-profile-city hidden></p>
-          <div class="kg-profile-actions">
-            <button type="button" class="kg-profile-button gold" data-profile-edit>${icon("edit_note")}<span>Редактировать</span></button>
-            <button type="button" class="kg-profile-button" data-profile-share>${icon("share")}<span>Поделиться</span></button>
-          </div>
-          <div class="kg-profile-actions"><button type="button" class="kg-profile-button" data-profile-diary>${icon("history_edu")}<span>Кинодневник</span></button><button type="button" class="kg-profile-button" data-profile-diary="bookmarks">${icon("bookmark")}<span>Закладки</span></button><button type="button" class="kg-profile-button" data-profile-favorites aria-label="${uiText('Любимые')}">${window.KGFavorites.icon()}<span>Любимые</span><b data-profile-favorite-count aria-hidden="true">0</b></button></div>
-        </section>
-        <button type="button" class="kg-profile-card kg-profile-calendar" data-profile-calendar>
-          ${icon("calendar_month")}<span><strong>${uiText("Мой календарь")}</strong><small data-profile-calendar-next></small></span>${icon("chevron_right")}
-        </button>
-        <section class="kg-profile-archive">
-          <div class="kg-profile-head"><h2>Кинематографический архив</h2><button type="button" class="kg-profile-gold" data-profile-action="history">История</button></div>
-          <div class="kg-profile-grid">
-            <div class="kg-profile-stat"><strong data-profile-film-count></strong><span>Фильмов</span></div>
-            <div class="kg-profile-stat"><strong>—</strong><span>Рецензий</span></div>
-            <div class="kg-profile-stat"><strong data-profile-country-count></strong><span>Страны</span></div>
-            <div class="kg-profile-stat"><strong>—</strong><span>Часы</span></div>
-          </div>
-          <div class="kg-profile-card kg-profile-line between kg-profile-spotlight">
-            <span class="kg-profile-gold">${icon("videocam")}</span>
-            <div><small class="kg-profile-gold">Любимый режиссёр сезона</small><strong>Вонг Кар-вай</strong></div>
-            <span class="kg-profile-pill">Пример</span>
-          </div>
-        </section>
-        <section>
-          <div class="kg-profile-head"><h2 class="kg-profile-line"><span class="kg-profile-gold">${icon("stars")}</span><span>Золотая полка</span></h2><small data-profile-shelf-label>Пример · Топ-4</small></div>
-          <div class="kg-profile-grid" data-profile-shelf>
-            ${sampleFilms.map(([title, year, index, ratio]) => `<div class="kg-profile-film"><span class="kg-profile-frame">${still(index)}<small>${ratio}</small></span><strong title="${title}">${title}</strong><small class="kg-profile-meta">${year}</small></div>`).join("")}
-          </div>
-        </section>
-        <section>
-          <div class="kg-profile-tabs" role="group" aria-label="Разделы профиля">
-            <button type="button" data-profile-tab="collections" aria-pressed="true">Коллекции и полки</button>
-            <button type="button" data-profile-tab="reviews" aria-pressed="false">Рецензии</button>
-            <button type="button" data-profile-tab="watchlist" aria-pressed="false">Буду смотреть</button>
-            <button type="button" data-profile-diary>Дневник</button>
-          </div>
-          <div data-profile-panel="collections">
-            <div class="kg-profile-head"><h2>Авторские подборки</h2><small>Примеры</small></div>
-            ${sampleCollections.map(([symbol, title, stills, count, date, likes, views]) => `
-              <article class="kg-profile-card kg-profile-collection">
-                <div class="kg-profile-line between"><h3 class="kg-profile-line"><span class="kg-profile-gold">${icon(symbol)}</span><span>${title}</span></h3><small class="kg-profile-pill">${count}</small></div>
-                <div class="kg-profile-grid">${stills.map(index => `<span class="kg-profile-frame">${still(index)}</span>`).join("")}</div>
-                <div class="kg-profile-line between kg-profile-meta"><span>${date}</span><span>♥ ${likes} · ${views}</span></div>
-              </article>`).join("")}
-          </div>
-          <p class="kg-profile-card kg-profile-meta" data-profile-panel="reviews" hidden>Рецензии в профиле скоро появятся.</p>
-          <p class="kg-profile-card kg-profile-meta" data-profile-panel="watchlist" hidden>Список «Буду смотреть» скоро появится.</p>
-        </section>
-        <section>
-          <div class="kg-profile-head"><h2>Кураторские награды</h2><small>Примеры</small></div>
-          <div class="kg-profile-badges">
-            ${badges.map(([symbol, title, description]) => `<div class="kg-profile-card"><span class="kg-profile-badge-icon">${icon(symbol)}</span><strong>${title}</strong><small class="kg-profile-meta">${description}</small></div>`).join("")}
-          </div>
-        </section>
-        <section>
-          <div class="kg-profile-head"><h2>Последняя активность</h2><small>Пример</small></div>
-          <article class="kg-profile-card kg-profile-activity">
-            <div class="kg-profile-line">${still(10)}<div><h3>Чунцинский экспресс</h3><p class="kg-profile-meta">Реж. Вонг Кар-вай</p><p class="kg-profile-gold">★★★★★ · 5.0</p></div></div>
-            <blockquote>«Эффект step-printing превращает бег по эскалаторам Гонконга в медитацию об ускользающем времени».</blockquote>
-          </article>
-        </section>
-        <section class="kg-profile-card kg-profile-club" data-profile-club>
-          <div class="kg-profile-head"><h2>Moven Club Gold</h2><span class="kg-profile-pill">Скоро</span></div>
-          <p class="kg-profile-copy">Премиальный доступ к плёночным реставрациям</p>
-          <div class="kg-profile-actions">
-            <span class="kg-profile-button gold">Управление подпиской</span>
-            <button type="button" class="kg-profile-button" data-profile-action="settings">${icon("settings")}<span>Настройки</span></button>
-          </div>
-        </section>
+  dialog.setAttribute("aria-labelledby","kg-profile-title");
+  dialog.innerHTML = `<div class="kg-pf-shell">
+    <header class="kg-pf-header">
+      <div class="kg-pf-brand"><span>MOVEN</span><h1 id="kg-profile-title">${label("Личный кабинет")}</h1></div>
+      <div class="kg-pf-head-actions">
+        <button type="button" data-profile-action="search" aria-label="${label("Поиск")}">${icon("search")}</button>
+        <button type="button" data-profile-edit class="kg-pf-portrait" aria-label="${label("Настройки профиля")}">${icon("person")}</button>
       </div>
-    </div>`;
-  localizeInterfaceMarkup(dialog);
-  document.body.appendChild(dialog);
-
-  const scroll = dialog.querySelector(".kg-profile-scroll");
+    </header>
+    <main class="kg-pf-scroll">
+      <p class="kg-pf-status" role="status"></p>
+      <section class="kg-pf-identity">
+        <div class="kg-pf-user">
+          <img data-profile-avatar alt="" width="60" height="60">
+          <div><h2 data-profile-name></h2><p data-profile-caption></p><div class="kg-pf-badges" data-profile-badges></div></div>
+          <button type="button" data-profile-edit aria-label="${label("Настройки профиля")}">${icon("settings")}</button>
+        </div>
+        <div class="kg-pf-stats">
+          <div><strong data-profile-stat="reviews"></strong><span>${label("Рецензии")}</span></div>
+          <div><strong data-profile-stat="rating"></strong><span>${label("Средний балл")}</span></div>
+          <div><strong data-profile-stat="releases"></strong><span>${label("Премьер в этом месяце")}</span></div>
+        </div>
+      </section>
+      <div class="kg-pf-quick">
+        ${quick.map(([route,symbol,name,description])=>`<button type="button" data-profile-action="${route}" ${route==="calendar"?"data-profile-calendar":""}
+          aria-label="${label(name)}"><i>${icon(symbol)}</i><span><strong>${label(name)}</strong><small>${label(description)}</small></span>
+          <b data-profile-count="${route}"></b></button>`).join("")}
+      </div>
+      <section class="kg-pf-section">
+        <header>${icon("calendar")}<h2>${label("Календарь моих релизов")}</h2><button type="button" data-profile-action="week">${label("На неделю")}</button></header>
+        <div data-profile-releases></div>
+        <button type="button" class="kg-pf-full-calendar" data-profile-action="calendar">${label("Открыть полный календарь релизов")}${icon("chevron")}</button>
+      </section>
+      ${[["series","tv","Просмотренные сериалы","Все сериалы"],["movies","movie","Просмотренные фильмы","Все фильмы"]].map(([id,symbol,heading,all])=>`
+        <section class="kg-pf-section" data-profile-history="${id}">
+          <header>${icon(symbol)}<h2>${label(heading)}</h2><button type="button" data-profile-action="${id}-history">
+            <b data-profile-total="${id}"></b><span>${label(all)}</span>${icon("chevron")}</button></header>
+          <div class="kg-pf-rail" data-profile-rail="${id}"></div>
+        </section>`).join("")}
+      <footer class="kg-pf-footer">
+        <button type="button" data-profile-logout>${icon("logout")}${label("Выйти из аккаунта")}</button>
+        <p>MOVEN CINEMA ENGINE</p>
+      </footer>
+    </main>
+    <nav class="kg-pf-nav" aria-label="${label("Навигация")}">
+      ${footer.map(([route,symbol,name])=>`<button type="button" data-profile-nav="${route}" ${route==="profile"?'aria-current="page"':""}>${icon(symbol)}${label(name)}</button>`).join("")}
+    </nav>
+  </div>`;
+  document.body.append(dialog);
+  const scroll = dialog.querySelector(".kg-pf-scroll");
   const status = dialog.querySelector("[role=status]");
-  const tabs = [...dialog.querySelectorAll("[data-profile-tab]")];
-  const panels = [...dialog.querySelectorAll("[data-profile-panel]")];
-  const routes = {
-    settings: "#gear",
-    search: "[data-kg-search-open]"
-  };
+  let releaseRows = [], history = {movies:[],series:[]};
 
-  function selectTab(tab) {
-    tabs.forEach(button => button.setAttribute("aria-pressed", String(button.dataset.profileTab === tab)));
-    panels.forEach(panel => { panel.hidden = panel.dataset.profilePanel !== tab; });
+  function replaceRail(rail,html) {
+    const left = rail.scrollLeft;
+    rail.innerHTML = html;
+    rail.scrollLeft = left;
   }
 
-  const defaultShelf = dialog.querySelector("[data-profile-shelf]").innerHTML;
-  const label = dialog.querySelector("[data-profile-shelf-label]");
-  const shelfFilms = new Map();
-  const defaultShelfLabel = label.textContent;
+  function historyData() {
+    const dated = (a,b) => String(b.watchedAt || "").localeCompare(String(a.watchedAt || ""));
+    const episodeEntries = window.KGSeriesDetail?.diaryEntries() || [];
+    const shows = new Map((window.KGSeries.watchedList() || []).map(item => [Number(item.id),item]));
+    for (const {film,note} of [...episodeEntries].sort((a,b)=>String(a.note.date||"").localeCompare(String(b.note.date||"")))) {
+      const log = film._episodeLog;
+      const previous = shows.get(log.series.id);
+      const watchedAt = note.date || previous?.watchedAt || "";
+      if (!previous || watchedAt.slice(0,10) >= String(previous.watchedAt || "").slice(0,10)) {
+        shows.set(log.series.id,{...previous,...log.series,watchedAt,_episodeLog:log});
+      }
+    }
+    return {movies:[...watched].filter(item=>!window.KGSeries.isSeriesId(item.id)).sort(dated),
+      series:[...shows.values()].sort(dated),episodeEntries};
+  }
 
-  function renderCalendarPreview() {
-    dialog.querySelector("[data-profile-calendar-next]").textContent = window.KGReleaseFollow.upcoming();
+  function historyCard(item,index,kind) {
+    const name = title(item), log = item._episodeLog;
+    const poster = item.poster_path || item.poster;
+    const art = /^\/[\w.-]+$/.test(poster || "") ? `https://image.tmdb.org/t/p/w342${poster}` : "";
+    const rating = Number(item.vote_average ?? item.score);
+    const year = String(item.release_date || item.first_air_date || item.year || "").slice(0,4);
+    const runtime = log?.episode?.runtime || item.runtime;
+    const watchedDate = /^\d{4}-\d{2}-\d{2}/.test(item.watchedAt || "") ?
+      formatDay(fromDate(item.watchedAt.slice(0,10)),{day:"numeric",month:"short"}) : "";
+    const summary = log ? `S${log.season} · E${log.episode.episode_number}${log.episode.name ? " · "+log.episode.name : ""}` :
+      [year,runtime ? uiText("{minutes} мин",{minutes:runtime}) : ""].filter(Boolean).join(" · ");
+    return `<button type="button" class="kg-pf-film" data-profile-card="${kind}:${index}" aria-label="${esc(name)}">
+      <span class="kg-pf-poster">${art?`<img src="${esc(art)}" alt="" loading="lazy" decoding="async">`:`<span>${icon(kind==="series"?"tv":"movie")}</span>`}
+      ${rating>0?`<small class="kg-pf-score">${icon("star")}${number(rating)}</small>`:""}
+      <small class="kg-pf-medium">${log?`S${log.season} · E${log.episode.episode_number}`:label(kind==="series"?"Сериал":"Фильм")}</small>
+      ${runtime?`<small class="kg-pf-runtime">${label("{minutes} мин",{minutes:runtime})}</small>`:""}</span>
+      <strong>${esc(name)}</strong><span>${esc(summary)}</span>${watchedDate?`<small>${esc(watchedDate)}</small>`:""}</button>`;
+  }
+
+  function renderHistory() {
+    history = historyData();
+    for (const id of ["series","movies"]) {
+      dialog.querySelector(`[data-profile-total="${id}"]`).textContent = number(history[id].length);
+      replaceRail(dialog.querySelector(`[data-profile-rail="${id}"]`), history[id].length
+        ? history[id].slice(0,10).map((item,index)=>historyCard(item,index,id)).join("")
+        : `<p class="kg-pf-empty">${label(id==="series"?"Просмотренные сериалы появятся здесь.":"Просмотренные фильмы появятся здесь.")}</p>`);
+    }
+  }
+
+  function renderStats() {
+    const notes = [...Object.values(store.get("kgCinemaDiaryNotes",{}) || {}),
+      ...history.episodeEntries.map(entry=>entry.note)].filter(note=>note && note.diary!==false);
+    const reviews = notes.filter(note=>String(note.text || "").trim()).length;
+    const rates = notes.map(note=>Number(note.rating)).filter(value=>value>0&&value<=5);
+    const rating = rates.length ? `${number(rates.reduce((sum,v)=>sum+v,0)*2/rates.length)} ★` : "—";
+    const days = new Set([...history.movies,...history.series].map(item=>String(item.watchedAt||"").slice(0,10)).filter(Boolean));
+    const values = {favorites:number(window.KGFavorites.list().length),bookmarks:number(kgBookmarkIds().length+window.KGSeries.bookmarkIds().length),
+      diary:number(history.movies.length+history.series.length),notes:number(reviews),stats:uiText("{count} дн.",{count:number(days.size)})};
+    for (const [id,value] of Object.entries(values)) dialog.querySelector(`[data-profile-count="${id}"]`).textContent=value;
+    dialog.querySelector('[data-profile-stat="reviews"]').textContent=number(reviews);
+    dialog.querySelector('[data-profile-stat="rating"]').textContent=rating;
+  }
+
+  function renderReleases() {
+    const now = new Date(), today = localDay(now);
+    const weekEnd = localDay(new Date(now.getFullYear(),now.getMonth(),now.getDate()+6,12));
+    const rows = window.KGPersonalCalendar.trackedRows().rows;
+    releaseRows = rows.filter(row=>row.date>=today && row.date<=weekEnd).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,3);
+    dialog.querySelector('[data-profile-stat="releases"]').textContent=number(rows.filter(row=>row.date.startsWith(today.slice(0,7))&&row.date>=today).length);
+    dialog.querySelector('[data-profile-count="calendar"]').textContent=number(window.KGReleaseFollow.calendarItems().length);
+    dialog.querySelector("[data-profile-releases]").innerHTML = releaseRows.length ? releaseRows.map((row,i)=>{
+      const date = fromDate(row.date);
+      const meta = [row.service,row.episodeTitle].filter(Boolean).join(" · ");
+      const name = `${title(row)}${row.number?` · S${row.season} · E${row.number}`:""}`;
+      return `<article class="kg-pf-release">
+        <button type="button" data-profile-release="${i}"><span><b>${esc(formatDay(date,{day:"numeric",month:"short"}))}</b>
+        <small>${esc(formatDay(date,{weekday:"short"}))}</small></span><span><strong>${esc(name)}</strong><small>${esc(meta)}</small></span></button>
+        <button type="button" data-profile-reminder="${i}" aria-label="${label("Напомнить")}">${icon("bell")}</button></article>`;
+    }).join("") : `<p class="kg-pf-empty">${label("На ближайшую неделю релизов нет.")}</p>`;
   }
 
   function renderProfile() {
-    renderCalendarPreview();
-    const format = new Intl.NumberFormat(interfaceLanguage);
-    dialog.querySelector("[data-profile-favorite-count]").textContent=String(window.KGFavorites.list().length);
-    dialog.querySelector("h1").textContent = profile.name;
-    dialog.querySelector("[data-profile-handle]").textContent = profile.handle;
-    dialog.querySelector("[data-profile-bio]").textContent = profile.bio;
-    const city = dialog.querySelector("[data-profile-city]");
-    city.textContent = profile.city || "";
-    city.hidden = !profile.city;
-    dialog.querySelectorAll(".kg-profile-header img,.kg-profile-avatar img").forEach(image => { image.src = profile.avatar || artwork[0]; });
-    const hero = dialog.querySelector(".kg-profile-hero");
-    hero.style.backgroundImage = profile.banner
-      ? `linear-gradient(rgb(var(--kg-neutral-57)/0.66667),rgb(var(--kg-neutral-62)) 87%),url("${profile.banner}")` : "";
-    hero.style.backgroundSize = profile.banner ? "cover" : "";
-    dialog.querySelector("[data-profile-club]").hidden = profile.goldVisible === false;
-    dialog.querySelector("[data-profile-club-badge]").hidden = profile.goldVisible === false;
-    const badges = dialog.querySelector("[data-profile-badges]");
-    badges.replaceChildren();
-    if (profile.badgesVisible !== false) {
-      for (const name of profile.badges || []) {
-        const badge = document.createElement("span");
-        badge.className = "kg-profile-pill";
-        badge.textContent = uiText(name);
-        badges.append(badge);
-      }
-    }
-    const shelf = dialog.querySelector("[data-profile-shelf]");
-    shelfFilms.clear();
-    shelf.innerHTML = profile.shelf ? "" : defaultShelf;
-    label.textContent = profile.shelf ? uiText("Топ-4") : defaultShelfLabel;
-    for (const storedFilm of profile.shelf || []) {
-      const film = window.KGDisplayShelfFilm(storedFilm);
-      const card = document.createElement("div");
-      card.className = "kg-profile-film";
-      card.innerHTML = '<span class="kg-profile-frame"><img alt="" loading="lazy"><small></small></span><strong></strong><small class="kg-profile-meta"></small>';
-      const image = card.querySelector("img");
-      if (film.image) image.src = film.image;
-      else image.remove();
-      card.querySelector(".kg-profile-frame small").textContent = film.ratio;
-      card.querySelector("strong").textContent = uiText(film.title);
-      card.querySelector(".kg-profile-meta").textContent = film.year;
-      const savedFilm = watched.find(item => film.id ? Number(item.id)===Number(film.id) :
-        item.title===film.title && String(item.year || "")===String(film.year || ""));
-      const linkFilm = savedFilm || (film.id ? film : null);
-      if (linkFilm) {
-        shelfFilms.set(String(linkFilm.id),linkFilm);
-        const opener=document.createElement("button");
-        opener.type="button";
-        opener.className="block w-full text-left";
-        opener.dataset.profileFilm=String(linkFilm.id);
-        opener.setAttribute("aria-label",uiText("Открыть фильм {title}",{title:film.title}));
-        opener.append(...card.childNodes);
-        card.append(opener);
-        card.insertAdjacentHTML("beforeend",kgBookmarkButton(linkFilm));
-      }
-      shelf.append(card);
-    }
-    dialog.querySelector("[data-profile-film-count]").textContent = format.format(watched.length);
-    dialog.querySelector("[data-profile-country-count]").textContent = format.format(Object.keys(window.KGWatchedCountryCounts()).length);
+    dialog.querySelector("[data-profile-name]").textContent = profile.name;
+    dialog.querySelector("[data-profile-avatar]").src = profile.avatar || avatarDefault;
+    dialog.querySelector("[data-profile-caption]").textContent = [profile.handle,profile.city].filter(Boolean).join(" · ");
+    dialog.querySelector("[data-profile-badges]").innerHTML = (profile.badgesVisible === false ? [] : (profile.badges || []).slice(0,2))
+      .map(badge=>`<span>${label(badge)}</span>`).join("");
+    renderHistory();
+    renderStats();
+    renderReleases();
   }
 
-  function openProfile(message = "") {
+  function openProfile(message="") {
     if (!profile) return false;
     renderProfile();
-    selectTab("collections");
     status.textContent = message;
-    window.KGMountBottomNav?.(dialog, scroll.parentElement, "profile");
     if (!dialog.open) dialog.showModal();
-    window.KGReleaseFollow.refresh();
     scroll.scrollTop = 0;
+    window.KGReleaseFollow.refresh();
     return true;
   }
 
-  dialog.addEventListener("click", async event => {
-    const opener=event.target.closest("[data-profile-film]");
-    const film=opener && shelfFilms.get(opener.dataset.profileFilm);
-    if(film){window.KGFilmCard.openDialog(window.KGFilmCard.savedFilm(film),opener);return;}
+  function placeholder(name) {
+    const page = document.createElement("dialog");
+    page.className = "kg-pf-empty-page kg-film-dialog";
+    page.setAttribute("aria-labelledby","kg-profile-empty-title");
+    page.innerHTML = `<header class="kg-film-dialog-header"><button type="button" autofocus aria-label="${label("Назад")}">${icon("back")}</button>
+      <h1 id="kg-profile-empty-title">${label(name)}</h1></header>`;
+    page.querySelector("button").onclick=()=>page.close();
+    page.addEventListener("close",()=>page.remove(),{once:true});
+    document.body.append(page);
+    page.showModal();
+  }
 
-    const action = event.target.closest("[data-profile-action]")?.dataset.profileAction;
-    const tab = event.target.closest("[data-profile-tab]")?.dataset.profileTab;
-    if (tab) selectTab(tab);
-    if (action) {
-      const destination = document.querySelector(routes[action]);
-      if (destination) {
-        dialog.close();
-        destination.click();
-      }
-      return;
-    }
-    if (event.target.closest("[data-profile-back]")) dialog.close();
-    if (event.target.closest("[data-profile-logout]")) {
-      profile = null;
-      dialog.close();
-    }
-    if(event.target.closest("[data-profile-calendar]")){window.KGReleaseFollow.openCalendar();return;}
-    if(event.target.closest("[data-profile-favorites]")){window.KGFavorites.open();return;}
-    const diaryButton = event.target.closest("[data-profile-diary]");
-    if (diaryButton) {
-      window.KGOpenCinemaDiary({
-        avatar: profile.avatar || artwork[0],
-        initialSource: diaryButton.dataset.profileDiary,
-        closeParent: () => dialog.close()
-      });
-      return;
-    }
-    if (event.target.closest("[data-profile-edit]")) {
+  const outside = {search:"[data-kg-search-open]",settings:"#gear",home:"#kg-mode-films",series:"#kg-mode-series"};
+  const leaveFor = (key,closeEditor) => {
+    const destination = document.querySelector(outside[key]);
+    if (!destination) return;
+    closeEditor?.();
+    dialog.close();
+    destination.click();
+  };
+  const logout = () => {profile=null;dialog.close();};
+  function openDiary(options={}) {
+    window.KGOpenCinemaDiary({avatar:profile.avatar||avatarDefault,closeParent:()=>dialog.close(),...options});
+  }
+
+  dialog.addEventListener("click",event=>{
+    const button = event.target.closest("button");
+    if (!button) return;
+    if (button.hasAttribute("data-profile-edit")) {
       window.KGOpenProfileEditor(profile,{
-        save(changes) { profile = changes; renderProfile(); },
-        logout() { profile = null; dialog.close(); },
-        navigate(action, closeEditor) {
-          const target = document.querySelector(routes[action]);
-          if (!target) return;
-          closeEditor();
-          dialog.close();
-          target.click();
-        }
+        save(changes){profile=changes;renderProfile();},logout,
+        navigate(action,closeEditor){leaveFor(action,closeEditor);}
       });
+      return;
     }
-    if (event.target.closest("[data-profile-share]")) {
-      const sharedProfile = profile;
-      const text = [profile.name, profile.bio].filter(Boolean).join("\n");
-      try {
-        if (navigator.share) await navigator.share({ title: "Moven", text });
-        else {
-          await navigator.clipboard.writeText(text);
-          if (profile !== sharedProfile || !dialog.open) return;
-          status.textContent = uiText("Описание профиля скопировано.");
-          status.scrollIntoView({block:"nearest"});
-        }
-      } catch (error) {
-        if (error.name !== "AbortError" && profile === sharedProfile && dialog.open) {
-          status.textContent = uiText("Не удалось поделиться профилем.");
-          status.scrollIntoView({block:"nearest"});
-        }
-      }
+    if (button.hasAttribute("data-profile-logout")) {logout();return;}
+    const {profileCard,profileRelease,profileReminder,profileAction,profileNav} = button.dataset;
+    if (profileCard) {
+      const [group,index] = profileCard.split(":");
+      const film = history[group][index];
+      if (film?._episodeLog) {
+        const log = film._episodeLog;
+        window.KGEpisodePage.open(log.series,log.episode,log.season,{opener:button});
+      } else if (film) window.KGFilmCard.openDialog(window.KGFilmCard.savedFilm(film),button);
+      return;
     }
+    if (profileRelease !== undefined) {
+      window.KGReleaseFollow.openCalendar(releaseRows[profileRelease]?.date);
+      return;
+    }
+    if (profileReminder !== undefined) {
+      const row = releaseRows[profileReminder];
+      const item = window.KGReleaseFollow.calendarItems().find(entry=>entry.key===row?.key);
+      if (item) window.KGReleaseSettings.open(item,button,true);
+      return;
+    }
+    const action = profileAction || profileNav;
+    if (action === "favorites") window.KGFavorites.open();
+    else if (action === "bookmarks" || action === "notes") openDiary({initialSource:action});
+    else if (action === "diary" || action === "stats") openDiary({focusStats:action==="stats"});
+    else if (action === "calendar") window.KGReleaseFollow.openCalendar();
+    else if (action === "week") window.KGPersonalCalendar.open(undefined,{week:true});
+    else if (action === "movies-history") window.KGOpenWatchHistory();
+    else if (action === "series-history") placeholder("Просмотренные сериалы");
+    else if (outside[action]) leaveFor(action);
   });
 
-  document.addEventListener("kg:release-follows-change",renderCalendarPreview);
-  document.addEventListener("kg:favorite-change",()=>{dialog.querySelector("[data-profile-favorite-count]").textContent=String(window.KGFavorites.list().length);});
+  for (const event of ["kg:release-follows-change","kg:favorite-change","kg-bookmark-change","kg:watched-change","kg:diary-note-change","kg:episode-note-change"]) {
+    document.addEventListener(event,()=>{if(dialog.open && profile)renderProfile();});
+  }
   window.KGOpenDemoProfile = () => openProfile();
-  window.KGStartDemoSession = (message, name = "") => {
+  window.KGStartDemoSession = (message,name="") => {
     const displayName = name.trim();
-    profile = {
-      name: displayName || uiText("Александр Воронов"),
-      handle: displayName ? "" : "@voronov_cinema",
-      bio: uiText("Синефил, собиратель редких плёночных копий, фанат французской новой волны и ночного азиатского нео-нуара.")
-    };
+    profile = {name:displayName || uiText("Александр Воронов"),handle:displayName?"":"@voronov_cinema",
+      bio:uiText("Синефил, собиратель редких плёночных копий, фанат французской новой волны и ночного азиатского нео-нуара.")};
     openProfile(message);
   };
 })();

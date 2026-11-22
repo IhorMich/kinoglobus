@@ -1,6 +1,22 @@
 // English translations for the Moven interface.
 window.KGInterfaceDictionaries ??= {};
 window.KGInterfaceDictionaries.en = Object.freeze({
+  "Любимые фильмы и сериалы": "Favorite films and series",
+  "Мои записи": "My entries",
+  "Настройки профиля": "Profile settings",
+  "Вкусы и просмотры": "Tastes and viewing",
+  "Календарь моих релизов": "My release calendar",
+  "На неделю": "This week",
+  "Открыть полный календарь релизов": "Open full release calendar",
+  "Просмотренные сериалы": "Watched series",
+  "Все фильмы": "All films",
+  "Выйти из аккаунта": "Log out",
+  "Премьер в этом месяце": "Releases this month",
+  "Моё": "Me",
+  "Просмотренные сериалы появятся здесь.": "Watched series will appear here.",
+  "Просмотренные фильмы появятся здесь.": "Watched films will appear here.",
+  "На ближайшую неделю релизов нет.": "No releases in the next week.",
+  "{count} дн.": "{count} days",
   "{time} по времени телефона": "{time} in your device’s time zone",
   "До времени напоминания в день релиза": "Before the release-day reminder",
   "Отслеживание релизов": "Release tracking",

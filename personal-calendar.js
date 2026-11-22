@@ -196,7 +196,7 @@
     render();
   }
 
-  function open(date) {
+  function open(date,{week=false}={}) {
     if (dialog?.open) return;
     const view = document.createElement("dialog");
     dialog = view;
@@ -206,7 +206,7 @@
     selected = /^\d{4}-\d{2}-\d{2}$/.test(date || "") && Number.isFinite(+fromKey(date)) ? date : key(new Date());
     scope = "tracked";
     filter = "";
-    expanded = true;
+    expanded = !week;
     listing = null;
     view.innerHTML = `<header class="kg-mc-header"><button type="button" data-mc-back autofocus aria-label="${label("Назад")}">${icon("back")}</button>
       <h1 id="kg-personal-calendar-title">${label("Мой календарь")}</h1>
@@ -251,5 +251,5 @@
   }
 
   document.addEventListener("kg:release-follows-change",()=>{if(scope === "tracked") render();});
-  window.KGPersonalCalendar = {open};
+  window.KGPersonalCalendar = {open,trackedRows};
 })();

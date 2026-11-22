@@ -321,6 +321,7 @@
     const saved = store.get("kgBookmarkFilms",{}) || {};
     const watchedById = new Map(entries.map(entry => [Number(entry.film.id),entry.film]));
     bookmarks = kgBookmarkIds().map(id => makeEntry(watchedById.get(id) || movieCatalog.savedFilm(saved[id]) || {id}));
+    bookmarks.push(...(window.KGSeries?.bookmarkList?.() || []).map(film=>makeEntry({...film,poster:film.poster_path||film.poster,year:String(film.release_date||film.first_air_date||"").slice(0,4)})));
     renderList();
     if (!apiKey) return;
     const missing = bookmarks.filter(entry => !entry.film.title || !entry.film.poster);
@@ -782,10 +783,10 @@
     return openNote(String(id), [makeEntry(record)],options);
   };
 
-  window.KGOpenCinemaDiary = ({avatar, closeParent: onNavigate, initialSource} = {}) => {
+  window.KGOpenCinemaDiary = ({avatar, closeParent: onNavigate, initialSource, focusStats=false} = {}) => {
     closeParent = onNavigate;
     bookmarkLoad++;
-    source = initialSource === "bookmarks" ? "bookmarks" : "watched";
+    source = ["bookmarks","notes"].includes(initialSource) ? initialSource : "watched";
     selectedFilm = "";
     dialog.querySelectorAll("[data-source]").forEach(tab => tab.setAttribute("aria-pressed",String(tab.dataset.source === source)));
     notes = store.get(notesKey,{}) || {};
@@ -804,5 +805,6 @@
     render();
     if (source === "bookmarks") refreshBookmarks();
     dialog.querySelector(".kg-diary-scroll").scrollTop = 0;
+    if (focusStats) dialog.querySelector(".kg-diary-stats").scrollIntoView({block:"start"});
   };
 })();

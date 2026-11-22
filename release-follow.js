@@ -31,7 +31,8 @@
 
   function episodeEntry(episode, season) {
     if (!episode || !Number.isInteger(season) || !Number.isInteger(episode.episode_number)) return null;
-    return {season, number:episode.episode_number, title:episode.name || "", date:day(episode.air_date)};
+    return {season, number:episode.episode_number, title:episode.name || "", date:day(episode.air_date),
+      still:episode.still_path || "", runtime:episode.runtime || 0};
   }
 
   function seriesDates(series) {
@@ -49,13 +50,15 @@
     if (episode && !series) return null;
     const rawId = series ? window.KGSeries.rawId(id) : id;
     const title = film.title || film.name || "";
+    const art = {poster:film.posterPath || film.poster_path || "",backdrop:film.backdrop_path || "",
+      service:film.networks?.[0]?.name || ""};
     if (episode) {
       const details = episodeEntry(episode, season);
-      return details && {key:`episode:${rawId}:${season}:${details.number}`,kind:"episode",id:rawId,title,
-        episodeTitle:details.title,season,number:details.number,date:details.date};
+      return details && {key:`episode:${rawId}:${season}:${details.number}`,kind:"episode",id:rawId,title,...art,
+        episodeTitle:details.title,season,number:details.number,date:details.date,still:details.still,runtime:details.runtime};
     }
-    if (series) return {key:`series:${rawId}`,kind:"series",id:rawId,title,dates:seriesDates(film),ended:["Ended","Canceled"].includes(film.status)};
-    return {key:`movie:${id}`,kind:"movie",id,title,date:day(film.release || film.release_date)};
+    if (series) return {key:`series:${rawId}`,kind:"series",id:rawId,title,...art,dates:seriesDates(film),ended:["Ended","Canceled"].includes(film.status)};
+    return {key:`movie:${id}`,kind:"movie",id,title,...art,date:day(film.release || film.release_date)};
   }
 
   function buttonContent(button, kind, active) {
@@ -124,10 +127,10 @@
         try {
           if (item.kind === "movie") {
             const film = await requestTmdb(`movie/${item.id}`,{language:filmLocale});
-            remember({...item,date:day(film.release_date)});
+            remember({...item,date:day(film.release_date),poster:film.poster_path || item.poster,backdrop:film.backdrop_path || item.backdrop});
           } else if (item.kind === "episode") {
             const episode = await requestTmdb(`tv/${item.id}/season/${item.season}/episode/${item.number}`,{language:filmLocale});
-            remember({...item,episodeTitle:episode.name || item.episodeTitle,date:day(episode.air_date)});
+            remember({...item,episodeTitle:episode.name || item.episodeTitle,date:day(episode.air_date),still:episode.still_path || item.still,runtime:episode.runtime || item.runtime});
           } else {
             const series = await requestTmdb(`tv/${item.id}`,{language:filmLocale});
             const next = series.next_episode_to_air;
@@ -136,7 +139,7 @@
               series._seriesSeason = next.season_number;
               series._seriesEpisodes = season?.episodes;
             }
-            remember({...item,dates:seriesDates(series),ended:["Ended","Canceled"].includes(series.status),
+            remember({...item,dates:seriesDates(series),poster:series.poster_path || item.poster,backdrop:series.backdrop_path || item.backdrop,service:series.networks?.[0]?.name || item.service,ended:["Ended","Canceled"].includes(series.status),
               seasonSnapshot:series._seriesEpisodes?series._seriesSeason:undefined});
           }
         } catch {}
@@ -173,17 +176,11 @@
   }
 
   function openCalendar() {
-    if (document.querySelector("#kg-personal-calendar[open]")) return;
-    const calendar = document.createElement("dialog");
-    calendar.id = "kg-personal-calendar";
-    calendar.className = "kg-film-dialog";
-    calendar.setAttribute("aria-labelledby","kg-personal-calendar-title");
-    calendar.innerHTML = `<header><button type="button" autofocus aria-label="${esc(uiText("Назад"))}">${icon("back")}</button>
-      <h1 id="kg-personal-calendar-title">${esc(uiText("Мой календарь"))}</h1></header>`;
-    calendar.querySelector("button").addEventListener("click",() => calendar.close());
-    calendar.addEventListener("close",() => calendar.remove(),{once:true});
-    document.body.append(calendar);
-    calendar.showModal();
+    window.KGPersonalCalendar.open();
+  }
+
+  function calendarItems() {
+    return Object.values(subscriptions());
   }
 
   function manage(item, opener) {
@@ -232,5 +229,5 @@
   window.addEventListener("storage",event => {
     if (event.key === storageKey || event.key === null) document.dispatchEvent(new Event(changeEvent));
   });
-  window.KGReleaseFollow = {button,observe,openCalendar,upcoming,refresh};
+  window.KGReleaseFollow = {button,observe,openCalendar,upcoming,refresh,calendarItems};
 })();

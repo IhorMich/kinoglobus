@@ -284,10 +284,29 @@
     });
   }
 
+  async function releases(start, end, page) {
+    const result = await window.KGSeries.discover({
+      'air_date.gte':start, 'air_date.lte':end, sort_by:'popularity.desc', page
+    });
+    const items = [];
+    const shows = result.results.filter(movieCatalog.allows);
+    for (let i=0; i<shows.length; i+=5) {
+      const batch = await Promise.allSettled(shows.slice(i,i+5).map(async source => {
+        const show = await detail(source.id);
+        if (!show) return [];
+        const {episodes} = await monthEpisodes(show,start,end);
+        return episodes.filter(episode => episode.air_date >= start && episode.air_date <= end)
+          .map(episode => ({show,episode,service:serviceFor(show)}));
+      }));
+      for (const item of batch) if (item.status === 'fulfilled') items.push(...item.value);
+    }
+    return {items,more:page < Math.min(500,result.total_pages || 0)};
+  }
+
   function show() {
     if (!month) { month = new Date(); selected = key(month); }
     details.clear(); seasons.clear();
     load();
   }
-  window.KGSeriesCalendar = {mount, show, hide:() => { generation++; }};
+  window.KGSeriesCalendar = {mount, show, releases, reminder, hide:() => { generation++; }};
 })();

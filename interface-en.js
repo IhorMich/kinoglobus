@@ -1,6 +1,20 @@
 // English translations for the Moven interface.
 window.KGInterfaceDictionaries ??= {};
 window.KGInterfaceDictionaries.en = Object.freeze({
+  "Мои отслеживаемые": "My follows",
+  "Все премьеры": "All premieres",
+  "Расписание релизов": "Release schedule",
+  "Месяц": "Month",
+  "Предыдущая неделя": "Previous week",
+  "Следующая неделя": "Next week",
+  "Свернуть в 1 неделю": "Collapse to one week",
+  "Показать месяц": "Show month",
+  "Релизы · {count}": "Releases · {count}",
+  "Релизов на эту дату нет.": "No releases on this date.",
+  "Добавьте ключ TMDB, чтобы загрузить премьеры.": "Add a TMDB key to load premieres.",
+  "Не удалось загрузить часть премьер.": "Some premieres could not be loaded.",
+  "Премьера фильма": "Film premiere",
+  "Завтра, {date}": "Tomorrow, {date}",
   "Не удалось сохранить подписку": "Could not save subscription",
   "Перестать следить": "Unfollow",
   "Перейти в календарь": "Open calendar",

@@ -12,6 +12,7 @@ document.head.appendChild(st);
 const st2=document.createElement("style");
 st2.textContent=`.kgr-win{position:relative;height:150px;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,rgb(var(--kg-black)) 13%,rgb(var(--kg-black)) 87%,transparent);mask-image:linear-gradient(90deg,transparent,rgb(var(--kg-black)) 13%,rgb(var(--kg-black)) 87%,transparent)}
 #cat-search::-webkit-search-cancel-button{display:none}
+#view-series-collections[hidden]{display:none}
 [data-collection-controls]{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;width:100%}
 [data-collection-controls]>button{min-width:0;min-height:40px;padding-inline:4px;line-height:1.2}
 [data-collection-controls]>button:disabled{opacity:.55}
@@ -54,7 +55,7 @@ st2.textContent=`.kgr-win{position:relative;height:150px;overflow:hidden;-webkit
 :is(#cat-grid,[data-tv-grid]).kg-three-columns .kg-film-card-poster{box-sizing:border-box;width:100%;height:auto;aspect-ratio:2/3;border-radius:clamp(10px,3vw,16px)}
 :is(#cat-grid,[data-tv-grid]).kg-three-columns .kg-catalog-text{width:100%;height:auto}
 :is(#cat-grid,[data-tv-grid]).kg-three-columns .kg-catalog-text h4{margin:0;white-space:normal;overflow-wrap:anywhere;font-size:.82rem;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;min-height:2.5em}
-:is(#cat-grid,[data-tv-grid]).kg-three-columns :is(.kg-catalog-archive,.kg-catalog-poster-badge,.kg-catalog-meta,.kg-catalog-prefix,.kg-catalog-summary,.kg-catalog-actions),
+:is(#cat-grid,[data-tv-grid]).kg-three-columns :is(.kg-catalog-archive,.kg-catalog-poster-badge,.kg-catalog-meta,.kg-catalog-summary,.kg-catalog-actions),
 :is(#view-collections,#view-series-collections):has(:is(#cat-grid,[data-tv-grid]).kg-three-columns) [data-collection-spot] [data-act="spin"]{display:none}
 #mood-cards.kg-three-columns .mood-card [data-mood-select]{height:auto;aspect-ratio:3/4;min-height:7rem}
 #mood-cards.kg-three-columns .kg-mood-cover-copy{left:.4rem;right:.4rem;bottom:.4rem}
@@ -725,7 +726,7 @@ ${top}<div class="kg-catalog-row flex items-start gap-3">
 <div class="kg-film-card-poster relative rounded-lg overflow-hidden shrink-0 bg-surface-container-high"><img data-k="img" alt="${esc(uiText(t.name))}" src="${cover}" class="w-full h-full object-cover transition-opacity duration-500 ${special?"grayscale contrast-125":""} ${cover?"":"opacity-0"}">${tv?"":`<span class="kg-catalog-poster-badge absolute bottom-1 right-1 px-1.5 rounded bg-surface-container-lowest/80 text-[10px] font-bold text-primary">${esc(codeOf(t))}</span>`}</div>
 <div class="kg-catalog-text flex flex-col min-w-0 flex-1 justify-between h-28"><div>
 <div class="kg-catalog-meta flex items-center justify-between gap-1"><span class="font-micro-caption text-micro-caption text-text-muted flex items-center gap-1 truncate">${location}</span>${rate}</div>
-<h4 class="font-headline-sm text-headline-sm text-primary font-bold truncate mt-0.5"><span class="kg-catalog-prefix">${i+1}. </span>${esc(uiText(t.name))}</h4>
+<h4 class="font-headline-sm text-headline-sm text-primary font-bold truncate mt-0.5">${esc(uiText(t.name))}</h4>
 <p class="kg-catalog-summary font-micro-caption text-micro-caption text-on-surface-variant ${special?"kg-clip2":"truncate"} mt-0.5">${esc(uiText(m[2]))}</p></div>
 <div class="kg-catalog-actions flex items-center justify-between pt-1"><span data-k="cnt" class="font-label-sm text-label-sm text-text-muted truncate">${tv?(tvMetadata.get(tv.id)?uiText("Сериалов в подборке: {count}",{count:nf(tvMetadata.get(tv.id).n)}):""):`… · ${esc(g0)}`}</span>${btn}</div>
 </div></div></article>`;

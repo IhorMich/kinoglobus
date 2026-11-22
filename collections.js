@@ -236,6 +236,36 @@ async function loadCuratedTheme(theme, force) {
   return curatedData(films.filter(Boolean));
 }
 const themeDataKey=(t,pages)=>t.series?`${t.id}:${pages}:${apiKey}:${filmLocale}`:t.films?t.id:`${t.id}:${pages}`;
+const seriesThemePages=new Map();
+async function seriesThemePage(theme,cc,page,force){
+  const key=`${themeDataKey(theme,0)}:${cc}:${page}`;
+  const cached=seriesThemePages.get(key);
+  if(cached&&(cached.pending||(!force&&Date.now()-cached.ts<DAY_MS)))return cached.promise;
+  const entry={pending:true};
+  entry.promise=(async()=>{
+    const params={...qs(theme,cc),without_genres:"10763,10764,10767"};
+    const discover=(voteFloor,page)=>window.KGSeries.discover({...params,"vote_count.gte":voteFloor,page},{fresh:force});
+    let voteFloor=60,result;
+    if(page===1){
+      result=await discover(voteFloor,page);
+      if(result.total_results<12){
+        voteFloor=20;result=await discover(voteFloor,page);
+      }
+    }else{
+      const first=await seriesThemePage(theme,cc,1,false);
+      voteFloor=first.voteFloor;
+      if(page>first.lastPage)return {cc,p:page,films:[]};
+      result=await discover(voteFloor,page);
+    }
+    const films=(result.results||[]).filter(show=>movieCatalog.allows(show)&&show.origin_country?.includes(cc)&&
+      Number(show.vote_count)>=voteFloor&&Number(show.vote_average)>=6.5).map(show=>({...show,_cc:cc}));
+    return {cc,p:page,total:result.total_results||0,lastPage:Math.min(500,result.total_pages||0),voteFloor,films};
+  })();
+  seriesThemePages.set(key,entry);
+  try{return await entry.promise;}
+  catch(error){if(seriesThemePages.get(key)===entry)seriesThemePages.delete(key);throw error;}
+  finally{entry.pending=false;entry.ts=Date.now();}
+}
 async function loadTheme(t,pages,force=false){
   const key=themeDataKey(t,pages),cached=themeDataCache.get(key),now=Date.now();
   if(!force&&cached&&now-cached.ts<DAY_MS)return cached.data;
@@ -259,28 +289,22 @@ async function loadTheme(t,pages,force=false){
     }
     const jobs=[];
     try{
-      const discover=t.series?window.KGSeries.discover:api;
       for(const cc of t.cc){
-        const params=qs(t,cc);
-        if(t.series)params.without_genres="10763,10764,10767";
-        const minVotes=t.minVotes??params["vote_count.gte"];
-        params["vote_count.gte"]=minVotes;
-        for(let p=1;p<=pages;p++)jobs.push(()=>discover({...params,page:p},{fresh:force}).then(r=>({
-          cc,p,total:r.total_results||0,
-          films:(r.results||[]).filter(f=>!t.series||(movieCatalog.allows(f)&&f.origin_country?.includes(cc)&&Number(f.vote_count)>=minVotes&&Number(f.vote_average)>=6.5))
-            .map(f=>({...f,_cc:cc}))
-        })));
+        for(let p=1;p<=pages;p++)jobs.push(()=>t.series?seriesThemePage(t,cc,p,force):
+          api({...qs(t,cc),page:p},{fresh:force}).then(r=>({
+            cc,p,total:r.total_results||0,films:(r.results||[]).map(f=>({...f,_cc:cc}))
+          })));
       }
       const results=await settleWithLimit(jobs,3,job=>job());
       const parts=results.filter(r=>r.status==="fulfilled").map(r=>r.value);
       if(!parts.length)throw results[0]?.reason || new Error("Не удалось загрузить подборку.");
       const partial=parts.length!==jobs.length;
       const aggregate=selected=>{
-        const totals={},ids=new Set();let films=[];
-        selected.forEach(x=>{if(x.p===1)totals[x.cc]=x.total;films.push(...x.films.filter(f=>!ids.has(f.id)&&ids.add(f.id)));});
+        const totals={},pageLimits={},ids=new Set();let films=[];
+        selected.forEach(x=>{if(x.p===1){totals[x.cc]=x.total;pageLimits[x.cc]=x.lastPage||0;}films.push(...x.films.filter(f=>!ids.has(f.id)&&ids.add(f.id)));});
         const total=Object.values(totals).reduce((a,b)=>a+b,0);
         films.sort((a,b)=>weighed(b)-weighed(a));
-        return {total,totals,films};
+        return {total,totals,films,pageLimits};
       };
       const data=aggregate(parts);
       if(partial){
@@ -305,7 +329,7 @@ const FRESH=DAY_MS;
 function saveThemeMeta(t,d){
   const top=d.films.slice(0,10);
   const r=top.length?top.reduce((s,f)=>s+Number(f.vote_average||0),0)/top.length:0;
-  const meta={n:d.total,r:r?r.toFixed(1):"",p:(d.films.find(f=>f.poster_path)||{}).poster_path||"",b:(d.films.find(f=>f.backdrop_path)||{}).backdrop_path||"",ts:Date.now()};
+  const meta={n:d.total,r:r?r.toFixed(1):"",p:(d.films.find(f=>f.poster_path)||{}).poster_path||"",b:(d.films.find(f=>f.backdrop_path)||{}).backdrop_path||"",ts:Date.now(),...(t.series?{seriesRules:2}:{})};
   META[t.id]=meta;store.set("kgThemeMeta",META);return meta;
 }
 async function loadMeta(t,force=false){
@@ -330,7 +354,7 @@ async function loadMeta(t,force=false){
   }
   if(metaInflight.has(t.id))return metaInflight.get(t.id);
   const m=META[t.id];
-  if(!force&&m&&Date.now()-m.ts<FRESH)return m;
+  if(!force&&m&&(!t.series||m.seriesRules===2)&&Date.now()-m.ts<FRESH)return m;
   if((metaRetryAfter.get(t.id)||0)>Date.now()){if(m)return m;throw new Error("Метаданные подборки временно недоступны.");}
   const request=(async()=>{
     try{
@@ -1018,6 +1042,7 @@ function derived(){
   return {best,rest};
 }
 const totalFor=()=>D.cc?(D.totals[D.cc]||0):D.total;
+const moreSeriesPages=()=>D.t.series&&(D.cc?(D.pageLimits[D.cc]||0)>D.pages:Object.values(D.pageLimits).some(max=>max>D.pages));
 const byId=id=>D.all.find(f=>String(f.id)===String(id));
 
 function filmItem(f){
@@ -1072,7 +1097,7 @@ function renderFilms(){
   box.innerHTML=pearl+
   `<div class="flex flex-col gap-space-sm"><div class="flex items-center justify-between gap-2 px-1"><div><h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">${uiText("Отобранные шедевры")}</h3><span class="font-micro-caption text-micro-caption text-text-muted">${uiText("{opened} из {total}", {opened: list.length, total: nf(Math.max(totalFor(),list.length+1))})}</span></div>${layoutSwitch(collectionFilmLayout,"collection")}</div>
   <div class="flex flex-col gap-space-sm">${listMarkup}</div>
-  ${rest.length>D.shown?`<button type="button" data-act="more" class="w-full py-3 rounded-xl bg-surface-panel hover:bg-surface-container-low text-primary text-center font-label-md text-label-md font-semibold flex items-center justify-center gap-2 transition-colors shadow-sm"><span class="material-symbols-outlined text-[18px]">expand_more</span><span>${uiText("Показать ещё")}</span></button>`:""}</div>`;
+  ${rest.length>D.shown||moreSeriesPages()?`<button type="button" data-act="more" ${D.loadingMore?"disabled aria-busy=\"true\"":""} class="w-full py-3 rounded-xl bg-surface-panel hover:bg-surface-container-low text-primary text-center font-label-md text-label-md font-semibold flex items-center justify-center gap-2 transition-colors shadow-sm"><span class="material-symbols-outlined text-[18px]">expand_more</span><span>${uiText(D.loadingMore?"Загружаем подборку…":"Показать ещё")}</span></button>`:""}</div>`;
   paintWatchedButtons(box);
   keepScroll();
   if (!apiKey) return;
@@ -1153,7 +1178,7 @@ async function openCollection(id,opt){
   rStop();
   const cached=themeDataCache.get(themeDataKey(t,2));
   const initial=cached?.data || (t.films ? curatedData(t.films.map(localizeFilmListItem)) : null);
-  D={t,all:initial?initial.films:[],total:initial?initial.total:0,totals:initial?initial.totals:{},cc:"",sort:"rating",shown:5,selected:null,picked:null};
+  D={t,all:initial?initial.films:[],total:initial?initial.total:0,totals:initial?initial.totals:{},pageLimits:initial?.pageLimits||{},pages:2,cc:"",sort:"rating",shown:5,selected:null,picked:null};
   const selection=D;
   renderCollection();showView(destination, false);
   if(initial){
@@ -1169,7 +1194,7 @@ async function openCollection(id,opt){
     const r=await loadTheme(t,2,Boolean(opt?.retry));
     if(D!==selection||view!==destination)return;
     if(r._stale && initial){$("cl-films").insertAdjacentHTML("afterbegin",`<p role="status" class="font-micro-caption text-micro-caption text-text-muted">${uiText("Не удалось обновить данные; показана сохранённая подборка.")}</p>`);return;}
-    D.all=r.films;D.total=r.total;D.totals=r.totals;
+    D.all=r.films;D.total=r.total;D.totals=r.totals;D.pageLimits=r.pageLimits||{};
     if (t.films && r.films.some(f => f.vote_count)) saveThemeMeta(t, r);
     $("cl-count").textContent=t.series?seriesCollectionCount(r.total):collectionFilmCount(r.total);
     renderFilms();
@@ -1181,6 +1206,28 @@ async function openCollection(id,opt){
       $("cl-films").insertAdjacentHTML("afterbegin",`<p role="status" class="font-micro-caption text-micro-caption text-text-muted">${uiText("Не удалось обновить данные; показана сохранённая подборка.")}</p>`);
       console.error("[Moven] Не удалось обновить подборку:",e);
     }else $("cl-films").innerHTML=`<p class="font-body-sm text-body-sm text-feedback-error px-1">${esc(uiText(e.message||"Не удалось загрузить подборку."))}</p>`;
+  }
+}
+
+async function showMoreCollection(){
+  if(D.loadingMore)return;
+  if(!moreSeriesPages()||derived().rest.length>D.shown){
+    D.shown+=5;renderFilms();return;
+  }
+  const selection=D,pages=Math.min(500,D.pages+2);
+  D.loadingMore=true;renderFilms();
+  try{
+    const result=await loadTheme(D.t,pages);
+    if(D!==selection||view!=="series-collection")return;
+    if(result._partial||result._stale)throw new Error("Partial series collection");
+    D.all=result.films;D.total=result.total;D.totals=result.totals;D.pageLimits=result.pageLimits;
+    D.pages=pages;D.shown+=5;
+    $("cl-count").textContent=seriesCollectionCount(D.total);
+  }catch{
+    if(D===selection&&view==="series-collection")toast("Часть данных недоступна.","info");
+  }finally{
+    selection.loadingMore=false;
+    if(D===selection&&view==="series-collection")renderFilms();
   }
 }
 
@@ -1545,7 +1592,7 @@ vd.addEventListener("click",e=>{
     vd.querySelectorAll("#cl-cc [data-act=cc]").forEach(b=>b.className=ccCls(b===el));
     renderFilms();return;
   }
-  if(a==="more"){D.shown+=5;renderFilms();return;}
+  if(a==="more"){showMoreCollection();return;}
   const f=byId(el.dataset.id);if(!f)return;
   if(a==="trailer"){e.stopPropagation();openFilm(f);return;}
   if(a==="open"){
@@ -1936,7 +1983,7 @@ const tvThemes=[
   ["uadrama", "Украинские драмы", "18"],
   ["pldrama", "Польские детективы", "80|9648", "noir"],
   ["latam", "Латиноамериканский нуар", "80|9648"],
-  ["inact", "Индийские криминальные сериалы", "80|9648", "noir", {id:"tv-indian-crime",minVotes:60}],
+  ["inact", "Индийские криминальные сериалы", "80|9648", "noir", {id:"tv-indian-crime"}],
   ["auhorror", "Австралийские детективы", "80|9648", "noir"],
   ["gbdrama", "Британские драмы", "18"],
   ["jpcrime", "Японские криминальные сериалы", "80|9648"],

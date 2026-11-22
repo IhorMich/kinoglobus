@@ -1,5 +1,5 @@
 (function(){
-  const moods=[
+  const movieMoods=[
     {id:"wine",icon:"wine_bar",image:"assets/vibes/wine.jpg",title:"«Для уютного вечера с бокалом»",tag:"#Уют #Эстетика",description:"Тёплый вечер, приглушённый свет, изящные диалоги и живописная эстетика европейских улиц.",countries:["FR","IT","ES","PT","AR"],genres:[18,10749],labels:["🇫🇷 Франция","🇮🇹 Италия","🇪🇸 Испания"],genreLabel:"Романтика · Драма"},
     {id:"mindfuck",icon:"neurology",image:"assets/vibes/mindfuck.jpg",title:"«Взрыв мозга / Психоделика»",tag:"#ЛабиринтыРазума",description:"Запутанные сюжетные петли, сюрреализм, гипнотический саундтрек и глубокий экзистенциальный шок.",countries:["JP","KR","GB","US","FR"],genres:[53,9648,878],labels:["🇯🇵 Япония","🇬🇧 Великобритания","🇰🇷 Южная Корея"],genreLabel:"Неонуар · Триллер"},
     {id:"adrenaline",icon:"speed",image:"assets/vibes/adrenaline.jpg",title:"«Динамичный вечер / Адреналин»",tag:"#Драйв #Неон",description:"Пульсирующий темп, филигранная хореография боёв, погони в неоновом дожде и чистый драйв.",countries:["HK","KR","ID","US"],genres:[28,80,53],labels:["🇭🇰 Гонконг","🇰🇷 Южная Корея","🇮🇩 Индонезия"],genreLabel:"Боевик · Криминал"},
@@ -25,7 +25,7 @@
     laughs:{crumb:"Лёгкость и смех",pill:"ВЕЧЕР БЕЗ ЗАБОТ",badge:["sentiment_very_satisfied","100% смех"],tags:["#Комедия","#Лёгкость","#Остроумие","#Улыбка"],heading:"Вечер без забот",hero:"Остроумные диалоги и комичные ситуации, чтобы просто расслабиться и посмеяться. Фильмы, после которых улыбка не сходит с лица.",effect:["sentiment_satisfied","Улыбка"],projector:"Комедийный кинопроектор",spin:"Крутить этот вайб (Случайная комедия)",chips:[["chat_bubble","text-primary","Остроумные диалоги"],["theater_comedy","text-secondary","Комичные ситуации"],["celebration","text-primary-fixed-dim","Лёгкость"],["hourglass_bottom","text-tertiary","Без напряжения"]],coll:"Коллекция хорошего настроения",sub:"Чтобы просто посмеяться",short:"Без забот",shortSub:"Комедия"},
     animation:{crumb:"Мир анимации",pill:"МИРЫ АНИМАЦИИ",badge:["palette","100% краски"],tags:["#Анимация","#Вдохновение","#Краски","#Сказка"],heading:"Красивые миры анимации",hero:"Визуально яркие истории для любого возраста — от волшебных приключений до трогательных драм. Фильмы, нарисованные с любовью.",effect:["brush","Вдохновение"],projector:"Анимационный кинопроектор",spin:"Крутить этот вайб (Случайный мультфильм)",chips:[["palette","text-primary","Яркая картинка"],["auto_awesome","text-secondary","Волшебство"],["family_restroom","text-primary-fixed-dim","Для всех возрастов"],["favorite","text-tertiary","Трогательные сюжеты"]],coll:"Коллекция анимации",sub:"Нарисованные миры для вечера",short:"Анимация",shortSub:"Красивые миры"}
   };
-  moods.forEach(m=>{m.x=extra[m.id] || window.KGMoodVibeAdditions.details[m.id];});
+  movieMoods.forEach(m=>{m.x=extra[m.id] || window.KGMoodVibeAdditions.details[m.id];});
   const esc=s=>String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const poster=(path,size="w185")=>path?`https://image.tmdb.org/t/p/${size}${path}`:"";
   const flag=cc=>/^[A-Za-z]{2}$/.test(cc||"")?String.fromCodePoint(...[...cc.toUpperCase()].map(c=>127397+c.charCodeAt(0))):"";
@@ -36,7 +36,8 @@
   const reelStep=90,reelPadding=8,reelCellWidth=80;
   const prefersReducedMotion=()=>window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches||false;
   let host=null,series=false;
-  const currentMood=()=>moods.find(m=>m.id===state.mood)||moods[0];
+  const moods=()=>series?window.KGMoodVibeAdditions.seriesCards:movieMoods;
+  const currentMood=()=>moods().find(m=>m.id===state.mood)||moods()[0];
   const currentRuntime=()=>runtimeOptions(series).find(r=>r.id===state.runtime)||runtimeOptions(series)[0];
   const activeCard=root=>root.querySelector(`.vibe-card[data-vibe-card="${state.mood}"]`);
   const activeElement=(root,selector)=>activeCard(root)?.querySelector(selector)||null;
@@ -63,18 +64,18 @@
   const switchTones=[["bg-error-container/40","text-error"],["bg-surface-container-highest","text-primary-fixed-dim"],["bg-secondary-container/40","text-secondary"]];
   function detailHtml(m,deps){
     const x=m.x;
-    const others=moods.filter(o=>o.id!==m.id).sort(()=>Math.random()-.5).slice(0,3);
+    const others=moods().filter(o=>o.id!==m.id).sort(()=>Math.random()-.5).slice(0,3);
     return `<div class="vibe-card flex flex-col w-full gap-space-lg pb-8" data-vibe-card="${m.id}">
 <div class="flex items-center justify-between gap-space-sm"><button type="button" data-vibe-all class="h-11 px-space-xs flex items-center gap-1 text-on-surface-variant hover:text-primary transition-colors active:scale-95"><span class="material-symbols-outlined text-lg leading-none">arrow_back_ios_new</span><span class="font-label-md text-label-md tracking-tight">${uiText("Все вайбы")}</span></button><div class="flex-1 min-w-0 flex items-center justify-center"><div class="inline-flex items-center gap-1.5 px-space-sm py-1 rounded-full bg-surface-panel/90 shadow-[inset_0_1px_0_rgb(var(--kg-primary-container)/0.2)] max-w-full"><span class="w-1.5 h-1.5 rounded-full bg-primary-container shadow-[0_0_8px_rgb(var(--kg-primary-container)/0.9)] shrink-0"></span><span class="font-micro-caption text-micro-caption tracking-wider uppercase text-on-surface truncate">${esc(uiText("ВАЙБ НАСТРОЕНИЯ · {name}", {name: uiText(x.crumb).toLocaleUpperCase(interfaceLanguage)}))}</span></div></div><div class="w-11 shrink-0"></div></div>
 <section class="relative w-full rounded-2xl overflow-hidden bg-surface-container-low shadow-[0_20px_45px_rgb(var(--kg-canvas-obsidian)/0.7)]">
-<div class="relative w-full h-[270px] bg-cover bg-center overflow-hidden" style="background-image: url('${m.image}'); background-position: ${m.imagePosition || "center"}">
+<div class="relative w-full h-[270px] bg-cover bg-center overflow-hidden" style="${window.KGMoodVibeAdditions.coverStyle(m)}">
 <div class="absolute inset-0 bg-gradient-to-t from-surface-container-low via-surface-container-low/60 to-transparent"></div>
 <div class="absolute inset-0 bg-radial-at-c from-cinema-velvet-glow via-transparent to-black/40 mix-blend-multiply"></div>
 <div class="absolute top-space-md left-space-md flex items-center gap-1.5 px-space-sm py-1 rounded-full bg-surface-panel/90 backdrop-blur-md shadow-[0_4px_16px_rgb(var(--kg-black)/0.6)]"><span class="material-symbols-outlined text-[16px] text-secondary">${m.icon}</span><span class="font-micro-caption text-micro-caption tracking-widest uppercase text-tertiary">${esc(uiText(x.pill))}</span></div>
 <div class="absolute top-space-md right-space-md flex items-center gap-1 px-space-sm py-1 rounded-full bg-cinema-velvet-deep/80 backdrop-blur-md text-secondary"><span class="material-symbols-outlined text-[15px] text-primary-container" style="font-variation-settings: 'FILL' 1;">${x.badge[0]}</span><span class="font-label-sm text-label-sm text-on-surface">${esc(uiText(x.badge[1]))}</span></div>
 </div>
 <div class="relative p-space-md -mt-16 flex flex-col gap-space-sm">
-<div class="flex flex-col gap-1"><h1 class="font-display-hero-mobile text-display-hero-mobile text-primary tracking-tight">${esc(uiText(x.heading))}</h1><p class="font-body-md text-body-md text-on-surface-variant line-clamp-3 leading-relaxed">${esc(uiText(series?(m.id==="chemistry"?"Случайные встречи, флирт и признания, которых ждёшь весь сериал.":m.description):x.hero))}</p></div>
+<div class="flex flex-col gap-1"><h1 class="font-display-hero-mobile text-display-hero-mobile text-primary tracking-tight">${esc(uiText(x.heading))}</h1><p class="font-body-md text-body-md text-on-surface-variant line-clamp-3 leading-relaxed">${esc(uiText(series?m.description:x.hero))}</p></div>
 <div class="grid grid-cols-3 gap-space-xs mt-1 pt-space-xs">
 <div class="flex flex-col items-center justify-center py-2 px-1 rounded-xl bg-surface-panel/80 shadow-[0_2px_8px_rgb(var(--kg-black)/0.4)]"><span class="font-label-sm text-label-sm text-primary flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">${m.icon}</span><span data-mv-count>…</span></span><span class="font-micro-caption text-micro-caption text-text-muted mt-0.5">${uiText("В каталоге")}</span></div>
 <div class="flex flex-col items-center justify-center py-2 px-1 rounded-xl bg-surface-panel/80 shadow-[0_2px_8px_rgb(var(--kg-black)/0.4)]"><span class="font-label-sm text-label-sm text-primary-container flex items-center gap-0.5"><span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span><span data-mv-avg>—</span></span><span class="font-micro-caption text-micro-caption text-text-muted mt-0.5">${uiText("Средний балл")}</span></div>
@@ -93,7 +94,7 @@ ${deps.sortBar(state.sort)}
 </section>
 <section class="flex flex-col gap-space-xs p-space-md rounded-2xl bg-gradient-to-b from-surface-panel to-surface-container-low shadow-[0_16px_36px_rgb(var(--kg-canvas-obsidian)/0.8)] relative overflow-hidden" data-vibe-jewel hidden></section>
 <section class="flex flex-col gap-space-md">
-<div class="flex items-center justify-between gap-2"><div class="flex flex-col min-w-0"><h2 class="font-headline-md text-headline-md text-primary">${esc(uiText(series?"Сериалы в этом вайбе":x.coll))}</h2><span class="font-body-sm text-body-sm text-text-muted">${esc(uiText(series?"":x.sub))}</span></div>${deps.layoutSwitch(state.view,"vibe-films")}</div>
+<div class="flex items-center justify-between gap-2"><div class="flex flex-col min-w-0"><h2 class="font-headline-md text-headline-md text-primary">${esc(uiText(series?"Сериалы в этом вайбе":x.coll))}</h2>${series?"":`<span class="font-body-sm text-body-sm text-text-muted">${esc(uiText(x.sub))}</span>`}</div>${deps.layoutSwitch(state.view,"vibe-films")}</div>
 <div class="flex flex-col gap-space-sm" data-vibe-films></div>
 <button class="w-full py-3.5 rounded-xl bg-surface-panel hover:bg-surface-bright text-primary font-label-md text-label-md flex items-center justify-center gap-2 shadow-[0_4px_16px_rgb(var(--kg-canvas-obsidian)/0.6)] active:scale-95 transition-all" data-vibe-more type="button" hidden><span data-vibe-more-label>${uiText("Показать ещё")}</span><span class="material-symbols-outlined text-[18px]">expand_more</span></button>
 </section>
@@ -361,7 +362,8 @@ ${deps.sortBar(state.sort)}
     [...root.children].forEach(el=>{if(el.dataset.vibeHidden){el.style.display=el.dataset.vibeHidden==="-"?"":el.dataset.vibeHidden;delete el.dataset.vibeHidden;}});
   }
   function openMood(id,root,deps){
-    if(!moods.some(m=>m.id===id))return;
+    series=deps.series;
+    if(!moods().some(m=>m.id===id))return;
     if(!host||!host.isConnected){
       [...root.children].forEach(el=>{el.dataset.vibeHidden=el.style.display||"-";el.style.display="none";});
       host=document.createElement("div");host.id="mood-vibe-root";host.innerHTML="";
@@ -369,7 +371,6 @@ ${deps.sortBar(state.sort)}
       root.appendChild(host);
     }
     stopSpin(root);deps.closeFilm("mood");
-    series=deps.series;
     state.mood=id;state.runtime=getRuntime();state.country="all";state.films=[];state.shown=4;state.loadedKey="";state.page=0;state.totalPages=0;state.jobs=null;state.loading=false;state.autoSpin=null;
     state.sort="rating";
     host.innerHTML=`<style>#mood-vibe-root [hidden]{display:none!important}</style>`+detailHtml(currentMood(),deps);

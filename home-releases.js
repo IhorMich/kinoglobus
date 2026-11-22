@@ -11,6 +11,7 @@
   );
   const copy = (source, params) => escape(uiText(source, params));
   const icon = name => `<span class="material-symbols-outlined text-[18px]" aria-hidden="true">${name}</span>`;
+  const calendarIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3v4m8-4v4M4 10h16M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z"/></svg>`;
   const title = film => film.title || film.original_title || uiText("Фильм");
   const day = (today, offset) => {
     const date = new Date(today);
@@ -45,7 +46,8 @@
           </div>
           <p class="font-body-sm text-body-sm text-on-surface-variant" data-release-subtitle></p>
         </div>
-        ${section.more ? `<button type="button" class="shrink-0 text-right font-label-sm text-label-sm text-primary hover:underline" data-release-action="expand" aria-expanded="false" aria-controls="kg-release-${section.id}-feed" hidden></button>` : ""}
+        <button type="button" data-release-action="calendar" class="kg-release-follow kg-release-calendar-shortcut"
+          aria-label="${copy("Открыть календарь")}" title="${copy("Открыть календарь")}" aria-haspopup="dialog">${calendarIcon}</button>
       </div>
       <div>
         <div id="kg-release-${section.id}-feed"></div>
@@ -58,14 +60,15 @@
     }
     section.element = element;
     section.feed = element.querySelector(`#kg-release-${section.id}-feed`);
-    section.moreButton = element.querySelector("[data-release-action=expand]");
     section.detailId = `kg-release-${section.id}-detail`;
     element.addEventListener("click", event => {
       const button = event.target.closest("[data-release-action], [data-act=close-film]");
       if (!button) return;
       const action = button.dataset.releaseAction;
       if (button.dataset.act === "close-film") { closeDetails(true); return; }
-      if (action === "key") {
+      if (action === "calendar") {
+        window.KGReleaseFollow.openCalendar();
+      } else if (action === "key") {
         document.getElementById("tmdb-key-input").focus();
       } else if (action === "retry") {
         loadSection(section, context);
@@ -81,12 +84,13 @@
     });
   }
 
-  function posterCard(film, digital) {
+  function posterCard(film, section) {
+    const digital = section.id === "digital";
     const localizedPoster = film.localizedPoster || {path:film.poster_path, showTitle:true};
     const poster = digital
       ? filmPosterMarkup({...film, localizedPoster:{path:localizedPoster.path || film.poster_path || film.backdrop_path, showTitle:false}}, "w342")
       : filmPosterMarkup({...film, localizedPoster:{path:localizedPoster.path || film.poster_path, showTitle:false}}, "w342");
-    return `<div class="kg-bookmark-card w-40 shrink-0 snap-start"><button type="button" data-release-action="film" data-id="${film.id}" class="group w-full flex flex-col gap-1.5 text-left">
+    return `<div class="kg-bookmark-card kg-home-release-card w-40 shrink-0 snap-start"><button type="button" data-release-action="film" data-id="${film.id}" class="group w-full flex flex-col gap-1.5 text-left">
       <span class="relative block w-full aspect-[2/3] overflow-hidden rounded-xl bg-surface-container-high shadow-md">
         ${digital ? poster : `<span aria-hidden="true">${poster || '<span class="material-symbols-outlined absolute inset-0 grid place-items-center text-primary-container">movie</span>'}</span>`}
         <span class="absolute inset-x-1.5 top-1.5 flex flex-wrap justify-between gap-0.5">
@@ -96,7 +100,7 @@
       </span>
       <span class="font-label-md text-label-md text-on-surface group-hover:text-primary leading-snug line-clamp-2">${escape(title(film))}</span>
       <span class="font-micro-caption text-micro-caption text-text-muted">${escape(releaseDate(film))}</span>
-    </button></div>`;
+    </button>${section.id === "upcoming" ? window.KGReleaseFollow.compactButton(film) : ""}</div>`;
   }
 
   const railClass = "flex gap-3.5 overflow-x-auto snap-x -mx-margin-mobile px-margin-mobile py-1";
@@ -138,7 +142,7 @@
     }
     section.visible = section.films.length;
     const previous = button.previousElementSibling;
-    button.insertAdjacentHTML("beforebegin", section.films.slice(start).map(film => posterCard(film, section.id === "digital")).join(""));
+    button.insertAdjacentHTML("beforebegin", section.films.slice(start).map(film => posterCard(film, section)).join(""));
     const firstAdded = previous?.nextElementSibling;
     button.insertAdjacentHTML("afterend", theatricalMore(section));
     const nextButton = button.nextElementSibling;
@@ -153,7 +157,6 @@
   }
 
   function message(section, text, action, label) {
-    if (section.moreButton) section.moreButton.hidden = true;
     section.feed.innerHTML = `<div class="rounded-xl bg-surface-panel p-3">
       <p role="status" class="font-body-sm text-body-sm text-text-muted">${copy(text)}</p>
       ${action ? `<button type="button" data-release-action="${action}" class="mt-2 rounded-lg bg-surface-container-high px-3 py-2 font-label-sm text-label-sm text-primary">${copy(label)}</button>` : ""}
@@ -161,12 +164,12 @@
   }
 
   function render(section) {
-    const {films, expanded, limit, moreButton, feed} = section;
+    const {films, feed} = section;
     if (!films.length) {
       message(section, "За этот период в выбранном регионе релизов нет.");
       return;
     }
-    feed.innerHTML = `<div class="${railClass}">${films.slice(0, section.visible).map(film => posterCard(film, section.id === "digital")).join("")}${theatricalMore(section)}</div>`;
+    feed.innerHTML = `<div class="${railClass}">${films.slice(0, section.visible).map(film => posterCard(film, section)).join("")}${theatricalMore(section)}</div>`;
   }
 
   const releaseFilms = result => (result.results || [])
@@ -201,7 +204,7 @@
         Object.assign(film, {title:details.title || film.title, localizedPoster:details.localizedPoster});
         {
           const card = section.feed.querySelector(`[data-release-action="film"][data-id="${film.id}"]`)?.parentElement;
-          if (card && !card.contains(document.activeElement)) card.outerHTML = posterCard(film, section.id === "digital");
+          if (card && !card.contains(document.activeElement)) card.outerHTML = posterCard(film, section);
         }
       }));
 

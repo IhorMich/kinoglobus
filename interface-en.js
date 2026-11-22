@@ -1,6 +1,7 @@
 // English translations for the Moven interface.
 window.KGInterfaceDictionaries ??= {};
 window.KGInterfaceDictionaries.en = Object.freeze({
+  "Открыть календарь": "Open calendar",
   "Мои отслеживаемые": "My follows",
   "Все премьеры": "All premieres",
   "Расписание релизов": "Release schedule",

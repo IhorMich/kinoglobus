@@ -65,22 +65,24 @@
     button.setAttribute("aria-pressed", String(active));
     button.setAttribute("aria-haspopup", active ? "dialog" : "false");
     const text = uiText(active ? "Отслеживаю" : titleFor[kind]);
-    button.innerHTML = icon(active ? "check" : "calendar") + buttonLabel(kind,text);
-    if (kind === "series") button.title = text;
+    const compact = button.hasAttribute("data-follow-compact");
+    button.innerHTML = icon(active ? "check" : "calendar") + buttonLabel(text,compact);
+    if (compact) button.title = text;
   }
 
-  function buttonLabel(kind,text) {
-    return `<span${kind === "series" ? ' class="sr-only"' : ""}>${esc(text)}</span>`;
+  function buttonLabel(text,compact) {
+    return `<span${compact ? ' class="sr-only"' : ""}>${esc(text)}</span>`;
   }
 
-  function button(film, episode, season) {
+  function button(film, episode, season, iconOnly=false) {
     const item = entryFor(film, episode, season);
     if (!item) return "";
     const active = !!subscriptions()[item.key];
     if (item.kind === "movie" && item.date < today() && !active) return "";
     const text = uiText(active ? "Отслеживаю" : titleFor[item.kind]);
+    const compact = iconOnly || item.kind === "series";
     return `<button type="button" class="kg-release-follow" data-kg-follow="${item.key}"
-      data-follow-item="${esc(JSON.stringify(item))}" aria-pressed="${active}" aria-haspopup="${active?"dialog":"false"}"${item.kind==="series" ? ` title="${esc(text)}"` : ""}>${icon(active?"check":"calendar")}${buttonLabel(item.kind,text)}</button>`;
+      data-follow-item="${esc(JSON.stringify(item))}" aria-pressed="${active}" aria-haspopup="${active?"dialog":"false"}"${compact ? ` title="${esc(text)}" data-follow-compact` : ""}>${icon(active?"check":"calendar")}${buttonLabel(text,compact)}</button>`;
   }
 
   function syncButtons() {
@@ -234,5 +236,5 @@
   window.addEventListener("storage",event => {
     if (event.key === storageKey || event.key === null) document.dispatchEvent(new Event(changeEvent));
   });
-  window.KGReleaseFollow = {button,observe,openCalendar,upcoming,refresh,calendarItems};
+  window.KGReleaseFollow = {button,compactButton:film=>button(film,null,null,true),observe,openCalendar,upcoming,refresh,calendarItems};
 })();

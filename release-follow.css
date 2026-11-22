@@ -41,3 +41,10 @@
 .kg-profile-calendar small:empty { display: none; }
 .kg-release-action:empty { display: none; }
 body > .kg-release-toast { bottom: calc(env(safe-area-inset-bottom, 0px) + 82px); }
+.kg-release-calendar-shortcut, .kg-home-release-card > [data-follow-compact] {
+  display: grid; place-items: center; width: 44px; min-height: 44px; padding: 0; flex: none;
+}
+.kg-home-release-card { position: relative; }
+.kg-home-release-card > [data-follow-compact] {
+  position: absolute; inset-inline-end: 6px; inset-block-start: 6px;
+}

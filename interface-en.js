@@ -1,6 +1,7 @@
 // English translations for the Moven interface.
 window.KGInterfaceDictionaries ??= {};
 window.KGInterfaceDictionaries.en = Object.freeze({
+  "Выберите страну, чтобы найти сериалы по жанрам и познакомиться с её телевидением.": "Choose a country to explore its television by genre.",
   "Турецкие мелодрамы": "Turkish soap operas",
   "Канадские детективы": "Canadian detective series",
   "Бразильские криминальные сериалы": "Brazilian crime series",

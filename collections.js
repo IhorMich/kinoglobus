@@ -2057,6 +2057,7 @@ function renderTvCatalog(){
   seriesCollections.innerHTML=`
     <section class="flex flex-col gap-space-xs mt-1">
       <h2 class="font-headline-lg text-headline-lg text-primary tracking-tight">${uiText("Тематические коллекции сериалов")}</h2>
+      <p class="font-body-sm text-body-sm text-text-muted leading-relaxed">${uiText("Выберите страну, чтобы найти сериалы по жанрам и познакомиться с её телевидением.")}</p>
 <div class="relative w-full mt-2"><div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-text-muted"><span class="material-symbols-outlined text-[20px]">search</span></div>
 <input data-tv-query type="search" aria-label="${uiText("Поиск по подборкам")}" enterkeyhint="search" autocomplete="off" placeholder="${uiText("Найти подборку, страну или жанр...")}" class="w-full h-12 pl-11 pr-12 rounded-xl bg-surface-container-low text-on-surface placeholder:text-text-muted font-body-sm text-body-sm focus:outline-none focus:bg-surface-container transition-all shadow-[0_4px_16px_rgb(var(--kg-black)/0.4)]">
 <button type="button" data-act="clear" aria-label="${uiText("Сбросить поиск")}" style="display:none" class="absolute inset-y-0 right-0 w-12 items-center justify-center text-text-muted hover:text-primary"><span class="material-symbols-outlined text-[18px]" aria-hidden="true">cancel</span></button></div>

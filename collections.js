@@ -1930,10 +1930,18 @@ const tvThemes=[
   ["dedrama", "Немецкие драматические сериалы", "18"],
   ["uscrime", "Американские криминальные сериалы", "80|9648"],
   ["usscifi", "Американская фантастика", "10765"],
-  ["mxdrama", "Мексиканские драмы", "18"]
-].map(([source,name,g])=>{
+  ["mxdrama", "Мексиканские драмы", "18"],
+  ["uadrama", "Украинские драмы", "18"],
+  ["pldrama", "Польские детективы", "80|9648", "noir"],
+  ["latam", "Латиноамериканский нуар", "80|9648"],
+  ["inact", "Индийские криминальные сериалы", "80|9648", "noir"],
+  ["auhorror", "Австралийские детективы", "80|9648", "noir"],
+  ["gbdrama", "Британские драмы", "18"],
+  ["jpcrime", "Японские криминальные сериалы", "80|9648"],
+  ["frcom", "Французские комедии", "35"]
+].map(([source,name,g,category])=>{
   const original=T[source];
-  return {id:`tv-${source}`,name,g,cc:original.cc,region:where(original),category:CAT[cat(original)][0],series:true,cover:getThemeCover(source)};
+  return {id:`tv-${source}`,name,g,cc:original.cc,region:where(original),category:CAT[category||cat(original)][0],series:true,cover:getThemeCover(source)};
 });
 let tvCountry="",tvQuery="",tvLayout="list",tvCatalogSort="rating";
 const tvMetadata=new Map();

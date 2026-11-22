@@ -436,8 +436,8 @@ home.after(sectionNav);sectionNav.after(vc);vc.after(vd);vd.after(vm);vm.after(v
 const nav=document.createElement("nav");
 nav.className="kg-bottom-nav fixed bottom-0 w-full z-50";
 nav.innerHTML='<div class="kg-bottom-nav-grid">'+
-[["home","casino","Глобус"],["collections","movie_filter","Подборки"],["journey","travel_explore","Путешествие"],["history","history_toggle_off","История"]]
-.map(([v,i,l])=>`<a href="#" data-view="${v}" class="kg-bottom-nav-link" aria-label="${esc(uiText(l))}"><span class="material-symbols-outlined text-[24px]" aria-hidden="true">${i}</span></a>`).join("")+"</div>";
+[["home","casino","Глобус"],["collections","movie_filter","Подборки"],["calendar","calendar_month","Календарь"],["journey","travel_explore","Путешествие"],["history","history_toggle_off","История"]]
+.map(([v,i,l])=>`<a href="#" data-view="${v}" class="kg-bottom-nav-link" aria-label="${esc(uiText(l))}"${v==="calendar"?` title="${esc(uiText(l))}" aria-haspopup="dialog"`:""}><span class="material-symbols-outlined text-[24px]" aria-hidden="true">${i}</span></a>`).join("")+"</div>";
 nav.setAttribute("aria-label",uiText("Навигация"));
 document.body.appendChild(nav);
 
@@ -495,6 +495,7 @@ window.KGMountBottomNav = (dialog, container, current, close = () => dialog.clos
       if (!link) return;
       event.preventDefault();
       if (link.dataset.view === footer.dataset.currentView) return;
+      if (link.dataset.view === "calendar") { window.KGReleaseFollow.openCalendar(); return; }
       close();
       nav.querySelector(`[data-view="${link.dataset.view}"]`)?.click();
     });
@@ -599,6 +600,7 @@ function showView(v, remember = true){
 }
 nav.addEventListener("click",e=>{
   const a=e.target.closest("[data-view]");if(!a)return;e.preventDefault();
+  if(a.dataset.view==="calendar"){window.KGReleaseFollow.openCalendar();return;}
   if(a.dataset.view==="journey"){$("mapBtn").click();return;}
   if(a.dataset.view==="history"){window.KGOpenWatchHistory();return;}
   if(a.dataset.view==="home"&&window.KGSeries.active){showView("series");return;}

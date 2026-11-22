@@ -1,6 +1,11 @@
 // English translations for the Moven interface.
 window.KGInterfaceDictionaries ??= {};
 window.KGInterfaceDictionaries.en = Object.freeze({
+  "Следующая веха: {count}": "Next milestone: {count}",
+  "Осталось: {count}": "{count} to go",
+  "Культовые мини-сериалы": "Landmark miniseries",
+  "Все жанры": "All genres",
+  "Серий: {count}": "Episodes: {count}",
   "Из сериалов Золотого фонда": "From the Hall of Fame series",
   "Золотой фонд": "Hall of Fame",
   "Золотой фонд TV": "TV Hall of Fame",

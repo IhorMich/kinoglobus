@@ -12,7 +12,7 @@
     {id:"animation",icon:"palette",image:"assets/vibes/animation.jpg",title:"«Красивые миры анимации»",tag:"#Анимация #Вдохновение",description:"Визуально яркие истории для любого возраста — от волшебных приключений до трогательных драм.",countries:["JP","US","FR","GB"],genres:[16,14,10751],labels:["🇯🇵 Япония","🇺🇸 США","🇫🇷 Франция"],genreLabel:"Анимация · Фэнтези"},
     ...window.KGMoodVibeAdditions.cards.map(card => ({...card}))
   ];
-  const {runtimes, getRuntime} = window.KGMoodPage;
+  const {runtimeOptions, getRuntime} = window.KGMoodPage;
   const extra={
     wine:{crumb:"Уют и тепло",pill:"ТЕПЛО И ДУША",badge:["local_fire_department","100% уют"],tags:["#Тепло","#ФранцияИталия","#Диалоги","#МедленноеКино"],heading:"Уют и бокал вина",hero:"Неспешные вечерние разговоры, мерцание свечей в парижских бистро, залитые золотым солнцем холмы Тосканы и искренние человеческие чувства. Фильмы, укутывающие словно кашемировый плед.",effect:["spa","Антистресс"],projector:"Винный кинопроектор",spin:"Крутить этот вайб (Случайный уютный фильм)",chips:[["chat_bubble","text-primary","Камерные диалоги"],["restaurant","text-secondary","Кулинария и вино"],["wb_sunny","text-primary-fixed-dim","Солнечный юг"],["hourglass_bottom","text-tertiary","Неспешный ритм"]],coll:"Коллекция согревающих картин",sub:"Отобрано с любовью для тихого вечера",short:"Уют",shortSub:"Тепло и вино",jewel:"Жемчужина вайба · Выбор куратора"},
     mindfuck:{crumb:"Лабиринты разума",pill:"ВЗРЫВ МОЗГА",badge:["psychology","Мозг на пределе"],tags:["#Психоделика","#Неонуар","#Загадки","#ПетлиСюжета"],heading:"Взрыв мозга и психоделика",hero:"Запутанные сюжетные петли, сюрреализм, гипнотический саундтрек и глубокий экзистенциальный шок. Фильмы, после которых хочется пересмотреть всё с начала.",effect:["psychology_alt","Переосмысление"],projector:"Психоделический кинопроектор",spin:"Крутить этот вайб (Случайный мозговзрыв)",chips:[["neurology","text-primary","Лабиринты разума"],["blur_on","text-secondary","Сюрреализм"],["troubleshoot","text-primary-fixed-dim","Неожиданные финалы"],["hourglass_bottom","text-tertiary","Глубокое погружение"]],coll:"Коллекция для взрыва мозга",sub:"Сюжеты, которые обсуждают после титров",short:"Взрыв мозга",shortSub:"Психоделика"},
@@ -30,12 +30,14 @@
   const poster=(path,size="w185")=>path?`https://image.tmdb.org/t/p/${size}${path}`:"";
   const flag=cc=>/^[A-Za-z]{2}$/.test(cc||"")?String.fromCodePoint(...[...cc.toUpperCase()].map(c=>127397+c.charCodeAt(0))):"";
   const plural=(n,f)=>{const a=Math.abs(n)%100,b=a%10;return a>10&&a<20?f[2]:b>1&&b<5?f[1]:b===1?f[0]:f[2];};
+  const titleUnit=(count,movieForms)=>interfaceLanguage==="en"?(series?"series":(count===1?"film":"films")):
+    plural(count,series?["сериал","сериала","сериалов"]:movieForms);
   const state={view:"list",sort:"rating",mood:"wine",runtime:"any",country:"all",films:[],shown:4,loading:false,loadedKey:"",token:0,spinToken:0,spinFrame:0,spinning:false,skipSpin:false,page:0,totalPages:0,jobs:null,autoSpin:null};
   const reelStep=90,reelPadding=8,reelCellWidth=80;
   const prefersReducedMotion=()=>window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches||false;
-  let host=null;
+  let host=null,series=false;
   const currentMood=()=>moods.find(m=>m.id===state.mood)||moods[0];
-  const currentRuntime=()=>runtimes.find(r=>r.id===state.runtime)||runtimes[0];
+  const currentRuntime=()=>runtimeOptions(series).find(r=>r.id===state.runtime)||runtimeOptions(series)[0];
   const activeCard=root=>root.querySelector(`.vibe-card[data-vibe-card="${state.mood}"]`);
   const activeElement=(root,selector)=>activeCard(root)?.querySelector(selector)||null;
   function filtered(){return state.films.filter(f=>currentRuntime().test(f.runtime||0)&&(state.country==="all"||f._cc===state.country));}
@@ -52,7 +54,7 @@
     });
   }
   const launchTitle = () => state.runtime === "any"
-    ? uiText(currentMood().x.spin)
+    ? uiText(series?"Крутить этот вайб":currentMood().x.spin)
     : uiText("Крутить этот вайб ({runtime})", {runtime: uiText(currentRuntime().button)});
   function updateLaunchLabel(root){
     const launch=activeElement(root,"[data-vibe-launch-label]");
@@ -72,7 +74,7 @@
 <div class="absolute top-space-md right-space-md flex items-center gap-1 px-space-sm py-1 rounded-full bg-cinema-velvet-deep/80 backdrop-blur-md text-secondary"><span class="material-symbols-outlined text-[15px] text-primary-container" style="font-variation-settings: 'FILL' 1;">${x.badge[0]}</span><span class="font-label-sm text-label-sm text-on-surface">${esc(uiText(x.badge[1]))}</span></div>
 </div>
 <div class="relative p-space-md -mt-16 flex flex-col gap-space-sm">
-<div class="flex flex-col gap-1"><h1 class="font-display-hero-mobile text-display-hero-mobile text-primary tracking-tight">${esc(uiText(x.heading))}</h1><p class="font-body-md text-body-md text-on-surface-variant line-clamp-3 leading-relaxed">${esc(uiText(x.hero))}</p></div>
+<div class="flex flex-col gap-1"><h1 class="font-display-hero-mobile text-display-hero-mobile text-primary tracking-tight">${esc(uiText(x.heading))}</h1><p class="font-body-md text-body-md text-on-surface-variant line-clamp-3 leading-relaxed">${esc(uiText(series?(m.id==="chemistry"?"Случайные встречи, флирт и признания, которых ждёшь весь сериал.":m.description):x.hero))}</p></div>
 <div class="grid grid-cols-3 gap-space-xs mt-1 pt-space-xs">
 <div class="flex flex-col items-center justify-center py-2 px-1 rounded-xl bg-surface-panel/80 shadow-[0_2px_8px_rgb(var(--kg-black)/0.4)]"><span class="font-label-sm text-label-sm text-primary flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">${m.icon}</span><span data-mv-count>…</span></span><span class="font-micro-caption text-micro-caption text-text-muted mt-0.5">${uiText("В каталоге")}</span></div>
 <div class="flex flex-col items-center justify-center py-2 px-1 rounded-xl bg-surface-panel/80 shadow-[0_2px_8px_rgb(var(--kg-black)/0.4)]"><span class="font-label-sm text-label-sm text-primary-container flex items-center gap-0.5"><span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span><span data-mv-avg>—</span></span><span class="font-micro-caption text-micro-caption text-text-muted mt-0.5">${uiText("Средний балл")}</span></div>
@@ -91,7 +93,7 @@ ${deps.sortBar(state.sort)}
 </section>
 <section class="flex flex-col gap-space-xs p-space-md rounded-2xl bg-gradient-to-b from-surface-panel to-surface-container-low shadow-[0_16px_36px_rgb(var(--kg-canvas-obsidian)/0.8)] relative overflow-hidden" data-vibe-jewel hidden></section>
 <section class="flex flex-col gap-space-md">
-<div class="flex items-center justify-between gap-2"><div class="flex flex-col min-w-0"><h2 class="font-headline-md text-headline-md text-primary">${esc(uiText(x.coll))}</h2><span class="font-body-sm text-body-sm text-text-muted">${esc(uiText(x.sub))}</span></div>${deps.layoutSwitch(state.view,"vibe-films")}</div>
+<div class="flex items-center justify-between gap-2"><div class="flex flex-col min-w-0"><h2 class="font-headline-md text-headline-md text-primary">${esc(uiText(series?"Сериалы в этом вайбе":x.coll))}</h2><span class="font-body-sm text-body-sm text-text-muted">${esc(uiText(series?"":x.sub))}</span></div>${deps.layoutSwitch(state.view,"vibe-films")}</div>
 <div class="flex flex-col gap-space-sm" data-vibe-films></div>
 <button class="w-full py-3.5 rounded-xl bg-surface-panel hover:bg-surface-bright text-primary font-label-md text-label-md flex items-center justify-center gap-2 shadow-[0_4px_16px_rgb(var(--kg-canvas-obsidian)/0.6)] active:scale-95 transition-all" data-vibe-more type="button" hidden><span data-vibe-more-label>${uiText("Показать ещё")}</span><span class="material-symbols-outlined text-[18px]">expand_more</span></button>
 </section>
@@ -108,10 +110,10 @@ ${deps.sortBar(state.sort)}
     const genre=uiText((d.genres||[])[0]||"");
     return `<div class="flex flex-col"><article data-vibe-film="${f.id}" data-detail-target="${target}" class="p-space-sm rounded-xl bg-surface-panel shadow-[0_6px_20px_rgb(var(--kg-canvas-obsidian)/0.5)] flex gap-space-sm active:bg-surface-container-high transition-colors cursor-pointer">
 <div class="relative w-20 h-28 rounded-lg overflow-hidden bg-surface-container-high shrink-0">${f.poster_path?`<img class="w-full h-full object-cover" loading="lazy" alt="Постер «${esc(f.title||f.original_title)}»" src="${poster(f.poster_path)}">`:'<span class="material-symbols-outlined w-full h-full flex items-center justify-center text-primary-container">movie</span>'}<div class="absolute bottom-1 left-1 px-1 py-0.2 rounded bg-black/80 flex items-center gap-0.5 text-primary-container"><span class="material-symbols-outlined text-[10px]" style="font-variation-settings: 'FILL' 1;">star</span><span class="font-micro-caption text-micro-caption font-bold">${Number(f.vote_average||0).toFixed(1)}</span></div></div>
-<div class="flex flex-col justify-between flex-1 min-w-0 py-0.5"><div class="flex flex-col"><div class="flex items-start justify-between gap-1"><h4 class="font-headline-sm text-headline-sm text-on-surface truncate">${esc(f.title||f.original_title||"Фильм")}</h4></div>
+<div class="flex flex-col justify-between flex-1 min-w-0 py-0.5"><div class="flex flex-col"><div class="flex items-start justify-between gap-1"><h4 class="font-headline-sm text-headline-sm text-on-surface truncate">${esc(f.title||f.original_title||uiText(series?"Сериал":"Фильм"))}</h4></div>
 <p class="font-micro-caption text-micro-caption text-text-muted truncate">${orig}${year}${country}</p>
 <p class="font-body-sm text-body-sm text-tertiary-fixed-dim mt-1 truncate">${dir?`Реж. ${dir}`:"&nbsp;"}${d.runtime?` · ${uiText("{minutes} мин", {minutes: d.runtime})}`:""}</p></div>
-<div class="flex items-center justify-between pt-1"><span class="px-2 py-0.5 rounded-full bg-surface-container-highest text-secondary font-label-sm text-label-sm truncate">${esc(genre||"Фильм")}</span><div class="flex items-center gap-1 text-primary-container font-label-sm text-label-sm"><span class="material-symbols-outlined text-[16px]">play_circle</span></div></div></div>
+<div class="flex items-center justify-between pt-1"><span class="px-2 py-0.5 rounded-full bg-surface-container-highest text-secondary font-label-sm text-label-sm truncate">${esc(genre||uiText(series?"Сериал":"Фильм"))}</span><div class="flex items-center gap-1 text-primary-container font-label-sm text-label-sm"><span class="material-symbols-outlined text-[16px]">play_circle</span></div></div></div>
 </article><div id="${target}"></div></div>`;
   }
   function jewelHtml(f,deps){
@@ -122,7 +124,7 @@ ${deps.sortBar(state.sort)}
     return `<div class="flex items-center gap-1.5 text-secondary"><span class="material-symbols-outlined text-[18px]">verified</span><span class="font-label-sm text-label-sm uppercase tracking-wider font-semibold">${esc(uiText(currentMood().x.jewel||"Жемчужина вайба · Выбор куратора"))}</span></div>
 <div data-vibe-film="${f.id}" data-detail-target="${target}" class="grid grid-cols-[108px_1fr] gap-space-md mt-1 cursor-pointer active:bg-surface-container-high transition-colors">
 <div class="relative w-full aspect-[2/3] rounded-xl overflow-hidden bg-surface-container-high shadow-lg">${f.poster_path?`<img class="w-full h-full object-cover" alt="Постер «${esc(f.title||f.original_title)}»" src="${poster(f.poster_path,"w342")}">`:""}<div class="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-md bg-black/75 backdrop-blur-md flex items-center gap-0.5 text-primary-container"><span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">star</span><span class="font-label-sm text-label-sm font-bold">${Number(f.vote_average||0).toFixed(1)}</span></div></div>
-<div class="flex flex-col justify-between min-w-0"><div class="flex flex-col gap-1"><div class="flex items-start justify-between gap-1"><h3 class="font-headline-md text-headline-md text-primary truncate leading-tight">${esc(f.title||f.original_title||"Фильм")}</h3><div class="flex items-center gap-1 shrink-0"><span class="px-2 py-0.5 rounded-full bg-secondary-container/60 text-secondary font-label-sm text-label-sm shrink-0">${year}${f._cc?` · ${flag(f._cc)}`:""}</span></div></div>
+<div class="flex flex-col justify-between min-w-0"><div class="flex flex-col gap-1"><div class="flex items-start justify-between gap-1"><h3 class="font-headline-md text-headline-md text-primary truncate leading-tight">${esc(f.title||f.original_title||uiText(series?"Сериал":"Фильм"))}</h3><div class="flex items-center gap-1 shrink-0"><span class="px-2 py-0.5 rounded-full bg-secondary-container/60 text-secondary font-label-sm text-label-sm shrink-0">${year}${f._cc?` · ${flag(f._cc)}`:""}</span></div></div>
 <p class="font-micro-caption text-micro-caption text-text-muted">${orig}</p>
 <p class="font-body-sm text-body-sm text-tertiary mt-0.5">${dir?`Реж. ${dir}`:""}${dir&&d.runtime?" · ":""}${d.runtime?`${uiText("{minutes} мин", {minutes: d.runtime})}`:""}</p>
 <div class="flex flex-wrap gap-1 mt-1.5">${genres.map((g,i)=>`<span class="px-2 py-0.5 rounded ${i?"bg-secondary-container/30 text-secondary-fixed":"bg-surface-container-highest text-tertiary"} font-label-sm text-label-sm">${esc(g)}</span>`).join("")}</div></div>
@@ -136,7 +138,7 @@ ${deps.sortBar(state.sort)}
     const rtFiltered=all.filter(f=>currentRuntime().test(f.runtime||0));
     const count=sel("[data-mv-count]"),avg=sel("[data-mv-avg]");
     const countForRuntime = rtFiltered.length;
-    if(count)count.textContent=state.loading&&!countForRuntime?"…":`${countForRuntime} ${interfaceLanguage==="en"?(countForRuntime===1?"film":"films"):plural(countForRuntime,["картина","картины","картин"])}`;
+    if(count)count.textContent=state.loading&&!countForRuntime?"…":`${countForRuntime} ${titleUnit(countForRuntime,["картина","картины","картин"])}`;
     if(avg)avg.textContent=countForRuntime?(rtFiltered.reduce((s,f)=>s+(Number(f.vote_average)||0),0)/countForRuntime).toFixed(1):"—";
     const reel=sel("[data-vibe-reel]");
     if(reel&&!state.spinning){
@@ -159,9 +161,9 @@ ${deps.sortBar(state.sort)}
     const box=sel("[data-vibe-films]");
     if(box){
       if(state.loading&&!rest.length&&!best){
-        box.innerHTML=`<p class="font-body-sm text-body-sm text-text-muted p-3 rounded-xl bg-surface-panel">${uiText("Загружаем фильмы…")}</p>`;
+        box.innerHTML=`<p class="font-body-sm text-body-sm text-text-muted p-3 rounded-xl bg-surface-panel">${uiText(series?"Загружаем сериалы…":"Загружаем фильмы…")}</p>`;
       }else if(!best){
-        box.innerHTML=`<p class="font-body-sm text-body-sm text-text-muted p-3 rounded-xl bg-surface-panel">${uiText("Нет фильмов для выбранного настроения. Выберите другую страну или настроение.")}</p>`;
+        box.innerHTML=`<p class="font-body-sm text-body-sm text-text-muted p-3 rounded-xl bg-surface-panel">${uiText(series?"Нет сериалов для выбранного настроения. Выберите другую страну или настроение.":"Нет фильмов для выбранного настроения. Выберите другую страну или настроение.")}</p>`;
       }else{
         const films=deps.sortCollectionFilms(rest,state.sort).slice(0,state.shown);
         box.innerHTML=state.view==="grid"?deps.moodFilmGrid(films,"vibe"):films.map(f=>filmCardHtml(f,deps)).join("");
@@ -172,7 +174,7 @@ ${deps.sortBar(state.sort)}
       const left=rest.length-state.shown;
       more.hidden=left<=0&&state.page>=state.totalPages;
       const label=sel("[data-vibe-more-label]");
-      if(label)label.textContent=left>0?uiText("Показать ещё {count} {unit}", {count: left, unit: interfaceLanguage==="en"?(left===1?"film":"films"):plural(left,["фильм","фильма","фильмов"])}):state.page<state.totalPages?uiText("Загрузить ещё фильмы"):uiText("Больше фильмов нет");
+      if(label)label.textContent=left>0?uiText("Показать ещё {count} {unit}", {count: left, unit: titleUnit(left,["фильм","фильма","фильмов"])}):state.page<state.totalPages?uiText(series?"Загрузить ещё сериалы":"Загрузить ещё фильмы"):uiText(series?"Больше сериалов нет":"Больше фильмов нет");
     }
     if(deps?.refreshFilm)deps.refreshFilm();
   }
@@ -194,7 +196,7 @@ ${deps.sortBar(state.sort)}
     try{
       const mood=currentMood();
       if(!state.jobs){
-        const filters = await window.KGMoodVibeAdditions.discoverFilters(mood, deps.searchKeywords);
+        const filters = await window.KGMoodVibeAdditions.discoverFilters(mood, deps.searchKeywords, deps.series);
         if(token!==state.token||key!==state.mood)return;
         const base=cc=>({with_origin_country:cc,...filters,"vote_count.gte":30,"vote_average.gte":5.5,sort_by:"popularity.desc",include_adult:"false"});
         const firsts=await Promise.allSettled(mood.countries.map(cc=>deps.api({...base(cc),page:1})));
@@ -209,7 +211,7 @@ ${deps.sortBar(state.sort)}
         });
         if(!jobs.length){
           const bad=firsts.find(r=>r.status==="rejected");
-          throw bad?bad.reason:new Error(uiText("Для этого настроения фильмов не нашлось."));
+          throw bad?bad.reason:new Error(uiText(series?"Для этого настроения сериалов не нашлось.":"Для этого настроения фильмов не нашлось."));
         }
         state.jobs=mix(jobs);state.totalPages=state.jobs.length;state.page=0;
       }
@@ -219,30 +221,30 @@ ${deps.sortBar(state.sort)}
         const result=job.data||await deps.api({...job.params,page:job.page});
         if(token!==state.token||key!==state.mood)return;
         job.data=null;
-        const candidates=(result.results||[]).filter(f=>f.poster_path&&!state.films.some(item=>item.id===f.id));
+        const candidates=(result.results||[]).filter(f=>f.poster_path&&(!deps.series||f.origin_country?.includes(job.cc))&&!state.films.some(item=>item.id===f.id));
         const details=[];
         await mapLimit(candidates,4,async f=>{
-          try{details.push([f.id,await deps.details(f.id)]);}catch(_){detailFailures++;details.push([f.id,null]);}
+          try{details.push([f.id,await deps.details(f.id)]);}catch(error){detailFailures++;details.push([f.id,error.code==="CATALOG_RESTRICTED"?false:null]);}
         });
         if(token!==state.token||key!==state.mood)return;
         attempted+=candidates.length;
         const byId=new Map(details);
-        state.films.push(...candidates.map(f=>{
+        state.films.push(...candidates.filter(f=>byId.get(f.id)!==false).map(f=>{
           const d=byId.get(f.id)||null;
-          const cc=(d&&d.countries||[]).find(c=>mood.countries.includes(c))||(d&&d.countries||[])[0]||job.cc;
+          const cc=deps.series?job.cc:(d&&d.countries||[]).find(c=>mood.countries.includes(c))||(d&&d.countries||[])[0]||job.cc;
           return {...f,title:d?.title||f.title,overview:d?.overview||f.overview,_cc:cc,runtime:d?.runtime||0,detail:d};
-        }).filter(f=>f.runtime>0));
+        }).filter(f=>deps.series||f.runtime>0));
         state.page++;
         renderFilms(root,deps);
       }
       state.loadedKey=key;
-      if(attempted&&!state.films.length&&detailFailures===attempted){
+      if(!deps.series&&attempted&&!state.films.length&&detailFailures===attempted){
         throw new Error(uiText("Не удалось получить хронометраж из TMDB. Проверьте API-ключ и подключение."));
       }
       renderFilms(root,deps);
     }catch(e){
       if(token!==state.token)return;
-      if(error){error.textContent=uiText(e.message||"Не удалось загрузить фильмы. Попробуйте ещё раз.");error.hidden=false;}if(retry)retry.hidden=false;
+      if(error){error.textContent=uiText(e.message||(series?"Не удалось загрузить сериалы. Попробуйте ещё раз.":"Не удалось загрузить фильмы. Попробуйте ещё раз."));error.hidden=false;}if(retry)retry.hidden=false;
     }finally{
       if(token===state.token){
         state.loading=false;renderFilms(root,deps);
@@ -262,7 +264,7 @@ ${deps.sortBar(state.sort)}
     const error=activeElement(root,"[data-vibe-error]"),pool=filtered();
     if(error){error.hidden=true;error.textContent="";}
     if(state.loading){state.autoSpin=state.mood;if(error){error.textContent=uiText("Подборка загружается — рулетка запустится сама.");error.hidden=false;}return;}
-    if(!pool.length){if(error){error.textContent=uiText("В выбранном настроении и хронометраже фильмов не нашлось. Выберите другой хронометраж.");error.hidden=false;}return;}
+    if(!pool.length){if(error){error.textContent=uiText(series?"В выбранном настроении нет сериалов с такой длительностью серии.":"В выбранном настроении и хронометраже фильмов не нашлось. Выберите другой хронометраж.");error.hidden=false;}return;}
     const moodId=state.mood,film=pool[Math.floor(Math.random()*pool.length)],winnerDetailId=`mood-roulette-winner-detail-v${moodId}`;
     const token=++state.spinToken,winnerIndex=26,others=pool.filter(item=>item.id!==film.id),sequence=[];
     const showWinner = () => {
@@ -283,7 +285,7 @@ ${deps.sortBar(state.sort)}
       panel.scrollIntoView({behavior:"smooth",block:"center"});if(typeof window.startFilmReelSound==="function")window.startFilmReelSound();
       const landed=await window.KGCinemaReel.spinProjectionTrack(panel,sequence,film,{reducedMotion:prefersReducedMotion()||!others.length,cancelled:()=>token!==state.spinToken||!panel.isConnected,shouldSkip:()=>state.skipSpin,meta:{country:film._cc||"КИНОПОИСК"},onFrame:(_f,index,total)=>{const c=activeElement(root,"[data-vibe-frame-counter]");if(c)c.textContent=uiText("Кадр")+" "+String(index+1).padStart(2,"0")+" / "+String(total).padStart(2,"0");}});
       if(typeof window.stopFilmReelSound==="function")window.stopFilmReelSound();if(!landed||token!==state.spinToken||!panel.isConnected){state.spinning=false;if(launchButton)launchButton.disabled=false;return;}
-      state.spinning=false;state.skipSpin=false;const c=activeElement(root,"[data-vibe-frame-counter]");if(c)c.textContent=uiText("Фильм")+" "+String(pool.indexOf(film)+1).padStart(2,"0")+" / "+String(pool.length).padStart(2,"0");
+      state.spinning=false;state.skipSpin=false;const c=activeElement(root,"[data-vibe-frame-counter]");if(c)c.textContent=uiText(series?"Сериал":"Фильм")+" "+String(pool.indexOf(film)+1).padStart(2,"0")+" / "+String(pool.length).padStart(2,"0");
       if(launchButton)launchButton.disabled=false;if(launchLabel)launchLabel.textContent=uiText("Крутить ещё раз");
       const skip=activeElement(root,"[data-vibe-skip]");if(skip)skip.hidden=true;showWinner();
       return;
@@ -291,9 +293,9 @@ ${deps.sortBar(state.sort)}
     if(window.KGCinemaReel?.isCassetteMode?.()){
       panel.scrollIntoView({behavior:"smooth",block:"center"});if(typeof window.startFilmReelSound==="function")window.startFilmReelSound();
       const onOpen=f=>deps.openFilm({...f,_kgRelatedPool:pool},"mood",winnerDetailId);
-      const landed=await window.KGCinemaReel.spinCassetteDeck(panel,pool,sequence,film,{reducedMotion:prefersReducedMotion()||!others.length,cancelled:()=>token!==state.spinToken||!panel.isConnected,shouldSkip:()=>state.skipSpin,onOpen,onFrame:(_f,index,total)=>{const c=activeElement(root,"[data-vibe-frame-counter]");if(c)c.textContent=uiText("Фильм")+" "+String(index+1).padStart(2,"0")+" / "+String(total).padStart(2,"0");}});
+      const landed=await window.KGCinemaReel.spinCassetteDeck(panel,pool,sequence,film,{reducedMotion:prefersReducedMotion()||!others.length,cancelled:()=>token!==state.spinToken||!panel.isConnected,shouldSkip:()=>state.skipSpin,onOpen,onFrame:(_f,index,total)=>{const c=activeElement(root,"[data-vibe-frame-counter]");if(c)c.textContent=uiText(series?"Сериал":"Фильм")+" "+String(index+1).padStart(2,"0")+" / "+String(total).padStart(2,"0");}});
       if(typeof window.stopFilmReelSound==="function")window.stopFilmReelSound();if(!landed||token!==state.spinToken||!panel.isConnected){state.spinning=false;if(launchButton)launchButton.disabled=false;return;}
-      state.spinning=false;state.skipSpin=false;const c=activeElement(root,"[data-vibe-frame-counter]");if(c)c.textContent=uiText("Фильм")+" "+String(pool.indexOf(film)+1).padStart(2,"0")+" / "+String(pool.length).padStart(2,"0");
+      state.spinning=false;state.skipSpin=false;const c=activeElement(root,"[data-vibe-frame-counter]");if(c)c.textContent=uiText(series?"Сериал":"Фильм")+" "+String(pool.indexOf(film)+1).padStart(2,"0")+" / "+String(pool.length).padStart(2,"0");
       if(launchButton)launchButton.disabled=false;if(launchLabel)launchLabel.textContent=uiText("Крутить ещё раз");
       const skip=activeElement(root,"[data-vibe-skip]");if(skip)skip.hidden=true;showWinner();
       return;
@@ -367,6 +369,7 @@ ${deps.sortBar(state.sort)}
       root.appendChild(host);
     }
     stopSpin(root);deps.closeFilm("mood");
+    series=deps.series;
     state.mood=id;state.runtime=getRuntime();state.country="all";state.films=[];state.shown=4;state.loadedKey="";state.page=0;state.totalPages=0;state.jobs=null;state.loading=false;state.autoSpin=null;
     state.sort="rating";
     host.innerHTML=`<style>#mood-vibe-root [hidden]{display:none!important}</style>`+detailHtml(currentMood(),deps);
@@ -438,5 +441,9 @@ ${deps.sortBar(state.sort)}
     },true);
   }
   function reset(root,deps){if(host&&host.isConnected)closeVibe(root,deps);}
-  window.KGMoodVibePage={init,reset,stop};
+  function back(root,deps){
+    if(!host?.isConnected)return false;
+    closeVibe(root,deps);window.scrollTo({top:0});return true;
+  }
+  window.KGMoodVibePage={init,reset,stop,back};
 })();

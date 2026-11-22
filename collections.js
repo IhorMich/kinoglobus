@@ -422,7 +422,7 @@ sectionNav.style.display="none";
 const collectionTabs=[["collections","Коллекции"],["mood","Коллекция по настроению"],["oscar","Оскар"]];
 function renderCollectionTabs(tabs, media){
   sectionNav.dataset.media=media;
-  sectionNav.innerHTML=`<div class="grid ${media==="tv"?"grid-cols-2":"grid-cols-3"} gap-1.5 rounded-xl bg-surface-panel p-1.5">`+
+  sectionNav.innerHTML=`<div class="grid grid-cols-3 gap-1.5 rounded-xl bg-surface-panel p-1.5">`+
     tabs.map(([route,label])=>`<button type="button" data-collection-route="${route}" aria-current="false" class="min-w-0 px-1.5 py-2 rounded-lg text-text-muted hover:text-primary font-micro-caption text-micro-caption leading-tight">${uiText(label)}</button>`).join("")+
     "</div>";
 }
@@ -508,7 +508,7 @@ function rememberView(destination, collectionId = null) {
   // Top-level tabs replace the navigation trail rather than extending it.
   if (destination !== "collection" && destination !== "series-collection") {
     previousViews.length = 0;
-    if (destination === "series-calendar") {
+    if (destination === "series-calendar" || destination === "series-mood") {
       previousViews.push({view:"series", collectionId:null},{view:"series-collections", collectionId:null});
     } else if (destination !== "home") {
       previousViews.push({view:destination==="series-collections"?"series":"home", collectionId:null});
@@ -521,15 +521,19 @@ function rememberView(destination, collectionId = null) {
 }
 
 function showView(v, remember = true){
-  const seriesSelection=["series-collections","series-collection","series-calendar"].includes(v);
+  const seriesSelection=["series-collections","series-collection","series-calendar","series-mood"].includes(v);
+  const moodView=v==="mood"||v==="series-mood";
   if(!window.KGSeries.setMode(v==="series"||seriesSelection))return;
   if(v==="series-collections"&&(view!==v||!seriesCollections.firstChild)) renderTvCatalog();
   if(view==="series-calendar"&&v!==view)window.KGSeriesCalendar.hide();
   const enterCalendar=v==="series-calendar"&&v!==view;
   if (remember && v !== view) rememberView(v);
   if(v!==view) window.KGFilmCard.stopTrailers();
-  if(v!=="mood"&&window.KGMoodPage)window.KGMoodPage.stop(vm);
-  if(v!=="mood"&&window.KGMoodVibePage)window.KGMoodVibePage.stop();
+  if(v!==view&&["mood","series-mood"].includes(view)){
+    window.KGMoodPage.stop(vm);
+    window.KGMoodVibePage.reset(vm,moodDeps);
+    delete vm.dataset.ready;
+  }
   if(v!=="oscar"&&window.KGOscarPage&&window.KGOscarPage.stop)window.KGOscarPage.stop(vo);
   view=v;
   if(!["collection","series-collection"].includes(v))rStop();
@@ -558,11 +562,11 @@ function showView(v, remember = true){
 
   mediaSwitch.querySelectorAll('[role="tab"]').forEach(tab=>{const selected=tab.dataset.mediaView===v;tab.setAttribute('aria-selected',String(selected));tab.tabIndex=selected?0:-1;});
   sectionNav.style.display=seriesSelection||["collections","collection","mood","oscar"].includes(v)?"":"none";
-  const sectionTabs=seriesSelection?[["series-collections","Коллекции"],["series-calendar","Календарь"]]:collectionTabs;
+  const sectionTabs=seriesSelection?[["series-collections","Коллекции"],["series-mood","Коллекция по настроению"],["series-calendar","Календарь"]]:collectionTabs;
   if(sectionNav.dataset.media!==(seriesSelection?"tv":"movie")) renderCollectionTabs(sectionTabs,seriesSelection?"tv":"movie");
   vc.style.display=v==="collections"?"":"none";
   vd.style.display=(v==="collection"&&vd.dataset.collectionMedia==="movie")||(v==="series-collection"&&vd.dataset.collectionMedia==="tv")?"":"none";
-  vm.style.display=v==="mood"?"":"none";
+  vm.style.display=moodView?"":"none";
   vo.style.display=v==="oscar"?"":"none";
   const act=v==="series"?"home":(seriesSelection||["collection","mood","oscar"].includes(v))?"collections":v;
   paintBottomNav(nav, act);
@@ -574,8 +578,12 @@ function showView(v, remember = true){
   });
   scrollTo({top:0});
   if(v==="collections") initCatalog();
-  if(v==="mood"&&(!vm.dataset.ready||vm.dataset.key!==apiKey)){window.KGMoodPage.render(vm,pageDeps);vm.dataset.ready="true";vm.dataset.key=apiKey;}
-  if(v==="mood"&&window.KGMoodVibePage){window.KGMoodVibePage.init(vm,pageDeps);if(window._kgMoodSeen)window.KGMoodVibePage.reset(vm,pageDeps);window._kgMoodSeen=true;}
+  if(moodView&&(!vm.dataset.ready||vm.dataset.key!==apiKey)){
+    window.KGMoodVibePage.reset(vm,moodDeps);
+    window.KGMoodPage.render(vm,moodDeps);
+    window.KGMoodVibePage.init(vm,moodDeps);
+    vm.dataset.ready="true";vm.dataset.key=apiKey;
+  }
   if(v==="oscar"){
     if(!vo.dataset.ready||vo.dataset.key!==apiKey){window.KGOscarPage.render(vo,pageDeps);vo.dataset.ready="true";vo.dataset.key=apiKey;}
     else window.KGOscarPage.refreshForeign?.(vo);
@@ -619,6 +627,7 @@ window.KGHandleBack = () => {
     .find(button => button.getClientRects().length);
   if (trailerClose) { trailerClose.click(); return true; }
   if (D.selected) { closeInlineFilm(); return true; }
+  if(["mood","series-mood"].includes(view)&&window.KGMoodVibePage.back(vm,moodDeps))return true;
   const previous = previousViews.pop();
   if (!previous) return false;
   if (["collection","series-collection"].includes(previous.view) && previous.collectionId) {
@@ -1016,6 +1025,19 @@ const pageDeps={
   closeFilm:(placement,restoreFocus)=>closePageFilm(placement,restoreFocus),
   refreshFilm:()=>renderSelectedPanel(),
   back:()=>showView("collections")
+};
+const moodDeps={
+  ...pageDeps,
+  get series(){return view==="series-mood";},
+  api:params=>view==="series-mood"?window.KGSeries.discover(params):api(params),
+  back:()=>showView(view==="series-mood"?"series-collections":"collections"),
+  openFilm(film,placement,target,options){
+    if(!window.KGSeries.isSeriesId(film.id)){openFilm(film,placement,target,options);return;}
+    if(target?.startsWith("mood-roulette-winner-detail-")){
+      const host=$(target);
+      if(host)presentSeriesWinner(host,film,()=>view==="series-mood"&&host.isConnected);
+    }else window.KGSeriesHub.openSeries(film,options?.opener);
+  }
 };
 const CCON="bg-primary-container text-on-primary shadow-[0_0_12px_rgb(var(--kg-primary-container)/0.28)] font-semibold",CCOFF="bg-surface-container text-text-muted hover:text-on-surface";
 const ccCls=on=>"h-[34px] px-3 rounded-full font-label-sm text-label-sm flex-shrink-0 transition-colors "+(on?CCON:CCOFF);
@@ -1475,8 +1497,11 @@ function finishPick(film,token){
   window.KGCinemaReel?.presentTicket($("cl-reel"),film,{country:cname(film._cc||D.cc||D.t.cc[0])});
   window.KGCinemaReel?.updateIMAX(document.getElementById("kg-imax-stage"),film,{country:cname(film._cc||D.cc||D.t.cc[0]),state:"ФИЛЬМ В КАДРЕ"});
   if(!D.t.series){openFilm(film,"roulette");return;}
-  const host=$("cl-result"),model=window.KGFilmCard.createModel(film);
-  const current=()=>R.token===token&&D.picked===film&&host.isConnected;
+  const host=$("cl-result");
+  presentSeriesWinner(host,film,()=>R.token===token&&D.picked===film&&host.isConnected);
+}
+function presentSeriesWinner(host,film,current){
+  const model=window.KGFilmCard.createModel(film);
   const refresh=()=>{if(current())window.KGSeriesHub.mountDiscovery(host,model);};
   refresh();
   window.KGFilmCard.hydrate(model,film,refresh,current);
@@ -1971,7 +1996,7 @@ window.addEventListener("pageshow",checkDailyRefresh);
 window.addEventListener("focus",checkDailyRefresh);
 const refreshForNewKey=()=>{
   homeEditorial.loadedKey="";
-  if(view==="mood"){vm.dataset.key="";showView("mood");}
+  if(view==="mood"||view==="series-mood"){vm.dataset.key="";showView(view);}
   if(view==="oscar"){vo.dataset.key="";showView("oscar");}
   refreshDailyData(true,true);
 };

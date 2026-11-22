@@ -18,13 +18,21 @@
     {id:"epic",label:"150+ минут",button:"150+ мин",icon:"movie",test:m=>m>=150},
     {id:"short",label:"До 90 минут",button:"до 90 мин",icon:"bolt",test:m=>m>0&&m<90}
   ];
+  const episodeRuntimes=[
+    {id:"any",label:"Любая длительность серии",button:"любая длительность серии",icon:"all_inclusive",test:()=>true},
+    {id:"short",label:"До 30 минут",button:"до 30 мин",icon:"bolt",test:m=>m>0&&m<=30},
+    {id:"classic",label:"31–60 минут",button:"31–60 мин",icon:"schedule",test:m=>m>30&&m<=60},
+    {id:"epic",label:"Более 60 минут",button:"более 60 мин",icon:"movie",test:m=>m>60}
+  ];
+  const runtimeOptions=series=>series?episodeRuntimes:runtimes;
+  let series=false;
   const esc=s=>String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const poster=(path,size="w185")=>path?`https://image.tmdb.org/t/p/${size}${path}`:"";
 const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:"",token:0,spinToken:0,spinFrame:0,spinning:false,skipSpin:false,page:0,totalPages:0,jobs:null};  const reelStep=90,reelPadding=8,reelCellWidth=80;
   const prefersReducedMotion=()=>window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches||false;
   let boundRoot=null;
   const currentMood=()=>moods.find(m=>m.id===state.mood)||moods[0];
-  const currentRuntime=()=>runtimes.find(r=>r.id===state.runtime)||runtimes[0];
+  const currentRuntime=()=>runtimeOptions(series).find(r=>r.id===state.runtime)||runtimeOptions(series)[0];
   const activeCard=root=>root.querySelector(`.mood-card[data-mood-card="${state.mood}"]`);
   const activeElement=(root,selector)=>activeCard(root)?.querySelector(selector)||null;
   function filtered(){return state.films.filter(f=>currentRuntime().test(f.runtime||0));}
@@ -59,7 +67,7 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
     const more=activeElement(root,"[data-mood-more]");
     if(more){
       more.hidden=films.length<=state.shown&&state.page>=state.totalPages;
-      more.textContent=films.length>state.shown?uiText("Показать ещё фильмы"):state.page<state.totalPages?uiText("Загрузить ещё фильмы"):uiText("Больше фильмов нет");
+      more.textContent=films.length>state.shown?uiText(series?"Показать ещё сериалы":"Показать ещё фильмы"):state.page<state.totalPages?uiText(series?"Загрузить ещё сериалы":"Загрузить ещё фильмы"):uiText(series?"Больше сериалов нет":"Больше фильмов нет");
     }
     if(deps?.refreshFilm)deps.refreshFilm();
   }
@@ -71,28 +79,29 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
   }
   function render(root,deps){
     ensureStyle();
-    if(boundRoot===root)stopSpin(root);
+    if(boundRoot===root)stop(root);
+    series=deps.series;
     root.innerHTML=`
 <div class="flex flex-col w-full pb-8">
 <div class="flex items-center justify-between pt-2 pb-1"><button type="button" data-mood-back class="flex items-center gap-1.5 text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined text-[20px]">arrow_back</span><span class="font-label-sm text-label-sm">${uiText("Подборки")}</span></button><span class="font-micro-caption text-micro-caption text-primary/80 uppercase tracking-widest">Mood &amp; Vibe</span></div>
 <div class="relative w-full rounded-2xl overflow-hidden bg-surface-container-low p-3.5 shadow-xl mb-2">
 <div class="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-cinema-amber-glow blur-3xl pointer-events-none"></div><div class="absolute -bottom-10 -left-10 w-44 h-44 rounded-full bg-cinema-velvet-glow blur-2xl pointer-events-none"></div>
 <div class="relative z-10 flex flex-col gap-1.5"><div class="flex items-center gap-1.5 self-start px-2 py-0.5 rounded-full bg-primary-container/15 text-primary-fixed-dim"><span class="material-symbols-outlined text-[14px]">sensors</span><span class="font-micro-caption text-micro-caption tracking-widest uppercase">${uiText("Эмоциональный навигатор")}</span></div>
-<h1 class="font-headline-lg text-headline-lg text-primary tracking-tight">${uiText("Кино под твоё настроение")}</h1><p class="font-body-sm text-body-sm text-text-muted leading-relaxed">${uiText("Забудьте сухие жанры. Выбирайте атмосферу вечера, а Moven подберёт шедевры мирового кино.")}</p></div></div>
-<section class="flex flex-col mb-4"><div class="flex items-center justify-between mb-1 px-1"><div class="flex items-center gap-1.5 text-primary-fixed-dim"><span class="material-symbols-outlined text-[18px]">timelapse</span><span class="font-label-md text-label-md tracking-wide">${uiText("Хронометраж сеанса")}</span></div></div>
-<div class="flex items-center gap-2 overflow-x-auto py-1 -mx-gutter-mobile px-gutter-mobile">${runtimes.map((r,i)=>`<button class="mood-runtime shrink-0 flex items-center gap-2 px-3.5 py-2.5 rounded-full ${i===0?"bg-primary-container text-on-primary shadow-[0_0_18px_rgb(var(--kg-primary-container)/0.28)]":"bg-surface-container text-text-muted"} font-label-sm text-label-sm transition-all active:scale-95" data-runtime="${r.id}" type="button"><span class="material-symbols-outlined text-[16px]">${r.icon}</span><span>${esc(uiText(r.label))}</span></button>`).join("")}</div>
-<div class="mt-2 px-3 py-2 rounded-xl bg-surface-container-lowest/80 flex items-start gap-2"><span class="material-symbols-outlined text-primary-container text-[16px] mt-0.5">tips_and_updates</span><p class="font-micro-caption text-micro-caption text-text-muted italic">${uiText("«Мало времени вечером? Никаких трёхчасовых драм — только кино под ваш ритм»")}</p></div></section>
+<h1 class="font-headline-lg text-headline-lg text-primary tracking-tight">${uiText(series?"Сериалы под твоё настроение":"Кино под твоё настроение")}</h1><p class="font-body-sm text-body-sm text-text-muted leading-relaxed">${uiText(series?"Выберите атмосферу вечера, и Moven подберёт сериалы под ваше настроение.":"Забудьте сухие жанры. Выбирайте атмосферу вечера, а Moven подберёт шедевры мирового кино.")}</p></div></div>
+<section class="flex flex-col mb-4"><div class="flex items-center justify-between mb-1 px-1"><div class="flex items-center gap-1.5 text-primary-fixed-dim"><span class="material-symbols-outlined text-[18px]">timelapse</span><span class="font-label-md text-label-md tracking-wide">${uiText(series?"Длительность серии":"Хронометраж сеанса")}</span></div></div>
+<div class="flex items-center gap-2 overflow-x-auto py-1 -mx-gutter-mobile px-gutter-mobile">${runtimeOptions(series).map((r,i)=>`<button class="mood-runtime shrink-0 flex items-center gap-2 px-3.5 py-2.5 rounded-full ${i===0?"bg-primary-container text-on-primary shadow-[0_0_18px_rgb(var(--kg-primary-container)/0.28)]":"bg-surface-container text-text-muted"} font-label-sm text-label-sm transition-all active:scale-95" data-runtime="${r.id}" type="button"><span class="material-symbols-outlined text-[16px]">${r.icon}</span><span>${esc(uiText(r.label))}</span></button>`).join("")}</div>
+<div class="mt-2 px-3 py-2 rounded-xl bg-surface-container-lowest/80 flex items-start gap-2"><span class="material-symbols-outlined text-primary-container text-[16px] mt-0.5">tips_and_updates</span><p class="font-micro-caption text-micro-caption text-text-muted italic">${uiText(series?"Показываем длительность одной серии.":"«Мало времени вечером? Никаких трёхчасовых драм — только кино под ваш ритм»")}</p></div></section>
 <section class="flex flex-col gap-2 mb-6"><div class="flex items-center justify-between px-1"><div class="flex items-center gap-1.5 text-on-surface"><span class="material-symbols-outlined text-secondary text-[20px]">filter_vintage</span><span class="font-headline-sm text-headline-sm tracking-wide">${uiText("Палитра вайбов")}</span></div>${deps.layoutSwitch(moodCatalogLayout,"mood-catalog")}</div>
 <div class="${moodCatalogLayout==="grid"?"kg-three-columns":"flex flex-col gap-3"}" id="mood-cards">${moods.map((m,i)=>`<article class="mood-card relative flex flex-col overflow-hidden rounded-2xl ${i===0?"bg-surface-container-high shadow-lg shadow-black/40":"bg-surface-container shadow-md shadow-black/30"} transition-all duration-200" data-mood-card="${m.id}">
 <div data-mood-glow class="absolute inset-0 rounded-2xl bg-gradient-to-r from-cinema-amber-glow to-transparent ${i===0?"opacity-20":"opacity-0"} pointer-events-none"></div>
 <button type="button" data-mood-select data-mood-id="${m.id}" aria-pressed="${i===0}" class="relative z-10 w-full h-40 overflow-hidden text-left"><img class="absolute inset-0 w-full h-full object-cover" src="${m.image}" alt="" style="object-position: ${m.imagePosition || "center"}"><span class="absolute inset-0 bg-gradient-to-t from-surface-container-high via-surface-container-high/35 to-transparent"></span><span class="absolute top-3 left-3 w-9 h-9 rounded-xl bg-surface-container-lowest/80 backdrop-blur-md flex items-center justify-center text-primary-container border border-surface-border-subtle"><span class="material-symbols-outlined text-[20px]">${m.icon}</span></span><span class="kg-mood-cover-copy absolute bottom-3 left-4 right-12"><span class="mood-title block font-headline-sm text-headline-sm ${i===0?"text-primary":"text-on-surface"} leading-snug">${uiText(m.title)}</span><span class="kg-mood-secondary block font-micro-caption text-micro-caption text-text-muted mt-1">${uiText(m.tag)}</span></span><span class="mood-radio absolute right-3 bottom-3 w-6 h-6 rounded-full ${i===0?"bg-primary-container text-on-primary shadow-md":"bg-surface-container-highest text-transparent"} flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">check</span></span></button>
-<p class="kg-mood-secondary relative px-4 font-body-sm text-body-sm text-on-surface-variant mb-3 leading-snug">${uiText(m.description)}</p>
+<p class="kg-mood-secondary relative px-4 font-body-sm text-body-sm text-on-surface-variant mb-3 leading-snug">${uiText(series&&m.id==="chemistry"?"Случайные встречи, флирт и признания, которых ждёшь весь сериал.":m.description)}</p>
 <div class="kg-mood-secondary relative px-4 flex flex-wrap items-center gap-1.5 pt-1">${m.labels.map(x=>`<span class="font-label-sm text-label-sm px-2.5 py-1 rounded-full bg-surface-container-low text-text-muted">${uiText(x)}</span>`).join("")}<span class="font-micro-caption text-micro-caption px-2 py-1 rounded-full bg-surface-container-low text-on-surface-variant ml-auto">${uiText(m.genreLabel)}</span></div>
 <div data-mood-workbench class="kg-mood-secondary relative z-10 mx-4 mt-4 mb-4 flex flex-col gap-3 border-t border-surface-border-subtle pt-3">
 <div class="flex justify-end"><button class="flex items-center gap-1 text-on-surface-variant hover:text-primary" data-mood-surprise type="button"><span class="material-symbols-outlined text-[15px]">shuffle</span><span class="font-micro-caption text-micro-caption underline">${uiText("Другой вайб")}</span></button></div>
 <button class="w-full h-12 rounded-xl bg-primary-container text-on-primary font-label-lg text-label-lg flex items-center justify-center gap-2 shadow-[0_0_24px_rgb(var(--kg-primary-container)/0.35)] active:scale-[0.98] transition-all" data-mood-spin type="button"><span class="material-symbols-outlined text-[20px]">casino</span><span data-mood-launch-label>${uiText("Крутить этот вайб")}</span></button>
 <p class="font-body-sm text-body-sm text-feedback-error" data-mood-error role="status" hidden></p><button class="self-start px-3 py-2 rounded-lg bg-surface-container-high text-primary font-label-sm text-label-sm" data-mood-retry type="button" hidden>${uiText("Повторить загрузку")}</button>
-<div data-mood-result></div><section class="flex flex-col gap-2"><button class="flex items-center justify-between gap-2 text-left" data-mood-films-toggle type="button" aria-expanded="false"><span class="font-label-md text-label-md text-on-surface">${uiText("Фильмы в этом вайбе")}</span><span class="material-symbols-outlined text-primary-container" data-mood-films-icon>expand_more</span></button><div data-mood-films-panel hidden><div class="flex justify-end mb-2">${deps.layoutSwitch(moodFilmLayout,"mood-films")}</div><div class="flex flex-col gap-2" data-mood-films></div><button class="w-full py-2.5 rounded-xl bg-surface-container-high text-primary font-label-sm text-label-sm" data-mood-more type="button" hidden>${uiText("Показать ещё фильмы")}</button></div></section></div></article>`).join("")}</div></section>
+<div data-mood-result></div><section class="flex flex-col gap-2"><button class="flex items-center justify-between gap-2 text-left" data-mood-films-toggle type="button" aria-expanded="false"><span class="font-label-md text-label-md text-on-surface">${uiText(series?"Сериалы в этом вайбе":"Фильмы в этом вайбе")}</span><span class="material-symbols-outlined text-primary-container" data-mood-films-icon>expand_more</span></button><div data-mood-films-panel hidden><div class="flex justify-end mb-2">${deps.layoutSwitch(moodFilmLayout,"mood-films")}</div><div class="flex flex-col gap-2" data-mood-films></div><button class="w-full py-2.5 rounded-xl bg-surface-container-high text-primary font-label-sm text-label-sm" data-mood-more type="button" hidden>${uiText(series?"Показать ещё сериалы":"Показать ещё фильмы")}</button></div></section></div></article>`).join("")}</div></section>
 <button class="self-start mb-3 flex items-center gap-1 text-on-surface-variant hover:text-primary" id="mood-surprise" type="button"><span class="material-symbols-outlined text-[15px]">shuffle</span><span class="font-micro-caption text-micro-caption underline">${uiText("Удиви меня")}</span></button></div>`;
     state.mood="wine";state.runtime="any";state.shown=4;state.films=[];state.loadedKey="";state.page=0;state.totalPages=0;state.jobs=null;
     updateLaunchLabel(root);
@@ -151,7 +160,7 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
     try{
       const mood=currentMood();
       if(!state.jobs){
-        const filters = await window.KGMoodVibeAdditions.discoverFilters(mood, deps.searchKeywords);
+        const filters = await window.KGMoodVibeAdditions.discoverFilters(mood, deps.searchKeywords, deps.series);
         if(token!==state.token||key!==state.mood)return;
         const base=cc=>({with_origin_country:cc,...filters,"vote_count.gte":30,"vote_average.gte":5.5,sort_by:"popularity.desc",include_adult:"false"});
         const firsts=await Promise.allSettled(mood.countries.map(cc=>deps.api({...base(cc),page:1})));
@@ -166,7 +175,7 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
         });
         if(!jobs.length){
           const bad=firsts.find(r=>r.status==="rejected");
-          throw bad?bad.reason:new Error(uiText("Для этого настроения фильмов не нашлось."));
+          throw bad?bad.reason:new Error(uiText(series?"Для этого настроения сериалов не нашлось.":"Для этого настроения фильмов не нашлось."));
         }
         state.jobs=mix(jobs);state.totalPages=state.jobs.length;state.page=0;
       }
@@ -176,30 +185,30 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
         const result=job.data||await deps.api({...job.params,page:job.page});
         if(token!==state.token||key!==state.mood)return;
         job.data=null;
-        const candidates=(result.results||[]).filter(f=>f.poster_path&&!state.films.some(item=>item.id===f.id));
+        const candidates=(result.results||[]).filter(f=>f.poster_path&&(!deps.series||f.origin_country?.includes(job.cc))&&!state.films.some(item=>item.id===f.id));
         const details=[];
         await mapLimit(candidates,4,async f=>{
-          try{details.push([f.id,await deps.details(f.id)]);}catch(_){detailFailures++;details.push([f.id,null]);}
+          try{details.push([f.id,await deps.details(f.id)]);}catch(error){detailFailures++;details.push([f.id,error.code==="CATALOG_RESTRICTED"?false:null]);}
         });
         if(token!==state.token||key!==state.mood)return;
         attempted+=candidates.length;
         const byId=new Map(details);
-        state.films.push(...candidates.map(f=>{
+        state.films.push(...candidates.filter(f=>byId.get(f.id)!==false).map(f=>{
           const d=byId.get(f.id)||null;
-          const cc=(d&&d.countries||[]).find(c=>mood.countries.includes(c))||(d&&d.countries||[])[0]||job.cc;
+          const cc=deps.series?job.cc:(d&&d.countries||[]).find(c=>mood.countries.includes(c))||(d&&d.countries||[])[0]||job.cc;
           return {...f,title:d?.title||f.title,overview:d?.overview||f.overview,_cc:cc,runtime:d?.runtime||0,detail:d};
-        }).filter(f=>f.runtime>0));
+        }).filter(f=>deps.series||f.runtime>0));
         state.page++;
         renderFilms(root,deps);
       }
       state.loadedKey=key;
-      if(attempted&&!state.films.length&&detailFailures===attempted){
+      if(!deps.series&&attempted&&!state.films.length&&detailFailures===attempted){
         throw new Error(uiText("Не удалось получить хронометраж из TMDB. Проверьте API-ключ и подключение."));
       }
       renderFilms(root,deps);
     }catch(e){
       if(token!==state.token)return;
-      if(error){error.textContent=uiText(e.message||"Не удалось загрузить фильмы. Попробуйте ещё раз.");error.hidden=false;}if(retry)retry.hidden=false;
+      if(error){error.textContent=uiText(e.message||(series?"Не удалось загрузить сериалы. Попробуйте ещё раз.":"Не удалось загрузить фильмы. Попробуйте ещё раз."));error.hidden=false;}if(retry)retry.hidden=false;
     }finally{
       if(token===state.token){
         state.loading=false;renderFilms(root,deps);
@@ -282,7 +291,7 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
     const error=activeElement(root,"[data-mood-error]"),pool=filtered();
     if(error){error.hidden=true;error.textContent="";}
     if(state.loading){state.autoSpin=state.mood;if(error){error.textContent=uiText("Подборка загружается — рулетка запустится сама.");error.hidden=false;}return;}
-    if(!pool.length){if(error){error.textContent=uiText("В выбранном настроении и хронометраже фильмов не нашлось. Выберите другой хронометраж.");error.hidden=false;}return;}
+    if(!pool.length){if(error){error.textContent=uiText(series?"В выбранном настроении нет сериалов с такой длительностью серии.":"В выбранном настроении и хронометраже фильмов не нашлось. Выберите другой хронометраж.");error.hidden=false;}return;}
     const moodId=state.mood,film=pool[Math.floor(Math.random()*pool.length)],winnerDetailId=`mood-roulette-winner-detail-${moodId}`;
     const token=++state.spinToken,winnerIndex=26,others=pool.filter(item=>item.id!==film.id),sequence=[];
     const showWinner = () => {
@@ -303,7 +312,7 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
       panel.scrollIntoView({behavior:"smooth",block:"center"});if(typeof window.startFilmReelSound==="function")window.startFilmReelSound();
       const landed=await window.KGCinemaReel.spinProjectionTrack(panel,sequence,film,{reducedMotion:prefersReducedMotion()||!others.length,cancelled:()=>token!==state.spinToken||!panel.isConnected,shouldSkip:()=>state.skipSpin,meta:{country:film._cc||"КИНОПОИСК"},onFrame:(_f,index,total)=>{const c=activeElement(root,"[data-mood-frame-counter]");if(c)c.textContent=uiText("Кадр")+" "+String(index+1).padStart(2,"0")+" / "+String(total).padStart(2,"0");}});
       if(typeof window.stopFilmReelSound==="function")window.stopFilmReelSound();if(!landed||token!==state.spinToken||!panel.isConnected){state.spinning=false;if(launchButton)launchButton.disabled=false;return;}
-      state.spinning=false;state.skipSpin=false;const c=activeElement(root,"[data-mood-frame-counter]");if(c)c.textContent=uiText("Фильм")+" "+String(pool.indexOf(film)+1).padStart(2,"0")+" / "+String(pool.length).padStart(2,"0");
+      state.spinning=false;state.skipSpin=false;const c=activeElement(root,"[data-mood-frame-counter]");if(c)c.textContent=uiText(series?"Сериал":"Фильм")+" "+String(pool.indexOf(film)+1).padStart(2,"0")+" / "+String(pool.length).padStart(2,"0");
       if(launchButton)launchButton.disabled=false;if(launchLabel)launchLabel.textContent=uiText("Крутить ещё раз");
       const skip=activeElement(root,"[data-mood-skip]");if(skip)skip.hidden=true;showWinner();
       return;
@@ -311,9 +320,9 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
     if(window.KGCinemaReel?.isCassetteMode?.()){
       panel.scrollIntoView({behavior:"smooth",block:"center"});if(typeof window.startFilmReelSound==="function")window.startFilmReelSound();
       const onOpen=f=>deps.openFilm({...f,_kgRelatedPool:pool},"mood",winnerDetailId);
-      const landed=await window.KGCinemaReel.spinCassetteDeck(panel,pool,sequence,film,{reducedMotion:prefersReducedMotion()||!others.length,cancelled:()=>token!==state.spinToken||!panel.isConnected,shouldSkip:()=>state.skipSpin,onOpen,onFrame:(_f,index,total)=>{const c=activeElement(root,"[data-mood-frame-counter]");if(c)c.textContent=uiText("Фильм")+" "+String(index+1).padStart(2,"0")+" / "+String(total).padStart(2,"0");}});
+      const landed=await window.KGCinemaReel.spinCassetteDeck(panel,pool,sequence,film,{reducedMotion:prefersReducedMotion()||!others.length,cancelled:()=>token!==state.spinToken||!panel.isConnected,shouldSkip:()=>state.skipSpin,onOpen,onFrame:(_f,index,total)=>{const c=activeElement(root,"[data-mood-frame-counter]");if(c)c.textContent=uiText(series?"Сериал":"Фильм")+" "+String(index+1).padStart(2,"0")+" / "+String(total).padStart(2,"0");}});
       if(typeof window.stopFilmReelSound==="function")window.stopFilmReelSound();if(!landed||token!==state.spinToken||!panel.isConnected){state.spinning=false;if(launchButton)launchButton.disabled=false;return;}
-      state.spinning=false;state.skipSpin=false;const c=activeElement(root,"[data-mood-frame-counter]");if(c)c.textContent=uiText("Фильм")+" "+String(pool.indexOf(film)+1).padStart(2,"0")+" / "+String(pool.length).padStart(2,"0");
+      state.spinning=false;state.skipSpin=false;const c=activeElement(root,"[data-mood-frame-counter]");if(c)c.textContent=uiText(series?"Сериал":"Фильм")+" "+String(pool.indexOf(film)+1).padStart(2,"0")+" / "+String(pool.length).padStart(2,"0");
       if(launchButton)launchButton.disabled=false;if(launchLabel)launchLabel.textContent=uiText("Крутить ещё раз ({runtime})", {runtime: uiText(currentRuntime().button)});
       const skip=activeElement(root,"[data-mood-skip]");if(skip)skip.hidden=true;showWinner();
       return;
@@ -372,6 +381,6 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
     }
     scrollToMoodResult(panel,moodId);
   }
-  function stop(root){stopSpin(root);}
-  window.KGMoodPage={render,stop,runtimes,getRuntime:()=>state.runtime};
+  function stop(root){stopSpin(root);state.token++;state.loading=false;state.autoSpin=null;}
+  window.KGMoodPage={render,stop,runtimeOptions,getRuntime:()=>state.runtime};
 })();

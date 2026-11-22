@@ -117,13 +117,17 @@
     }
   };
 
-  async function discoverFilters(mood, searchKeywords) {
-    const filters = {with_genres: mood.genres.join("|")};
-    if (!mood.keywords?.length) return filters;
+  const movieToTvGenre={12:10759,14:10765,27:9648,28:10759,53:9648,878:10765,10749:18};
+  async function discoverFilters(mood, searchKeywords, series=false) {
+    const genres=series?(mood.id==="animation"?[16]:mood.genres.map(id=>movieToTvGenre[id]||id)):mood.genres;
+    const filters={with_genres:[...new Set(genres)].join("|")};
+    if(series)filters.without_genres="10763,10764,10767";
+    const keywords=series&&mood.id==="chemistry"?["romance","love triangle","romantic comedy"]:mood.keywords;
+    if(!keywords?.length)return filters;
 
-    const results = await Promise.all(mood.keywords.map(query => searchKeywords(query)));
+    const results=await Promise.all(keywords.map(query=>searchKeywords(query)));
     const ids = results.flatMap((result, index) => {
-      const query = mood.keywords[index];
+      const query=keywords[index];
       return (result.results || [])
         .filter(item => item.name?.toLowerCase() === query && Number.isInteger(item.id))
         .map(item => item.id);

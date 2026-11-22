@@ -1465,7 +1465,7 @@ function finishPick(film,token){
   refresh();
   window.KGFilmCard.hydrate(model,film,refresh,current);
   requestAnimationFrame(()=>{
-    if(current())window.KGScrollToFilmStart(host.firstElementChild);
+    if(current())window.KGScrollToFilmStart(host,620,{target:()=>host.firstElementChild});
   });
 }
 async function inPageRoulette(){

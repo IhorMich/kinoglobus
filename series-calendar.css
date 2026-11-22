@@ -126,3 +126,9 @@
 .kg-cal-reminder-time { justify-content: space-between; }
 .kg-cal-reminder-form button[type="submit"] { background: rgb(var(--kg-primary)); color: rgb(var(--kg-on-primary)); }
 .kg-cal-reminder-form [role="status"]:empty { display: none; }
+.kg-cal-grid button[aria-pressed="true"], .kg-cal-filters button[aria-pressed="true"],
+.kg-cal-featured footer button, .kg-cal-reminder-form button[type="submit"] {
+  color: rgb(var(--kg-inverse-on-surface));
+}
+.kg-cal-card footer { flex-wrap: wrap; }
+.kg-cal-card footer > span { min-width: 0; overflow-wrap: anywhere; }

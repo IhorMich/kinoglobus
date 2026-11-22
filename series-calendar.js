@@ -39,7 +39,7 @@
     const shownDates = [...days].filter(date => date >= selected).sort();
     const groups = [selected, ...shownDates.filter(date => date !== selected)];
     root.innerHTML = `
-      <header class="kg-cal-header"><button type="button" data-cal-back aria-label="${label('К сериалам')}">${icon('arrow_back')}</button>
+      <header class="kg-cal-header"><button type="button" data-cal-back aria-label="${label('Все подборки')}">${icon('arrow_back')}</button>
       <h1>${label('Календарь сериалов')}</h1></header>
       <div class="kg-cal-segment" role="group" aria-label="${label('Сериалы')}">
         ${[['tracked','Отслеживаемые'], ['all','Все сериалы']].map(([mode, name]) => `
@@ -47,7 +47,7 @@
       </div>
       <section class="kg-cal-month" aria-label="${label('Календарь сериалов')}">
         <div class="kg-cal-month-header"><h2>${escape(monthTitle)}</h2><div>
-          <button type="button" data-cal-month="-1" data-cal-focus="previous" aria-label="${label('Предыдущий месяц')}">${icon('chevron_left')}</button>
+          <button type="button" data-cal-month="-1" data-cal-focus="previous" aria-label="${label('Предыдущий месяц')}">${icon('arrow_back')}</button>
           <button type="button" data-cal-month="1" data-cal-focus="next" aria-label="${label('Следующий месяц')}">${icon('chevron_right')}</button>
         </div></div>
         <div class="kg-cal-grid" id="kg-cal-grid" ${expanded ? '' : 'hidden'}>
@@ -92,7 +92,7 @@
         </button>${kgBookmarkButton(show)}
       </div>
       <footer>${name ? `<span>${escape(name)}</span>` : '<span></span>'}
-        ${episode.air_date >= key(new Date()) ? `<button type="button" data-cal-reminder="${row.id}">${icon('notifications')}${label('Напомнить')}</button>` : ''}
+        ${episode.air_date >= key(new Date()) ? `<button type="button" data-cal-reminder="${row.id}">${icon('calendar_month')}${label('Напомнить')}</button>` : ''}
         <button type="button" data-cal-episode="${row.id}">${label('Подробнее')}${icon('chevron_right')}</button></footer>
     </article>`;
   }
@@ -172,7 +172,7 @@
     dialog.className = 'kg-cal kg-cal-reminder';
     dialog.setAttribute('aria-labelledby','kg-cal-reminder-title');
     dialog.innerHTML = `<form class="kg-cal-reminder-form">
-      <header class="kg-cal-header">${icon('notifications')}<h2 id="kg-cal-reminder-title">${label('Напомнить о релизе')}</h2>
+      <header class="kg-cal-header">${icon('calendar_month')}<h2 id="kg-cal-reminder-title">${label('Напомнить о релизе')}</h2>
         <button type="button" data-cal-dismiss aria-label="${label('Закрыть')}">${icon('close')}</button></header>
       <p><strong>${escape(row.show.title)}</strong><br>${label('Сезон {season} · Эпизод {episode}',{season:row.episode.season_number,episode:row.episode.episode_number})} · ${escape(dateLabel(row.episode.air_date))}</p>
       <div class="kg-cal-reminder-scope">

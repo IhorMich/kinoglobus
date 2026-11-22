@@ -39,20 +39,20 @@ st2.textContent=`.kgr-win{position:relative;height:150px;overflow:hidden;-webkit
 .kg-film-grid-tile{box-sizing:border-box;display:block;width:100%;min-width:0;padding:0;text-align:left}
 .kg-film-grid-tile:focus-visible{outline:2px solid rgb(var(--kg-primary));outline-offset:3px;border-radius:.5rem}
 .kg-film-grid-poster{box-sizing:border-box;position:relative;display:block;width:100%;aspect-ratio:2/3;overflow:hidden;border-radius:clamp(10px,3vw,16px);background:rgb(var(--kg-surface-container-high));border:1px solid rgb(var(--kg-on-surface) / .10)}
-.kg-film-grid-poster>img,#cat-grid.kg-three-columns .kg-film-card-poster>img{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover}
+.kg-film-grid-poster>img,:is(#cat-grid,[data-tv-grid]).kg-three-columns .kg-film-card-poster>img{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover}
 .kg-film-grid-score{position:absolute;top:.45rem;right:.45rem;padding:.13rem .42rem;border-radius:.65rem;background:rgb(var(--kg-black)/.74);color:rgb(var(--kg-white));font-size:.78rem;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.4}
 .kg-film-grid-title{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;overflow-wrap:anywhere;min-height:2.7em;margin-top:.5rem;padding-inline:.125rem;color:rgb(var(--kg-on-surface));font-size:.875rem;font-weight:500;line-height:1.35}
 .kg-film-grid-tile:hover .kg-film-grid-title{color:rgb(var(--kg-primary))}
 #cl-films .kg-film-list-shell > [data-act="open"]:has(+ .kg-film-detail){display:none}
 #cl-films .kg-film-grid-tile[aria-expanded="true"] .kg-film-grid-poster{visibility:hidden}
-#cat-grid.kg-three-columns{column-gap:clamp(10px,3.3vw,14px)}
-#cat-grid.kg-three-columns .collection-card{padding:0;min-width:0;background:none;box-shadow:none}
-#cat-grid.kg-three-columns .kg-catalog-row{display:grid;grid-template-columns:minmax(0,1fr);gap:.4rem}
-#cat-grid.kg-three-columns .kg-film-card-poster{box-sizing:border-box;width:100%;height:auto;aspect-ratio:2/3;border-radius:clamp(10px,3vw,16px)}
-#cat-grid.kg-three-columns .kg-catalog-text{width:100%;height:auto}
-#cat-grid.kg-three-columns .kg-catalog-text h4{margin:0;white-space:normal;overflow-wrap:anywhere;font-size:.82rem;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;min-height:2.5em}
-#cat-grid.kg-three-columns :is(.kg-catalog-archive,.kg-catalog-poster-badge,.kg-catalog-meta,.kg-catalog-prefix,.kg-catalog-summary,.kg-catalog-actions),
-#view-collections:has(#cat-grid.kg-three-columns) :is([data-act="random"],#spot [data-act="spin"]){display:none}
+:is(#cat-grid,[data-tv-grid]).kg-three-columns{column-gap:clamp(10px,3.3vw,14px)}
+:is(#cat-grid,[data-tv-grid]).kg-three-columns .collection-card{padding:0;min-width:0;background:none;box-shadow:none}
+:is(#cat-grid,[data-tv-grid]).kg-three-columns .kg-catalog-row{display:grid;grid-template-columns:minmax(0,1fr);gap:.4rem}
+:is(#cat-grid,[data-tv-grid]).kg-three-columns .kg-film-card-poster{box-sizing:border-box;width:100%;height:auto;aspect-ratio:2/3;border-radius:clamp(10px,3vw,16px)}
+:is(#cat-grid,[data-tv-grid]).kg-three-columns .kg-catalog-text{width:100%;height:auto}
+:is(#cat-grid,[data-tv-grid]).kg-three-columns .kg-catalog-text h4{margin:0;white-space:normal;overflow-wrap:anywhere;font-size:.82rem;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;min-height:2.5em}
+:is(#cat-grid,[data-tv-grid]).kg-three-columns :is(.kg-catalog-archive,.kg-catalog-poster-badge,.kg-catalog-meta,.kg-catalog-prefix,.kg-catalog-summary,.kg-catalog-actions),
+#view-collections:has(:is(#cat-grid,[data-tv-grid]).kg-three-columns) :is([data-act="random"],#spot [data-act="spin"]){display:none}
 #mood-cards.kg-three-columns .mood-card [data-mood-select]{height:auto;aspect-ratio:3/4;min-height:7rem}
 #mood-cards.kg-three-columns .kg-mood-cover-copy{left:.4rem;right:.4rem;bottom:.4rem}
 #mood-cards.kg-three-columns .mood-title{font-size:.82rem;line-height:1.2;overflow-wrap:anywhere}
@@ -355,7 +355,12 @@ mediaSwitch.addEventListener("keydown",event=>{
 const seriesCalendar=document.createElement("section");
 seriesCalendar.className="kg-cal";seriesCalendar.hidden=true;
 seriesPage.after(seriesCalendar);
-window.KGSeriesCalendar.mount(seriesCalendar,()=>showView("series"));
+const seriesCollections=document.createElement("div");
+seriesCollections.id="view-series-collections";
+seriesCollections.className="flex flex-col w-full px-gutter-mobile gap-space-lg pb-space-xl";
+seriesCollections.hidden=true;
+seriesCalendar.before(seriesCollections);
+window.KGSeriesCalendar.mount(seriesCalendar,()=>showView("series-collections"));
 
 const vc=document.createElement("div");vc.id="view-collections";
 vc.className="flex flex-col w-full px-gutter-mobile gap-space-lg select-none";vc.style.display="none";
@@ -369,10 +374,14 @@ const sectionNav=document.createElement("nav");
 sectionNav.setAttribute("aria-label",uiText("Разделы подборок"));
 sectionNav.className="w-full px-gutter-mobile pt-2";
 sectionNav.style.display="none";
-sectionNav.innerHTML='<div class="grid grid-cols-3 gap-1.5 rounded-xl bg-surface-panel p-1.5">'+
-[["collections","Коллекции"],["mood","Коллекция по настроению"],["oscar","Оскар"]]
-.map(([route,label])=>`<button type="button" data-collection-route="${route}" aria-current="false" class="min-w-0 px-1.5 py-2 rounded-lg text-text-muted hover:text-primary font-micro-caption text-micro-caption leading-tight">${uiText(label)}</button>`).join("")+
-"</div>";
+const collectionTabs=[["collections","Коллекции"],["mood","Коллекция по настроению"],["oscar","Оскар"]];
+function renderCollectionTabs(tabs, media){
+  sectionNav.dataset.media=media;
+  sectionNav.innerHTML=`<div class="grid ${media==="tv"?"grid-cols-2":"grid-cols-3"} gap-1.5 rounded-xl bg-surface-panel p-1.5">`+
+    tabs.map(([route,label])=>`<button type="button" data-collection-route="${route}" aria-current="false" class="min-w-0 px-1.5 py-2 rounded-lg text-text-muted hover:text-primary font-micro-caption text-micro-caption leading-tight">${uiText(label)}</button>`).join("")+
+    "</div>";
+}
+renderCollectionTabs(collectionTabs,"movie");
 home.after(sectionNav);sectionNav.after(vc);vc.after(vd);vd.after(vm);vm.after(vo);
 
 const nav=document.createElement("nav");
@@ -454,7 +463,11 @@ function rememberView(destination, collectionId = null) {
   // Top-level tabs replace the navigation trail rather than extending it.
   if (destination !== "collection") {
     previousViews.length = 0;
-    if (destination !== "home") previousViews.push({view:destination==="series-calendar"?"series":"home", collectionId:null});
+    if (destination === "series-calendar" || destination === "series-collection") {
+      previousViews.push({view:"series", collectionId:null},{view:"series-collections", collectionId:null});
+    } else if (destination !== "home") {
+      previousViews.push({view:destination==="series-collections"?"series":"home", collectionId:null});
+    }
     return;
   }
   const previous = previousViews.at(-1);
@@ -463,7 +476,10 @@ function rememberView(destination, collectionId = null) {
 }
 
 function showView(v, remember = true){
-  if(!window.KGSeries.setMode(v==="series"||v==="series-calendar"))return;
+  const seriesSelection=["series-collections","series-collection","series-calendar"].includes(v);
+  if(!window.KGSeries.setMode(v==="series"||seriesSelection))return;
+  if(view==="series-collection"&&v!==view) tvCollectionLoad++;
+  if(v==="series-collections"&&(view!==v||!seriesCollections.firstChild)) renderTvCatalog();
   if(view==="series-calendar"&&v!==view)window.KGSeriesCalendar.hide();
   const enterCalendar=v==="series-calendar"&&v!==view;
   if (remember && v !== view) rememberView(v);
@@ -477,6 +493,7 @@ function showView(v, remember = true){
   home.style.display=v==="home"?"":"none";
   seriesPage.hidden=v!=="series";
   seriesCalendar.hidden=v!=="series-calendar";
+  seriesCollections.hidden=!["series-collections","series-collection"].includes(v);
   if(enterCalendar)window.KGSeriesCalendar.show();
   mediaSwitch.hidden=!["home","series"].includes(v);
   const headerActions=mediaSwitch.parentElement;
@@ -492,14 +509,16 @@ function showView(v, remember = true){
   }
 
   mediaSwitch.querySelectorAll('[role="tab"]').forEach(tab=>{const selected=tab.dataset.mediaView===v;tab.setAttribute('aria-selected',String(selected));tab.tabIndex=selected?0:-1;});
-  sectionNav.style.display=["collections","collection","mood","oscar"].includes(v)?"":"none";
+  sectionNav.style.display=seriesSelection||["collections","collection","mood","oscar"].includes(v)?"":"none";
+  const sectionTabs=seriesSelection?[["series-collections","Коллекции"],["series-calendar","Календарь"]]:collectionTabs;
+  if(sectionNav.dataset.media!==(seriesSelection?"tv":"movie")) renderCollectionTabs(sectionTabs,seriesSelection?"tv":"movie");
   vc.style.display=v==="collections"?"":"none";
   vd.style.display=v==="collection"?"":"none";
   vm.style.display=v==="mood"?"":"none";
   vo.style.display=v==="oscar"?"":"none";
-  const act=v==="series"?"home":["collection","mood","oscar","series-calendar"].includes(v)?"collections":v;
+  const act=v==="series"?"home":(seriesSelection||["collection","mood","oscar"].includes(v))?"collections":v;
   paintBottomNav(nav, act);
-  const section=v==="collection"?"collections":v;
+  const section=v==="collection"?"collections":v==="series-collection"?"series-collections":v;
   sectionNav.querySelectorAll("[data-collection-route]").forEach(button=>{
     const active=button.dataset.collectionRoute===section;
     button.className=`min-w-0 px-1.5 py-2 rounded-lg font-micro-caption text-micro-caption leading-tight ${active?"bg-primary-container text-on-primary-container font-semibold":"text-text-muted hover:text-primary"}`;
@@ -518,8 +537,8 @@ nav.addEventListener("click",e=>{
   const a=e.target.closest("[data-view]");if(!a)return;e.preventDefault();
   if(a.dataset.view==="journey"){$("mapBtn").click();return;}
   if(a.dataset.view==="history"){window.KGOpenWatchHistory();return;}
-  if(a.dataset.view==="home"&&view==="series-calendar"){showView("series");return;}
-  if(a.dataset.view==="collections"&&window.KGSeries.active){showView("series-calendar");return;}
+  if(a.dataset.view==="home"&&window.KGSeries.active){showView("series");return;}
+  if(a.dataset.view==="collections"&&window.KGSeries.active){showView("series-collections");return;}
   showView(a.dataset.view);
 });
 sectionNav.addEventListener("click",e=>{
@@ -646,20 +665,22 @@ function seededShuffle(arr,seed){
 }
 
 function spotlightTheme(){return catalogThemes[Math.floor(Date.now()/6048e5)%catalogThemes.length];}
-function cardHtml(t,i){
-  const m=TM[t.id]||["noir","","",""],special=t.id==="suwar";
-  const g0=gnames(t)[0]||"";
+function cardHtml(t,i,tv){
+  const m=tv?[tv.category,"",tv.description]:TM[t.id]||["noir","","",""],special=t.id==="suwar";
+  const g0=tv?"":gnames(t)[0]||"";
+  const cover=tv?.cover||getThemeCover(t.id);
+  const location=tv?uiText(tv.category):`${flagsOf(t)} ${esc(where(t))}`;
   const top=special?`<div class="kg-catalog-archive flex items-center justify-between mb-2"><span class="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-secondary-container/60 text-secondary font-micro-caption text-micro-caption font-bold"><span class="material-symbols-outlined text-[13px]">history_edu</span>${uiText("АРХИВ ИСЧЕЗНУВШИХ ЭПОХ")}</span><span data-k="r" class="font-micro-caption text-micro-caption text-primary-container font-bold">★ …</span></div>`:"";
-  const rate=special?"":`<span data-k="r" class="px-2 py-0.5 rounded-full bg-primary-container/15 text-primary-container font-micro-caption text-micro-caption font-bold flex-shrink-0">★ …</span>`;
+  const rate=special||tv?"":`<span data-k="r" class="px-2 py-0.5 rounded-full bg-primary-container/15 text-primary-container font-micro-caption text-micro-caption font-bold flex-shrink-0">★ …</span>`;
   const btn=`<button type="button" aria-label="${uiText("Крутить")}" data-act="spin" data-t="${t.id}" class="w-8 h-8 rounded-full bg-surface-container-high hover:bg-primary-container hover:text-on-primary-container text-primary flex items-center justify-center transition-all"><span class="material-symbols-outlined text-[18px]">casino</span></button>`;
   return `<article class="collection-card relative flex flex-col ${special?"p-4 bg-gradient-to-br from-cinema-velvet-deep/40 via-surface-panel to-surface-panel shadow-[0_6px_24px_rgb(var(--kg-black)/0.6)]":"p-3.5 bg-surface-panel shadow-[0_4px_20px_rgb(var(--kg-black)/0.45)]"} rounded-2xl transition-all active:scale-[0.99] cursor-pointer" data-t="${t.id}" data-cat="${m[0]}" data-i="${i}">
 ${top}<div class="kg-catalog-row flex items-start gap-3">
-<div class="kg-film-card-poster relative rounded-lg overflow-hidden shrink-0 bg-surface-container-high"><img data-k="img" alt="${esc(uiText(t.name))}" src="${getThemeCover(t.id)}" class="w-full h-full object-cover transition-opacity duration-500 ${special?"grayscale contrast-125":""} ${getThemeCover(t.id)?"":"opacity-0"}"><span class="kg-catalog-poster-badge absolute bottom-1 right-1 px-1.5 rounded bg-surface-container-lowest/80 text-[10px] font-bold text-primary">${esc(codeOf(t))}</span></div>
+<div class="kg-film-card-poster relative rounded-lg overflow-hidden shrink-0 bg-surface-container-high"><img data-k="img" alt="${esc(uiText(t.name))}" src="${cover}" class="w-full h-full object-cover transition-opacity duration-500 ${special?"grayscale contrast-125":""} ${cover?"":"opacity-0"}">${tv?"":`<span class="kg-catalog-poster-badge absolute bottom-1 right-1 px-1.5 rounded bg-surface-container-lowest/80 text-[10px] font-bold text-primary">${esc(codeOf(t))}</span>`}</div>
 <div class="kg-catalog-text flex flex-col min-w-0 flex-1 justify-between h-28"><div>
-<div class="kg-catalog-meta flex items-center justify-between gap-1"><span class="font-micro-caption text-micro-caption text-text-muted flex items-center gap-1 truncate">${flagsOf(t)} ${esc(where(t))}</span>${rate}</div>
+<div class="kg-catalog-meta flex items-center justify-between gap-1"><span class="font-micro-caption text-micro-caption text-text-muted flex items-center gap-1 truncate">${location}</span>${rate}</div>
 <h4 class="font-headline-sm text-headline-sm text-primary font-bold truncate mt-0.5"><span class="kg-catalog-prefix">${i+1}. </span>${esc(uiText(t.name))}</h4>
 <p class="kg-catalog-summary font-micro-caption text-micro-caption text-on-surface-variant ${special?"kg-clip2":"truncate"} mt-0.5">${esc(uiText(m[2]))}</p></div>
-<div class="kg-catalog-actions flex items-center justify-between pt-1"><span data-k="cnt" class="font-label-sm text-label-sm text-text-muted truncate">… · ${esc(g0)}</span>${btn}</div>
+<div class="kg-catalog-actions flex items-center justify-between pt-1"><span data-k="cnt" class="font-label-sm text-label-sm text-text-muted truncate">${tv?uiText("Сериалов в подборке: {count}",{count:tv.ids.length}):`… · ${esc(g0)}`}</span>${btn}</div>
 </div></div></article>`;
 }
 
@@ -969,16 +990,16 @@ function derived(){
 const totalFor=()=>D.cc?(D.totals[D.cc]||0):D.total;
 const byId=id=>D.all.find(f=>String(f.id)===String(id));
 
-function filmItem(f){
+function filmItem(f,series=false){
   const y=(f.release_date||"").slice(0,4);
-  const gs=(f.genre_ids||[]).map(i=>GENRES[i]).filter(Boolean).slice(0,2).map(genre=>uiText(genre));
-  const selected=D.selected&&D.selected._placement==="list"&&String(D.selected.id)===String(f.id)?D.selected:null;
+  const gs=(f.genre_ids||[]).map(i=>(series?window.KGSeries.genreLabels:GENRES)[i]).filter(Boolean).slice(0,2).map(genre=>uiText(genre));
+  const selected=!series&&D.selected&&D.selected._placement==="list"&&String(D.selected.id)===String(f.id)?D.selected:null;
   return `<article class="kg-film-list-shell flex flex-col gap-space-sm p-3 rounded-xl bg-surface-panel shadow-md hover:bg-surface-container-low transition-colors">
 <div class="flex gap-space-sm cursor-pointer" role="button" tabindex="0" data-act="open" data-id="${f.id}">
 <div class="kg-film-card-poster relative flex-shrink-0 rounded-lg overflow-hidden bg-surface-container-high">${collectionPoster(f,"w185")}
 <span class="absolute top-1 left-1 px-1 py-0.5 rounded bg-surface-panel/90 text-primary-container font-micro-caption text-micro-caption font-bold">${f.vote_average ? Number(f.vote_average).toFixed(1) : "—"} ★</span></div>
 <div class="flex flex-col justify-between flex-1 min-w-0"><div class="flex flex-col gap-0.5">
-<div class="flex items-center justify-between"><span class="font-micro-caption text-micro-caption text-text-muted">${fl(f._cc)} ${esc(cname(f._cc))}${y?" • "+y:""}</span><span data-rt="${f.id}" class="font-micro-caption text-micro-caption px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant">${uiText("— мин")}</span></div>
+<div class="flex items-center justify-between"><span class="font-micro-caption text-micro-caption text-text-muted">${series?esc(y):`${fl(f._cc)} ${esc(cname(f._cc))}${y?" • "+y:""}`}</span><span data-rt="${f.id}" class="font-micro-caption text-micro-caption px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant">${series?(f.number_of_seasons?uiText("Сезонов: {count}",{count:f.number_of_seasons}):""):uiText("— мин")}</span></div>
 <h4 class="font-label-lg text-label-lg text-on-surface font-bold truncate">${esc(f.title)}</h4>
 <p data-dir="${f.id}" class="font-micro-caption text-micro-caption text-text-muted truncate">&nbsp;</p>
 <div class="flex items-center gap-1.5 pt-1">${gs.map(g=>`<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-micro-caption text-micro-caption">${esc(g)}</span>`).join("")}</div></div></div></div>
@@ -1856,3 +1877,167 @@ showView("home");
 window.MOVEN_THEME_COVERS = THEME_COVERS;
 console.info("[Moven] v8 collections ready + theme covers");
 })();
+
+/* TV collections share the catalog cards, layout controls and show details with Moven. */
+const tvThemes=[
+  {id:"tv-crime",name:"Преступление и расследование",category:"Детектив",description:"Детективы, одержимые делом, и преступления с долгим эхом.", art:8, ids:[46648,1426,67744,1429,1438,85436]},
+  {id:"tv-scifi",name:"За гранью реальности",category:"Фантастика",description:"Петли времени, далёкие миры и эксперименты над сознанием.", art:7, ids:[70523,95396,137113,82856,63247,92749]},
+  {id:"tv-history",name:"Власть и эпоха",category:"История",description:"Дворы, империи и люди, которые меняют ход истории.", art:5, ids:[126308,65494,46639,1405,65930]},
+  {id:"tv-drama",name:"Семья, работа и амбиции",category:"Драма",description:"Семейные связи и карьеры, в которых ставки выходят за пределы рабочего дня.", art:2, ids:[136315,76331,1100,63351,31910,46518]},
+  {id:"tv-espionage",name:"Шпионы и двойная игра",category:"Триллер",description:"Агенты, перебежчики и операции, где каждый играет свою роль.", art:3, ids:[95480,1407,1405,62110,72750,83867]},
+  {id:"tv-fantasy",name:"Миры фэнтези",category:"Фэнтези",description:"Борьба за власть, древняя магия и герои из других миров.", art:1, ids:[94997,1399,71912,84773,138501,127532]},
+  {id:"tv-animation",name:"Большие истории в анимации",category:"Мультфильм",description:"Анимационные сериалы о дружбе, выборе и цене перемен.", art:4, ids:[94605,95557,1434,615,88803]},
+  {id:"tv-antiheroes",name:"Время антигероев",category:"Криминал",description:"Главные герои, за которыми интересно наблюдать даже в худшие их моменты.", art:0, ids:[194764,1396,60059,1398,76479,63351]}
+].map(theme=>({...theme,cover:`assets/series-hub/reference-${theme.art}.jpg`}));
+let tvCategory="",tvQuery="",tvLayout="list",tvDetailLayout="list",tvSort="rating",tvCollectionLoad=0;
+let tvTheme=null,tvShows=[],tvStatus="",tvPicked=null;
+const tvCache=new Map();
+const tvIcon=(icon,size=20)=>`<span class="material-symbols-outlined" style="font-size:${size}px" aria-hidden="true">${icon}</span>`;
+const tvSpin=(attributes)=>`<button type="button" ${attributes} class="${collectionSpinClasses}">${tvIcon("casino",22)}${uiText("Крутить рулетку")}${collectionSpinShine}</button>`;
+
+function visibleTvThemes(){
+  const query=tvQuery.trim().toLocaleLowerCase(interfaceLanguage);
+  return tvThemes.filter(theme=>(!tvCategory||theme.category===tvCategory)&&
+    [theme.name,theme.category,theme.description].some(value=>uiText(value).toLocaleLowerCase(interfaceLanguage).includes(query)));
+}
+
+function renderTvCatalogCards(){
+  const results=visibleTvThemes();
+  const list=seriesCollections.querySelector("[data-tv-grid]");
+  list.className=tvLayout==="grid"?"kg-three-columns":"flex flex-col gap-3";
+  list.innerHTML=results.map((theme,index)=>cardHtml(theme,index,theme)).join("");
+  list.querySelectorAll(".collection-card").forEach(card=>{
+    const title=card.querySelector("h4");
+    const open=document.createElement("button");
+    open.type="button";open.dataset.act="open";open.className="text-left";
+    open.append(...title.childNodes);title.append(open);
+  });
+  seriesCollections.querySelector("[data-tv-count]").textContent=results.length?uiText("{count} доступно",{count:results.length}):uiText("Подборка не найдена");
+  seriesCollections.querySelector("[data-tv-spot]").hidden=!!(tvCategory||tvQuery.trim());
+  seriesCollections.querySelector("[data-tv-random]").disabled=!results.length;
+}
+
+function renderTvCatalog(){
+  const featured=tvThemes[Math.floor(Date.now()/6048e5)%tvThemes.length];
+  seriesCollections.innerHTML=`
+    <section class="flex flex-col gap-space-xs mt-1">
+      <h2 class="font-headline-lg text-headline-lg text-primary tracking-tight">${uiText("Тематические коллекции сериалов")}</h2>
+      <div class="relative mt-2"><span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-text-muted">${tvIcon("search")}</span>
+      <input data-tv-query type="search" aria-label="${uiText("Поиск по подборкам")}" placeholder="${uiText("Найти подборку или жанр…")}" class="w-full h-12 pl-11 pr-3 rounded-xl bg-surface-container-low text-on-surface font-body-sm text-body-sm"></div>
+    </section>
+    <section class="flex gap-2 overflow-x-auto pb-1 -mx-gutter-mobile px-gutter-mobile" aria-label="${uiText("Жанры")}">
+      ${["",...new Set(tvThemes.map(theme=>theme.category))].map(category=>`<button type="button" data-tv-category="${esc(category)}" aria-pressed="${tvCategory===category}" class="${chipCls(tvCategory===category)}">${category?uiText(category):uiText("Все {count}",{count:tvThemes.length})}</button>`).join("")}
+    </section>
+    <section data-tv-spot class="relative rounded-2xl overflow-hidden bg-surface-panel shadow-xl">
+      <div class="h-56 bg-cover bg-center relative" style="background-image:url('${featured.cover}')"><div class="absolute inset-0 bg-gradient-to-t from-surface-panel via-surface-panel/60 to-transparent"></div>
+      <span class="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-cinema-velvet-deep text-secondary font-micro-caption text-micro-caption">${uiText("ХИТ НЕДЕЛИ")}</span></div>
+      <div class="p-4 flex flex-col gap-2.5"><h3 class="font-headline-md text-headline-md text-primary font-bold">${uiText(featured.name)}</h3>
+      <p class="font-body-sm text-body-sm text-text-muted">${uiText(featured.description)}</p>
+      <div class="flex flex-wrap gap-2">${tvSpin(`data-tv-spin="${featured.id}"`)}<button type="button" data-tv-open="${featured.id}" class="bg-surface-container-high text-primary rounded-xl px-3">${uiText("Подробнее")}</button></div></div>
+    </section>
+    <div class="flex items-center justify-between gap-2"><p data-tv-count role="status" class="font-label-sm text-label-sm text-text-muted"></p>
+      <button type="button" data-tv-random class="px-3 py-2 rounded-xl bg-secondary-container text-on-secondary-container font-label-sm text-label-sm">${uiText("Случайная")}</button>${layoutSwitch(tvLayout,"tv-catalog")}</div>
+    <section data-tv-grid></section>`;
+  seriesCollections.querySelector("[data-tv-query]").value=tvQuery;
+  renderTvCatalogCards();
+}
+
+function loadTvShow(id){
+  const cacheKey=`${apiKey}:${filmLocale}:${id}`;
+  if(!tvCache.has(cacheKey)){
+    const request=requestTmdb(`tv/${id}`,{language:filmLocale})
+      .then(window.KGSeries.normalize)
+      .then(show=>movieCatalog.allows(show)?localizeFilmListItem({...show,genre_ids:show.genres?.map(genre=>genre.id)||[]}):null)
+      .catch(error=>{
+        tvCache.delete(cacheKey);
+        if(error.code==="CATALOG_RESTRICTED")return null;
+        throw error;
+      });
+    tvCache.set(cacheKey,request);
+  }
+  return tvCache.get(cacheKey);
+}
+
+function renderTvDetail(){
+  const rows=sortCollectionFilms(tvShows,tvSort);
+  const tile=show=>posterTile(show,`data-act="open" data-id="${show.id}"`);
+  const status=tvStatus?`<p role="status" class="font-body-sm text-body-sm text-text-muted">${uiText(tvStatus)}
+    ${tvStatus==="Часть данных недоступна."?`<button type="button" data-tv-retry class="text-primary underline">${uiText("Повторить")}</button>`:""}</p>`:"";
+  seriesCollections.innerHTML=`
+    <button type="button" data-tv-back class="self-start flex items-center gap-1.5 text-text-muted font-label-sm text-label-sm">${tvIcon("arrow_back",18)}${uiText("Все подборки")}</button>
+    <section class="overflow-hidden rounded-xl bg-surface-panel shadow-xl">
+      <div class="h-40 bg-center bg-cover" style="background-image:url('${tvTheme.cover}')"></div>
+      <div class="p-space-md flex flex-col gap-space-sm"><span class="font-label-sm text-label-sm text-primary-container">${uiText(tvTheme.category)}</span>
+      <h2 class="font-display-hero-mobile text-display-hero-mobile text-primary font-bold tracking-tight">${uiText(tvTheme.name)}</h2>
+      <p class="font-body-sm text-body-sm text-text-muted">${uiText(tvTheme.description)}</p></div></section>
+    <section class="flex flex-col gap-space-sm rounded-xl bg-surface-panel p-space-md">
+      ${tvSpin(`data-tv-spin="${tvTheme.id}" ${rows.length?"":"disabled"}`)}${sortBar(tvSort)}
+    </section>
+    ${tvPicked?`<section class="flex flex-col gap-space-sm"><h3 class="font-headline-sm text-headline-sm text-primary">${uiText("Случайный выбор")}</h3>${filmItem(tvPicked,true)}</section>`:""}
+    ${status}
+    ${rows.length?`<div class="flex items-center justify-between gap-2"><h3 class="font-headline-sm text-headline-sm text-on-surface">${uiText("Сериалы в подборке")}</h3>${layoutSwitch(tvDetailLayout,"tv-detail")}</div>
+    <section class="${tvDetailLayout==="grid"?"kg-three-columns":"flex flex-col gap-3"}">${rows.map(show=>tvDetailLayout==="grid"?tile(show):filmItem(show,true)).join("")}</section>`:""}`;
+}
+
+async function openTvCollection(id,spin=false){
+  const theme=tvThemes.find(item=>item.id===id);
+  if(!theme)return;
+  showView("series-collection");
+  if(view!=="series-collection")return;
+  const token=++tvCollectionLoad;
+  tvTheme=theme;tvShows=[];tvPicked=null;
+  tvStatus=apiKey?"Загружаем подборку…":"Добавьте ключ TMDB, чтобы загрузить сериалы подборки.";
+  renderTvDetail();
+  if(!apiKey)return;
+  const results=await Promise.allSettled(theme.ids.map(loadTvShow));
+  if(token!==tvCollectionLoad)return;
+  tvShows=results.flatMap(result=>result.status==="fulfilled"&&result.value?[result.value]:[]);
+  tvStatus=results.some(result=>result.status==="rejected")?"Часть данных недоступна.":tvShows.length?"":"Подходящих сериалов не нашлось.";
+  if(spin&&tvShows.length)tvPicked=pick(tvShows);
+  renderTvDetail();
+}
+
+seriesCollections.addEventListener("input",event=>{
+  if(!event.target.matches("[data-tv-query]"))return;
+  tvQuery=event.target.value;
+  renderTvCatalogCards();
+});
+seriesCollections.addEventListener("click",event=>{
+  const button=event.target.closest("button,[data-act='open'],[data-t]");
+  if(!button)return;
+  const {tvCategory:category,tvSpin:spin,tvOpen:open,kgLayout:layout,mode,kgFilmSort:sort,act,id}=button.dataset;
+  if(category!==undefined){
+    tvCategory=category;
+    seriesCollections.querySelectorAll("[data-tv-category]").forEach(chip=>{
+      const active=chip.dataset.tvCategory===category;
+      chip.className=chipCls(active);chip.setAttribute("aria-pressed",String(active));
+    });
+    renderTvCatalogCards();
+  }else if(layout==="tv-catalog"){
+    tvLayout=mode;syncLayout(seriesCollections,mode,layout);renderTvCatalogCards();
+  }else if(layout==="tv-detail"||sort){
+    if(sort)tvSort=sort;
+    else tvDetailLayout=mode;
+    renderTvDetail();
+    const selector=sort?`[data-kg-film-sort="${sort}"]`:`[data-kg-layout="tv-detail"][data-mode="${mode}"]`;
+    seriesCollections.querySelector(selector)?.focus({preventScroll:true});
+  }else if(button.hasAttribute("data-tv-back"))showView("series-collections");
+  else if(button.hasAttribute("data-tv-random")){
+    const results=visibleTvThemes();
+    if(results.length)openTvCollection(pick(results).id);
+  }else if(button.hasAttribute("data-tv-retry"))openTvCollection(tvTheme.id);
+  else if(spin&&spin===tvTheme?.id&&view==="series-collection"){
+    const candidates=tvShows.filter(show=>show!==tvPicked);
+    if(tvShows.length){tvPicked=pick(candidates.length?candidates:tvShows);renderTvDetail();}
+  }else if(spin||open||button.closest("[data-t]")){
+    openTvCollection(spin||open||button.closest("[data-t]").dataset.t,!!spin||act==="spin");
+  }else if(act==="open"&&id){
+    const show=tvShows.find(item=>String(item.id)===id);
+    if(show)window.KGFilmCard.openDialog(show,button);
+  }
+});
+seriesCollections.addEventListener("keydown",event=>{
+  if(["Enter"," "].includes(event.key)&&event.target.matches('[role="button"][data-id]')){
+    event.preventDefault();event.target.click();
+  }
+});

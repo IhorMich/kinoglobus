@@ -409,7 +409,7 @@ window.KGSeriesCalendar.mount(seriesCalendar,()=>showView("series-collections"))
 const seriesGold=document.createElement("section");
 seriesGold.className="kg-gold";seriesGold.hidden=true;
 seriesCalendar.after(seriesGold);
-window.KGSeriesGold.mount(seriesGold);
+window.KGSeriesGold.mount(seriesGold,()=>showView("series-collections"));
 
 const vc=document.createElement("div");vc.id="view-collections";
 vc.className="flex flex-col w-full px-gutter-mobile gap-space-lg select-none";vc.style.display="none";

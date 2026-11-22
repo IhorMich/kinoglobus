@@ -16,7 +16,7 @@
   const rank=(a,b)=>Number(b.vote_average)-Number(a.vote_average)||Number(b.vote_count)-Number(a.vote_count)||a.id-b.id;
   const genreOrder=[80,10765,10768,9648,35,18,16,10759,10751,99];
   const milestones=[25,50,100,175,250];
-  let root, snapshot, generation=0, era="all", genre="all", sort="rating", layout="list", shown=5, phase="", episodePhase="";
+  let root, back, snapshot, generation=0, era="all", genre="all", sort="rating", layout="list", shown=5, phase="", episodePhase="";
   const metadata=new Map();
   let minis=[];
   let entries=[], episodes=[], episodeRequest=0, dailyTimer, displayedDay;
@@ -121,9 +121,49 @@
         </article>`).join("")}</div></section>`;
   }
 
+  function pageHeader(count){
+    return `<header class="kg-gold-heading">
+      <div class="relative z-30 bg-surface/85 backdrop-blur-xl shadow-[0_4px_24px_rgb(var(--kg-black)/0.65)]">
+        <div class="h-14 px-gutter-mobile flex items-center justify-between gap-space-sm">
+          <div class="flex items-center gap-space-sm min-w-0">
+            <button type="button" data-gold-back class="kg-gold-back w-11 h-11 -ml-1.5 flex items-center justify-center rounded-full text-on-surface hover:text-primary transition-colors shrink-0" aria-label="${label("Назад")}">${icon("arrow_back")}</button>
+            <div class="flex flex-col min-w-0">
+              <div class="flex items-center gap-1.5 min-w-0 text-primary">
+                ${icon("military_tech")}<span class="font-headline-sm text-headline-sm tracking-tight truncate">${label("Золотой фонд")}</span>
+              </div>
+              <span class="font-micro-caption text-micro-caption text-text-muted">${label("Рейтинг TMDB")}</span>
+            </div>
+          </div>
+          ${entries.length?`<button type="button" data-gold-filters class="kg-gold-filter-jump w-11 h-11 flex items-center justify-center rounded-full text-on-surface-variant hover:text-primary hover:bg-surface-container-high/60 transition-colors shrink-0" aria-label="${label("Поиск и фильтры")}">${icon("tune")}</button>`:""}
+        </div>
+      </div>
+      <div class="w-full px-gutter-mobile pt-space-md">
+        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-b from-surface-container-high via-surface-panel to-surface-container-lowest p-space-lg shadow-xl shadow-canvas-obsidian/80">
+          <div class="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-cinema-amber-glow blur-3xl pointer-events-none"></div>
+          <div class="absolute -bottom-16 -left-12 w-44 h-44 rounded-full bg-cinema-velvet-glow blur-3xl pointer-events-none"></div>
+          <div class="relative">
+            <div class="kg-gold-cover relative h-56 rounded-2xl overflow-hidden shadow-xl">
+              <img src="./assets/series-gold/gold-hero.webp" width="1376" height="768" alt="" class="w-full h-full object-cover object-center">
+              <div class="absolute inset-0 bg-gradient-to-t from-canvas-obsidian/90 via-canvas-obsidian/40 to-transparent"></div>
+              <div class="kg-gold-heading-copy absolute bottom-3 left-0 right-0 flex flex-col items-center px-4">
+                <span class="px-2.5 py-0.5 rounded-full bg-surface-panel/90 text-primary font-micro-caption text-micro-caption font-semibold tracking-wider mb-1">${label("ТОП-250")}</span>
+                <h1 class="font-headline-lg text-headline-lg text-primary tracking-tight drop-shadow">${label("Золотой фонд TV")}</h1>
+                <p class="font-body-sm text-body-sm text-primary-fixed/90 text-center leading-snug max-w-sm">${label("От классики до современных хитов. 250 лучших сериалов по рейтингу TMDB.")}</p>
+              </div>
+            </div>
+            ${entries.length?progress(count):""}
+          </div>
+        </div>
+      </div>
+    </header>`;
+  }
+
   function hero(show){
     return `<section class="kg-gold-daily" aria-labelledby="kg-gold-daily-title">
-      <header><h2 id="kg-gold-daily-title">${label("Сериал дня")}</h2><span>${label("№ {rank} в топ-250",{rank:number(show._goldRank)})}</span></header>
+      <header>
+        <div class="flex items-center gap-1.5 text-primary">${icon("auto_awesome")}<h2 id="kg-gold-daily-title" class="text-on-surface">${label("Сериал дня")}</h2></div>
+        <span class="font-micro-caption text-micro-caption px-2 py-0.5 rounded-full bg-primary-container/15 text-primary-container font-semibold">${label("№ {rank} в топ-250",{rank:number(show._goldRank)})}</span>
+      </header>
       <article class="kg-gold-hero">
       <div class="kg-gold-hero-art">
         <button type="button" data-gold-open="${show.id}" aria-label="${esc(show.title)}">${goldImage(art(show.backdrop_path,"w780"),art(show.poster_path,"w500"))}</button>
@@ -175,14 +215,7 @@
     const focus=root.contains(document.activeElement)?document.activeElement.dataset.goldFocus:null;
     const railPositions=new Map(Array.from(root.querySelectorAll("[data-gold-rail]"),rail=>[rail.dataset.goldRail,rail.scrollLeft]));
     root.innerHTML=`
-      <header class="kg-gold-heading">
-        <img src="./assets/series-gold/gold-hero.webp" width="1376" height="768" alt="">
-        <div class="kg-gold-heading-copy">
-          <h1>${label("Золотой фонд TV")}</h1>
-          <p>${label("От классики до современных хитов. 250 лучших сериалов по рейтингу TMDB.")}</p>
-        </div>
-      </header>
-      ${entries.length?progress(count):""}
+      ${pageHeader(count)}
       ${featured?hero(featured):""}
       ${entries.length?`<div class="kg-gold-filters" data-gold-rail="eras" role="group" aria-label="${label("Эпохи")}">${eras.map(([id,title])=>{
         const total=entries.filter(show=>inEra(show,id)&&inGenre(show,genre)).length;
@@ -304,8 +337,8 @@
     }
   }
 
-  function mount(panel){
-    root=panel;
+  function mount(panel,onBack){
+    root=panel;back=onBack;
     document.addEventListener("visibilitychange",()=>{
       if(document.visibilityState==="visible")refreshDaily();
     });
@@ -325,6 +358,11 @@
     });
     root.addEventListener("click",event=>{
       const button=event.target.closest("button");if(!button)return;
+      if(button.matches("[data-gold-back]")){back();return;}
+      if(button.matches("[data-gold-filters]")){
+        root.querySelector("[data-gold-rail=eras]")?.scrollIntoView({behavior:"smooth",block:"center"});
+        return;
+      }
       if(button.matches("[data-gold-retry]")){show(true);return;}
       if(button.matches("[data-gold-more]")){shown+=5;render();updateVisibleDetails();return;}
       const {goldEra,goldGenre,goldLayout,goldEpisode,goldOpen,goldWatch}=button.dataset;

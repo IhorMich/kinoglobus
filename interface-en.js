@@ -9,6 +9,8 @@ window.KGInterfaceDictionaries.en = Object.freeze({
   "Из сериалов Золотого фонда": "From the Hall of Fame series",
   "Золотой фонд": "Hall of Fame",
   "Золотой фонд TV": "TV Hall of Fame",
+  "Рейтинг TMDB": "TMDB rankings",
+  "ТОП-250": "TOP 250",
   "От классики до современных хитов. 250 лучших сериалов по рейтингу TMDB.": "From classics to modern hits. The 250 top-rated TV shows on TMDB.",
   "Сериал дня": "Series of the Day",
   "№ {rank} в топ-250": "No. {rank} in the Top 250",

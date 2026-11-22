@@ -236,12 +236,6 @@ async function loadCuratedTheme(theme, force) {
   return curatedData(films.filter(Boolean));
 }
 const themeDataKey=(t,pages)=>t.series?`${t.id}:${pages}:${apiKey}:${filmLocale}`:t.films?t.id:`${t.id}:${pages}`;
-async function seriesCollectionKeywords(keywords,force){
-  const responses=await Promise.all(keywords.map(query=>requestTmdb("search/keyword",{query},{fresh:force})));
-  return responses.flatMap((response,index)=>(response.results||[])
-    .filter(item=>item.name.toLowerCase()===keywords[index]&&Number.isSafeInteger(item.id))
-    .map(item=>item.id)).join("|");
-}
 async function loadTheme(t,pages,force=false){
   const key=themeDataKey(t,pages),cached=themeDataCache.get(key),now=Date.now();
   if(!force&&cached&&now-cached.ts<DAY_MS)return cached.data;
@@ -266,18 +260,13 @@ async function loadTheme(t,pages,force=false){
     const jobs=[];
     try{
       const discover=t.series?window.KGSeries.discover:api;
-      const keywords=t.keywords?await seriesCollectionKeywords(t.keywords,force):"";
-      if(t.keywords&&!keywords)return {total:0,totals:{},films:[]};
-      for(const cc of t.series?[""]:t.cc){
-        const params=t.series?{
-          with_genres:t.g,without_genres:"10763,10764,10767",
-          "vote_count.gte":floorOf(cc),"vote_average.gte":"6.5",
-          ...(keywords?{with_keywords:keywords}:{})
-        }:qs(t,cc);
+      for(const cc of t.cc){
+        const params=qs(t,cc);
+        if(t.series)params.without_genres="10763,10764,10767";
         for(let p=1;p<=pages;p++)jobs.push(()=>discover({...params,page:p},{fresh:force}).then(r=>({
           cc,p,total:r.total_results||0,
-          films:(r.results||[]).filter(f=>!t.series||movieCatalog.allows(f)&&Number(f.vote_count)>=floorOf(cc)&&Number(f.vote_average)>=6.5)
-            .map(f=>t.series?f:{...f,_cc:cc})
+          films:(r.results||[]).filter(f=>!t.series||(movieCatalog.allows(f)&&f.origin_country?.includes(cc)&&Number(f.vote_count)>=floorOf(cc)&&Number(f.vote_average)>=6.5))
+            .map(f=>({...f,_cc:cc}))
         })));
       }
       const results=await settleWithLimit(jobs,3,job=>job());
@@ -686,10 +675,10 @@ function seededShuffle(arr,seed){
 
 function spotlightTheme(){return catalogThemes[Math.floor(Date.now()/6048e5)%catalogThemes.length];}
 function cardHtml(t,i,tv){
-  const m=tv?[tv.category,"",tv.description]:TM[t.id]||["noir","","",""],special=t.id==="suwar";
+  const m=tv?[tv.category,"",tv.category]:TM[t.id]||["noir","","",""],special=t.id==="suwar";
   const g0=tv?"":gnames(t)[0]||"";
-  const cover=tv?.cover||getThemeCover(t.id);
-  const location=tv?uiText(tv.category):`${flagsOf(t)} ${esc(where(t))}`;
+  const cover=tv?(P(tvMetadata.get(t.id)?.p,"w342")||tv.cover):getThemeCover(t.id);
+  const location=`${flagsOf(t)} ${esc(tv?.region||where(t))}`;
   const top=special?`<div class="kg-catalog-archive flex items-center justify-between mb-2"><span class="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-secondary-container/60 text-secondary font-micro-caption text-micro-caption font-bold"><span class="material-symbols-outlined text-[13px]">history_edu</span>${uiText("АРХИВ ИСЧЕЗНУВШИХ ЭПОХ")}</span><span data-k="r" class="font-micro-caption text-micro-caption text-primary-container font-bold">★ …</span></div>`:"";
   const rate=special||tv?"":`<span data-k="r" class="px-2 py-0.5 rounded-full bg-primary-container/15 text-primary-container font-micro-caption text-micro-caption font-bold flex-shrink-0">★ …</span>`;
   const btn=`<button type="button" aria-label="${uiText("Крутить")}" data-act="spin" data-t="${t.id}" class="w-8 h-8 rounded-full bg-surface-container-high hover:bg-primary-container hover:text-on-primary-container text-primary flex items-center justify-center transition-all"><span class="material-symbols-outlined text-[18px]">casino</span></button>`;
@@ -1895,16 +1884,25 @@ else if(!homeEditorial.films.length||homeEditorial.loadedKey!==apiKey)loadHomeEd
 scheduleDailyRefresh();
 /* TV collections share the catalog cards, layout controls and show details with Moven. */
 const tvThemes=[
-  {id:"tv-crime",name:"Преступление и расследование",category:"Детектив",description:"Детективы, одержимые делом, и преступления с долгим эхом.", art:8, g:"80|9648"},
-  {id:"tv-scifi",name:"За гранью реальности",category:"Фантастика",description:"Петли времени, далёкие миры и эксперименты над сознанием.", art:7, g:"10765",keywords:["time travel","parallel world","virtual reality","dystopia"]},
-  {id:"tv-history",name:"Власть и эпоха",category:"История",description:"Дворы, империи и люди, которые меняют ход истории.", art:5, g:"18|10768",keywords:["historical drama","historical fiction","period drama"]},
-  {id:"tv-drama",name:"Семья, работа и амбиции",category:"Драма",description:"Семейные связи и карьеры, в которых ставки выходят за пределы рабочего дня.", art:2, g:"18",keywords:["family","family business","workplace"]},
-  {id:"tv-espionage",name:"Шпионы и двойная игра",category:"Триллер",description:"Агенты, перебежчики и операции, где каждый играет свою роль.", art:3, g:"18|10759|10768",keywords:["spy","espionage","secret agent"]},
-  {id:"tv-fantasy",name:"Миры фэнтези",category:"Фэнтези",description:"Борьба за власть, древняя магия и герои из других миров.", art:1, g:"10765",keywords:["fantasy world","magic","high fantasy"]},
-  {id:"tv-animation",name:"Большие истории в анимации",category:"Мультфильм",description:"Анимационные сериалы о дружбе, выборе и цене перемен.", art:4, g:"16"},
-  {id:"tv-antiheroes",name:"Время антигероев",category:"Криминал",description:"Главные герои, за которыми интересно наблюдать даже в худшие их моменты.", art:0, g:"80|18",keywords:["anti hero","antihero","organized crime"]}
-].map(theme=>({...theme,series:true,cover:`assets/series-hub/reference-${theme.art}.jpg`}));
-let tvCategory="",tvQuery="",tvLayout="list",tvDetailLayout="list",tvSort="rating",tvCollectionLoad=0;
+  ["kr", "Корейские криминальные сериалы", "80|9648"],
+  ["krdrama", "Корейские дорамы", "18"],
+  ["jp", "Японское аниме", "16"],
+  ["cnfan", "Китайское фэнтези", "10765"],
+  ["tr", "Турецкие драмы", "18"],
+  ["nordic", "Скандинавский нуар", "80|9648"],
+  ["gbdet", "Британские детективы", "80|9648"],
+  ["frnoir", "Французский нуар", "80|9648"],
+  ["itcrime", "Итальянский криминал", "80|9648"],
+  ["esdrama", "Испанские драмы", "18"],
+  ["dedrama", "Немецкие драматические сериалы", "18"],
+  ["uscrime", "Американские криминальные сериалы", "80|9648"],
+  ["usscifi", "Американская фантастика", "10765"],
+  ["mxdrama", "Мексиканские драмы", "18"]
+].map(([source,name,g])=>{
+  const original=T[source];
+  return {id:`tv-${source}`,name,g,cc:original.cc,region:where(original),category:CAT[cat(original)][0],series:true,cover:getThemeCover(source)};
+});
+let tvCountry="",tvQuery="",tvLayout="list",tvDetailLayout="list",tvSort="rating",tvCollectionLoad=0;
 let tvTheme=null,tvShows=[],tvStatus="",tvPicked=null,tvShown=8;
 const tvMetadata=new Map();
 const tvIcon=(icon,size=20)=>`<span class="material-symbols-outlined" style="font-size:${size}px" aria-hidden="true">${icon}</span>`;
@@ -1912,8 +1910,8 @@ const tvSpin=(attributes)=>`<button type="button" ${attributes} class="${collect
 
 function visibleTvThemes(){
   const query=tvQuery.trim().toLocaleLowerCase(interfaceLanguage);
-  return tvThemes.filter(theme=>(!tvCategory||theme.category===tvCategory)&&
-    [theme.name,theme.category,theme.description].some(value=>uiText(value).toLocaleLowerCase(interfaceLanguage).includes(query)));
+  return tvThemes.filter(theme=>(!tvCountry||theme.cc.includes(tvCountry))&&
+    [theme.name,theme.category,theme.region,...theme.cc.map(cname)].some(value=>uiText(value).toLocaleLowerCase(interfaceLanguage).includes(query)));
 }
 
 function renderTvCatalogCards(){
@@ -1928,7 +1926,7 @@ function renderTvCatalogCards(){
     open.append(...title.childNodes);title.append(open);
   });
   seriesCollections.querySelector("[data-tv-count]").textContent=results.length?uiText("{count} доступно",{count:results.length}):uiText("Подборка не найдена");
-  seriesCollections.querySelector("[data-tv-spot]").hidden=!!(tvCategory||tvQuery.trim());
+  seriesCollections.querySelector("[data-tv-spot]").hidden=!!(tvCountry||tvQuery.trim());
   seriesCollections.querySelector("[data-tv-random]").disabled=!results.length;
 }
 
@@ -1938,16 +1936,16 @@ function renderTvCatalog(){
     <section class="flex flex-col gap-space-xs mt-1">
       <h2 class="font-headline-lg text-headline-lg text-primary tracking-tight">${uiText("Тематические коллекции сериалов")}</h2>
       <div class="relative mt-2"><span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-text-muted">${tvIcon("search")}</span>
-      <input data-tv-query type="search" aria-label="${uiText("Поиск по подборкам")}" placeholder="${uiText("Найти подборку или жанр…")}" class="w-full h-12 pl-11 pr-3 rounded-xl bg-surface-container-low text-on-surface font-body-sm text-body-sm"></div>
+      <input data-tv-query type="search" aria-label="${uiText("Поиск по подборкам")}" placeholder="${uiText("Найти подборку, страну или жанр...")}" class="w-full h-12 pl-11 pr-3 rounded-xl bg-surface-container-low text-on-surface font-body-sm text-body-sm"></div>
     </section>
-    <section class="flex gap-2 overflow-x-auto pb-1 -mx-gutter-mobile px-gutter-mobile" aria-label="${uiText("Жанры")}">
-      ${["",...new Set(tvThemes.map(theme=>theme.category))].map(category=>`<button type="button" data-tv-category="${esc(category)}" aria-pressed="${tvCategory===category}" class="${chipCls(tvCategory===category)}">${category?uiText(category):uiText("Все {count}",{count:tvThemes.length})}</button>`).join("")}
+    <section class="flex gap-2 overflow-x-auto pb-1 -mx-gutter-mobile px-gutter-mobile" aria-label="${uiText("Все страны")}">
+      ${["",...new Set(tvThemes.flatMap(theme=>theme.cc))].map(cc=>`<button type="button" data-tv-country="${cc}" aria-pressed="${tvCountry===cc}" class="${chipCls(tvCountry===cc)}">${cc?`${fl(cc)} ${esc(cname(cc))}`:uiText("Все {count}",{count:tvThemes.length})}</button>`).join("")}
     </section>
     <section data-tv-spot class="relative rounded-2xl overflow-hidden bg-surface-panel shadow-xl">
-      <div class="h-56 bg-cover bg-center relative" style="background-image:url('${featured.cover}')"><div class="absolute inset-0 bg-gradient-to-t from-surface-panel via-surface-panel/60 to-transparent"></div>
+      <div class="h-56 bg-cover bg-center relative" data-tv-spot-cover style="background-image:url('${P(tvMetadata.get(featured.id)?.b,"w780")||featured.cover}')"><div class="absolute inset-0 bg-gradient-to-t from-surface-panel via-surface-panel/60 to-transparent"></div>
       <span class="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-cinema-velvet-deep text-secondary font-micro-caption text-micro-caption">${uiText("ХИТ НЕДЕЛИ")}</span></div>
       <div class="p-4 flex flex-col gap-2.5"><h3 class="font-headline-md text-headline-md text-primary font-bold">${uiText(featured.name)}</h3>
-      <p class="font-body-sm text-body-sm text-text-muted">${uiText(featured.description)}</p>
+      <p class="font-body-sm text-body-sm text-text-muted">${flagsOf(featured)} ${esc(featured.region)} · ${uiText(featured.category)}</p>
       <div class="flex flex-wrap gap-2">${tvSpin(`data-tv-spin="${featured.id}"`)}<button type="button" data-tv-open="${featured.id}" class="bg-surface-container-high text-primary rounded-xl px-3">${uiText("Подробнее")}</button></div></div>
     </section>
     <div class="flex items-center justify-between gap-2"><p data-tv-count role="status" class="font-label-sm text-label-sm text-text-muted"></p>
@@ -1958,8 +1956,13 @@ function renderTvCatalog(){
   if(apiKey)settleWithLimit(tvThemes,3,async theme=>{
     const meta=await loadMeta(theme);
     tvMetadata.set(theme.id,meta);
-    const card=seriesCollections.querySelector(`[data-tv-grid] [data-t="${theme.id}"] [data-k="cnt"]`);
-    if(card)card.textContent=uiText("Сериалов в подборке: {count}",{count:nf(meta.n)});
+    const card=seriesCollections.querySelector(`[data-tv-grid] [data-t="${theme.id}"]`);
+    if(card){
+      card.querySelector('[data-k="cnt"]').textContent=uiText("Сериалов в подборке: {count}",{count:nf(meta.n)});
+      if(meta.p)card.querySelector('[data-k="img"]').src=P(meta.p,"w342");
+    }
+    const spotlight=seriesCollections.querySelector("[data-tv-spot-cover]");
+    if(spotlight&&theme===featured&&meta.b)spotlight.style.backgroundImage=`url("${P(meta.b,"w780")}")`;
   });
 }
 
@@ -1971,10 +1974,10 @@ function renderTvDetail(){
   seriesCollections.innerHTML=`
     <button type="button" data-tv-back class="self-start flex items-center gap-1.5 text-text-muted font-label-sm text-label-sm">${tvIcon("arrow_back",18)}${uiText("Все подборки")}</button>
     <section class="overflow-hidden rounded-xl bg-surface-panel shadow-xl">
-      <div class="h-40 bg-center bg-cover" style="background-image:url('${tvTheme.cover}')"></div>
+      <div class="h-40 bg-center bg-cover" style="background-image:url('${P(tvShows.find(show=>show.backdrop_path)?.backdrop_path,"w780")||tvTheme.cover}')"></div>
       <div class="p-space-md flex flex-col gap-space-sm"><span class="font-label-sm text-label-sm text-primary-container">${uiText(tvTheme.category)}</span>
       <h2 class="font-display-hero-mobile text-display-hero-mobile text-primary font-bold tracking-tight">${uiText(tvTheme.name)}</h2>
-      <p class="font-body-sm text-body-sm text-text-muted">${uiText(tvTheme.description)}</p></div></section>
+      <p class="font-body-sm text-body-sm text-text-muted">${flagsOf(tvTheme)} ${esc(tvTheme.region)}</p></div></section>
     <section class="flex flex-col gap-space-sm rounded-xl bg-surface-panel p-space-md">
       ${tvSpin(`data-tv-spin="${tvTheme.id}" ${rows.length?"":"disabled"}`)}${sortBar(tvSort)}
     </section>
@@ -2017,11 +2020,11 @@ seriesCollections.addEventListener("input",event=>{
 seriesCollections.addEventListener("click",event=>{
   const button=event.target.closest("button,[data-act='open'],[data-t]");
   if(!button)return;
-  const {tvCategory:category,tvSpin:spin,tvOpen:open,kgLayout:layout,mode,kgFilmSort:sort,act,id}=button.dataset;
-  if(category!==undefined){
-    tvCategory=category;
-    seriesCollections.querySelectorAll("[data-tv-category]").forEach(chip=>{
-      const active=chip.dataset.tvCategory===category;
+  const {tvCountry:country,tvSpin:spin,tvOpen:open,kgLayout:layout,mode,kgFilmSort:sort,act,id}=button.dataset;
+  if(country!==undefined){
+    tvCountry=country;
+    seriesCollections.querySelectorAll("[data-tv-country]").forEach(chip=>{
+      const active=chip.dataset.tvCountry===country;
       chip.className=chipCls(active);chip.setAttribute("aria-pressed",String(active));
     });
     renderTvCatalogCards();

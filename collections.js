@@ -12,6 +12,9 @@ document.head.appendChild(st);
 const st2=document.createElement("style");
 st2.textContent=`.kgr-win{position:relative;height:150px;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,rgb(var(--kg-black)) 13%,rgb(var(--kg-black)) 87%,transparent);mask-image:linear-gradient(90deg,transparent,rgb(var(--kg-black)) 13%,rgb(var(--kg-black)) 87%,transparent)}
 #cat-search::-webkit-search-cancel-button{display:none}
+[data-series-sort]{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));width:100%}
+[data-series-sort]>button{min-width:0;min-height:36px;padding-inline:4px;line-height:1.25}
+[data-series-sort]>button[aria-busy="true"]{opacity:.7}
 .kgr-track{position:absolute;inset:0;overflow:hidden}
 .kgr-run{position:absolute;left:0;top:0;height:100%;display:flex;align-items:center;gap:10px;padding-left:8px;will-change:transform}
 .kgr-run.fast{filter:blur(1.4px) brightness(1.08)}
@@ -1019,10 +1022,11 @@ const ccCls=on=>"h-[34px] px-3 rounded-full font-label-sm text-label-sm flex-shr
 const sCls=on=>"px-2.5 py-1 rounded font-micro-caption text-micro-caption "+(on?SON:SOFF);
 
 const collectionSortModes=[["rating","По рейтингу"],["pop","Популярные"],["new","Свежие"]];
-function sortBar(sort){
+function sortBar(sort,series){
   return `<div class="flex flex-wrap items-center justify-between gap-1.5" data-kg-collection-sorting>
-<span class="font-micro-caption text-micro-caption text-text-muted">${uiText("Сортировка:")}</span><div class="flex flex-wrap items-center gap-1 bg-surface-container-low p-0.5 rounded-lg" role="group" aria-label="${uiText("Сортировка:")}">${collectionSortModes.map(([mode,label])=>
-    `<button type="button" data-kg-film-sort="${mode}" aria-pressed="${mode===sort}" class="${sCls(mode===sort)}">${uiText(label)}</button>`).join("")}</div></div>`;
+<span class="font-micro-caption text-micro-caption text-text-muted">${uiText("Сортировка:")}</span><div class="flex flex-wrap items-center gap-1 bg-surface-container-low p-0.5 rounded-lg" ${series?"data-series-sort":""} role="group" aria-label="${uiText("Сортировка:")}">${collectionSortModes.map(([mode,label])=>
+    `<button type="button" data-kg-film-sort="${mode}" aria-pressed="${mode===sort}" class="${sCls(mode===sort)}">${uiText(label)}</button>`).join("")}
+    ${series?`<button type="button" id="cl-spin" data-act="spin" data-series-random class="${sCls(false)}">${uiText("Случайно")}</button>`:""}</div></div>`;
 }
 function syncFilmSort(root,sort){
   root.querySelectorAll("[data-kg-film-sort]").forEach(button=>{
@@ -1152,8 +1156,8 @@ function renderCollection(){
 <p class="font-body-sm text-body-sm text-text-muted leading-relaxed pt-1">${esc(uiText(m[3]))}</p>
 <div class="flex items-center gap-2 pt-1 flex-wrap">${gnames(t).map(g=>`<span class="px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-micro-caption text-micro-caption">${esc(g)}</span>`).join("")}</div></div></div>
 <div class="flex flex-col gap-space-sm bg-surface-panel p-space-md rounded-xl shadow-lg"><div class="flex items-center justify-between"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary-container text-[20px]">casino</span><span class="font-headline-sm text-headline-sm text-on-surface font-semibold">${uiText("Случайный выбор")}</span></div><span class="font-micro-caption text-micro-caption text-primary-fixed bg-surface-container-high px-2 py-0.5 rounded-full">${uiText(t.films ? "Ручной отбор" : "Рейтинг ≥ 6.5")}</span></div>
-<button type="button" id="cl-spin" data-act="spin" class="${collectionSpinClasses} w-full"><span id="cl-ricon" class="material-symbols-outlined text-[22px]">casino</span><span id="cl-rtext">${uiText("Крутить рулетку")}</span>${collectionSpinShine}</button>
-${sortBar(D.sort)}
+${t.series?"":`<button type="button" id="cl-spin" data-act="spin" class="${collectionSpinClasses} w-full"><span id="cl-ricon" class="material-symbols-outlined text-[22px]">casino</span><span id="cl-rtext">${uiText("Крутить рулетку")}</span>${collectionSpinShine}</button>`}
+${sortBar(D.sort,t.series)}
 ${t.cc.length>1?`<div class="flex flex-col gap-1.5 pt-1"><span class="font-micro-caption text-micro-caption text-text-muted">${uiText("Фильтр по стране:")}</span><div id="cl-cc" class="flex items-center gap-1.5 overflow-x-auto pb-1"><button type="button" data-act="cc" data-cc="" class="${ccCls(true)}">${uiText("Все страны")}</button>${t.cc.map(cc=>`<button type="button" data-act="cc" data-cc="${cc}" class="${ccCls(false)}">${fl(cc)} ${esc(cname(cc))}</button>`).join("")}</div></div>`:""}
 </div>
 <div id="cl-reel" style="display:none" class="flex flex-col gap-space-sm">
@@ -1440,11 +1444,16 @@ function rMount(list,idx,cls){
   return run;
 }
 function setBtn(on){
-  const ic=$("cl-ricon"),tx=$("cl-rtext"),b=$("cl-spin");
-  if(!ic||!tx)return;
-  ic.classList.toggle("animate-spin",on);
-  tx.textContent=on?uiText("Плёнка крутится…"):(D.picked?uiText("Крутить ещё раз"):uiText("Крутить рулетку"));
-  if(b){b.disabled=on;b.style.opacity=on?".75":"";}
+  const b=$("cl-spin");if(!b)return;
+  if(b.hasAttribute("data-series-random")){
+    b.className=sCls(on);
+    b.setAttribute("aria-busy",String(on));
+  }else{
+    $("cl-ricon").classList.toggle("animate-spin",on);
+    $("cl-rtext").textContent=on?uiText("Плёнка крутится…"):(D.picked?uiText("Крутить ещё раз"):uiText("Крутить рулетку"));
+    b.style.opacity=on?".75":"";
+  }
+  b.disabled=on;
   const sk=$("cl-skip");if(sk)sk.style.display=on?"":"none";
 }
 function rStop(){
@@ -2048,7 +2057,6 @@ function renderTvCatalogCards(){
   sortTvCatalog();
   seriesCollections.querySelector("[data-tv-count]").textContent=results.length?uiText("{count} доступно",{count:results.length}):uiText("Подборка не найдена");
   seriesCollections.querySelector("[data-tv-spot]").hidden=!!(tvCountry||tvQuery.trim());
-  seriesCollections.querySelector('[data-act="random"]').disabled=!results.length;
   seriesCollections.querySelector('[data-act="clear"]').style.display=tvQuery?"flex":"none";
 }
 
@@ -2066,7 +2074,7 @@ function renderTvCatalog(){
       ${["",...new Set(tvThemes.flatMap(theme=>theme.cc))].map(cc=>`<button type="button" data-tv-country="${cc}" aria-pressed="${tvCountry===cc}" class="${chipCls(tvCountry===cc)}">${cc?`${fl(cc)} ${esc(cname(cc))}`:uiText("Все {count}",{count:tvThemes.length})}</button>`).join("")}
     </section>
     ${spotlightHtml(featured)}
-    <section class="flex flex-wrap items-center justify-between gap-2">${catalogSortControl(true,tvCatalogSort)}${catalogRandomButton}</section>
+    <section class="flex flex-wrap items-center justify-between gap-2">${catalogSortControl(true,tvCatalogSort)}</section>
     <div class="flex items-center justify-between gap-2"><p data-tv-count role="status" class="font-label-sm text-label-sm text-text-muted"></p>${layoutSwitch(tvLayout,"tv-catalog")}</div>
     <section data-tv-grid></section>`;
   seriesCollections.querySelector("[data-tv-query]").value=tvQuery;
@@ -2113,8 +2121,6 @@ seriesCollections.addEventListener("click",event=>{
   }else if(act==="clear"){
     const input=seriesCollections.querySelector("[data-tv-query]");
     input.value="";tvQuery="";renderTvCatalogCards();input.focus();
-  }else if(act==="random"){
-    highlightRandomCollection([...seriesCollections.querySelectorAll("[data-tv-grid] .collection-card")],tvThemeFor);
   }else{
     const theme=button.closest("[data-t]");
     if(!theme)return;

@@ -1,10 +1,10 @@
 // English translations for the Moven interface.
 window.KGInterfaceDictionaries ??= {};
 window.KGInterfaceDictionaries.en = Object.freeze({
-  "Из первых 12 сериалов рейтинга": "From the top 12 ranked series",
+  "Из сериалов Золотого фонда": "From the Hall of Fame series",
   "Золотой фонд": "Hall of Fame",
   "Золотой фонд TV": "TV Hall of Fame",
-  "Сериалы с оценкой TMDB от 8,5 и минимум 200 голосами.": "Series rated 8.5 or higher on TMDB with at least 200 votes.",
+  "250 лучших сериалов всех времён по рейтингу TMDB. В рейтинг входят сериалы с минимум 200 голосами.": "The 250 best series of all time by TMDB rating, with a minimum of 200 votes per series.",
   "Мой прогресс": "My progress",
   "Просмотрено {count} из {total}": "Watched {count} of {total}",
   "Эпохи": "Eras",
@@ -17,7 +17,7 @@ window.KGInterfaceDictionaries.en = Object.freeze({
   "оценок TMDB": "TMDB votes",
   "Элита телеэкрана": "TV greats",
   "Величайшие пилоты": "Standout pilots",
-  "Идеальные финалы (9,8+)": "Exceptional finales (9.8+)",
+  "Лучшие финалы": "Standout finales",
   "Рейтинг, постеры и сведения об эпизодах предоставлены TMDB.": "Ratings, posters, and episode details are provided by TMDB.",
   "Сезоны и серии": "Seasons and episodes",
   "Любая длительность серии": "Any episode length",

@@ -1,5 +1,5 @@
 (() => {
-  const limit=250, minRating=8.5, minVotes=200, ttl=3600000;
+  const limit=250, minVotes=200, ttl=3600000;
   const esc=value=>String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]);
   const label=(key,params)=>esc(uiText(key,params));
   const icon=name=>`<span class="material-symbols-outlined" aria-hidden="true">${name}</span>`;
@@ -13,20 +13,25 @@
   let entries=[], episodes=[], episodeRequest=0;
 
   async function loadRanking(){
-    const params={sort_by:"vote_average.desc","vote_average.gte":minRating,"vote_count.gte":minVotes,without_genres:"10763,10764,10767"};
+    const params={sort_by:"vote_average.desc","vote_count.gte":minVotes,without_genres:"10763,10764,10767"};
     const fetchPage=page=>window.KGSeries.discover({...params,page});
     const first=await fetchPage(1);
     const items=new Map();
     const add=result=>{
       for(const show of result.results||[]){
-        if(window.KGSeries.isSeriesId(show.id)&&movieCatalog.allows(show)&&Number(show.vote_average)>=minRating&&Number(show.vote_count)>=minVotes)items.set(show.id,show);
+        if(window.KGSeries.isSeriesId(show.id)&&movieCatalog.allows(show)&&Number(show.vote_average)>0&&Number(show.vote_count)>=minVotes)items.set(show.id,show);
       }
     };
     add(first);
     const last=Math.min(500,Number(first.total_pages)||1);
-    for(let page=2;page<=last&&items.size<limit;page+=4){
-      const pages=Array.from({length:Math.min(4,last-page+1)},(_,index)=>fetchPage(page+index));
-      (await Promise.all(pages)).forEach(add);
+    let frontier=first;
+    for(let page=2;page<=last;page+=4){
+      const cutoff=items.size>=limit?Number([...items.values()].sort(rank)[limit-1].vote_average):0;
+      const lastRating=frontier._kgRankingPage?.rMin??Math.min(...(frontier.results||[]).map(show=>Number(show.vote_average)));
+      if(cutoff&&lastRating<cutoff)break;
+      const pages=await Promise.all(Array.from({length:Math.min(4,last-page+1)},(_,index)=>fetchPage(page+index)));
+      pages.forEach(add);
+      frontier=pages.at(-1);
     }
     return [...items.values()].sort(rank).slice(0,limit).map((show,index)=>({...show,_goldRank:index+1}));
   }
@@ -72,7 +77,7 @@
   function episodeGroup(kind,title){
     const rows=episodes.filter(row=>row.kind===kind);
     if(!rows.length)return "";
-    return `<section class="kg-gold-episode-group"><h2>${label(title)}</h2><p class="kg-gold-muted">${label("Из первых 12 сериалов рейтинга")}</p><div class="${kind==="pilot"?"kg-gold-episode-strip":"kg-gold-finale-list"}">
+    return `<section class="kg-gold-episode-group"><h2>${label(title)}</h2><p class="kg-gold-muted">${label("Из сериалов Золотого фонда")}</p><div class="${kind==="pilot"?"kg-gold-episode-strip":"kg-gold-finale-list"}">
       ${rows.map(row=>{
         const {show,episode}=row,still=art(episode.still_path||show.backdrop_path,"w500");
         return `<button type="button" class="kg-gold-episode" data-gold-episode="${row.key}">
@@ -89,7 +94,7 @@
     const rows=visible(), count=entries.filter(watched).length;
     const focus=root.contains(document.activeElement)?document.activeElement.dataset.goldFocus:null;
     root.innerHTML=`
-      <header class="kg-gold-heading"><h1>${label("Золотой фонд TV")}</h1><p>${label("Сериалы с оценкой TMDB от 8,5 и минимум 200 голосами.")}</p></header>
+      <header class="kg-gold-heading"><h1>${label("Золотой фонд TV")}</h1><p>${label("250 лучших сериалов всех времён по рейтингу TMDB. В рейтинг входят сериалы с минимум 200 голосами.")}</p></header>
       ${entries.length?`<section class="kg-gold-progress"><div><strong>${label("Мой прогресс")}</strong><span>${label("Просмотрено {count} из {total}",{count:number(count),total:number(entries.length)})}</span></div>
       <progress max="${entries.length}" value="${count}" aria-label="${label("Мой прогресс")}"></progress></section>`:""}
       ${entries.length?`<div class="kg-gold-filters" role="group" aria-label="${label("Эпохи")}">${eras.map(([id,title])=>`<button type="button" data-gold-era="${id}" data-gold-focus="era-${id}" aria-pressed="${era===id}">${label(title)}</button>`).join("")}</div>
@@ -102,7 +107,7 @@
       ${rows.length>1?`<section class="kg-gold-list"><header><h2>${label("Элита телеэкрана")}</h2><span>${number(rows.length)}</span></header>
         <div class="kg-gold-cards ${layout==="grid"?"is-grid":""}">${rows.slice(1,shown+1).map(card).join("")}</div>
         ${rows.length>shown+1?`<button type="button" class="kg-gold-button" data-gold-more data-gold-focus="more">${label("Показать ещё")}</button>`:""}</section>`:""}
-      ${era==="all"?episodeGroup("pilot","Величайшие пилоты")+episodeGroup("finale","Идеальные финалы (9,8+)"):""}
+      ${era==="all"?episodeGroup("pilot","Величайшие пилоты")+episodeGroup("finale","Лучшие финалы"):""}
       ${entries.length&&era==="all"&&episodePhase==="loading"?`<p class="kg-gold-muted" role="status">${label("Загружаем эпизоды…")}</p>`:""}
       ${entries.length?`<footer class="kg-gold-footer">${label("Рейтинг, постеры и сведения об эпизодах предоставлены TMDB.")}</footer>`:""}`;
     if(focus)root.querySelector(`[data-gold-focus="${focus}"]`)?.focus({preventScroll:true});
@@ -125,7 +130,7 @@
         if(last?.season_number>0){
           const finalSeason=last.season_number===1?first:await season(last.season_number).catch(()=>null);
           const finale=finalSeason?.episodes?.find(episode=>episode.episode_number===last.episode_number);
-          if(finale?.vote_count>0&&Number(finale.vote_average)>=9.8)entries.push({kind:"finale",show:full,episode:finale,list:finalSeason.episodes});
+          if(finale?.vote_count>0&&Number(finale.vote_average)>=8.5)entries.push({kind:"finale",show:full,episode:finale,list:finalSeason.episodes});
         }
         return entries;
       }));
@@ -147,7 +152,11 @@
       const ranking=await loadRanking();
       if(token!==generation)return;
       snapshot={key,time:Date.now()};entries=ranking;phase="";episodePhase=entries.length?"loading":"";render();
-      if(entries.length)episodeHighlights(entries.slice(0,12),++episodeRequest);
+      if(entries.length){
+        const popular=[...entries].sort((a,b)=>Number(b.vote_count)-Number(a.vote_count)).slice(0,8);
+        const sample=[...new Map([...entries.slice(0,12),...popular].map(show=>[show.id,show])).values()];
+        episodeHighlights(sample,++episodeRequest);
+      }
     }catch{
       if(token!==generation)return;
       phase="error";render();

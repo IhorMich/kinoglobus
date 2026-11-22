@@ -244,22 +244,28 @@ async function seriesThemePage(theme,cc,page,force){
   const entry={pending:true};
   entry.promise=(async()=>{
     const params={...qs(theme,cc),without_genres:"10763,10764,10767"};
-    const discover=(voteFloor,page)=>window.KGSeries.discover({...params,"vote_count.gte":voteFloor,page},{fresh:force});
-    let voteFloor=60,result;
+    const queries=theme.seriesQueries||[{}];
+    const discover=(voteFloor,page,limits)=>Promise.all(queries.map((query,index)=>
+      !limits||page<=limits[index]?
+        window.KGSeries.discover({...params,...query,"vote_count.gte":voteFloor,page},{fresh:force}):
+        null));
+    let voteFloor=60,results;
     if(page===1){
-      result=await discover(voteFloor,page);
-      if(result.total_results<12){
-        voteFloor=20;result=await discover(voteFloor,page);
+      results=await discover(voteFloor,page);
+      if(results.reduce((total,result)=>total+(result.total_results||0),0)<12){
+        voteFloor=20;results=await discover(voteFloor,page);
       }
     }else{
       const first=await seriesThemePage(theme,cc,1,false);
       voteFloor=first.voteFloor;
       if(page>first.lastPage)return {cc,p:page,films:[]};
-      result=await discover(voteFloor,page);
+      results=await discover(voteFloor,page,first.queryLimits);
     }
-    const films=(result.results||[]).filter(show=>movieCatalog.allows(show)&&show.origin_country?.includes(cc)&&
+    const films=results.flatMap(result=>result?.results||[]).filter(show=>movieCatalog.allows(show)&&show.origin_country?.includes(cc)&&
       Number(show.vote_count)>=voteFloor&&Number(show.vote_average)>=6.5).map(show=>({...show,_cc:cc}));
-    return {cc,p:page,total:result.total_results||0,lastPage:Math.min(500,result.total_pages||0),voteFloor,films};
+    const queryLimits=results.map(result=>Math.min(500,result?.total_pages||0));
+    const total=results.reduce((sum,result)=>sum+(result?.total_results||0),0);
+    return {cc,p:page,total,lastPage:Math.max(...queryLimits),queryLimits,voteFloor,films};
   })();
   seriesThemePages.set(key,entry);
   try{return await entry.promise;}
@@ -329,7 +335,7 @@ const FRESH=DAY_MS;
 function saveThemeMeta(t,d){
   const top=d.films.slice(0,10);
   const r=top.length?top.reduce((s,f)=>s+Number(f.vote_average||0),0)/top.length:0;
-  const meta={n:d.total,r:r?r.toFixed(1):"",p:(d.films.find(f=>f.poster_path)||{}).poster_path||"",b:(d.films.find(f=>f.backdrop_path)||{}).backdrop_path||"",ts:Date.now(),...(t.series?{seriesRules:2}:{})};
+  const meta={n:d.total,r:r?r.toFixed(1):"",p:(d.films.find(f=>f.poster_path)||{}).poster_path||"",b:(d.films.find(f=>f.backdrop_path)||{}).backdrop_path||"",ts:Date.now(),...(t.series?{seriesRules:3}:{})};
   META[t.id]=meta;store.set("kgThemeMeta",META);return meta;
 }
 async function loadMeta(t,force=false){
@@ -354,7 +360,7 @@ async function loadMeta(t,force=false){
   }
   if(metaInflight.has(t.id))return metaInflight.get(t.id);
   const m=META[t.id];
-  if(!force&&m&&(!t.series||m.seriesRules===2)&&Date.now()-m.ts<FRESH)return m;
+  if(!force&&m&&(!t.series||m.seriesRules===3)&&Date.now()-m.ts<FRESH)return m;
   if((metaRetryAfter.get(t.id)||0)>Date.now()){if(m)return m;throw new Error("Метаданные подборки временно недоступны.");}
   const request=(async()=>{
     try{
@@ -1452,7 +1458,15 @@ function finishPick(film,token){
   snd(()=>playFilmFoundSound());
   window.KGCinemaReel?.presentTicket($("cl-reel"),film,{country:cname(film._cc||D.cc||D.t.cc[0])});
   window.KGCinemaReel?.updateIMAX(document.getElementById("kg-imax-stage"),film,{country:cname(film._cc||D.cc||D.t.cc[0]),state:"ФИЛЬМ В КАДРЕ"});
-  openFilm(film,"roulette");
+  if(!D.t.series){openFilm(film,"roulette");return;}
+  const host=$("cl-result"),model=window.KGFilmCard.createModel(film);
+  const current=()=>R.token===token&&D.picked===film&&host.isConnected;
+  const refresh=()=>{if(current())window.KGSeriesHub.mountDiscovery(host,model);};
+  refresh();
+  window.KGFilmCard.hydrate(model,film,refresh,current);
+  requestAnimationFrame(()=>{
+    if(current())window.KGScrollToFilmStart(host.firstElementChild);
+  });
 }
 async function inPageRoulette(){
   if(R.busy)return;
@@ -1475,7 +1489,7 @@ async function inPageRoulette(){
       if(landed&&token===R.token){$("cl-fc").textContent=uiText("Фильм найден");finishPick(film,token);}return;
     }
   if(window.KGCinemaReel?.isCassetteMode?.()){
-      const eligible=D.all.filter(inCc),landed=await window.KGCinemaReel.spinCassetteDeck($("cl-reel"),eligible,[film],film,{reducedMotion:true,cancelled:()=>token!==R.token,onOpen:f=>openFilm(f,"roulette")});
+      const eligible=D.all.filter(inCc),landed=await window.KGCinemaReel.spinCassetteDeck($("cl-reel"),eligible,[film],film,{reducedMotion:true,cancelled:()=>token!==R.token,onOpen:f=>D.t.series?window.KGSeriesHub.openSeries(f,document.activeElement):openFilm(f,"roulette")});
       if(landed&&token===R.token){$("cl-fc").textContent=uiText("Фильм выбран");finishPick(film,token);}return;
     }
     if(window.KGCinemaReel?.isTicketMode?.()){
@@ -1499,7 +1513,7 @@ async function inPageRoulette(){
   }
   if(window.KGCinemaReel?.isCassetteMode?.()){
     const eligible=D.all.filter(inCc);$("cl-fc").textContent=uiText("Кассета перематывается…");snd(()=>startFilmReelSound());
-    const landed=await window.KGCinemaReel.spinCassetteDeck($("cl-reel"),eligible,seq,film,{cancelled:()=>token!==R.token,shouldSkip:()=>R.skip,onOpen:f=>openFilm(f,"roulette"),onFrame:(_f,index,total)=>{if(token===R.token)$("cl-fc").textContent=uiText("Фильм {current} / {total}", {current: p2(index+1), total: p2(total)});}});
+    const landed=await window.KGCinemaReel.spinCassetteDeck($("cl-reel"),eligible,seq,film,{cancelled:()=>token!==R.token,shouldSkip:()=>R.skip,onOpen:f=>D.t.series?window.KGSeriesHub.openSeries(f,document.activeElement):openFilm(f,"roulette"),onFrame:(_f,index,total)=>{if(token===R.token)$("cl-fc").textContent=uiText("Фильм {current} / {total}", {current: p2(index+1), total: p2(total)});}});
     if(token!==R.token)return;
     snd(()=>stopFilmReelSound());if(!landed)return;const all=D.all.filter(inCc),k=all.findIndex(f=>f.id===film.id);$("cl-fc").textContent=uiText("Фильм {current} / {total}", {current: p2((k<0?0:k)+1), total: p2(all.length)});snd(()=>buzz([25,50,60]));finishPick(film,token);return;
   }
@@ -1988,7 +2002,11 @@ const tvThemes=[
   ["gbdrama", "Британские драмы", "18"],
   ["jpcrime", "Японские криминальные сериалы", "80|9648"],
   ["frcom", "Французские комедии", "35"],
-  ["tr", "Турецкие мелодрамы", "10766", "drama", {id:"tv-tr-soap"}],
+  ["tr", "Турецкие мелодрамы", "10766|18|35", "drama", {id:"tv-tr-soap",seriesQueries:[
+    {with_genres:"10766"},
+    // Romance, love, love triangle, arranged marriage, soap opera, telenovela, romantic comedy, family drama and forbidden love.
+    {with_genres:"18|35",without_genres:"10763,10764,10766,10767",with_keywords:"9840|9673|128|2692|291959|199262|389245|12279|3691"}
+  ]}],
   ["gbdet", "Канадские детективы", "80|9648", "noir", {id:"tv-ca-mystery",cc:["CA"],cover:""}],
   ["brazil", "Бразильские криминальные сериалы", "80|9648", "noir"],
   ["thhorror", "Тайские драмы", "18", "drama", {id:"tv-th-drama",cover:""}],

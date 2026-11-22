@@ -1032,6 +1032,22 @@ function syncCollectionSort(root,attribute,sort){
     button.setAttribute("aria-pressed",String(active));
   });
 }
+const SON="bg-surface-container-high text-primary-fixed font-semibold",SOFF="text-text-muted hover:text-on-surface";
+const moodSortButtonClass=on=>"px-2.5 py-1 rounded font-micro-caption text-micro-caption "+(on?SON:SOFF);
+
+const collectionSortModes=[["rating","По рейтингу"],["pop","Популярные"],["new","Свежие"]];
+function sortBar(sort){
+  return `<div class="flex flex-wrap items-center justify-between gap-1.5" data-kg-collection-sorting>
+<span class="font-micro-caption text-micro-caption text-text-muted">${uiText("Сортировка:")}</span><div class="flex flex-wrap items-center gap-1 bg-surface-container-low p-0.5 rounded-lg" role="group" aria-label="${uiText("Сортировка:")}">${collectionSortModes.map(([mode,label])=>
+    `<button type="button" data-kg-film-sort="${mode}" aria-pressed="${mode===sort}" class="${moodSortButtonClass(mode===sort)}">${uiText(label)}</button>`).join("")}</div></div>`;
+}
+function syncFilmSort(root,sort){
+  root.querySelectorAll("[data-kg-film-sort]").forEach(button=>{
+    const active=button.dataset.kgFilmSort===sort;
+    button.className=moodSortButtonClass(active);
+    button.setAttribute("aria-pressed",String(active));
+  });
+}
 function sortCollectionFilms(films,sort){
   const compare={
     rating:(a,b)=>(Number(b.vote_average)||0)-(Number(a.vote_average)||0),

@@ -132,6 +132,9 @@
           </div>
           <div class="kg-profile-actions"><button type="button" class="kg-profile-button" data-profile-diary>${icon("history_edu")}<span>Кинодневник</span></button><button type="button" class="kg-profile-button" data-profile-diary="bookmarks">${icon("bookmark")}<span>Закладки</span></button><button type="button" class="kg-profile-button" data-profile-favorites aria-label="${uiText('Любимые')}">${window.KGFavorites.icon()}<span>Любимые</span><b data-profile-favorite-count aria-hidden="true">0</b></button></div>
         </section>
+        <button type="button" class="kg-profile-card kg-profile-calendar" data-profile-calendar>
+          ${icon("calendar_month")}<span><strong>${uiText("Мой календарь")}</strong><small data-profile-calendar-next></small></span>${icon("chevron_right")}
+        </button>
         <section class="kg-profile-archive">
           <div class="kg-profile-head"><h2>Кинематографический архив</h2><button type="button" class="kg-profile-gold" data-profile-action="history">История</button></div>
           <div class="kg-profile-grid">
@@ -216,7 +219,12 @@
   const shelfFilms = new Map();
   const defaultShelfLabel = label.textContent;
 
+  function renderCalendarPreview() {
+    dialog.querySelector("[data-profile-calendar-next]").textContent = window.KGReleaseFollow.upcoming();
+  }
+
   function renderProfile() {
+    renderCalendarPreview();
     const format = new Intl.NumberFormat(interfaceLanguage);
     dialog.querySelector("[data-profile-favorite-count]").textContent=String(window.KGFavorites.list().length);
     dialog.querySelector("h1").textContent = profile.name;
@@ -284,6 +292,7 @@
     status.textContent = message;
     window.KGMountBottomNav?.(dialog, scroll.parentElement, "profile");
     if (!dialog.open) dialog.showModal();
+    window.KGReleaseFollow.refresh();
     scroll.scrollTop = 0;
     return true;
   }
@@ -309,6 +318,7 @@
       profile = null;
       dialog.close();
     }
+    if(event.target.closest("[data-profile-calendar]")){window.KGReleaseFollow.openCalendar();return;}
     if(event.target.closest("[data-profile-favorites]")){window.KGFavorites.open();return;}
     const diaryButton = event.target.closest("[data-profile-diary]");
     if (diaryButton) {
@@ -352,6 +362,7 @@
     }
   });
 
+  document.addEventListener("kg:release-follows-change",renderCalendarPreview);
   document.addEventListener("kg:favorite-change",()=>{dialog.querySelector("[data-profile-favorite-count]").textContent=String(window.KGFavorites.list().length);});
   window.KGOpenDemoProfile = () => openProfile();
   window.KGStartDemoSession = (message, name = "") => {

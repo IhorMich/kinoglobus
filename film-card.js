@@ -73,6 +73,7 @@ ${window.KGWatchedButtonHtml(watched, `data-film-watched="${Number(f.id)}"`)}
 ${kgBookmarkButton(f)}
 ${window.KGFavorites?.button(f)||""}
 </div>
+<div class="kg-release-action">${window.KGReleaseFollow?.button(f)||""}</div>
 </div>
   ${closable ? (f._relatedPrevious ? `<button type="button" data-kg-related-back aria-label="${uiText("Вернуться к предыдущему фильму")}" class="kg-film-detail-close"><span class="material-symbols-outlined" aria-hidden="true">arrow_back</span></button>` : `<button type="button" data-act="close-film" aria-label="${uiText("Свернуть карточку")}" class="kg-film-detail-close"><span class="material-symbols-outlined" aria-hidden="true">close</span></button>`) : ""}
 </div>
@@ -237,7 +238,7 @@ function update(card, film, options = {}) {
     if (part.dataset.filmPart === "trailer" && current?.querySelector("iframe")) continue;
     if (current && current.outerHTML !== part.outerHTML) {
       const active = document.activeElement;
-      const focusAttribute = current.contains(active) && ["data-act", "data-film-watched", "data-kg-bookmark", "data-kg-film-note", "data-trailer-action"].find(attribute => active.hasAttribute(attribute));
+      const focusAttribute = current.contains(active) && ["data-act", "data-film-watched", "data-kg-bookmark", "data-kg-follow", "data-kg-film-note", "data-trailer-action"].find(attribute => active.hasAttribute(attribute));
       current.replaceWith(part);
       if (focusAttribute) part.querySelector(`[${focusAttribute}="${active.getAttribute(focusAttribute)}"]`)?.focus({preventScroll:true});
     }
@@ -317,6 +318,7 @@ function hydrate(model, source, refresh, active, onTrailer) {
       _cc:model._cc || details.countries?.[0] || "",
       _detailsLoaded:true
     });
+    window.KGReleaseFollow?.observe(model);
     refresh();
   }).catch(()=>{
     if (!active()) return;

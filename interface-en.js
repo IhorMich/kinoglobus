@@ -1,6 +1,15 @@
 // English translations for the Moven interface.
 window.KGInterfaceDictionaries ??= {};
 window.KGInterfaceDictionaries.en = Object.freeze({
+  "Не удалось сохранить подписку": "Could not save subscription",
+  "Перестать следить": "Unfollow",
+  "Перейти в календарь": "Open calendar",
+  "Добавлено в календарь": "Added to calendar",
+  "Отслеживаю": "Following",
+  "Следить за премьерой": "Follow premiere",
+  "Следить за серией": "Follow episode",
+  "Следить за сериалом": "Follow series",
+  "Мой календарь": "My Calendar",
   "Следующая веха: {count}": "Next milestone: {count}",
   "Осталось: {count}": "{count} to go",
   "Культовые мини-сериалы": "Landmark miniseries",
@@ -124,6 +133,8 @@ window.KGInterfaceDictionaries.en = Object.freeze({
   "Добавить в календарь": "Add to calendar",
   "Не удалось экспортировать напоминание.": "Could not export the reminder.",
   "Напомнить": "Remind me",
+  "Ждём дату": "Waiting for a date",
+  "Сериал завершён": "Series ended",
   "Серия": "Episode",
   "Действия": "Actions",
   "Просмотрен в дневнике": "Logged as watched",

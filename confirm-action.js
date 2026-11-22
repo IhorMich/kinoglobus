@@ -12,18 +12,23 @@
     dialog.innerHTML=`<h2 id="kg-removal-title">${esc(heading)}</h2><p>${esc(title||uiText('Фильм'))}</p><div class="kg-confirm-actions"><button type="button" data-removal-cancel autofocus>${uiText('Отмена')}</button><button type="button" data-removal-confirm>${esc(confirmLabel)}</button>${onSettings?`<button type="button" data-removal-settings>${esc(uiText("Настройки"))}</button>`:""}</div>`;
     activeDialog=dialog;document.body.append(dialog);
     return new Promise(resolve=>{
-      let approved=false,showSettings=false;
-      dialog.addEventListener('click',event=>{
-        if(event.target.closest('[data-removal-confirm]')){approved=true;dialog.close();}
-        else if(event.target.closest('[data-removal-settings]')){showSettings=true;dialog.close();}
-        else if(event.target.closest('[data-removal-cancel]'))dialog.close();
-      });
-      dialog.addEventListener('close',()=>{
-        activeDialog=null;dialog.remove();
+      let finished=false;
+      const finish=(approved=false,showSettings=false)=>{
+        if(finished)return;
+        finished=true;
+        if(dialog.open)dialog.close();
+        activeDialog=null;
+        dialog.remove();
         if(opener?.isConnected)opener.focus({preventScroll:true});
         resolve(approved);
         if(showSettings)onSettings?.();
-      },{once:true});
+      };
+      dialog.addEventListener('click',event=>{
+        if(event.target.closest('[data-removal-confirm]'))finish(true);
+        else if(event.target.closest('[data-removal-settings]'))finish(false,true);
+        else if(event.target.closest('[data-removal-cancel]'))finish();
+      });
+      dialog.addEventListener('close',()=>finish(),{once:true});
       dialog.showModal();
     });
   };

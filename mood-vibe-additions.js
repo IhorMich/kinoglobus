@@ -117,12 +117,42 @@
     }
   };
 
-  const movieToTvGenre={12:10759,14:10765,27:9648,28:10759,53:9648,878:10765,10749:18};
+  const seriesCards=[
+    ["season-case", "Дело на весь сезон", "search", "Улики · Расследование", "Расследования, в которых каждая серия добавляет новую улику.", ["GB", "SE", "DK", "KR", "US"], [9648, 80], [], ["Расследования", "Тайны"], "primary"],
+    ["familiar-faces", "Вернуться к своим", "favorite", "Дружба · Дом", "Комедии и семейные истории, в которых к героям хочется возвращаться.", ["US", "GB", "CA", "AU", "KR"], [35, 10751], [], ["Дружба", "Семья"], "secondary"],
+    ["rewind-time", "Время на перемотке", "history", "Петли времени · Другие реальности", "Герои меняют прошлое, застревают во времени или попадают в другую версию своей жизни.", ["US", "GB", "DE", "KR", "JP"], [10765], ["time travel", "time loop", "parallel universe"], ["Петли времени", "Другие реальности"], "tertiary"],
+    ["night-shift", "Смена до рассвета", "add", "Больница · Команда", "Медицинские драмы о людях, которым приходится принимать решения за минуты.", ["US", "GB", "KR", "CA"], [18], ["hospital", "medical drama", "emergency room"], ["Больница", "Команда"], "primary"],
+    ["palace-walls", "За дверями дворца", "castle", "Власть · Семейные союзы", "Династии, придворные интриги и союзы, от которых зависит судьба трона.", ["GB", "KR", "CN", "TR", "US"], [18, 10768], ["palace", "royalty", "royal family", "power struggle"], ["Династии", "Дворцовые интриги"], "secondary"],
+    ["long-romance", "Любовь в долгую", "favorite", "Романтика · Выбор", "Любовь, которая проходит через недосказанность, разлуку и трудный выбор.", ["KR", "TR", "JP", "US"], [18, 35, 10766], ["romance", "love triangle", "forbidden love"], ["Романтика", "Трудный выбор"], "tertiary"],
+    ["locker-room", "В одной раздевалке", "emoji_events", "Спорт · Соперничество", "Команды, за которые болеешь, и соперники, которых со временем начинаешь понимать.", ["JP", "US", "GB", "KR"], [16, 18, 35], ["sports", "soccer", "basketball"], ["Спорт", "Соперничество"], "primary"],
+    ["after-midnight", "Город после полуночи", "location_city", "Криминал · Подполье", "Городские истории о преступных сетях и людях, живущих по их правилам.", ["US", "FR", "KR", "ES", "GB"], [80, 9648], ["organized crime", "drug cartel", "mafia", "gangster"], ["Криминал", "Тайная жизнь"], "secondary"],
+    ["alien-signal", "Чужой сигнал", "rocket_launch", "Космос · Первый контакт", "Экспедиции и встречи с неизвестным, после которых привычный мир уже не кажется прежним.", ["US", "GB", "CA", "JP"], [10765], ["alien", "first contact", "space travel", "space exploration"], ["Космос", "Первый контакт"], "tertiary"],
+    ["growing-pains", "Когда взрослеть трудно", "school", "Дружба · Взросление", "Первые самостоятельные решения, перемены в дружбе и поиск своего места.", ["GB", "US", "FR", "JP", "KR"], [18, 35, 16], ["coming of age", "high school"], ["Дружба", "Взросление"], "primary"],
+    ["trust-no-one", "Никому не верь", "visibility", "Паранойя · Манипуляции", "Психологические игры, ненадёжные рассказчики и секреты, которые меняют всё.", ["US", "GB", "KR", "DE"], [9648, 18, 80], ["psychological thriller", "paranoia", "conspiracy"], ["Недоверие", "Тайны"], "secondary"],
+    ["after-apocalypse", "После конца света", "public_off", "Апокалипсис · Выживание", "Когда привычный мир исчезает, героям приходится заново учиться выживать и доверять друг другу.", ["US", "GB", "CA", "KR", "JP"], [10765, 18, 10759], ["post-apocalyptic", "apocalypse", "survival"], ["Выживание", "Новый мир"], "tertiary"],
+    ["billion-dollar-game", "Игра за миллиарды", "payments", "Большие деньги · Влияние", "Бизнес-империи, борьба за наследство и сделки, в которых на кону власть.", ["US", "GB", "KR", "JP"], [18], ["business", "corporation", "wealthy family"], ["Деньги", "Влияние"], "primary"],
+    ["strange-town", "В этом городе что-то не так", "location_city", "Маленький город · Загадка", "За тихими улицами скрываются исчезновения, странные события и давние тайны.", ["US", "GB", "DE", "FR", "DK"], [9648, 10765, 18], ["small town", "mysterious disappearance", "supernatural"], ["Тайна", "Странности"], "secondary"],
+    ["another-era", "Жизнь в другой эпохе", "history_edu", "Эпоха · Общество", "Повседневная жизнь, любовь и правила общества в другие исторические времена.", ["GB", "US", "FR", "KR", "JP"], [18], ["period drama", "historical drama", "aristocracy"], ["Эпоха", "Традиции"], "tertiary"],
+    ["under-oath", "Правда под присягой", "gavel", "Суд · Адвокаты", "Судебные споры, трудные решения и защита правды, когда у каждого своя версия событий.", ["US", "GB", "KR", "JP"], [18, 80], ["lawyer", "courtroom", "legal drama"], ["Закон", "Защита"], "primary"],
+    ["shift-at-limit", "На пределе смены", "work", "Работа · Команда", "Напряжённые будни команд, где дедлайны, ошибки и амбиции проверяют людей на прочность.", ["US", "GB", "KR", "CA"], [18, 35], ["workplace", "restaurant", "office"], ["Работа", "Команда"], "secondary"],
+    ["back-in-the-day", "Назад в те времена", "album", "Ностальгия · Прошлое", "Музыка, мода и атмосфера прошлых десятилетий — истории, которые возвращают в другое время.", ["US", "GB", "DE", "KR", "FR"], [18, 35], ["1980s", "1990s", "1970s"], ["Ностальгия", "Десятилетия"], "tertiary"],
+    ["beyond-reality", "По ту сторону реальности", "auto_awesome", "Мистика · Магия", "Миры рядом с нашим, где легенды оживают, а сверхъестественное становится частью повседневности.", ["US", "GB", "CA", "KR", "JP"], [10765, 9648], ["supernatural", "magic", "mythology"], ["Мистика", "Магия"], "primary"],
+    ["behind-power", "За кулисами власти", "account_balance", "Политика · Заговоры", "Тайные договорённости, разведка и борьба за решения, которые влияют на целые страны.", ["US", "GB", "FR", "DE", "KR"], [18, 10768, 80], ["political thriller", "political intrigue", "espionage"], ["Политика", "Интриги"], "secondary"]
+  ].map(([id,title,icon,tag,description,countries,genres,keywords,chips,tone])=>({
+    id,title,icon,tag,description,countries,genres,keywords,tone,genreLabel:tag,
+    x:{
+      heading:title,crumb:title,pill:tag,badge:[icon,chips[0]],effect:[icon,chips[1]],
+      chips:chips.map(label=>[icon,"text-primary",label]),short:title,shortSub:tag
+    }
+  }));
+  const coverStyle=mood=>mood.image
+    ? `background-image:url('${mood.image}');background-position:${mood.imagePosition||"center"}`
+    : `background:radial-gradient(ellipse at 88% 10%,rgb(var(--kg-${mood.tone}) / .22),transparent 72%),rgb(var(--kg-surface-container-high))`;
+
   async function discoverFilters(mood, searchKeywords, series=false) {
-    const genres=series?(mood.id==="animation"?[16]:mood.genres.map(id=>movieToTvGenre[id]||id)):mood.genres;
-    const filters={with_genres:[...new Set(genres)].join("|")};
+    const filters={with_genres:mood.genres.join("|")};
     if(series)filters.without_genres="10763,10764,10767";
-    const keywords=series&&mood.id==="chemistry"?["romance","love triangle","romantic comedy"]:mood.keywords;
+    const keywords=mood.keywords;
     if(!keywords?.length)return filters;
 
     const results=await Promise.all(keywords.map(query=>searchKeywords(query)));
@@ -136,5 +166,5 @@
     return {...filters, with_keywords: [...new Set(ids)].join("|")};
   }
 
-  window.KGMoodVibeAdditions = {cards, details, discoverFilters};
+  window.KGMoodVibeAdditions = {cards, details, seriesCards, coverStyle, discoverFilters};
 })();

@@ -61,10 +61,10 @@
     return {key:`movie:${id}`,kind:"movie",id,title,...art,date:day(film.release || film.release_date)};
   }
 
-  function buttonContent(button, kind, active) {
+  function buttonContent(button, active) {
     button.setAttribute("aria-pressed", String(active));
     button.setAttribute("aria-haspopup", active ? "dialog" : "false");
-    const text = uiText(active ? "Отслеживаю" : titleFor[kind]);
+    const text = uiText(active ? "Отслеживаю" : button.dataset.followLabel);
     const compact = button.hasAttribute("data-follow-compact");
     button.innerHTML = icon(active ? "check" : "calendar") + buttonLabel(text,compact);
     if (compact) button.title = text;
@@ -78,18 +78,18 @@
     const item = entryFor(film, episode, season);
     if (!item) return "";
     const active = !!subscriptions()[item.key];
-    if (item.kind === "movie" && item.date < today() && !active) return "";
-    const text = uiText(active ? "Отслеживаю" : titleFor[item.kind]);
+    const initialLabel = item.kind === "movie" && item.date < today() ? "Следить за фильмом" : titleFor[item.kind];
+    const text = uiText(active ? "Отслеживаю" : initialLabel);
     const compact = iconOnly || item.kind === "series";
     return `<button type="button" class="kg-release-follow" data-kg-follow="${item.key}"
-      data-follow-item="${esc(JSON.stringify(item))}" aria-pressed="${active}" aria-haspopup="${active?"dialog":"false"}"${compact ? ` title="${esc(text)}" data-follow-compact` : ""}>${icon(active?"check":"calendar")}${buttonLabel(text,compact)}</button>`;
+      data-follow-item="${esc(JSON.stringify(item))}" data-follow-label="${esc(initialLabel)}" aria-pressed="${active}" aria-haspopup="${active?"dialog":"false"}"${compact ? ` title="${esc(text)}" data-follow-compact` : ""}>${icon(active?"check":"calendar")}${buttonLabel(text,compact)}</button>`;
   }
 
   function syncButtons() {
     const items = subscriptions();
     document.querySelectorAll("[data-kg-follow]").forEach(button => {
       const active = !!items[button.dataset.kgFollow];
-      if (button.getAttribute("aria-pressed") !== String(active)) buttonContent(button, button.dataset.kgFollow.split(":")[0], active);
+      if (button.getAttribute("aria-pressed") !== String(active)) buttonContent(button, active);
     });
   }
 
@@ -182,8 +182,8 @@
     save(items);
   }
 
-  function openCalendar() {
-    window.KGPersonalCalendar.open();
+  function openCalendar(date) {
+    window.KGPersonalCalendar.open(date);
   }
 
   function calendarItems() {
@@ -206,7 +206,7 @@
     sheet.addEventListener("click",event => {
       const button = event.target.closest("button");
       if (event.target === sheet || button?.hasAttribute("data-follow-dismiss")) sheet.close();
-      if (button?.hasAttribute("data-follow-calendar")) { sheet.close(); openCalendar(); }
+      if (button?.hasAttribute("data-follow-calendar")) { sheet.close(); openCalendar(nextDate); }
       if (button?.hasAttribute("data-follow-remove")) {
         sheet.close();
         try { remove(item); }

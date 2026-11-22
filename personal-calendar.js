@@ -196,14 +196,14 @@
     render();
   }
 
-  function open() {
+  function open(date) {
     if (dialog?.open) return;
     const view = document.createElement("dialog");
     dialog = view;
     view.id = "kg-personal-calendar";
     view.className = "kg-film-dialog";
     view.setAttribute("aria-labelledby","kg-personal-calendar-title");
-    selected = key(new Date());
+    selected = /^\d{4}-\d{2}-\d{2}$/.test(date || "") && Number.isFinite(+fromKey(date)) ? date : key(new Date());
     scope = "tracked";
     filter = "";
     expanded = true;

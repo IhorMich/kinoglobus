@@ -139,7 +139,7 @@
     ["beyond-reality", "По ту сторону реальности", "auto_awesome", "Мистика · Магия", "Миры рядом с нашим, где легенды оживают, а сверхъестественное становится частью повседневности.", ["US", "GB", "CA", "KR", "JP"], [10765, 9648], ["supernatural", "magic", "mythology"], ["Мистика", "Магия"], "primary"],
     ["behind-power", "За кулисами власти", "account_balance", "Политика · Заговоры", "Тайные договорённости, разведка и борьба за решения, которые влияют на целые страны.", ["US", "GB", "FR", "DE", "KR"], [18, 10768, 80], ["political thriller", "political intrigue", "espionage"], ["Политика", "Интриги"], "secondary"]
   ].map(([id,title,icon,tag,description,countries,genres,keywords,chips,tone])=>({
-    id,title,icon,tag,description,countries,genres,keywords,tone,genreLabel:tag,
+    id,title,icon,tag,description,countries,genres,keywords,tone,genreLabel:tag,image:`assets/vibes/${id}.jpg`,
     x:{
       heading:title,crumb:title,pill:tag,badge:[icon,chips[0]],effect:[icon,chips[1]],
       chips:chips.map(label=>[icon,"text-primary",label]),short:title,shortSub:tag

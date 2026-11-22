@@ -498,6 +498,10 @@ function showView(v, remember = true){
   view=v;
   if(!["collection","series-collection"].includes(v))rStop();
   if(D.selected) closeInlineFilm(D.selected,false);
+  if(vd.dataset.collectionMedia&&!(v==="series-collection"&&vd.dataset.collectionMedia==="tv")&&
+    !(v==="collection"&&vd.dataset.collectionMedia==="movie")){
+    vd.replaceChildren();delete vd.dataset.collectionMedia;
+  }
   home.style.display=v==="home"?"":"none";
   seriesPage.hidden=v!=="series";
   seriesCalendar.hidden=v!=="series-calendar";
@@ -521,7 +525,7 @@ function showView(v, remember = true){
   const sectionTabs=seriesSelection?[["series-collections","Коллекции"],["series-calendar","Календарь"]]:collectionTabs;
   if(sectionNav.dataset.media!==(seriesSelection?"tv":"movie")) renderCollectionTabs(sectionTabs,seriesSelection?"tv":"movie");
   vc.style.display=v==="collections"?"":"none";
-  vd.style.display=["collection","series-collection"].includes(v)?"":"none";
+  vd.style.display=(v==="collection"&&vd.dataset.collectionMedia==="movie")||(v==="series-collection"&&vd.dataset.collectionMedia==="tv")?"":"none";
   vm.style.display=v==="mood"?"":"none";
   vo.style.display=v==="oscar"?"":"none";
   const act=v==="series"?"home":(seriesSelection||["collection","mood","oscar"].includes(v))?"collections":v;
@@ -582,7 +586,7 @@ window.KGHandleBack = () => {
   const previous = previousViews.pop();
   if (!previous) return false;
   if (["collection","series-collection"].includes(previous.view) && previous.collectionId) {
-    openCollection(previous.collectionId, {returning:true});
+    openCollection(previous.collectionId, {returning:true,series:previous.view==="series-collection"});
   } else {
     showView(previous.view, false);
   }
@@ -695,10 +699,15 @@ ${top}<div class="kg-catalog-row flex items-start gap-3">
 const collectionSpinClasses = "kg-collection-spin relative group py-3.5 px-4 rounded-xl bg-primary-container text-on-primary font-label-lg text-label-lg font-bold flex items-center justify-center gap-2 shadow-[0_0_24px_rgb(var(--kg-primary-container)/0.28)] transition-all active:scale-[0.98] overflow-hidden";
 const collectionSpinShine = '<span aria-hidden="true" class="absolute inset-0 pointer-events-none bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></span>';
 
+function spotlightCover(t,meta){
+  const art=t.series?t.cover:getThemeCover(t.id);
+  const tmdb=P(meta?.b,"w780")||P(meta?.p,"w500");
+  return t.films?tmdb||art:art||tmdb;
+}
 function spotlightHtml(t){
   const m=TM[t.id]||["noir","","",""];
   const meta=t.series?tvMetadata.get(t.id):null;
-  const cover=t.series?(P(meta?.b,"w780")||t.cover):getThemeCover(t.id);
+  const cover=spotlightCover(t,meta);
   return `<section ${t.series?"data-tv-spot":"id=\"spot\""} data-collection-spot data-t="${t.id}" tabindex="0" aria-label="${esc(uiText("Открыть подборку «{title}»", {title: uiText(t.name)}))}" class="relative w-full rounded-2xl overflow-hidden bg-surface-panel shadow-[0_14px_34px_-10px_rgb(var(--kg-black)/0.85)] cursor-pointer">
 <div data-k="bg" style="background-image: url('${cover}');" class="w-full h-56 bg-cover bg-center relative bg-surface-container-high"><div class="absolute inset-0 bg-gradient-to-t from-surface-panel via-surface-panel/60 to-transparent"></div>
 <div class="absolute top-3 left-3 right-3 flex items-center justify-between"><div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-cinema-velvet-deep text-secondary font-micro-caption text-micro-caption shadow-md"><span class="material-symbols-outlined text-[14px]">local_fire_department</span>${uiText("ХИТ НЕДЕЛИ")}</div>
@@ -774,10 +783,7 @@ function paintMeta(id){
   document.querySelectorAll(`#view-collections [data-t="${id}"]`).forEach(el=>{
     if(el.id==="spot"){
       const bg=el.querySelector('[data-k="bg"]');
-      // Приоритет отдаётся авторской широкоформатной арт-обложке
-      const src=t.films
-        ? (m.b?P(m.b,"w780"):P(m.p,"w500")) || customArt
-        : customArt || (m.b?P(m.b,"w780"):P(m.p,"w500"));
+      const src=spotlightCover(t,m);
       if(src) bg.style.backgroundImage=`url('${src}')`;
     }
     const r=el.querySelector('[data-k="r"]');
@@ -1100,8 +1106,9 @@ function otherHtml(t){
 
 function renderCollection(){
   const t=D.t,m=TM[t.id]||["noir","","",""];
-  const themes=t.series?tvThemes:catalogThemes;
+  const themes=t.series?tvThemes:catalogThemes.filter(theme=>!theme.series);
   const others=shuffle(themes.filter(x=>x.id!==t.id)).slice(0,5);
+  vd.dataset.collectionMedia=t.series?"tv":"movie";
   vd.innerHTML=`
 <div class="flex items-center justify-between gap-space-sm pt-space-xs"><button type="button" data-act="back" class="flex items-center gap-1.5 text-text-muted hover:text-primary transition-colors py-1"><span class="material-symbols-outlined text-[18px]">arrow_back</span><span class="font-label-sm text-label-sm">${uiText("Все подборки")}</span></button>
 <div class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-high text-primary-fixed shadow-sm"><span class="material-symbols-outlined text-[14px] text-primary-container">${ICON[t.id]||"auto_awesome"}</span><span class="font-micro-caption text-micro-caption font-semibold tracking-wide uppercase">${uiText("Кураторский выбор")}</span></div></div>
@@ -1137,7 +1144,8 @@ ${t.cc.length>1?`<div class="flex flex-col gap-1.5 pt-1"><span class="font-micro
 }
 
 async function openCollection(id,opt){
-  const t=T[id]||tvThemeFor(id);if(!t)return;
+  const t=(opt?.series??window.KGSeries.active)?tvThemeFor(id):T[id];
+  if(!t)return;
   const destination=t.series?"series-collection":"collection";
   if (!opt?.returning) rememberView(destination, id);
   rStop();
@@ -1219,7 +1227,11 @@ function paintWatchedButtons(container){container?.querySelectorAll("[data-film-
 function renderSelectedPanel(refresh = false){
   const selected=D.selected;if(!selected)return;
   const current=refresh && inlineFilmCard(selected);
-  if(current){window.KGFilmCard.update(current,selected);return;}
+  if(current){
+    window.KGFilmCard.update(current,selected,{inline:true});
+    window.KGSeriesDetail?.enhance(current,selected);
+    return;
+  }
   if(selected._placement==="list"){
     if(!placeListPanel())renderFilms();return;
   }
@@ -1515,7 +1527,7 @@ vd.addEventListener("click",e=>{
   if(a==="retry"){openCollection(D.t.id,{returning:true,retry:true});return;}
   if(a==="close-film"){closeInlineFilm();return;}
   if(a==="back"){e.preventDefault();showView(D.t.series?"series-collections":"collections");return;}
-  if(a==="goto"){e.preventDefault();openCollection(el.dataset.t);return;}
+  if(a==="goto"){e.preventDefault();openCollection(el.dataset.t,{series:D.t.series===true});return;}
   if(a==="spin"){inPageRoulette();return;}
   if(a==="skip"){R.skip=true;return;}
   if(a==="cc"){
@@ -1534,7 +1546,10 @@ vd.addEventListener("click",e=>{
   if(a==="more"){D.shown+=5;renderFilms();return;}
   const f=byId(el.dataset.id);if(!f)return;
   if(a==="trailer"){e.stopPropagation();openFilm(f);return;}
-  if(a==="open")openFilm(f,"list",null,{opener:el});
+  if(a==="open"){
+    if(D.t.series)window.KGSeriesHub.openSeries(f,el);
+    else openFilm(f,"list",null,{opener:el});
+  }
 });
 
 // старая кнопка «Подборки» из bridge v6 теперь ведёт в каталог
@@ -1981,7 +1996,8 @@ function renderTvCatalog(){
     }
     const spotlight=seriesCollections.querySelector("[data-tv-spot]");
     if(spotlight&&theme===featured){
-      if(meta.b)spotlight.querySelector('[data-k="bg"]').style.backgroundImage=`url("${P(meta.b,"w780")}")`;
+      const cover=spotlightCover(theme,meta);
+      if(cover)spotlight.querySelector('[data-k="bg"]').style.backgroundImage=`url("${cover}")`;
       spotlight.querySelector('[data-k="r"]').textContent=meta.r||"—";
       spotlight.querySelector('[data-k="cnt"]').textContent=seriesCollectionCount(meta.n);
     }
@@ -2018,7 +2034,7 @@ seriesCollections.addEventListener("click",event=>{
     const theme=button.closest("[data-t]");
     if(!theme)return;
     if(act==="spin")audio();
-    openCollection(theme.dataset.t,{spin:act==="spin"});
+    openCollection(theme.dataset.t,{series:true,spin:act==="spin"});
   }
 });
 seriesCollections.addEventListener("keydown",event=>{

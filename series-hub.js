@@ -169,6 +169,9 @@
       hero.querySelector('.kg-sh-scroll-cue').hidden=state.cue<1;
     }
   });}
+  function openSeries(film, opener){
+    return window.KGFilmCard.openDialog({...film,_kgGlobalRelated:true},opener);
+  }
   function mountDiscovery(host,model){
     const f={...model,original_title:model.originalTitle||model.original_title,vote_average:model.average??model.vote_average,vote_count:model.votes??model.vote_count};
     host.__kgSeriesDiscoveryFilm=f;
@@ -179,7 +182,7 @@
       host.addEventListener('click',event=>{
         if(event.target.closest('[data-kg-bookmark]'))return;
         const open=event.target.closest('[data-sh-open]'),film=host.__kgSeriesDiscoveryFilm;
-        if(open&&film&&open.dataset.shOpen===String(film.id))window.KGFilmCard.openDialog({...film,_kgGlobalRelated:true},open.matches('button,a')?open:open.querySelector('.kg-sh-primary')||open);
+        if(open&&film&&open.dataset.shOpen===String(film.id))openSeries(film,open.matches('button,a')?open:open.querySelector('.kg-sh-primary')||open);
       });
     }
     queueParallax();return host.firstElementChild;
@@ -321,11 +324,11 @@
       const categoryButton=event.target.closest('[data-sh-category]');if(categoryButton){category=categoryButton.dataset.shCategory;expanded=false;render();load();return;}
       const more=event.target.closest('[data-sh-feed-more]');if(more){moreFeed(more.dataset.shFeedMore);return;}
       if(event.target.closest('[data-sh-retry]')){load(true);return;}
-      const open=event.target.closest('[data-sh-open]');if(open){const f=allShows.get(open.dataset.shOpen);if(f)window.KGFilmCard.openDialog({...f,_kgGlobalRelated:true},open.matches('button,a')?open:open.querySelector('.kg-sh-primary')||open);}
+      const open=event.target.closest('[data-sh-open]');if(open){const f=allShows.get(open.dataset.shOpen);if(f)openSeries(f,open.matches('button,a')?open:open.querySelector('.kg-sh-primary')||open);}
     });
     window.addEventListener('scroll',queueParallax,{passive:true});window.addEventListener('resize',queueParallax,{passive:true});
     document.addEventListener('kg:media-change',event=>{if(event.detail.mediaType==='tv')load();else{generation++;loading=false;}});
     document.addEventListener('kg-bookmark-change',()=>{if(root)root.querySelectorAll('[data-kg-bookmark]').forEach(b=>paintBookmarkButton(b,kgIsBookmarked(b.dataset.kgBookmark)));});
   }
-  window.KGSeriesHub={mount,mountDiscovery,heroMarkup,load,scheduleFor,categoryQuery,service,applyPlatform,parallaxState,platformResults,matchesProvider,discoverFeed,buildStreamingFilter};
+  window.KGSeriesHub={mount,mountDiscovery,openSeries,heroMarkup,load,scheduleFor,categoryQuery,service,applyPlatform,parallaxState,platformResults,matchesProvider,discoverFeed,buildStreamingFilter};
 })();

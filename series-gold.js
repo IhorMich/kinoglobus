@@ -185,7 +185,8 @@
         </div>
         <div class="kg-gold-filters kg-gold-eras" data-gold-rail="eras" role="group" aria-label="${label("Эпохи")}">
           ${eras.filter(([id])=>entries.some(show=>inEra(show,id))).map(([id,title])=>
-            `<button type="button" data-gold-era="${id}" data-gold-focus="era-${id}" aria-pressed="${era===id}">${label(title)}</button>`).join("")}
+            `<button type="button" data-gold-era="${id}" data-gold-focus="era-${id}" aria-pressed="${era===id}"
+              class="decade-chip shrink-0 px-3.5 py-1.5 rounded-full ${era===id?"bg-primary-container text-on-primary-container shadow-md font-semibold":"bg-surface-container text-text-muted font-medium"} font-label-sm text-label-sm transition-all hover:text-on-surface">${label(title)}</button>`).join("")}
         </div>
         <p class="kg-gold-era-note font-micro-caption text-micro-caption text-text-muted">${label("Выбранная эпоха работает для рулетки и для списка ниже")}</p>
       </div>

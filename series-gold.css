@@ -12,7 +12,6 @@
 .kg-gold-heading { margin: -12px -16px 0; }
 .kg-gold-jump { height: 34px; background: rgb(var(--kg-surface-panel)); color: rgb(var(--kg-text-muted)); }
 .kg-gold-jump[aria-pressed="true"] { box-shadow: 0 0 12px rgb(var(--kg-primary-container) / .3); }
-.kg-gold .kg-gold-eras button { min-height: 32px; }
 .kg-gold p.kg-gold-era-note { margin-top: 4px; }
 .kg-gold [data-gold-random]:disabled { opacity: .75; }
 .kg-gold [data-gold-random] [data-gold-random-icon] { font-size: 22px; }
@@ -34,13 +33,13 @@
 .kg-gold-progress progress { width: 100%; height: 7px; accent-color: rgb(var(--kg-primary-container)); margin-top: 8px; }
 .kg-gold-filters, .kg-gold-episode-strip { display: flex; gap: 6px; min-inline-size: 0; max-inline-size: 100%;
   overflow-x: auto; overflow-y: hidden; overscroll-behavior-inline: contain; padding: 2px 1px 4px; }
-.kg-gold-filters button, .kg-gold-toolbar button, .kg-gold-toolbar label, .kg-gold-button, .kg-gold-actions button,
+.kg-gold-filters button:not([data-gold-era]), .kg-gold-toolbar button, .kg-gold-toolbar label, .kg-gold-button, .kg-gold-actions button,
 .kg-gold [data-gold-watch] {
   min-height: 40px; padding: 6px 10px; border-radius: 999px; background: rgb(var(--kg-surface-container-high));
   color: rgb(var(--kg-on-surface)); font-weight: 600;
 }
 .kg-gold-filters button { flex-shrink: 0; }
-.kg-gold button[aria-pressed="true"] { color: rgb(var(--kg-on-primary-fixed)); background: rgb(var(--kg-primary-container)); }
+.kg-gold button[aria-pressed="true"]:where(:not([data-gold-era])) { color: rgb(var(--kg-on-primary-fixed)); background: rgb(var(--kg-primary-container)); }
 .kg-gold button:focus-visible, .kg-gold select:focus-visible { outline: 2px solid rgb(var(--kg-primary-container)); outline-offset: 1px; }
 .kg-gold-toolbar { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: center; gap: 8px; }
 .kg-gold-sort, .kg-gold-toolbar > div, .kg-gold-actions { display: flex; align-items: center; gap: 6px; }

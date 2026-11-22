@@ -263,9 +263,11 @@ async function loadTheme(t,pages,force=false){
       for(const cc of t.cc){
         const params=qs(t,cc);
         if(t.series)params.without_genres="10763,10764,10767";
+        const minVotes=t.minVotes??params["vote_count.gte"];
+        params["vote_count.gte"]=minVotes;
         for(let p=1;p<=pages;p++)jobs.push(()=>discover({...params,page:p},{fresh:force}).then(r=>({
           cc,p,total:r.total_results||0,
-          films:(r.results||[]).filter(f=>!t.series||(movieCatalog.allows(f)&&f.origin_country?.includes(cc)&&Number(f.vote_count)>=floorOf(cc)&&Number(f.vote_average)>=6.5))
+          films:(r.results||[]).filter(f=>!t.series||(movieCatalog.allows(f)&&f.origin_country?.includes(cc)&&Number(f.vote_count)>=minVotes&&Number(f.vote_average)>=6.5))
             .map(f=>({...f,_cc:cc}))
         })));
       }
@@ -1934,14 +1936,14 @@ const tvThemes=[
   ["uadrama", "Украинские драмы", "18"],
   ["pldrama", "Польские детективы", "80|9648", "noir"],
   ["latam", "Латиноамериканский нуар", "80|9648"],
-  ["inact", "Индийские криминальные сериалы", "80|9648", "noir"],
+  ["inact", "Индийские криминальные сериалы", "80|9648", "noir", {id:"tv-indian-crime",minVotes:60}],
   ["auhorror", "Австралийские детективы", "80|9648", "noir"],
   ["gbdrama", "Британские драмы", "18"],
   ["jpcrime", "Японские криминальные сериалы", "80|9648"],
   ["frcom", "Французские комедии", "35"]
-].map(([source,name,g,category])=>{
+].map(([source,name,g,category,options])=>{
   const original=T[source];
-  return {id:`tv-${source}`,name,g,cc:original.cc,region:where(original),category:CAT[category||cat(original)][0],series:true,cover:getThemeCover(source)};
+  return {id:`tv-${source}`,name,g,cc:original.cc,region:where(original),category:CAT[category||cat(original)][0],series:true,cover:getThemeCover(source),...options};
 });
 let tvCountry="",tvQuery="",tvLayout="list",tvCatalogSort="rating";
 const tvMetadata=new Map();

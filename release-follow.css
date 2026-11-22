@@ -5,7 +5,7 @@
   font: 600 12px/1.3 var(--kg-font-interface); text-align: start;
 }
 .kg-release-follow[aria-pressed="true"] { background: var(--kg-primary-button-fill); color: rgb(var(--kg-on-primary)); }
-.kg-release-follow svg, .kg-release-sheet svg, #kg-personal-calendar svg { flex: none; width: 19px; height: 19px; }
+.kg-release-follow svg, #kg-personal-calendar svg { flex: none; width: 19px; height: 19px; }
 .kg-release-action { display: flex; margin-top: 7px; }
 .kg-release-toast {
   position: fixed; z-index: 70; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 26px); transform: translateX(-50%);
@@ -15,19 +15,6 @@
   box-shadow: 0 6px 24px rgb(var(--kg-black) / .35);
 }
 .kg-release-toast button { min-height: 36px; color: rgb(var(--kg-primary)); font-weight: 700; }
-.kg-release-sheet {
-  position: fixed; inset: auto 0 0; margin: 0 auto; width: min(100%, 500px);
-  border: 0; border-radius: 20px 20px 0 0; padding: 16px 16px calc(16px + env(safe-area-inset-bottom, 0px));
-  background: rgb(var(--kg-surface-panel)); color: rgb(var(--kg-on-surface)); font-family: var(--kg-font-interface);
-}
-.kg-release-sheet::backdrop { background: rgb(var(--kg-black) / .6); }
-.kg-release-sheet section { display: grid; gap: 8px; }
-.kg-release-sheet h2 { margin: 0; font: 600 19px var(--kg-font-heading); }
-.kg-release-sheet p { margin: 0 0 4px; color: rgb(var(--kg-on-surface-variant)); font-size: 13px; }
-.kg-release-sheet button {
-  min-height: 44px; display: flex; gap: 8px; align-items: center; padding-inline: 12px; border-radius: 10px;
-  text-align: start; background: rgb(var(--kg-surface-container-high)); color: inherit;
-}
 #kg-personal-calendar {
   position: fixed; inset: 0; width: 100%; height: 100dvh; max-width: none; max-height: 100dvh;
   margin: 0; padding: 0; border: 0; background: rgb(var(--kg-surface-container-lowest)); color: rgb(var(--kg-on-surface));

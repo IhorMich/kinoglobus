@@ -37,6 +37,7 @@ public class MainActivity extends BridgeActivity {
         SplashScreen.installSplashScreen(this);
         configureEdgeToEdge();
         registerPlugin(CalendarExportPlugin.class);
+        registerPlugin(ReleaseAlertsPlugin.class);
         super.onCreate(savedInstanceState);
         configureEdgeToEdge();
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {

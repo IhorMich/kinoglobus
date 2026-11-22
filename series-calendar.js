@@ -148,13 +148,20 @@
       (!fullSeason || item.episode_number >= episode.episode_number)
     ).map(item => [item.episode_number,item])).values()];
     if (!episodes.length) throw new Error('No release dates');
-    const events = episodes.flatMap(item => {
-      const title = calendarFile(`${show.title} · S${episode.season_number}E${item.episode_number}`);
-      return ['BEGIN:VEVENT', `UID:tv-${show.id}-${episode.season_number}-${item.episode_number}@moven`,
-        `DTSTAMP:${stamp()}`, `DTSTART:${item.air_date.replace(/-/g,'')}T${time.replace(':','')}00`,
-        `SUMMARY:${title}`, 'BEGIN:VALARM', `TRIGGER:${lead === '15' ? '-PT15M' : 'PT0M'}`,
-        'ACTION:DISPLAY', `DESCRIPTION:${title}`, 'END:VALARM', 'END:VEVENT'];
-    });
+    const events = episodes.map(item => ({
+      id:`tv-${show.id}-${episode.season_number}-${item.episode_number}`,
+      date:item.air_date, title:`${show.title} · S${episode.season_number}E${item.episode_number}`
+    }));
+    return exportReminders(events,time,Number(lead));
+  }
+
+  async function exportReminders(entries, time, lead) {
+    const events = entries.flatMap(item => [
+      'BEGIN:VEVENT', `UID:${calendarFile(item.id)}@moven`, `DTSTAMP:${stamp()}`,
+      `DTSTART:${item.date.replace(/-/g,'')}T${time.replace(':','')}00`, `SUMMARY:${calendarFile(item.title)}`,
+      'BEGIN:VALARM', `TRIGGER:${lead ? '-PT'+lead+'M' : 'PT0M'}`,
+      'ACTION:DISPLAY', `DESCRIPTION:${calendarFile(item.title)}`, 'END:VALARM', 'END:VEVENT'
+    ]);
     const content = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Moven//Series Calendar//EN','CALSCALE:GREGORIAN',
       ...events,'END:VCALENDAR',''].join('\r\n');
     if (window.Capacitor?.getPlatform() === 'android') {
@@ -308,5 +315,5 @@
     details.clear(); seasons.clear();
     load();
   }
-  window.KGSeriesCalendar = {mount, show, releases, reminder, hide:() => { generation++; }};
+  window.KGSeriesCalendar = {mount, show, releases, reminder, exportReminders, hide:() => { generation++; }};
 })();

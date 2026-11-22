@@ -2,6 +2,7 @@
 (() => {
   const storageKey = "kg.releaseFollows.v1";
   const changeEvent = "kg:release-follows-change";
+  const alerts = window.KGReleaseAlerts;
   const esc = value => String(value ?? "").replace(/[&<>"']/g, char =>
     ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[char]);
   const icon = name => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${
@@ -27,6 +28,7 @@
   function save(items) {
     localStorage.setItem(storageKey, JSON.stringify(items));
     document.dispatchEvent(new Event(changeEvent));
+    alerts.synchronize(Object.values(items)).catch(()=>{});
   }
 
   function episodeEntry(episode, season) {
@@ -50,20 +52,21 @@
     if (episode && !series) return null;
     const rawId = series ? window.KGSeries.rawId(id) : id;
     const title = film.title || film.name || "";
-    const art = {poster:film.posterPath || film.poster_path || "",backdrop:film.backdrop_path || "",
+    const art = {genres:(film.genres || []).map(g=>typeof g === "string" ? g : g?.name).filter(Boolean).slice(0,2),
+      original:film.originalTitle || film.original_title || "",poster:film.posterPath || film.poster_path || "",backdrop:film.backdrop_path || "",
       service:film.networks?.[0]?.name || ""};
     if (episode) {
       const details = episodeEntry(episode, season);
       return details && {key:`episode:${rawId}:${season}:${details.number}`,kind:"episode",id:rawId,title,...art,
         episodeTitle:details.title,season,number:details.number,date:details.date,still:details.still,runtime:details.runtime};
     }
-    if (series) return {key:`series:${rawId}`,kind:"series",id:rawId,title,...art,dates:seriesDates(film),ended:["Ended","Canceled"].includes(film.status)};
+    if (series) return {key:`series:${rawId}`,kind:"series",id:rawId,title,...art,dates:seriesDates(film),season:film.next_episode_to_air?.season_number || film._seriesSeason,episodeCount:film.number_of_episodes,ended:["Ended","Canceled"].includes(film.status)};
     return {key:`movie:${id}`,kind:"movie",id,title,...art,date:day(film.release || film.release_date)};
   }
 
   function buttonContent(button, active) {
     button.setAttribute("aria-pressed", String(active));
-    button.setAttribute("aria-haspopup", active ? "dialog" : "false");
+    button.setAttribute("aria-haspopup", "dialog");
     const text = uiText(active ? "Отслеживаю" : button.dataset.followLabel);
     const compact = button.hasAttribute("data-follow-compact");
     button.innerHTML = icon(active ? "check" : "calendar") + buttonLabel(text,compact);
@@ -82,7 +85,7 @@
     const text = uiText(active ? "Отслеживаю" : initialLabel);
     const compact = iconOnly || item.kind === "series";
     return `<button type="button" class="kg-release-follow" data-kg-follow="${item.key}"
-      data-follow-item="${esc(JSON.stringify(item))}" data-follow-label="${esc(initialLabel)}" aria-pressed="${active}" aria-haspopup="${active?"dialog":"false"}"${compact ? ` title="${esc(text)}" data-follow-compact` : ""}>${icon(active?"check":"calendar")}${buttonLabel(text,compact)}</button>`;
+      data-follow-item="${esc(JSON.stringify(item))}" data-follow-label="${esc(initialLabel)}" aria-pressed="${active}" aria-haspopup="dialog"${compact ? ` title="${esc(text)}" data-follow-compact` : ""}>${icon(active?"check":"calendar")}${buttonLabel(text,compact)}</button>`;
   }
 
   function syncButtons() {
@@ -103,7 +106,7 @@
       item = {...data, dates:[...new Map([...earlier,...data.dates].map(e => [`${e.season}:${e.number}`,e])).values()]};
       item.dates.sort((a,b) => a.date.localeCompare(b.date));
     }
-    const updated = {...previous,...item};
+    const updated = {...previous,...item,settings:previous.settings,trailerSince:previous.trailerSince,trailer:previous.trailer};
     if (JSON.stringify(updated) !== JSON.stringify(previous)) {
       items[item.key] = updated;
       try { save(items); } catch {}
@@ -117,7 +120,7 @@
   }
 
   function upcoming() {
-    const dates = Object.values(subscriptions()).flatMap(item => item.kind === "series"
+    const dates = calendarItems().flatMap(item => item.kind === "series"
       ? (item.dates || []).map(episode => ({...episode,title:item.title,episodeTitle:episode.title}))
       : [item]);
     const next = dates.filter(item => item.date >= today()).sort((a,b) => a.date.localeCompare(b.date))[0];
@@ -150,6 +153,7 @@
               seasonSnapshot:series._seriesEpisodes?series._seriesSeason:undefined});
           }
         } catch {}
+        if(item.settings?.trailers) await checkTrailer(item.key);
       }
     }));
   }
@@ -187,54 +191,69 @@
   }
 
   function calendarItems() {
-    return Object.values(subscriptions());
+    return Object.values(subscriptions()).filter(item=>alerts.settings(item).includeCalendar && alerts.settings(item).releases);
   }
 
-  function manage(item, opener) {
-    const sheet = document.createElement("dialog");
-    sheet.className = "kg-release-sheet";
-    sheet.setAttribute("aria-labelledby","kg-release-sheet-title");
-    const heading = item.kind === "episode"
-      ? `${item.title} · ${item.episodeTitle || uiText("Эпизод {episode}",{episode:item.number})}` : item.title;
-    const nextDate = item.kind === "series"
-      ? (item.dates || []).map(event => event.date).filter(date => date >= today()).sort()[0] : item.date;
-    const dateStatus = nextDate ? dateText(nextDate) : uiText(item.ended ? "Сериал завершён" : "Ждём дату");
-    sheet.innerHTML = `<section><h2 id="kg-release-sheet-title">${esc(heading)}</h2><p>${esc(dateStatus)}</p>
-      <button type="button" data-follow-calendar autofocus>${icon("calendar")}${esc(uiText("Перейти в календарь"))}</button>
-      <button type="button" data-follow-remove>${esc(uiText("Перестать следить"))}</button>
-      <button type="button" data-follow-dismiss>${esc(uiText("Закрыть"))}</button></section>`;
-    sheet.addEventListener("click",event => {
-      const button = event.target.closest("button");
-      if (event.target === sheet || button?.hasAttribute("data-follow-dismiss")) sheet.close();
-      if (button?.hasAttribute("data-follow-calendar")) { sheet.close(); openCalendar(nextDate); }
-      if (button?.hasAttribute("data-follow-remove")) {
-        sheet.close();
-        try { remove(item); }
-        catch { message("Не удалось сохранить подписку",opener); }
-      }
-    });
-    sheet.addEventListener("close",() => sheet.remove(),{once:true});
-    document.body.append(sheet);
-    sheet.showModal();
+  const current = key => subscriptions()[key];
+  const filmFor = item => item.kind === "movie"
+    ? {id:item.id,title:item.title,adult:false,poster_path:item.poster,release_date:item.date}
+    : window.KGSeries.normalize({id:item.id,name:item.title,adult:false,poster_path:item.poster,backdrop_path:item.backdrop});
+
+  async function applySettings(item, options, bookmark) {
+    const items = subscriptions(), previous = items[item.key];
+    const now = Date.now();
+    const updated = {...item,...previous,settings:options,followedAt:previous?.followedAt || now,
+      trailerSince:options.trailers ? (previous?.settings?.trailers ? previous.trailerSince || now : now) : null,
+      trailer:options.trailers && previous?.settings?.trailers ? previous.trailer : null};
+    items[item.key] = updated;
+    save(items);
+    const film = filmFor(updated);
+    let bookmarkFailed = false, notificationsDisabled = false;
+    if (bookmark && !window.kgIsBookmarked(film.id)) {
+      try { bookmarkFailed = !await window.kgToggleBookmark(film.id,film); } catch { bookmarkFailed = true; }
+    }
+    if (alerts.native() && (options.trailers || alerts.events(updated).some(event=>event.at > now))) {
+      try {
+        const permission = await alerts.native().enable();
+        notificationsDisabled = !permission?.enabled;
+        await alerts.synchronize(Object.values(subscriptions()),true);
+      } catch { notificationsDisabled = true; }
+    }
+    return {previous,updated,bookmarkFailed,notificationsDisabled};
+  }
+
+  async function checkTrailer(key) {
+    const item = current(key);
+    if (!item?.settings?.trailers) return null;
+    try {
+      const video = await alerts.checkTrailer(item);
+      const items = subscriptions(), latest = items[key];
+      if (!latest?.settings?.trailers || latest.trailerSince !== item.trailerSince) return null;
+      if (!video || latest.trailer?.id === video.id) return latest.trailer;
+      items[key] = {...latest,trailer:video};
+      save(items);
+      await alerts.native()?.trailer({id:video.id,title:item.title,body:uiText("Новый трейлер")}).catch(()=>{});
+      return video;
+    } catch { return item.trailer; }
   }
 
   document.addEventListener("click",event => {
     const opener = event.target.closest("[data-kg-follow]");
     if (!opener) return;
-    const items = subscriptions(), key = opener.dataset.kgFollow;
-    if (items[key]) { manage(items[key],opener); return; }
     try {
-      const item = {...JSON.parse(opener.dataset.followItem),followedAt:Date.now()};
-      items[key] = item;
-      save(items);
-      message("Добавлено в календарь",opener,() => {
-        try { remove(item); } catch { message("Не удалось сохранить подписку",opener); }
-      });
+      const draft = JSON.parse(opener.dataset.followItem);
+      const item = current(draft.key);
+      window.KGReleaseSettings.open(item || draft,opener,!!item);
     } catch { message("Не удалось сохранить подписку",opener); }
   });
+  document.addEventListener("visibilitychange",()=>{if(!document.hidden)refresh();});
+  document.addEventListener("DOMContentLoaded",()=>{
+    alerts.synchronize(Object.values(subscriptions())).catch(()=>{});
+    if (!document.hidden) refresh();
+  },{once:true});
   document.addEventListener(changeEvent,syncButtons);
   window.addEventListener("storage",event => {
     if (event.key === storageKey || event.key === null) document.dispatchEvent(new Event(changeEvent));
   });
-  window.KGReleaseFollow = {button,compactButton:film=>button(film,null,null,true),observe,openCalendar,upcoming,refresh,calendarItems};
+  window.KGReleaseFollow = {button,compactButton:film=>button(film,null,null,true),observe,openCalendar,upcoming,refresh,calendarItems,applySettings,filmFor,remove,message,checkTrailer};
 })();

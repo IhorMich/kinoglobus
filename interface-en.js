@@ -1,6 +1,7 @@
 // English translations for the Moven interface.
 window.KGInterfaceDictionaries ??= {};
 window.KGInterfaceDictionaries.en = Object.freeze({
+  "По числу сериалов": "By series count",
   "Корейские криминальные сериалы": "Korean crime series",
   "Корейские дорамы": "Korean dramas",
   "Японское аниме": "Japanese anime",

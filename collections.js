@@ -52,7 +52,7 @@ st2.textContent=`.kgr-win{position:relative;height:150px;overflow:hidden;-webkit
 :is(#cat-grid,[data-tv-grid]).kg-three-columns .kg-catalog-text{width:100%;height:auto}
 :is(#cat-grid,[data-tv-grid]).kg-three-columns .kg-catalog-text h4{margin:0;white-space:normal;overflow-wrap:anywhere;font-size:.82rem;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;min-height:2.5em}
 :is(#cat-grid,[data-tv-grid]).kg-three-columns :is(.kg-catalog-archive,.kg-catalog-poster-badge,.kg-catalog-meta,.kg-catalog-prefix,.kg-catalog-summary,.kg-catalog-actions),
-#view-collections:has(:is(#cat-grid,[data-tv-grid]).kg-three-columns) :is([data-act="random"],#spot [data-act="spin"]){display:none}
+:is(#view-collections,#view-series-collections):has(:is(#cat-grid,[data-tv-grid]).kg-three-columns) :is([data-act="random"],[data-collection-spot] [data-act="spin"]){display:none}
 #mood-cards.kg-three-columns .mood-card [data-mood-select]{height:auto;aspect-ratio:3/4;min-height:7rem}
 #mood-cards.kg-three-columns .kg-mood-cover-copy{left:.4rem;right:.4rem;bottom:.4rem}
 #mood-cards.kg-three-columns .mood-title{font-size:.82rem;line-height:1.2;overflow-wrap:anywhere}
@@ -192,7 +192,7 @@ function collectionFilmCount(n){
   const word=fw(n);
   return nf(n)+" "+(interfaceLanguage==="ru"?({фильм:"картина",фильма:"картины",фильмов:"картин"})[word]:word);
 }
-const gnames=t=>t.g.split("|").map(x=>GENRES[x]).filter(Boolean).map(genre=>uiText(genre));
+const gnames=t=>t.g.split("|").map(x=>(t.series?window.KGSeries.genreLabels:GENRES)[x]).filter(Boolean).map(genre=>uiText(genre));
 const codeOf=t=>t.films?"":REG[t.id]?REG[t.id][1]:(t.cc[0]==="SU"?(interfaceLanguage==="en"?"USSR":"СССР"):t.cc[0]);
 const where=t=>t.films?uiText("Разные страны"):REG[t.id]?uiText(REG[t.id][0]):cname(t.cc[0]);
 const flagsOf=t=>t.cc.slice(0,3).map(fl).join(" ");
@@ -467,12 +467,12 @@ let view="home";
 const previousViews = [];
 
 function rememberView(destination, collectionId = null) {
-  const currentId = view === "collection" ? D.t?.id ?? null : null;
+  const currentId = ["collection","series-collection"].includes(view) ? D.t?.id ?? null : null;
   if (destination === view && collectionId === currentId) return;
   // Top-level tabs replace the navigation trail rather than extending it.
-  if (destination !== "collection") {
+  if (destination !== "collection" && destination !== "series-collection") {
     previousViews.length = 0;
-    if (destination === "series-calendar" || destination === "series-collection") {
+    if (destination === "series-calendar") {
       previousViews.push({view:"series", collectionId:null},{view:"series-collections", collectionId:null});
     } else if (destination !== "home") {
       previousViews.push({view:destination==="series-collections"?"series":"home", collectionId:null});
@@ -487,7 +487,6 @@ function rememberView(destination, collectionId = null) {
 function showView(v, remember = true){
   const seriesSelection=["series-collections","series-collection","series-calendar"].includes(v);
   if(!window.KGSeries.setMode(v==="series"||seriesSelection))return;
-  if(view==="series-collection"&&v!==view) tvCollectionLoad++;
   if(v==="series-collections"&&(view!==v||!seriesCollections.firstChild)) renderTvCatalog();
   if(view==="series-calendar"&&v!==view)window.KGSeriesCalendar.hide();
   const enterCalendar=v==="series-calendar"&&v!==view;
@@ -497,12 +496,12 @@ function showView(v, remember = true){
   if(v!=="mood"&&window.KGMoodVibePage)window.KGMoodVibePage.stop();
   if(v!=="oscar"&&window.KGOscarPage&&window.KGOscarPage.stop)window.KGOscarPage.stop(vo);
   view=v;
-  if(v!=="collection")rStop();
+  if(!["collection","series-collection"].includes(v))rStop();
   if(D.selected) closeInlineFilm(D.selected,false);
   home.style.display=v==="home"?"":"none";
   seriesPage.hidden=v!=="series";
   seriesCalendar.hidden=v!=="series-calendar";
-  seriesCollections.hidden=!["series-collections","series-collection"].includes(v);
+  seriesCollections.hidden=v!=="series-collections";
   if(enterCalendar)window.KGSeriesCalendar.show();
   mediaSwitch.hidden=!["home","series"].includes(v);
   const headerActions=mediaSwitch.parentElement;
@@ -522,7 +521,7 @@ function showView(v, remember = true){
   const sectionTabs=seriesSelection?[["series-collections","Коллекции"],["series-calendar","Календарь"]]:collectionTabs;
   if(sectionNav.dataset.media!==(seriesSelection?"tv":"movie")) renderCollectionTabs(sectionTabs,seriesSelection?"tv":"movie");
   vc.style.display=v==="collections"?"":"none";
-  vd.style.display=v==="collection"?"":"none";
+  vd.style.display=["collection","series-collection"].includes(v)?"":"none";
   vm.style.display=v==="mood"?"":"none";
   vo.style.display=v==="oscar"?"":"none";
   const act=v==="series"?"home":(seriesSelection||["collection","mood","oscar"].includes(v))?"collections":v;
@@ -582,7 +581,7 @@ window.KGHandleBack = () => {
   if (D.selected) { closeInlineFilm(); return true; }
   const previous = previousViews.pop();
   if (!previous) return false;
-  if (previous.view === "collection" && previous.collectionId) {
+  if (["collection","series-collection"].includes(previous.view) && previous.collectionId) {
     openCollection(previous.collectionId, {returning:true});
   } else {
     showView(previous.view, false);
@@ -698,13 +697,15 @@ const collectionSpinShine = '<span aria-hidden="true" class="absolute inset-0 po
 
 function spotlightHtml(t){
   const m=TM[t.id]||["noir","","",""];
-  return `<section id="spot" data-t="${t.id}" tabindex="0" aria-label="${esc(uiText("Открыть подборку «{title}»", {title: uiText(t.name)}))}" class="relative w-full rounded-2xl overflow-hidden bg-surface-panel shadow-[0_14px_34px_-10px_rgb(var(--kg-black)/0.85)] cursor-pointer">
-<div data-k="bg" style="background-image: url('${getThemeCover(t.id)}');" class="w-full h-56 bg-cover bg-center relative bg-surface-container-high"><div class="absolute inset-0 bg-gradient-to-t from-surface-panel via-surface-panel/60 to-transparent"></div>
+  const meta=t.series?tvMetadata.get(t.id):null;
+  const cover=t.series?(P(meta?.b,"w780")||t.cover):getThemeCover(t.id);
+  return `<section ${t.series?"data-tv-spot":"id=\"spot\""} data-collection-spot data-t="${t.id}" tabindex="0" aria-label="${esc(uiText("Открыть подборку «{title}»", {title: uiText(t.name)}))}" class="relative w-full rounded-2xl overflow-hidden bg-surface-panel shadow-[0_14px_34px_-10px_rgb(var(--kg-black)/0.85)] cursor-pointer">
+<div data-k="bg" style="background-image: url('${cover}');" class="w-full h-56 bg-cover bg-center relative bg-surface-container-high"><div class="absolute inset-0 bg-gradient-to-t from-surface-panel via-surface-panel/60 to-transparent"></div>
 <div class="absolute top-3 left-3 right-3 flex items-center justify-between"><div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-cinema-velvet-deep text-secondary font-micro-caption text-micro-caption shadow-md"><span class="material-symbols-outlined text-[14px]">local_fire_department</span>${uiText("ХИТ НЕДЕЛИ")}</div>
-<div class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container-lowest/80 backdrop-blur-md text-primary font-label-sm text-label-sm"><span class="material-symbols-outlined text-[15px] text-primary-container" style="font-variation-settings:'FILL' 1;">star</span><span data-k="r">…</span></div></div>
+<div class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container-lowest/80 backdrop-blur-md text-primary font-label-sm text-label-sm"><span class="material-symbols-outlined text-[15px] text-primary-container" style="font-variation-settings:'FILL' 1;">star</span><span data-k="r">${meta?.r||"…"}</span></div></div>
 <div class="absolute bottom-3 left-3.5 right-3.5 flex items-center gap-1.5"><span class="px-2 py-0.5 rounded-full bg-surface-container-high/90 backdrop-blur text-primary font-micro-caption text-micro-caption tracking-wider">${t.cc.map(fl).join(" ")}</span><span class="font-micro-caption text-micro-caption text-text-muted truncate">${esc(t.cc.map(cname).join(", "))}</span></div></div>
-<div class="p-4 flex flex-col gap-2.5"><div class="flex items-baseline justify-between"><h3 class="font-headline-md text-headline-md text-primary font-bold">${esc(uiText(t.name))}</h3><span data-k="cnt" class="font-micro-caption text-micro-caption text-text-muted">…</span></div>
-<p class="font-body-sm text-body-sm text-text-muted kg-clip2">${esc(uiText(m[3]))}</p>
+<div class="p-4 flex flex-col gap-2.5"><div class="flex items-baseline justify-between"><h3 class="font-headline-md text-headline-md text-primary font-bold">${esc(uiText(t.name))}</h3><span data-k="cnt" class="font-micro-caption text-micro-caption text-text-muted">${meta?seriesCollectionCount(meta.n):"…"}</span></div>
+<p class="font-body-sm text-body-sm text-text-muted kg-clip2">${esc(uiText(t.series?t.category:m[3]))}</p>
 <div class="flex items-center gap-2 pt-1"><button type="button" data-act="spin" data-t="${t.id}" class="${collectionSpinClasses} min-w-0 flex-1"><span class="material-symbols-outlined text-[22px]">casino</span><span>${uiText("Крутить рулетку")}</span>${collectionSpinShine}</button>
 <button type="button" aria-label="${uiText("Подробнее")}" data-act="open" data-t="${t.id}" class="w-11 h-11 rounded-xl bg-surface-container-high text-primary flex items-center justify-center transition-colors hover:bg-surface-bright active:scale-95"><span class="material-symbols-outlined text-[20px]">arrow_forward</span></button></div></div></section>`;
 }
@@ -717,6 +718,29 @@ function updateWeeklySpotlight(){
 
 const CHON="bg-primary-container text-on-primary-container shadow-[0_0_14px_rgb(var(--kg-primary-container)/0.28)]",CHOFF="bg-surface-panel text-text-muted hover:text-on-surface";
 function chipCls(on){return "filter-chip flex items-center gap-1.5 px-3.5 py-2 rounded-full font-label-sm text-label-sm shrink-0 transition-all active:scale-95 "+(on?CHON:CHOFF);}
+
+function catalogSortControl(series,mode){
+  return `<div class="flex items-center gap-1.5 bg-surface-panel px-3 py-1.5 rounded-xl"><span class="material-symbols-outlined text-[17px] text-text-muted">swap_vert</span>
+<select ${series?"data-tv-sort":"id=\"cat-sort\""} aria-label="${uiText("Сортировка:")}" class="bg-transparent text-text-muted font-label-sm text-label-sm focus:outline-none focus:text-primary cursor-pointer"><option class="bg-surface-panel text-on-surface" value="rating" ${mode==="rating"?"selected":""}>${uiText("По рейтингу (высокий)")}</option><option class="bg-surface-panel text-on-surface" value="count" ${mode==="count"?"selected":""}>${uiText(series?"По числу сериалов":"По числу фильмов")}</option><option class="bg-surface-panel text-on-surface" value="title" ${mode==="title"?"selected":""}>${uiText("По алфавиту")}</option></select></div>`;
+}
+function orderCatalogCards(grid,mode,meta,themeFor,fallback){
+  const cards=[...grid.children];
+  cards.sort((a,b)=>{
+    const ma=meta(a.dataset.t)||{},mb=meta(b.dataset.t)||{};
+    if(mode==="rating")return (parseFloat(mb.r)||0)-(parseFloat(ma.r)||0);
+    if(mode==="count")return (mb.n||0)-(ma.n||0);
+    if(mode==="title")return uiText(themeFor(a.dataset.t).name).localeCompare(uiText(themeFor(b.dataset.t).name),interfaceLanguage);
+    return fallback(a,b);
+  });
+  if(cards.some((card,i)=>card!==grid.children[i]))cards.forEach(card=>grid.appendChild(card));
+}
+const catalogRandomButton=`<button type="button" data-act="random" class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-secondary-container text-on-secondary-container font-label-sm text-label-sm shadow-[0_0_14px_rgb(var(--kg-secondary-container)/0.25)] transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"><span class="material-symbols-outlined text-[18px]">casino</span><span>${uiText("Случайная")}</span></button>`;
+function highlightRandomCollection(cards,themeFor){
+  if(!cards.length)return;
+  const card=pick(cards);card.scrollIntoView({behavior:"smooth",block:"center"});
+  card.classList.add("ring-2","ring-primary-container");setTimeout(()=>card.classList.remove("ring-2","ring-primary-container"),1800);
+  toast(uiText("Выбрано: «{title}»!",{title:uiText(themeFor(card.dataset.t).name)}));
+}
 
 function buildCatalog(){
   const counts={};catalogThemes.forEach(t=>counts[cat(t)]=(counts[cat(t)]||0)+1);
@@ -734,9 +758,8 @@ function buildCatalog(){
 <button type="button" data-f="all" class="${chipCls(true)}"><span>${uiText("Все {count}", {count: catalogThemes.length})}</span></button>
 ${Object.keys(CAT).filter(k=>counts[k]).map(k=>`<button type="button" data-f="${k}" class="${chipCls(false)}"><span>${uiText(CAT[k][0])} (${counts[k]})</span></button>`).join("")}</section>
 ${spotlightHtml(spotlightTheme())}
-<section class="flex flex-wrap items-center justify-between gap-2"><div class="flex items-center gap-1.5 bg-surface-panel px-3 py-1.5 rounded-xl"><span class="material-symbols-outlined text-[17px] text-text-muted">swap_vert</span>
-<select id="cat-sort" class="bg-transparent text-text-muted font-label-sm text-label-sm focus:outline-none focus:text-primary cursor-pointer"><option class="bg-surface-panel text-on-surface" value="rating">${uiText("По рейтингу (высокий)")}</option><option class="bg-surface-panel text-on-surface" value="count">${uiText("По числу фильмов")}</option><option class="bg-surface-panel text-on-surface" value="title">${uiText("По алфавиту")}</option></select></div>
-<button type="button" data-act="random" class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-secondary-container text-on-secondary-container font-label-sm text-label-sm shadow-[0_0_14px_rgb(var(--kg-secondary-container)/0.25)] transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"><span class="material-symbols-outlined text-[18px]">casino</span><span>${uiText("Случайная")}</span></button></section>
+<section class="flex flex-wrap items-center justify-between gap-2">${catalogSortControl(false,sortMode)}
+${catalogRandomButton}</section>
 <p id="cat-note" class="font-micro-caption text-micro-caption text-text-muted px-1" style="display:none"></p>
 <div class="flex items-center justify-between gap-2"><p id="cat-search-status" role="status" class="font-label-sm text-label-sm text-text-muted px-1"></p>${layoutSwitch(catalogLayout,"catalog")}</div>
 <section id="cat-grid" class="${catalogLayout==="grid"?"kg-three-columns":"flex flex-col gap-3"}">${seededShuffle(catalogThemes,dailySeed()).map((t,i)=>cardHtml(t,i)).join("")}</section>
@@ -849,15 +872,8 @@ function filterCatalog(){
   sortCatalog();
 }
 function sortCatalog(){
-  const grid=$("cat-grid");if(!grid)return;const cards=[...grid.children];
-  cards.sort((a,b)=>{
-    const ma=META[a.dataset.t]||{},mb=META[b.dataset.t]||{};
-    if(sortMode==="rating")return (parseFloat(mb.r)||0)-(parseFloat(ma.r)||0);
-    if(sortMode==="count")return (mb.n||0)-(ma.n||0);
-    if(sortMode==="title")return uiText(T[a.dataset.t].name).localeCompare(uiText(T[b.dataset.t].name),interfaceLanguage);
-    return (catalogScores.get(b.dataset.t)||0)-(catalogScores.get(a.dataset.t)||0)||a.dataset.i-b.dataset.i;
-  });
-  if(cards.some((card,i)=>card!==grid.children[i]))cards.forEach(card=>grid.appendChild(card));
+  const grid=$("cat-grid");if(!grid)return;
+  orderCatalogCards(grid,sortMode,id=>META[id],id=>T[id],(a,b)=>(catalogScores.get(b.dataset.t)||0)-(catalogScores.get(a.dataset.t)||0)||a.dataset.i-b.dataset.i);
 }
 async function loadAllMeta(force=false){
   const note=$("cat-note");
@@ -901,11 +917,7 @@ vc.addEventListener("click",e=>{
       filterCatalog();input.focus();return;
     }
     if(a==="random"){
-      const vis=[...vc.querySelectorAll(".collection-card")].filter(c=>c.style.display!=="none");
-      if(!vis.length)return;
-      const c=pick(vis);c.scrollIntoView({behavior:"smooth",block:"center"});
-      c.classList.add("ring-2","ring-primary-container");setTimeout(()=>c.classList.remove("ring-2","ring-primary-container"),1800);
-      toast(uiText("Выбрано: «{title}»!", {title: uiText(T[c.dataset.t].name)}));return;
+      highlightRandomCollection([...vc.querySelectorAll(".collection-card")].filter(c=>c.style.display!=="none"),id=>T[id]);return;
     }
   }
   const spot=e.target.closest("#spot");
@@ -990,8 +1002,9 @@ function sortCollectionFilms(films,sort){
   return [...films].sort(compare[sort]||compare.rating);
 }
 
+const inCollectionCountry=f=>!D.cc||(D.t.series?f.origin_country?.includes(D.cc):f._cc===D.cc);
 function derived(){
-  const a=D.all.filter(f=>!D.cc||f._cc===D.cc);
+  const a=D.all.filter(inCollectionCountry);
   const best=a.slice().sort((x,y)=>weighed(y)-weighed(x))[0];
   const rest=sortCollectionFilms(a.filter(f=>f!==best),D.sort);
   return {best,rest};
@@ -999,16 +1012,17 @@ function derived(){
 const totalFor=()=>D.cc?(D.totals[D.cc]||0):D.total;
 const byId=id=>D.all.find(f=>String(f.id)===String(id));
 
-function filmItem(f,series=false){
+function filmItem(f){
+  const series=window.KGSeries.isSeriesId(f.id);
   const y=(f.release_date||"").slice(0,4);
   const gs=(f.genre_ids||[]).map(i=>(series?window.KGSeries.genreLabels:GENRES)[i]).filter(Boolean).slice(0,2).map(genre=>uiText(genre));
-  const selected=!series&&D.selected&&D.selected._placement==="list"&&String(D.selected.id)===String(f.id)?D.selected:null;
+  const selected=D.selected&&D.selected._placement==="list"&&String(D.selected.id)===String(f.id)?D.selected:null;
   return `<article class="kg-film-list-shell flex flex-col gap-space-sm p-3 rounded-xl bg-surface-panel shadow-md hover:bg-surface-container-low transition-colors">
 <div class="flex gap-space-sm cursor-pointer" role="button" tabindex="0" data-act="open" data-id="${f.id}">
 <div class="kg-film-card-poster relative flex-shrink-0 rounded-lg overflow-hidden bg-surface-container-high">${collectionPoster(f,"w185")}
 <span class="absolute top-1 left-1 px-1 py-0.5 rounded bg-surface-panel/90 text-primary-container font-micro-caption text-micro-caption font-bold">${f.vote_average ? Number(f.vote_average).toFixed(1) : "—"} ★</span></div>
 <div class="flex flex-col justify-between flex-1 min-w-0"><div class="flex flex-col gap-0.5">
-<div class="flex items-center justify-between"><span class="font-micro-caption text-micro-caption text-text-muted">${series?esc(y):`${fl(f._cc)} ${esc(cname(f._cc))}${y?" • "+y:""}`}</span><span data-rt="${f.id}" class="font-micro-caption text-micro-caption px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant">${series?(f.number_of_seasons?uiText("Сезонов: {count}",{count:f.number_of_seasons}):""):uiText("— мин")}</span></div>
+<div class="flex items-center justify-between"><span class="font-micro-caption text-micro-caption text-text-muted">${fl(f._cc)} ${esc(cname(f._cc))}${y?" • "+y:""}</span><span data-rt="${f.id}" class="font-micro-caption text-micro-caption px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant">${series?(f.number_of_seasons?uiText("Сезонов: {count}",{count:f.number_of_seasons}):""):uiText("— мин")}</span></div>
 <h4 class="font-label-lg text-label-lg text-on-surface font-bold truncate">${esc(f.title)}</h4>
 <p data-dir="${f.id}" class="font-micro-caption text-micro-caption text-text-muted truncate">&nbsp;</p>
 <div class="flex items-center gap-1.5 pt-1">${gs.map(g=>`<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-micro-caption text-micro-caption">${esc(g)}</span>`).join("")}</div></div></div></div>
@@ -1039,7 +1053,7 @@ function renderFilms(){
   const keepScroll=()=>{if(anchorId==null)return;
     const el=[...box.querySelectorAll('[data-act="open"]')].find(e=>String(e.dataset.id)===String(anchorId));
     if(el){const d=el.getBoundingClientRect().top-anchorTop;if(d)window.scrollBy(0,d);}};
-  if(!best){box.innerHTML=`<p class="font-body-sm text-body-sm text-text-muted px-1">${uiText("Подходящих фильмов не нашлось.")}</p>`;return;}
+  if(!best){box.innerHTML=`<p class="font-body-sm text-body-sm text-text-muted px-1">${uiText(D.t.series?"Подходящих сериалов не нашлось.":"Подходящих фильмов не нашлось.")}</p>`;return;}
   const list=rest.slice(0,D.shown);
   const grid=collectionFilmLayout==="grid";
   const listMarkup=grid?filmGridRows(list,row=>{
@@ -1077,21 +1091,22 @@ function restoreFilmOpener(film) {
 
 function otherHtml(t){
   const m=META[t.id]||{};
-  const artCover = getThemeCover(t.id);
+  const artCover = t.series?(P(m.p,"w185")||t.cover):getThemeCover(t.id);
   const imgMarkup = artCover 
     ? `<img class="w-full h-full object-cover" alt="${esc(uiText(t.name))}" src="${artCover}">`
     : (m.p ? `<img class="w-full h-full object-cover" alt="" src="${P(m.p,"w185")}">` : "");
-  return `<a href="#" data-act="goto" data-t="${t.id}" class="flex flex-col gap-1.5 p-3 rounded-xl bg-surface-panel hover:bg-surface-container-low min-w-[140px] max-w-[140px] flex-shrink-0 transition-colors shadow-md"><div class="w-full h-20 rounded-lg overflow-hidden bg-surface-container-high" data-oi="${t.id}">${imgMarkup}</div><span class="font-label-sm text-label-sm text-on-surface font-bold truncate">${esc(uiText(t.name))} ${fl(t.cc[0])}</span><span data-oc="${t.id}" class="font-micro-caption text-micro-caption text-text-muted">${m.n?nf(m.n)+" "+fw(m.n):"…"}</span></a>`;
+  return `<a href="#" data-act="goto" data-t="${t.id}" class="flex flex-col gap-1.5 p-3 rounded-xl bg-surface-panel hover:bg-surface-container-low min-w-[140px] max-w-[140px] flex-shrink-0 transition-colors shadow-md"><div class="w-full h-20 rounded-lg overflow-hidden bg-surface-container-high" data-oi="${t.id}">${imgMarkup}</div><span class="font-label-sm text-label-sm text-on-surface font-bold truncate">${esc(uiText(t.name))} ${fl(t.cc[0])}</span><span data-oc="${t.id}" class="font-micro-caption text-micro-caption text-text-muted">${m.n?(t.series?seriesCollectionCount(m.n):nf(m.n)+" "+fw(m.n)):"…"}</span></a>`;
 }
 
 function renderCollection(){
   const t=D.t,m=TM[t.id]||["noir","","",""];
-  const others=shuffle(catalogThemes.filter(x=>x.id!==t.id)).slice(0,5);
+  const themes=t.series?tvThemes:catalogThemes;
+  const others=shuffle(themes.filter(x=>x.id!==t.id)).slice(0,5);
   vd.innerHTML=`
 <div class="flex items-center justify-between gap-space-sm pt-space-xs"><button type="button" data-act="back" class="flex items-center gap-1.5 text-text-muted hover:text-primary transition-colors py-1"><span class="material-symbols-outlined text-[18px]">arrow_back</span><span class="font-label-sm text-label-sm">${uiText("Все подборки")}</span></button>
 <div class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-high text-primary-fixed shadow-sm"><span class="material-symbols-outlined text-[14px] text-primary-container">${ICON[t.id]||"auto_awesome"}</span><span class="font-micro-caption text-micro-caption font-semibold tracking-wide uppercase">${uiText("Кураторский выбор")}</span></div></div>
 <div class="relative overflow-hidden rounded-xl bg-surface-panel p-space-md shadow-xl"><div class="absolute -right-16 -top-16 w-56 h-56 rounded-full bg-cinema-velvet-glow blur-3xl pointer-events-none"></div><div class="absolute -left-12 -bottom-12 w-48 h-48 rounded-full bg-cinema-amber-glow blur-2xl pointer-events-none"></div>
-<div class="relative flex flex-col gap-space-sm z-10"><div class="flex items-center gap-2"><span class="px-2 py-0.5 rounded-full bg-cinema-velvet-deep text-secondary font-micro-caption text-micro-caption tracking-wider">${uiText(CAT[m[0]][1])}</span><span id="cl-count" class="text-text-muted font-micro-caption text-micro-caption">${uiText("… картин")}</span></div>
+<div class="relative flex flex-col gap-space-sm z-10"><div class="flex items-center gap-2"><span class="px-2 py-0.5 rounded-full bg-cinema-velvet-deep text-secondary font-micro-caption text-micro-caption tracking-wider">${uiText(t.series?t.category:CAT[m[0]][1])}</span><span id="cl-count" class="text-text-muted font-micro-caption text-micro-caption">${t.series?"…":uiText("… картин")}</span></div>
 <div class="flex flex-col"><h2 class="font-display-hero-mobile text-display-hero-mobile text-primary font-bold tracking-tight">${esc(uiText(t.name))}</h2><p class="font-label-sm text-label-sm text-on-surface-variant font-medium tracking-wide">${esc(uiText(m[1]))}</p></div>
 <div class="flex flex-wrap items-center gap-1.5 pt-0.5">${t.cc.map(cc=>`<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container-low text-on-surface font-micro-caption text-micro-caption shadow-sm">${fl(cc)} ${esc(cname(cc))}</span>`).join("")}</div>
 <p class="font-body-sm text-body-sm text-text-muted leading-relaxed pt-1">${esc(uiText(m[3]))}</p>
@@ -1106,13 +1121,13 @@ ${t.cc.length>1?`<div class="flex flex-col gap-1.5 pt-1"><span class="font-micro
 <div class="flex items-center justify-between px-1"><span id="cl-fc" class="font-mono text-micro-caption text-primary-fixed font-semibold tracking-wide">${uiText("Кадр 00 / 00")}</span><button type="button" id="cl-skip" data-act="skip" style="display:none" class="font-micro-caption text-micro-caption text-text-muted hover:text-primary underline">${uiText("Пропустить")}</button></div>
 <div id="cl-result"></div></div>
 <div id="cl-films" class="flex flex-col gap-space-lg"><p class="font-body-sm text-body-sm text-text-muted px-1 animate-pulse">${uiText("Загружаем подборку…")}</p></div>
-<div class="flex flex-col gap-space-sm pt-space-xs"><div class="flex items-center justify-between px-1"><h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">${uiText("Другие подборки")}</h3><a href="#" data-act="back" class="font-micro-caption text-micro-caption text-primary hover:underline">${uiText("Все {count}", {count: catalogThemes.length})} →</a></div>
+<div class="flex flex-col gap-space-sm pt-space-xs"><div class="flex items-center justify-between px-1"><h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">${uiText("Другие подборки")}</h3><a href="#" data-act="back" class="font-micro-caption text-micro-caption text-primary hover:underline">${uiText("Все {count}", {count: themes.length})} →</a></div>
 <div id="cl-others" class="flex gap-space-sm overflow-x-auto pb-2">${others.map(otherHtml).join("")}</div>
-<a href="#" data-act="back" class="w-full py-3 rounded-xl bg-surface-panel hover:bg-surface-container-low text-primary text-center font-label-md text-label-md font-semibold flex items-center justify-center gap-2 transition-colors shadow-sm"><span class="material-symbols-outlined text-[18px]">apps</span><span>${uiText("Все {count} подборок Moven", {count: catalogThemes.length})}</span></a></div>`;
+<a href="#" data-act="back" class="w-full py-3 rounded-xl bg-surface-panel hover:bg-surface-container-low text-primary text-center font-label-md text-label-md font-semibold flex items-center justify-center gap-2 transition-colors shadow-sm"><span class="material-symbols-outlined text-[18px]">apps</span><span>${uiText("Все {count} подборок Moven", {count: themes.length})}</span></a></div>`;
   // постеры и счётчики «других подборок»
   others.forEach(o=>loadMeta(o).then(m=>{
     const a=vd.querySelector(`[data-oc="${o.id}"]`),i=vd.querySelector(`[data-oi="${o.id}"]`);
-    if(a)a.textContent=nf(m.n)+" "+fw(m.n);
+    if(a)a.textContent=t.series?seriesCollectionCount(m.n):nf(m.n)+" "+fw(m.n);
     if(i&&!i.firstChild){
       const art=getThemeCover(o.id);
       if(art) i.innerHTML=`<img class="w-full h-full object-cover" alt="" src="${art}">`;
@@ -1122,33 +1137,36 @@ ${t.cc.length>1?`<div class="flex flex-col gap-1.5 pt-1"><span class="font-micro
 }
 
 async function openCollection(id,opt){
-  const t=T[id];if(!t)return;
-  if (!opt?.returning) rememberView("collection", id);
+  const t=T[id]||tvThemeFor(id);if(!t)return;
+  const destination=t.series?"series-collection":"collection";
+  if (!opt?.returning) rememberView(destination, id);
   rStop();
   const cached=themeDataCache.get(themeDataKey(t,2));
   const initial=cached?.data || (t.films ? curatedData(t.films.map(localizeFilmListItem)) : null);
   D={t,all:initial?initial.films:[],total:initial?initial.total:0,totals:initial?initial.totals:{},cc:"",sort:"rating",shown:5,selected:null,picked:null};
-  renderCollection();showView("collection", false);
+  const selection=D;
+  renderCollection();showView(destination, false);
   if(initial){
-    $("cl-count").textContent=collectionFilmCount(D.total);
+    $("cl-count").textContent=t.series?seriesCollectionCount(D.total):collectionFilmCount(D.total);
     renderFilms();
   }
   if (!apiKey) {
     if (t.films && opt?.spin) inPageRoulette();
-    if (!t.films) $("cl-films").innerHTML=`<p class="font-body-sm text-body-sm text-text-muted px-1">${uiText("Введите ключ TMDB на экране «Глобус», чтобы загрузить фильмы подборки.")}</p>`;
+    if (!t.films) $("cl-films").innerHTML=`<p class="font-body-sm text-body-sm text-text-muted px-1">${uiText(t.series?"Добавьте ключ TMDB, чтобы загрузить сериалы подборки.":"Введите ключ TMDB на экране «Глобус», чтобы загрузить фильмы подборки.")}</p>`;
     return;
   }
   try{
     const r=await loadTheme(t,2,Boolean(opt?.retry));
-    if(D.t!==t)return;
+    if(D!==selection||view!==destination)return;
     if(r._stale && initial){$("cl-films").insertAdjacentHTML("afterbegin",`<p role="status" class="font-micro-caption text-micro-caption text-text-muted">${uiText("Не удалось обновить данные; показана сохранённая подборка.")}</p>`);return;}
     D.all=r.films;D.total=r.total;D.totals=r.totals;
     if (t.films && r.films.some(f => f.vote_count)) saveThemeMeta(t, r);
-    $("cl-count").textContent=collectionFilmCount(r.total);
+    $("cl-count").textContent=t.series?seriesCollectionCount(r.total):collectionFilmCount(r.total);
     renderFilms();
     if(r._partial || r._stale) $("cl-films").insertAdjacentHTML("afterbegin",`<p role="status" class="font-micro-caption text-micro-caption text-text-muted">${uiText("Часть данных недоступна.")} <button type="button" data-act="retry" class="text-primary underline">${uiText("Повторить")}</button></p>`);
     if(opt&&opt.spin)inPageRoulette();
   }catch(e){
+    if(D!==selection||view!==destination)return;
     if(initial){
       $("cl-films").insertAdjacentHTML("afterbegin",`<p role="status" class="font-micro-caption text-micro-caption text-text-muted">${uiText("Не удалось обновить данные; показана сохранённая подборка.")}</p>`);
       console.error("[Moven] Не удалось обновить подборку:",e);
@@ -1378,7 +1396,7 @@ function finishPick(film,token){
 async function inPageRoulette(){
   if(R.busy)return;
   if(!D.all.length){toast("Подборка ещё загружается","movie");return;}
-  const inCc=f=>!D.cc||f._cc===D.cc;
+  const inCc=f=>inCollectionCountry(f);
   const pool=D.all.filter(f=>inCc(f)&&!seen.has(f.id));
   if(!pool.length){toast("Все фильмы из выборки уже в истории","history");return;}
   const film=pick(pool);
@@ -1496,7 +1514,7 @@ vd.addEventListener("click",e=>{
   const a=el.dataset.act;
   if(a==="retry"){openCollection(D.t.id,{returning:true,retry:true});return;}
   if(a==="close-film"){closeInlineFilm();return;}
-  if(a==="back"){e.preventDefault();showView("collections");return;}
+  if(a==="back"){e.preventDefault();showView(D.t.series?"series-collections":"collections");return;}
   if(a==="goto"){e.preventDefault();openCollection(el.dataset.t);return;}
   if(a==="spin"){inPageRoulette();return;}
   if(a==="skip"){R.skip=true;return;}
@@ -1902,16 +1920,19 @@ const tvThemes=[
   const original=T[source];
   return {id:`tv-${source}`,name,g,cc:original.cc,region:where(original),category:CAT[cat(original)][0],series:true,cover:getThemeCover(source)};
 });
-let tvCountry="",tvQuery="",tvLayout="list",tvDetailLayout="list",tvSort="rating",tvCollectionLoad=0;
-let tvTheme=null,tvShows=[],tvStatus="",tvPicked=null,tvShown=8;
+let tvCountry="",tvQuery="",tvLayout="list",tvCatalogSort="rating";
 const tvMetadata=new Map();
-const tvIcon=(icon,size=20)=>`<span class="material-symbols-outlined" style="font-size:${size}px" aria-hidden="true">${icon}</span>`;
-const tvSpin=(attributes)=>`<button type="button" ${attributes} class="${collectionSpinClasses}">${tvIcon("casino",22)}${uiText("Крутить рулетку")}${collectionSpinShine}</button>`;
-
+const tvThemeFor=id=>tvThemes.find(theme=>theme.id===id);
+const seriesCollectionCount=count=>uiText("Сериалов в подборке: {count}",{count:nf(count)});
 function visibleTvThemes(){
   const query=tvQuery.trim().toLocaleLowerCase(interfaceLanguage);
   return tvThemes.filter(theme=>(!tvCountry||theme.cc.includes(tvCountry))&&
     [theme.name,theme.category,theme.region,...theme.cc.map(cname)].some(value=>uiText(value).toLocaleLowerCase(interfaceLanguage).includes(query)));
+}
+
+function sortTvCatalog(){
+  const grid=seriesCollections.querySelector("[data-tv-grid]");
+  if(grid)orderCatalogCards(grid,tvCatalogSort,id=>tvMetadata.get(id),tvThemeFor,(a,b)=>a.dataset.i-b.dataset.i);
 }
 
 function renderTvCatalogCards(){
@@ -1925,9 +1946,11 @@ function renderTvCatalogCards(){
     open.type="button";open.dataset.act="open";open.className="text-left";
     open.append(...title.childNodes);title.append(open);
   });
+  sortTvCatalog();
   seriesCollections.querySelector("[data-tv-count]").textContent=results.length?uiText("{count} доступно",{count:results.length}):uiText("Подборка не найдена");
   seriesCollections.querySelector("[data-tv-spot]").hidden=!!(tvCountry||tvQuery.trim());
-  seriesCollections.querySelector("[data-tv-random]").disabled=!results.length;
+  seriesCollections.querySelector('[data-act="random"]').disabled=!results.length;
+  seriesCollections.querySelector('[data-act="clear"]').style.display=tvQuery?"flex":"none";
 }
 
 function renderTvCatalog(){
@@ -1935,81 +1958,34 @@ function renderTvCatalog(){
   seriesCollections.innerHTML=`
     <section class="flex flex-col gap-space-xs mt-1">
       <h2 class="font-headline-lg text-headline-lg text-primary tracking-tight">${uiText("Тематические коллекции сериалов")}</h2>
-      <div class="relative mt-2"><span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-text-muted">${tvIcon("search")}</span>
-      <input data-tv-query type="search" aria-label="${uiText("Поиск по подборкам")}" placeholder="${uiText("Найти подборку, страну или жанр...")}" class="w-full h-12 pl-11 pr-3 rounded-xl bg-surface-container-low text-on-surface font-body-sm text-body-sm"></div>
+<div class="relative w-full mt-2"><div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-text-muted"><span class="material-symbols-outlined text-[20px]">search</span></div>
+<input data-tv-query type="search" aria-label="${uiText("Поиск по подборкам")}" enterkeyhint="search" autocomplete="off" placeholder="${uiText("Найти подборку, страну или жанр...")}" class="w-full h-12 pl-11 pr-12 rounded-xl bg-surface-container-low text-on-surface placeholder:text-text-muted font-body-sm text-body-sm focus:outline-none focus:bg-surface-container transition-all shadow-[0_4px_16px_rgb(var(--kg-black)/0.4)]">
+<button type="button" data-act="clear" aria-label="${uiText("Сбросить поиск")}" style="display:none" class="absolute inset-y-0 right-0 w-12 items-center justify-center text-text-muted hover:text-primary"><span class="material-symbols-outlined text-[18px]" aria-hidden="true">cancel</span></button></div>
     </section>
     <section class="flex gap-2 overflow-x-auto pb-1 -mx-gutter-mobile px-gutter-mobile" aria-label="${uiText("Все страны")}">
       ${["",...new Set(tvThemes.flatMap(theme=>theme.cc))].map(cc=>`<button type="button" data-tv-country="${cc}" aria-pressed="${tvCountry===cc}" class="${chipCls(tvCountry===cc)}">${cc?`${fl(cc)} ${esc(cname(cc))}`:uiText("Все {count}",{count:tvThemes.length})}</button>`).join("")}
     </section>
-    <section data-tv-spot class="relative rounded-2xl overflow-hidden bg-surface-panel shadow-xl">
-      <div class="h-56 bg-cover bg-center relative" data-tv-spot-cover style="background-image:url('${P(tvMetadata.get(featured.id)?.b,"w780")||featured.cover}')"><div class="absolute inset-0 bg-gradient-to-t from-surface-panel via-surface-panel/60 to-transparent"></div>
-      <span class="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-cinema-velvet-deep text-secondary font-micro-caption text-micro-caption">${uiText("ХИТ НЕДЕЛИ")}</span></div>
-      <div class="p-4 flex flex-col gap-2.5"><h3 class="font-headline-md text-headline-md text-primary font-bold">${uiText(featured.name)}</h3>
-      <p class="font-body-sm text-body-sm text-text-muted">${flagsOf(featured)} ${esc(featured.region)} · ${uiText(featured.category)}</p>
-      <div class="flex flex-wrap gap-2">${tvSpin(`data-tv-spin="${featured.id}"`)}<button type="button" data-tv-open="${featured.id}" class="bg-surface-container-high text-primary rounded-xl px-3">${uiText("Подробнее")}</button></div></div>
-    </section>
-    <div class="flex items-center justify-between gap-2"><p data-tv-count role="status" class="font-label-sm text-label-sm text-text-muted"></p>
-      <button type="button" data-tv-random class="px-3 py-2 rounded-xl bg-secondary-container text-on-secondary-container font-label-sm text-label-sm">${uiText("Случайная")}</button>${layoutSwitch(tvLayout,"tv-catalog")}</div>
+    ${spotlightHtml(featured)}
+    <section class="flex flex-wrap items-center justify-between gap-2">${catalogSortControl(true,tvCatalogSort)}${catalogRandomButton}</section>
+    <div class="flex items-center justify-between gap-2"><p data-tv-count role="status" class="font-label-sm text-label-sm text-text-muted"></p>${layoutSwitch(tvLayout,"tv-catalog")}</div>
     <section data-tv-grid></section>`;
   seriesCollections.querySelector("[data-tv-query]").value=tvQuery;
   renderTvCatalogCards();
   if(apiKey)settleWithLimit(tvThemes,3,async theme=>{
     const meta=await loadMeta(theme);
-    tvMetadata.set(theme.id,meta);
+    tvMetadata.set(theme.id,meta);sortTvCatalog();
     const card=seriesCollections.querySelector(`[data-tv-grid] [data-t="${theme.id}"]`);
     if(card){
       card.querySelector('[data-k="cnt"]').textContent=uiText("Сериалов в подборке: {count}",{count:nf(meta.n)});
       if(meta.p)card.querySelector('[data-k="img"]').src=P(meta.p,"w342");
     }
-    const spotlight=seriesCollections.querySelector("[data-tv-spot-cover]");
-    if(spotlight&&theme===featured&&meta.b)spotlight.style.backgroundImage=`url("${P(meta.b,"w780")}")`;
+    const spotlight=seriesCollections.querySelector("[data-tv-spot]");
+    if(spotlight&&theme===featured){
+      if(meta.b)spotlight.querySelector('[data-k="bg"]').style.backgroundImage=`url("${P(meta.b,"w780")}")`;
+      spotlight.querySelector('[data-k="r"]').textContent=meta.r||"—";
+      spotlight.querySelector('[data-k="cnt"]').textContent=seriesCollectionCount(meta.n);
+    }
   });
-}
-
-function renderTvDetail(){
-  const rows=sortCollectionFilms(tvShows,tvSort);
-  const tile=show=>posterTile(show,`data-act="open" data-id="${show.id}"`);
-  const status=tvStatus?`<p role="status" class="font-body-sm text-body-sm text-text-muted">${uiText(tvStatus)}
-    ${tvStatus==="Часть данных недоступна."?`<button type="button" data-tv-retry class="text-primary underline">${uiText("Повторить")}</button>`:""}</p>`:"";
-  seriesCollections.innerHTML=`
-    <button type="button" data-tv-back class="self-start flex items-center gap-1.5 text-text-muted font-label-sm text-label-sm">${tvIcon("arrow_back",18)}${uiText("Все подборки")}</button>
-    <section class="overflow-hidden rounded-xl bg-surface-panel shadow-xl">
-      <div class="h-40 bg-center bg-cover" style="background-image:url('${P(tvShows.find(show=>show.backdrop_path)?.backdrop_path,"w780")||tvTheme.cover}')"></div>
-      <div class="p-space-md flex flex-col gap-space-sm"><span class="font-label-sm text-label-sm text-primary-container">${uiText(tvTheme.category)}</span>
-      <h2 class="font-display-hero-mobile text-display-hero-mobile text-primary font-bold tracking-tight">${uiText(tvTheme.name)}</h2>
-      <p class="font-body-sm text-body-sm text-text-muted">${flagsOf(tvTheme)} ${esc(tvTheme.region)}</p></div></section>
-    <section class="flex flex-col gap-space-sm rounded-xl bg-surface-panel p-space-md">
-      ${tvSpin(`data-tv-spin="${tvTheme.id}" ${rows.length?"":"disabled"}`)}${sortBar(tvSort)}
-    </section>
-    ${tvPicked?`<section class="flex flex-col gap-space-sm"><h3 class="font-headline-sm text-headline-sm text-primary">${uiText("Случайный выбор")}</h3>${filmItem(tvPicked,true)}</section>`:""}
-    ${status}
-    ${rows.length?`<div class="flex items-center justify-between gap-2"><h3 class="font-headline-sm text-headline-sm text-on-surface">${uiText("Сериалы в подборке")}</h3>${layoutSwitch(tvDetailLayout,"tv-detail")}</div>
-    <section class="${tvDetailLayout==="grid"?"kg-three-columns":"flex flex-col gap-3"}">${rows.slice(0,tvShown).map(show=>tvDetailLayout==="grid"?tile(show):filmItem(show,true)).join("")}</section>
-    ${rows.length>tvShown?`<button type="button" data-tv-more class="w-full py-3 rounded-xl bg-surface-panel text-primary font-label-md text-label-md">${uiText("Показать ещё")}</button>`:""}`:""}`;
-}
-
-async function openTvCollection(id,spin=false,force=false){
-  const theme=tvThemes.find(item=>item.id===id);
-  if(!theme)return;
-  showView("series-collection");
-  if(view!=="series-collection")return;
-  const token=++tvCollectionLoad;
-  tvTheme=theme;tvShows=[];tvPicked=null;tvShown=8;
-  tvStatus=apiKey?"Загружаем подборку…":"Добавьте ключ TMDB, чтобы загрузить сериалы подборки.";
-  renderTvDetail();
-  if(!apiKey)return;
-  try{
-    const result=await loadTheme(theme,2,force);
-    if(token!==tvCollectionLoad)return;
-    tvShows=result.films;
-    tvStatus=result._partial||result._stale?"Часть данных недоступна.":tvShows.length?"":"Подходящих сериалов не нашлось.";
-    if(spin&&tvShows.length)tvPicked=pick(tvShows);
-  }catch(error){
-    if(token!==tvCollectionLoad)return;
-    console.warn("[Moven] Series collection could not be loaded",error);
-    tvStatus="Часть данных недоступна.";
-  }
-  renderTvDetail();
 }
 
 seriesCollections.addEventListener("input",event=>{
@@ -2017,10 +1993,13 @@ seriesCollections.addEventListener("input",event=>{
   tvQuery=event.target.value;
   renderTvCatalogCards();
 });
+seriesCollections.addEventListener("change",event=>{
+  if(event.target.matches("[data-tv-sort]")){tvCatalogSort=event.target.value;sortTvCatalog();}
+});
 seriesCollections.addEventListener("click",event=>{
   const button=event.target.closest("button,[data-act='open'],[data-t]");
   if(!button)return;
-  const {tvCountry:country,tvSpin:spin,tvOpen:open,kgLayout:layout,mode,kgFilmSort:sort,act,id}=button.dataset;
+  const {tvCountry:country,kgLayout:layout,mode,act}=button.dataset;
   if(country!==undefined){
     tvCountry=country;
     seriesCollections.querySelectorAll("[data-tv-country]").forEach(chip=>{
@@ -2030,30 +2009,29 @@ seriesCollections.addEventListener("click",event=>{
     renderTvCatalogCards();
   }else if(layout==="tv-catalog"){
     tvLayout=mode;syncLayout(seriesCollections,mode,layout);renderTvCatalogCards();
-  }else if(layout==="tv-detail"||sort){
-    if(sort)tvSort=sort;
-    else tvDetailLayout=mode;
-    renderTvDetail();
-    const selector=sort?`[data-kg-film-sort="${sort}"]`:`[data-kg-layout="tv-detail"][data-mode="${mode}"]`;
-    seriesCollections.querySelector(selector)?.focus({preventScroll:true});
-  }else if(button.hasAttribute("data-tv-back"))showView("series-collections");
-  else if(button.hasAttribute("data-tv-random")){
-    const results=visibleTvThemes();
-    if(results.length)openTvCollection(pick(results).id);
-  }else if(button.hasAttribute("data-tv-retry"))openTvCollection(tvTheme.id,false,true);
-  else if(button.hasAttribute("data-tv-more")){tvShown+=8;renderTvDetail();}
-  else if(spin&&spin===tvTheme?.id&&view==="series-collection"){
-    const candidates=tvShows.filter(show=>show!==tvPicked);
-    if(tvShows.length){tvPicked=pick(candidates.length?candidates:tvShows);renderTvDetail();}
-  }else if(spin||open||button.closest("[data-t]")){
-    openTvCollection(spin||open||button.closest("[data-t]").dataset.t,!!spin||act==="spin");
-  }else if(act==="open"&&id){
-    const show=tvShows.find(item=>String(item.id)===id);
-    if(show)window.KGFilmCard.openDialog(show,button);
+  }else if(act==="clear"){
+    const input=seriesCollections.querySelector("[data-tv-query]");
+    input.value="";tvQuery="";renderTvCatalogCards();input.focus();
+  }else if(act==="random"){
+    highlightRandomCollection([...seriesCollections.querySelectorAll("[data-tv-grid] .collection-card")],tvThemeFor);
+  }else{
+    const theme=button.closest("[data-t]");
+    if(!theme)return;
+    if(act==="spin")audio();
+    openCollection(theme.dataset.t,{spin:act==="spin"});
   }
 });
 seriesCollections.addEventListener("keydown",event=>{
-  if(["Enter"," "].includes(event.key)&&event.target.matches('[role="button"][data-id]')){
+  if(event.isComposing||event.keyCode===229)return;
+  if(event.target.matches("[data-tv-query]")){
+    if(event.key==="Escape"&&event.target.value){
+      event.preventDefault();seriesCollections.querySelector('[data-act="clear"]').click();
+    }
+    if(event.key==="Enter"){
+      const first=seriesCollections.querySelector("[data-tv-grid] h4 button");
+      if(first){event.preventDefault();first.click();}
+    }
+  }else if(["Enter"," "].includes(event.key)&&event.target.matches("[data-tv-spot]")){
     event.preventDefault();event.target.click();
   }
 });

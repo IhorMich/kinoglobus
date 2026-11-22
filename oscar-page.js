@@ -90,10 +90,6 @@
   }
   const filmsWord=n=>{if(interfaceLanguage==="en")return n===1?"film":"films";const a=n%100,b=n%10;return a>10&&a<15?"фильмов":b===1?"фильм":b>1&&b<5?"фильма":"фильмов";};
   function poolFilms(){return state.decade==="all"?state.films:state.films.filter(f=>decadeOf(yearOf(f))===state.decade);}
-  function updateEra(root){
-    const n=poolFilms().length,total=root.querySelector("#oscar-total");
-    if(total)total.textContent=`${n} ${filmsWord(n)}`;
-  }
   function render(root,deps){
     stopSpin(root);
     state.sort="new";state.onlyBest=false;state.onlyUnseen=false;state.group=true;state.view="list";
@@ -113,8 +109,8 @@
 </div>
 </div>
 <div class="w-full mb-space-sm text-left"><div class="flex items-center justify-between mb-1.5"><span class="font-label-sm text-label-sm text-text-muted uppercase tracking-wider">${uiText("Эпоха для рулетки")}</span><span class="font-micro-caption text-micro-caption text-primary" id="oscar-range">${uiText("История премии")}</span></div><div class="flex items-center gap-2 overflow-x-auto py-1 no-scrollbar scroll-smooth" id="oscar-decades"></div><p class="font-micro-caption text-micro-caption text-text-muted mt-1">${uiText("Выбранная эпоха работает для рулетки и для списка ниже")}</p></div>
-<button class="w-full flex items-center justify-between gap-space-sm bg-gradient-to-r from-primary-container via-primary-fixed-dim to-primary px-space-md py-3.5 rounded-xl text-on-primary-fixed shadow-lg shadow-cinema-amber-glow active:scale-[0.98] transition-all duration-200" id="oscar-roulette">
-<span class="flex items-center gap-2 min-w-0"><span class="material-symbols-outlined text-[22px]" id="oscar-roulette-icon">casino</span><span class="font-label-lg text-label-lg tracking-tight truncate" id="oscar-roulette-label">${uiText("Случайный лауреат")}</span></span><span class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-canvas-obsidian/20 shrink-0"><span class="font-micro-caption text-micro-caption font-bold" id="oscar-total">${uiText("Загружаем…")}</span><span class="material-symbols-outlined text-[16px]">arrow_forward</span></span></button>
+<button type="button" class="w-full flex items-center justify-between gap-space-sm bg-gradient-to-r from-primary-container via-primary-fixed-dim to-primary px-space-md py-3.5 rounded-xl text-on-primary-fixed shadow-lg shadow-cinema-amber-glow active:scale-[0.98] transition-all duration-200" id="oscar-roulette">
+<span class="flex items-center gap-2 min-w-0"><span class="material-symbols-outlined text-[22px]" id="oscar-roulette-icon">casino</span><span class="font-label-lg text-label-lg tracking-tight truncate" id="oscar-roulette-label">${uiText("Случайный лауреат")}</span></span><span class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-canvas-obsidian/20 shrink-0"><span class="material-symbols-outlined text-[16px]">arrow_forward</span></span></button>
 </div></div></div>
 <div id="oscar-reel" class="px-gutter-mobile mt-space-md" hidden></div>
 <section class="px-gutter-mobile mt-space-lg"><div class="flex items-center justify-between mb-space-xs"><div class="flex items-center gap-1.5"><span class="material-symbols-outlined text-primary text-[18px]">auto_awesome</span><span class="font-headline-sm text-headline-sm text-on-surface">${uiText("Лауреат дня")}</span></div><span class="font-micro-caption text-micro-caption px-2 py-0.5 rounded-full bg-primary-container/15 text-primary-container font-semibold" id="oscar-feature-label">${uiText("Сегодня")}</span></div><div id="oscar-feature"></div></section>
@@ -156,7 +152,6 @@
         first: Math.min(...years),
         last: Math.max(...years)
       });
-      updateEra(root);
       root.querySelector("#oscar-age").textContent=uiText("{count} ЛЕТ", {count: Math.max(...years)-Math.min(...years)});
       root.querySelector("#oscar-range").textContent=`${Math.min(...years)} — ${Math.max(...years)}`;
       const day=Math.floor((Date.now()-Date.UTC(new Date().getUTCFullYear(),0,0))/86400000);
@@ -186,7 +181,6 @@
   function selectEra(era,root,deps){
     state.decade=era;
     renderDecades(root);
-    updateEra(root);
     relist(root,deps);
   }
   function renderFeature(root,deps){

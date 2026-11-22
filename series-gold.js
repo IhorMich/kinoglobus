@@ -16,9 +16,12 @@
   const rank=(a,b)=>Number(b.vote_average)-Number(a.vote_average)||Number(b.vote_count)-Number(a.vote_count)||a.id-b.id;
   const genreOrder=[80,10765,10768,9648,35,18,16,10759,10751,99];
   const milestones=[25,50,100,175,250];
-  let root, back, normalizeSearch, overview, searchBox, searchInput, results, highlights, snapshot, generation=0, era="all", genre="all", sort="rating", layout="list", shown=5, phase="", episodePhase="";
+  let root, back, presentWinner, overview, reel, results, highlights, snapshot, generation=0, era="all", genre="all", sort="rating", layout="list", shown=5, phase="", episodePhase="";
   const metadata=new Map();
   let minis=[], selectedSection="top";
+  const roulette={token:0,busy:false,skip:false,spun:false,cancel:null};
+  const reelSound=(name,...args)=>{try{window[name]?.(...args);}catch{}};
+  const randomLabel=()=>roulette.busy?"Плёнка крутится…":roulette.spun?"Крутить ещё раз":"Случайный сериал";
   let entries=[], episodes=[], episodeRequest=0, dailyTimer, displayedDay;
 
   function localDay(date){
@@ -75,13 +78,7 @@
   };
   const inGenre=(show,id)=>id==="all"||show.genre_ids?.includes(Number(id));
   const visible=()=>{
-    const query=normalizeSearch(searchInput.value);
-    const terms=query?query.split(" "):[];
-    const rows=entries.filter(show=>inEra(show,era)&&inGenre(show,genre)&&(!terms.length||
-      [show.title,show.original_title].some(title=>{
-        const name=normalizeSearch(title);
-        return terms.every(term=>name.includes(term));
-      })));
+    const rows=entries.filter(show=>inEra(show,era)&&inGenre(show,genre));
     if(sort==="votes")rows.sort((a,b)=>Number(b.vote_count)-Number(a.vote_count)||a._goldRank-b._goldRank);
     if(sort==="new")rows.sort((a,b)=>year(b)-year(a)||a._goldRank-b._goldRank);
     return rows;
@@ -154,10 +151,7 @@
               <span class="font-micro-caption text-micro-caption text-text-muted">${label("Рейтинг TMDB")}</span>
             </div>
           </div>
-          ${entries.length?`<div class="flex items-center gap-space-xs shrink-0">
-            <button type="button" data-gold-search-open data-gold-focus="search-open" class="kg-gold-filter-jump w-11 h-11 flex items-center justify-center rounded-full text-on-surface-variant hover:text-primary hover:bg-surface-container-high/60 transition-colors" aria-label="${label("Поиск в топ-250")}" aria-controls="kg-gold-query">${icon("search")}</button>
-            <button type="button" data-gold-filters data-gold-focus="filters" class="kg-gold-filter-jump w-11 h-11 flex items-center justify-center rounded-full text-on-surface-variant hover:text-primary hover:bg-surface-container-high/60 transition-colors" aria-label="${label("Фильтры")}">${icon("tune")}</button>
-          </div>`:""}
+          ${entries.length?`<button type="button" data-gold-filters data-gold-focus="filters" class="kg-gold-filter-jump w-11 h-11 flex items-center justify-center rounded-full text-on-surface-variant hover:text-primary hover:bg-surface-container-high/60 transition-colors shrink-0" aria-label="${label("Фильтры")}">${icon("tune")}</button>`:""}
         </div>
       </div>
       ${sectionLinks()}
@@ -175,11 +169,126 @@
                 <p class="font-body-sm text-body-sm text-primary-fixed/90 text-center leading-snug max-w-sm">${label("От классики до современных хитов. 250 лучших сериалов по рейтингу TMDB.")}</p>
               </div>
             </div>
-            ${entries.length?progress(count):""}
+            ${entries.length?rouletteControls()+progress(count):""}
           </div>
         </div>
       </div>
     </header>`;
+  }
+
+  function rouletteControls(){
+    return `<div class="mt-3">
+      <div class="w-full mb-space-sm text-left">
+        <div class="flex items-center justify-between mb-1.5 gap-2">
+          <span class="font-label-sm text-label-sm text-text-muted uppercase tracking-wider">${label("Эпоха для рулетки")}</span>
+          <span class="font-micro-caption text-micro-caption text-primary">${label(eras.find(([id])=>id===era)[1])}</span>
+        </div>
+        <div class="kg-gold-filters kg-gold-eras" data-gold-rail="eras" role="group" aria-label="${label("Эпохи")}">
+          ${eras.filter(([id])=>entries.some(show=>inEra(show,id))).map(([id,title])=>
+            `<button type="button" data-gold-era="${id}" data-gold-focus="era-${id}" aria-pressed="${era===id}">${label(title)}</button>`).join("")}
+        </div>
+        <p class="kg-gold-era-note font-micro-caption text-micro-caption text-text-muted">${label("Выбранная эпоха работает для рулетки и для списка ниже")}</p>
+      </div>
+      <button type="button" data-gold-random data-gold-focus="random" aria-busy="${roulette.busy}" ${roulette.busy?"disabled":""}
+        class="w-full flex items-center justify-between gap-space-sm bg-gradient-to-r from-primary-container via-primary-fixed-dim to-primary px-space-md py-3.5 rounded-xl text-on-primary-fixed shadow-lg shadow-cinema-amber-glow active:scale-[0.98] transition-all duration-200">
+        <span class="flex items-center gap-2 min-w-0"><span data-gold-random-icon class="material-symbols-outlined text-[22px] ${roulette.busy?"animate-spin":""}" aria-hidden="true">casino</span><span data-gold-random-label class="font-label-lg text-label-lg tracking-tight truncate">${label(randomLabel())}</span></span>
+        <span class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-canvas-obsidian/20 shrink-0"><span data-gold-random-arrow class="material-symbols-outlined" aria-hidden="true">arrow_forward</span></span>
+      </button>
+    </div>`;
+  }
+
+  function syncRandomButton(){
+    const button=overview.querySelector("[data-gold-random]");
+    if(!button)return;
+    button.disabled=roulette.busy;
+    button.setAttribute("aria-busy",String(roulette.busy));
+    button.querySelector("[data-gold-random-label]").textContent=uiText(randomLabel());
+    button.querySelector("[data-gold-random-icon]").classList.toggle("animate-spin",roulette.busy);
+  }
+
+  function stopRoulette(){
+    roulette.token++;
+    roulette.cancel?.();
+    roulette.cancel=null;
+    if(roulette.busy)reelSound("stopFilmReelSound");
+    roulette.busy=false;
+    roulette.skip=false;
+    reel.hidden=true;
+    reel.replaceChildren();
+    syncRandomButton();
+  }
+
+  async function spinSeries(){
+    const pool=entries.filter(show=>inEra(show,era));
+    if(roulette.busy||!pool.length)return;
+    const fresh=pool.filter(show=>!watched(show));
+    const winner=pick(fresh.length?fresh:pool);
+    const others=shuffle(pool.filter(show=>show.id!==winner.id&&show.poster_path));
+    const animate=others.length>0&&!matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const winnerIndex=animate?26:0;
+    const sequence=animate?Array.from({length:33},(_,index)=>index===winnerIndex?winner:others[index%others.length]):[winner];
+    const token=++roulette.token;
+    const current=()=>token===roulette.token&&!root.hidden;
+    const engine=window.KGCinemaReel;
+    roulette.busy=true;roulette.skip=false;roulette.spun=true;
+    syncRandomButton();
+    reelSound("audio");
+    try{
+      reel.hidden=false;
+      reel.innerHTML=`<div class="flex items-center justify-between gap-2 mb-1">
+        <p data-gold-spin-status class="font-label-sm text-label-sm text-primary" role="status">${label("Плёнка крутится…")}</p>
+        <button type="button" data-gold-spin-close aria-label="${label("Закрыть плёнку")}" class="w-8 h-8 rounded-full bg-surface-container-high text-text-muted flex items-center justify-center">${icon("close")}</button>
+      </div>
+      ${engine.render({frameAttr:"data-gold-spin-frame",content:sequence.map(show=>
+        `<div class="kgr-cell">${show.poster_path?`<img alt="" draggable="false" src="${art(show.poster_path,"w185")}">`:`<div class="nop">${esc(show.title)}</div>`}${year(show)?`<span class="yr">${year(show)}</span>`:""}</div>`).join("")})}
+      <div class="flex justify-end"><button type="button" data-gold-spin-skip class="font-micro-caption text-micro-caption text-text-muted underline" ${animate?"":"hidden"}>${label("Пропустить")}</button></div>
+      <div data-gold-winner></div>`;
+      reel.scrollIntoView({behavior:"smooth",block:"center"});
+      if(animate)reelSound("startFilmReelSound");
+      const meta={country:uiText("Золотой фонд TV")};
+      const options={reducedMotion:!animate,cancelled:()=>!current(),shouldSkip:()=>roulette.skip,meta};
+      let landed;
+      if(engine.isProjectionMode()){
+        landed=await engine.spinProjectionTrack(reel,sequence,winner,options);
+      }else if(engine.isCassetteMode()){
+        landed=await engine.spinCassetteDeck(reel,pool,sequence,winner,{
+          ...options,onOpen:show=>window.KGSeriesHub.openSeries(show,document.activeElement)
+        });
+      }else{
+        const run=reel.querySelector(".kgr-run");
+        const frame=reel.querySelector("[data-gold-spin-frame]");
+        const offset=index=>48+index*90-reel.querySelector(".kgr-win").clientWidth/2;
+        if(!run||!frame)throw new Error("Missing film reel.");
+        landed=await new Promise(resolve=>{
+          roulette.cancel=engine.spin({run,frame,startX:offset(0),endX:offset(winnerIndex),
+            chosenIndex:winnerIndex,reducedMotion:!animate,shouldSkip:options.shouldSkip,spinningClass:"spin",
+            onFinish:()=>resolve(true),onCancel:()=>resolve(false)});
+        });
+      }
+      if(!current())return;
+      if(!landed)throw new Error("The roulette did not select a series.");
+      reel.querySelector("[data-gold-spin-status]").textContent=uiText("Сериал выбран");
+      engine.updateIMAX(reel.querySelector(".kg-imax-stage"),winner,{...meta,state:"СЕРИАЛ В КАДРЕ"});
+      reelSound("playFilmFoundSound");
+      reelSound("buzz",[25,50,60]);
+      const host=reel.querySelector("[data-gold-winner]");
+      presentWinner(host,winner,()=>current()&&host.isConnected);
+    }catch(error){
+      if(current()){
+        console.error("[Moven] Gold TV roulette:",error);
+        const status=reel.querySelector("[data-gold-spin-status]");
+        if(status)status.textContent=uiText("Не удалось завершить поиск. Нажмите ещё раз.");
+        else reel.hidden=true;
+      }
+    }finally{
+      if(current()){
+        reelSound("stopFilmReelSound");
+        roulette.busy=false;roulette.skip=false;roulette.cancel=null;
+        const skip=reel.querySelector("[data-gold-spin-skip]");
+        if(skip)skip.hidden=true;
+        syncRandomButton();
+      }
+    }
   }
 
   function hero(show){
@@ -241,17 +350,8 @@
 
   function renderRanking(){
     const rows=visible();
-    const hasQuery=!!searchInput.value.trim();
-    const stats=searchBox.querySelector("[data-gold-search-status]");
-    const status=hasQuery?uiText("Сериалов найдено: {count}",{count:number(rows.length)}):"";
-    if(stats.textContent!==status)stats.textContent=status;
-    searchBox.querySelector("[data-gold-search-clear]").hidden=!searchInput.value;
     updateMarkup(results,`
-      ${entries.length?`<div class="kg-gold-filters" data-gold-rail="eras" role="group" aria-label="${label("Эпохи")}">${eras.map(([id,title])=>{
-        const total=entries.filter(show=>inEra(show,id)&&inGenre(show,genre)).length;
-        return `<button type="button" data-gold-era="${id}" data-gold-focus="era-${id}" aria-pressed="${era===id}">${label(title)} (${number(total)})</button>`;
-      }).join("")}</div>
-      <div class="kg-gold-filters kg-gold-genres" data-gold-rail="genres" role="group" aria-label="${label("Жанры")}">${["all",...genreOrder].map(id=>{
+      ${entries.length?`<div class="kg-gold-filters kg-gold-genres" data-gold-rail="genres" role="group" aria-label="${label("Жанры")}">${["all",...genreOrder].map(id=>{
         const total=entries.filter(show=>inEra(show,era)&&inGenre(show,String(id))).length;
         return total||genre===String(id)?`<button type="button" data-gold-genre="${id}" data-gold-focus="genre-${id}" aria-pressed="${genre===String(id)}">${label(id==="all"?"Все жанры":genreLabel(id))} (${number(total)})</button>`:"";
       }).join("")}</div>
@@ -274,14 +374,14 @@
     const count=entries.filter(watched).length;
     displayedDay=localDay(new Date());
     const featured=dailySeries(displayedDay);
-    searchBox.hidden=!entries.length;
+
     updateMarkup(overview,`
       ${pageHeader(count)}
-      ${featured?hero(featured):""}
       ${phase?`<p class="kg-gold-muted" role="status">${label(phase==="loading"?"Загружаем сериалы…":phase==="key"?"Добавьте ключ TMDB, чтобы загрузить сериалы подборки.":"Не удалось загрузить сериалы. Попробуйте ещё раз.")}</p>`:""}
       ${phase==="error"?`<button type="button" class="kg-gold-button" data-gold-retry>${label("Повторить")}</button>`:""}
       ${!entries.length&&!phase?`<p class="kg-gold-muted" role="status">${label("Подходящих сериалов не нашлось.")}</p>`:""}`);
     renderRanking();
+    updateMarkup(root.querySelector("[data-gold-daily]"),featured?hero(featured):"");
     updateMarkup(highlights,`
       ${miniSeriesGroup()}
       ${era==="all"&&genre==="all"?episodeGroup("pilot","Величайшие пилоты")+episodeGroup("finale","Лучшие финалы"):""}
@@ -364,8 +464,9 @@
   async function show(force=false){
     refreshDaily();
     const key=`${apiKey}:${filmLocale}`;
-    if(!apiKey){generation++;episodeRequest++;snapshot=null;entries=[];episodes=[];minis=[];phase="key";render();return;}
+    if(!apiKey){stopRoulette();generation++;episodeRequest++;snapshot=null;entries=[];episodes=[];minis=[];phase="key";render();return;}
     if(!force&&snapshot?.key===key&&Date.now()-snapshot.time<ttl){render();updateVisibleDetails();return;}
+    stopRoulette();
     const token=++generation;
     episodeRequest++;entries=[];episodes=[];minis=[];metadata.clear();phase="loading";episodePhase="";render();
     try{
@@ -384,37 +485,18 @@
     }
   }
 
-  function mount(panel,{onBack,normalize}){
-    root=panel;back=onBack;normalizeSearch=normalize;
+  function mount(panel,{onBack,onWinner}){
+    root=panel;back=onBack;presentWinner=onWinner;
     root.innerHTML=`
       <div class="kg-gold-region" data-gold-overview></div>
-      <div class="kg-gold-search" data-gold-search hidden>
-        <form class="kg-main-header-actions" role="search" aria-label="${label("Поиск в топ-250")}">
-          <div class="kg-header-action kg-header-search">
-            ${icon("search")}
-            <input type="search" id="kg-gold-query" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search"
-              aria-label="${label("Поиск в топ-250")}" aria-controls="kg-gold-ranked" placeholder="${label("Найти сериал по названию")}">
-            <button type="button" data-gold-search-clear aria-label="${label("Сбросить поиск")}" hidden>${icon("cancel")}</button>
-          </div>
-        </form>
-        <p class="font-label-sm text-label-sm text-text-muted" data-gold-search-status role="status" aria-atomic="true"></p>
-      </div>
+      <section class="kg-gold-reel" data-gold-reel hidden></section>
+      <div class="kg-gold-region" data-gold-daily></div>
       <div class="kg-gold-region" data-gold-results></div>
       <div class="kg-gold-region" data-gold-highlights></div>`;
     overview=root.querySelector("[data-gold-overview]");
-    searchBox=root.querySelector("[data-gold-search]");
-    searchInput=searchBox.querySelector("input");
+    reel=root.querySelector("[data-gold-reel]");
     results=root.querySelector("[data-gold-results]");
     highlights=root.querySelector("[data-gold-highlights]");
-    searchInput.addEventListener("input",()=>{
-      shown=5;
-      renderRanking();
-      updateVisibleDetails();
-    });
-    searchBox.querySelector("form").addEventListener("submit",event=>{
-      event.preventDefault();
-      searchInput.blur();
-    });
     document.addEventListener("visibilitychange",()=>{
       if(document.visibilityState==="visible")refreshDaily();
     });
@@ -435,20 +517,11 @@
     root.addEventListener("click",event=>{
       const button=event.target.closest("button");if(!button)return;
       if(button.matches("[data-gold-back]")){back();return;}
-      if(button.matches("[data-gold-search-open]")){
-        searchInput.focus({preventScroll:true});
-        searchBox.scrollIntoView({behavior:"smooth",block:"center"});
-        return;
-      }
-      if(button.matches("[data-gold-search-clear]")){
-        searchInput.value="";
-        searchInput.focus({preventScroll:true});
-        shown=5;renderRanking();updateVisibleDetails();
-        return;
-      }
+      if(button.matches("[data-gold-random]")){spinSeries();return;}
+      if(button.matches("[data-gold-spin-skip]")){roulette.skip=true;return;}
+      if(button.matches("[data-gold-spin-close]")){stopRoulette();overview.querySelector("[data-gold-random]")?.focus();return;}
       if(button.matches("[data-gold-reset]")){
-        searchInput.value="";era="all";genre="all";shown=5;
-        searchInput.focus({preventScroll:true});
+        stopRoulette();era="all";genre="all";shown=5;
         render();updateVisibleDetails();
         return;
       }
@@ -461,14 +534,14 @@
         return;
       }
       if(button.matches("[data-gold-filters]")){
-        root.querySelector("[data-gold-rail=eras]")?.scrollIntoView({behavior:"smooth",block:"center"});
+        root.querySelector("[data-gold-rail=genres]")?.scrollIntoView({behavior:"smooth",block:"center"});
         return;
       }
       if(button.matches("[data-gold-retry]")){show(true);return;}
       if(button.matches("[data-gold-more]")){shown+=5;renderRanking();updateVisibleDetails();return;}
       const {goldEra,goldGenre,goldLayout,goldEpisode,goldOpen,goldWatch}=button.dataset;
       if(goldGenre){genre=goldGenre;shown=5;render();updateVisibleDetails();return;}
-      if(goldEra){era=goldEra;shown=5;render();updateVisibleDetails();return;}
+      if(goldEra){if(era!==goldEra)stopRoulette();era=goldEra;shown=5;render();updateVisibleDetails();return;}
       if(goldLayout){layout=goldLayout;renderRanking();return;}
       if(goldEpisode){
         const row=episodes.find(entry=>entry.key===goldEpisode);
@@ -482,5 +555,5 @@
     });
     document.addEventListener("kg:watched-change",()=>{if(!root.hidden&&entries.length)render();});
   }
-  window.KGSeriesGold={mount,show,hide:()=>clearTimeout(dailyTimer)};
+  window.KGSeriesGold={mount,show,hide:()=>{clearTimeout(dailyTimer);stopRoulette();}};
 })();

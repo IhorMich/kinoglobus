@@ -989,7 +989,7 @@
 
 /* Одинаковое оформление основных кнопок рулетки на всех экранах. */
 :root[data-kg-theme="midnight"] :is(
-  #btn-spin-roulette, .kg-collection-spin, #oscar-roulette, [data-mood-spin], [data-vibe-spin]
+  #btn-spin-roulette, .kg-collection-spin, #oscar-roulette, [data-gold-random], [data-mood-spin], [data-vibe-spin]
 ) {
   --kg-spin-background: var(--kg-action-gradient);
   --kg-spin-shadow: var(--kg-action-elevation);
@@ -1000,7 +1000,7 @@
 }
 
 :root[data-kg-theme="midnight"] :is(
-  #btn-spin-roulette, .kg-collection-spin, #oscar-roulette, [data-mood-spin], [data-vibe-spin]
+  #btn-spin-roulette, .kg-collection-spin, #oscar-roulette, [data-gold-random], [data-mood-spin], [data-vibe-spin]
 ):active:not(:disabled) {
   --kg-spin-background: var(--kg-action-gradient-pressed);
   --kg-spin-shadow: var(--kg-action-elevation-pressed);
@@ -1009,7 +1009,7 @@
 }
 
 :root[data-kg-theme="steel"] :is(
-  #btn-spin-roulette, .kg-collection-spin, #oscar-roulette, [data-mood-spin], [data-vibe-spin]
+  #btn-spin-roulette, .kg-collection-spin, #oscar-roulette, [data-gold-random], [data-mood-spin], [data-vibe-spin]
 ) {
   --kg-spin-background: var(--kg-action-gradient);
   --kg-spin-shadow: var(--kg-action-elevation);
@@ -1020,7 +1020,7 @@
 }
 
 :root[data-kg-theme="steel"] :is(
-  #btn-spin-roulette, .kg-collection-spin, #oscar-roulette, [data-mood-spin], [data-vibe-spin]
+  #btn-spin-roulette, .kg-collection-spin, #oscar-roulette, [data-gold-random], [data-mood-spin], [data-vibe-spin]
 ):active:not(:disabled, [data-kg-steel-selected]) {
   --kg-spin-background: var(--kg-action-gradient-pressed);
   --kg-spin-shadow: var(--kg-action-elevation-pressed);
@@ -1042,7 +1042,7 @@
 }
 
 :root[data-kg-theme="steel"] :is(
-  #btn-mode-surprise, #btn-spin-roulette, .kg-collection-spin, #oscar-roulette,
+  #btn-mode-surprise, #btn-spin-roulette, .kg-collection-spin, #oscar-roulette, [data-gold-random],
   [data-mood-spin], [data-vibe-spin]
 ) .material-symbols-outlined {
   color: inherit;

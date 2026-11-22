@@ -7,7 +7,6 @@
 .kg-release-follow[aria-pressed="true"] { background: var(--kg-primary-button-fill); color: rgb(var(--kg-on-primary)); }
 .kg-release-follow svg, .kg-release-sheet svg, #kg-personal-calendar svg { flex: none; width: 19px; height: 19px; }
 .kg-release-action { display: flex; margin-top: 7px; }
-.kg-series-detail .kg-release-action { margin: -7px 20px 16px; }
 .kg-release-toast {
   position: fixed; z-index: 70; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 26px); transform: translateX(-50%);
   width: max-content; max-width: calc(100% - 28px); display: flex; align-items: center; gap: 12px;

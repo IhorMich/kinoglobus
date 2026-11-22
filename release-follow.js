@@ -64,8 +64,13 @@
   function buttonContent(button, kind, active) {
     button.setAttribute("aria-pressed", String(active));
     button.setAttribute("aria-haspopup", active ? "dialog" : "false");
-    button.innerHTML = icon(active ? "check" : "calendar") + '<span></span>';
-    button.querySelector("span").textContent = uiText(active ? "Отслеживаю" : titleFor[kind]);
+    const text = uiText(active ? "Отслеживаю" : titleFor[kind]);
+    button.innerHTML = icon(active ? "check" : "calendar") + buttonLabel(kind,text);
+    if (kind === "series") button.title = text;
+  }
+
+  function buttonLabel(kind,text) {
+    return `<span${kind === "series" ? ' class="sr-only"' : ""}>${esc(text)}</span>`;
   }
 
   function button(film, episode, season) {
@@ -75,7 +80,7 @@
     if (item.kind === "movie" && item.date < today() && !active) return "";
     const text = uiText(active ? "Отслеживаю" : titleFor[item.kind]);
     return `<button type="button" class="kg-release-follow" data-kg-follow="${item.key}"
-      data-follow-item="${esc(JSON.stringify(item))}" aria-pressed="${active}" aria-haspopup="${active?"dialog":"false"}">${icon(active?"check":"calendar")}<span>${esc(text)}</span></button>`;
+      data-follow-item="${esc(JSON.stringify(item))}" aria-pressed="${active}" aria-haspopup="${active?"dialog":"false"}"${item.kind==="series" ? ` title="${esc(text)}"` : ""}>${icon(active?"check":"calendar")}${buttonLabel(item.kind,text)}</button>`;
   }
 
   function syncButtons() {

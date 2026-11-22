@@ -31,7 +31,8 @@
 const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:"",token:0,spinToken:0,spinFrame:0,spinning:false,skipSpin:false,page:0,totalPages:0,jobs:null};  const reelStep=90,reelPadding=8,reelCellWidth=80;
   const prefersReducedMotion=()=>window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches||false;
   let boundRoot=null;
-  const currentMood=()=>moods.find(m=>m.id===state.mood)||moods[0];
+  const activeMoods=()=>series?window.KGMoodVibeAdditions.seriesCards:moods;
+  const currentMood=()=>activeMoods().find(m=>m.id===state.mood)||activeMoods()[0];
   const currentRuntime=()=>runtimeOptions(series).find(r=>r.id===state.runtime)||runtimeOptions(series)[0];
   const activeCard=root=>root.querySelector(`.mood-card[data-mood-card="${state.mood}"]`);
   const activeElement=(root,selector)=>activeCard(root)?.querySelector(selector)||null;
@@ -92,7 +93,7 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
 <div class="flex items-center gap-2 overflow-x-auto py-1 -mx-gutter-mobile px-gutter-mobile">${runtimeOptions(series).map((r,i)=>`<button class="mood-runtime shrink-0 flex items-center gap-2 px-3.5 py-2.5 rounded-full ${i===0?"bg-primary-container text-on-primary shadow-[0_0_18px_rgb(var(--kg-primary-container)/0.28)]":"bg-surface-container text-text-muted"} font-label-sm text-label-sm transition-all active:scale-95" data-runtime="${r.id}" type="button"><span class="material-symbols-outlined text-[16px]">${r.icon}</span><span>${esc(uiText(r.label))}</span></button>`).join("")}</div>
 <div class="mt-2 px-3 py-2 rounded-xl bg-surface-container-lowest/80 flex items-start gap-2"><span class="material-symbols-outlined text-primary-container text-[16px] mt-0.5">tips_and_updates</span><p class="font-micro-caption text-micro-caption text-text-muted italic">${uiText(series?"Показываем длительность одной серии.":"«Мало времени вечером? Никаких трёхчасовых драм — только кино под ваш ритм»")}</p></div></section>
 <section class="flex flex-col gap-2 mb-6"><div class="flex items-center justify-between px-1"><div class="flex items-center gap-1.5 text-on-surface"><span class="material-symbols-outlined text-secondary text-[20px]">filter_vintage</span><span class="font-headline-sm text-headline-sm tracking-wide">${uiText("Палитра вайбов")}</span></div>${deps.layoutSwitch(moodCatalogLayout,"mood-catalog")}</div>
-<div class="${moodCatalogLayout==="grid"?"kg-three-columns":"flex flex-col gap-3"}" id="mood-cards">${moods.map((m,i)=>`<article class="mood-card relative flex flex-col overflow-hidden rounded-2xl ${i===0?"bg-surface-container-high shadow-lg shadow-black/40":"bg-surface-container shadow-md shadow-black/30"} transition-all duration-200" data-mood-card="${m.id}">
+<div class="${moodCatalogLayout==="grid"?"kg-three-columns":"flex flex-col gap-3"}" id="mood-cards">${activeMoods().map((m,i)=>`<article class="mood-card relative flex flex-col overflow-hidden rounded-2xl ${i===0?"bg-surface-container-high shadow-lg shadow-black/40":"bg-surface-container shadow-md shadow-black/30"} transition-all duration-200" data-mood-card="${m.id}">
 <div data-mood-glow class="absolute inset-0 rounded-2xl bg-gradient-to-r from-cinema-amber-glow to-transparent ${i===0?"opacity-20":"opacity-0"} pointer-events-none"></div>
 <button type="button" data-mood-select data-mood-id="${m.id}" aria-pressed="${i===0}" class="relative z-10 w-full h-40 overflow-hidden text-left"><img class="absolute inset-0 w-full h-full object-cover" src="${m.image}" alt="" style="object-position: ${m.imagePosition || "center"}"><span class="absolute inset-0 bg-gradient-to-t from-surface-container-high via-surface-container-high/35 to-transparent"></span><span class="absolute top-3 left-3 w-9 h-9 rounded-xl bg-surface-container-lowest/80 backdrop-blur-md flex items-center justify-center text-primary-container border border-surface-border-subtle"><span class="material-symbols-outlined text-[20px]">${m.icon}</span></span><span class="kg-mood-cover-copy absolute bottom-3 left-4 right-12"><span class="mood-title block font-headline-sm text-headline-sm ${i===0?"text-primary":"text-on-surface"} leading-snug">${uiText(m.title)}</span><span class="kg-mood-secondary block font-micro-caption text-micro-caption text-text-muted mt-1">${uiText(m.tag)}</span></span><span class="mood-radio absolute right-3 bottom-3 w-6 h-6 rounded-full ${i===0?"bg-primary-container text-on-primary shadow-md":"bg-surface-container-highest text-transparent"} flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">check</span></span></button>
 <p class="kg-mood-secondary relative px-4 font-body-sm text-body-sm text-on-surface-variant mb-3 leading-snug">${uiText(series&&m.id==="chemistry"?"Случайные встречи, флирт и признания, которых ждёшь весь сериал.":m.description)}</p>
@@ -103,7 +104,7 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
 <p class="font-body-sm text-body-sm text-feedback-error" data-mood-error role="status" hidden></p><button class="self-start px-3 py-2 rounded-lg bg-surface-container-high text-primary font-label-sm text-label-sm" data-mood-retry type="button" hidden>${uiText("Повторить загрузку")}</button>
 <div data-mood-result></div><section class="flex flex-col gap-2"><button class="flex items-center justify-between gap-2 text-left" data-mood-films-toggle type="button" aria-expanded="false"><span class="font-label-md text-label-md text-on-surface">${uiText(series?"Сериалы в этом вайбе":"Фильмы в этом вайбе")}</span><span class="material-symbols-outlined text-primary-container" data-mood-films-icon>expand_more</span></button><div data-mood-films-panel hidden><div class="flex justify-end mb-2">${deps.layoutSwitch(moodFilmLayout,"mood-films")}</div><div class="flex flex-col gap-2" data-mood-films></div><button class="w-full py-2.5 rounded-xl bg-surface-container-high text-primary font-label-sm text-label-sm" data-mood-more type="button" hidden>${uiText(series?"Показать ещё сериалы":"Показать ещё фильмы")}</button></div></section></div></article>`).join("")}</div></section>
 <button class="self-start mb-3 flex items-center gap-1 text-on-surface-variant hover:text-primary" id="mood-surprise" type="button"><span class="material-symbols-outlined text-[15px]">shuffle</span><span class="font-micro-caption text-micro-caption underline">${uiText("Удиви меня")}</span></button></div>`;
-    state.mood="wine";state.runtime="any";state.shown=4;state.films=[];state.loadedKey="";state.page=0;state.totalPages=0;state.jobs=null;
+    state.mood=activeMoods()[0].id;state.runtime="any";state.shown=4;state.films=[];state.loadedKey="";state.page=0;state.totalPages=0;state.jobs=null;
     updateLaunchLabel(root);
     collapseMoodFilms(root);
     if(boundRoot!==root){
@@ -142,7 +143,7 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
     });
   }
   function selectMood(id,root,deps){
-    if(!moods.some(m=>m.id===id))return;
+    if(!activeMoods().some(m=>m.id===id))return;
     collapseMoodFilms(root);
     if(id===state.mood)return;
     stopSpin(root);deps.closeFilm("mood");

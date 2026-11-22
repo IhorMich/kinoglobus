@@ -1,6 +1,7 @@
 // English translations for the Moven interface.
 window.KGInterfaceDictionaries ??= {};
 window.KGInterfaceDictionaries.en = Object.freeze({
+  "Случайная подборка": "Random collection",
   "Случайно": "Random",
   "Выберите страну, чтобы найти сериалы по жанрам и познакомиться с её телевидением.": "Choose a country to explore its television by genre.",
   "Турецкие мелодрамы": "Turkish soap operas",

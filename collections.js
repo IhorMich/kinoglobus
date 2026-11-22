@@ -12,9 +12,9 @@ document.head.appendChild(st);
 const st2=document.createElement("style");
 st2.textContent=`.kgr-win{position:relative;height:150px;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,rgb(var(--kg-black)) 13%,rgb(var(--kg-black)) 87%,transparent);mask-image:linear-gradient(90deg,transparent,rgb(var(--kg-black)) 13%,rgb(var(--kg-black)) 87%,transparent)}
 #cat-search::-webkit-search-cancel-button{display:none}
-[data-series-sort]{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));width:100%}
-[data-series-sort]>button{min-width:0;min-height:36px;padding-inline:4px;line-height:1.25}
-[data-series-sort]>button[aria-busy="true"]{opacity:.7}
+[data-collection-controls]{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;width:100%}
+[data-collection-controls]>button{min-width:0;min-height:40px;padding-inline:4px;line-height:1.2}
+[data-collection-controls]>button:disabled{opacity:.55}
 .kgr-track{position:absolute;inset:0;overflow:hidden}
 .kgr-run{position:absolute;left:0;top:0;height:100%;display:flex;align-items:center;gap:10px;padding-left:8px;will-change:transform}
 .kgr-run.fast{filter:blur(1.4px) brightness(1.08)}
@@ -55,7 +55,7 @@ st2.textContent=`.kgr-win{position:relative;height:150px;overflow:hidden;-webkit
 :is(#cat-grid,[data-tv-grid]).kg-three-columns .kg-catalog-text{width:100%;height:auto}
 :is(#cat-grid,[data-tv-grid]).kg-three-columns .kg-catalog-text h4{margin:0;white-space:normal;overflow-wrap:anywhere;font-size:.82rem;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;min-height:2.5em}
 :is(#cat-grid,[data-tv-grid]).kg-three-columns :is(.kg-catalog-archive,.kg-catalog-poster-badge,.kg-catalog-meta,.kg-catalog-prefix,.kg-catalog-summary,.kg-catalog-actions),
-:is(#view-collections,#view-series-collections):has(:is(#cat-grid,[data-tv-grid]).kg-three-columns) :is([data-act="random"],[data-collection-spot] [data-act="spin"]){display:none}
+:is(#view-collections,#view-series-collections):has(:is(#cat-grid,[data-tv-grid]).kg-three-columns) [data-collection-spot] [data-act="spin"]{display:none}
 #mood-cards.kg-three-columns .mood-card [data-mood-select]{height:auto;aspect-ratio:3/4;min-height:7rem}
 #mood-cards.kg-three-columns .kg-mood-cover-copy{left:.4rem;right:.4rem;bottom:.4rem}
 #mood-cards.kg-three-columns .mood-title{font-size:.82rem;line-height:1.2;overflow-wrap:anywhere}
@@ -764,8 +764,9 @@ const CHON="bg-primary-container text-on-primary-container shadow-[0_0_14px_rgb(
 function chipCls(on){return "filter-chip flex items-center gap-1.5 px-3.5 py-2 rounded-full font-label-sm text-label-sm shrink-0 transition-all active:scale-95 "+(on?CHON:CHOFF);}
 
 function catalogSortControl(series,mode){
-  return `<div class="flex items-center gap-1.5 bg-surface-panel px-3 py-1.5 rounded-xl"><span class="material-symbols-outlined text-[17px] text-text-muted">swap_vert</span>
-<select ${series?"data-tv-sort":"id=\"cat-sort\""} aria-label="${uiText("Сортировка:")}" class="bg-transparent text-text-muted font-label-sm text-label-sm focus:outline-none focus:text-primary cursor-pointer"><option class="bg-surface-panel text-on-surface" value="rating" ${mode==="rating"?"selected":""}>${uiText("По рейтингу (высокий)")}</option><option class="bg-surface-panel text-on-surface" value="count" ${mode==="count"?"selected":""}>${uiText(series?"По числу сериалов":"По числу фильмов")}</option><option class="bg-surface-panel text-on-surface" value="title" ${mode==="title"?"selected":""}>${uiText("По алфавиту")}</option></select></div>`;
+  return collectionControlRow([
+    ["rating","По рейтингу"],["count",series?"По числу сериалов":"По числу фильмов"],["title","По алфавиту"]
+  ],mode,"data-catalog-sort","random","Случайная подборка");
 }
 function orderCatalogCards(grid,mode,meta,themeFor,fallback){
   const cards=[...grid.children];
@@ -778,7 +779,6 @@ function orderCatalogCards(grid,mode,meta,themeFor,fallback){
   });
   if(cards.some((card,i)=>card!==grid.children[i]))cards.forEach(card=>grid.appendChild(card));
 }
-const catalogRandomButton=`<button type="button" data-act="random" class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-secondary-container text-on-secondary-container font-label-sm text-label-sm shadow-[0_0_14px_rgb(var(--kg-secondary-container)/0.25)] transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"><span class="material-symbols-outlined text-[18px]">casino</span><span>${uiText("Случайная")}</span></button>`;
 function highlightRandomCollection(cards,themeFor){
   if(!cards.length)return;
   const card=pick(cards);card.scrollIntoView({behavior:"smooth",block:"center"});
@@ -802,8 +802,7 @@ function buildCatalog(){
 <button type="button" data-f="all" class="${chipCls(true)}"><span>${uiText("Все {count}", {count: catalogThemes.length})}</span></button>
 ${Object.keys(CAT).filter(k=>counts[k]).map(k=>`<button type="button" data-f="${k}" class="${chipCls(false)}"><span>${uiText(CAT[k][0])} (${counts[k]})</span></button>`).join("")}</section>
 ${spotlightHtml(spotlightTheme())}
-<section class="flex flex-wrap items-center justify-between gap-2">${catalogSortControl(false,sortMode)}
-${catalogRandomButton}</section>
+${catalogSortControl(false,sortMode)}
 <p id="cat-note" class="font-micro-caption text-micro-caption text-text-muted px-1" style="display:none"></p>
 <div class="flex items-center justify-between gap-2"><p id="cat-search-status" role="status" class="font-label-sm text-label-sm text-text-muted px-1"></p>${layoutSwitch(catalogLayout,"catalog")}</div>
 <section id="cat-grid" class="${catalogLayout==="grid"?"kg-three-columns":"flex flex-col gap-3"}">${seededShuffle(catalogThemes,dailySeed()).map((t,i)=>cardHtml(t,i)).join("")}</section>
@@ -934,8 +933,9 @@ function initCatalog(){
 vc.addEventListener("input",e=>{
   if(e.target.id==="cat-search")filterCatalog();
 });
-vc.addEventListener("change",e=>{if(e.target.id==="cat-sort"){sortMode=e.target.value;sortCatalog();}});
 vc.addEventListener("click",e=>{
+  const sort=e.target.closest("[data-catalog-sort]");
+  if(sort){sortMode=sort.dataset.catalogSort;syncCollectionSort(vc,"data-catalog-sort",sortMode);sortCatalog();return;}
   const layout=e.target.closest('[data-kg-layout="catalog"]');
   if(layout){
     catalogLayout=layout.dataset.mode;
@@ -1017,20 +1017,17 @@ const pageDeps={
   back:()=>showView("collections")
 };
 const CCON="bg-primary-container text-on-primary shadow-[0_0_12px_rgb(var(--kg-primary-container)/0.28)] font-semibold",CCOFF="bg-surface-container text-text-muted hover:text-on-surface";
-const SON="bg-surface-container-high text-primary-fixed font-semibold",SOFF="text-text-muted hover:text-on-surface";
 const ccCls=on=>"h-[34px] px-3 rounded-full font-label-sm text-label-sm flex-shrink-0 transition-colors "+(on?CCON:CCOFF);
-const sCls=on=>"px-2.5 py-1 rounded font-micro-caption text-micro-caption "+(on?SON:SOFF);
+const sCls=on=>"rounded-full font-label-sm text-label-sm transition-colors active:scale-95 "+(on?CCON:CCOFF);
 
-const collectionSortModes=[["rating","По рейтингу"],["pop","Популярные"],["new","Свежие"]];
-function sortBar(sort,series){
-  return `<div class="flex flex-wrap items-center justify-between gap-1.5" data-kg-collection-sorting>
-<span class="font-micro-caption text-micro-caption text-text-muted">${uiText("Сортировка:")}</span><div class="flex flex-wrap items-center gap-1 bg-surface-container-low p-0.5 rounded-lg" ${series?"data-series-sort":""} role="group" aria-label="${uiText("Сортировка:")}">${collectionSortModes.map(([mode,label])=>
-    `<button type="button" data-kg-film-sort="${mode}" aria-pressed="${mode===sort}" class="${sCls(mode===sort)}">${uiText(label)}</button>`).join("")}
-    ${series?`<button type="button" id="cl-spin" data-act="spin" data-series-random class="${sCls(false)}">${uiText("Случайно")}</button>`:""}</div></div>`;
+function collectionControlRow(modes,selected,attribute,action,actionLabel){
+  return `<div data-collection-controls role="group" aria-label="${uiText("Сортировка:")}">
+    ${modes.map(([mode,label])=>`<button type="button" ${attribute}="${mode}" aria-pressed="${mode===selected}" class="${sCls(mode===selected)}">${uiText(label)}</button>`).join("")}
+    <button type="button" ${action==="spin"?'id="cl-spin"':""} data-act="${action}" class="${sCls(false)}">${uiText(actionLabel)}</button></div>`;
 }
-function syncFilmSort(root,sort){
-  root.querySelectorAll("[data-kg-film-sort]").forEach(button=>{
-    const active=button.dataset.kgFilmSort===sort;
+function syncCollectionSort(root,attribute,sort){
+  root.querySelectorAll(`[${attribute}]`).forEach(button=>{
+    const active=button.getAttribute(attribute)===sort;
     button.className=sCls(active);
     button.setAttribute("aria-pressed",String(active));
   });
@@ -1155,9 +1152,8 @@ function renderCollection(){
 <div class="flex flex-wrap items-center gap-1.5 pt-0.5">${t.cc.map(cc=>`<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container-low text-on-surface font-micro-caption text-micro-caption shadow-sm">${fl(cc)} ${esc(cname(cc))}</span>`).join("")}</div>
 <p class="font-body-sm text-body-sm text-text-muted leading-relaxed pt-1">${esc(uiText(m[3]))}</p>
 <div class="flex items-center gap-2 pt-1 flex-wrap">${gnames(t).map(g=>`<span class="px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-micro-caption text-micro-caption">${esc(g)}</span>`).join("")}</div></div></div>
-<div class="flex flex-col gap-space-sm bg-surface-panel p-space-md rounded-xl shadow-lg"><div class="flex items-center justify-between"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary-container text-[20px]">casino</span><span class="font-headline-sm text-headline-sm text-on-surface font-semibold">${uiText("Случайный выбор")}</span></div><span class="font-micro-caption text-micro-caption text-primary-fixed bg-surface-container-high px-2 py-0.5 rounded-full">${uiText(t.films ? "Ручной отбор" : "Рейтинг ≥ 6.5")}</span></div>
-${t.series?"":`<button type="button" id="cl-spin" data-act="spin" class="${collectionSpinClasses} w-full"><span id="cl-ricon" class="material-symbols-outlined text-[22px]">casino</span><span id="cl-rtext">${uiText("Крутить рулетку")}</span>${collectionSpinShine}</button>`}
-${sortBar(D.sort,t.series)}
+<div class="flex flex-col gap-space-sm" data-kg-collection-sorting>
+${collectionControlRow([["rating","По рейтингу"],["pop","Популярные"],["new","Свежие"]],D.sort,"data-kg-film-sort","spin","Случайно")}
 ${t.cc.length>1?`<div class="flex flex-col gap-1.5 pt-1"><span class="font-micro-caption text-micro-caption text-text-muted">${uiText("Фильтр по стране:")}</span><div id="cl-cc" class="flex items-center gap-1.5 overflow-x-auto pb-1"><button type="button" data-act="cc" data-cc="" class="${ccCls(true)}">${uiText("Все страны")}</button>${t.cc.map(cc=>`<button type="button" data-act="cc" data-cc="${cc}" class="${ccCls(false)}">${fl(cc)} ${esc(cname(cc))}</button>`).join("")}</div></div>`:""}
 </div>
 <div id="cl-reel" style="display:none" class="flex flex-col gap-space-sm">
@@ -1445,14 +1441,8 @@ function rMount(list,idx,cls){
 }
 function setBtn(on){
   const b=$("cl-spin");if(!b)return;
-  if(b.hasAttribute("data-series-random")){
-    b.className=sCls(on);
-    b.setAttribute("aria-busy",String(on));
-  }else{
-    $("cl-ricon").classList.toggle("animate-spin",on);
-    $("cl-rtext").textContent=on?uiText("Плёнка крутится…"):(D.picked?uiText("Крутить ещё раз"):uiText("Крутить рулетку"));
-    b.style.opacity=on?".75":"";
-  }
+  b.className=sCls(on);
+  b.setAttribute("aria-busy",String(on));
   b.disabled=on;
   const sk=$("cl-skip");if(sk)sk.style.display=on?"":"none";
 }
@@ -1581,7 +1571,7 @@ vd.addEventListener("click",e=>{
   if(sort){
     if(D.sort===sort.dataset.kgFilmSort)return;
     D.sort=sort.dataset.kgFilmSort;
-    syncFilmSort(vd,D.sort);
+    syncCollectionSort(vd,"data-kg-film-sort",D.sort);
     renderFilms();
     return;
   }
@@ -2058,6 +2048,7 @@ function renderTvCatalogCards(){
   seriesCollections.querySelector("[data-tv-count]").textContent=results.length?uiText("{count} доступно",{count:results.length}):uiText("Подборка не найдена");
   seriesCollections.querySelector("[data-tv-spot]").hidden=!!(tvCountry||tvQuery.trim());
   seriesCollections.querySelector('[data-act="clear"]').style.display=tvQuery?"flex":"none";
+  seriesCollections.querySelector('[data-act="random"]').disabled=!results.length;
 }
 
 function renderTvCatalog(){
@@ -2074,7 +2065,7 @@ function renderTvCatalog(){
       ${["",...new Set(tvThemes.flatMap(theme=>theme.cc))].map(cc=>`<button type="button" data-tv-country="${cc}" aria-pressed="${tvCountry===cc}" class="${chipCls(tvCountry===cc)}">${cc?`${fl(cc)} ${esc(cname(cc))}`:uiText("Все {count}",{count:tvThemes.length})}</button>`).join("")}
     </section>
     ${spotlightHtml(featured)}
-    <section class="flex flex-wrap items-center justify-between gap-2">${catalogSortControl(true,tvCatalogSort)}</section>
+    ${catalogSortControl(true,tvCatalogSort)}
     <div class="flex items-center justify-between gap-2"><p data-tv-count role="status" class="font-label-sm text-label-sm text-text-muted"></p>${layoutSwitch(tvLayout,"tv-catalog")}</div>
     <section data-tv-grid></section>`;
   seriesCollections.querySelector("[data-tv-query]").value=tvQuery;
@@ -2102,14 +2093,14 @@ seriesCollections.addEventListener("input",event=>{
   tvQuery=event.target.value;
   renderTvCatalogCards();
 });
-seriesCollections.addEventListener("change",event=>{
-  if(event.target.matches("[data-tv-sort]")){tvCatalogSort=event.target.value;sortTvCatalog();}
-});
 seriesCollections.addEventListener("click",event=>{
   const button=event.target.closest("button,[data-act='open'],[data-t]");
   if(!button)return;
-  const {tvCountry:country,kgLayout:layout,mode,act}=button.dataset;
-  if(country!==undefined){
+  const {tvCountry:country,kgLayout:layout,mode,act,catalogSort:sort}=button.dataset;
+  if(sort){tvCatalogSort=sort;syncCollectionSort(seriesCollections,"data-catalog-sort",sort);sortTvCatalog();}
+  else if(act==="random"){
+    highlightRandomCollection([...seriesCollections.querySelectorAll("[data-tv-grid] .collection-card")],tvThemeFor);
+  }else if(country!==undefined){
     tvCountry=country;
     seriesCollections.querySelectorAll("[data-tv-country]").forEach(chip=>{
       const active=chip.dataset.tvCountry===country;

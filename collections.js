@@ -235,7 +235,13 @@ async function loadCuratedTheme(theme, force) {
   });
   return curatedData(films.filter(Boolean));
 }
-const themeDataKey=(t,pages)=>t.films?t.id:`${t.id}:${pages}`;
+const themeDataKey=(t,pages)=>t.series?`${t.id}:${pages}:${apiKey}:${filmLocale}`:t.films?t.id:`${t.id}:${pages}`;
+async function seriesCollectionKeywords(keywords,force){
+  const responses=await Promise.all(keywords.map(query=>requestTmdb("search/keyword",{query},{fresh:force})));
+  return responses.flatMap((response,index)=>(response.results||[])
+    .filter(item=>item.name.toLowerCase()===keywords[index]&&Number.isSafeInteger(item.id))
+    .map(item=>item.id)).join("|");
+}
 async function loadTheme(t,pages,force=false){
   const key=themeDataKey(t,pages),cached=themeDataCache.get(key),now=Date.now();
   if(!force&&cached&&now-cached.ts<DAY_MS)return cached.data;
@@ -258,8 +264,22 @@ async function loadTheme(t,pages,force=false){
       return data;
     }
     const jobs=[];
-    t.cc.forEach(cc=>{for(let p=1;p<=pages;p++)jobs.push(()=>api({...qs(t,cc),page:p},{fresh:force}).then(r=>({cc,p,total:r.total_results||0,films:(r.results||[]).map(f=>({...f,_cc:cc}))})));});
     try{
+      const discover=t.series?window.KGSeries.discover:api;
+      const keywords=t.keywords?await seriesCollectionKeywords(t.keywords,force):"";
+      if(t.keywords&&!keywords)return {total:0,totals:{},films:[]};
+      for(const cc of t.series?[""]:t.cc){
+        const params=t.series?{
+          with_genres:t.g,without_genres:"10763,10764,10767",
+          "vote_count.gte":floorOf(cc),"vote_average.gte":"6.5",
+          ...(keywords?{with_keywords:keywords}:{})
+        }:qs(t,cc);
+        for(let p=1;p<=pages;p++)jobs.push(()=>discover({...params,page:p},{fresh:force}).then(r=>({
+          cc,p,total:r.total_results||0,
+          films:(r.results||[]).filter(f=>!t.series||movieCatalog.allows(f)&&Number(f.vote_count)>=floorOf(cc)&&Number(f.vote_average)>=6.5)
+            .map(f=>t.series?f:{...f,_cc:cc})
+        })));
+      }
       const results=await settleWithLimit(jobs,3,job=>job());
       const parts=results.filter(r=>r.status==="fulfilled").map(r=>r.value);
       if(!parts.length)throw results[0]?.reason || new Error("Не удалось загрузить подборку.");
@@ -680,7 +700,7 @@ ${top}<div class="kg-catalog-row flex items-start gap-3">
 <div class="kg-catalog-meta flex items-center justify-between gap-1"><span class="font-micro-caption text-micro-caption text-text-muted flex items-center gap-1 truncate">${location}</span>${rate}</div>
 <h4 class="font-headline-sm text-headline-sm text-primary font-bold truncate mt-0.5"><span class="kg-catalog-prefix">${i+1}. </span>${esc(uiText(t.name))}</h4>
 <p class="kg-catalog-summary font-micro-caption text-micro-caption text-on-surface-variant ${special?"kg-clip2":"truncate"} mt-0.5">${esc(uiText(m[2]))}</p></div>
-<div class="kg-catalog-actions flex items-center justify-between pt-1"><span data-k="cnt" class="font-label-sm text-label-sm text-text-muted truncate">${tv?uiText("Сериалов в подборке: {count}",{count:tv.ids.length}):`… · ${esc(g0)}`}</span>${btn}</div>
+<div class="kg-catalog-actions flex items-center justify-between pt-1"><span data-k="cnt" class="font-label-sm text-label-sm text-text-muted truncate">${tv?(tvMetadata.get(tv.id)?uiText("Сериалов в подборке: {count}",{count:nf(tvMetadata.get(tv.id).n)}):""):`… · ${esc(g0)}`}</span>${btn}</div>
 </div></div></article>`;
 }
 
@@ -1875,18 +1895,18 @@ else if(!homeEditorial.films.length||homeEditorial.loadedKey!==apiKey)loadHomeEd
 scheduleDailyRefresh();
 /* TV collections share the catalog cards, layout controls and show details with Moven. */
 const tvThemes=[
-  {id:"tv-crime",name:"Преступление и расследование",category:"Детектив",description:"Детективы, одержимые делом, и преступления с долгим эхом.", art:8, ids:[46648,1426,67744,1429,1438,85436]},
-  {id:"tv-scifi",name:"За гранью реальности",category:"Фантастика",description:"Петли времени, далёкие миры и эксперименты над сознанием.", art:7, ids:[70523,95396,137113,82856,63247,92749]},
-  {id:"tv-history",name:"Власть и эпоха",category:"История",description:"Дворы, империи и люди, которые меняют ход истории.", art:5, ids:[126308,65494,46639,1405,65930]},
-  {id:"tv-drama",name:"Семья, работа и амбиции",category:"Драма",description:"Семейные связи и карьеры, в которых ставки выходят за пределы рабочего дня.", art:2, ids:[136315,76331,1100,63351,31910,46518]},
-  {id:"tv-espionage",name:"Шпионы и двойная игра",category:"Триллер",description:"Агенты, перебежчики и операции, где каждый играет свою роль.", art:3, ids:[95480,1407,1405,62110,72750,83867]},
-  {id:"tv-fantasy",name:"Миры фэнтези",category:"Фэнтези",description:"Борьба за власть, древняя магия и герои из других миров.", art:1, ids:[94997,1399,71912,84773,138501,127532]},
-  {id:"tv-animation",name:"Большие истории в анимации",category:"Мультфильм",description:"Анимационные сериалы о дружбе, выборе и цене перемен.", art:4, ids:[94605,95557,1434,615,88803]},
-  {id:"tv-antiheroes",name:"Время антигероев",category:"Криминал",description:"Главные герои, за которыми интересно наблюдать даже в худшие их моменты.", art:0, ids:[194764,1396,60059,1398,76479,63351]}
-].map(theme=>({...theme,cover:`assets/series-hub/reference-${theme.art}.jpg`}));
+  {id:"tv-crime",name:"Преступление и расследование",category:"Детектив",description:"Детективы, одержимые делом, и преступления с долгим эхом.", art:8, g:"80|9648"},
+  {id:"tv-scifi",name:"За гранью реальности",category:"Фантастика",description:"Петли времени, далёкие миры и эксперименты над сознанием.", art:7, g:"10765",keywords:["time travel","parallel world","virtual reality","dystopia"]},
+  {id:"tv-history",name:"Власть и эпоха",category:"История",description:"Дворы, империи и люди, которые меняют ход истории.", art:5, g:"18|10768",keywords:["historical drama","historical fiction","period drama"]},
+  {id:"tv-drama",name:"Семья, работа и амбиции",category:"Драма",description:"Семейные связи и карьеры, в которых ставки выходят за пределы рабочего дня.", art:2, g:"18",keywords:["family","family business","workplace"]},
+  {id:"tv-espionage",name:"Шпионы и двойная игра",category:"Триллер",description:"Агенты, перебежчики и операции, где каждый играет свою роль.", art:3, g:"18|10759|10768",keywords:["spy","espionage","secret agent"]},
+  {id:"tv-fantasy",name:"Миры фэнтези",category:"Фэнтези",description:"Борьба за власть, древняя магия и герои из других миров.", art:1, g:"10765",keywords:["fantasy world","magic","high fantasy"]},
+  {id:"tv-animation",name:"Большие истории в анимации",category:"Мультфильм",description:"Анимационные сериалы о дружбе, выборе и цене перемен.", art:4, g:"16"},
+  {id:"tv-antiheroes",name:"Время антигероев",category:"Криминал",description:"Главные герои, за которыми интересно наблюдать даже в худшие их моменты.", art:0, g:"80|18",keywords:["anti hero","antihero","organized crime"]}
+].map(theme=>({...theme,series:true,cover:`assets/series-hub/reference-${theme.art}.jpg`}));
 let tvCategory="",tvQuery="",tvLayout="list",tvDetailLayout="list",tvSort="rating",tvCollectionLoad=0;
-let tvTheme=null,tvShows=[],tvStatus="",tvPicked=null;
-const tvCache=new Map();
+let tvTheme=null,tvShows=[],tvStatus="",tvPicked=null,tvShown=8;
+const tvMetadata=new Map();
 const tvIcon=(icon,size=20)=>`<span class="material-symbols-outlined" style="font-size:${size}px" aria-hidden="true">${icon}</span>`;
 const tvSpin=(attributes)=>`<button type="button" ${attributes} class="${collectionSpinClasses}">${tvIcon("casino",22)}${uiText("Крутить рулетку")}${collectionSpinShine}</button>`;
 
@@ -1935,22 +1955,12 @@ function renderTvCatalog(){
     <section data-tv-grid></section>`;
   seriesCollections.querySelector("[data-tv-query]").value=tvQuery;
   renderTvCatalogCards();
-}
-
-function loadTvShow(id){
-  const cacheKey=`${apiKey}:${filmLocale}:${id}`;
-  if(!tvCache.has(cacheKey)){
-    const request=requestTmdb(`tv/${id}`,{language:filmLocale})
-      .then(window.KGSeries.normalize)
-      .then(show=>movieCatalog.allows(show)?localizeFilmListItem({...show,genre_ids:show.genres?.map(genre=>genre.id)||[]}):null)
-      .catch(error=>{
-        tvCache.delete(cacheKey);
-        if(error.code==="CATALOG_RESTRICTED")return null;
-        throw error;
-      });
-    tvCache.set(cacheKey,request);
-  }
-  return tvCache.get(cacheKey);
+  if(apiKey)settleWithLimit(tvThemes,3,async theme=>{
+    const meta=await loadMeta(theme);
+    tvMetadata.set(theme.id,meta);
+    const card=seriesCollections.querySelector(`[data-tv-grid] [data-t="${theme.id}"] [data-k="cnt"]`);
+    if(card)card.textContent=uiText("Сериалов в подборке: {count}",{count:nf(meta.n)});
+  });
 }
 
 function renderTvDetail(){
@@ -1971,24 +1981,31 @@ function renderTvDetail(){
     ${tvPicked?`<section class="flex flex-col gap-space-sm"><h3 class="font-headline-sm text-headline-sm text-primary">${uiText("Случайный выбор")}</h3>${filmItem(tvPicked,true)}</section>`:""}
     ${status}
     ${rows.length?`<div class="flex items-center justify-between gap-2"><h3 class="font-headline-sm text-headline-sm text-on-surface">${uiText("Сериалы в подборке")}</h3>${layoutSwitch(tvDetailLayout,"tv-detail")}</div>
-    <section class="${tvDetailLayout==="grid"?"kg-three-columns":"flex flex-col gap-3"}">${rows.map(show=>tvDetailLayout==="grid"?tile(show):filmItem(show,true)).join("")}</section>`:""}`;
+    <section class="${tvDetailLayout==="grid"?"kg-three-columns":"flex flex-col gap-3"}">${rows.slice(0,tvShown).map(show=>tvDetailLayout==="grid"?tile(show):filmItem(show,true)).join("")}</section>
+    ${rows.length>tvShown?`<button type="button" data-tv-more class="w-full py-3 rounded-xl bg-surface-panel text-primary font-label-md text-label-md">${uiText("Показать ещё")}</button>`:""}`:""}`;
 }
 
-async function openTvCollection(id,spin=false){
+async function openTvCollection(id,spin=false,force=false){
   const theme=tvThemes.find(item=>item.id===id);
   if(!theme)return;
   showView("series-collection");
   if(view!=="series-collection")return;
   const token=++tvCollectionLoad;
-  tvTheme=theme;tvShows=[];tvPicked=null;
+  tvTheme=theme;tvShows=[];tvPicked=null;tvShown=8;
   tvStatus=apiKey?"Загружаем подборку…":"Добавьте ключ TMDB, чтобы загрузить сериалы подборки.";
   renderTvDetail();
   if(!apiKey)return;
-  const results=await Promise.allSettled(theme.ids.map(loadTvShow));
-  if(token!==tvCollectionLoad)return;
-  tvShows=results.flatMap(result=>result.status==="fulfilled"&&result.value?[result.value]:[]);
-  tvStatus=results.some(result=>result.status==="rejected")?"Часть данных недоступна.":tvShows.length?"":"Подходящих сериалов не нашлось.";
-  if(spin&&tvShows.length)tvPicked=pick(tvShows);
+  try{
+    const result=await loadTheme(theme,2,force);
+    if(token!==tvCollectionLoad)return;
+    tvShows=result.films;
+    tvStatus=result._partial||result._stale?"Часть данных недоступна.":tvShows.length?"":"Подходящих сериалов не нашлось.";
+    if(spin&&tvShows.length)tvPicked=pick(tvShows);
+  }catch(error){
+    if(token!==tvCollectionLoad)return;
+    console.warn("[Moven] Series collection could not be loaded",error);
+    tvStatus="Часть данных недоступна.";
+  }
   renderTvDetail();
 }
 
@@ -2020,7 +2037,8 @@ seriesCollections.addEventListener("click",event=>{
   else if(button.hasAttribute("data-tv-random")){
     const results=visibleTvThemes();
     if(results.length)openTvCollection(pick(results).id);
-  }else if(button.hasAttribute("data-tv-retry"))openTvCollection(tvTheme.id);
+  }else if(button.hasAttribute("data-tv-retry"))openTvCollection(tvTheme.id,false,true);
+  else if(button.hasAttribute("data-tv-more")){tvShown+=8;renderTvDetail();}
   else if(spin&&spin===tvTheme?.id&&view==="series-collection"){
     const candidates=tvShows.filter(show=>show!==tvPicked);
     if(tvShows.length){tvPicked=pick(candidates.length?candidates:tvShows);renderTvDetail();}

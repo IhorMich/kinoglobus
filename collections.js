@@ -426,7 +426,7 @@ sectionNav.style.display="none";
 const collectionTabs=[["collections","Коллекции"],["mood","Коллекция по настроению"],["oscar","Оскар"]];
 function renderCollectionTabs(tabs, media){
   sectionNav.dataset.media=media;
-  sectionNav.innerHTML=`<div class="grid ${media==="tv"?"grid-cols-4":"grid-cols-3"} gap-1.5 rounded-xl bg-surface-panel p-1.5">`+
+  sectionNav.innerHTML=`<div class="grid grid-cols-3 gap-1.5 rounded-xl bg-surface-panel p-1.5">`+
     tabs.map(([route,label])=>`<button type="button" data-collection-route="${route}" aria-current="false" class="min-w-0 px-1.5 py-2 rounded-lg text-text-muted hover:text-primary font-micro-caption text-micro-caption leading-tight">${uiText(label)}</button>`).join("")+
     "</div>";
 }
@@ -569,7 +569,7 @@ function showView(v, remember = true){
 
   mediaSwitch.querySelectorAll('[role="tab"]').forEach(tab=>{const selected=tab.dataset.mediaView===v;tab.setAttribute('aria-selected',String(selected));tab.tabIndex=selected?0:-1;});
   sectionNav.style.display=seriesSelection||["collections","collection","mood","oscar"].includes(v)?"":"none";
-  const sectionTabs=seriesSelection?[["series-collections","Коллекции"],["series-mood","Коллекция по настроению"],["series-gold","Золотой фонд"],["series-calendar","Календарь"]]:collectionTabs;
+  const sectionTabs=seriesSelection?[["series-collections","Коллекции"],["series-mood","Коллекция по настроению"],["series-gold","Золотой фонд"]]:collectionTabs;
   if(sectionNav.dataset.media!==(seriesSelection?"tv":"movie")) renderCollectionTabs(sectionTabs,seriesSelection?"tv":"movie");
   vc.style.display=v==="collections"?"":"none";
   vd.style.display=(v==="collection"&&vd.dataset.collectionMedia==="movie")||(v==="series-collection"&&vd.dataset.collectionMedia==="tv")?"":"none";

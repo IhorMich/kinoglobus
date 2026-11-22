@@ -1873,11 +1873,6 @@ try {
 if(dailyRefreshDue())refreshDailyData().catch(error=>console.warn("[Moven] Daily refresh failed",error));
 else if(!homeEditorial.films.length||homeEditorial.loadedKey!==apiKey)loadHomeEditorial().catch(error=>console.warn("[Moven] Editorial refresh failed",error));
 scheduleDailyRefresh();
-showView("home");
-window.MOVEN_THEME_COVERS = THEME_COVERS;
-console.info("[Moven] v8 collections ready + theme covers");
-})();
-
 /* TV collections share the catalog cards, layout controls and show details with Moven. */
 const tvThemes=[
   {id:"tv-crime",name:"Преступление и расследование",category:"Детектив",description:"Детективы, одержимые делом, и преступления с долгим эхом.", art:8, ids:[46648,1426,67744,1429,1438,85436]},
@@ -2041,3 +2036,8 @@ seriesCollections.addEventListener("keydown",event=>{
     event.preventDefault();event.target.click();
   }
 });
+
+showView("home");
+window.MOVEN_THEME_COVERS = THEME_COVERS;
+console.info("[Moven] v8 collections ready + theme covers");
+})();

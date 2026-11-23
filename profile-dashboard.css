@@ -43,7 +43,7 @@
 .kg-pf-scroll {
   display: grid; grid-template-columns: minmax(0,1fr); grid-auto-rows: max-content; align-content: start; gap: 16px;
   flex: 1; min-height: 0; width: min(100%,720px); margin-inline: auto;
-  padding: 7px var(--pf-gutter) 32px; overflow: auto; overscroll-behavior: contain; scrollbar-width: none;
+  padding: 1px var(--pf-gutter) 32px; overflow: auto; overscroll-behavior: contain; scrollbar-width: none;
 }
 .kg-pf-status { margin: 0; color: var(--pf-primary); font-size: 13px; }
 .kg-pf-status:empty { display: none; }
@@ -54,19 +54,22 @@
 .kg-pf-user,.kg-pf-stats { position: relative; }
 .kg-pf-user { display: grid; justify-items: center; gap: 8px; text-align: center; }
 .kg-pf-user > img {
-  width: 64px; height: 80px; border-radius: 12px; border: 2px solid rgb(var(--kg-swatch-cyan));
+  width: 76px; height: 95px; border-radius: 12px; border: 2px solid rgb(var(--kg-swatch-cyan));
   object-fit: cover; background: var(--pf-raised); box-shadow: 0 0 16px rgb(var(--kg-swatch-cyan) / .24);
 }
 .kg-pf-user h2 { margin: 0; font: 700 16px/1.35 var(--kg-font-interface); overflow-wrap: anywhere; }
 .kg-pf-user p { margin: 3px 0 0; color: var(--pf-muted); font: 400 12px/1.4 var(--kg-font-interface); overflow-wrap: anywhere; }
 .kg-pf-user p:empty,.kg-pf-badges:empty { display: none; }
+.kg-pf-nickname { min-height: 32px; padding: 2px 8px; border-radius: 8px; color: var(--pf-primary); font: 600 12px/1.4 var(--kg-font-interface); }
+.kg-pf-nickname[hidden] { display: none; }
+.kg-pf-nickname:hover { background: var(--pf-raised); }
 .kg-pf-user > button { position: absolute; inset: 0 0 auto auto; width: 32px; height: 32px; background: var(--pf-raised); }
 #kg-profile .kg-pf-user > button .material-symbols-outlined { font-size: 18px; }
 .kg-pf-badges { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; margin-top: 4px; }
 .kg-pf-badges span,.kg-pf-score,.kg-pf-medium,.kg-pf-runtime { padding: 2px 5px; border-radius: 4px; background: var(--pf-raised); color: var(--pf-ink); font-size: 12px; }
 .kg-pf-stats {
   display: flex; justify-content: center; width: fit-content; max-width: 100%;
-  margin: 14px auto 0; padding: 8px 9px; border: 1px solid var(--pf-control-border); border-radius: 999px;
+  margin: 8px auto 0; padding: 8px 9px; border: 1px solid var(--pf-control-border); border-radius: 999px;
   background: rgb(var(--kg-surface-container-lowest) / .7); text-align: center;
 }
 .kg-pf-stats > div { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; min-width: 0; gap: 4px; padding-inline: 6px; }

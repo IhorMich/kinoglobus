@@ -132,7 +132,7 @@
     element.hidden = !text;
   }
 
-  function editField(field) {
+  function editField(field, {profile=currentProfile,update=session.update,onSaved=render}={}) {
     const nickname = field === "handle";
     const title = nickname ? "Никнейм" : "Статус";
     const input = nickname
@@ -148,8 +148,7 @@
     const value = form.elements.value;
     const feedback = form.querySelector("[role=status]");
     const save = form.querySelector("[type=submit]");
-    const update = session.update;
-    value.value = currentProfile[field] || "";
+    value.value = profile[field] || "";
     value.focus();
     form.addEventListener("submit",async event=>{
       event.preventDefault();
@@ -162,13 +161,15 @@
       save.disabled = value.disabled = true;
       message(feedback);
       try {
-        render(await update({[field]:nickname && plain ? "@"+plain : plain}));
+        const saved = await update({[field]:nickname && plain ? "@"+plain : plain});
+        onSaved?.(saved);
         page.close();
       } catch {
         message(feedback,"Изменения не сохранены");
         save.disabled = value.disabled = false;
       }
     });
+    return page;
   }
 
   function openPublicPage() {
@@ -274,6 +275,7 @@
     }
   });
   hub.addEventListener("close",()=>{ if (!hub.open) session = null; });
+  window.KGOpenProfileNickname = (profile,update) => editField("handle",{profile,update,onSaved:null});
   window.KGOpenProfileSettings = (profile,actions) => {
     session = actions;
     render(profile);

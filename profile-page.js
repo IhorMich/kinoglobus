@@ -54,8 +54,11 @@
       <section class="kg-pf-identity">
         <div class="kg-pf-cover" data-profile-cover hidden><img alt=""></div>
         <div class="kg-pf-user">
-          <img data-profile-avatar alt="" width="64" height="80">
-          <div><h2 data-profile-name></h2><p data-profile-caption></p><p class="kg-pf-user-status" data-profile-user-status></p><div class="kg-pf-badges" data-profile-badges></div></div>
+          <img data-profile-avatar alt="" width="76" height="95">
+          <div><h2 data-profile-name tabindex="-1"></h2><p data-profile-caption></p>
+            <button type="button" class="kg-pf-nickname" data-profile-nickname hidden>${label("Добавить никнейм")}</button>
+            <p data-profile-city></p><p class="kg-pf-user-status" data-profile-user-status></p>
+            <div class="kg-pf-badges" data-profile-badges></div></div>
           <button type="button" data-profile-edit aria-label="${label("Настройки профиля")}"><span class="material-symbols-outlined" aria-hidden="true">settings</span></button>
         </div>
         <div class="kg-pf-stats">
@@ -194,7 +197,10 @@
     const coverImage = cover.querySelector("img");
     if (profile.banner) coverImage.src = profile.banner;
     else coverImage.removeAttribute("src");
-    dialog.querySelector("[data-profile-caption]").textContent = [profile.handle,profile.city].filter(Boolean).join(" · ");
+    const nickname=String(profile.handle||"").trim().replace(/^@+/,"");
+    dialog.querySelector("[data-profile-caption]").textContent = nickname ? "@"+nickname : "";
+    dialog.querySelector("[data-profile-nickname]").hidden = !!nickname;
+    dialog.querySelector("[data-profile-city]").textContent = profile.city || "";
     dialog.querySelector("[data-profile-user-status]").textContent = profile.status;
     dialog.querySelector("[data-profile-badges]").innerHTML = (profile.badgesVisible === false ? [] : (profile.badges || []).slice(0,2))
       .map(badge=>`<span>${label(badge)}</span>`).join("");
@@ -238,6 +244,14 @@
   dialog.addEventListener("click",event=>{
     const button = event.target.closest("button");
     if (!button) return;
+    if (button.hasAttribute("data-profile-nickname")) {
+      const opening=sessionId;
+      const page=window.KGOpenProfileNickname(settingsProfile(),changes=>saveProfile(changes,opening));
+      page.addEventListener("close",()=>{
+        if(dialog.open&&button.hidden)dialog.querySelector("[data-profile-name]").focus({preventScroll:true});
+      },{once:true});
+      return;
+    }
     if (button.hasAttribute("data-profile-edit")) {
       const opening = sessionId;
       const update = changes => saveProfile(changes,opening);

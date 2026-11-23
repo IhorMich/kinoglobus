@@ -58,14 +58,14 @@
 .kg-vh-art::after { content: ""; position: absolute; inset: 0; background: linear-gradient(transparent 55%,rgb(var(--kg-black) / .54)); pointer-events: none; }
 .kg-vh-art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .kg-vh-art small { position: absolute; z-index: 1; inset: auto auto 7px 8px; padding: 3px 6px; border-radius: 4px; color: rgb(var(--kg-white)); background: rgb(var(--kg-black) / .82); font-size: 10px; }
-.kg-vh-details { display: grid; align-content: start; justify-items: start; gap: 3px; min-width: 0; padding: 0 26px 0 3px; overflow-wrap: anywhere; }
+.kg-vh-details { display: grid; align-content: start; justify-items: start; gap: 3px; min-width: 0; min-height: 36px; padding: 0 44px 0 3px; overflow-wrap: anywhere; }
 .kg-vh-details strong { font: 700 16px/1.35 var(--kg-font-interface); }
 .kg-vh-details small,.kg-vh-quote,.kg-vh-empty { color: var(--vh-muted); font-size: 12px; }
 .kg-vh-stamp { letter-spacing: .025em; }
-.kg-vh-score { padding: 1px 5px; border-radius: 5px; background: var(--vh-raised); color: rgb(var(--kg-primary)); font-size: 12px; }
+.kg-vh-score { position: absolute; z-index: 1; inset: 7px 8px auto auto; padding: 3px 6px; border-radius: 5px; background: rgb(var(--kg-black) / .82); color: rgb(var(--kg-white)); font-size: 12px; }
 .kg-vh-score > span { color: rgb(var(--kg-accent-warm)); }
-.kg-vh-edit { position: absolute; display: grid; place-items: center; z-index: 1; inset: 15px 15px auto auto; background: rgb(var(--kg-black) / .68); color: rgb(var(--kg-white)); width: 36px; height: 36px; border-radius: 8px; }
-.kg-vh-quote { display: flex; gap: 7px; margin: 0; padding: 9px; border-radius: 8px; background: rgb(var(--kg-surface-container-lowest) / .45); overflow-wrap: anywhere; }
+.kg-vh-edit { position: absolute; display: grid; place-items: center; z-index: 1; inset: auto 9px 9px auto; background: var(--kg-nav-control-fill); color: var(--vh-ink); width: 36px; height: 36px; border-radius: 8px; }
+.kg-vh-quote { display: flex; gap: 7px; min-height: 36px; margin: 0; padding: 9px 44px 9px 9px; border-radius: 8px; background: rgb(var(--kg-surface-container-lowest) / .45); overflow-wrap: anywhere; }
 details.kg-vh-quote { display: block; }
 .kg-vh-quote p { margin: 4px 0 0; }
 .kg-vh-more { display: grid; gap: 6px; }

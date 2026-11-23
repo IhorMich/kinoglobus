@@ -101,10 +101,11 @@
       <button type="button" class="kg-vh-open" data-vh-open="${esc(key)}">
         <span class="kg-vh-art"${wide ? "" : ` data-vh-art-id="${Number(film.id)}"`}>
           ${wide || poster ? `<img src="${wide || poster}" alt="" loading="lazy" decoding="async">` : ""}
-          ${icon(kind==="film"?"movie":"tv")}<small>${esc(media)}</small></span>
+          ${icon(kind==="film"?"movie":"tv")}<small>${esc(media)}</small>
+          ${rating>0&&rating<=5 ? `<span class="kg-vh-score"><span aria-hidden="true">★</span> ${number.format(rating*2)}</span>` : ""}</span>
         <span class="kg-vh-details"><small class="kg-vh-stamp">${esc(stamp)}</small><strong>${esc(title)}</strong>
           ${details ? `<small>${esc(details)}</small>` : ""}
-          ${rating>0&&rating<=5 ? `<span class="kg-vh-score"><span aria-hidden="true">★</span> ${number.format(rating*2)}</span>` : ""}</span>
+        </span>
       </button>
       <button type="button" class="kg-vh-edit" data-vh-edit="${esc(key)}" aria-label="${label("Редактировать запись")}">${icon("edit")}</button>
       ${quote ? hidden ? `<details class="kg-vh-quote"><summary>${label("Показать спойлер")}</summary><p>${esc(quote)}</p></details>`

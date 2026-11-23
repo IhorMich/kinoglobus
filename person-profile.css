@@ -47,7 +47,7 @@
 }
 .kgpi-person-header .kgpi-person-account {
   width: 34px; min-height: 34px; margin-inline-start: 3px; border-radius: 50%;
-  background: rgb(var(--kg-primary)); color: rgb(var(--kg-on-primary));
+  background: rgb(var(--kg-primary)); color: rgb(var(--kg-inverse-on-surface));
 }
 .kgpi-person-header [data-kg-person-action][aria-pressed="true"] svg { fill: currentColor; }
 .kgpi-person-intro {
@@ -59,8 +59,9 @@
 }
 .kgpi-person-portrait > .kgpi-icon { width: 44px; height: 44px; color: var(--person-muted); }
 .kgpi-person-portrait img {
-  position: absolute; inset: 0 0 0 auto; width: 100%; height: 100%;
-  object-fit: contain; object-position: 70% 25%; filter: brightness(.78) saturate(.88);
+  position: absolute; inset: 0 auto 0 50%; width: auto; max-width: 100%; height: 100%;
+  object-fit: contain; transform: translateX(-35%); filter: brightness(.78) saturate(.88);
+  mask-image: linear-gradient(to right,transparent,#000 16%,#000 83%,transparent);
 }
 .kgpi-person-portrait::after {
   position: absolute; inset: 0; content: "";
@@ -96,7 +97,7 @@
 .kgpi-person-actions { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr) 42px; gap: 6px; }
 .kgpi-person-actions button { min-height: 42px; }
 .kgpi-person-actions [data-kg-person-action="favorite"] {
-  background: rgb(var(--kg-primary)); color: rgb(var(--kg-on-primary));
+  background: rgb(var(--kg-primary)); color: rgb(var(--kg-inverse-on-surface));
 }
 .kgpi-person-actions [data-kg-person-action="favorite"] svg { fill: currentColor; }
 .kgpi-person-actions [data-kg-person-action="follow"][aria-pressed="true"] { background: rgb(var(--kg-primary-container)); color: rgb(var(--kg-on-primary-container)); }

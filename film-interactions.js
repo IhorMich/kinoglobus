@@ -285,11 +285,12 @@
     const root=document.createElement("dialog");
     root.id="kg-person-modal";root.dataset.personId=id;
     root.setAttribute("aria-labelledby","kgpi-person-title");
+    root.autofocus=true;
     root._kgPersonProfile={role:"all",type:"all",sort:"new",limit:personPageSize,projects:null};
     const personName=String(name||"").trim()||uiText("Кинематографист");
     root.innerHTML=`<div class="kgpi-modal">
       <header class="kgpi-person-header">
-        <button class="kgpi-person-control" type="button" data-kg-person-close autofocus aria-label="${label("Назад")}">${symbol("arrow_back")}</button>
+        <button class="kgpi-person-control" type="button" data-kg-person-close aria-label="${label("Назад")}">${symbol("arrow_back")}</button>
         <p data-kg-person-header>${esc(personName)}</p>
         <button class="kgpi-person-control" type="button" data-kg-person-share aria-label="${label("Поделиться")}">${symbol("share")}</button>
         <button class="kgpi-person-control" type="button" data-kg-person-action="favorite" aria-label="${label("В любимые авторы")}">${symbol("star")}</button>

@@ -736,7 +736,7 @@ function spotlightTheme(){return catalogThemes[Math.floor(Date.now()/6048e5)%cat
 function cardHtml(t,i,tv){
   const m=tv?[tv.category,"",tv.category]:TM[t.id]||["noir","","",""],special=t.id==="suwar";
   const g0=tv?"":gnames(t)[0]||"";
-  const cover=tv?(P(tvMetadata.get(t.id)?.p,"w342")||tv.cover):getThemeCover(t.id);
+  const cover=tv?(tv.cover||P(tvMetadata.get(t.id)?.p,"w342")):getThemeCover(t.id);
   const location=`${flagsOf(t)} ${esc(tv?.region||where(t))}`;
   const top=special?`<div class="kg-catalog-archive flex items-center justify-between mb-2"><span class="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-secondary-container/60 text-secondary font-micro-caption text-micro-caption font-bold"><span class="material-symbols-outlined text-[13px]">history_edu</span>${uiText("АРХИВ ИСЧЕЗНУВШИХ ЭПОХ")}</span><span data-k="r" class="font-micro-caption text-micro-caption text-primary-container font-bold">★ …</span></div>`:"";
   const rate=special||tv?"":`<span data-k="r" class="px-2 py-0.5 rounded-full bg-primary-container/15 text-primary-container font-micro-caption text-micro-caption font-bold flex-shrink-0">★ …</span>`;

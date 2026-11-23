@@ -18,12 +18,9 @@
 .kg-hof-header h1 { margin: 0; font: 600 16px/1.2 var(--kg-font-heading); }
 .kg-hof-header button { width: 38px; height: 38px; border-radius: 50%; background: var(--kg-nav-control-fill); font-size: 21px; line-height: 1; }
 .kg-hof-main { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; padding: 4px 16px 16px; }
-.kg-hof-banner { position: relative; display: grid; align-items: end; min-height: clamp(132px,42vw,230px); margin-bottom: 9px; isolation: isolate; }
-.kg-hof-banner img,.kg-hof-banner::after { position: absolute; inset: 0; width: 100%; height: 100%; border-radius: 12px; }
-.kg-hof-banner img { object-fit: cover; object-position: center; z-index: -2; }
-.kg-hof-banner:has(img[src$="directors-banner.png"]) img { object-fit: contain; object-position: center top; }
-.kg-hof-banner::after { content: ""; z-index: -1; background: linear-gradient(0deg,var(--hall-bg) 0%,transparent 78%); }
-.kg-hof-banner h2 { padding: 14px 10px 6px; }
+.kg-hof-banner { margin-bottom: 9px; }
+.kg-hof-banner img { display: block; width: 100%; height: auto; border-radius: 12px; }
+.kg-hof-banner h2 { padding: 9px 0 5px; }
 .kg-hof-switch { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 4px; padding: 4px; border-radius: 12px; background: var(--hall-panel); }
 .kg-hof-switch button { min-height: 40px; border-radius: 9px; color: var(--hall-muted); font: 600 14px/1.35 var(--kg-font-interface); }
 .kg-hof-switch [aria-pressed=true] { background: var(--hall-raised); color: var(--hall-ink); }

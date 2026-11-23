@@ -4,8 +4,8 @@
   const label=(text,params)=>esc(uiText(text,params));
   const art=(path,size)=>/^\/[\w.-]+$/.test(path||"")?`https://image.tmdb.org/t/p/${size}${path}`:"";
   const tabs={
-    directors:{name:"Режиссёры",role:"Режиссёр",department:"Directing",feature:"Режиссёр месяца",title:"Легенды и создатели",people:[525,137427,7467,7399]},
-    actors:{name:"Актёры",role:"Актёр",department:"Acting",feature:"Актёр месяца",title:"Иконы и лица эпохи",people:[2037,3894,6193,5064]}
+    directors:{name:"Режиссёры",role:"Режиссёр",department:"Directing",feature:"Режиссёр месяца",people:[525,137427,7467,7399]},
+    actors:{name:"Актёры",role:"Актёр",department:"Acting",feature:"Актёр месяца",people:[2037,3894,6193,5064]}
   };
   const directorJob=credit=>/^(director|co-director|series director)$/i.test(credit.job||"");
   const fold=value=>String(value||"").toLocaleLowerCase(interfaceLanguage).normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim();
@@ -32,8 +32,8 @@
   </header>
   <main class="kg-hof-main">
     <div class="kg-hof-banner">
-      <img src="assets/hall-of-fame/directors-banner.png" alt="" data-hof-banner>
-      <h2></h2>
+      <img src="assets/hall-of-fame/banner.png" width="1376" height="768" alt="" data-hof-banner>
+      <h2>${label("Легенды и создатели")}</h2>
     </div>
     <div class="kg-hof-switch" role="group" aria-label="${label("Персоны")}">${Object.entries(tabs).map(([key,tab])=>`<button type="button" data-hof-tab="${key}">${label(tab.name)}</button>`).join("")}</div>
     <div class="kg-hof-heading"><button type="button" data-hof-jump>${label("К каталогу")} <span aria-hidden="true">↓</span></button></div>
@@ -297,10 +297,6 @@
   }
   function paintTab(){
     dialog.querySelectorAll("[data-hof-tab]").forEach(button=>button.setAttribute("aria-pressed",String(button.dataset.hofTab===current)));
-    dialog.querySelector(".kg-hof-banner h2").textContent=uiText(tabs[current].title);
-    const banner=dialog.querySelector("[data-hof-banner]");
-    const bannerPath=`assets/hall-of-fame/${current}-banner.png`;
-    if(banner.getAttribute("src")!==bannerPath)banner.src=bannerPath;
     catalog.querySelector("h2").textContent=uiText(tabs[current].name);
     const state=states[current];
     input.value=state.query;

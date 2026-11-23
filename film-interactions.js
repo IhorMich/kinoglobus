@@ -194,17 +194,19 @@
   function creditCard(f) {
     const tv=f.media_type==="tv",name=f.title||f.name||uiText(tv?"Сериал":"Фильм");
     const original=f.original_title&&f.original_title!==name?f.original_title:"";
-    const year=String(f.release_date||f.first_air_date||"").slice(0,4)||"—";
+    const year=String(f.release_date||f.first_air_date||"").slice(0,4);
     const poster=f.poster_path&&/^\/[\w.-]+$/.test(f.poster_path)?image(f.poster_path,"w185"):"";
     const rating=Number(f.vote_average)||0;
     const watched=window.KGIsFilmWatched?.(f.id),favorite=window.KGFavorites?.has(f.id);
     const genres=genreLine(f).split(", ").filter(Boolean).map(genre=>uiText(genre)).join(", ");
+    const countryCodes=[...(f.origin_country||[]),...(f.production_countries||[]).map(country=>country.iso_3166_1)];
+    const countries=[...new Set(countryCodes)].filter(Boolean).map(cname).filter(Boolean).join(", ");
+    const details=[year,genres,countries].filter(Boolean).join(" · ");
     return `<article class="kgpi-credit-row"><button type="button" class="kgpi-credit-open" data-kg-person-film-open="${f.id}">
-      <span class="kgpi-credit-year">${esc(year)}</span>
       <span class="kgpi-credit-poster">${symbol(tv?"tv":"movie")}${poster?`<img alt="" src="${esc(poster)}" loading="lazy" decoding="async">`:""}</span>
       <span class="kgpi-credit-copy"><strong>${esc(name)}</strong>${original?`<small>${esc(original)}</small>`:""}
         <small class="kgpi-credit-kind">${label(tv?"Сериал":f.genre_ids?.includes(99)?"Док. фильм":"Фильм")}</small>
-        ${genres?`<small>${esc(genres)}</small>`:""}
+        ${details?`<small class="kgpi-credit-details">${esc(details)}</small>`:""}
         <small>${esc([...f._personJobs].join(", "))}</small>
       </span><span class="kgpi-credit-side">
         ${rating>0?`<span class="kgpi-credit-rating">★ ${personNumber.format(rating)}</span>`:""}

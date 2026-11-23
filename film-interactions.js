@@ -249,6 +249,12 @@
   window.KGFavoritePersonIds=()=>Object.entries(store.get(personActionsKey,{})||{})
     .map(([id,record])=>record?.favorite?Number(id):0)
     .filter(id=>Number.isSafeInteger(id)&&id>0);
+  function setPersonAction(id,action,enabled) {
+    const records=store.get(personActionsKey,{})||{};
+    localStorage.setItem(personActionsKey,JSON.stringify({...records,[id]:{...records[id],[action]:enabled}}));
+    if(action==="favorite")document.dispatchEvent(new Event("kg:favorite-person-change"));
+  }
+  window.KGSetPersonFavorite=(id,enabled)=>setPersonAction(id,"favorite",enabled);
   function paintPersonActions(root) {
     const record=store.get(personActionsKey,{})?.[root.dataset.personId]||{};
     for(const button of root.querySelectorAll("[data-kg-person-action]")){
@@ -387,9 +393,8 @@
         const records=store.get(personActionsKey,{})||{},record=records[id]||{};
         const enabled=!record[action];
         try {
-          localStorage.setItem(personActionsKey,JSON.stringify({...records,[id]:{...record,[action]:enabled}}));
+          setPersonAction(id,action,enabled);
           paintPersonActions(root);
-          if(action==="favorite")document.dispatchEvent(new Event("kg:favorite-person-change"));
           setPersonStatus(root,action==="follow"&&enabled?"Отслеживание сохранено на устройстве.":"");
         } catch {setPersonStatus(root,"Изменения не сохранены");}
       }else if(button.hasAttribute("data-kg-person-share")){

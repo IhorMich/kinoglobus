@@ -246,6 +246,9 @@
     root.querySelector("[data-kg-person-favorites]").textContent=personNumber.format(projects.filter(f=>window.KGFavorites?.has(f.id)).length);
   }
   const personActionsKey="kgPersonActions.v1";
+  window.KGFavoritePersonIds=()=>Object.entries(store.get(personActionsKey,{})||{})
+    .map(([id,record])=>record?.favorite?Number(id):0)
+    .filter(id=>Number.isSafeInteger(id)&&id>0);
   function paintPersonActions(root) {
     const record=store.get(personActionsKey,{})?.[root.dataset.personId]||{};
     for(const button of root.querySelectorAll("[data-kg-person-action]")){
@@ -386,6 +389,7 @@
         try {
           localStorage.setItem(personActionsKey,JSON.stringify({...records,[id]:{...record,[action]:enabled}}));
           paintPersonActions(root);
+          if(action==="favorite")document.dispatchEvent(new Event("kg:favorite-person-change"));
           setPersonStatus(root,action==="follow"&&enabled?"Отслеживание сохранено на устройстве.":"");
         } catch {setPersonStatus(root,"Изменения не сохранены");}
       }else if(button.hasAttribute("data-kg-person-share")){

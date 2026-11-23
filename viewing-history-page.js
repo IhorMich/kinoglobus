@@ -43,7 +43,7 @@
   const main = dialog.querySelector("main");
   const search = dialog.querySelector("input");
   const text = (selector,value) => {dialog.querySelector(selector).textContent=value;};
-  let rows = [], activeFilter = "all", year = "", ascending = false, limit = pageSize, hasMore = false, session;
+  let rows = [], activeFilter = "all", year = "", ascending = false, limit = pageSize, hasMore = false;
   const artwork = new Map();
   const tmdbArt = (path,size) => /^\/[\w.-]+$/.test(path || "") ? "https://image.tmdb.org/t/p/"+size+path : "";
   const filmName = film => film.title || film.name || film.original || uiText("Без названия");
@@ -230,7 +230,10 @@
       dialog.querySelector(`[data-vh-year="${vhYear}"]`).focus({preventScroll:true});
     } else if (button.hasAttribute("data-vh-sort")) {ascending=!ascending;filterChanged();}
     else if (button.hasAttribute("data-vh-stats")) {
-      window.KGOpenCinemaDiary({avatar:session?.avatar,focusStats:true,closeParent:()=>{dialog.close();session?.closeParent?.();}});
+      window.KGViewingStatistics.open({readRows,showNotes:()=>{
+        activeFilter="notes";filterChanged();main.scrollTop=0;
+        dialog.querySelector('[data-vh-filter="notes"]').focus({preventScroll:true});
+      }});
     } else if (button.hasAttribute("data-vh-share")) {
       const message=dialog.querySelector(".kg-vh-message");
       const summary = uiText("История просмотров · Записей: {count}",{count:number.format(rows.length)});
@@ -257,7 +260,6 @@
   window.KGViewingHistory = {
     count:()=>readRows().length,
     open(options={}) {
-      session=options;
       activeFilter=options.filter||"all";year="";ascending=false;limit=pageSize;search.value="";
       dialog.querySelector(".kg-vh-message").hidden=true;
       if (!dialog.open) dialog.showModal();

@@ -38,7 +38,8 @@
     </div>
     <div class="kg-rv-section-heading">
       <h2 class="kg-rv-group-title">${label("Рецензии")}</h2>
-      <button type="button" class="kg-rv-control" data-rv-all aria-label="${label("Все рецензии и черновики")}">${label("Все")}${icon("chevron_right")}</button>
+      <button type="button" class="font-label-sm text-label-sm text-primary-container font-semibold hover:underline flex-shrink-0" data-rv-all
+        aria-label="${label("Все рецензии и черновики")}">${label("Все")} <span aria-hidden="true">→</span></button>
     </div>
     <p class="kg-rv-status" role="status" hidden></p>
     <div class="kg-rv-list" data-rv-list></div>
@@ -110,14 +111,20 @@
   }
 
   function entryCard(row,index) {
-    return `<article class="kg-rv-card">
-      <button class="kg-rv-film" type="button" ${row.draft?"data-rv-edit":"data-rv-open"}="${index}"
+    const masked=row.note.spoiler&&window.KGCinemaDiarySpoilers.get();
+    let excerpt=window.KGReviews.renderBody(row.note);
+    if(masked)excerpt=label("Текст будет скрыт до раскрытия спойлера.");
+    else if(!reviewText(row)&&row.note.fragments?.length)excerpt=label("Скрытый фрагмент");
+    return `<article class="kg-rv-card kg-rv-preview">
+      <button class="kg-rv-preview-open" type="button" ${row.draft?"data-rv-edit":"data-rv-open"}="${index}"
         ${row.draft?"":`aria-label="${label("Читать рецензию: {title}",{title:title(row)})}"`}>
-        ${subject(row)}
+        <span class="kg-rv-film">${subject(row)}</span>
+        <span class="kg-rv-preview-copy">
+          ${!masked&&row.note.title?`<strong>${esc(row.note.title)}</strong>`:""}
+          <span>${excerpt}</span>
+        </span>
       </button>
-      ${reviewCopy(row)}
       <footer>${row.note.author?`<span>${esc(row.note.author)}</span>`:""}
-        ${row.draft?"":`<button type="button" class="kg-rv-control kg-rv-read" data-rv-open="${index}">${label("Читать")}</button>`}
         ${row.draft?"":`<button type="button" class="kg-rv-control" data-rv-share="${index}" aria-label="${label("Поделиться рецензией")}">${icon("share")}</button>`}
         <button type="button" class="kg-rv-control" data-rv-edit="${index}" aria-label="${label("Редактировать запись")}">${icon("edit")}</button>
       </footer>

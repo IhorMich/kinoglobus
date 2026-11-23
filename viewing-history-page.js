@@ -37,14 +37,15 @@
     <footer class="kg-vh-more" hidden>
       <div><span data-vh-page-count></span><span data-vh-page-percent></span></div>
       <progress max="100" value="0" aria-label="${label("Загруженные записи")}"></progress>
-      <button class="kg-vh-control" type="button" data-vh-more>${icon("history")}${label("Загрузить ещё записи")}</button>
     </footer>
   </main>`;
   document.body.append(dialog);
   const main = dialog.querySelector("main");
   const search = dialog.querySelector("input");
   const text = (selector,value) => {dialog.querySelector(selector).textContent=value;};
-  let rows = [], activeFilter = "all", year = "", ascending = false, limit = pageSize, session;
+  let rows = [], activeFilter = "all", year = "", ascending = false, limit = pageSize, hasMore = false, session;
+  const artwork = new Map();
+  const tmdbArt = (path,size) => /^\/[\w.-]+$/.test(path || "") ? "https://image.tmdb.org/t/p/"+size+path : "";
   const filmName = film => film.title || film.name || film.original || uiText("Без названия");
   const values = row => String(row.note?.text || "").trim();
   const compact = value => String(value || "").toLocaleLowerCase(interfaceLanguage).replaceAll("ё","е");
@@ -85,8 +86,8 @@
   function card(row) {
     const {film,note,date,kind,episode,key} = row;
     const title = filmName(film);
-    const art = film.poster_path || film.poster || "";
-    const poster = /^\/[\w.-]+$/.test(art) ? "https://image.tmdb.org/t/p/w342"+art : "";
+    const poster = tmdbArt(film.poster_path || film.poster,"w500");
+    const wide = tmdbArt(episode?.episode.still_path || film.backdrop_path,"w780");
     const time = note?.timeKnown && /^\d{2}:\d{2}$/.test(note.time) ? note.time
       : !episode && film.watchTimeKnown && /^\d{2}:\d{2}$/.test(film.watchTime) ? film.watchTime : "";
     const stamp = date ? [dateFormat.format(date),time].filter(Boolean).join(" · ") : uiText("Дата не указана");
@@ -98,10 +99,12 @@
     const hidden = note?.spoiler && window.KGCinemaDiarySpoilers.get();
     return `<article class="kg-vh-card">
       <button type="button" class="kg-vh-open" data-vh-open="${esc(key)}">
-        <span class="kg-vh-art">${poster ? `<img src="${esc(poster)}" alt="" loading="lazy" decoding="async">` : ""}${icon(kind==="film"?"movie":"tv")}<small>${esc(media)}</small></span>
-        <span class="kg-vh-details"><small>${esc(stamp)}</small><strong>${esc(title)}</strong>
+        <span class="kg-vh-art"${wide ? "" : ` data-vh-art-id="${Number(film.id)}"`}>
+          ${wide || poster ? `<img src="${wide || poster}" alt="" loading="lazy" decoding="async">` : ""}
+          ${icon(kind==="film"?"movie":"tv")}<small>${esc(media)}</small></span>
+        <span class="kg-vh-details"><small class="kg-vh-stamp">${esc(stamp)}</small><strong>${esc(title)}</strong>
           ${details ? `<small>${esc(details)}</small>` : ""}
-          ${rating>0&&rating<=5 ? `<span class="kg-vh-score">★ ${number.format(rating*2)}</span>` : ""}</span>
+          ${rating>0&&rating<=5 ? `<span class="kg-vh-score"><span aria-hidden="true">★</span> ${number.format(rating*2)}</span>` : ""}</span>
       </button>
       <button type="button" class="kg-vh-edit" data-vh-edit="${esc(key)}" aria-label="${label("Редактировать запись")}">${icon("edit")}</button>
       ${quote ? hidden ? `<details class="kg-vh-quote"><summary>${label("Показать спойлер")}</summary><p>${esc(quote)}</p></details>`
@@ -151,8 +154,44 @@
     footer.querySelector("progress").value = percent;
     text("[data-vh-page-count]",uiText("Показано {shown} из {total}",{shown:number.format(shown),total:number.format(found.length)}));
     text("[data-vh-page-percent]",percent+"%");
-    footer.querySelector("button").hidden = shown>=found.length;
+    hasMore = shown<found.length;
+    backdropLoader.disconnect();
+    for (const frame of dialog.querySelectorAll("[data-vh-art-id]")) backdropLoader.observe(frame);
   }
+
+  async function loadBackdrop(frame) {
+    const id = Number(frame.dataset.vhArtId);
+    if (!apiKey || !id) return;
+    if (!artwork.has(id)) {
+      artwork.set(id,filmDetails(id).then(details=>tmdbArt(details.backdrop_path,"w780")).catch(()=>{artwork.delete(id);return "";}));
+    }
+    const source = await artwork.get(id);
+    if (!source || !frame.isConnected) return;
+    const image = new Image();
+    image.alt = "";
+    image.decoding = "async";
+    image.onload = ()=>{
+      const previous = frame.querySelector("img");
+      if (previous) previous.replaceWith(image);
+      else frame.prepend(image);
+    };
+    image.src=source;
+  }
+  const backdropLoader = new IntersectionObserver(entries=>{
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      backdropLoader.unobserve(entry.target);
+      loadBackdrop(entry.target);
+    }
+  },{root:main,rootMargin:"120px"});
+  main.addEventListener("scroll",()=>{
+    if (!dialog.open || !hasMore || main.scrollHeight-main.scrollTop-main.clientHeight>240) return;
+    const top=main.scrollTop;
+    limit+=pageSize;
+    render();
+    main.scrollTop=top;
+  },{passive:true});
+  dialog.addEventListener("close",()=>backdropLoader.disconnect());
 
   function filterChanged() {
     limit=pageSize;
@@ -174,7 +213,6 @@
       year=vhYear;filterChanged();
       dialog.querySelector(`[data-vh-year="${vhYear}"]`).focus({preventScroll:true});
     } else if (button.hasAttribute("data-vh-sort")) {ascending=!ascending;filterChanged();}
-    else if (button.hasAttribute("data-vh-more")) {limit+=pageSize;render();}
     else if (button.hasAttribute("data-vh-stats")) {
       window.KGOpenCinemaDiary({avatar:session?.avatar,focusStats:true,closeParent:()=>{dialog.close();session?.closeParent?.();}});
     } else if (button.hasAttribute("data-vh-share")) {
@@ -206,9 +244,8 @@
       session=options;
       activeFilter=options.filter||"all";year="";ascending=false;limit=pageSize;search.value="";
       dialog.querySelector(".kg-vh-message").hidden=true;
-      window.KGMountBottomNav(dialog,dialog,"viewing-history",()=>{dialog.close();session?.closeParent?.();},{calendar:true});
-      render();
       if (!dialog.open) dialog.showModal();
+      render();
       main.scrollTop=0;
     }
   };

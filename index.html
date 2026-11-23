@@ -29,7 +29,7 @@ html.kg-launch-pending body>:not(#kg-launch-splash){visibility:hidden!important;
 <link rel="stylesheet" href="personal-calendar.css?v=1">
 <link rel="stylesheet" href="profile-dashboard.css?v=10">
 <link rel="stylesheet" href="bookmarks-page.css?v=4">
-<link rel="stylesheet" href="viewing-history-page.css?v=3">
+<link rel="stylesheet" href="viewing-history-page.css?v=4">
 <link rel="stylesheet" href="profile-settings.css?v=4">
 <link rel="stylesheet" href="viewing-note.css?v=3">
 <link rel="stylesheet" href="favorites.css?v=1">
@@ -2380,7 +2380,7 @@ function filmRecord(cc,film){
     id:film.id,adult:film.adult,title:film.title||"",
     original:film.original_title&&film.original_title!==film.title?film.original_title:"",
     year:(film.release_date||"").slice(0,4),
-    poster:film.poster_path||"",cc:cc||"",
+    poster:film.poster_path||"",backdrop_path:film.backdrop_path||"",runtime:Number(film.runtime)||0,cc:cc||"",
     votes:film.vote_count||0,score:Number(film.vote_average)||0,
     genres:film.genre_ids||[],
     overview:(film.overview||"").slice(0,400)
@@ -3613,7 +3613,7 @@ async function filmDetails(id){
   const rel=(j.release_dates&&j.release_dates.results)||[];
   const certOf=cc=>{const c=rel.find(x=>x.iso_3166_1===cc);const d=c&&(c.release_dates||[]).find(x=>String(x.certification||"").trim());return d?String(d.certification).trim():"";};
   const cert=certOf("RU")||certOf("US")||(rel.map(x=>certOf(x.iso_3166_1)).find(Boolean)||"");
-  return detailCache[id]={...(window.KGSeries?.isSeriesId(id)?{seasons:j.seasons||[],number_of_seasons:j.number_of_seasons,number_of_episodes:j.number_of_episodes,created_by:j.created_by||[],first_air_date:j.first_air_date,last_air_date:j.last_air_date,next_episode_to_air:j.next_episode_to_air,status:j.status,in_production:j.in_production,networks:j.networks||[],backdrop_path:j.backdrop_path}:{}),adult:j.adult, cert,runtime:j.runtime||0,dirs,dirsFull:dirsFull.map(d=>({...d,photo:(crew.find(c=>c.id===d.id)||{}).profile_path||""})),writers:writers.slice(0,3),cast,castFull:(j.credits&&j.credits.cast||[]).slice(0,10).map(c=>({id:c.id,name:c.name,role:c.character||"",photo:c.profile_path||""})),genres,budget:j.budget||0,revenue:j.revenue||0,
+  return detailCache[id]={...(window.KGSeries?.isSeriesId(id)?{seasons:j.seasons||[],number_of_seasons:j.number_of_seasons,number_of_episodes:j.number_of_episodes,created_by:j.created_by||[],first_air_date:j.first_air_date,last_air_date:j.last_air_date,next_episode_to_air:j.next_episode_to_air,status:j.status,in_production:j.in_production,networks:j.networks||[]}:{}),adult:j.adult,backdrop_path:j.backdrop_path, cert,runtime:j.runtime||0,dirs,dirsFull:dirsFull.map(d=>({...d,photo:(crew.find(c=>c.id===d.id)||{}).profile_path||""})),writers:writers.slice(0,3),cast,castFull:(j.credits&&j.credits.cast||[]).slice(0,10).map(c=>({id:c.id,name:c.name,role:c.character||"",photo:c.profile_path||""})),genres,budget:j.budget||0,revenue:j.revenue||0,
     title:selectMovieText(j, "title").text, localizedPoster:selectFilmPoster(j), posterPath:j.poster_path || "",
     tagline:tg.text,taglineLang:tg.lang,overview:ov.text,overviewLang:ov.lang,
     release:j.release_date||"",originalTitle:j.original_title||"",originalLang:j.original_language||"",
@@ -4727,7 +4727,7 @@ console.info("[Moven: Explore] Bridge v6 ready");
 <script src="film-interactions.js?v=43"></script>
 <script src="legal-watch.js?v=10"></script>
 <script src="bookmarks-page.js?v=4"></script>
-<script src="viewing-history-page.js?v=3"></script>
+<script src="viewing-history-page.js?v=4"></script>
 <script src="global-search.js?v=19"></script>
 <script src="home-releases.js?v=14"></script>
 <script src="settings-page.js?v=66"></script>

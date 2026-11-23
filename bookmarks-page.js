@@ -16,8 +16,8 @@
   </header>
   <main class="kg-bp-main">
     <section class="kg-bp-tools">
-      <h2>${label("Буду смотреть")}</h2>
-      <p>${label("Коллекция фильмов и сериалов, отложенных на будущее")}</p>
+      <div class="kg-favorites-hero"><h2>${label("Буду смотреть")}</h2>
+        <p>${label("Коллекция фильмов и сериалов, отложенных на будущее")}</p></div>
       <label class="kg-bp-search">${icon("search")}<input type="search" autocomplete="off" enterkeyhint="search" aria-label="${label("Поиск в закладках")}" placeholder="${label("Искать в закладках…")}"></label>
       <div class="kg-bp-chips" data-bp-media aria-label="${label("Тип закладок")}"></div>
       <div class="kg-bp-controls" id="kg-bp-controls">
@@ -26,7 +26,7 @@
       </div>
       <div class="kg-bp-chips" data-bp-providers aria-label="${label("Стриминговые сервисы")}" hidden></div>
     </section>
-    <div class="kg-bp-items" data-bp-items></div>
+    <div class="kg-bp-items kg-favorites-list" data-bp-items></div>
     <footer class="kg-bp-summary" data-bp-summary hidden>
       <div>${icon("schedule")}<span><strong>${label("Хронометраж списка")}</strong><small data-bp-runtime></small></span><b data-bp-queue></b></div>
       <button type="button" class="kg-bp-control" data-bp-random>${icon("casino")}${label("Случайный выбор")}</button>
@@ -45,7 +45,7 @@
   const loadedProviders = new Map();
   const filmName = film => film.title || film.name || uiText("Фильм №{id}",{id:window.KGSeries.rawId(film.id)});
   const minutes = value => Number(value)>0 ? uiText("{minutes} мин",{minutes:number.format(Math.round(value))}) : "";
-  const safePoster = film => /^\/[\w.-]+$/.test(film.poster_path || film.poster || "") ? "https://image.tmdb.org/t/p/w342"+(film.poster_path || film.poster) : "";
+  const imagePath = (path,size) => /^\/[\w.-]+$/.test(path || "") ? "https://image.tmdb.org/t/p/"+size+path : "";
   const normalizeQuery = value => String(value || "").toLocaleLowerCase(interfaceLanguage).replaceAll("ё","е");
   const releaseFollow = id => window.KGReleaseFollow.calendarItems().find(item=>Number(item.id) === id);
   const progressFor = row => {
@@ -76,30 +76,36 @@
   function card(row) {
     const {film,id,kind,progress} = row;
     const title = filmName(film);
-    const poster = safePoster(film);
+    const artwork = imagePath(film.backdrop_path,"w780") || imagePath(film.poster_path || film.poster,"w500");
     const year = String(film.release_date || film.year || "").slice(0,4);
     const original = film.original_title || film.original || "";
     const provider = providerNames(id)[0];
     const rating = Number(film.vote_average);
     const followed = releaseFollow(id);
-    const source = [uiText(kind === "series" ? "Сериал" : "Фильм"),provider,kind === "film" && minutes(film.runtime)].filter(Boolean).join(" · ");
+    const length = [year,kind === "film" && minutes(film.runtime)].filter(Boolean).join(" · ");
+    const subtitle = [original!==title && original,provider].filter(Boolean).join(" · ");
+    const overview = String(film.overview || "").trim();
     const genres = (genreLine(film) || film.genres?.filter(genre=>typeof genre==="string").join(", ") || "").split(", ").filter(Boolean).slice(0,2);
     const status = progress.seen ? "Просмотрено" : progress.count ? "Смотрю" : followed ? "Отслеживается" : "Не начато";
     const percent = progress.total && progress.count ? Math.min(100,Math.round(progress.count/progress.total*100)) : 0;
     const progressText = progress.count && !progress.seen ? (progress.total ? uiText("{count} из {total} серий",{count:progress.count,total:progress.total}) : uiText("Просмотрено серий: {count}",{count:progress.count})) : "";
-    return `<article class="kg-bp-card">
-      <button type="button" class="kg-bp-open" data-bp-open="${id}" aria-label="${esc(title)}">
-        <span class="kg-bp-poster">${poster ? `<img src="${esc(poster)}" alt="" loading="lazy" decoding="async">` : ""}${icon(kind === "series" ? "tv" : "movie")}
-          ${rating>0 ? `<small>★ ${number.format(rating)}</small>` : ""}</span>
-        <span class="kg-bp-info"><small>${esc(source)}</small><strong>${esc(title)}</strong>
-          ${original && original!==title || year ? `<small>${esc([original!==title ? original : "",year].filter(Boolean).join(" · "))}</small>` : ""}
-          ${genres.length ? `<span class="kg-bp-genres">${genres.map(genre=>`<span>${esc(genre)}</span>`).join("")}</span>` : ""}
+    return `<article class="kg-bp-card kg-favorites-row">
+      <button type="button" class="kg-favorites-open" data-bp-open="${id}" aria-label="${esc(title)}">
+        <span class="kg-favorites-art">
+          ${artwork ? `<img src="${esc(artwork)}" alt="" loading="lazy" decoding="async">` : ""}${icon(kind === "series" ? "tv" : "movie")}
+          <span class="kg-favorites-meta"><small>${label(kind === "series" ? "Сериал" : "Фильм")}</small>${length ? `<small>${esc(length)}</small>` : ""}</span>
+          ${rating>0 ? `<small class="kg-favorites-score"><span aria-hidden="true">★</span> ${number.format(rating)}</small>` : ""}
+          <span class="kg-favorites-caption"><strong>${esc(title)}</strong>${subtitle ? `<small>${esc(subtitle)}</small>` : ""}</span>
+        </span>
+        <span class="kg-favorites-copy">
+          ${overview ? `<span class="kg-favorites-overview">${esc(overview)}</span>` : ""}
+          ${genres.length ? `<span class="kg-favorites-tags">${genres.map(genre=>`<span>${esc(genre)}</span>`).join("")}</span>` : ""}
           ${progressText ? `<span class="kg-bp-progress"><span>${esc(progressText)}</span>${percent ? `<progress max="100" value="${percent}" aria-label="${label("Просмотрено")}"></progress>` : ""}</span>` : ""}
           <span class="kg-bp-state"><span>${label(status)}</span><small data-bp-added>${row.added ? label("Добавлено {date}",{date:shortDate.format(row.added)}) : label("Дата добавления неизвестна")}</small></span>
         </span>
       </button>
       <footer>
-        <button type="button" class="kg-bp-control" data-bp-watch="${id}">${icon(progress.seen ? "edit" : progress.count ? "play_arrow" : "check_circle")}<span>${label(progress.seen ? "В дневник" : progress.count ? "Продолжить просмотр" : "Отметить просмотр")}</span></button>
+        <button type="button" class="kg-favorites-control" data-bp-watch="${id}">${icon(progress.seen ? "edit" : progress.count ? "play_arrow" : "check_circle")}<span>${label(progress.seen ? "В дневник" : progress.count ? "Продолжить просмотр" : "Отметить просмотр")}</span></button>
         ${kgBookmarkButton(film)}
       </footer>
     </article>`;
@@ -134,14 +140,15 @@
     const token = ++generation;
     if (!apiKey) { hadKey=false; return; }
     hadKey=true;
-    const queue = bookmarkRows.map(row=>row.id);
+    const queue = bookmarkRows.slice();
     async function worker() {
       while (token === generation && dialog.open && queue.length) {
-        const id = queue.shift();
+        const {id,film} = queue.shift();
         await Promise.allSettled([
           metadata.has(id) ? null : filmDetails(id).then(details=>metadata.set(id,{
             adult:details.adult,title:details.title,original_title:details.originalTitle,release_date:details.release,
             localizedPoster:details.localizedPoster,poster_path:details.localizedPoster?.path || details.posterPath,
+            backdrop_path:details.backdrop_path || film.backdrop_path,overview:details.overview || film.overview,
             vote_average:details.average,runtime:details.runtime,genres:details.genres,number_of_episodes:details.number_of_episodes
           })),
           loadedProviders.has(providerKey(id)) ? null : window.KGLegalWatch.providersFor(id).then(({region,names})=>loadedProviders.set(`${region}:${id}`,names))

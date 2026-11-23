@@ -1,9 +1,11 @@
 .kg-favorite-icon{display:inline-block;vertical-align:middle;width:22px;height:22px;flex:none}.kg-favorite-button{display:grid;place-items:center;min-width:44px;min-height:44px;padding:0;border:0;background:transparent;color:rgb(var(--kg-on-surface));cursor:pointer}.kg-favorite-button[aria-pressed=true]{color:rgb(var(--kg-primary))}.kg-favorite-button[aria-pressed=true] .kg-favorite-icon{fill:currentColor}.kg-favorite-button:focus-visible{outline:2px solid rgb(var(--kg-primary));outline-offset:2px}[data-favorite-status]{color:rgb(var(--kg-error));font-size:12px;padding:8px 16px}
-#kg-favorites {
+:is(#kg-favorites,#kg-bookmarks-page) {
   --fv-panel: rgb(var(--kg-surface-panel));
   --fv-raised: rgb(var(--kg-surface-container-high));
   --fv-muted: rgb(var(--kg-on-surface-variant));
   --fv-ink: rgb(var(--kg-on-surface));
+}
+#kg-favorites {
   position: fixed; inset: 0; width: 100%; height: 100dvh; max-width: none; max-height: none;
   margin: 0; padding: 0; overflow: hidden; border: 0; background: rgb(var(--kg-surface-container-lowest));
   color: var(--fv-ink); font: 16px/1.4 var(--kg-font-interface);
@@ -19,7 +21,7 @@
   padding: env(safe-area-inset-top,0px) 14px 0;
 }
 .kg-favorites-shell > header h1 { flex: 1; margin: 0; font: 600 16px/1.2 var(--kg-font-heading); }
-.kg-favorites-control,.kg-favorites-row > footer .kg-favorite-button,.kg-favorites-note {
+.kg-favorites-control,.kg-favorites-row > footer :is(.kg-favorite-button,.kg-bookmark-button),.kg-favorites-note {
   display: flex; align-items: center; justify-content: center; gap: 5px; min-width: 0; min-height: 44px; padding: 4px 8px;
   border: 1px solid; border-color: var(--kg-nav-control-border) !important; border-radius: 12px;
   background: var(--kg-nav-control-fill); color: var(--fv-ink); font-size: 13px;
@@ -81,7 +83,7 @@
 .kg-favorites-tags span { background: var(--fv-raised); border-radius: 5px; padding: 1px 5px; font-size: 11px; }
 .kg-favorites-row > footer { display: flex; flex-wrap: wrap; gap: 5px; }
 .kg-favorites-row > footer .kg-favorites-control { flex: 1; }
-.kg-favorites-row > footer .kg-favorite-button { width: 44px; padding: 0; flex: none; justify-content: center; }
+.kg-favorites-row > footer :is(.kg-favorite-button,.kg-bookmark-button) { width: 44px; padding: 0; flex: none; justify-content: center; }
 .kg-favorites-note { flex: 2 1 100px; text-align: start; }
 .kg-favorites-note span:last-child { min-width: 0; overflow-wrap: anywhere; }
 .kg-favorites-empty { grid-column: 1/-1; display: grid; justify-items: center; gap: 5px; text-align: center; padding: 20px; background: var(--fv-panel); border-radius: 14px; }

@@ -142,7 +142,21 @@
   ];
   const roleLabels=Object.fromEntries(crewRoles);
   const personPageSize=12;
-  const symbol=name=>`<span class="material-symbols-outlined" aria-hidden="true">${name}</span>`;
+  const personIconPaths={
+    arrow_back:"m12 5-7 7 7 7M5 12h14",
+    chevron:"m9 18 6-6-6-6",
+    share:"M12 15V3m-4 4 4-4 4 4M8 10H5v11h14V10h-3",
+    star:"m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z",
+    bell:"M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9m-8 12a2 2 0 0 0 4 0",
+    person:"M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2m12-14a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z",
+    pin:"M20 10c0 5-8 11-8 11s-8-6-8-11a8 8 0 1 1 16 0Zm-5 0a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z",
+    tv:"M3 4h18v13H3zM8 21h8m-4-4v4",
+    movie:"M3 8h18v12H3zM3 8V4h18v4m-14-4 3 4m3-4 3 4",
+    grid:"M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z",
+    calendar:"M3 5h18v16H3zM3 10h18M8 3v4m8-4v4",
+    check:"m5 12 4 4 10-10"
+  };
+  const symbol=name=>`<svg class="kgpi-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="${personIconPaths[name]}"/></svg>`;
   const label=(text,values)=>esc(uiText(text,values));
   const personNumber=new Intl.NumberFormat(interfaceLanguage,{maximumFractionDigits:1});
 
@@ -189,27 +203,28 @@
       <span class="kgpi-credit-year">${esc(year)}</span>
       <span class="kgpi-credit-poster">${symbol(tv?"tv":"movie")}${poster?`<img alt="" src="${esc(poster)}" loading="lazy" decoding="async">`:""}</span>
       <span class="kgpi-credit-copy"><strong>${esc(name)}</strong>${original?`<small>${esc(original)}</small>`:""}
-        <small>${[uiText(tv?"Сериал":"Фильм"),genres].filter(Boolean).map(esc).join(" · ")}</small>
+        <small class="kgpi-credit-kind">${label(tv?"Сериал":f.genre_ids?.includes(99)?"Док. фильм":"Фильм")}</small>
+        ${genres?`<small>${esc(genres)}</small>`:""}
         <small>${esc([...f._personJobs].join(", "))}</small>
       </span><span class="kgpi-credit-side">
         ${rating>0?`<span class="kgpi-credit-rating">★ ${personNumber.format(rating)}</span>`:""}
-        ${watched||favorite?`<small>${label(watched?"Просмотрено":"В любимых")}</small>`:""}
+        ${watched||favorite?`<small>${watched?symbol("check"):""}${label(watched?"Просмотрено":"В любимых")}</small>`:""}
       </span>
-    </button>${kgBookmarkButton(f)}</article>`;
+      ${symbol("chevron")}
+    </button>${watched?"":kgBookmarkButton(f)}</article>`;
   }
-  const personSortModes=[["new","Сначала новые"],["rating","По рейтингу"],["pop","Популярные"]];
+  const personSortModes=[["new","Сначала новые","calendar"],["rating","По рейтингу","star"]];
   function sortPersonFilms(films,mode) {
     const newest=(a,b)=>String(b.release_date||"").localeCompare(String(a.release_date||""));
     const compare={
       rating:(a,b)=>(Number(b.vote_average)||0)-(Number(a.vote_average)||0)||newest(a,b),
-      pop:(a,b)=>(Number(b.popularity)||0)-(Number(a.popularity)||0)||newest(a,b),
       new:newest
     };
     return [...films].sort(compare[mode]||newest);
   }
   function filterButtons(items,attribute,selected) {
-    return items.map(([key,text,count])=>`<button type="button" data-kg-person-${attribute}="${key}"
-      aria-pressed="${key===selected}">${label(text)}${count===undefined?"":` (${personNumber.format(count)})`}</button>`).join("");
+    return items.map(([key,text,count,icon])=>`<button type="button" data-kg-person-${attribute}="${key}"
+      aria-pressed="${key===selected}">${icon?symbol(icon):""}<span>${label(text)}${count===undefined?"":` (${personNumber.format(count)})`}</span></button>`).join("");
   }
   function renderPersonFilmography(root) {
     const profile=root._kgPersonProfile;
@@ -219,7 +234,9 @@
     const filtered=sortPersonFilms(projects.filter(f=>(role==="all"||f._personRoles.has(role))&&(type==="all"||f.media_type===type)),sort);
     root.querySelector("[data-kg-person-role-tabs]").innerHTML=filterButtons(roles,"role-filter",role);
     root.querySelector("[data-kg-person-media-tabs]").innerHTML=filterButtons([["all","Все"],["tv","Сериалы"],["movie","Фильмы"]],"media-filter",type);
-    root.querySelector("[data-kg-person-sort-tabs]").innerHTML=filterButtons(personSortModes,"sort",sort);
+    root.querySelector("[data-kg-person-sort-tabs]").innerHTML=filterButtons(personSortModes.map(([key,text,icon])=>[key,text,undefined,icon]),"sort",sort);
+    root.querySelector("[data-kg-person-film-tab-label]").textContent=uiText("Вся фильмография")+" ("+personNumber.format(projects.length)+")";
+    root.querySelector("[data-kg-person-highlights]").innerHTML=sortPersonFilms(projects,"rating").slice(0,4).map(creditCard).join("");
     root.querySelector("[data-kg-person-credit-total]").textContent=`(${personNumber.format(filtered.length)})`;
     root.querySelector("[data-kg-person-films]").innerHTML=filtered.length?filtered.slice(0,limit).map(creditCard).join(""):
       `<p class="kgpi-person-status" role="status">${label("Ничего не найдено")}</p>`;
@@ -229,7 +246,6 @@
     root.querySelector("[data-kg-person-count]").textContent=personNumber.format(projects.length);
     const rated=projects.map(f=>Number(f.vote_average)).filter(value=>value>0);
     root.querySelector("[data-kg-person-average]").textContent=rated.length?`★ ${personNumber.format(rated.reduce((sum,r)=>sum+r,0)/rated.length)}`:"—";
-    root.querySelector("[data-kg-person-watched]").textContent=personNumber.format(projects.filter(f=>window.KGIsFilmWatched?.(f.id)).length);
     root.querySelector("[data-kg-person-favorites]").textContent=personNumber.format(projects.filter(f=>window.KGFavorites?.has(f.id)).length);
   }
   const personActionsKey="kgPersonActions.v1";
@@ -238,7 +254,10 @@
     for(const button of root.querySelectorAll("[data-kg-person-action]")){
       const favorite=button.dataset.kgPersonAction==="favorite",enabled=Boolean(record[button.dataset.kgPersonAction]);
       button.setAttribute("aria-pressed",String(enabled));
-      button.querySelector("span:last-child").textContent=uiText(favorite?(enabled?"В любимых авторах":"В любимые авторы"):(enabled?"Отслеживается":"Отслеживать"));
+      const text=uiText(favorite?(enabled?"В любимых авторах":"В любимые авторы"):(enabled?"Отслеживается":"Отслеживать"));
+      const caption=button.querySelector("span");
+      if(caption)caption.textContent=text;
+      else button.setAttribute("aria-label",text);
     }
   }
   function setPersonStatus(root,text) {
@@ -273,31 +292,41 @@
         <button class="kgpi-person-control" type="button" data-kg-person-close autofocus aria-label="${label("Назад")}">${symbol("arrow_back")}</button>
         <p data-kg-person-header>${esc(personName)}</p>
         <button class="kgpi-person-control" type="button" data-kg-person-share aria-label="${label("Поделиться")}">${symbol("share")}</button>
+        <button class="kgpi-person-control" type="button" data-kg-person-action="favorite" aria-label="${label("В любимые авторы")}">${symbol("star")}</button>
+        <button class="kgpi-person-control kgpi-person-account" type="button" data-kg-person-account aria-label="${label("Личный кабинет")}">${symbol("person")}</button>
       </header>
-      <section class="kgpi-person-hero">
+      <div class="kgpi-person-intro">
         <div data-kg-person-image class="kgpi-person-portrait" aria-hidden="true">${symbol("person")}</div>
-        <div class="kgpi-person-copy">
+        <section class="kgpi-person-copy">
           <h1 id="kgpi-person-title" data-kg-person-title>${esc(personName)}</h1>
-          <div class="kgpi-person-meta"><span data-kg-person-original hidden></span><span data-kg-person-age hidden></span><span data-kg-person-location hidden></span></div>
+          <div class="kgpi-person-meta"><span data-kg-person-original hidden></span><span data-kg-person-age hidden></span><span class="kgpi-person-location" hidden>${symbol("pin")}<span data-kg-person-location></span></span></div>
           <div class="kgpi-person-roles" data-kg-person-roles>${role?`<span>${label(role)}</span>`:""}</div>
-        </div>
-      </section>
+          <div data-kg-person-stats class="kgpi-person-stats">
+            <div><strong data-kg-person-count>—</strong><small>${label("Проекты")}</small></div>
+            <div><strong data-kg-person-average>—</strong><small>${label("Средний балл TMDB")}</small></div>
+            <div><strong data-kg-person-favorites>—</strong><small>${label("В моих любимых")}</small></div>
+          </div>
+          <div class="kgpi-person-actions">
+            <button type="button" class="kgpi-person-control" data-kg-person-action="favorite">${symbol("star")}<span></span></button>
+            <button type="button" class="kgpi-person-control" data-kg-person-action="follow">${symbol("bell")}<span></span></button>
+            <button type="button" class="kgpi-person-control" data-kg-person-share aria-label="${label("Поделиться")}">${symbol("share")}</button>
+          </div>
+          <p class="kgpi-person-status" data-kg-person-status role="status" hidden></p>
+          <div class="kgpi-person-sections" role="group" aria-label="${label("Разделы")}">
+            <button type="button" data-kg-person-section="overview" aria-pressed="false" aria-controls="kgpi-person-overview">${symbol("grid")}<span>${label("Обзор и ключевые")}</span></button>
+            <button type="button" data-kg-person-section="filmography" aria-pressed="true" aria-controls="kgpi-person-filmography">${symbol("movie")}<span data-kg-person-film-tab-label>${label("Вся фильмография")}</span></button>
+          </div>
+        </section>
+      </div>
       <main class="kgpi-person-main">
-        <div data-kg-person-stats class="kgpi-person-stats">
-          <div><strong data-kg-person-count>—</strong><small>${label("Проекты")}</small></div>
-          <div><strong data-kg-person-average>—</strong><small>${label("Средний балл TMDB")}</small></div>
-          <div><strong data-kg-person-watched>—</strong><small>${label("Просмотрено")}</small></div>
-          <div><strong data-kg-person-favorites>—</strong><small>${label("В любимых")}</small></div>
-        </div>
-        <div class="kgpi-person-actions">
-          <button type="button" class="kgpi-person-control" data-kg-person-action="favorite">${symbol("star")}<span></span></button>
-          <button type="button" class="kgpi-person-control" data-kg-person-action="follow">${symbol("notifications")}<span></span></button>
-        </div>
-        <p class="kgpi-person-status" data-kg-person-status role="status" hidden></p>
-        <details class="kgpi-person-bio" hidden><summary>${label("Биография")}</summary><p data-kg-person-bio></p></details>
-        <section class="kgpi-person-filmography">
-          <div class="kgpi-person-filters" data-kg-person-role-tabs role="group" aria-label="${label("Профессия")}"></div>
-          <div class="kgpi-person-filters" data-kg-person-media-tabs role="group" aria-label="${label("Тип контента")}"></div>
+        <section id="kgpi-person-overview" class="kgpi-person-overview" hidden>
+          <div class="kgpi-person-bio" hidden><h2>${label("Биография")}</h2><p data-kg-person-bio></p></div>
+          <h2>${label("Ключевые работы")}</h2>
+          <div data-kg-person-highlights class="kgpi-person-films"></div>
+        </section>
+        <section id="kgpi-person-filmography" class="kgpi-person-filmography">
+          <div class="kgpi-person-filters kgpi-person-role-tabs" data-kg-person-role-tabs role="group" aria-label="${label("Профессия")}"></div>
+          <div class="kgpi-person-category"><span>${label("Категория")}</span><div class="kgpi-person-filters" data-kg-person-media-tabs role="group" aria-label="${label("Тип контента")}"></div></div>
           <header class="kgpi-person-film-head"><h2>${label("Фильмография")} <small data-kg-person-credit-total></small></h2>
             <div class="kgpi-person-filters" data-kg-person-sort-tabs role="group" aria-label="${label("Сортировка")}"></div></header>
           <div data-kg-person-films class="kgpi-person-films" aria-live="polite"><p class="kgpi-person-status">${label("Загружаем фильмографию…")}</p></div>
@@ -318,6 +347,16 @@
       const {kgPersonAction:action,kgPersonRoleFilter:nextRole,kgPersonMediaFilter:media,kgPersonSort:sort,kgPersonFilmOpen:filmId}=button.dataset;
       const profile=root._kgPersonProfile;
       if(button.hasAttribute("data-kg-person-close")){root.close();return;}
+      if(button.hasAttribute("data-kg-person-account")){root.close();window.KGOpenAccountPage?.("register");return;}
+      if(button.dataset.kgPersonSection){
+        const section=button.dataset.kgPersonSection;
+        root.querySelectorAll("[data-kg-person-section]").forEach(tab=>{
+          const active=tab.dataset.kgPersonSection===section;
+          tab.setAttribute("aria-pressed",String(active));
+          root.querySelector("#"+tab.getAttribute("aria-controls")).hidden=!active;
+        });
+        return;
+      }
       if(action){
         const records=store.get(personActionsKey,{})||{},record=records[id]||{};
         const enabled=!record[action];
@@ -341,7 +380,7 @@
       }else if(button.hasAttribute("data-kg-person-more")){
         profile.limit+=personPageSize;renderPersonFilmography(root);
       }else if(filmId){
-        const film=profile.projects.find(f=>String(f.id)===filmId);
+        const film=profile.projects?.find(f=>String(f.id)===filmId);
         if(film)window.KGFilmCard.openDialog({...film,_kgRelatedPool:profile.projects},button);
       }
     });
@@ -367,6 +406,7 @@
       meta("[data-kg-person-original]",original);
       meta("[data-kg-person-age]",data.birthday?ageFromBirthday(data.birthday,data.deathday):"");
       meta("[data-kg-person-location]",data.place_of_birth||"");
+      root.querySelector(".kgpi-person-location").hidden=!data.place_of_birth;
       if(/^\/[\w.-]+$/.test(data.profile_path||"")){
         paintPortrait(root,image(data.profile_path,"h632"));
       }else{
@@ -382,7 +422,7 @@
       const projects=mergePersonCredits(data.combined_credits);
       root._kgPersonProfile.projects=projects;
       const roles=new Set(projects.flatMap(f=>[...f._personRoles]));
-      const jobChips=crewRoles.filter(([id])=>roles.has(id)).map(([,text])=>text);
+      const jobChips=crewRoles.filter(([id])=>id!=="other"&&roles.has(id)).map(([,text])=>text);
       if(projects.some(f=>f._personJobs.has(uiText("Исполнительный продюсер")))&&!jobChips.includes("Исполнительный продюсер"))jobChips.push("Исполнительный продюсер");
       if(jobChips.length)root.querySelector("[data-kg-person-roles]").innerHTML=jobChips.map(text=>`<span>${label(text)}</span>`).join("");
       renderPersonFilmography(root);

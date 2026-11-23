@@ -48,6 +48,7 @@ function markup(f, {closable = true, inline = false} = {}) {
   const fact=(label,value,sub)=>`<div class="py-2 flex flex-col gap-1"><span class="font-micro-caption text-micro-caption uppercase text-text-muted">${uiText(label)}</span>${value}${sub?`<span class="font-body-sm text-body-sm text-text-muted">${sub}</span>`:""}</div>`;
   const loading=f._detailsLoaded?"—":uiText("Загружаем…");
   const dirName=f.dirs&&f.dirs.length?(f.dirsFull&&f.dirsFull.length?f.dirsFull.map(d=>personLink(d,"Режиссёр")).join(", "):esc(f.dirs.join(", "))):loading;
+  const producers=(f.producers||[]).map(p=>personLink(p,p.job==="Executive Producer"?"Исполнительный продюсер":"Продюсер")).join(", ");
   const releaseText=f.release?new Date(f.release+"T00:00:00").toLocaleDateString(interfaceLanguage,{day:"numeric",month:"long",year:"numeric"}):loading;
   const posterPath = f.localizedPoster?.path || f.poster_path || f.backdrop_path;
   const poster = filmPosterMarkup({...f, localizedPoster: {path: posterPath, showTitle: false}}, "w342")
@@ -90,6 +91,7 @@ ${video? `<a href="${esc(watchUrl(video))}" target="_blank" rel="noopener norefe
 </div></div>
 <div data-film-part="providers">${window.KGLegalWatch?.markup(f.id)||""}</div>
 <div data-film-part="awards">${oscarBlock}</div>
+<div data-film-part="producers" ${producers?"":"hidden"} class="flex flex-wrap gap-2"><strong>${uiText("Продюсеры")}</strong><span>${producers}</span></div>
 <div data-film-part="cast" class="flex flex-col gap-2"><div class="flex items-center justify-between"><span class="font-label-md text-label-md text-primary-fixed tracking-wide uppercase">${uiText("В главных ролях")}</span>${(f.castFull||[]).length?`<span class="font-micro-caption text-micro-caption text-text-muted">${uiText("{count} {unit}", {count: f.castFull.length, unit: f.castFull.length%10===1&&f.castFull.length!==11?"актёр":f.castFull.length%10>1&&f.castFull.length%10<5&&(f.castFull.length<10||f.castFull.length>20)?"актёра":"актёров"})}</span>`:""}</div>${cast?`<div class="kg-cast-rail flex overflow-x-auto py-1">${cast}</div>`:`<p class="font-body-sm text-body-sm text-text-muted">${f._detailsLoaded?uiText("Сведения об актёрах недоступны."):uiText("Загружаем актёров…")}</p>`}</div>
 <div data-film-part="facts" class="flex flex-col gap-2"><span class="font-label-md text-label-md text-primary-fixed tracking-wide uppercase px-0.5">${uiText("Факты производства")}</span><div class="grid grid-cols-2 gap-2.5">
 ${fact("Режиссёр",`<span class="font-label-md text-label-md text-on-surface">${dirName}</span>`)}

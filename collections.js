@@ -663,7 +663,7 @@ sectionNav.addEventListener("click",e=>{
 window.KGHandleBack = () => {
   const focusedDialog = document.activeElement?.closest("dialog[open]");
   const topDialog = focusedDialog || [...document.querySelectorAll("dialog[open]")].at(-1);
-  const person = (topDialog || document).querySelector("#kg-person-modal");
+  const person = topDialog?.id === "kg-person-modal" ? topDialog : null;
   if (person) {
     person.querySelector("[data-kg-person-close]")?.click();
     return true;

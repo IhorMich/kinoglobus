@@ -1,0 +1,85 @@
+#kg-person-modal {
+  --person-bg: rgb(var(--kg-surface-container-lowest));
+  --person-card: rgb(var(--kg-surface-panel));
+  --person-control: var(--kg-nav-control-fill);
+  --person-muted: rgb(var(--kg-on-surface-variant));
+  --person-ink: rgb(var(--kg-on-surface));
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  background: var(--person-bg);
+  color: var(--person-ink);
+  font: 14px/1.4 var(--kg-font-interface);
+}
+#kg-person-modal::backdrop { background: rgb(var(--kg-black) / .75); }
+#kg-person-modal [hidden] { display: none; }
+#kg-person-modal .material-symbols-outlined { font-size: 19px; flex: none; }
+#kg-person-modal :is(button,summary):focus-visible { outline: 2px solid rgb(var(--kg-primary)); outline-offset: -2px; }
+.kgpi-modal { position: relative; width: min(100%,720px); height: 100%; margin-inline: auto; overflow-y: auto; overscroll-behavior: contain; }
+.kgpi-person-header {
+  position: sticky; top: 0; z-index: 2; display: flex; align-items: center; gap: 8px;
+  min-height: calc(56px + env(safe-area-inset-top,0px)); padding: env(safe-area-inset-top,0px) 16px 0;
+  background: rgb(var(--kg-surface-container-lowest) / .94); backdrop-filter: blur(12px);
+}
+.kgpi-person-header p { flex: 1; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 600 16px/1.2 var(--kg-font-heading); }
+.kgpi-person-control {
+  display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+  min-height: 36px; padding: 4px 8px; border: 1px solid; border-color: var(--kg-nav-control-border) !important;
+  border-radius: 10px; color: var(--person-ink); background: var(--person-control); font: 600 12px/1.25 var(--kg-font-interface);
+}
+.kgpi-person-header button { width: 40px; min-height: 40px; padding: 0; border-radius: 50%; }
+.kgpi-person-hero { position: relative; isolation: isolate; min-height: clamp(255px,72vw,400px); display: flex; align-items: flex-end; padding: 18px 16px; background: var(--person-card); }
+.kgpi-person-portrait,.kgpi-person-hero::after { position: absolute; z-index: -1; inset: 0; }
+.kgpi-person-portrait { display: grid; place-items: center; background: var(--person-card); overflow: hidden; }
+.kgpi-person-portrait img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 30%; }
+#kg-person-modal .kgpi-person-portrait .material-symbols-outlined { font-size: 52px; color: var(--person-muted); }
+.kgpi-person-hero::after { content: ""; background: linear-gradient(0deg,rgb(var(--kg-surface-container-lowest)) 0%,rgb(var(--kg-surface-container-lowest) / .8) 24%,transparent 67%); }
+.kgpi-person-copy { display: grid; gap: 5px; min-width: 0; overflow-wrap: anywhere; }
+.kgpi-person-copy h1 { margin: 0; font: 700 26px/1.16 var(--kg-font-heading); }
+.kgpi-person-meta { display: flex; gap: 4px 9px; flex-wrap: wrap; color: var(--person-muted); font-size: 12px; }
+.kgpi-person-roles { display: flex; flex-wrap: wrap; gap: 5px; }
+.kgpi-person-roles span { border-radius: 6px; padding: 2px 5px; background: var(--person-card); font-size: 11px; }
+.kgpi-person-main { display: grid; gap: 12px; padding: 0 16px calc(24px + env(safe-area-inset-bottom,0px)); }
+.kgpi-person-stats { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0,1fr); gap: 2px; padding: 10px 5px; border-radius: 13px; background: var(--person-card); text-align: center; }
+.kgpi-person-stats div { min-width: 0; display: grid; align-content: start; gap: 2px; }
+.kgpi-person-stats div + div { border-inline-start: 1px solid rgb(var(--kg-outline-variant) / .55); }
+.kgpi-person-stats strong { font: 700 16px/1.3 var(--kg-font-interface); font-variant-numeric: tabular-nums; }
+.kgpi-person-stats small { color: var(--person-muted); font-size: 10px; overflow-wrap: anywhere; }
+.kgpi-person-actions { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 7px; }
+.kgpi-person-actions button { min-height: 42px; }
+.kgpi-person-control[aria-pressed="true"],.kgpi-person-filters [aria-pressed="true"] { background: rgb(var(--kg-primary-container)); color: rgb(var(--kg-on-primary-container)); }
+.kgpi-person-bio { padding: 10px 12px; border-radius: 12px; background: var(--person-card); }
+.kgpi-person-bio summary { cursor: pointer; font-weight: 650; }
+.kgpi-person-bio p { margin: 6px 0 0; color: var(--person-muted); white-space: pre-wrap; overflow-wrap: anywhere; }
+.kgpi-person-filmography { display: grid; gap: 8px; min-width: 0; }
+.kgpi-person-filters { display: flex; align-items: center; gap: 4px; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+.kgpi-person-filters button { flex: none; min-height: 32px; padding: 3px 8px; border-radius: 8px; background: var(--person-card); color: var(--person-muted); font: 600 11px/1.25 var(--kg-font-interface); }
+.kgpi-person-film-head { display: flex; align-items: center; justify-content: space-between; gap: 7px; }
+.kgpi-person-film-head h2 { margin: 0; min-width: 0; font: 650 17px/1.25 var(--kg-font-heading); }
+.kgpi-person-film-head .kgpi-person-filters { flex: none; max-width: 55%; }
+.kgpi-person-films { display: grid; gap: 6px; }
+.kgpi-credit-row { position: relative; display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 2px; align-items: center; padding: 8px; border-radius: 11px; background: var(--person-card); }
+.kgpi-credit-open { min-width: 0; display: grid; grid-template-columns: 33px 41px minmax(0,1fr) auto; align-items: center; gap: 5px; min-height: 66px; text-align: start; }
+.kgpi-credit-row .kg-bookmark-button { display: grid; place-items: center; width: 30px; height: 34px; border-radius: 8px; background: transparent; }
+.kgpi-credit-year,.kgpi-credit-rating { font-size: 11px; font-weight: 700; white-space: nowrap; }
+.kgpi-credit-poster { position: relative; display: grid; place-items: center; width: 41px; height: 62px; border-radius: 6px; overflow: hidden; background: rgb(var(--kg-surface-container-high)); color: var(--person-muted); }
+.kgpi-credit-poster img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.kgpi-credit-copy { display: grid; gap: 2px; min-width: 0; line-height: 1.25; }
+.kgpi-credit-copy > * { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.kgpi-credit-copy strong { font-size: 14px; }
+.kgpi-credit-copy small { font-size: 11px; color: var(--person-muted); }
+.kgpi-credit-side { display: grid; justify-items: end; gap: 4px; }
+.kgpi-credit-side small { padding: 2px 4px; border-radius: 999px; background: rgb(var(--kg-surface-container-high)); font-size: 9px; white-space: nowrap; }
+.kgpi-person-status { margin: 0; color: var(--person-muted); font-size: 12px; }
+@media (max-width: 340px) {
+  .kgpi-person-main,.kgpi-person-header,.kgpi-person-hero { padding-inline: 10px; }
+  .kgpi-credit-open { grid-template-columns: 28px 36px minmax(0,1fr) auto; }
+  .kgpi-credit-poster { width: 36px; height: 54px; }
+}

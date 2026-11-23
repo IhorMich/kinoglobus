@@ -1,6 +1,6 @@
 /* Shared TMDB person profiles and related-film carousels. */
 (function(){
-  const pools=new Map(),relatedCache=new Map(),personCache=new Map(),personFilmPools=new Map(),personBackdropWarmCache=new Map(),personTaggedBackdropCache=new Map(),personAltPortraitCache=new Map();
+  const pools=new Map(),relatedCache=new Map(),personCache=new Map(),personBackdropWarmCache=new Map(),personAltPortraitCache=new Map();
   const personBackdropPreloadTasks=new Map();
   let scrollFrame=0,personScrollFrame=0,personOpenRequest=0;
   const image=(path,size="w342")=>path?`https://image.tmdb.org/t/p/${size}${path}`:"";
@@ -34,52 +34,6 @@
     personBackdropWarmCache.set(src,promise);
     return promise;
   }
-  // Stable per-person positioning for poster backgrounds.
-  const personHash=value=>{let h=2166136261;for(const c of String(value)){h^=c.charCodeAt(0);h=Math.imul(h,16777619);}return h>>>0;};
-  // Один плавный показ вместо резкой подмены: картинка уже загружена, появляется из opacity 0.
-  function fadeInto(host,img){
-    if(!host||!img)return;
-    img.classList.add("kgpi-fade");
-    host.replaceChildren(img);
-    requestAnimationFrame(()=>requestAnimationFrame(()=>img.classList.add("is-ready")));
-  }
-  function personTaggedBackdrop(personId,page=1){
-    const key=`${personId}:${page}`;
-    if(personTaggedBackdropCache.has(key))return personTaggedBackdropCache.get(key);
-    const request=(async()=>{
-      // Do not pass en-US here: it can hide non-English and unlabelled film stills.
-      const data=await tmdb(`person/${personId}/tagged_images`,{page:String(page)},null);
-      const raw=data.results||[];
-      const posterUnique=new Map();
-      const rows=[];
-      for(const img of raw){
-        if(!img.file_path)continue;
-        const type=String(img.image_type||"").toLowerCase();
-        const width=Number(img.width)||0;
-        if(!/poster/.test(type)||width<300)continue;
-        const score=(Number(img.vote_count)||0)*2+(Number(img.vote_average)||0)*3+(width>=1000?2:0);
-        const previous=posterUnique.get(img.file_path);
-        if(!previous||score>previous.score)posterUnique.set(img.file_path,{path:img.file_path,score});
-        rows.push({file_path:img.file_path,image_type:img.image_type||"",width,
-          vote_count:Number(img.vote_count)||0,vote_average:Number(img.vote_average)||0});
-      }
-      return {
-        posterPaths:[...posterUnique.values()].sort((x,y)=>y.score-x.score).map(item=>item.path),
-        totalPages:Math.max(1,Number(data.total_pages)||1),
-        totalResults:Number(data.total_results)||raw.length,
-        page:Number(data.page)||0,
-        rawCount:raw.length,
-        rows
-      };
-    })();
-    // Cache successful responses only. Network/auth errors must be retryable.
-    const cached=request.catch(error=>{
-      personTaggedBackdropCache.delete(key);
-      throw error;
-    });
-    personTaggedBackdropCache.set(key,cached);
-    return cached;
-  }
   async function personAltPortrait(personId,excludePath){
     const key=String(personId||"");
     if(!key)return [];
@@ -110,9 +64,11 @@
     if(!key)return Promise.resolve(null);
     const taskKey=`${key}:${mainProfilePath||""}`;
     if(personBackdropPreloadTasks.has(taskKey))return personBackdropPreloadTasks.get(taskKey);
-    const task=personAltPortrait(key,mainProfilePath).then(async paths=>{
-      const portrait=paths[0]?await warmPersonBackdrop(paths[0],"h632"):null;
-      return portrait;
+    const task=Promise.resolve(mainProfilePath).then(async path=>{
+      const preferred=path?await warmPersonBackdrop(path,"h632"):null;
+      if(preferred)return preferred;
+      const [alternate]=await personAltPortrait(key,path);
+      return alternate?warmPersonBackdrop(alternate,"h632"):null;
     }).catch(error=>{
       personBackdropPreloadTasks.delete(taskKey);
       throw error;
@@ -120,90 +76,17 @@
     personBackdropPreloadTasks.set(taskKey,task);
     return task;
   }
-  async function preparePersonBackdrop(personId,mainProfilePath=null){
-    let alternatePortrait=null;
-    try{
-      const candidates=await personAltPortrait(personId,mainProfilePath);
-      if(candidates[0])alternatePortrait=await warmPersonBackdrop(candidates[0],"h632");
-    }catch(error){
-      console.warn("[Moven backdrop] Could not load alternate actor portrait",{
-        personId,message:error?.message||String(error)
-      });
-    }
-    const fallbackPortrait=!alternatePortrait&&mainProfilePath
-      ?await warmPersonBackdrop(mainProfilePath,"h632"):null;
-    return {
-      image:alternatePortrait||fallbackPortrait,
-      kind:alternatePortrait?"alternate-profile":fallbackPortrait?"main-profile-fallback":"unavailable"
-    };
-  }
-  function applyPersonBackdrop(root,personId,prepared=null){
-    const host=root.querySelector("[data-kg-person-backdrop]");
-    if(!host||!prepared?.image||host.dataset.kgBackdropSource==="poster")return;
-    const shown=new Image();
-    shown.alt="";
-    shown.decoding="async";
-    shown.src=prepared.image.src;
-    shown.className=prepared.kind==="alternate-profile"
-      ?"kgpi-poster-backdrop kgpi-actor-profile-backdrop"
-      :"kgpi-poster-backdrop kgpi-portrait-backdrop";
-    host.dataset.kgBackdropSource="poster";
-    host.dataset.kgBackdropKind=prepared.kind;
-    // The image is already downloaded and decoded before the modal is attached.
-    host.replaceChildren(shown);
-    console.info("[Moven backdrop] Actor profile background ready",{
-      personId,source:prepared.kind
-    });
-  }
-  function seedPersonPortrait(root,sourceElement,id,name){
-    const host=root.querySelector("[data-kg-person-image]");
-    if(!host)return null;
-    const filmCard=sourceElement?.closest?.(".kg-film-detail");
-    const localSource=sourceElement?.querySelector?.("img")||
-      [...(filmCard?.querySelectorAll?.(`[data-kg-person-id="${id}"] img`)||[])][0]||
-      sourceElement?.closest?.("[data-kg-person-id]")?.querySelector?.("img");
-    const src=localSource?.currentSrc||localSource?.src;
-    if(!src)return null;
-    const portrait=new Image();portrait.className="h-full w-full object-cover";portrait.alt=name;portrait.decoding="sync";portrait.src=src;
-    host.replaceChildren(portrait);
-    return portrait;
-  }
-  function upgradePersonPortrait(root,profilePath,name){
-    if(!profilePath)return;
-    const host=root.querySelector("[data-kg-person-image]");if(!host)return;
-    const url=image(profilePath,"w500");
-    const current=host.querySelector("img");
-    if(current&&(current.currentSrc||current.src)===url)return;
-    const upgraded=new Image();upgraded.className="h-full w-full object-cover kgpi-portrait-top";upgraded.alt=name;
-    const show=async()=>{
-      if(!root.isConnected||!host.isConnected)return;
-      try{await upgraded.decode();}catch{}
-      if(!root.isConnected||!host.isConnected)return;
-      if(!current||!current.isConnected){host.replaceChildren(upgraded);upgraded.classList.remove("kgpi-portrait-top");return;}
-      // Новое фото кладём ПОВЕРХ старого и плавно проявляем — без пустого кадра между ними.
-      host.append(upgraded);
-      requestAnimationFrame(()=>requestAnimationFrame(()=>upgraded.classList.add("is-ready")));
-      setTimeout(()=>{if(upgraded.isConnected&&host.isConnected){upgraded.classList.remove("kgpi-portrait-top","is-ready");host.replaceChildren(upgraded);}},420);
-    };
-    upgraded.onload=show;upgraded.src=url;
-    if(upgraded.complete&&upgraded.naturalWidth)show();
-  }
   function ensureStyles(){
     if(document.getElementById("kg-film-interactions-style"))return;
     const style=document.createElement("style");style.id="kg-film-interactions-style";
-    style.textContent=`.kg-person-link{color:rgb(var(--kg-primary));text-decoration:underline;text-decoration-color:rgb(var(--kg-primary-container)/0.4);text-underline-offset:3px;cursor:pointer}.kg-person-link:hover{color:rgb(var(--kg-accent-text))}.kg-person-card{cursor:pointer;transition:transform .18s,border-color .18s}.kg-person-card:hover{transform:translateY(-2px);border-color:rgb(var(--kg-primary-container))}.kgpi-backdrop{position:fixed;inset:0;z-index:1000;background:rgb(var(--kg-canvas-obsidian));display:block;padding:0}.kgpi-modal{width:100%;height:100dvh;max-height:100dvh;overflow-y:auto;overscroll-behavior:contain;background:rgb(var(--kg-canvas-obsidian));color:rgb(var(--kg-on-surface));border:0;border-radius:0}.kgpi-modal [data-kg-person-image]{border-radius:9px!important;background:transparent!important}.kgpi-modal [data-kg-person-image] img{border-radius:0!important}.kgpi-modal div:has(> [data-kg-person-bio]){padding-inline:0;background:transparent!important;border-radius:0!important}.kgpi-modal [data-kg-person-films] [data-kg-person-film-open]{background:transparent!important}.kgpi-modal [data-kg-person-stats]{background:transparent!important}.kgpi-profile-credit{border:0!important;border-radius:0!important}.kgpi-profile-credit-poster{border:0!important;box-shadow:none!important}
+    style.textContent=`.kg-person-link{color:rgb(var(--kg-primary));text-decoration:underline;text-decoration-color:rgb(var(--kg-primary-container)/0.4);text-underline-offset:3px;cursor:pointer}.kg-person-link:hover{color:rgb(var(--kg-accent-text))}.kg-person-card{cursor:pointer;transition:transform .18s,border-color .18s}.kg-person-card:hover{transform:translateY(-2px);border-color:rgb(var(--kg-primary-container))}
 [data-kg-related-list]{min-width:0;max-width:100%;scroll-snap-type:x proximity}
 .kgpi-film{flex:0 0 120px;min-width:0;scroll-snap-align:start}
 .kgpi-film>[data-kg-related-open]{display:block;width:100%;padding:0;border:0;background:none;box-shadow:none;text-align:left}
 .kgpi-film .kgpi-poster{display:block;width:100%;aspect-ratio:2/3;overflow:hidden;border-radius:10px}
 .kgpi-film .kgpi-poster>img{display:block;width:100%;height:100%;object-fit:cover}
 .kgpi-film .kgpi-poster>span{display:grid;place-items:center;width:100%;height:100%;text-align:center}
-.kgpi-film-title{overflow-wrap:anywhere}
-.kgpi-profile-credit{display:grid;grid-template-columns:76px minmax(0,1fr);gap:12px;align-items:center;min-height:136px}.kgpi-profile-credit-poster-wrap{position:relative;display:block;width:76px;height:112px}.kgpi-profile-credit-poster{display:block;box-sizing:border-box;flex:none;width:76px!important;min-width:76px;max-width:76px;height:112px!important;min-height:112px;max-height:112px;aspect-ratio:2/3;object-fit:cover;border-radius:9px;background:rgb(var(--kg-surface-container-high))}.kgpi-profile-credit-poster.is-empty{display:flex;align-items:center;justify-content:center}.kgpi-profile-credit-rating{position:absolute;right:4px;bottom:4px;padding:2px 5px;border-radius:6px;background:rgb(var(--kg-canvas-obsidian)/.86);color:rgb(var(--kg-primary));font-size:11px;font-weight:700;line-height:1.25}.kgpi-profile-credit:focus-visible{outline:2px solid rgb(var(--kg-primary-container));outline-offset:2px}.kgpi-bio-clamp{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}.kgpi-hero{isolation:isolate;overflow:hidden}.kgpi-hero-backdrop{position:absolute;z-index:-1;inset:0;overflow:hidden;pointer-events:none;opacity:.92;mask-image:linear-gradient(to bottom,#000 0%,#000 70%,transparent 100%)}.kgpi-hero-backdrop:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgb(var(--kg-canvas-obsidian)/.25) 0%,rgb(var(--kg-canvas-obsidian)/.55) 55%,rgb(var(--kg-canvas-obsidian)) 100%);box-shadow:inset 0 0 120px rgb(var(--kg-primary-container)/.08)}.kgpi-hero-backdrop img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 30%;filter:brightness(.62) saturate(1.05) blur(8px);transform:scale(1.12);transition:opacity .35s ease}.kgpi-hero-backdrop img.kgpi-poster-backdrop{position:absolute;top:0;width:72%;height:100%;object-fit:cover;filter:brightness(.5) saturate(.9) blur(8px);transform:scale(1.12)}.kgpi-hero-backdrop img.kgpi-poster-left{left:-5%}.kgpi-hero-backdrop img.kgpi-poster-right{right:-5%}.kgpi-hero-backdrop img.kgpi-portrait-backdrop{filter:brightness(.38) saturate(.72) blur(12px);transform:scale(1.16)}.kgpi-hero-backdrop img.kgpi-actor-profile-backdrop{filter:brightness(.5) saturate(.92) blur(8px);transform:scale(1.12)}.kgpi-hero-backdrop img.kgpi-fade{opacity:0}.kgpi-hero-backdrop img.kgpi-fade.is-ready{opacity:1}.kgpi-hero-backdrop img.kgpi-fade{opacity:0;transition:opacity .5s ease}.kgpi-hero-backdrop img.kgpi-fade.is-ready{opacity:1}.kgpi-hero-backdrop img.kgpi-poster-backdrop{filter:brightness(.5) saturate(.92) blur(10px);transform:scale(1.12)}.kgpi-hero-backdrop img.kgpi-portrait-backdrop{filter:brightness(.34) saturate(.65) blur(18px);transform:scale(1.2)}.kgpi-modal [data-kg-person-image]{position:relative}.kgpi-modal [data-kg-person-image] img.kgpi-portrait-top{position:absolute;inset:0;opacity:0;transition:opacity .35s ease}.kgpi-modal [data-kg-person-image] img.kgpi-portrait-top.is-ready{opacity:1}.kgpi-hero-backdrop img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 30%;filter:brightness(.62) saturate(1.05) blur(2px);transform:scale(1.02);transition:opacity .5s ease}.kgpi-hero-content{position:relative;z-index:1}
-.kgpi-modal{position:relative;isolation:isolate}
-.kgpi-hero{position:relative;isolation:isolate;overflow:hidden}
-.kgpi-hero>.kgpi-hero-backdrop{position:absolute;z-index:-1;inset:0;width:100%;height:100%;opacity:.92}
-.kgpi-hero>.kgpi-hero-backdrop img.kgpi-poster-backdrop{width:100%;left:0;right:0;top:0;height:100%;object-position:center center}`;
+.kgpi-film-title{overflow-wrap:anywhere}`;
     document.head.appendChild(style);
   }
   function registerPool(key,films){
@@ -231,7 +114,12 @@
   }
   function filmButton(f){const title=f.title||f.name||uiText("Фильм"),year=(f.release_date||"").slice(0,4);return `<div class="kgpi-film"><button class="w-full text-left" type="button" data-kg-related-open="${f.id}"><span class="kgpi-poster">${image(f.poster_path)?`<img loading="lazy" src="${image(f.poster_path)}" alt="${esc(uiText("Постер «{title}»", {title}))}" onerror="this.style.visibility='hidden'">`:`<span class="flex h-full w-full items-center justify-center text-xs text-[rgb(var(--kg-text-muted))]">${uiText("Нет постера")}</span>`}</span><span class="kgpi-film-title block mt-1 text-xs font-semibold leading-tight">${esc(title)}</span><span class="block text-[10px] text-[rgb(var(--kg-text-muted))]">${year}</span></button></div>`; }
   function modal(){return document.getElementById("kg-person-modal");}
-  function closePerson(){personOpenRequest++;const root=modal();root?.querySelectorAll("[data-kg-person-detail]").forEach(panel=>{if(panel.id)window.KGCloseFilmFromRelated?.(panel.id);});root?.remove();}
+  function closePerson(){
+    personOpenRequest++;
+    const root=modal();
+    if(root?.open)root.close();
+    root?.remove();
+  }
   function ageFromBirthday(birthday, deathday) {
     if (!birthday) return "—";
     const born = new Date(birthday + "T00:00:00");
@@ -249,172 +137,264 @@
       lastDigit === 1 ? "год" : lastDigit >= 2 && lastDigit <= 4 ? "года" : "лет";
     return uiText("{age} " + unit, {age});
   }
-  function roleFor(person,credit){
-    if(credit._personRole)return credit._personRole;
-    const explicitActor=/акт[её]р/i.test(person._profileRole||""),explicitDirector=/режисс[её]р/i.test(person._profileRole||"");
-    return explicitActor||(!explicitDirector&&person.known_for_department==="Acting")?"Актёр":"Режиссёр";
+  const crewRoles = [
+    ["director","Режиссёр"],["producer","Продюсер"],["actor","Актёр"],["writer","Сценарист"],["other","Другие роли"]
+  ];
+  const roleLabels=Object.fromEntries(crewRoles);
+  const personPageSize=12;
+  const symbol=name=>`<span class="material-symbols-outlined" aria-hidden="true">${name}</span>`;
+  const label=(text,values)=>esc(uiText(text,values));
+  const personNumber=new Intl.NumberFormat(interfaceLanguage,{maximumFractionDigits:1});
+
+  function crewRole(credit) {
+    const job=credit.job||"";
+    if(/^(?:(?:Series |Co-)?Director)$/i.test(job))return "director";
+    if(/\bproducer\b/i.test(job))return "producer";
+    if(credit.department==="Writing"||/Writer|Screenplay|Teleplay|Story/i.test(job))return "writer";
+    return "other";
   }
-  function creditCard(f,person){
-    const title=f.title||f.name||uiText("Фильм"),year=(f.release_date||"").slice(0,4),role=esc(uiText(roleFor(person,f)));
-    const poster=f.poster_path?`<img class="kgpi-profile-credit-poster" loading="lazy" src="${image(f.poster_path,"w185")}" alt="${esc(uiText("Постер «{title}»", {title}))}">`:'<div class="kgpi-profile-credit-poster is-empty"><span class="material-symbols-outlined text-[rgb(var(--kg-text-muted))]">movie</span></div>';
-    const rating=Number(f.vote_average)>0?`<span class="kgpi-profile-credit-rating">★ ${Number(f.vote_average).toFixed(1)}</span>`:"";
-    return `<div data-kg-person-credit class="flex flex-col gap-0.5"><button type="button" class="kgpi-profile-credit w-full p-3 text-left transition-colors" data-kg-person-film-open="${f.id}" aria-label="${esc(uiText("Открыть фильм {title}", {title}))}"><span class="kgpi-profile-credit-poster-wrap">${poster}${rating}</span><span class="min-w-0 flex flex-col gap-1"><span class="text-sm font-semibold leading-snug text-[rgb(var(--kg-warm-text-28))] line-clamp-2">${esc(title)}${year?` <span class="font-normal text-[rgb(var(--kg-text-muted))]">(${year})</span>`:""}</span><span class="text-xs text-[rgb(var(--kg-on-surface-variant))] line-clamp-1">${role}</span><span class="text-[11px] text-[rgb(var(--kg-text-muted))]">${esc((f.original_language||"").toUpperCase())||uiText("Фильм")}</span></span></button><div data-kg-person-detail class=""></div></div>`;
+  function creditRoleText(credit,role) {
+    if(role==="actor"&&credit.character)return uiText("Роль: {character}",{character:credit.character});
+    if(credit.job==="Executive Producer")return uiText("Исполнительный продюсер");
+    if(role==="other"&&credit.job)return credit.job;
+    return uiText(roleLabels[role]);
   }
-  const personSortModes=[["rating","По рейтингу"],["pop","Популярные"],["new","Новые"]];
-  function sortPersonFilms(films,mode="pop") {
+  function mergePersonCredits(data) {
+    const projects=new Map();
+    for(const kind of ["cast","crew"]){
+      for(const credit of data[kind]||[]){
+        if(!movieCatalog.allows(credit)||!Number.isSafeInteger(Number(credit.id))||Number(credit.id)<=0)continue;
+        const tv=credit.media_type==="tv"||(!credit.media_type&&Boolean(credit.first_air_date||credit.name));
+        if(credit.media_type&&!["tv","movie"].includes(credit.media_type))continue;
+        const film=localizeFilmListItem(tv?window.KGSeries.normalize(credit):credit);
+        const id=Number(film.id),role=kind==="cast"?"actor":crewRole(credit);
+        const project=projects.get(id)||{...film,id,media_type:tv?"tv":"movie",_personRoles:new Set(),_personJobs:new Set()};
+        if(!project.poster_path)project.poster_path=film.poster_path;
+        project._personRoles.add(role);
+        project._personJobs.add(creditRoleText(credit,role));
+        projects.set(id,project);
+      }
+    }
+    return [...projects.values()];
+  }
+  function creditCard(f) {
+    const tv=f.media_type==="tv",name=f.title||f.name||uiText(tv?"Сериал":"Фильм");
+    const original=f.original_title&&f.original_title!==name?f.original_title:"";
+    const year=String(f.release_date||f.first_air_date||"").slice(0,4)||"—";
+    const poster=f.poster_path&&/^\/[\w.-]+$/.test(f.poster_path)?image(f.poster_path,"w185"):"";
+    const rating=Number(f.vote_average)||0;
+    const watched=window.KGIsFilmWatched?.(f.id),favorite=window.KGFavorites?.has(f.id);
+    const genres=genreLine(f).split(", ").filter(Boolean).map(genre=>uiText(genre)).join(", ");
+    return `<article class="kgpi-credit-row"><button type="button" class="kgpi-credit-open" data-kg-person-film-open="${f.id}">
+      <span class="kgpi-credit-year">${esc(year)}</span>
+      <span class="kgpi-credit-poster">${symbol(tv?"tv":"movie")}${poster?`<img alt="" src="${esc(poster)}" loading="lazy" decoding="async">`:""}</span>
+      <span class="kgpi-credit-copy"><strong>${esc(name)}</strong>${original?`<small>${esc(original)}</small>`:""}
+        <small>${[uiText(tv?"Сериал":"Фильм"),genres].filter(Boolean).map(esc).join(" · ")}</small>
+        <small>${esc([...f._personJobs].join(", "))}</small>
+      </span><span class="kgpi-credit-side">
+        ${rating>0?`<span class="kgpi-credit-rating">★ ${personNumber.format(rating)}</span>`:""}
+        ${watched||favorite?`<small>${label(watched?"Просмотрено":"В любимых")}</small>`:""}
+      </span>
+    </button>${kgBookmarkButton(f)}</article>`;
+  }
+  const personSortModes=[["new","Сначала новые"],["rating","По рейтингу"],["pop","Популярные"]];
+  function sortPersonFilms(films,mode) {
+    const newest=(a,b)=>String(b.release_date||"").localeCompare(String(a.release_date||""));
     const compare={
-      rating:(a,b)=>(Number(b.vote_average)||0)-(Number(a.vote_average)||0),
-      pop:(a,b)=>(Number(b.popularity)||0)-(Number(a.popularity)||0),
-      new:(a,b)=>String(b.release_date||"").localeCompare(String(a.release_date||""))
+      rating:(a,b)=>(Number(b.vote_average)||0)-(Number(a.vote_average)||0)||newest(a,b),
+      pop:(a,b)=>(Number(b.popularity)||0)-(Number(a.popularity)||0)||newest(a,b),
+      new:newest
     };
-    return [...films].sort(compare[mode]||compare.pop);
+    return [...films].sort(compare[mode]||newest);
   }
-  function personSortBar() {
-    return `<div class="flex flex-wrap items-center gap-1 mb-3" role="group" aria-label="${uiText("Сортировка:")}">${personSortModes.map(([mode,label])=>
-      `<button type="button" data-kg-person-sort="${mode}" aria-pressed="${mode==="pop"}" disabled class="px-3 py-2 rounded-lg font-micro-caption text-micro-caption ${mode==="pop"?"bg-surface-container-high text-primary-fixed font-semibold":"text-text-muted hover:text-on-surface"}">${uiText(label)}</button>`
-    ).join("")}</div>`;
+  function filterButtons(items,attribute,selected) {
+    return items.map(([key,text,count])=>`<button type="button" data-kg-person-${attribute}="${key}"
+      aria-pressed="${key===selected}">${label(text)}${count===undefined?"":` (${personNumber.format(count)})`}</button>`).join("");
   }
   function renderPersonFilmography(root) {
-    const profile=root._kgPersonProfile;if(!profile)return;
-    const mode=root.dataset.personSort||"pop";
-    const films=sortPersonFilms(personFilmPools.get(String(root.dataset.personId))||[],mode);
-    root.querySelectorAll("[data-kg-person-sort]").forEach(button=>{
-      const active=button.dataset.kgPersonSort===mode;
-      button.disabled=false;
-      button.setAttribute("aria-pressed",String(active));
-      button.className="px-3 py-2 rounded-lg font-micro-caption text-micro-caption "+(active?"bg-surface-container-high text-primary-fixed font-semibold":"text-text-muted hover:text-on-surface");
-    });
-    root.querySelector("[data-kg-person-films]").innerHTML=films.length?films.map(f=>creditCard(f,profile)).join(""):`<span class="text-sm text-[rgb(var(--kg-text-muted))]">${uiText("Фильмы не найдены.")}</span>`;
+    const profile=root._kgPersonProfile;
+    if(!profile?.projects)return;
+    const {projects,role,type,sort,limit}=profile;
+    const roles=[["all","Все",projects.length],...crewRoles.map(([id,text])=>[id,text,projects.filter(f=>f._personRoles.has(id)).length]).filter(([, ,count])=>count)];
+    const filtered=sortPersonFilms(projects.filter(f=>(role==="all"||f._personRoles.has(role))&&(type==="all"||f.media_type===type)),sort);
+    root.querySelector("[data-kg-person-role-tabs]").innerHTML=filterButtons(roles,"role-filter",role);
+    root.querySelector("[data-kg-person-media-tabs]").innerHTML=filterButtons([["all","Все"],["tv","Сериалы"],["movie","Фильмы"]],"media-filter",type);
+    root.querySelector("[data-kg-person-sort-tabs]").innerHTML=filterButtons(personSortModes,"sort",sort);
+    root.querySelector("[data-kg-person-credit-total]").textContent=`(${personNumber.format(filtered.length)})`;
+    root.querySelector("[data-kg-person-films]").innerHTML=filtered.length?filtered.slice(0,limit).map(creditCard).join(""):
+      `<p class="kgpi-person-status" role="status">${label("Ничего не найдено")}</p>`;
+    const more=root.querySelector("[data-kg-person-more]");
+    more.hidden=filtered.length<=limit;
+    more.textContent=more.hidden?"":uiText("Показать ещё ({count})",{count:personNumber.format(filtered.length-limit)});
+    root.querySelector("[data-kg-person-count]").textContent=personNumber.format(projects.length);
+    const rated=projects.map(f=>Number(f.vote_average)).filter(value=>value>0);
+    root.querySelector("[data-kg-person-average]").textContent=rated.length?`★ ${personNumber.format(rated.reduce((sum,r)=>sum+r,0)/rated.length)}`:"—";
+    root.querySelector("[data-kg-person-watched]").textContent=personNumber.format(projects.filter(f=>window.KGIsFilmWatched?.(f.id)).length);
+    root.querySelector("[data-kg-person-favorites]").textContent=personNumber.format(projects.filter(f=>window.KGFavorites?.has(f.id)).length);
   }
-  async function loadPersonBackdrop(root,credits){
-    const backdrop=root.querySelector("[data-kg-person-backdrop]");
-    if(!backdrop||!credits?.length)return;
-    const candidates=credits.filter(f=>f.id).slice(0,3);
-    const results=await Promise.allSettled(candidates.map(f=>tmdb(`movie/${f.id}/images`,{include_image_language:"null,en,ru"},filmLocale)));
-    if(!root.isConnected)return;
-    const options=[];
-    results.forEach((result,index)=>{
-      if(result.status!=="fulfilled")return;
-      for(const still of result.value.backdrops||[]){
-        if(still.file_path&&still.width>=800&&still.height>0&&still.width/still.height>=1.45)
-          options.push({path:still.file_path,score:(Number(still.vote_average)||0)*2+(Number(still.vote_count)||0)*.01+(Number(candidates[index].popularity)||0)*.001});
-      }
-    });
-    options.sort((a,b)=>b.score-a.score);
-    for(const option of options){
-      const src=`https://image.tmdb.org/t/p/w1280${option.path}`;
-      const ready=await new Promise(resolve=>{const probe=new Image();probe.onload=()=>resolve(true);probe.onerror=()=>resolve(false);probe.src=src;if(probe.complete)resolve(probe.naturalWidth>0);});
-      if(!ready||!root.isConnected)continue;
-      const img=document.createElement("img");img.src=src;img.alt="";img.decoding="async";img.fetchPriority="low";
-      fadeInto(backdrop,img);
-      return;
+  const personActionsKey="kgPersonActions.v1";
+  function paintPersonActions(root) {
+    const record=store.get(personActionsKey,{})?.[root.dataset.personId]||{};
+    for(const button of root.querySelectorAll("[data-kg-person-action]")){
+      const favorite=button.dataset.kgPersonAction==="favorite",enabled=Boolean(record[button.dataset.kgPersonAction]);
+      button.setAttribute("aria-pressed",String(enabled));
+      button.querySelector("span:last-child").textContent=uiText(favorite?(enabled?"В любимых авторах":"В любимые авторы"):(enabled?"Отслеживается":"Отслеживать"));
     }
+  }
+  function setPersonStatus(root,text) {
+    const status=root.querySelector("[data-kg-person-status]");
+    status.textContent=uiText(text);status.hidden=!text;
+  }
+  function paintPortrait(root,src) {
+    if(!src)return;
+    const host=root.querySelector("[data-kg-person-image]");
+    if(host.querySelector("img")?.src===src)return;
+    const art=new Image();
+    art.alt="";art.decoding="async";
+    const token=host._portraitToken=(host._portraitToken||0)+1;
+    art.onload=()=>{
+      if(!root.isConnected||host._portraitToken!==token)return;
+      host.querySelector("img")?.remove();host.append(art);
+    };
+    art.src=src;
   }
   async function showPerson(id,name,role,sourceElement=null){
+    id=Number(id);
+    if(!Number.isSafeInteger(id)||id<=0)return;
     ensureStyles();closePerson();
     const request=++personOpenRequest;
-    const personPath=`person/${id}`;
-    const profileLocale=interfaceLanguage==="en"?"en-US":"ru-RU";
-    const sharedLocale=profileLocale===filmLocale;
-    let data=personCache.get(id);
-    if(!data){
-      try{
-        const params=sharedLocale?{append_to_response:"movie_credits"}:{};
-        data=await tmdb(personPath,params,profileLocale);
-        personCache.set(id,data);
-      }catch(error){
-        console.warn("[Moven] person profile preload:",error);
-      }
-    }
-    if(request!==personOpenRequest)return;
-    // Do not reveal the profile until its final background image has loaded and decoded.
-    let preparedBackdrop={image:null,kind:"unavailable"};
-    if(data?.profile_path){
-      try{preparedBackdrop=await preparePersonBackdrop(id,data.profile_path);}
-      catch(error){console.warn("[Moven backdrop] Preload failed:",error);}
-    }
-    if(request!==personOpenRequest)return;
-    const root=document.createElement("div");root.id="kg-person-modal";root.className="kgpi-backdrop";root.setAttribute("role","presentation");root.dataset.personId=id;
-    root.innerHTML=`<section class="kgpi-modal" role="dialog" aria-modal="true" aria-label="${esc(uiText("Профиль {name}", {name}))}"><header class="sticky top-0 z-20 h-16 px-4 flex items-center justify-between bg-transparent backdrop-blur-none border-0 shadow-none" style="background:transparent!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;border:0!important;box-shadow:none!important"><div class="flex items-center gap-2 min-w-0"><button type="button" data-kg-person-close aria-label="${uiText("Назад")}" class="w-10 h-10 rounded-full text-[rgb(var(--kg-primary))] text-2xl">‹</button><div class="min-w-0"><span class="block text-[9px] uppercase tracking-[.2em] text-[rgb(var(--kg-primary-container))]">${esc(uiText(role||"Кинематографист"))}</span><h2 class="text-base font-semibold truncate">${esc(name)}</h2></div></div></header><div class="pb-10"><section class="kgpi-hero relative px-4 pt-3 -mt-16 pt-20"><div data-kg-person-backdrop class="kgpi-hero-backdrop" aria-hidden="true"></div><div class="kgpi-hero-content flex flex-col items-center text-center"><div data-kg-person-image class="w-[188px] h-[250px] rounded-[9px] overflow-hidden flex items-center justify-center"><span class="material-symbols-outlined text-5xl text-[rgb(var(--kg-text-muted))]">person</span></div><h1 data-kg-person-title class="mt-4 text-2xl font-bold font-serif text-[rgb(var(--kg-primary))]"></h1><p data-kg-person-original class="text-sm text-[rgb(var(--kg-text-muted))]"></p><div class="flex flex-wrap justify-center gap-2 mt-3"><span data-kg-person-location class="px-3 py-1 rounded-full text-xs text-[rgb(var(--kg-on-surface-variant))]"></span><span data-kg-person-department class="px-3 py-1 rounded-full text-xs text-[rgb(var(--kg-secondary-fixed))]"></span></div><div data-kg-person-stats class="w-full grid grid-cols-3 gap-1.5 mt-5 py-3 px-2"><div class="flex flex-col items-center"><span data-kg-person-age-label class="text-[9px] uppercase tracking-wider text-[rgb(var(--kg-text-muted))] text-center">${uiText("Возраст")}</span><span data-kg-person-age class="text-sm font-semibold mt-1"></span></div><div class="flex flex-col items-center"><span class="text-[9px] uppercase tracking-wider text-[rgb(var(--kg-text-muted))]">${uiText("Фильмы")}</span><span data-kg-person-count class="text-sm font-semibold text-[rgb(var(--kg-primary))] mt-1">—</span></div><div class="flex flex-col items-center"><span class="text-[9px] uppercase tracking-wider text-[rgb(var(--kg-text-muted))]">${uiText("Профессия")}</span><span data-kg-person-stat-role class="text-sm font-semibold text-[rgb(var(--kg-primary-fixed))] mt-1"></span></div></div><button type="button" data-kg-person-best class="w-full h-12 mt-4 rounded-full bg-[rgb(var(--kg-primary-container))] text-[rgb(var(--kg-on-primary-fixed))] font-semibold flex items-center justify-center gap-2 active:scale-[.98] transition-transform"><span class="material-symbols-outlined">local_fire_department</span><span data-kg-person-best-label>${uiText("Смотреть фильмографию")}</span></button></div></section><section class="px-4 mt-7"><div class="flex items-center justify-between mb-3"><h2 data-kg-person-bio-heading class="text-lg font-semibold text-[rgb(var(--kg-warm-text-28))]">${uiText("Об актёре")}</h2><span class="text-[9px] uppercase tracking-widest text-[rgb(var(--kg-primary-container))]">${uiText("Биография")}</span></div><div class="py-1"><p data-kg-person-bio class="text-sm leading-relaxed text-[rgb(var(--kg-on-surface-variant))] kgpi-bio-clamp"></p><button type="button" data-kg-person-bio-toggle class="mt-3 text-xs font-semibold text-[rgb(var(--kg-primary-container))]">${uiText("Читать полностью")}</button></div></section><section class="px-4 mt-7"><div class="flex items-center justify-between mb-3"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-[rgb(var(--kg-primary-container))]">movie</span><h2 class="text-lg font-semibold text-[rgb(var(--kg-warm-text-28))]">${uiText("Фильмография в Moven")}</h2></div><span data-kg-person-credit-total class="text-xs text-[rgb(var(--kg-primary-container))]"></span></div><p data-kg-person-credit-subtitle class="text-xs text-[rgb(var(--kg-text-muted))] mb-3"></p>${personSortBar()}<div data-kg-person-films class="flex flex-col gap-2.5"><span class="text-sm text-[rgb(var(--kg-text-muted))]">${uiText("Загружаем фильмы…")}</span></div></section></div></section>`;
-    // The backdrop stays inside the hero: full width, original hero height.
-    applyPersonBackdrop(root,id,preparedBackdrop);
-    seedPersonPortrait(root,sourceElement,id,name);
-    const sourceFilmCard=sourceElement?.closest?.(".kg-film-detail");
-    const sourceFilm=sourceFilmCard&&window.KGFilmCard?.modelFor(sourceFilmCard);
-    const sourceFilmId=sourceFilm?.id;
-    if(request!==personOpenRequest)return;
-    // Native modal dialogs live in the browser top layer. A profile appended to
-    // body would sit behind an open Journey dialog and look like a dead click.
-    const ownerDialog=sourceElement?.closest?.("dialog[open]");
-    (ownerDialog||document.body).appendChild(root);
-    // Wait for the person's profile data before choosing the backdrop fallback.
+    const root=document.createElement("dialog");
+    root.id="kg-person-modal";root.dataset.personId=id;
+    root.setAttribute("aria-labelledby","kgpi-person-title");
+    root._kgPersonProfile={role:"all",type:"all",sort:"new",limit:personPageSize,projects:null};
+    const personName=String(name||"").trim()||uiText("Кинематографист");
+    root.innerHTML=`<div class="kgpi-modal">
+      <header class="kgpi-person-header">
+        <button class="kgpi-person-control" type="button" data-kg-person-close autofocus aria-label="${label("Назад")}">${symbol("arrow_back")}</button>
+        <p data-kg-person-header>${esc(personName)}</p>
+        <button class="kgpi-person-control" type="button" data-kg-person-share aria-label="${label("Поделиться")}">${symbol("share")}</button>
+      </header>
+      <section class="kgpi-person-hero">
+        <div data-kg-person-image class="kgpi-person-portrait" aria-hidden="true">${symbol("person")}</div>
+        <div class="kgpi-person-copy">
+          <h1 id="kgpi-person-title" data-kg-person-title>${esc(personName)}</h1>
+          <div class="kgpi-person-meta"><span data-kg-person-original hidden></span><span data-kg-person-age hidden></span><span data-kg-person-location hidden></span></div>
+          <div class="kgpi-person-roles" data-kg-person-roles>${role?`<span>${label(role)}</span>`:""}</div>
+        </div>
+      </section>
+      <main class="kgpi-person-main">
+        <div data-kg-person-stats class="kgpi-person-stats">
+          <div><strong data-kg-person-count>—</strong><small>${label("Проекты")}</small></div>
+          <div><strong data-kg-person-average>—</strong><small>${label("Средний балл TMDB")}</small></div>
+          <div><strong data-kg-person-watched>—</strong><small>${label("Просмотрено")}</small></div>
+          <div><strong data-kg-person-favorites>—</strong><small>${label("В любимых")}</small></div>
+        </div>
+        <div class="kgpi-person-actions">
+          <button type="button" class="kgpi-person-control" data-kg-person-action="favorite">${symbol("star")}<span></span></button>
+          <button type="button" class="kgpi-person-control" data-kg-person-action="follow">${symbol("notifications")}<span></span></button>
+        </div>
+        <p class="kgpi-person-status" data-kg-person-status role="status" hidden></p>
+        <details class="kgpi-person-bio" hidden><summary>${label("Биография")}</summary><p data-kg-person-bio></p></details>
+        <section class="kgpi-person-filmography">
+          <div class="kgpi-person-filters" data-kg-person-role-tabs role="group" aria-label="${label("Профессия")}"></div>
+          <div class="kgpi-person-filters" data-kg-person-media-tabs role="group" aria-label="${label("Тип контента")}"></div>
+          <header class="kgpi-person-film-head"><h2>${label("Фильмография")} <small data-kg-person-credit-total></small></h2>
+            <div class="kgpi-person-filters" data-kg-person-sort-tabs role="group" aria-label="${label("Сортировка")}"></div></header>
+          <div data-kg-person-films class="kgpi-person-films" aria-live="polite"><p class="kgpi-person-status">${label("Загружаем фильмографию…")}</p></div>
+          <button type="button" class="kgpi-person-control" data-kg-person-more hidden></button>
+        </section>
+      </main>
+    </div>`;
+    const opener=sourceElement||document.activeElement;
+    document.body.append(root);root.showModal();
+    root.addEventListener("close",()=>{root.remove();if(opener?.isConnected)opener.focus({preventScroll:true});},{once:true});
+    root.addEventListener("error",event=>{if(event.target.tagName==="IMG")event.target.remove();},true);
+    paintPortrait(root,sourceElement?.querySelector?.("img")?.currentSrc||"");
+    paintPersonActions(root);
     window.KGFilmCard?.stopTrailers();
-    const dialog=root.querySelector(".kgpi-modal");
-    root.addEventListener("click",e=>{
-      if(e.target===root||e.target.closest("[data-kg-person-close]")){closePerson();return;}
-      if(e.target.closest("[data-kg-person-best]")){const list=root.querySelector("[data-kg-person-films]");dialog.scrollTo({top:dialog.scrollTop+list.getBoundingClientRect().top-dialog.getBoundingClientRect().top-16,behavior:"smooth"});return;}
-      if(e.target.closest("[data-kg-person-bio-toggle]")){const bio=root.querySelector("[data-kg-person-bio]"),button=e.target.closest("[data-kg-person-bio-toggle]"),expanded=bio.classList.toggle("kgpi-bio-clamp");button.textContent=uiText(expanded?"Читать полностью":"Свернуть");return;}
-      const sortButton=e.target.closest("[data-kg-person-sort]");
-      if(sortButton){root.dataset.personSort=sortButton.dataset.kgPersonSort;renderPersonFilmography(root);return;}
-      const filmButton=e.target.closest("[data-kg-person-film-open]");if(filmButton){
-        const filmPool=personFilmPools.get(String(id))||[];
-        const film=filmPool.find(item=>String(item.id)===filmButton.dataset.kgPersonFilmOpen);
-        if(film) window.KGFilmCard.openDialog({...film,_kgRelatedPool:filmPool},filmButton);
+    root.addEventListener("click",async event=>{
+      const button=event.target.closest("button");
+      if(!button)return;
+      const {kgPersonAction:action,kgPersonRoleFilter:nextRole,kgPersonMediaFilter:media,kgPersonSort:sort,kgPersonFilmOpen:filmId}=button.dataset;
+      const profile=root._kgPersonProfile;
+      if(button.hasAttribute("data-kg-person-close")){root.close();return;}
+      if(action){
+        const records=store.get(personActionsKey,{})||{},record=records[id]||{};
+        const enabled=!record[action];
+        try {
+          localStorage.setItem(personActionsKey,JSON.stringify({...records,[id]:{...record,[action]:enabled}}));
+          paintPersonActions(root);
+          setPersonStatus(root,action==="follow"&&enabled?"Отслеживание сохранено на устройстве.":"");
+        } catch {setPersonStatus(root,"Изменения не сохранены");}
+      }else if(button.hasAttribute("data-kg-person-share")){
+        const title=root.querySelector("[data-kg-person-title]").textContent,url=`https://www.themoviedb.org/person/${id}`;
+        try{
+          if(navigator.share)await navigator.share({title,url});
+          else {await navigator.clipboard.writeText(url);setPersonStatus(root,"Ссылка скопирована");}
+        }catch(error){if(error.name!=="AbortError")setPersonStatus(root,"Не удалось поделиться");}
+      }else if(nextRole||media||sort){
+        if(nextRole)profile.role=nextRole;
+        if(media)profile.type=media;
+        if(sort)profile.sort=sort;
+        profile.limit=personPageSize;renderPersonFilmography(root);
+        root.querySelector(nextRole?`[data-kg-person-role-filter="${nextRole}"]`:media?`[data-kg-person-media-filter="${media}"]`:`[data-kg-person-sort="${sort}"]`)?.focus({preventScroll:true});
+      }else if(button.hasAttribute("data-kg-person-more")){
+        profile.limit+=personPageSize;renderPersonFilmography(root);
+      }else if(filmId){
+        const film=profile.projects.find(f=>String(f.id)===filmId);
+        if(film)window.KGFilmCard.openDialog({...film,_kgRelatedPool:profile.projects},button);
       }
     });
+    const profileLocale=interfaceLanguage==="en"?"en-US":"ru-RU",path=`person/${id}`;
+    const current=()=>root.isConnected&&root.open&&request===personOpenRequest;
+    const meta=(selector,value)=>{const element=root.querySelector(selector);element.textContent=value;element.hidden=!value;};
     try{
+      const cacheKey=`${id}:${profileLocale}:${filmLocale}`;
+      let data=personCache.get(cacheKey);
       if(!data){
-        root.querySelector("[data-kg-person-films]").textContent=uiText("Не удалось загрузить профиль. Проверьте подключение к TMDB.");
-        return;
+        const sameLocale=profileLocale===filmLocale;
+        data=await tmdb(path,sameLocale?{append_to_response:"combined_credits"}:{},profileLocale);
+        if(!current())return;
+        personCache.set(cacheKey,data);
       }
-      if(!root.isConnected)return;
-      const actor=data.known_for_department==="Acting"||/акт[её]р/i.test(role||""),profession=actor?"Актёр":"Режиссёр";
-      root.querySelector("[data-kg-person-bio-heading]").textContent=uiText(actor?"Об актёре":"О режиссёре");
-      root.querySelector("[data-kg-person-best-label]").textContent=uiText("Смотреть фильмографию");
-      root.querySelector("[data-kg-person-title]").textContent=data.name||name;
-      root.querySelector("[data-kg-person-original]").textContent=data.also_known_as?.[0]||"";
-      root.querySelector("[data-kg-person-department]").textContent=uiText(profession);
-      root.querySelector("[data-kg-person-stat-role]").textContent=uiText(profession);
-      root.querySelector("[data-kg-person-age]").textContent=ageFromBirthday(data.birthday, data.deathday);
-      root.querySelector("[data-kg-person-age-label]").textContent =
-        uiText(data.deathday ? "Возраст на момент смерти" : "Возраст");
-      const birthplace=data.place_of_birth||uiText("Место рождения не указано");root.querySelector("[data-kg-person-location]").textContent=`⌖ ${birthplace}`;
-      const bio=data.biography?.trim()||uiText("Биография пока недоступна на русском языке.");root.querySelector("[data-kg-person-bio]").textContent=bio;
-      upgradePersonPortrait(root,data.profile_path,data.name||name);
-      let movieCredits = data.movie_credits;
-      if (!movieCredits) {
-        try {
-          movieCredits = await tmdb(`${personPath}/movie_credits`, {}, filmLocale);
-          data.movie_credits = movieCredits;
-        } catch (error) {
-          if (root.isConnected) {
-            root.querySelector("[data-kg-person-films]").textContent = uiText("Не удалось загрузить фильмографию. Проверьте подключение к TMDB.");
-          }
-          console.warn("[Moven] person filmography:",error);
-          return;
-        }
+      if(!current())return;
+      const aliases=Array.isArray(data.also_known_as)?data.also_known_as.filter(value=>typeof value==="string"):[];
+      const name=interfaceLanguage==="ru"?[data.name,...aliases].find(value=>/\p{Script=Cyrillic}/u.test(value||""))||data.name||personName:
+        data.name||personName;
+      const original=[data.name,...aliases].find(value=>value&&value!==name&&/[A-Za-z]/.test(value))||"";
+      meta("[data-kg-person-title]",name);
+      meta("[data-kg-person-header]",[name,original].filter(Boolean).join(" / "));
+      meta("[data-kg-person-original]",original);
+      meta("[data-kg-person-age]",data.birthday?ageFromBirthday(data.birthday,data.deathday):"");
+      meta("[data-kg-person-location]",data.place_of_birth||"");
+      if(/^\/[\w.-]+$/.test(data.profile_path||"")){
+        paintPortrait(root,image(data.profile_path,"h632"));
+      }else{
+        const cached=sourceElement?.dataset?.kgPersonProfile;
+        if(/^\/[\w.-]+$/.test(cached||""))paintPortrait(root,image(cached,"h632"));
+        else preloadPersonBackdrop(id).then(art=>{if(current()&&art)paintPortrait(root,art.src);}).catch(()=>{});
       }
-      if (!root.isConnected) return;
-      const castCredits=(movieCredits.cast||[]).map(f=>({
-        ...localizeFilmListItem(f),
-        _personRole:f.character?uiText("Роль: {character}", {character: f.character}):"Актёр"
-      }));
-      const crewCredits=(movieCredits.crew||[]).map(f=>({
-        ...localizeFilmListItem(f),
-        _personRole:f.job==="Director"?"Режиссёр":f.job||"Участие в проекте"
-      }));
-      const allCredits=castCredits.concat(crewCredits).filter(f=>f.id);
-      let credits=actor?castCredits:crewCredits.filter(f=>f.job==="Director");
-      if(!credits.length)credits=allCredits;
-      credits.sort((a,b)=>(b.popularity||0)-(a.popularity||0));
-      const dedup=[...new Map(credits.map(f=>[String(f.id),f])).values()];personFilmPools.set(String(id),dedup);
-      root.querySelector("[data-kg-person-count]").textContent=String(dedup.length);
-      root.querySelector("[data-kg-person-credit-total]").textContent=uiText(interfaceLanguage==="en"&&dedup.length===1?"{count} фильм":"{count} фильмов", {count: dedup.length});
-      root.querySelector("[data-kg-person-credit-subtitle]").textContent=uiText(actor?"Все фильмы с участием {name}":"Фильмы, снятые {name}", {name: data.name||name});
-      root._kgPersonProfile = {known_for_department: data.known_for_department, _profileRole: role || ""};
+      const bio=String(data.biography||"").trim();
+      root.querySelector(".kgpi-person-bio").hidden=!bio;
+      meta("[data-kg-person-bio]",bio);
+      data.combined_credits ||= await tmdb(`${path}/combined_credits`,{},filmLocale);
+      if(!current())return;
+      const projects=mergePersonCredits(data.combined_credits);
+      root._kgPersonProfile.projects=projects;
+      const roles=new Set(projects.flatMap(f=>[...f._personRoles]));
+      const jobChips=crewRoles.filter(([id])=>roles.has(id)).map(([,text])=>text);
+      if(projects.some(f=>f._personJobs.has(uiText("Исполнительный продюсер")))&&!jobChips.includes("Исполнительный продюсер"))jobChips.push("Исполнительный продюсер");
+      if(jobChips.length)root.querySelector("[data-kg-person-roles]").innerHTML=jobChips.map(text=>`<span>${label(text)}</span>`).join("");
       renderPersonFilmography(root);
-    }catch(error){if(root.isConnected){root.querySelector("[data-kg-person-original]").textContent="";root.querySelector("[data-kg-person-credit-total]").textContent="";root.querySelector("[data-kg-person-films]").innerHTML=`<span class="text-sm text-[rgb(var(--kg-text-muted))]">${uiText("Не удалось загрузить профиль. Проверьте подключение к TMDB.")}</span>`;}console.warn("[Moven] person profile:",error);}
+    }catch(error){
+      if(!current())return;
+      root.querySelector("[data-kg-person-films]").textContent=uiText("Не удалось загрузить профиль. Проверьте подключение к TMDB.");
+    }
   }
+  for(const event of ["kg:watched-change","kg:favorite-change"]){
+    document.addEventListener(event,()=>{const root=modal();if(root?.open)renderPersonFilmography(root);});
+  }
+
   async function related(section){
     const id=section.dataset.filmId;if(!id)return;
     const key=section.dataset.contextKey||"",cacheKey=`${id}:${key}`;if(relatedCache.has(cacheKey)){paint(section,relatedCache.get(cacheKey));return;}

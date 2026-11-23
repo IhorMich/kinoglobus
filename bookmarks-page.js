@@ -16,12 +16,12 @@
   </header>
   <main class="kg-bp-main">
     <section class="kg-bp-tools">
-      <div class="kg-bp-intro"><h2>${label("Буду смотреть")}</h2><span data-bp-total></span></div>
+      <h2>${label("Буду смотреть")}</h2>
       <p>${label("Коллекция фильмов и сериалов, отложенных на будущее")}</p>
       <label class="kg-bp-search">${icon("search")}<input type="search" autocomplete="off" enterkeyhint="search" aria-label="${label("Поиск в закладках")}" placeholder="${label("Искать в закладках…")}"></label>
       <div class="kg-bp-chips" data-bp-media aria-label="${label("Тип закладок")}"></div>
       <div class="kg-bp-controls" id="kg-bp-controls">
-        <label class="kg-bp-sort"><span>${label("Сортировка")}</span><select aria-label="${label("Сортировка")}">${sorts.map(([key,text])=>`<option value="${key}">${label(text)}</option>`).join("")}</select></label>
+        <label class="kg-bp-sort"><span>${label("Сортировка")}</span><select aria-label="${label("Сортировка")}">${sorts.map(([key,text])=>`<option value="${key}">${label(text)}</option>`).join("")}</select>${icon("expand_more")}</label>
         <div class="kg-bp-layout"><button type="button" data-bp-layout="list" aria-label="${label("Список")}">${icon("view_list")}</button><button type="button" data-bp-layout="grid" aria-label="${label("Плитки")}">${icon("grid_view")}</button></div>
       </div>
       <div class="kg-bp-chips" data-bp-providers aria-label="${label("Стриминговые сервисы")}" hidden></div>
@@ -115,7 +115,6 @@
     const newest = (a,b)=>b.added-a.added || b.index-a.index;
     const compareTitle = (a,b)=>filmName(a.film).localeCompare(filmName(b.film),interfaceLanguage);
     visible.sort(sort.value === "title" ? compareTitle : sort.value === "rating" ? (a,b)=>(Number(b.film.vote_average)||0)-(Number(a.film.vote_average)||0) || newest(a,b) : newest);
-    dialog.querySelector("[data-bp-total]").textContent = number.format(bookmarkRows.length);
     dialog.querySelector("[data-bp-media]").innerHTML = media.map(([key,name])=>`<button type="button" data-bp-tab="${key}" aria-pressed="${selection===key}">${label(name)} <small>${number.format(bookmarkRows.filter(row=>matchesMedia(row,key)).length)}</small></button>`).join("");
     providers.hidden = !names.length;
     providers.innerHTML = names.length ? [["","Все сервисы"],...names.map(name=>[name,name])].map(([value,name])=>`<button type="button" data-bp-service="${esc(value)}" aria-pressed="${value===service}">${esc(value ? name : uiText(name))}</button>`).join("") : "";

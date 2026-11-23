@@ -58,13 +58,27 @@
   const query=main.querySelector("input");
   const picker=dialog.querySelector("[data-rv-picker]");
   document.body.append(picker);
+  const reader=document.createElement("dialog");
+  reader.id="kg-review-reader";
+  reader.setAttribute("aria-labelledby","kg-review-reader-title");
+  reader.innerHTML=`<header class="kg-rv-header">
+    <button type="button" class="kg-rv-control" data-rv-reader-back autofocus aria-label="${label("Назад")}">${icon("arrow_back")}</button>
+    <h1 id="kg-review-reader-title">${label("Просмотр рецензии")}</h1>
+    <button type="button" class="kg-rv-control" data-rv-reader-edit aria-label="${label("Редактировать рецензию")}">${icon("edit")}</button>
+  </header><main class="kg-rv-main"><div data-rv-reader-content></div><p class="kg-rv-status" role="status" hidden></p></main>`;
+  document.body.append(reader);
   const pickerSearch=picker.querySelector("input"), choiceList=picker.querySelector("[data-rv-choices]");
   const reviewTypes=[["all","Все"],["films","Фильмы"],["series","Сериалы"],["episodes","Эпизоды"]];
   let pickerType="all",pickerMode="history",lookup=0,debounce,selectedSeries,selectedSeason,pickerOpener;
   const set=(selector,value)=>{dialog.querySelector(selector).textContent=value;};
-  let rows=[],choices=[],filter="all",ascending=false,fullList=false,draftsOpen=true;
+  let rows=[],choices=[],filter="all",ascending=false,fullList=false,draftsOpen=true,reading,readerOpener;
 
-  function entryCard(row,index) {
+  function reviewKey(row) {
+    const log=row.film._episodeLog;
+    return log ? `${row.film.id}:${log.season}:${log.episode.episode_number}` : String(row.film.id);
+  }
+
+  function subject(row) {
     const film=filmFor(row),log=row.film._episodeLog;
     const art=film.poster_path || film.poster || "";
     const image=/^\/[\w.-]+$/.test(art) ? "https://image.tmdb.org/t/p/w185"+art : "";
@@ -73,30 +87,61 @@
     const rating=personalRating(row);
     const meta=log ? [`S${log.season} · E${log.episode.episode_number}`,log.episode.name].filter(Boolean).join(" · ")
       : [uiText(kind(row)==="series"?"Сериал":"Фильм"),year,film.original_title||film.original].filter(Boolean).join(" · ");
-    const copy=`<span class="kg-rv-copy">
+    return `
+      <span class="kg-rv-art">${icon(kind(row)==="films"?"movie":"tv")}${image?`<img src="${image}" alt="" loading="lazy" decoding="async">`:""}</span>
+      <span class="kg-rv-meta">
+        <span class="kg-rv-spoiler" data-spoiler="${!!row.note.spoiler}">${label(row.draft?"Черновик":row.note.spoiler?"Со спойлерами":"Без спойлеров")}</span>
+        <strong>${esc(title(row))}</strong><small>${esc(meta)}</small>${date?`<small>${esc(date)}</small>`:""}
+      </span>
+      ${rating ? `<span class="kg-rv-score"><span aria-hidden="true">★</span> ${scoreFormat.format(rating)}</span>` : ""}`;
+  }
+
+  function reviewCopy(row) {
+    const tags=Array.isArray(row.note.tags)?row.note.tags.filter(tag=>typeof tag==="string"):[];
+    const copy=`<div class="kg-rv-copy">
       ${row.note.title ? `<strong>${esc(row.note.title)}</strong>` : ""}
       <span class="kg-rv-body">${window.KGReviews.renderBody(row.note)}</span>
       ${Array.isArray(row.note.fragments)?row.note.fragments.map(text=>`<details class="kg-re-fragment"><summary>${label("Скрытый фрагмент")}</summary><p>${esc(text)}</p></details>`).join(""):""}
       ${row.note.viewFormat||row.note.audio||row.note.viewingDate ? `<small>${esc([row.note.viewFormat,row.note.audio,row.note.viewingDate].filter(Boolean).join(" · "))}</small>` : ""}
-      ${Array.isArray(row.note.tags)&&row.note.tags.length
-        ? `<span class="kg-favorites-tags">${row.note.tags.map(tag=>`<span>${label(tag)}</span>`).join("")}</span>` : ""}
-    </span>`;
+      ${tags.length ? `<span class="kg-favorites-tags">${tags.map(tag=>`<span>${label(tag)}</span>`).join("")}</span>` : ""}
+    </div>`;
+    return row.note.spoiler && window.KGCinemaDiarySpoilers.get()
+      ? `<details><summary>${label("Показать спойлер")}</summary>${copy}</details>` : copy;
+  }
+
+  function entryCard(row,index) {
     return `<article class="kg-rv-card">
-      <button class="kg-rv-film" type="button" ${row.draft?"data-rv-edit":"data-rv-open"}="${index}">
-        <span class="kg-rv-art">${icon(kind(row)==="films"?"movie":"tv")}${image?`<img src="${image}" alt="" loading="lazy" decoding="async">`:""}</span>
-        <span class="kg-rv-meta">
-          <span class="kg-rv-spoiler" data-spoiler="${!!row.note.spoiler}">${label(row.draft?"Черновик":row.note.spoiler?"Со спойлерами":"Без спойлеров")}</span>
-          <strong>${esc(title(row))}</strong><small>${esc(meta)}</small>${date?`<small>${esc(date)}</small>`:""}
-        </span>
-        ${rating ? `<span class="kg-rv-score"><span aria-hidden="true">★</span> ${scoreFormat.format(rating)}</span>` : ""}
+      <button class="kg-rv-film" type="button" ${row.draft?"data-rv-edit":"data-rv-open"}="${index}"
+        ${row.draft?"":`aria-label="${label("Читать рецензию: {title}",{title:title(row)})}"`}>
+        ${subject(row)}
       </button>
-      ${row.note.spoiler && window.KGCinemaDiarySpoilers.get()
-        ? `<details><summary>${label("Показать спойлер")}</summary>${copy}</details>` : copy}
+      ${reviewCopy(row)}
       <footer>${row.note.author?`<span>${esc(row.note.author)}</span>`:""}
+        ${row.draft?"":`<button type="button" class="kg-rv-control kg-rv-read" data-rv-open="${index}">${label("Читать")}</button>`}
         ${row.draft?"":`<button type="button" class="kg-rv-control" data-rv-share="${index}" aria-label="${label("Поделиться рецензией")}">${icon("share")}</button>`}
         <button type="button" class="kg-rv-control" data-rv-edit="${index}" aria-label="${label("Редактировать запись")}">${icon("edit")}</button>
       </footer>
     </article>`;
+  }
+
+  function renderReader() {
+    reader.querySelector("[data-rv-reader-content]").innerHTML=`<article class="kg-rv-card">
+      <div class="kg-rv-film">${subject(reading)}</div>
+      ${reviewCopy(reading)}
+      ${reading.note.author ? `<p class="kg-rv-reader-author">${esc(reading.note.author)}</p>` : ""}
+      <div class="kg-rv-reader-actions">
+        <button type="button" class="kg-rv-control" data-rv-reader-subject>${label(({films:"О фильме",series:"О сериале",episodes:"Об эпизоде"})[kind(reading)])}</button>
+        <button type="button" class="kg-rv-control" data-rv-reader-share aria-label="${label("Поделиться рецензией")}">${icon("share")}</button>
+      </div>
+    </article>`;
+  }
+
+  function readReview(row,opener) {
+    reading=row;readerOpener=opener;
+    reader.querySelector("[role=status]").hidden=true;
+    renderReader();
+    if(!reader.open)reader.showModal();
+    reader.querySelector("main").scrollTop=0;
   }
 
   function render() {
@@ -248,8 +293,7 @@
   function edit(row,opener) {
     window.KGReviews.open(filmFor(row),{log:row.film._episodeLog,opener});
   }
-  async function share(row) {
-    const status=dialog.querySelector(".kg-rv-status");
+  async function share(row,status=dialog.querySelector(".kg-rv-status")) {
     const value=[title(row),row.note.title,reviewText(row)].filter(Boolean).join("\n\n");
     try{
       if(navigator.share)await navigator.share({title:title(row),text:value});
@@ -266,7 +310,26 @@
   dialog.addEventListener("cancel",event=>{if(fullList){event.preventDefault();setView(false);}});
   pickerSearch.addEventListener("input",renderPicker);
   picker.addEventListener("close",()=>{if(!picker.open){clearTimeout(debounce);lookup++;}});
-  dialog.addEventListener("error",event=>{if(event.target.tagName==="IMG")event.target.hidden=true;},true);
+  for(const page of [dialog,reader])page.addEventListener("error",event=>{if(event.target.tagName==="IMG")event.target.hidden=true;},true);
+  reader.addEventListener("close",()=>{
+    if(reader.open||!reading)return;
+    const index=rows.findIndex(row=>!row.draft&&reviewKey(row)===reviewKey(reading));
+    const opener=readerOpener?.isConnected ? readerOpener : dialog.querySelector(`[data-rv-open="${index}"]`);
+    opener?.focus({preventScroll:true});
+    reading=readerOpener=null;
+  });
+  reader.addEventListener("click",event=>{
+    const button=event.target.closest("button");
+    if(!button||!reading)return;
+    if(button.hasAttribute("data-rv-reader-back"))reader.close();
+    else if(button.hasAttribute("data-rv-reader-edit"))edit(reading,button);
+    else if(button.hasAttribute("data-rv-reader-share"))share(reading,reader.querySelector("[role=status]"));
+    else if(button.hasAttribute("data-rv-reader-subject")){
+      const log=reading.film._episodeLog;
+      if(log)window.KGEpisodePage.open(log.series,log.episode,log.season,{opener:button});
+      else window.KGFilmCard.openDialog(window.KGFilmCard.savedFilm(reading.film),button);
+    }
+  });
   picker.addEventListener("click",event=>{
     const b=event.target.closest("button");
     if(!b)return;
@@ -300,14 +363,16 @@
       if(!row)return;
       if(rvEdit!==undefined)edit(row,b);
       else if(rvShare!==undefined)share(row);
-      else {
-        const log=row.film._episodeLog;
-        if(log)window.KGEpisodePage.open(log.series,log.episode,log.season,{opener:b});
-        else window.KGFilmCard.openDialog(window.KGFilmCard.savedFilm(row.film),b);
-      }
+      else readReview(row,b);
     }
   });
-  for(const event of ["kg:diary-note-change","kg:episode-note-change","kg:review-change"])document.addEventListener(event,()=>{if(dialog.open)render();});
+  for(const event of ["kg:diary-note-change","kg:episode-note-change","kg:review-change"])document.addEventListener(event,()=>{
+    if(dialog.open)render();
+    if(!reader.open||!reading)return;
+    const updated=window.KGReviews.entries().find(row=>reviewKey(row)===reviewKey(reading));
+    if(updated){reading=updated;renderReader();}
+    else reader.close();
+  });
   window.KGOpenReviewPicker=pickReview;
   window.KGOpenReviews=()=>{
     dialog.querySelector(".kg-rv-status").hidden=true;

@@ -7,8 +7,6 @@
   const label = (key,params) => esc(uiText(key,params));
   const paths = {
     search:"m21 21-5-5m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z",
-    person:"M20 21H4a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4ZM16 9a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z",
-    settings:"M12 8a4 4 0 1 1 0 8 4 4 0 0 1 0-8Zm2-5 1 3 3-1 2 2-1 3 3 1v2l-3 1 1 3-2 2-3-1-1 3h-2l-1-3-3 1-2-2 1-3-3-1v-2l3-1-1-3 2-2 3 1 1-3Z",
     favorite:"M20.8 4.6a5.5 5.5 0 0 0-7.8 0l-1 1-1-1a5.5 5.5 0 0 0-7.8 7.8l8.8 8.8 8.8-8.8a5.5 5.5 0 0 0 0-7.8Z",
     bookmark:"M6 3h12v19l-6-4-6 4V3Z", diary:"M4 3h15v18H4zm4 0v18m-6-14h4m-4 5h4m-4 5h4",
     notes:"M4 4h16v12H9l-5 4zm4 8 1-3 5-4 2 2-5 4-3 1Z",
@@ -45,7 +43,6 @@
       </div>
       <div class="kg-pf-head-actions">
         <button type="button" data-profile-action="search" aria-label="${label("Поиск")}">${icon("search")}</button>
-        <button type="button" data-profile-edit class="kg-pf-portrait" aria-label="${label("Настройки профиля")}">${icon("person")}</button>
       </div>
     </header>
     <main class="kg-pf-scroll">
@@ -54,7 +51,7 @@
         <div class="kg-pf-user">
           <img data-profile-avatar alt="" width="88" height="88">
           <div><h2 data-profile-name></h2><p data-profile-caption></p><div class="kg-pf-badges" data-profile-badges></div></div>
-          <button type="button" data-profile-edit aria-label="${label("Настройки профиля")}">${icon("settings")}</button>
+          <button type="button" data-profile-edit aria-label="${label("Настройки профиля")}"><span class="material-symbols-outlined" aria-hidden="true">settings</span></button>
         </div>
         <div class="kg-pf-stats">
           <div><strong data-profile-stat="reviews"></strong><span>${label("Рецензии")}</span></div>

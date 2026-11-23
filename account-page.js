@@ -62,7 +62,7 @@
       return;
     }
     dialog.close();
-    window.KGStartDemoSession(uiText("Регистрация завершена"), form.elements.name.value);
+    window.KGStartDemoSession("", form.elements.name.value);
   });
   dialog.addEventListener('close', () => {
     form.reset();

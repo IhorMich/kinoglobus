@@ -36,7 +36,6 @@
   border-color: var(--pf-control-border) !important;
   background: var(--pf-control);
 }
-.kg-pf-head-actions .kg-pf-portrait { width: 40px; height: 40px; color: var(--pf-ink); }
 .kg-pf-scroll {
   display: grid; align-content: start; gap: 21px; flex: 1; min-height: 0; width: min(100%,720px); margin-inline: auto;
   padding: 7px var(--pf-gutter,18px) 32px; overflow: auto; overscroll-behavior: contain; scrollbar-width: none;

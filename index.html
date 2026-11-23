@@ -28,6 +28,7 @@ html.kg-launch-pending body>:not(#kg-launch-splash){visibility:hidden!important;
 <link rel="stylesheet" href="release-settings.css?v=2">
 <link rel="stylesheet" href="personal-calendar.css?v=1">
 <link rel="stylesheet" href="profile-dashboard.css?v=10">
+<link rel="stylesheet" href="bookmarks-page.css?v=1">
 <link rel="stylesheet" href="profile-settings.css?v=4">
 <link rel="stylesheet" href="viewing-note.css?v=3">
 <link rel="stylesheet" href="favorites.css?v=1">
@@ -46,7 +47,7 @@ try {
 } catch (_) {}
 </script>
 <script src="steel-motion.js?v=4" defer></script>
-<script src="interface-en.js?v=105"></script>
+<script src="interface-en.js?v=106"></script>
 <script src="interface-i18n.js?v=2"></script>
 <script src="catalog-safety.js?v=3"></script>
 <script>
@@ -2051,7 +2052,9 @@ async function kgToggleBookmark(id, film) {
     details[id] = {
       id,adult:film.adult,title:film.title,original:film.original_title || film.original || "",
       year:String(film.release_date || film.year || "").slice(0,4),
-      poster:film.poster_path || film.poster || "",cc:film._cc || film._kgCountry || film.cc || ""
+      poster:film.poster_path || film.poster || "",cc:film._cc || film._kgCountry || film.cc || "",
+      release_date:film.release_date,genre_ids:film.genre_ids,
+      runtime:Number(film.runtime)||0,vote_average:film.vote_average ?? film.score,savedAt:new Date().toISOString()
     };
   } else if (!enabled) delete details[id];
   store.set("kgBookmarkFilms",details);
@@ -2078,7 +2081,9 @@ function kgBookmarkButton(film,position = "") {
     original:film.original_title || film.original || "",
     year:String(film.release_date || film.year || "").slice(0,4),
     poster:film.localizedPoster?.path || film.poster_path || film.poster || "",
-    cc:film._cc || film._kgCountry || film.cc || film.countries?.[0] || ""
+    cc:film._cc || film._kgCountry || film.cc || film.countries?.[0] || "",
+    release_date:film.release_date, runtime:film.runtime, vote_average:film.vote_average ?? film.score,
+    genre_ids:film.genre_ids, number_of_episodes:film.number_of_episodes
   });
   const enabled = kgIsBookmarked(id);
   const label = bookmarkLabel(enabled);
@@ -4693,7 +4698,7 @@ console.info("[Moven: Explore] Bridge v6 ready");
 <script src="profile-page.js?v=26"></script>
 <script src="profile-settings.js?v=4"></script>
 <script src="viewing-note.js?v=3"></script>
-<script src="cinema-diary.js?v=19"></script>
+<script src="cinema-diary.js?v=20"></script>
 <script src="profile-editor.js?v=12"></script>
 <script src="login-page.js?v=8"></script>
 <script src="password-recovery.js?v=8"></script>
@@ -4718,7 +4723,8 @@ console.info("[Moven: Explore] Bridge v6 ready");
 <script src="series-gold.js?v=9"></script>
 <script src="collections.js?v=161"></script>
 <script src="film-interactions.js?v=43"></script>
-<script src="legal-watch.js?v=9"></script>
+<script src="legal-watch.js?v=10"></script>
+<script src="bookmarks-page.js?v=1"></script>
 <script src="global-search.js?v=19"></script>
 <script src="home-releases.js?v=14"></script>
 <script src="settings-page.js?v=66"></script>

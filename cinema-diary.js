@@ -18,11 +18,9 @@
   const navigation = [["home","public","Глобус"],["collections","collections_bookmark","Подборки"],
     ["history","history_edu","История"],["settings","tune","Настройки"]];
   let entries = [];
-  let bookmarks = [];
   let editorEntries = [];
   let source = "watched";
   let selectedFilm = "";
-  let bookmarkLoad = 0;
   let month = "";
   let day = "";
   let filter = "all";
@@ -193,7 +191,7 @@
         </section>
         <div class="kg-diary-sources" role="group" aria-label="Списки фильмов">
           <button type="button" data-source="watched" aria-pressed="true" aria-controls="kg-diary-entries">Просмотренные</button>
-          <button type="button" data-source="bookmarks" aria-pressed="false" aria-controls="kg-diary-entries">Закладки</button>
+          <button type="button" data-diary-bookmarks aria-haspopup="dialog">Закладки</button>
           <button type="button" data-source="notes" aria-pressed="false" aria-controls="kg-diary-entries">Записи</button>
         </div>
         <div class="kg-diary-tabs" role="group" aria-label="Фильтры дневника"></div>
@@ -316,45 +314,7 @@
 
   function currentList() {
     if (source === "notes") return savedNotes();
-    return source === "bookmarks" ? bookmarks : entries;
-  }
-
-  async function refreshBookmarks() {
-    const load = ++bookmarkLoad;
-    const saved = store.get("kgBookmarkFilms",{}) || {};
-    const watchedById = new Map(entries.map(entry => [Number(entry.film.id),entry.film]));
-    bookmarks = kgBookmarkIds().map(id => makeEntry(watchedById.get(id) || movieCatalog.savedFilm(saved[id]) || {id}));
-    bookmarks.push(...(window.KGSeries?.bookmarkList?.() || []).map(film=>makeEntry({...film,poster:film.poster_path||film.poster,year:String(film.release_date||film.first_air_date||"").slice(0,4)})));
-    renderList();
-    if (!apiKey) return;
-    const missing = bookmarks.filter(entry => !entry.film.title || !entry.film.poster);
-    for (let index=0; index<missing.length; index+=6) {
-      await Promise.all(missing.slice(index,index+6).map(async entry => {
-        try {
-          const details = await filmDetails(entry.film.id);
-          if (load !== bookmarkLoad || !details.title) return;
-          Object.assign(entry, makeEntry({
-            id:entry.film.id,adult:details.adult,title:details.title,original:details.originalTitle,year:details.release.slice(0,4),
-            poster:details.localizedPoster?.path || entry.film.poster,cc:details.countries[0] || entry.code
-          }));
-          if (noteDialog.open) {
-            const option = [...fields.film.options].find(item => item.value === String(entry.film.id));
-            if (option) option.textContent = filmName(entry.film);
-          }
-        } catch { /* The bookmark remains selectable while its metadata is unavailable. */ }
-      }));
-      if (load !== bookmarkLoad || source !== "bookmarks" || !dialog.open) return;
-      const active = document.activeElement;
-      const focusedFilm = active?.dataset.filmSelect;
-      const focusedEdit = active?.dataset.edit;
-      if (!noteDialog.open) {
-        renderList();
-        if (focusedFilm || focusedEdit) {
-          const selector = focusedFilm ? `[data-film-select="${focusedFilm}"]` : `[data-edit="${focusedEdit}"]`;
-          dialog.querySelector(selector)?.focus({preventScroll:true});
-        }
-      }
-    }
+    return entries;
   }
 
   function showStatus(message = "") {
@@ -510,7 +470,7 @@
         section.className = "kg-diary-group";
         section.append(...films.map(filmCard));
         list.append(section);
-      } else showEmpty(list, source === "notes" ? "Записей пока нет." : "В закладках пока нет фильмов.");
+      } else showEmpty(list, "Записей пока нет.");
       return;
     }
     const groups = new Map();
@@ -592,7 +552,7 @@
     document.dispatchEvent(new CustomEvent("kg:diary-note-change",{detail:{id}}));
     if(!dialog.open)return;
     const scroll=dialog.querySelector('.kg-diary-scroll'),top=scroll.scrollTop;
-    selectedFilm=id;refreshEntries();bookmarks=bookmarks.map(entry=>makeEntry(entry.film));filter='all';day='';
+    selectedFilm=id;refreshEntries();filter='all';day='';
     month=(date||dayKey(new Date())).slice(0,7);calendar.value=month;render();scroll.scrollTop=top;
     dialog.querySelector(`[data-edit="${id}"]`)?.focus({preventScroll:true});showStatus('Запись сохранена.');
   }
@@ -618,8 +578,7 @@
   }
   function openNote(id = "", films = currentList(), options={}) {
     if (!films.length) {
-      showStatus(source === "notes" ? "Записей пока нет." :
-        source === "bookmarks" ? "Сначала добавьте фильм в закладки." : "Сначала отметьте фильм как просмотренный.");
+      showStatus(source === "notes" ? "Записей пока нет." : "Сначала отметьте фильм как просмотренный.");
       return;
     }
     if(window.KGViewingNote){const entry=films.find(e=>entryId(e)===String(id))||films[0];return compactNote(entry,films,options);}
@@ -631,11 +590,6 @@
     noteDialog.scrollTop = 0;
   }
 
-  noteDialog.addEventListener("close",() => {
-    if (!dialog.open || noteDialog.open || source !== "bookmarks") return;
-    renderList();
-    dialog.querySelector(`[data-edit="${selectedFilm}"]`)?.focus({preventScroll:true});
-  });
   fields.film.addEventListener("change",fillNote);
   form.addEventListener("input",updateEditor);
   noteDialog.querySelector(".kg-diary-preview img").addEventListener("error",event => {
@@ -695,8 +649,7 @@
     const scrollTop = scroll.scrollTop;
     selectedFilm = id;
     refreshEntries();
-    bookmarks = bookmarks.map(entry => makeEntry(entry.film));
-    filter = "all";
+      filter = "all";
     day = "";
     month = fields.date.value.slice(0,7);
     calendar.value = month;
@@ -728,16 +681,16 @@
       target.click();
       return;
     }
+    if (button.hasAttribute("data-diary-bookmarks")) {
+      window.KGOpenBookmarks({closeParent:()=>{dialog.close();closeParent?.();}});
+      return;
+    }
     if (nextSource && nextSource !== source) {
       source = nextSource;
       selectedFilm = "";
       showStatus();
       dialog.querySelectorAll("[data-source]").forEach(tab => tab.setAttribute("aria-pressed",String(tab === button)));
-      if (source === "bookmarks") refreshBookmarks();
-      else {
-        bookmarkLoad++;
-        renderList();
-      }
+      renderList();
       return;
     }
     if (filmSelect) {
@@ -771,14 +724,6 @@
     }
   });
 
-  document.addEventListener("kg-bookmark-change",event => {
-    if (!dialog.open || source !== "bookmarks") return;
-    if (selectedFilm === String(event.detail.id) && !event.detail.enabled) selectedFilm = "";
-    refreshBookmarks();
-    // Removing the card also removes the focused button.
-    dialog.querySelector('[data-source="bookmarks"]').focus({preventScroll:true});
-  });
-
   document.addEventListener('kg:episode-note-change',()=>{if(dialog.open)render();});
   window.KGHasCinemaDiaryNote = id => Object.hasOwn(store.get(notesKey,{}) || {}, String(id));
   window.KGOpenCinemaDiaryNote = (film,options={}) => {
@@ -792,9 +737,9 @@
   };
 
   window.KGOpenCinemaDiary = ({avatar, closeParent: onNavigate, initialSource, focusStats=false} = {}) => {
+    if (initialSource === "bookmarks") return window.KGOpenBookmarks({closeParent:onNavigate});
     closeParent = onNavigate;
-    bookmarkLoad++;
-    source = ["bookmarks","notes"].includes(initialSource) ? initialSource : "watched";
+      source = initialSource === "notes" ? "notes" : "watched";
     selectedFilm = "";
     dialog.querySelectorAll("[data-source]").forEach(tab => tab.setAttribute("aria-pressed",String(tab.dataset.source === source)));
     notes = store.get(notesKey,{}) || {};
@@ -811,8 +756,7 @@
     if (avatar) portrait.src = avatar;
     if (!dialog.open) dialog.showModal();
     render();
-    if (source === "bookmarks") refreshBookmarks();
-    dialog.querySelector(".kg-diary-scroll").scrollTop = 0;
+      dialog.querySelector(".kg-diary-scroll").scrollTop = 0;
     if (focusStats) dialog.querySelector(".kg-diary-stats").scrollIntoView({block:"start"});
   };
 })();

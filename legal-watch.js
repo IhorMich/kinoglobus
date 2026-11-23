@@ -64,13 +64,20 @@
     const promise=(async()=>{let key="";try{key=apiKey||"";}catch{}if(!key)throw new Error("missing TMDB key");const response=await movieCatalog.request(`https://api.themoviedb.org/3/movie/${encodeURIComponent(id)}/watch/providers?api_key=${encodeURIComponent(key)}`);if(!response.ok)throw new Error(`TMDB ${response.status}`);const json=await response.json();return json.results||{};})().catch(error=>{cache.delete(id);throw error;});
     cache.set(id,promise);return promise;
   }
-  function render(section,all){
-    const code = region();
-    if(!code){section.innerHTML="";section.hidden=true;return;}
+  function regionProviders(all,code) {
     const result = all[code] || {};
     const groups=["flatrate","free","ads","rent","buy"],seen=new Set(),providers=[];
     for(const group of groups)for(const provider of result[group]||[]){if(!seen.has(provider.provider_id)){seen.add(provider.provider_id);providers.push(provider);}}
-    const items=providers.slice(0,3);
+    return providers;
+  }
+  async function providersFor(id) {
+    const code=region();
+    if (!code) return {region:code,names:[]};
+    const all=await providerData(id);
+    return {region:code,names:regionProviders(all,code).map(provider=>provider.provider_name).filter(Boolean)};
+  }
+  function render(section,all){
+    const items=regionProviders(all,region()).slice(0,3);
     if(!items.length){section.innerHTML="";section.hidden=true;return;}
     const links=items.map(provider=>{
       const name=provider.provider_name||uiText("Сервис просмотра");
@@ -100,5 +107,5 @@
   const observer=new MutationObserver(records=>records.forEach(record=>record.addedNodes.forEach(node=>{if(node.nodeType!==1)return;if(node.matches?.("[data-kg-legal-watch]"))hydrate(node);node.querySelectorAll?.("[data-kg-legal-watch]").forEach(hydrate);} )));
   observer.observe(document.documentElement,{childList:true,subtree:true});
   document.querySelectorAll("[data-kg-legal-watch]").forEach(hydrate);
-  window.KGLegalWatch=Object.freeze({markup, regionOptions, getRegion:() => selectedRegion, getRegionName:() => countryName(region()), getEffectiveRegion:region, setRegion});
+  window.KGLegalWatch=Object.freeze({markup, providersFor, regionOptions, getRegion:() => selectedRegion, getRegionName:() => countryName(region()), getEffectiveRegion:region, setRegion});
 })();

@@ -14,7 +14,7 @@
     const rating = Number(row.note.rating);
     return rating>0 && rating<=5 ? rating*2 : 0;
   };
-  const pageSize = 8;
+  const previewSize = 8;
   const dialog = document.createElement("dialog");
   dialog.id = "kg-reviews";
   dialog.setAttribute("aria-labelledby","kg-rv-title");
@@ -28,17 +28,20 @@
       <div class="kg-rv-metrics">
         <div><strong data-rv-total></strong><small>${label("Рецензии")}</small></div>
         <div><strong data-rv-average></strong><small>${label("Средний балл")}</small></div>
-        <div><strong data-rv-episodes></strong><small>${label("На эпизоды")}</small></div>
+        <div data-rv-episode-stat hidden><strong data-rv-episodes></strong><small>${label("Рецензии на эпизоды")}</small></div>
       </div>
       <button type="button" class="kg-rv-control kg-rv-new" data-rv-new>${icon("edit_note")}${label("Написать новую рецензию")}</button>
     </section>
     <label class="kg-rv-search">${icon("search")}<input type="search" autocomplete="off" aria-label="${label("Поиск по рецензиям")}" placeholder="${label("Поиск по рецензиям и названиям…")}"></label>
-    <div class="kg-rv-tools"><div class="kg-rv-filters" data-rv-filters></div>
+    <div class="kg-rv-tools" hidden><div class="kg-rv-filters" data-rv-filters></div>
       <button type="button" class="kg-rv-control" data-rv-sort>${icon("swap_vert")}<span></span></button>
+    </div>
+    <div class="kg-rv-section-heading">
+      <h2 class="kg-rv-group-title">${label("Рецензии")}</h2>
+      <button type="button" class="kg-rv-control" data-rv-all aria-label="${label("Все рецензии и черновики")}">${label("Все")}${icon("chevron_right")}</button>
     </div>
     <p class="kg-rv-status" role="status" hidden></p>
     <div class="kg-rv-list" data-rv-list></div>
-    <footer class="kg-rv-footer" hidden><button class="kg-rv-control" type="button" data-rv-more>${label("Показать ещё рецензии")}${icon("expand_more")}</button><small data-rv-page></small></footer>
   </main>
   <dialog class="kg-rv-picker" data-rv-picker aria-labelledby="kg-rv-picker-title">
     <h2 id="kg-rv-picker-title">${label("Выберите фильм, сериал или эпизод")}</h2>
@@ -59,7 +62,7 @@
   const reviewTypes=[["all","Все"],["films","Фильмы"],["series","Сериалы"],["episodes","Эпизоды"]];
   let pickerType="all",pickerMode="history",lookup=0,debounce,selectedSeries,selectedSeason,pickerOpener;
   const set=(selector,value)=>{dialog.querySelector(selector).textContent=value;};
-  let rows=[],choices=[],filter="all",ascending=false,limit=pageSize;
+  let rows=[],choices=[],filter="all",ascending=false,fullList=false,draftsOpen=true;
 
   function entryCard(row,index) {
     const film=filmFor(row),log=row.film._episodeLog;
@@ -72,7 +75,7 @@
       : [uiText(kind(row)==="series"?"Сериал":"Фильм"),year,film.original_title||film.original].filter(Boolean).join(" · ");
     const copy=`<span class="kg-rv-copy">
       ${row.note.title ? `<strong>${esc(row.note.title)}</strong>` : ""}
-      <span>${window.KGReviews.renderBody(row.note)}</span>
+      <span class="kg-rv-body">${window.KGReviews.renderBody(row.note)}</span>
       ${Array.isArray(row.note.fragments)?row.note.fragments.map(text=>`<details class="kg-re-fragment"><summary>${label("Скрытый фрагмент")}</summary><p>${esc(text)}</p></details>`).join(""):""}
       ${row.note.viewFormat||row.note.audio||row.note.viewingDate ? `<small>${esc([row.note.viewFormat,row.note.audio,row.note.viewingDate].filter(Boolean).join(" · "))}</small>` : ""}
       ${Array.isArray(row.note.tags)&&row.note.tags.length
@@ -99,11 +102,18 @@
   function render() {
     const saved=window.KGReviews.entries();
     const drafts=window.KGReviews.entries(true);
+    const list=dialog.querySelector("[data-rv-list]");
+    const railOffset=list.querySelector(".kg-rv-rail")?.scrollLeft||0;
     rows=filter==="drafts"?drafts:filter==="all"?[...drafts,...saved]:saved;
     const ratings=saved.map(personalRating).filter(Boolean);
+    const episodeCount=saved.filter(row=>kind(row)==="episodes").length;
+    dialog.querySelector("[data-rv-episode-stat]").hidden=!episodeCount;
+    dialog.querySelector(".kg-rv-section-heading").hidden=fullList;
+    dialog.querySelector(".kg-rv-tools").hidden=!fullList;
+    dialog.querySelector("[data-rv-all]").hidden=!saved.length&&!drafts.length;
     set("[data-rv-total]",String(saved.length));
     set("[data-rv-average]",ratings.length ? "★ "+scoreFormat.format(ratings.reduce((a,b)=>a+b,0)/ratings.length) : "—");
-    set("[data-rv-episodes]",String(saved.filter(row=>row.film._episodeLog).length));
+    set("[data-rv-episodes]",String(episodeCount));
     set("[data-rv-sort] span:last-child",uiText(ascending?"Сначала старые":"Сначала новые"));
     dialog.querySelector("[data-rv-filters]").innerHTML=[...reviewTypes,["drafts","Черновики"]].map(([key,name])=>
       `<button type="button" data-rv-filter="${key}" aria-pressed="${filter===key}">${label(name)} <small>${key==="drafts"?drafts.length:
@@ -114,14 +124,31 @@
         row.film._episodeLog?.episode.name,row.note.title,row.note.author,reviewText(row)].join(" ")).includes(term)));
     if(ascending)matches.sort((a,b)=>Number(Boolean(b.row.draft))-Number(Boolean(a.row.draft)) ||
       (a.row.key&&b.row.key?a.row.key.localeCompare(b.row.key):Number(!a.row.key)-Number(!b.row.key)));
-    const page=matches.slice(0,limit);
-    dialog.querySelector("[data-rv-list]").innerHTML=page.length ? page.map(({row,index},i)=>`${filter==="all"&&row.draft&&!i?`<h2 class="kg-rv-group-title">${label("Черновики")}</h2>`:
-      filter==="all"&&!row.draft&&page[i-1]?.row.draft?`<h2 class="kg-rv-group-title">${label("Сохранённые рецензии")}</h2>`:""}${entryCard(row,index)}`).join("") :
-      `<p class="kg-rv-empty">${label(rows.length?"Ничего не найдено":filter==="drafts"?"У вас пока нет черновиков.":"У вас пока нет рецензий.")}</p>`;
-    const footer=dialog.querySelector(".kg-rv-footer");
-    footer.hidden=!page.length;
-    footer.querySelector("button").hidden=page.length===matches.length;
-    set("[data-rv-page]",uiText("Показано {shown} из {total}",{shown:page.length,total:matches.length}));
+    if(!matches.length){
+      list.innerHTML=`<p class="kg-rv-empty">${label(rows.length?"Ничего не найдено":
+        filter==="drafts"?"У вас пока нет черновиков.":"У вас пока нет рецензий.")}</p>`;
+      return;
+    }
+    const matchingDrafts=matches.filter(({row})=>row.draft);
+    const matchingSaved=matches.filter(({row})=>!row.draft);
+    const cards=items=>items.map(({row,index})=>entryCard(row,index)).join("");
+    const draftHeading=label("Черновики");
+    const savedHeading=label("Сохранённые рецензии");
+    list.innerHTML=fullList ? `
+      ${matchingDrafts.length?`<h2 class="kg-rv-group-title">${draftHeading}</h2>${cards(matchingDrafts)}`:""}
+      ${matchingSaved.length?`${matchingDrafts.length?`<h2 class="kg-rv-group-title">${savedHeading}</h2>`:""}${cards(matchingSaved)}`:""}` : `
+      ${matchingDrafts.length?`<details class="kg-rv-draft-group" data-rv-drafts ${draftsOpen?"open":""}>
+        <summary><span>${draftHeading} <small>${matchingDrafts.length}</small></span>${icon("expand_more")}</summary>
+        <div class="kg-rv-list">${cards(matchingDrafts.slice(0,3))}</div>
+      </details>`:""}
+      ${matchingSaved.length?`<section class="kg-rv-saved-section">
+        ${matchingDrafts.length?`<h2 class="kg-rv-group-title">${savedHeading}</h2>`:""}
+        <div class="kg-rv-rail" tabindex="0" aria-label="${savedHeading}">${cards(matchingSaved.slice(0,previewSize))}</div>
+      </section>`:""}`;
+    const rail=list.querySelector(".kg-rv-rail");
+    if(rail)rail.scrollLeft=railOffset;
+    const group=list.querySelector("[data-rv-drafts]");
+    group?.addEventListener("toggle",()=>{if(group.isConnected)draftsOpen=group.open;});
   }
 
   const itemName = item => item.film.title || item.film.name || item.film.original_title || uiText("Без названия");
@@ -229,8 +256,14 @@
       else {await navigator.clipboard.writeText(value);status.textContent=uiText("Рецензия скопирована.");status.hidden=false;}
     }catch(error){if(error.name!=="AbortError"){status.textContent=uiText("Не удалось поделиться рецензией.");status.hidden=false;}}
   }
-  const reset=()=>{limit=pageSize;render();};
-  query.addEventListener("input",reset);
+  function setView(showAll) {
+    fullList=showAll;filter="all";ascending=false;query.value="";
+    set("#kg-rv-title",uiText(showAll?"Все рецензии и черновики":"Мои рецензии"));
+    render();main.scrollTop=0;
+    dialog.querySelector(showAll?"[data-rv-back]":"[data-rv-all]:not([hidden])")?.focus({preventScroll:true});
+  }
+  query.addEventListener("input",render);
+  dialog.addEventListener("cancel",event=>{if(fullList){event.preventDefault();setView(false);}});
   pickerSearch.addEventListener("input",renderPicker);
   picker.addEventListener("close",()=>{if(!picker.open){clearTimeout(debounce);lookup++;}});
   dialog.addEventListener("error",event=>{if(event.target.tagName==="IMG")event.target.hidden=true;},true);
@@ -257,11 +290,11 @@
     const b=event.target.closest("button");
     if(!b)return;
     const {rvFilter,rvEdit,rvShare,rvOpen}=b.dataset;
-    if(b.hasAttribute("data-rv-back"))dialog.close();
+    if(b.hasAttribute("data-rv-back")){if(fullList)setView(false);else dialog.close();}
+    else if(b.hasAttribute("data-rv-all"))setView(true);
     else if(b.hasAttribute("data-rv-new"))pickReview(b);
-    else if(b.hasAttribute("data-rv-sort")){ascending=!ascending;reset();}
-    else if(b.hasAttribute("data-rv-more")){limit+=pageSize;render();}
-    else if(rvFilter){filter=rvFilter;reset();dialog.querySelector(`[data-rv-filter="${filter}"]`).focus({preventScroll:true});
+    else if(b.hasAttribute("data-rv-sort")){ascending=!ascending;render();}
+    else if(rvFilter){filter=rvFilter;render();dialog.querySelector(`[data-rv-filter="${filter}"]`).focus({preventScroll:true});
     }else{
       const row=rows[Number(rvEdit??rvShare??rvOpen)];
       if(!row)return;
@@ -277,9 +310,8 @@
   for(const event of ["kg:diary-note-change","kg:episode-note-change","kg:review-change"])document.addEventListener(event,()=>{if(dialog.open)render();});
   window.KGOpenReviewPicker=pickReview;
   window.KGOpenReviews=()=>{
-    filter="all";ascending=false;limit=pageSize;query.value="";
     dialog.querySelector(".kg-rv-status").hidden=true;
-    render();
+    setView(false);
     if(!dialog.open)dialog.showModal();
     main.scrollTop=0;
   };

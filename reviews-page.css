@@ -27,11 +27,11 @@
 .kg-rv-header .kg-rv-control { width: 44px; min-height: 44px; padding: 0; border-radius: 50%; }
 .kg-rv-summary { display: grid; gap: 10px; padding: 14px; border-radius: 15px; background: var(--rv-panel); }
 .kg-rv-summary h2,.kg-rv-picker h2 { margin: 0; font: 600 20px/1.18 var(--kg-font-heading); }
-.kg-rv-metrics { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); padding: 7px 0; border-radius: 10px; background: rgb(var(--kg-surface-container-lowest) / .55); text-align: center; }
+.kg-rv-metrics { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0,1fr); padding: 7px 0; border-radius: 10px; background: rgb(var(--kg-surface-container-lowest) / .55); text-align: center; }
 .kg-rv-metrics > div { display: grid; align-content: start; gap: 2px; padding-inline: 3px; }
 .kg-rv-metrics > div + div { border-inline-start: 1px solid rgb(var(--kg-outline-variant) / .65); }
 .kg-rv-metrics strong { color: rgb(var(--kg-primary)); font: 600 20px/1.1 var(--kg-font-heading); }
-.kg-rv-metrics small,.kg-rv-footer small { color: var(--rv-muted); font-size: 12px; }
+.kg-rv-metrics small { color: var(--rv-muted); font-size: 12px; }
 .kg-rv-new { min-height: 44px; font-weight: 650; }
 .kg-rv-search { display: flex; align-items: center; gap: 7px; padding-inline: 10px; background: var(--rv-panel); border-radius: 12px; }
 .kg-rv-search:focus-within { outline: 2px solid rgb(var(--kg-primary)); outline-offset: -2px; }
@@ -45,7 +45,27 @@
 .kg-rv-filters button { flex: none; min-height: 34px; padding-inline: 8px; border-radius: 999px; background: var(--rv-panel); font-size: 12px; }
 .kg-rv-filters button[aria-pressed="true"] { background: rgb(var(--kg-primary-container)); color: rgb(var(--kg-on-primary-container)); }
 .kg-rv-filters small { font-size: 11px; }
-.kg-rv-list { display: grid; gap: 10px; }
+.kg-rv-list,.kg-rv-saved-section { display: grid; min-width: 0; gap: 10px; }
+.kg-rv-section-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.kg-rv-section-heading .kg-rv-control { min-height: 38px; }
+.kg-rv-draft-group > summary {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 12px;
+  min-height: 44px; border-radius: 12px; cursor: pointer; background: var(--rv-panel);
+  font: 600 14px/1.35 var(--kg-font-interface);
+}
+.kg-rv-draft-group > summary::-webkit-details-marker { display: none; }
+.kg-rv-draft-group > summary small { margin-inline-start: 3px; color: var(--rv-muted); font-size: 12px; }
+.kg-rv-draft-group[open] > summary .material-symbols-outlined { transform: rotate(180deg); }
+.kg-rv-draft-group > div { margin-top: 8px; }
+.kg-rv-rail {
+  display: flex; align-items: flex-start; gap: 10px; min-width: 0; overflow-x: auto; padding: 2px 2px 7px;
+  scroll-snap-type: x proximity; scroll-padding-inline-start: 2px; overscroll-behavior-inline: contain;
+  scrollbar-width: thin; scrollbar-color: var(--rv-raised) transparent;
+}
+.kg-rv-rail > article { flex: 0 0 min(85%,320px); scroll-snap-align: start; }
+.kg-rv-rail > article:only-child { flex-basis: min(100%,320px); }
+.kg-rv-rail .kg-rv-copy > .kg-rv-body { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 5; overflow: hidden; }
+#kg-reviews :is(.kg-rv-rail,.kg-rv-draft-group > summary):focus-visible { outline: 2px solid rgb(var(--kg-primary)); outline-offset: -2px; }
 .kg-rv-card { display: grid; gap: 7px; padding: 10px; min-width: 0; border-radius: 14px; background: var(--rv-panel); }
 .kg-rv-film { position: relative; display: grid; grid-template-columns: 68px minmax(0,1fr); width: 100%; gap: 8px; text-align: start; }
 .kg-rv-art { position: relative; display: grid; place-items: center; width: 100%; aspect-ratio: 2/3; overflow: hidden; border-radius: 7px; background: var(--rv-raised); }
@@ -66,7 +86,6 @@
 .kg-rv-card footer { display: flex; justify-content: end; align-items: center; gap: 6px; }
 .kg-rv-card footer > span { margin-inline-end: auto; color: var(--rv-muted); font-size: 12px; overflow-wrap: anywhere; }
 .kg-rv-card footer .kg-rv-control { width: 36px; padding: 0; border-radius: 50%; }
-.kg-rv-footer { display: grid; gap: 4px; text-align: center; }
 .kg-rv-empty,.kg-rv-status { margin: 0; padding: 10px; border-radius: 10px; background: var(--rv-panel); color: var(--rv-muted); font-size: 14px; }
 .kg-rv-picker { position: fixed; inset: auto 0 0; margin: 0 auto; width: min(100%,440px); max-width: none; max-height: 75dvh; padding: 14px; border: 0; border-radius: 15px 15px 0 0; color: var(--rv-ink); background: rgb(var(--kg-surface)); }
 .kg-rv-picker[open] { display: grid; gap: 8px; grid-template-rows: auto auto auto minmax(0,1fr) auto; }

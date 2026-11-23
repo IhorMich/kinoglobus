@@ -3,7 +3,8 @@ window.KGInterfaceDictionaries ??= {};
 window.KGInterfaceDictionaries.en = Object.freeze({
   "Мои рецензии": "My reviews",
   "Журнал кинокритика": "Film review journal",
-  "На эпизоды": "Episode reviews",
+  "Рецензии на эпизоды": "Episode reviews",
+  "Все рецензии и черновики": "All reviews and drafts",
   "Написать новую рецензию": "Write a new review",
   "Поиск по рецензиям": "Search reviews",
   "Поиск по рецензиям и названиям…": "Search reviews and titles\u2026",

@@ -810,6 +810,7 @@ window.KGInterfaceDictionaries.en = Object.freeze({
   "Режиссёр месяца": "Director of the month",
   "Актёр месяца": "Actor of the month",
   "Легенды и создатели": "Legends and creators",
+  "Режиссёры и актёры, чьи работы стали частью истории кино": "Directors and actors whose work became part of film history",
   "Иконы и лица эпохи": "Icons of the screen",
   "К каталогу": "Browse the catalogue",
   "По фамилии": "By surname",

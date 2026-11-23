@@ -498,8 +498,8 @@ function paintBottomNav(panel, current) {
 }
 
 window.KGMountBottomNav = (dialog, container, current, close = () => dialog.close(), {calendar=false}={}) => {
-  // Reuse the primary controls in the two full-screen dialog tabs.
-  if (current === "journey" || current === "history") {
+  // Reuse the primary controls in the full-screen dialog tabs.
+  if (["journey","history","hall"].includes(current)) {
     let header = container.querySelector(":scope > .kg-dialog-top-nav");
     if (!header) {
       const source = document.querySelector("body > .kg-main-header .kg-main-header-actions");

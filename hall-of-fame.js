@@ -31,12 +31,18 @@
     <h1 id="kg-hof-title">${label("Зал славы")}</h1>
   </header>
   <main class="kg-hof-main">
+    <div class="kg-hof-switch" role="group" aria-label="${label("Персоны")}">
+      ${Object.entries(tabs).map(([key,tab])=>`<button type="button" data-hof-tab="${key}">${label(tab.name)}</button>`).join("")}
+      <button type="button" data-hof-jump>${label("К каталогу")} <span aria-hidden="true">↓</span></button>
+    </div>
     <div class="kg-hof-banner">
       <img src="assets/hall-of-fame/banner.png" width="1376" height="768" alt="" data-hof-banner>
-      <h2>${label("Легенды и создатели")}</h2>
+      <div class="kg-hof-banner-copy">
+        <span>${label("Кино и сериалы")}</span>
+        <h2>${label("Легенды и создатели")}</h2>
+        <p>${label("Режиссёры и актёры, чьи работы стали частью истории кино")}</p>
+      </div>
     </div>
-    <div class="kg-hof-switch" role="group" aria-label="${label("Персоны")}">${Object.entries(tabs).map(([key,tab])=>`<button type="button" data-hof-tab="${key}">${label(tab.name)}</button>`).join("")}</div>
-    <div class="kg-hof-heading"><button type="button" data-hof-jump>${label("К каталогу")} <span aria-hidden="true">↓</span></button></div>
     <div data-hof-spotlight></div>
     <section class="kg-hof-catalog" aria-labelledby="kg-hof-catalog-title">
       <div class="kg-hof-catalog-head"><h2 id="kg-hof-catalog-title"></h2>
@@ -162,12 +168,12 @@
     const backdrop=art(person.works.find(film=>film.backdrop_path)?.backdrop_path,"w780");
     spotlight.innerHTML=`<article class="kg-hof-spotlight">${backdrop?`<img class="kg-hof-backdrop" src="${backdrop}" alt="">`:""}
       <div class="kg-hof-spot-copy"><small class="kg-hof-feature-label">${label(tabs[mode].feature)}</small>
-        <div class="kg-hof-identity">${photo(person)}<div><h3>${esc(person.name)}</h3>
+        <div class="kg-hof-identity">${photo(person)}<div><h3><button type="button" class="kg-hof-feature-link" data-hof-person="${Number(person.id)}" data-hof-name="${esc(person.name)}" aria-label="${label("Открыть профиль {name}",{name:person.name})}">${esc(person.name)}</button></h3>
           ${description?`<p>${esc(description)}</p>`:""}</div></div>
         <div class="kg-hof-metrics">${person.works.length?`<span>${label("Работ: {count}",{count:number.format(person.works.length)})}</span>`:""}
           ${average?`<span>★ ${average} TMDB</span>`:""}${dates.length?`<span>${dates[0]}${dates.at(-1)!==dates[0]?"–"+dates.at(-1):""}</span>`:""}</div>
         ${person.works.length?`<h4>${label("Знаковые работы")}</h4>${worksMarkup(person.works,true)}`:""}
-        <button class="kg-hof-primary" type="button" data-hof-person="${Number(person.id)}" data-hof-name="${esc(person.name)}">${label("Открыть профиль")} →</button>
+        <span class="kg-hof-primary" aria-hidden="true">${label("Открыть профиль")} →</span>
       </div></article>`;
   }
   async function loadFeature(){

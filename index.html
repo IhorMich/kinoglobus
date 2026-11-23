@@ -2055,7 +2055,7 @@ async function kgToggleBookmark(id, film) {
     if (movieCatalog.allows({...film,id}) && film.title) Object.assign(details[id],{
       adult:film.adult,title:film.title,original:film.original_title || film.original || "",
       year:String(film.release_date || film.year || "").slice(0,4),
-      poster:film.poster_path || film.poster || "",cc:film._cc || film._kgCountry || film.cc || "",
+      poster:film.localizedPoster?.path || film.poster_path || film.poster || "",cc:film._cc || film._kgCountry || film.cc || "",
       release_date:film.release_date,genre_ids:film.genre_ids,backdrop_path:film.backdrop_path,overview:film.overview,
       runtime:Number(film.runtime)||0,vote_average:film.vote_average ?? film.score
     });
@@ -2086,7 +2086,8 @@ function kgBookmarkButton(film,position = "") {
     poster:film.localizedPoster?.path || film.poster_path || film.poster || "",
     cc:film._cc || film._kgCountry || film.cc || film.countries?.[0] || "",
     release_date:film.release_date, runtime:film.runtime, vote_average:film.vote_average ?? film.score,
-    backdrop_path:film.backdrop_path, overview:film.overview, genre_ids:film.genre_ids, number_of_episodes:film.number_of_episodes
+    backdrop_path:film.backdrop_path, overview:film.overview, genre_ids:film.genre_ids,
+    number_of_episodes:film.number_of_episodes, number_of_seasons:film.number_of_seasons
   });
   const enabled = kgIsBookmarked(id);
   const label = bookmarkLabel(enabled);
@@ -4693,7 +4694,7 @@ console.info("[Moven: Explore] Bridge v6 ready");
 <script src="watch-history.js?v=18"></script>
 <script src="country-statistics.js?v=4"></script>
 <script src="country-pages.js?v=58"></script>
-<script src="favorites.js?v=3"></script>
+<script src="favorites.js?v=4"></script>
 <script src="release-alerts.js?v=2"></script>
 <script src="release-follow.js?v=8"></script>
 <script src="release-settings.js?v=2"></script>
@@ -4728,7 +4729,7 @@ console.info("[Moven: Explore] Bridge v6 ready");
 <script src="collections.js?v=164"></script>
 <script src="film-interactions.js?v=43"></script>
 <script src="legal-watch.js?v=10"></script>
-<script src="bookmarks-page.js?v=6"></script>
+<script src="bookmarks-page.js?v=7"></script>
 <script src="viewing-history-page.js?v=6"></script>
 <script src="reviews-page.js?v=1"></script>
 <script src="global-search.js?v=19"></script>

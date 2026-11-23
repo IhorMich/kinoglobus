@@ -35,14 +35,37 @@
   const inCategory=(f,key)=>key==="all" || (key==="series")===isSeries(f.id);
   const rating=f=>Number(f.vote_average)||0;
 
-  function favoriteCard(f,notes) {
+  function cardArt(f,{title=f.title,subtitle=""}={}) {
     const tv=isSeries(f.id);
-    const backdrop=poster(f.backdrop_path,"w780") || poster(f.poster_path,"w500");
+    const [image,...fallbacks]=[...new Set([
+      poster(f.backdrop_path,"w780"),
+      poster(f.localizedPoster?.path,"w500"),
+      poster(f.poster_path || f.poster,"w500")
+    ].filter(Boolean))];
     const year=/^\d{4}/.test(f.release_date||"") ? String(f.release_date).slice(0,4) : "";
     const runtime=Number(f.runtime);
     const length=tv && Number(f.number_of_seasons)>0
       ? uiText("Сезонов: {count}",{count:f.number_of_seasons})
       : !tv && runtime>0 ? uiText("{minutes} мин",{minutes:runtime}) : "";
+    return `<span class="kg-favorites-art">
+      ${image ? `<img src="${image}" alt="" loading="lazy" decoding="async" data-saved-art="${esc(fallbacks.join(" "))}">` : ""}${icon()}
+      <span class="kg-favorites-meta"><small>${labelText(tv?"Сериал":"Фильм")}</small>${year||length?`<small>${esc([year,length].filter(Boolean).join(" · "))}</small>`:""}</span>
+      ${rating(f)>0 ? `<small class="kg-favorites-score"><span aria-hidden="true">★</span> ${rating(f).toFixed(1)}</small>` : ""}
+      <span class="kg-favorites-caption"><strong>${esc(title)}</strong>${subtitle?`<small>${esc(subtitle)}</small>`:""}</span>
+    </span>`;
+  }
+
+  function recoverCardArt(event) {
+    const image=event.target;
+    if (!image.matches?.("img[data-saved-art]")) return;
+    const [next,...fallbacks]=image.dataset.savedArt.split(" ").filter(Boolean);
+    if (!next) {image.hidden=true;return;}
+    image.dataset.savedArt=fallbacks.join(" ");
+    image.src=next;
+  }
+
+  function favoriteCard(f,notes) {
+    const tv=isSeries(f.id);
     const credit=f.director ? uiText(tv?"Создатель: {name}":"Реж. {name}",{name:f.director}) : "";
     const subtitle=[f.original_title!==f.title&&f.original_title,credit].filter(Boolean).join(" · ");
     const overview=String(f.overview||"").trim();
@@ -50,12 +73,7 @@
     const tags=genresOf(f).slice(0,3);
     return `<article class="kg-favorites-row">
       <button type="button" class="kg-favorites-open" data-favorite-open="${f.id}" aria-label="${esc(f.title)}">
-        <span class="kg-favorites-art">
-          ${backdrop ? `<img src="${backdrop}" alt="" loading="lazy" decoding="async">` : ""}${icon()}
-          <span class="kg-favorites-meta"><small>${labelText(tv?"Сериал":"Фильм")}</small>${year||length?`<small>${esc([year,length].filter(Boolean).join(" · "))}</small>`:""}</span>
-          ${rating(f)>0 ? `<small class="kg-favorites-score"><span aria-hidden="true">★</span> ${rating(f).toFixed(1)}</small>` : ""}
-          <span class="kg-favorites-caption"><strong>${esc(f.title)}</strong>${subtitle?`<small>${esc(subtitle)}</small>`:""}</span>
-        </span>
+        ${cardArt(f,{subtitle})}
         ${overview||tags.length ? `<span class="kg-favorites-copy">
           ${overview?`<span class="kg-favorites-overview">${esc(overview)}</span>`:""}
           ${tags.length?`<span class="kg-favorites-tags">${tags.map(t=>`<span>${esc(t)}</span>`).join("")}</span>`:""}
@@ -173,7 +191,7 @@
       document.body.append(dialog);
       const shareSheet=dialog.querySelector('[data-favorites-share-sheet]');
       dialog.querySelector("select").addEventListener("change",render);
-      dialog.addEventListener("error",event=>{if(event.target.tagName==="IMG")event.target.hidden=true;},true);
+      dialog.addEventListener("error",recoverCardArt,true);
       dialog.addEventListener("click",event=>{
         const b=event.target.closest("button");
         if(!b)return;
@@ -203,5 +221,5 @@
     render();dialog.querySelector("main").scrollTop=0;hydrate();
   }
   document.addEventListener('click',event=>{const target=event.target.closest('[data-kg-favorite]');if(!target)return;event.preventDefault();event.stopPropagation();try{toggle(JSON.parse(decodeURIComponent(target.dataset.kgFavoriteFilm)));}catch{const host=target.closest('.kg-film-detail')||dialog;if(host){let status=host.querySelector('[data-favorite-status]');if(!status){status=document.createElement('p');status.dataset.favoriteStatus='';status.setAttribute('role','status');host.append(status);}status.textContent=uiText('Не удалось изменить список любимых.');}}},true);
-  window.KGFavorites={button,icon,has,toggle,list,snapshot,open};
+  window.KGFavorites={button,icon,has,toggle,list,snapshot,open,cardArt,recoverCardArt};
 })();

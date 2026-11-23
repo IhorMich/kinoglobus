@@ -44,8 +44,6 @@
   const metadata = new Map();
   const loadedProviders = new Map();
   const filmName = film => film.title || film.name || uiText("Фильм №{id}",{id:window.KGSeries.rawId(film.id)});
-  const minutes = value => Number(value)>0 ? uiText("{minutes} мин",{minutes:number.format(Math.round(value))}) : "";
-  const imagePath = (path,size) => /^\/[\w.-]+$/.test(path || "") ? "https://image.tmdb.org/t/p/"+size+path : "";
   const normalizeQuery = value => String(value || "").toLocaleLowerCase(interfaceLanguage).replaceAll("ё","е");
   const releaseFollow = id => window.KGReleaseFollow.calendarItems().find(item=>Number(item.id) === id);
   const progressFor = row => {
@@ -60,11 +58,15 @@
   function readRows() {
     const saved = store.get("kgBookmarkFilms",{}) || {};
     const finished = new Map(watched.map(film=>[Number(film.id),film]));
+    const favorites = new Map(window.KGFavorites.list().map(film=>[Number(film.id),film]));
     const films = kgBookmarkIds().map(id=>({...finished.get(id),...saved[id],id}));
     const series = window.KGSeries.bookmarkList();
     return [...films,...series].map((record,index)=>{
       const id = Number(record.id);
-      const saved = {...record,...metadata.get(id)};
+      const favorite = favorites.get(id);
+      const saved = {...favorite,...record,...metadata.get(id)};
+      saved.backdrop_path ||= favorite?.backdrop_path;
+      saved.poster_path ||= saved.poster || favorite?.poster_path;
       if (saved.adult !== undefined && !movieCatalog.allows(saved)) return null;
       const film = window.KGFilmCard.savedFilm(movieCatalog.allows(saved) ? saved : {id});
       const row = {id,film,kind:window.KGSeries.isSeriesId(id) ? "series" : "film",index,added:Date.parse(record.savedAt)||0};
@@ -76,13 +78,9 @@
   function card(row) {
     const {film,id,kind,progress} = row;
     const title = filmName(film);
-    const artwork = imagePath(film.backdrop_path,"w780") || imagePath(film.poster_path || film.poster,"w500");
-    const year = String(film.release_date || film.year || "").slice(0,4);
     const original = film.original_title || film.original || "";
     const provider = providerNames(id)[0];
-    const rating = Number(film.vote_average);
     const followed = releaseFollow(id);
-    const length = [year,kind === "film" && minutes(film.runtime)].filter(Boolean).join(" · ");
     const subtitle = [original!==title && original,provider].filter(Boolean).join(" · ");
     const overview = String(film.overview || "").trim();
     const genres = (genreLine(film) || film.genres?.filter(genre=>typeof genre==="string").join(", ") || "").split(", ").filter(Boolean).slice(0,2);
@@ -91,12 +89,7 @@
     const progressText = progress.count && !progress.seen ? (progress.total ? uiText("{count} из {total} серий",{count:progress.count,total:progress.total}) : uiText("Просмотрено серий: {count}",{count:progress.count})) : "";
     return `<article class="kg-bp-card kg-favorites-row">
       <button type="button" class="kg-favorites-open" data-bp-open="${id}" aria-label="${esc(title)}">
-        <span class="kg-favorites-art">
-          ${artwork ? `<img src="${esc(artwork)}" alt="" loading="lazy" decoding="async">` : ""}${icon(kind === "series" ? "tv" : "movie")}
-          <span class="kg-favorites-meta"><small>${label(kind === "series" ? "Сериал" : "Фильм")}</small>${length ? `<small>${esc(length)}</small>` : ""}</span>
-          ${rating>0 ? `<small class="kg-favorites-score"><span aria-hidden="true">★</span> ${number.format(rating)}</small>` : ""}
-          <span class="kg-favorites-caption"><strong>${esc(title)}</strong>${subtitle ? `<small>${esc(subtitle)}</small>` : ""}</span>
-        </span>
+        ${window.KGFavorites.cardArt(film,{title,subtitle})}
         <span class="kg-favorites-copy">
           ${overview ? `<span class="kg-favorites-overview">${esc(overview)}</span>` : ""}
           ${genres.length ? `<span class="kg-favorites-tags">${genres.map(genre=>`<span>${esc(genre)}</span>`).join("")}</span>` : ""}
@@ -146,10 +139,12 @@
         const {id,film} = queue.shift();
         await Promise.allSettled([
           metadata.has(id) ? null : filmDetails(id).then(details=>metadata.set(id,{
-            adult:details.adult,title:details.title,original_title:details.originalTitle,release_date:details.release,
-            localizedPoster:details.localizedPoster,poster_path:details.localizedPoster?.path || details.posterPath,
+            adult:details.adult ?? film.adult,title:details.title || film.title,
+            original_title:details.originalTitle || film.original_title,release_date:details.release || film.release_date,
+            localizedPoster:details.localizedPoster,poster_path:details.posterPath || film.poster_path,
             backdrop_path:details.backdrop_path || film.backdrop_path,overview:details.overview || film.overview,
-            vote_average:details.average,runtime:details.runtime,genres:details.genres,number_of_episodes:details.number_of_episodes
+            vote_average:details.average,runtime:details.runtime,genres:details.genres,
+            number_of_seasons:details.number_of_seasons,number_of_episodes:details.number_of_episodes
           })),
           loadedProviders.has(providerKey(id)) ? null : window.KGLegalWatch.providersFor(id).then(({region,names})=>loadedProviders.set(`${region}:${id}`,names))
         ]);
@@ -190,7 +185,7 @@
   });
   query.addEventListener("input",render);
   sort.addEventListener("change",render);
-  cards.addEventListener("error",event=>{if(event.target.tagName==="IMG")event.target.hidden=true;},true);
+  cards.addEventListener("error",window.KGFavorites.recoverCardArt,true);
   dialog.addEventListener("close",()=>{if(!dialog.open)generation++;});
   for(const event of ["kg:watched-change","kg:episode-note-change","kg-bookmark-change"]){
     document.addEventListener(event,()=>{

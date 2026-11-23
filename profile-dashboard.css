@@ -63,10 +63,15 @@
 .kg-pf-user > button { align-self: start; }
 .kg-pf-badges { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
 .kg-pf-badges span,.kg-pf-score,.kg-pf-medium,.kg-pf-runtime { padding: 2px 5px; border-radius: 4px; background: var(--pf-raised); color: var(--pf-ink); font-size: 12px; }
-.kg-pf-stats { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); margin-top: 18px; padding: 11px 4px; border-radius: 10px; background: rgb(var(--kg-surface-container-lowest) / .65); text-align: center; }
-.kg-pf-stats div { display: grid; gap: 2px; align-content: center; padding: 4px; }
-.kg-pf-stats strong { font: 600 24px/1.12 var(--kg-font-heading); color: var(--pf-primary); }
-.kg-pf-stats span { color: var(--pf-muted); font-size: 13px; }
+.kg-pf-stats {
+  display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); width: min(100%,244px);
+  margin: 14px auto 0; padding: 8px 0; border: 1px solid var(--pf-control-border); border-radius: 12px;
+  background: rgb(var(--kg-surface-container-lowest) / .7); text-align: center;
+}
+.kg-pf-stats > div { display: grid; grid-template-rows: auto 1fr; gap: 3px; min-width: 0; padding-inline: 4px; }
+.kg-pf-stats > div + div { border-inline-start: 1px solid rgb(var(--kg-outline-variant) / .65); }
+.kg-pf-stats strong { font: 600 20px/1.1 var(--kg-font-heading); color: var(--pf-primary); font-variant-numeric: tabular-nums; }
+.kg-pf-stats span { color: var(--pf-muted); font-size: 12px; line-height: 1.2; }
 .kg-pf-quick { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
 .kg-pf-quick button {
   display: grid; grid-template-columns: 19px minmax(0,1fr); grid-template-rows: minmax(22px,auto) minmax(20px,1fr);

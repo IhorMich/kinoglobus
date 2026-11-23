@@ -11,7 +11,7 @@ window.KGInterfaceDictionaries.en = Object.freeze({
   "Просмотренные сериалы": "Watched series",
   "Все фильмы": "All films",
   "Выйти из аккаунта": "Log out",
-  "Премьер в этом месяце": "Releases this month",
+  "Премьеры месяца": "Releases this month",
   "Моё": "Me",
   "Просмотренные сериалы появятся здесь.": "Watched series will appear here.",
   "Просмотренные фильмы появятся здесь.": "Watched films will appear here.",

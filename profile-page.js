@@ -60,7 +60,7 @@
         <div class="kg-pf-stats">
           <div><strong data-profile-stat="reviews"></strong><span>${label("Рецензии")}</span></div>
           <div><strong data-profile-stat="rating"></strong><span>${label("Средний балл")}</span></div>
-          <div><strong data-profile-stat="releases"></strong><span>${label("Премьер в этом месяце")}</span></div>
+          <div><strong data-profile-stat="releases"></strong><span>${label("Премьеры месяца")}</span></div>
         </div>
       </section>
       <div class="kg-pf-quick">

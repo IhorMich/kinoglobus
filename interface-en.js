@@ -373,6 +373,8 @@ window.KGInterfaceDictionaries.en = Object.freeze({
   "Спецвыпуски": "Specials",
   "Сезон {season}": "Season {season}",
   "Прогресс просмотра": "Watch progress",
+  "Среди загруженных": "Among loaded titles",
+  "Открыть": "Open",
   "{count} из {total} серий · {percent}%": "{count} of {total} episodes · {percent}%",
   "Отметить серию просмотренной": "Mark episode as watched",
   "Снять отметку «Просмотрено»": "Remove watched mark",

@@ -50,13 +50,58 @@ st2.textContent=`.kgr-win{position:relative;height:150px;overflow:hidden;-webkit
 #cl-films .kg-film-list-shell > [data-act="open"]:has(+ .kg-film-detail){display:none}
 #cl-films .kg-film-grid-tile[aria-expanded="true"] .kg-film-grid-poster{visibility:hidden}
 :is(#cat-grid,[data-tv-grid]).kg-three-columns{column-gap:clamp(10px,3.3vw,14px)}
-:is(#cat-grid,[data-tv-grid]).kg-three-columns .collection-card{padding:0;min-width:0;background:none;box-shadow:none}
-:is(#cat-grid,[data-tv-grid]).kg-three-columns .kg-catalog-row{display:grid;grid-template-columns:minmax(0,1fr);gap:.4rem}
-:is(#cat-grid,[data-tv-grid]).kg-three-columns .kg-film-card-poster{box-sizing:border-box;width:100%;height:auto;aspect-ratio:2/3;border-radius:clamp(10px,3vw,16px)}
-:is(#cat-grid,[data-tv-grid]).kg-three-columns .kg-catalog-text{width:100%;height:auto}
-:is(#cat-grid,[data-tv-grid]).kg-three-columns .kg-catalog-text h4{margin:0;white-space:normal;overflow-wrap:anywhere;font-size:.82rem;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;min-height:2.5em}
-:is(#cat-grid,[data-tv-grid]).kg-three-columns :is(.kg-catalog-archive,.kg-catalog-poster-badge,.kg-catalog-meta,.kg-catalog-summary,.kg-catalog-actions),
+:is(#cat-grid,[data-tv-grid]).kg-three-columns .collection-card{padding:0;border:0;min-width:0;background:none;box-shadow:none;gap:.4rem}
+.kg-catalog-grid-cover{display:none;position:relative;aspect-ratio:2/3;overflow:hidden;border-radius:clamp(10px,3vw,16px);background:rgb(var(--kg-surface-container-high))}
+.kg-catalog-grid-cover img{display:block;width:100%;height:100%;object-fit:cover}
+.kg-three-columns .kg-catalog-grid-cover{display:block}
+.kg-three-columns .kg-catalog-title{white-space:normal;overflow-wrap:anywhere;font-size:.82rem;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.5em}
+.kg-three-columns :is(.kg-catalog-meta,.kg-catalog-summary,.kg-catalog-preview,.kg-catalog-actions),
 :is(#view-collections,#view-series-collections):has(:is(#cat-grid,[data-tv-grid]).kg-three-columns) [data-collection-spot] [data-act="spin"]{display:none}
+.kg-catalog-list,.kg-catalog-spot{margin-inline:-4px}
+.kg-catalog-list{display:flex;flex-direction:column;gap:15px}
+.collection-card{display:flex;flex-direction:column;gap:9px;min-width:0;padding:clamp(12px,3.5vw,18px);border:1px solid rgb(var(--kg-outline-variant)/.48);border-radius:22px;background:linear-gradient(145deg,rgb(var(--kg-surface-panel)),rgb(var(--kg-surface-container-low)));box-shadow:0 4px 17px rgb(var(--kg-black)/.24);cursor:pointer}
+.collection-card:hover{border-color:rgb(var(--kg-primary)/.42)}
+.kg-catalog-meta{display:flex;align-items:center;justify-content:space-between;gap:8px;color:rgb(var(--kg-text-muted))}
+.kg-catalog-place{display:flex;align-items:center;gap:5px;min-width:0;flex-wrap:wrap}
+.kg-catalog-place .kgf{flex:none}
+.kg-catalog-rating{flex:none;padding:2px 8px;border-radius:999px;background:rgb(var(--kg-primary)/.11);color:rgb(var(--kg-primary));font-variant-numeric:tabular-nums;white-space:nowrap}
+.kg-catalog-title{margin:0;color:rgb(var(--kg-on-surface));overflow-wrap:anywhere}
+.kg-catalog-title button{text-align:start}
+.kg-catalog-summary{margin:-5px 0 1px;color:rgb(var(--kg-primary))}
+.kg-catalog-preview{display:flex;align-items:center;gap:12px;min-height:105px;min-width:0;padding:8px;border:1px solid rgb(var(--kg-outline-variant)/.32);border-radius:14px;background:rgb(var(--kg-surface-container-high)/.66)}
+.kg-catalog-preview-art{display:flex;align-items:center;flex:none;padding-inline:3px}
+.kg-catalog-preview-art>span{position:relative;display:block;width:54px;aspect-ratio:2/3;overflow:hidden;border-radius:8px;border:1px solid rgb(var(--kg-on-surface)/.16);background:rgb(var(--kg-surface-panel));box-shadow:0 3px 9px rgb(var(--kg-black)/.35)}
+.kg-catalog-preview-art>span:nth-child(n+2){margin-inline-start:-30px}
+.kg-catalog-preview-art:has(>span:nth-child(2))>span:first-child{transform:rotate(-7deg)}
+.kg-catalog-preview-art>span:nth-child(3){transform:rotate(6deg)}
+.kg-catalog-preview-art>span>img{display:block;width:100%;height:100%;object-fit:cover}
+.kg-catalog-preview-copy{display:flex;flex-direction:column;gap:3px;flex:1;min-width:0;color:rgb(var(--kg-on-surface-variant))}
+.kg-catalog-preview-copy strong,.kg-catalog-preview-copy li{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kg-catalog-preview-copy ul{list-style:none;padding:0;margin:0}
+.kg-catalog-preview-copy [data-k="cnt"]{color:rgb(var(--kg-text-muted))}
+.kg-catalog-actions{display:flex;align-items:center;gap:6px;padding-top:8px;border-top:1px solid rgb(var(--kg-outline-variant)/.35)}
+.kg-catalog-progress{flex:1;min-width:0;display:grid;gap:4px;margin-inline-end:3px}
+.kg-catalog-progress>span{display:flex;justify-content:space-between;gap:4px;color:rgb(var(--kg-text-muted))}
+.kg-catalog-progress [data-k="watched"]{color:rgb(var(--kg-primary));white-space:nowrap;font-variant-numeric:tabular-nums}
+.kg-catalog-progress progress{appearance:none;width:100%;height:5px;border:0;border-radius:999px;overflow:hidden;background:rgb(var(--kg-surface-container-high))}
+.kg-catalog-progress progress::-webkit-progress-bar{background:rgb(var(--kg-outline-variant)/.53);border-radius:999px}
+.kg-catalog-progress progress::-webkit-progress-value{background:rgb(var(--kg-primary));border-radius:999px}
+.kg-catalog-progress progress::-moz-progress-bar{background:rgb(var(--kg-primary));border-radius:999px}
+.kg-catalog-icon{display:grid;place-items:center;flex:none;width:36px;height:36px;border-radius:11px;background:rgb(var(--kg-surface-container-high));color:rgb(var(--kg-primary))}
+.kg-catalog-icon:hover{background:rgb(var(--kg-surface-bright))}
+.kg-catalog-spot{isolation:isolate;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;gap:7px;min-height:248px;padding:clamp(15px,4vw,22px);border:1px solid rgb(var(--kg-primary)/.4);border-radius:23px;box-shadow:0 0 18px rgb(var(--kg-primary)/.12);background:rgb(var(--kg-surface-panel));cursor:pointer}
+.kg-catalog-spot[hidden]{display:none}
+.kg-catalog-spot-art,.kg-catalog-spot::before{position:absolute;inset:0;z-index:-1}
+.kg-catalog-spot-art{background-size:cover;background-position:center 37%;opacity:.55}
+.kg-catalog-spot::before{content:"";z-index:-1;background:linear-gradient(0deg,rgb(var(--kg-surface-container-lowest)) 0%,rgb(var(--kg-surface-container-lowest)/.83) 46%,rgb(var(--kg-surface-container-lowest)/.24)),linear-gradient(90deg,rgb(var(--kg-surface-container-lowest)/.58),transparent)}
+.kg-catalog-spot-art{z-index:-2}
+.kg-catalog-spot .kg-catalog-meta{color:rgb(var(--kg-on-surface-variant))}
+.kg-catalog-spot-tag,.kg-catalog-spot-open{display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:999px;background:rgb(var(--kg-primary-container));color:rgb(var(--kg-on-primary-container))}
+.kg-catalog-spot h3,.kg-catalog-spot p{margin:0}
+.kg-catalog-spot-footer{display:flex;align-items:center;gap:6px;margin-top:4px;padding-top:9px;border-top:1px solid rgb(var(--kg-on-surface)/.16)}
+.kg-catalog-spot-footer [data-k="cnt"]{flex:1;min-width:0}
+.kg-catalog-spot-open{min-height:36px;padding-inline:11px;border-radius:11px;white-space:nowrap}
+.kg-catalog-spot-open:hover{filter:brightness(1.12)}
 #mood-cards.kg-three-columns .mood-card [data-mood-select]{height:auto;aspect-ratio:3/4;min-height:7rem}
 #mood-cards.kg-three-columns .kg-mood-cover-copy{left:.4rem;right:.4rem;bottom:.4rem}
 #mood-cards.kg-three-columns .mood-title{font-size:.82rem;line-height:1.2;overflow-wrap:anywhere}
@@ -197,7 +242,6 @@ function collectionFilmCount(n){
   return nf(n)+" "+(interfaceLanguage==="ru"?({фильм:"картина",фильма:"картины",фильмов:"картин"})[word]:word);
 }
 const gnames=t=>t.g.split("|").map(x=>(t.series?window.KGSeries.genreLabels:GENRES)[x]).filter(Boolean).map(genre=>uiText(genre));
-const codeOf=t=>t.films?"":REG[t.id]?REG[t.id][1]:(t.cc[0]==="SU"?(interfaceLanguage==="en"?"USSR":"СССР"):t.cc[0]);
 const where=t=>t.films?uiText("Разные страны"):REG[t.id]?uiText(REG[t.id][0]):cname(t.cc[0]);
 const flagsOf=t=>t.cc.slice(0,3).map(fl).join(" ");
 function toast(msg,icon){
@@ -339,7 +383,11 @@ const FRESH=DAY_MS;
 function saveThemeMeta(t,d){
   const top=d.films.slice(0,10);
   const r=top.length?top.reduce((s,f)=>s+Number(f.vote_average||0),0)/top.length:0;
-  const meta={n:d.total,r:r?r.toFixed(1):"",p:(d.films.find(f=>f.poster_path)||{}).poster_path||"",b:(d.films.find(f=>f.backdrop_path)||{}).backdrop_path||"",ts:Date.now(),...(t.series?{seriesRules:3}:{})};
+  const titles=d.films.filter(f=>f.title||f.original_title).slice(0,3).map(f=>({
+    title:f.title||f.original_title,poster_path:f.poster_path||"",backdrop_path:f.backdrop_path||""
+  }));
+  const ids=d.films.map(f=>Number(f.id)).filter(Number.isSafeInteger);
+  const meta={n:d.total,r:r?r.toFixed(1):"",p:(d.films.find(f=>f.poster_path)||{}).poster_path||"",b:(d.films.find(f=>f.backdrop_path)||{}).backdrop_path||"",titles,ids,previewLocale:filmLocale,ts:Date.now(),...(t.series?{seriesRules:3}:{})};
   META[t.id]=meta;store.set("kgThemeMeta",META);return meta;
 }
 async function loadMeta(t,force=false){
@@ -364,7 +412,7 @@ async function loadMeta(t,force=false){
   }
   if(metaInflight.has(t.id))return metaInflight.get(t.id);
   const m=META[t.id];
-  if(!force&&m&&(!t.series||m.seriesRules===3)&&Date.now()-m.ts<FRESH)return m;
+  if(!force&&m?.previewLocale===filmLocale&&(!t.series||m.seriesRules===3)&&Date.now()-m.ts<FRESH)return m;
   if((metaRetryAfter.get(t.id)||0)>Date.now()){if(m)return m;throw new Error("Метаданные подборки временно недоступны.");}
   const request=(async()=>{
     try{
@@ -733,27 +781,92 @@ function seededShuffle(arr,seed){
 }
 
 function spotlightTheme(){return catalogThemes[Math.floor(Date.now()/6048e5)%catalogThemes.length];}
-function cardHtml(t,i,tv){
-  const m=tv?[tv.category,"",tv.category]:TM[t.id]||["noir","","",""],special=t.id==="suwar";
-  const g0=tv?"":gnames(t)[0]||"";
-  const cover=tv?(tv.cover||P(tvMetadata.get(t.id)?.p,"w342")):getThemeCover(t.id);
-  const location=`${flagsOf(t)} ${esc(tv?.region||where(t))}`;
-  const top=special?`<div class="kg-catalog-archive flex items-center justify-between mb-2"><span class="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-secondary-container/60 text-secondary font-micro-caption text-micro-caption font-bold"><span class="material-symbols-outlined text-[13px]">history_edu</span>${uiText("АРХИВ ИСЧЕЗНУВШИХ ЭПОХ")}</span><span data-k="r" class="font-micro-caption text-micro-caption text-primary-container font-bold">★ …</span></div>`:"";
-  const rate=special||tv?"":`<span data-k="r" class="px-2 py-0.5 rounded-full bg-primary-container/15 text-primary-container font-micro-caption text-micro-caption font-bold flex-shrink-0">★ …</span>`;
-  const btn=`<button type="button" aria-label="${uiText("Крутить")}" data-act="spin" data-t="${t.id}" class="w-8 h-8 rounded-full bg-surface-container-high hover:bg-primary-container hover:text-on-primary-container text-primary flex items-center justify-center transition-all"><span class="material-symbols-outlined text-[18px]">casino</span></button>`;
-  return `<article class="collection-card relative flex flex-col ${special?"p-4 bg-gradient-to-br from-cinema-velvet-deep/40 via-surface-panel to-surface-panel shadow-[0_6px_24px_rgb(var(--kg-black)/0.6)]":"p-3.5 bg-surface-panel shadow-[0_4px_20px_rgb(var(--kg-black)/0.45)]"} rounded-2xl transition-all active:scale-[0.99] cursor-pointer" data-t="${t.id}" data-cat="${m[0]}" data-i="${i}">
-${top}<div class="kg-catalog-row flex items-start gap-3">
-<div class="kg-film-card-poster relative rounded-lg overflow-hidden shrink-0 bg-surface-container-high"><img data-k="img" alt="${esc(uiText(t.name))}" src="${cover}" class="w-full h-full object-cover transition-opacity duration-500 ${special?"grayscale contrast-125":""} ${cover?"":"opacity-0"}">${tv?"":`<span class="kg-catalog-poster-badge absolute bottom-1 right-1 px-1.5 rounded bg-surface-container-lowest/80 text-[10px] font-bold text-primary">${esc(codeOf(t))}</span>`}</div>
-<div class="kg-catalog-text flex flex-col min-w-0 flex-1 justify-between h-28"><div>
-<div class="kg-catalog-meta flex items-center justify-between gap-1"><span class="font-micro-caption text-micro-caption text-text-muted flex items-center gap-1 truncate">${location}</span>${rate}</div>
-<h4 class="font-headline-sm text-headline-sm text-primary font-bold truncate mt-0.5">${esc(uiText(t.name))}</h4>
-<p class="kg-catalog-summary font-micro-caption text-micro-caption text-on-surface-variant ${special?"kg-clip2":"truncate"} mt-0.5">${esc(uiText(m[2]))}</p></div>
-<div class="kg-catalog-actions flex items-center justify-between pt-1"><span data-k="cnt" class="font-label-sm text-label-sm text-text-muted truncate">${tv?(tvMetadata.get(tv.id)?uiText("Сериалов в подборке: {count}",{count:nf(tvMetadata.get(tv.id).n)}):""):`… · ${esc(g0)}`}</span>${btn}</div>
-</div></div></article>`;
+function collectionGenres(t) {
+  return gnames(t).join(" · ") || uiText(t.category || TM[t.id]?.[2] || "");
 }
-
-const collectionSpinClasses = "kg-collection-spin relative group py-3.5 px-4 rounded-xl bg-primary-container text-on-primary font-label-lg text-label-lg font-bold flex items-center justify-center gap-2 shadow-[0_0_24px_rgb(var(--kg-primary-container)/0.28)] transition-all active:scale-[0.98] overflow-hidden";
-const collectionSpinShine = '<span aria-hidden="true" class="absolute inset-0 pointer-events-none bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></span>';
+function collectionCover(t) {
+  return t.series ? t.cover : getThemeCover(t.id);
+}
+function catalogCount(t,meta) {
+  const count=t.films?.length ?? meta?.n;
+  return count===undefined ? "—" : t.series ? seriesCollectionCount(count) : collectionFilmCount(count);
+}
+function catalogPreview(t,meta) {
+  const titles=(meta?.previewLocale===filmLocale && meta.titles) || (t.films||[]).slice(0,3).map(localizeFilmListItem);
+  const posters=titles.filter(f=>f.poster_path||f.backdrop_path).map(f=>`<span>${collectionPoster(f,"w185")}</span>`);
+  const cover=collectionCover(t);
+  const art=posters.join("") || `<span>${cover && (!t.films || !meta?.p)?
+    `<img alt="" src="${esc(cover)}" loading="lazy" decoding="async" data-collection-poster='[]'>`:
+    collectionPoster({poster_path:meta?.p},"w185")}</span>`;
+  return `<div class="kg-catalog-preview-art" aria-hidden="true">${art}</div>
+    <div class="kg-catalog-preview-copy font-label-sm text-label-sm">
+      <strong>${uiText("В подборке")}</strong>
+      ${titles.length?`<ul>${titles.map(f=>`<li>${esc(f.title||f.original_title)}</li>`).join("")}</ul>`:""}
+      <span data-k="cnt">${esc(catalogCount(t,meta))}</span>
+    </div>`;
+}
+function catalogProgress(card,t,meta) {
+  const ids=t.films?.map(f=>f.id) ?? meta?.ids ?? [];
+  const progress=card.querySelector("progress");
+  progress.hidden=!ids.length;
+  if(ids.length){
+    const seen=new Set((t.series?window.KGSeries.watchedList():watched).map(f=>Number(f.id)));
+    progress.max=ids.length;
+    progress.value=ids.filter(id=>seen.has(Number(id))).length;
+  }
+  card.querySelector('[data-k="watched"]').textContent=ids.length?`${nf(progress.value)} / ${nf(ids.length)}`:"—";
+  const label=uiText(ids.length && ids.length < meta?.n ? "Среди загруженных" : "Прогресс просмотра");
+  card.querySelector('[data-k="progress-label"]').textContent=label;
+  progress.setAttribute("aria-label",label);
+}
+function catalogRating(meta) {
+  return meta?.r ? `★ ${meta.r}` : "—";
+}
+function catalogGridCover(t,meta) {
+  const poster=P(meta?.p,"w342");
+  const cover=(t.films && poster) || collectionCover(t) || poster;
+  return cover ? `<img alt="" src="${esc(cover)}" loading="lazy" decoding="async" data-collection-poster='[]'>` : "";
+}
+function cardHtml(t,i){
+  const meta=META[t.id];
+  const name=esc(uiText(t.name));
+  const archive=t.id==="suwar"?` · ${esc(uiText("АРХИВ ИСЧЕЗНУВШИХ ЭПОХ"))}`:"";
+  return `<article class="collection-card" data-t="${t.id}" data-cat="${t.series?t.category:cat(t)}" data-i="${i}">
+    <div class="kg-catalog-grid-cover" aria-hidden="true">${catalogGridCover(t,meta)}</div>
+    <div class="kg-catalog-meta font-micro-caption text-micro-caption">
+      <span class="kg-catalog-place">${flagsOf(t)} ${esc(t.region||where(t))}${archive}</span>
+      <strong class="kg-catalog-rating" data-k="r">${esc(catalogRating(meta))}</strong>
+    </div>
+    <h4 class="kg-catalog-title font-headline-sm text-headline-sm font-bold"><button type="button" data-act="open" data-t="${t.id}">${name}</button></h4>
+    <p class="kg-catalog-summary font-body-sm text-body-sm">${esc(collectionGenres(t))}</p>
+    <div class="kg-catalog-preview">${catalogPreview(t,meta)}</div>
+    <div class="kg-catalog-actions">
+      <div class="kg-catalog-progress font-label-sm text-label-sm">
+        <span><span data-k="progress-label">${uiText("Прогресс просмотра")}</span><strong data-k="watched">—</strong></span>
+        <progress hidden></progress>
+      </div>
+      ${catalogIcon(t,"spin","casino","Крутить")}
+      ${catalogIcon(t,"open","arrow_forward","Подробнее")}
+    </div>
+  </article>`;
+}
+function catalogIcon(t,action,icon,label) {
+  return `<button type="button" aria-label="${esc(uiText(label))}" data-act="${action}" data-t="${t.id}" class="kg-catalog-icon"><span class="material-symbols-outlined text-[18px]" aria-hidden="true">${icon}</span></button>`;
+}
+function paintCatalogCard(card,t,meta,updatePreview=false) {
+  if(updatePreview){
+    card.querySelector(".kg-catalog-preview").innerHTML=catalogPreview(t,meta);
+    if(t.films || !collectionCover(t))card.querySelector(".kg-catalog-grid-cover").innerHTML=catalogGridCover(t,meta);
+    card.querySelector('[data-k="r"]').textContent=catalogRating(meta);
+  }
+  catalogProgress(card,t,meta);
+}
+document.addEventListener("kg:watched-change",()=>{
+  for(const card of document.querySelectorAll("#cat-grid .collection-card,[data-tv-grid] .collection-card")){
+    const id=card.dataset.t;
+    paintCatalogCard(card,T[id]||tvThemeFor(id),META[id]);
+  }
+});
 
 function spotlightCover(t,meta){
   const art=t.series?t.cover:getThemeCover(t.id);
@@ -762,17 +875,22 @@ function spotlightCover(t,meta){
 }
 function spotlightHtml(t){
   const m=TM[t.id]||["noir","","",""];
-  const meta=t.series?tvMetadata.get(t.id):null;
-  const cover=spotlightCover(t,meta);
-  return `<section ${t.series?"data-tv-spot":"id=\"spot\""} data-collection-spot data-t="${t.id}" tabindex="0" aria-label="${esc(uiText("Открыть подборку «{title}»", {title: uiText(t.name)}))}" class="relative w-full rounded-2xl overflow-hidden bg-surface-panel shadow-[0_14px_34px_-10px_rgb(var(--kg-black)/0.85)] cursor-pointer">
-<div data-k="bg" style="background-image: url('${cover}');" class="w-full h-56 bg-cover bg-center relative bg-surface-container-high"><div class="absolute inset-0 bg-gradient-to-t from-surface-panel via-surface-panel/60 to-transparent"></div>
-<div class="absolute top-3 left-3 right-3 flex items-center justify-between"><div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-cinema-velvet-deep text-secondary font-micro-caption text-micro-caption shadow-md"><span class="material-symbols-outlined text-[14px]">local_fire_department</span>${uiText("ХИТ НЕДЕЛИ")}</div>
-<div class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container-lowest/80 backdrop-blur-md text-primary font-label-sm text-label-sm"><span class="material-symbols-outlined text-[15px] text-primary-container" style="font-variation-settings:'FILL' 1;">star</span><span data-k="r">${meta?.r||"…"}</span></div></div>
-<div class="absolute bottom-3 left-3.5 right-3.5 flex items-center gap-1.5"><span class="px-2 py-0.5 rounded-full bg-surface-container-high/90 backdrop-blur text-primary font-micro-caption text-micro-caption tracking-wider">${t.cc.map(fl).join(" ")}</span><span class="font-micro-caption text-micro-caption text-text-muted truncate">${esc(t.cc.map(cname).join(", "))}</span></div></div>
-<div class="p-4 flex flex-col gap-2.5"><div class="flex items-baseline justify-between"><h3 class="font-headline-md text-headline-md text-primary font-bold">${esc(uiText(t.name))}</h3><span data-k="cnt" class="font-micro-caption text-micro-caption text-text-muted">${meta?seriesCollectionCount(meta.n):"…"}</span></div>
-<p class="font-body-sm text-body-sm text-text-muted kg-clip2">${esc(uiText(t.series?t.category:m[3]))}</p>
-<div class="flex items-center gap-2 pt-1"><button type="button" data-act="spin" data-t="${t.id}" class="${collectionSpinClasses} min-w-0 flex-1"><span class="material-symbols-outlined text-[22px]">casino</span><span>${uiText("Крутить рулетку")}</span>${collectionSpinShine}</button>
-<button type="button" aria-label="${uiText("Подробнее")}" data-act="open" data-t="${t.id}" class="w-11 h-11 rounded-xl bg-surface-container-high text-primary flex items-center justify-center transition-colors hover:bg-surface-bright active:scale-95"><span class="material-symbols-outlined text-[20px]">arrow_forward</span></button></div></div></section>`;
+  const meta=META[t.id],cover=spotlightCover(t,meta);
+  return `<section ${t.series?"data-tv-spot":"id=\"spot\""} data-collection-spot data-t="${t.id}" tabindex="0" aria-label="${esc(uiText("Открыть подборку «{title}»",{title:uiText(t.name)}))}" class="kg-catalog-spot">
+    <div class="kg-catalog-spot-art" data-k="bg" style="background-image:url('${esc(cover)}')" aria-hidden="true"></div>
+    <div class="kg-catalog-meta font-label-sm text-label-sm">
+      <strong class="kg-catalog-spot-tag"><span class="material-symbols-outlined text-[14px]" aria-hidden="true">local_fire_department</span>${uiText("ХИТ НЕДЕЛИ")}</strong>
+      <strong class="kg-catalog-rating" data-k="r">${esc(catalogRating(meta))}</strong>
+    </div>
+    <div class="kg-catalog-place text-primary font-label-sm text-label-sm">${flagsOf(t)} ${esc(t.region||where(t))}</div>
+    <h3 class="font-headline-md text-headline-md text-on-surface font-bold">${esc(uiText(t.name))}</h3>
+    <p class="font-body-sm text-body-sm text-on-surface-variant kg-clip2">${esc(t.series?collectionGenres(t):uiText(m[3]))}</p>
+    <div class="kg-catalog-spot-footer">
+      <span data-k="cnt" class="font-label-sm text-label-sm text-on-surface-variant">${esc(catalogCount(t,meta))}</span>
+      ${catalogIcon(t,"spin","casino","Крутить рулетку")}
+      <button type="button" data-act="open" data-t="${t.id}" class="kg-catalog-spot-open font-label-sm text-label-sm font-bold">${uiText("Открыть")}<span class="material-symbols-outlined text-[16px]" aria-hidden="true">arrow_forward</span></button>
+    </div>
+  </section>`;
 }
 function updateWeeklySpotlight(){
   const spot=$("spot"),selected=spotlightTheme();
@@ -826,40 +944,25 @@ ${spotlightHtml(spotlightTheme())}
 ${catalogSortControl(false,sortMode)}
 <p id="cat-note" class="font-micro-caption text-micro-caption text-text-muted px-1" style="display:none"></p>
 <div class="flex items-center justify-between gap-2"><p id="cat-search-status" role="status" class="font-label-sm text-label-sm text-text-muted px-1"></p>${layoutSwitch(catalogLayout,"catalog")}</div>
-<section id="cat-grid" class="${catalogLayout==="grid"?"kg-three-columns":"flex flex-col gap-3"}">${seededShuffle(catalogThemes,dailySeed()).map((t,i)=>cardHtml(t,i)).join("")}</section>
+<section id="cat-grid" class="${catalogLayout==="grid"?"kg-three-columns":"kg-catalog-list"}">${seededShuffle(catalogThemes,dailySeed()).map((t,i)=>cardHtml(t,i)).join("")}</section>
 <div id="cat-empty" style="display:none" class="flex-col items-center justify-center py-12 px-4 text-center rounded-2xl bg-surface-panel/50"><div class="w-14 h-14 rounded-full bg-surface-container-high flex items-center justify-center text-primary-container mb-3 shadow-[0_0_18px_rgb(var(--kg-primary-container)/0.2)]"><span class="material-symbols-outlined text-[28px]">movie_edit</span></div><h3 class="font-headline-sm text-headline-sm text-primary font-bold">${uiText("Подборка не найдена")}</h3><p class="font-body-sm text-body-sm text-text-muted mt-1 max-w-xs">${uiText("Попробуйте другое слово или выберите «Все», чтобы искать во всём каталоге.")}</p><button type="button" data-act="reset" class="mt-4 px-4 py-2 rounded-xl bg-primary-container text-on-primary-container font-label-sm text-label-sm font-bold shadow-[0_0_12px_rgb(var(--kg-primary-container)/0.25)]">${uiText("Сбросить поиск")}</button></div>`;
+  $("cat-grid").querySelectorAll(".collection-card").forEach(card=>paintCatalogCard(card,T[card.dataset.t],META[card.dataset.t]));
   catBuilt=true;
 }
 
 function paintMeta(id){
   const t=T[id];if(!t)return;
   const m=t.films ? {...(META[id]||{}),n:t.films.length} : META[id];if(!m)return;
-  const customArt = getThemeCover(id);
-  document.querySelectorAll(`#view-collections [data-t="${id}"]`).forEach(el=>{
-    if(el.id==="spot"){
-      const bg=el.querySelector('[data-k="bg"]');
-      const src=spotlightCover(t,m);
-      if(src) bg.style.backgroundImage=`url('${src}')`;
-    }
-    const r=el.querySelector('[data-k="r"]');
-    if(r){const sp=el.id==="spot";r.textContent=sp?(m.r||"—"):(el.dataset.cat==="retro"&&el.classList.contains("collection-card")?"★ "+(m.r||"—"):"★ "+(m.r||"—"));}
-    const c=el.querySelector('[data-k="cnt"]');
-    if(c){const g=gnames(t)[0]||"";c.textContent=el.id==="spot"?`${nf(m.n)} ${fw(m.n)}`:`${nf(m.n)} ${fw(m.n)}${g?" · "+g:""}`;}
-    const img=el.querySelector('[data-k="img"]');
-    if(img){
-      // Сохраняем авторскую кураторскую обложку вместо случайного первого постера
-      if(t.films && m.p){
-        img.onload=()=>img.classList.remove("opacity-0");
-        img.src=P(m.p,"w185");
-      } else if(customArt){
-        img.src = customArt;
-        img.classList.remove("opacity-0");
-      } else if(m.p){
-        img.onload=()=>img.classList.remove("opacity-0");
-        img.src=P(m.p,"w185");
-      }
-    }
-  });
+  const spot=$("spot");
+  if(spot?.dataset.t===id)paintCatalogSpot(spot,t,m);
+  const card=$("cat-grid")?.querySelector(`.collection-card[data-t="${id}"]`);
+  if(card)paintCatalogCard(card,t,m,true);
+}
+function paintCatalogSpot(spot,t,meta) {
+  const cover=spotlightCover(t,meta);
+  if(cover)spot.querySelector('[data-k="bg"]').style.backgroundImage=`url("${cover}")`;
+  spot.querySelector('[data-k="r"]').textContent=catalogRating(meta);
+  spot.querySelector('[data-k="cnt"]').textContent=catalogCount(t,meta);
 }
 const catalogNormalize=value=>String(value||"").toLowerCase().normalize("NFD")
   .replace(/\p{M}/gu,"").replace(/[^\p{L}\p{N}]+/gu," ").trim();
@@ -960,7 +1063,7 @@ vc.addEventListener("click",e=>{
   const layout=e.target.closest('[data-kg-layout="catalog"]');
   if(layout){
     catalogLayout=layout.dataset.mode;
-    $("cat-grid").className=catalogLayout==="grid"?"kg-three-columns":"flex flex-col gap-3";
+    $("cat-grid").className=catalogLayout==="grid"?"kg-three-columns":"kg-catalog-list";
     syncLayout(vc,catalogLayout,"catalog");
     return;
   }
@@ -1251,7 +1354,13 @@ async function openCollection(id,opt){
     if(D!==selection||view!==destination)return;
     if(r._stale && initial){$("cl-films").insertAdjacentHTML("afterbegin",`<p role="status" class="font-micro-caption text-micro-caption text-text-muted">${uiText("Не удалось обновить данные; показана сохранённая подборка.")}</p>`);return;}
     D.all=r.films;D.total=r.total;D.totals=r.totals;D.pageLimits=r.pageLimits||{};
-    if (t.films && r.films.some(f => f.vote_count)) saveThemeMeta(t, r);
+    if (!r._partial && !r._stale && (!t.films || r.films.some(f=>f.vote_count))) {
+      const meta=saveThemeMeta(t,r);
+      if(t.series){
+        const card=seriesCollections.querySelector(`.collection-card[data-t="${t.id}"]`);
+        if(card)paintCatalogCard(card,t,meta,true);
+      }else paintMeta(t.id);
+    }
     $("cl-count").textContent=t.series?seriesCollectionCount(r.total):collectionFilmCount(r.total);
     renderFilms();
     if(r._partial || r._stale) $("cl-films").insertAdjacentHTML("afterbegin",`<p role="status" class="font-micro-caption text-micro-caption text-text-muted">${uiText("Часть данных недоступна.")} <button type="button" data-act="retry" class="text-primary underline">${uiText("Повторить")}</button></p>`);
@@ -2073,7 +2182,6 @@ const tvThemes=[
   return {id:`tv-${source}`,name,g,cc:original.cc,region:options?.cc?.map(cname).join(", ")||where(original),category:CAT[category||cat(original)][0],series:true,...options,cover:`assets/covers/series/${options?.id||`tv-${source}`}.webp`};
 });
 let tvCountry="",tvQuery="",tvLayout="list",tvCatalogSort="rating";
-const tvMetadata=new Map();
 const tvThemeFor=id=>tvThemes.find(theme=>theme.id===id);
 const seriesCollectionCount=count=>uiText("Сериалов в подборке: {count}",{count:nf(count)});
 function visibleTvThemes(){
@@ -2084,20 +2192,15 @@ function visibleTvThemes(){
 
 function sortTvCatalog(){
   const grid=seriesCollections.querySelector("[data-tv-grid]");
-  if(grid)orderCatalogCards(grid,tvCatalogSort,id=>tvMetadata.get(id),tvThemeFor,(a,b)=>a.dataset.i-b.dataset.i);
+  if(grid)orderCatalogCards(grid,tvCatalogSort,id=>META[id],tvThemeFor,(a,b)=>a.dataset.i-b.dataset.i);
 }
 
 function renderTvCatalogCards(){
   const results=visibleTvThemes();
   const list=seriesCollections.querySelector("[data-tv-grid]");
-  list.className=tvLayout==="grid"?"kg-three-columns":"flex flex-col gap-3";
-  list.innerHTML=results.map((theme,index)=>cardHtml(theme,index,theme)).join("");
-  list.querySelectorAll(".collection-card").forEach(card=>{
-    const title=card.querySelector("h4");
-    const open=document.createElement("button");
-    open.type="button";open.dataset.act="open";open.className="text-left";
-    open.append(...title.childNodes);title.append(open);
-  });
+  list.className=tvLayout==="grid"?"kg-three-columns":"kg-catalog-list";
+  list.innerHTML=results.map(cardHtml).join("");
+  [...list.children].forEach((card,index)=>paintCatalogCard(card,results[index],META[results[index].id]));
   sortTvCatalog();
   seriesCollections.querySelector("[data-tv-count]").textContent=results.length?uiText("{count} доступно",{count:results.length}):uiText("Подборка не найдена");
   seriesCollections.querySelector("[data-tv-spot]").hidden=!!(tvCountry||tvQuery.trim());
@@ -2126,20 +2229,11 @@ function renderTvCatalog(){
   renderTvCatalogCards();
   if(apiKey)settleWithLimit(tvThemes,3,async theme=>{
     const meta=await loadMeta(theme);
-    tvMetadata.set(theme.id,meta);sortTvCatalog();
-    const card=seriesCollections.querySelector(`[data-tv-grid] [data-t="${theme.id}"]`);
-    if(card){
-      card.querySelector('[data-k="cnt"]').textContent=uiText("Сериалов в подборке: {count}",{count:nf(meta.n)});
-      // Локальные обложки TV-коллекций: не заменяем изображениями TMDB.
-        // if(meta.p)card.querySelector('[data-k="img"]').src=P(meta.p,"w342");
-    }
+    sortTvCatalog();
+    const card=seriesCollections.querySelector(`[data-tv-grid] .collection-card[data-t="${theme.id}"]`);
+    if(card)paintCatalogCard(card,theme,meta,true);
     const spotlight=seriesCollections.querySelector("[data-tv-spot]");
-    if(spotlight&&theme===featured){
-      const cover=spotlightCover(theme,meta);
-      if(cover)spotlight.querySelector('[data-k="bg"]').style.backgroundImage=`url("${cover}")`;
-      spotlight.querySelector('[data-k="r"]').textContent=meta.r||"—";
-      spotlight.querySelector('[data-k="cnt"]').textContent=seriesCollectionCount(meta.n);
-    }
+    if(spotlight&&theme===featured)paintCatalogSpot(spotlight,theme,meta);
   });
 }
 

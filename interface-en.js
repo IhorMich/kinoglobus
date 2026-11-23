@@ -815,6 +815,7 @@ window.KGInterfaceDictionaries.en = Object.freeze({
   "По фамилии": "By surname",
   "Поиск по имени": "Search by name",
   "Работ: {count}": "Credits: {count}",
+  "Работ в фильмографии: {count}": "Filmography credits: {count}",
   "Знаковые работы": "Key works",
   "Открыть профиль": "Open profile",
   "Не удалось загрузить каталог.": "Could not load the catalogue.",

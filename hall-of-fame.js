@@ -19,7 +19,9 @@
   let current=store.get("kgHallTab.v1","directors")==="actors"?"actors":"directors";
   let library={directors:new Map(),actors:new Map()};
   let nextPage=1,loading=null,readyKey=null,hasMore=true,loadError="",searchVersion=0,timer;
-  const featured=new Map();
+  const personRequests=new Map(),catalogueDetails=new Map(),hydrating=new Set(),failedPeople=new Set();
+  const detailQueue=new Map();
+  let detailWorkers=0;
   const mountedWorks=new Map();
   const dialog=document.createElement("dialog");
   dialog.id="kg-hall-of-fame";
@@ -70,16 +72,16 @@
   }
   function cachedPerson(id,mode){
     const key=mode+":"+id;
-    if(!featured.has(key)){
-      featured.set(key,requestTmdb("person/"+id,{language:locale,append_to_response:"combined_credits"}).then(person=>{
+    if(!personRequests.has(key)){
+      personRequests.set(key,requestTmdb("person/"+id,{language:locale,append_to_response:"combined_credits"}).then(person=>{
         if(!person.name)throw new Error("Missing person name");
         const biographies=String(person.biography||"").trim().split(/\n\s*\n/);
         const biography=biographies[0].trim();
         const credits=person.combined_credits||{};
         return {...person,biography,works:knownWorks(mode==="directors"?(credits.crew||[]).filter(directorJob):credits.cast||[])};
-      }).catch(error=>{featured.delete(key);throw error;}));
+      }).catch(error=>{personRequests.delete(key);throw error;}));
     }
-    return featured.get(key);
+    return personRequests.get(key);
   }
   function addCredits(map,credits,film){
     for(const credit of credits){
@@ -134,7 +136,14 @@
   }
   function worksMarkup(works,feature=false){
     if(!works.length)return "";
-    return `<div class="kg-hof-works${feature?" kg-hof-works-feature":""}">${works.slice(0,3).map(film=>{
+    const today=new Date();
+    today.setHours(23,59,59,999);
+    const available=works.filter(film=>film.backdrop_path||film.poster_path);
+    const ranked=[...available.filter(film=>new Date(film.release_date||film.first_air_date)<=today),
+      ...available.filter(film=>!(new Date(film.release_date||film.first_air_date)<=today))];
+    const picked=ranked.slice(0,3);
+    if(!picked.length)return "";
+    return `<div class="kg-hof-works${feature?" kg-hof-works-feature":""}" style="--hof-work-count:${picked.length}">${picked.map(film=>{
       mountedWorks.set(Number(film.id),film);
       const title=film.title||film.name||uiText("Без названия");
       const wide=art(film.backdrop_path,"w780")||art(film.poster_path,"w342");
@@ -171,6 +180,51 @@
       if(dialog.open&&current===mode)renderFeature(person,mode);
     }catch{if(dialog.open&&current===mode)spotlight.replaceChildren();}
   }
+  function cardDetails(person,mode){
+    const works=person.works.length?label("Работ в фильмографии: {count}",{count:number.format(person.works.length)}):"";
+    return [label(tabs[mode].role),works].filter(Boolean).join(" · ");
+  }
+  async function loadCard(id,mode,key,api){
+    hydrating.add(key);
+    try{
+      const person=await cachedPerson(id,mode);
+      if(api!==readyKey)return;
+      catalogueDetails.set(key,person);
+      if(!dialog.open||current!==mode)return;
+      const card=results.querySelector(`[data-hof-card="${id}"]`);
+      if(!card)return;
+      card.querySelector("[data-hof-card-meta]").innerHTML=cardDetails(person,mode);
+      const previews=worksMarkup(person.works);
+      if(previews)card.querySelector("[data-hof-card-works]").innerHTML=previews;
+    }catch{
+      if(api===readyKey)failedPeople.add(key);
+    }finally{
+      if(api===readyKey)hydrating.delete(key);
+    }
+  }
+  async function hydrateCards(){
+    if(detailWorkers>=3)return;
+    detailWorkers++;
+    try{
+      while(dialog.open&&detailQueue.size){
+        const [key,{id,mode}]=detailQueue.entries().next().value;
+        detailQueue.delete(key);
+        if(mode===current&&!catalogueDetails.has(key)&&!hydrating.has(key)&&!failedPeople.has(key)){
+          await loadCard(id,mode,key,readyKey);
+        }
+      }
+    }finally{detailWorkers--;}
+  }
+  const cardObserver=new IntersectionObserver(entries=>{
+    for(const entry of entries){
+      if(!entry.isIntersecting)continue;
+      cardObserver.unobserve(entry.target);
+      if(!entry.target.isConnected)continue;
+      const id=Number(entry.target.dataset.hofCard);
+      detailQueue.set(current+":"+id,{id,mode:current});
+      hydrateCards();
+    }
+  },{root:main,rootMargin:"260px 0px"});
   function renderCatalogue(){
     const state=states[current],query=state.query.trim();
     const listing=query.length>=2?(state.matches||[]):[...library[current].values()];
@@ -184,14 +238,33 @@
       if(state.sort==="name")return collator.compare(surname(a.name),surname(b.name));
       return Number(b.popularity||0)-Number(a.popularity||0);
     });
+    cardObserver.disconnect();
+    detailQueue.clear();
     results.innerHTML=people.slice(0,state.limit).map(person=>{
       const active=favorites.has(person.id);
-      return `<article class="kg-hof-card">
-        <div class="kg-hof-card-head"><button type="button" class="kg-hof-person" data-hof-person="${person.id}" data-hof-name="${esc(person.name)}">${photo(person)}<strong>${esc(person.name)}</strong></button>
-          <button class="kg-hof-favorite" type="button" data-hof-favorite="${person.id}" aria-pressed="${active}">${label(active?"В любимых":"В любимые")}</button></div>
-        ${worksMarkup(person.works)}
+      const full=catalogueDetails.get(current+":"+person.id);
+      const attrs=`data-hof-person="${person.id}" data-hof-name="${esc(person.name)}"`;
+      return `<article class="kg-hof-card" data-hof-card="${person.id}">
+        <div class="kg-hof-card-head">
+          <button class="kg-hof-portrait-button" type="button" ${attrs} aria-label="${label("Открыть профиль {name}",{name:person.name})}">${photo(full?.profile_path?full:person)}</button>
+          <div class="kg-hof-card-info"><button type="button" class="kg-hof-person" ${attrs}><strong>${esc(person.name)}</strong></button>
+            <small data-hof-card-meta>${full?cardDetails(full,current):label(tabs[current].role)}</small>
+            <button class="kg-hof-favorite" type="button" data-hof-favorite="${person.id}" aria-pressed="${active}">${label(active?"В любимых":"В любимые")}</button>
+          </div>
+        </div>
+        <div data-hof-card-works>${(full&&worksMarkup(full.works))||worksMarkup(person.works)}</div>
       </article>`;
     }).join("");
+    if(apiKey)results.querySelectorAll("[data-hof-card]").forEach((card,index)=>{
+      const id=Number(card.dataset.hofCard),key=current+":"+id;
+      if(catalogueDetails.has(key)||hydrating.has(key)||failedPeople.has(key))return;
+      if(!loading&&index<2)detailQueue.set(key,{id,mode:current});
+      else cardObserver.observe(card);
+    });
+    if(detailQueue.size){
+      hydrateCards();
+      hydrateCards();
+    }
     const defaultView=query.length<2;
     more.hidden=!apiKey||(people.length<=state.limit&&(!defaultView||!hasMore));
     more.dataset.hofLocal=String(people.length>state.limit);
@@ -267,7 +340,8 @@
   catalog.querySelector("form").addEventListener("submit",event=>{event.preventDefault();});
   input.addEventListener("input",()=>{states[current].query=input.value;catalog.querySelector("[data-hof-clear]").hidden=!input.value;search();});
   sort.addEventListener("change",()=>{states[current].sort=sort.value;renderCatalogue();});
-  dialog.addEventListener("close",()=>{states[current].scroll=main.scrollTop;clearTimeout(timer);searchVersion++;});
+  main.addEventListener("scroll",()=>{if(dialog.open)states[current].scroll=main.scrollTop;},{passive:true});
+  dialog.addEventListener("close",()=>{clearTimeout(timer);searchVersion++;cardObserver.disconnect();detailQueue.clear();});
   document.addEventListener("kg:favorite-person-change",()=>{
     if(!dialog.open)return;
     const favorites=new Set(window.KGFavoritePersonIds());
@@ -278,7 +352,8 @@
   });
   window.KGHallOfFame={open(){
     if(dialog.open)return;
-    if(readyKey!==apiKey){readyKey=apiKey;library={directors:new Map(),actors:new Map()};nextPage=1;hasMore=true;loadError="";featured.clear();}
+    if(readyKey!==apiKey){readyKey=apiKey;library={directors:new Map(),actors:new Map()};nextPage=1;hasMore=true;loadError="";personRequests.clear();catalogueDetails.clear();hydrating.clear();detailQueue.clear();failedPeople.clear();}
+    failedPeople.clear();
     window.KGFilmCard?.stopTrailers();
     window.KGMountBottomNav(dialog,dialog,"hall");
     dialog.showModal();paintTab();main.scrollTop=states[current].scroll;

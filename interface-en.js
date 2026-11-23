@@ -1,6 +1,15 @@
 // English translations for the Moven interface.
 window.KGInterfaceDictionaries ??= {};
 window.KGInterfaceDictionaries.en = Object.freeze({
+  "Создатель: {name}": "Creator: {name}",
+  "Случайный фильм или сериал": "Random movie or series",
+  "Фильмы и сериалы, к которым хочется возвращаться.": "Films and series worth revisiting.",
+  "Поделиться коллекцией": "Share collection",
+  "Поделиться списком": "Share list",
+  "Скопировать список": "Copy list",
+  "Список скопирован.": "List copied.",
+  "Экспорт CSV": "Export CSV",
+  "Не удалось поделиться списком любимых.": "Couldn't share favorites.",
   "Вся история просмотров": "All viewing history",
   "Поделиться историей": "Share history",
   "Отметок о просмотре": "Viewing records",

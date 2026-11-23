@@ -37,29 +37,26 @@
   hub.innerHTML = `<header class="kg-ps-header">
     <button type="button" class="kg-ps-round kg-ps-control" data-ps-back autofocus aria-label="${label("Назад")}">${icon("arrow_back")}</button>
     <h1 id="kg-ps-title">${label("Настройки")}</h1>
-    <button type="button" class="kg-ps-round kg-ps-control" data-ps-edit="profile" aria-label="${label("Редактировать профиль")}"><img data-ps-avatar alt="" width="36" height="36"></button>
+    <button type="button" class="kg-ps-round kg-ps-control" data-ps-photo-action="avatar" aria-label="${label("Изменить портрет")}"><img data-ps-avatar alt="" width="36" height="36"></button>
   </header>
   <main class="kg-ps-scroll">
     <section class="kg-ps-hero">
       <div class="kg-ps-cover"><img alt="" data-ps-cover>
-        <button type="button" class="kg-ps-control kg-ps-change" data-ps-change-cover>${icon("image")}${label("Сменить фон")}</button>
-        <input type="file" data-ps-cover-file accept="image/png,image/jpeg,image/webp,image/avif,image/gif" hidden>
+        <button type="button" class="kg-ps-control kg-ps-change" data-ps-photo-action="banner">${icon("image")}${label("Сменить фон")}</button>
       </div>
       <div class="kg-ps-identity">
         <div class="kg-ps-portrait">
           <img data-ps-avatar alt="" width="72" height="72">
-          <button type="button" class="kg-ps-round kg-ps-control" data-ps-edit="avatar" aria-label="${label("Изменить портрет")}">${icon("photo_camera")}</button>
+          <button type="button" class="kg-ps-round kg-ps-control" data-ps-photo-action="avatar" aria-label="${label("Изменить портрет")}">${icon("photo_camera")}</button>
         </div>
         <div class="kg-ps-person"><h2 data-ps-name></h2><p data-ps-handle></p></div>
-        <div class="kg-ps-edit">
-          <span class="kg-ps-chip" ${subscriptionVisible ? "" : "hidden"}><i></i>Black Pro</span>
-          <button type="button" data-ps-edit="profile">${label("Изменить")}${icon("arrow_forward")}</button>
-        </div>
+        <span class="kg-ps-chip kg-ps-plan" ${subscriptionVisible ? "" : "hidden"}><i></i>Black Pro</span>
       </div>
+      ${["banner","avatar"].map(key=>`<input type="file" data-ps-photo="${key}" accept="image/png,image/jpeg,image/webp,image/avif,image/gif" hidden>`).join("")}
       <button type="button" class="kg-ps-status kg-ps-control" data-ps-edit-status aria-label="${label("Изменить статус")}">
         <i></i><span data-ps-status></span>${icon("edit")}
       </button>
-      <p class="kg-ps-message kg-ps-cover-message" data-ps-cover-message role="status" hidden></p>
+      <p class="kg-ps-message kg-ps-cover-message" data-ps-photo-message role="status" hidden></p>
     </section>
 
     <section class="kg-ps-spotlight">
@@ -87,8 +84,8 @@
   document.body.append(hub);
   const scroll = hub.querySelector("main");
   const spoilers = hub.querySelector("[data-ps-spoilers]");
-  const coverPicker = hub.querySelector("[data-ps-cover-file]");
-  const coverButton = hub.querySelector("[data-ps-change-cover]");
+  const photoPickers = hub.querySelectorAll("[data-ps-photo]");
+  const photoFeedback = hub.querySelector("[data-ps-photo-message]");
   let session, currentProfile;
 
   function renderSpoilers() {
@@ -220,29 +217,32 @@
     });
   }
 
-  coverPicker.addEventListener("change",async ()=>{
-    const [file] = coverPicker.files;
-    coverPicker.value = "";
-    if (!file || !session) return;
-    const feedback = hub.querySelector("[data-ps-cover-message]");
-    if (!/^image\/(png|jpeg|webp|avif|gif)$/.test(file.type) || file.size > 8 * 1024 * 1024) {
-      message(feedback,"Выберите PNG, JPG, WebP, AVIF или GIF до 8 МБ.");
-      return;
-    }
-    const update = session.update;
-    coverButton.disabled = true;
-    message(feedback);
-    try {
-      const banner = await new Promise((resolve,reject)=>{
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = () => reject(reader.error);
-        reader.readAsDataURL(file);
-      });
-      render(await update({banner}));
-    } catch {message(feedback,"Не удалось загрузить изображение");}
-    finally {coverButton.disabled = false;}
-  });
+  for (const picker of photoPickers) {
+    const field = picker.dataset.psPhoto;
+    const buttons = hub.querySelectorAll(`[data-ps-photo-action="${field}"]`);
+    picker.addEventListener("change",async ()=>{
+      const [file] = picker.files;
+      picker.value = "";
+      if (!file || !session) return;
+      if (!/^image\/(png|jpeg|webp|avif|gif)$/.test(file.type) || file.size > 8 * 1024 * 1024) {
+        message(photoFeedback,"Выберите PNG, JPG, WebP, AVIF или GIF до 8 МБ.");
+        return;
+      }
+      const update = session.update;
+      buttons.forEach(button=>button.disabled=true);
+      message(photoFeedback);
+      try {
+        const photo = await new Promise((resolve,reject)=>{
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = () => reject(reader.error);
+          reader.readAsDataURL(file);
+        });
+        render(await update({[field]:photo}));
+      } catch {message(photoFeedback,"Не удалось загрузить изображение");}
+      finally {buttons.forEach(button=>button.disabled=false);}
+    });
+  }
 
   hub.addEventListener("click",event=>{
     const button = event.target.closest("button");
@@ -254,10 +254,12 @@
       renderSpoilers();
       return;
     }
-    if (button === coverButton) {coverPicker.click();return;}
     if (button.hasAttribute("data-ps-edit-status")) {editField("status");return;}
-    const {psEdit,psRoute} = button.dataset;
-    if (psEdit) { session.edit(psEdit, () => hub.close(), render); return; }
+    const {psPhotoAction,psRoute} = button.dataset;
+    if (psPhotoAction) {
+      hub.querySelector(`[data-ps-photo="${psPhotoAction}"]`).click();
+      return;
+    }
     switch (psRoute) {
       case "diary": session.diary(() => hub.close()); break;
       case "services": window.KGOpenSettings("watch-region"); break;

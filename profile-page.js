@@ -4,6 +4,7 @@
   let sessionId = 0;
   let profileWrites = Promise.resolve();
   const avatarDefault = "assets/interface/profile-page-01.jpg";
+  const demoBadges = new Set(["Канны 2024 (Аккредитация)","Венеция (Гость Биеннале)","Cineteca Bologna"]);
   const esc = value => String(value ?? "").replace(/[&<>"']/g, ch =>
     ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[ch]);
   const label = (key,params) => esc(uiText(key,params));
@@ -27,12 +28,12 @@
   const localDay = d => [d.getFullYear(),d.getMonth()+1,d.getDate()].map(v=>String(v).padStart(2,"0")).join("-");
   const formatDay = (date,options) => date.toLocaleDateString(interfaceLanguage,options);
   const quick = [
-    ["favorites","favorite","Любимые","Любимые фильмы и сериалы"],
-    ["bookmarks","bookmark","Закладки","Буду смотреть"],
-    ["diary","diary","Кинодневник","История"],
-    ["notes","notes","Рецензии","Мои записи"],
-    ["calendar","calendar","Мой календарь","Расписание релизов"],
-    ["stats","stats","Статистика","Вкусы и просмотры"]
+    ["favorites","favorite","Любимые"],
+    ["bookmarks","bookmark","Закладки"],
+    ["diary","diary","Кинодневник"],
+    ["notes","notes","Рецензии"],
+    ["calendar","calendar","Мой календарь"],
+    ["stats","stats","Статистика"]
   ];
   const dialog = document.createElement("dialog");
   dialog.id = "kg-profile";
@@ -63,9 +64,10 @@
         </div>
       </section>
       <div class="kg-pf-quick">
-        ${quick.map(([route,symbol,name,description])=>`<button type="button" data-profile-action="${route}" ${route==="calendar"?"data-profile-calendar":""}
-          aria-label="${label(name)}"><i>${icon(symbol)}</i><span><strong>${label(name)}</strong><small>${label(description)}</small></span>
-          <b data-profile-count="${route}"></b></button>`).join("")}
+        ${quick.map(([route,symbol,name])=>`<button type="button" data-profile-action="${route}" ${route==="calendar"?"data-profile-calendar":""}
+          aria-labelledby="kg-pf-quick-${route}" aria-describedby="kg-pf-count-${route}">
+          <span class="kg-pf-quick-icon">${icon(symbol)}</span><strong id="kg-pf-quick-${route}">${label(name)}</strong>
+          <b id="kg-pf-count-${route}" data-profile-count="${route}"></b></button>`).join("")}
       </div>
       <section class="kg-pf-section">
         <header>${icon("calendar")}<h2>${label("Календарь моих релизов")}</h2><button type="button" data-profile-action="week">${label("На неделю")}</button></header>
@@ -214,14 +216,6 @@
     page.showModal();
   }
 
-  const outside = {search:"[data-kg-search-open]",settings:"#gear",home:"#kg-mode-films",series:"#kg-mode-series"};
-  const leaveFor = (key,closeEditor) => {
-    const destination = document.querySelector(outside[key]);
-    if (!destination) return;
-    closeEditor?.();
-    dialog.close();
-    destination.click();
-  };
   const logout = () => {sessionId++;profile=null;dialog.close();};
   const settingsProfile = () => ({...profile,avatar:profile.avatar || avatarDefault});
   function saveProfile(changes,opening) {
@@ -249,13 +243,6 @@
       const update = changes => saveProfile(changes,opening);
       window.KGOpenProfileSettings(settingsProfile(),{
         update,
-        edit(section,closeSettings,refreshSettings){
-          window.KGOpenProfileEditor(profile,{
-            async save(changes){refreshSettings(await update(changes));},
-            logout(){closeSettings();logout();},
-            navigate(action,closeEditor){leaveFor(action,()=>{closeEditor();closeSettings();});}
-          },section);
-        },
         diary(closeSettings){openDiary({closeParent:()=>{closeSettings();dialog.close();}});},
         logout
       });
@@ -290,7 +277,10 @@
     else if (action === "week") window.KGPersonalCalendar.open(undefined,{week:true});
     else if (action === "movies-history") window.KGOpenWatchHistory();
     else if (action === "series-history") placeholder("Просмотренные сериалы");
-    else if (outside[action]) leaveFor(action);
+    else if (action === "search") {
+      dialog.close();
+      document.querySelector("[data-kg-search-open]")?.click();
+    }
   });
 
   for (const event of ["kg:release-follows-change","kg:favorite-change","kg-bookmark-change","kg:watched-change","kg:diary-note-change","kg:episode-note-change"]) {
@@ -314,6 +304,8 @@
       bio,status:sameProfile ? saved.bio ?? bio : bio,privatePage:true,
       ...(sameProfile ? saved : {})
     };
+    if (profile.city === "Париж / Санкт-Петербург") profile.city = "";
+    if (Array.isArray(profile.badges)) profile.badges = profile.badges.filter(badge=>!demoBadges.has(badge));
     openProfile(message);
   };
 })();

@@ -592,8 +592,8 @@
   window.KGOpenProfileEditor = (profile, actions, section) => {
     session = actions;
     original = structuredClone({
-      city:"Париж / Санкт-Петербург", avatar:"", banner:"",
-      genres:genres.slice(0,4), badges:["Канны 2024 (Аккредитация)","Венеция (Гость Биеннале)","Cineteca Bologna"],
+      city:"", avatar:"", banner:"",
+      genres:genres.slice(0,4), badges:[],
       shelf:sampleShelf, badgesVisible:true, goldVisible:true, diaryVisible:true, festivalsVisible:true,
       ...profile
     });

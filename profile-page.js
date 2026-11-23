@@ -34,16 +34,15 @@
     ["calendar","calendar","Мой календарь","Расписание релизов"],
     ["stats","stats","Статистика","Вкусы и просмотры"]
   ];
-  const footer = [
-    ["home","movie","Главная"],["series","tv","Сериалы"],["calendar","calendar","Календарь"],["profile","person","Моё"]
-  ];
-
   const dialog = document.createElement("dialog");
   dialog.id = "kg-profile";
   dialog.setAttribute("aria-labelledby","kg-profile-title");
   dialog.innerHTML = `<div class="kg-pf-shell">
     <header class="kg-pf-header">
-      <div class="kg-pf-brand"><span>MOVEN</span><h1 id="kg-profile-title">${label("Личный кабинет")}</h1></div>
+      <div class="kg-pf-heading">
+        <button type="button" class="kg-pf-back" data-profile-back aria-label="${label("Назад")}">${icon("back")}</button>
+        <h1 id="kg-profile-title">${label("Личный кабинет")}</h1>
+      </div>
       <div class="kg-pf-head-actions">
         <button type="button" data-profile-action="search" aria-label="${label("Поиск")}">${icon("search")}</button>
         <button type="button" data-profile-edit class="kg-pf-portrait" aria-label="${label("Настройки профиля")}">${icon("person")}</button>
@@ -53,7 +52,7 @@
       <p class="kg-pf-status" role="status"></p>
       <section class="kg-pf-identity">
         <div class="kg-pf-user">
-          <img data-profile-avatar alt="" width="60" height="60">
+          <img data-profile-avatar alt="" width="88" height="88">
           <div><h2 data-profile-name></h2><p data-profile-caption></p><div class="kg-pf-badges" data-profile-badges></div></div>
           <button type="button" data-profile-edit aria-label="${label("Настройки профиля")}">${icon("settings")}</button>
         </div>
@@ -81,12 +80,8 @@
         </section>`).join("")}
       <footer class="kg-pf-footer">
         <button type="button" data-profile-logout>${icon("logout")}${label("Выйти из аккаунта")}</button>
-        <p>MOVEN CINEMA ENGINE</p>
       </footer>
     </main>
-    <nav class="kg-pf-nav" aria-label="${label("Навигация")}">
-      ${footer.map(([route,symbol,name])=>`<button type="button" data-profile-nav="${route}" ${route==="profile"?'aria-current="page"':""}>${icon(symbol)}${label(name)}</button>`).join("")}
-    </nav>
   </div>`;
   document.body.append(dialog);
   const scroll = dialog.querySelector(".kg-pf-scroll");
@@ -191,7 +186,10 @@
     if (!profile) return false;
     renderProfile();
     status.textContent = message;
-    if (!dialog.open) dialog.showModal();
+    if (!dialog.open) {
+      window.KGMountBottomNav(dialog,scroll.parentElement,"profile");
+      dialog.showModal();
+    }
     scroll.scrollTop = 0;
     window.KGReleaseFollow.refresh();
     return true;
@@ -232,8 +230,9 @@
       });
       return;
     }
+    if (button.hasAttribute("data-profile-back")) {dialog.close();return;}
     if (button.hasAttribute("data-profile-logout")) {logout();return;}
-    const {profileCard,profileRelease,profileReminder,profileAction,profileNav} = button.dataset;
+    const {profileCard,profileRelease,profileReminder,profileAction:action} = button.dataset;
     if (profileCard) {
       const [group,index] = profileCard.split(":");
       const film = history[group][index];
@@ -253,7 +252,6 @@
       if (item) window.KGReleaseSettings.open(item,button,true);
       return;
     }
-    const action = profileAction || profileNav;
     if (action === "favorites") window.KGFavorites.open();
     else if (action === "bookmarks" || action === "notes") openDiary({initialSource:action});
     else if (action === "diary" || action === "stats") openDiary({focusStats:action==="stats"});

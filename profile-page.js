@@ -221,9 +221,21 @@
     const button = event.target.closest("button");
     if (!button) return;
     if (button.hasAttribute("data-profile-edit")) {
-      window.KGOpenProfileEditor(profile,{
-        save(changes){profile=changes;renderProfile();},logout,
-        navigate(action,closeEditor){leaveFor(action,closeEditor);}
+      const settingsProfile = () => ({...profile,avatar:profile.avatar || avatarDefault});
+      window.KGOpenProfileSettings(settingsProfile(),{
+        edit(section,closeSettings,refreshSettings){
+          window.KGOpenProfileEditor(profile,{
+            save(changes){
+              profile=changes;
+              renderProfile();
+              refreshSettings(settingsProfile());
+            },
+            logout(){closeSettings();logout();},
+            navigate(action,closeEditor){leaveFor(action,()=>{closeEditor();closeSettings();});}
+          },section);
+        },
+        diary(closeSettings){openDiary({closeParent:()=>{closeSettings();dialog.close();}});},
+        logout
       });
       return;
     }

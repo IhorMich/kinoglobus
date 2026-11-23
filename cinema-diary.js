@@ -30,6 +30,9 @@
   let closeParent;
   const rhythmKey = "kgCinemaDiaryRhythmCollapsed";
   const draftKey = "kgCinemaDiaryDrafts";
+  const spoilerKey = "kgCinemaDiaryHideSpoilers";
+  const hideSpoilers = () => store.get(spoilerKey,true) !== false;
+  window.KGCinemaDiarySpoilers = {get:hideSpoilers,set:value=>store.set(spoilerKey,value)};
   const vibes = ["Ночная меланхолия","Неоновый пульс","Экзистенциальный дождь",
     "Созерцательное спокойствие","Пьянящая романтика","Сюрреалистический трип","Ностальгия по 90-м"];
   const routeSelectors = {
@@ -416,11 +419,12 @@
       stars.hidden = false;
       stars.textContent = "★".repeat(Math.floor(note.rating)) + (note.rating % 1 ? "½" : "") + " · " + number.format(note.rating);
     }
+    const spoilerHidden = note.spoiler && hideSpoilers();
     const quote = card.querySelector("blockquote");
-    quote.hidden = !note.text || !!note.spoiler;
+    quote.hidden = !note.text || spoilerHidden;
     quote.textContent = quote.hidden ? "" : note.text;
     const spoiler = card.querySelector("details");
-    spoiler.hidden = !note.text || !note.spoiler;
+    spoiler.hidden = !note.text || !spoilerHidden;
     spoiler.querySelector("p").textContent = spoiler.hidden ? "" : note.text;
     const title = card.querySelector("[data-note-title]");
     title.hidden = !note.title;

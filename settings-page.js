@@ -598,12 +598,17 @@ ${[["light","Лёгкое"],["find","Открытие"],["wild","Случайн�
 
   $("[data-kgs-close]").addEventListener("click", close);
   dialog.addEventListener("click", (event) => { if (event.target === dialog) close(); });
-  document.getElementById("gear").onclick = () => {
-    const scroll=$(".kgs-scroll");if(scroll)scroll.scrollTop=0;
+  window.KGOpenSettings = section => {
+    const scroll = $(".kgs-scroll");
+    scroll.scrollTop = 0;
     if (appNav) $("[data-kgs-nav]").replaceChildren(appNav.cloneNode(true));
     if (!dialog.open) dialog.showModal();
     sync();
+    const target = section === "watch-region" ? $("#kgs-watch-region").parentElement
+      : [...scroll.querySelectorAll("[data-purpose]")].find(panel => panel.dataset.purpose === section);
+    target?.scrollIntoView({block:"start"});
   };
+  document.getElementById("gear").onclick = () => window.KGOpenSettings();
 
   const labels = {roulette:"Трещотка бобины",bells:"Колокольчики",arcade:"Аркада",casino:"Казино",marimba:"Маримба",space:"Космос",film:"Киноплёнка",orchestra:"Оркестр",jazz:"Джаз",synth:"Синтезатор",chimes:"Звон","smp-ui14":"Сэмпл · UI 14","smp-ui02":"Сэмпл · UI 02","smp-ui73":"Сэмпл · UI 73","smp-build":"Сэмпл · Build finish","smp-confirm":"Сэмпл · Confirm","smp-impact":"Сэмпл · Impact","smp-blaster":"Сэмпл · Sci-fi blaster","smp-reveal":"Трещотка + финал Logo reveal","smp-m-menu":"Музыка · Меню · смена","smp-m-ondabeat":"Музыка · On Da Beat","smp-m-oblivion":"Музыка · Oblivion Beat","smp-m-multiverse":"Музыка · Multiverse","smp-m-moonwalker":"Музыка · Moon Walker","smp-m-horror":"Музыка · Horror Kick","smp-m-goldmetal":"Музыка · Gold Metal","smp-m-heroes":"Музыка · Drums of Heroes","smp-m-darkrolls":"Музыка · Dark Rolls","smp-m-tension":"Музыка · Cinematic Tension","smp-m-percussion":"Музыка · Cinematic Percussion","smp-m-bassdrop":"Музыка · Bass Drop","smp-m-addkick":"Музыка · Add Kick",off:"Без звука",imax:"Кинозал · низкий гул"};
   if (soundSelect) {

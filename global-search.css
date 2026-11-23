@@ -51,7 +51,7 @@
 .kgs-form label { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; color: var(--search-muted); }
 .kgs-form input {
   appearance: none; flex: 1; width: 100%; min-width: 0; min-height: 42px; padding: 0; border: 0;
-  color: var(--search-text); background: transparent; font: 14px/1.4 var(--kg-font-interface);
+  color: var(--search-text); background: transparent; font: var(--kg-font-search);
 }
 #kg-global-search .kgs-form input:focus { outline: none; box-shadow: none; }
 .kgs-form input::placeholder { color: var(--search-muted); }
@@ -65,7 +65,7 @@
 }
 .kgs-filters button[aria-pressed="true"] { background: var(--search-selected); color: var(--search-on-selected); }
 .kgs-status { display: grid; gap: 5px; margin: 12px 0; padding: 14px 12px; border-radius: 11px; background: var(--search-panel); }
-.kgs-status h2 { margin: 0; font: 600 16px/1.35 var(--kg-font-interface); }
+.kgs-status h2 { margin: 0; font: 600 20px/1.18 var(--kg-font-heading); }
 .kgs-status p,.kgs-voice-status { margin: 0; font: 13px/1.4 var(--kg-font-interface); color: var(--search-muted); }
 .kgs-results-heading,.kgs-history > header {
   display: flex; align-items: baseline; flex-wrap: wrap; justify-content: space-between; gap: 4px 10px;
@@ -92,7 +92,7 @@
 .kgs-result-copy { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .kgs-result-top { display: flex; align-items: center; justify-content: space-between; gap: 3px 5px; flex-wrap: wrap; font-size: 12px; color: var(--search-muted); }
 .kgs-exact { padding: 1px 4px; border-radius: 4px; background: var(--search-raised); font-size: 11px; }
-.kgs-result-title { overflow-wrap: anywhere; font: 700 16px/1.35 var(--kg-font-interface); }
+.kgs-result-title { overflow-wrap: anywhere; font: var(--kg-font-card-title); }
 .kgs-result-sub { overflow-wrap: anywhere; font: 12px/1.4 var(--kg-font-interface); color: var(--search-muted); }
 .kgs-genres { display: flex; flex-wrap: wrap; gap: 3px; margin-block: 2px 4px; }
 .kgs-genres span { padding: 1px 5px; border-radius: 4px; background: var(--search-raised); color: var(--search-muted); font-size: 11px; }
@@ -100,7 +100,7 @@
 .kgs-rating {
   position: absolute; inset: auto 79px 8px calc(clamp(64px,23vw,106px) + 19px);
   display: flex; flex-wrap: wrap; column-gap: 4px; align-items: baseline;
-  font-size: 13px; font-weight: 700; line-height: 1.3;
+  font-size: 13px; font-weight: 700; line-height: 1.4;
 }
 .kgs-rating small { color: var(--search-muted); font-size: 10px; font-weight: 500; }
 .kgs-card-actions { position: absolute; bottom: 7px; right: 7px; display: flex; align-items: center; gap: 4px; }

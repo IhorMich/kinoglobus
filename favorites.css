@@ -76,7 +76,7 @@
 .kg-favorites-caption > * { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .kg-favorites-caption small { font-size: 12px; color: rgb(var(--kg-white) / .85); }
 .kg-favorites-list[data-layout="grid"] .kg-favorites-meta small:nth-child(2) { display: none; }
-.kg-favorites-caption strong { font: 700 16px/1.5 var(--kg-font-interface); }
+.kg-favorites-caption strong { font: var(--kg-font-card-title); }
 .kg-favorites-overview { color: var(--fv-muted); font-size: 12px; }
 .kg-favorites-overview { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; margin-block: 4px; }
 .kg-favorites-tags { display: flex; flex-wrap: wrap; gap: 4px; }

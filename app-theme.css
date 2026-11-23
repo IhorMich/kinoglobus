@@ -125,6 +125,8 @@
 :root {
   --kg-font-interface: "Inter", system-ui, sans-serif;
   --kg-font-heading: "Noto Serif", Georgia, serif;
+  --kg-font-card-title: 700 16px/1.5 var(--kg-font-interface);
+  --kg-font-search: .95rem/1.4 var(--kg-font-interface);
 
   --kg-canvas-obsidian: 7 6 10;
   /* Акцент. RGB-каналы через пробел, без rgb(). */
@@ -1320,7 +1322,7 @@ body {
   padding-inline: 14px;
   border-radius: 999px;
   text-align: start;
-  font-size: .95rem;
+  font: var(--kg-font-search);
 }
 
 .kg-main-header-actions .kg-header-action:hover,

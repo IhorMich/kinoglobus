@@ -29,8 +29,12 @@
     <h1 id="kg-hof-title">${label("Зал славы")}</h1>
   </header>
   <main class="kg-hof-main">
+    <div class="kg-hof-banner">
+      <img src="assets/hall-of-fame/directors-banner.png" alt="" data-hof-banner>
+      <h2></h2>
+    </div>
     <div class="kg-hof-switch" role="group" aria-label="${label("Персоны")}">${Object.entries(tabs).map(([key,tab])=>`<button type="button" data-hof-tab="${key}">${label(tab.name)}</button>`).join("")}</div>
-    <div class="kg-hof-heading"><h2></h2><button type="button" data-hof-jump>${label("К каталогу")} <span aria-hidden="true">↓</span></button></div>
+    <div class="kg-hof-heading"><button type="button" data-hof-jump>${label("К каталогу")} <span aria-hidden="true">↓</span></button></div>
     <div data-hof-spotlight></div>
     <section class="kg-hof-catalog" aria-labelledby="kg-hof-catalog-title">
       <div class="kg-hof-catalog-head"><h2 id="kg-hof-catalog-title"></h2>
@@ -122,18 +126,23 @@
     return loading;
   }
   function photo(person){
-    const url=art(person.profile_path,"w185");
-    return `<span class="kg-hof-photo">${url?`<img src="${url}" alt="" loading="lazy">`:`<svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M5 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2m-3-13a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z"/></svg>`}</span>`;
+    const url=art(person.profile_path,"w342");
+    return `<span class="kg-hof-photo">
+      <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M5 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2m-3-13a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z"/></svg>
+      ${url?`<img src="${url}" alt="" loading="lazy" decoding="async">`:""}
+    </span>`;
   }
   function worksMarkup(works,feature=false){
     if(!works.length)return "";
-    const picked=works.slice(0,feature?4:3);
-    return `<div class="kg-hof-works${feature?" kg-hof-works-feature":""}">${picked.map(film=>{
+    return `<div class="kg-hof-works${feature?" kg-hof-works-feature":""}">${works.slice(0,3).map(film=>{
       mountedWorks.set(Number(film.id),film);
       const title=film.title||film.name||uiText("Без названия");
-      const wide=art(film.backdrop_path,"w300")||art(film.poster_path,"w185");
-      return `<button type="button" data-hof-work="${Number(film.id)}" title="${esc(title)}">${feature?`<span class="kg-film-grid-poster">${window.KGCollectionPoster(film,"w342")}</span>`:
-        `<span class="kg-hof-still">${wide?`<img alt="" src="${wide}" loading="lazy">`:""}</span>`}<span>${esc(title)}</span></button>`;
+      const wide=art(film.backdrop_path,"w780")||art(film.poster_path,"w342");
+      const frame=feature
+        ?`<span class="kg-film-grid-poster">${window.KGCollectionPoster(film,"w342")}</span>`
+        :`<span class="kg-hof-still">${wide?`<img alt="" src="${wide}" loading="lazy" decoding="async">`:""}</span>`;
+      return `<button type="button" data-hof-work="${Number(film.id)}" title="${esc(title)}">
+        ${frame}<span class="kg-hof-work-title">${esc(title)}</span></button>`;
     }).join("")}</div>`;
   }
   function renderFeature(person,mode){
@@ -144,8 +153,8 @@
     const backdrop=art(person.works.find(film=>film.backdrop_path)?.backdrop_path,"w780");
     spotlight.innerHTML=`<article class="kg-hof-spotlight">${backdrop?`<img class="kg-hof-backdrop" src="${backdrop}" alt="">`:""}
       <div class="kg-hof-spot-copy"><small class="kg-hof-feature-label">${label(tabs[mode].feature)}</small>
-        <div class="kg-hof-identity">${photo(person)}<h3>${esc(person.name)}</h3></div>
-        ${description?`<p>${esc(description)}</p>`:""}
+        <div class="kg-hof-identity">${photo(person)}<div><h3>${esc(person.name)}</h3>
+          ${description?`<p>${esc(description)}</p>`:""}</div></div>
         <div class="kg-hof-metrics">${person.works.length?`<span>${label("Работ: {count}",{count:number.format(person.works.length)})}</span>`:""}
           ${average?`<span>★ ${average} TMDB</span>`:""}${dates.length?`<span>${dates[0]}${dates.at(-1)!==dates[0]?"–"+dates.at(-1):""}</span>`:""}</div>
         ${person.works.length?`<h4>${label("Знаковые работы")}</h4>${worksMarkup(person.works,true)}`:""}
@@ -215,7 +224,10 @@
   }
   function paintTab(){
     dialog.querySelectorAll("[data-hof-tab]").forEach(button=>button.setAttribute("aria-pressed",String(button.dataset.hofTab===current)));
-    dialog.querySelector(".kg-hof-heading h2").textContent=uiText(tabs[current].title);
+    dialog.querySelector(".kg-hof-banner h2").textContent=uiText(tabs[current].title);
+    const banner=dialog.querySelector("[data-hof-banner]");
+    const bannerPath=`assets/hall-of-fame/${current}-banner.png`;
+    if(banner.getAttribute("src")!==bannerPath)banner.src=bannerPath;
     catalog.querySelector("h2").textContent=uiText(tabs[current].name);
     const state=states[current];
     input.value=state.query;

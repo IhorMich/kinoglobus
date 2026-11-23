@@ -40,7 +40,7 @@
   const cards = dialog.querySelector("[data-bp-items]");
   const summary = dialog.querySelector("[data-bp-summary]");
   let bookmarkRows = [], visible = [], selection = "all", service = "", generation = 0, hadKey = false;
-  let layout = store.get("kgBookmarksLayout","list") === "grid" ? "grid" : "list";
+  let layout = "list";
   const metadata = new Map();
   const loadedProviders = new Map();
   const filmName = film => film.title || film.name || uiText("Фильм №{id}",{id:window.KGSeries.rawId(film.id)});
@@ -169,7 +169,7 @@
       service=bpService;render();
       [...providers.children].find(chip=>chip.dataset.bpService===service)?.focus({preventScroll:true});
     } else if (bpLayout) {
-      layout=bpLayout;store.set("kgBookmarksLayout",layout);render();
+      layout=bpLayout;store.set("kgFavoritesLayout",layout);render();
     } else if (bpOpen || bpWatch) {
       const row=bookmarkRows.find(item=>item.id===Number(bpOpen || bpWatch));
       if (!row) return;
@@ -195,6 +195,7 @@
     });
   }
   window.KGOpenBookmarks = ()=>{
+    layout=store.get("kgFavoritesLayout","list")==="grid"?"grid":"list";
     selection="all";service="";query.value="";
     if (!hadKey && apiKey) { metadata.clear(); loadedProviders.clear(); }
     render();

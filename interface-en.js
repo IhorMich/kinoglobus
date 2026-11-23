@@ -1,6 +1,8 @@
 // English translations for the Moven interface.
 window.KGInterfaceDictionaries ??= {};
 window.KGInterfaceDictionaries.en = Object.freeze({
+  "Рейтинг TMDb": "TMDb rating",
+  "Рейтинг сериала TMDb": "Series rating on TMDb",
   "Создатель: {name}": "Creator: {name}",
   "Случайный фильм или сериал": "Random movie or series",
   "Фильмы и сериалы, к которым хочется возвращаться.": "Films and series worth revisiting.",

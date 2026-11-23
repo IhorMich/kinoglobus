@@ -48,6 +48,11 @@
   const tmdbArt = (path,size) => /^\/[\w.-]+$/.test(path || "") ? "https://image.tmdb.org/t/p/"+size+path : "";
   const filmName = film => film.title || film.name || film.original || uiText("Без названия");
   const values = row => String(row.note?.text || "").trim();
+  const validRating = (value,max=10) => {
+    const rating = Number(value);
+    return Number.isFinite(rating) && rating>0 && rating<=max ? rating : 0;
+  };
+  const score = (value,source) => `<span class="kg-vh-score" title="${label(source)}" aria-label="${label(source)}: ${number.format(value)}"><span aria-hidden="true">★</span> ${number.format(value)}</span>`;
   const compact = value => String(value || "").toLocaleLowerCase(interfaceLanguage).replaceAll("ё","е");
 
   function readRows() {
@@ -94,15 +99,19 @@
     const media = episode ? `S${episode.season} · E${episode.episode.episode_number}` : uiText(kind==="film"?"Фильм":"Сериал");
     const year = String(film.release_date || film.year || "").slice(0,4);
     const details = [episode ? episode.episode.name : film.director || film.original_title || film.original, !episode && year, row.runtime && duration(row.runtime)].filter(Boolean).join(" · ");
-    const rating = Number(note?.rating);
+    const personalRating = validRating(note?.rating,5)*2;
+    const episodeRating = validRating(episode?.episode.vote_average);
+    const catalogRating = episodeRating || validRating(film.vote_average);
+    const ratingSource = personalRating ? "Личная оценка" : episode && !episodeRating ? "Рейтинг сериала TMDb" : "Рейтинг TMDb";
     const quote = values(row);
     const hidden = note?.spoiler && window.KGCinemaDiarySpoilers.get();
     return `<article class="kg-vh-card">
       <button type="button" class="kg-vh-open" data-vh-open="${esc(key)}">
-        <span class="kg-vh-art"${wide ? "" : ` data-vh-art-id="${Number(film.id)}"`}>
+        <span class="kg-vh-art"${!wide || !personalRating&&!catalogRating ? ` data-vh-art-id="${Number(film.id)}"` : ""}
+          ${wide ? "" : " data-vh-need-backdrop"}${episode ? " data-vh-episode" : ""}>
           ${wide || poster ? `<img src="${wide || poster}" alt="" loading="lazy" decoding="async">` : ""}
           ${icon(kind==="film"?"movie":"tv")}<small>${esc(media)}</small>
-          ${rating>0&&rating<=5 ? `<span class="kg-vh-score"><span aria-hidden="true">★</span> ${number.format(rating*2)}</span>` : ""}</span>
+          ${personalRating||catalogRating ? score(personalRating||catalogRating,ratingSource) : ""}</span>
         <span class="kg-vh-details"><small class="kg-vh-stamp">${esc(stamp)}</small><strong>${esc(title)}</strong>
           ${details ? `<small>${esc(details)}</small>` : ""}
         </span>
@@ -164,10 +173,16 @@
     const id = Number(frame.dataset.vhArtId);
     if (!apiKey || !id) return;
     if (!artwork.has(id)) {
-      artwork.set(id,filmDetails(id).then(details=>tmdbArt(details.backdrop_path,"w780")).catch(()=>{artwork.delete(id);return "";}));
+      artwork.set(id,filmDetails(id).then(details=>({
+        backdrop:tmdbArt(details.backdrop_path,"w780"),rating:validRating(details.average)
+      })).catch(()=>{artwork.delete(id);return null;}));
     }
-    const source = await artwork.get(id);
-    if (!source || !frame.isConnected) return;
+    const details = await artwork.get(id);
+    if (!details || !frame.isConnected) return;
+    if (details.rating && !frame.querySelector(".kg-vh-score")) {
+      frame.insertAdjacentHTML("beforeend",score(details.rating,frame.hasAttribute("data-vh-episode") ? "Рейтинг сериала TMDb" : "Рейтинг TMDb"));
+    }
+    if (!details.backdrop || !frame.hasAttribute("data-vh-need-backdrop")) return;
     const image = new Image();
     image.alt = "";
     image.decoding = "async";
@@ -176,7 +191,7 @@
       if (previous) previous.replaceWith(image);
       else frame.prepend(image);
     };
-    image.src=source;
+    image.src=details.backdrop;
   }
   const backdropLoader = new IntersectionObserver(entries=>{
     for (const entry of entries) {

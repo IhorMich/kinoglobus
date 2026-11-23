@@ -51,8 +51,8 @@
   }
   function openEpisodeNote(series,episode,season){
     const key=`${season}:${episode.episode_number}`,initial=readEpisodeNotes(series.id)[key]||{};
-    const parent={id:series.id,adult:series.adult,title:series.title,original_title:series.original_title||series.originalTitle,poster_path:series.poster_path,backdrop_path:series.backdrop_path,release_date:series.release_date||series.release,countries:series.countries,origin_country:series.origin_country};
-    const meta={episode_number:episode.episode_number,name:episode.name,overview:episode.overview,still_path:episode.still_path,air_date:episode.air_date,runtime:episode.runtime};
+    const parent={id:series.id,adult:series.adult,title:series.title,original_title:series.original_title||series.originalTitle,poster_path:series.poster_path,backdrop_path:series.backdrop_path,vote_average:series.vote_average??series.average??series.score,release_date:series.release_date||series.release,countries:series.countries,origin_country:series.origin_country};
+    const meta={episode_number:episode.episode_number,name:episode.name,overview:episode.overview,still_path:episode.still_path,air_date:episode.air_date,runtime:episode.runtime,vote_average:episode.vote_average};
     return window.KGViewingNote.open({kind:'episode',title:episode.name||uiText('Эпизод {episode}',{episode:episode.episode_number}),subtitle:series.title,badge:`S${season}·E${episode.episode_number}`,poster:episode.still_path||series.poster_path,runtime:episode.runtime,release:episode.air_date,initial,
       onSave:value=>persistEpisode(parent,meta,season,{...value,series:parent,episode:meta,season}),
       onDelete:readMarks(series.id).has(key)||Object.hasOwn(readEpisodeNotes(series.id),key)?()=>persistEpisode(parent,meta,season,null):null

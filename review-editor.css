@@ -1,0 +1,90 @@
+#kg-review-editor {
+  --rv-panel: rgb(var(--kg-surface-panel));
+  --rv-raised: rgb(var(--kg-surface-container-high));
+  --rv-muted: rgb(var(--kg-on-surface-variant));
+  --rv-ink: rgb(var(--kg-on-surface));
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  background: rgb(var(--kg-surface-container-lowest));
+  color: var(--rv-ink);
+  font: 14px/1.45 var(--kg-font-interface);
+}
+#kg-review-editor::backdrop { background: rgb(var(--kg-black) / .75); }
+#kg-review-editor [hidden],.kg-review-action[hidden] { display: none; }
+#kg-review-editor form { display: flex; flex-direction: column; height: 100%; }
+.kg-re-header,.kg-re-main,.kg-re-footer { width: min(100%,720px); margin-inline: auto; }
+.kg-re-header,.kg-re-footer { flex: none; display: flex; align-items: center; gap: 8px; }
+.kg-re-header { min-height: calc(56px + env(safe-area-inset-top,0px)); padding: env(safe-area-inset-top,0px) 14px 0; }
+.kg-re-header h1 { margin: 0; flex: 1; font: 600 16px/1.2 var(--kg-font-heading); }
+.kg-re-header [data-re-back] { width: 40px; min-height: 40px; padding: 0; border-radius: 50%; }
+#kg-review-editor .material-symbols-outlined,.kg-review-action .material-symbols-outlined { font-size: 18px; flex: none; }
+.kg-re-main {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 8px 16px 16px;
+}
+.kg-re-context,.kg-re-panel { padding: 12px; border-radius: 14px; background: var(--rv-panel); }
+.kg-re-context { display: grid; grid-template-columns: 56px minmax(0,1fr); gap: 10px; align-items: center; }
+.kg-re-context strong { display: block; font: 700 16px/1.35 var(--kg-font-interface); }
+.kg-re-context small,.kg-re-scale,.kg-re-fields small { color: var(--rv-muted); font-size: 12px; }
+.kg-re-context > div { overflow-wrap: anywhere; }
+.kg-re-rating,.kg-re-scale { display: flex; justify-content: space-between; gap: 10px; }
+.kg-re-rating output { color: rgb(var(--kg-primary)); font-weight: 650; font-variant-numeric: tabular-nums; }
+#kg-re-rating { display: block; width: 100%; margin: 10px 0 2px; accent-color: rgb(var(--kg-primary)); }
+.kg-re-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+.kg-re-tags .kg-rv-control { min-height: 32px; border-radius: 999px; font-size: 12px; }
+.kg-re-tags button[aria-pressed="true"],#kg-review-editor .kg-re-primary {
+  background: rgb(var(--kg-primary-container));
+  color: rgb(var(--kg-on-primary-container));
+}
+.kg-re-fields { display: grid; gap: 8px; }
+.kg-re-fields > label { font-weight: 650; }
+#kg-review-editor :is(.kg-re-fields input,.kg-re-fields textarea) {
+  width: 100%;
+  min-width: 0;
+  padding: 8px;
+  border: 1px solid rgb(var(--kg-outline-variant) / .6);
+  border-radius: 10px;
+  background: rgb(var(--kg-surface-container-lowest));
+  color: inherit;
+  font: 14px/1.5 var(--kg-font-interface);
+}
+.kg-re-fields textarea { min-height: 140px; resize: vertical; }
+.kg-re-fields small { text-align: end; }
+.kg-re-spoiler { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.kg-re-spoiler input { width: 20px; height: 20px; flex: none; accent-color: rgb(var(--kg-primary)); }
+.kg-re-footer { flex-wrap: wrap; padding: 6px 16px calc(10px + env(safe-area-inset-bottom,0px)); }
+.kg-re-footer button { flex: 1 1 145px; min-height: 44px; }
+.kg-re-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+#kg-review-editor :is(button,input,textarea):focus-visible { outline: 2px solid rgb(var(--kg-primary)); outline-offset: 1px; }
+.kg-review-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  min-height: 42px;
+  margin-top: 8px;
+  padding: 4px 9px;
+  border: 1px solid;
+  border-color: var(--kg-nav-control-border) !important;
+  border-radius: 12px;
+  background: var(--kg-nav-control-fill);
+  color: rgb(var(--kg-on-surface));
+  font: 600 13px/1.4 var(--kg-font-interface);
+}
+.kg-review-action:focus-visible { outline: 2px solid rgb(var(--kg-primary)); outline-offset: 1px; }
+#kg-review-editor [data-re-status] { margin: 0; color: rgb(var(--kg-error)); }

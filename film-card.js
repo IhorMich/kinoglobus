@@ -74,6 +74,7 @@ ${kgBookmarkButton(f)}
 ${window.KGFavorites?.button(f)||""}
 ${window.KGReleaseFollow?.compactButton(f)||""}
 </div>
+${window.KGReviews?.button(f,null,watched)||""}
 </div>
   ${closable ? (f._relatedPrevious ? `<button type="button" data-kg-related-back aria-label="${uiText("Вернуться к предыдущему фильму")}" class="kg-film-detail-close"><span class="material-symbols-outlined" aria-hidden="true">arrow_back</span></button>` : `<button type="button" data-act="close-film" aria-label="${uiText("Свернуть карточку")}" class="kg-film-detail-close"><span class="material-symbols-outlined" aria-hidden="true">close</span></button>`) : ""}
 </div>
@@ -242,7 +243,7 @@ function update(card, film, options = {}) {
     if (part.dataset.filmPart === "trailer" && current?.querySelector("iframe")) continue;
     if (current && current.outerHTML !== part.outerHTML) {
       const active = document.activeElement;
-      const focusAttribute = current.contains(active) && ["data-act", "data-film-watched", "data-kg-bookmark", "data-kg-follow", "data-kg-film-note", "data-trailer-action"].find(attribute => active.hasAttribute(attribute));
+      const focusAttribute = current.contains(active) && ["data-act", "data-film-watched", "data-kg-bookmark", "data-kg-follow", "data-kg-film-note", "data-review-action", "data-trailer-action"].find(attribute => active.hasAttribute(attribute));
       current.replaceWith(part);
       if (focusAttribute) part.querySelector(`[${focusAttribute}="${active.getAttribute(focusAttribute)}"]`)?.focus({preventScroll:true});
     }
@@ -521,13 +522,16 @@ document.addEventListener("click", event=>{
 },true);
 
 document.addEventListener("click", async event=>{
-  const button=event.target.closest("[data-film-watched], [data-kg-film-note], [data-trailer-action]");
+  const button=event.target.closest("[data-film-watched], [data-kg-film-note], [data-review-action], [data-trailer-action]");
   const card=button?.closest(".kg-film-detail");
   if (!card) return;
   const film=mountedFilms.get(card) || window.KGInlineFilmModel?.(card);
   if (!film) return;
   event.preventDefault();
-  if (button.hasAttribute("data-kg-film-note")) {
+  if (button.hasAttribute("data-review-action")) {
+    stopTrailers();
+    window.KGReviews?.open(film,{opener:button});
+  } else if (button.hasAttribute("data-kg-film-note")) {
     stopTrailers();
     window.KGOpenCinemaDiaryNote?.(film);
   } else if (button.dataset.trailerAction==="play") {
@@ -545,9 +549,15 @@ document.addEventListener("click", async event=>{
 function paintWatched() {
   document.querySelectorAll(".kg-film-detail [data-film-watched]").forEach(button=>
     window.KGPaintWatchedButton?.(button,!!window.KGIsFilmWatched?.(button.dataset.filmWatched)));
+  document.querySelectorAll(".kg-film-detail [data-review-action]").forEach(button=>{
+    const card=button.closest(".kg-film-detail"),film=mountedFilms.get(card)||window.KGInlineFilmModel?.(card);
+    if(film)window.KGReviews?.paintAction(button,film,null,!!window.KGIsFilmWatched?.(film.id));
+  });
 }
 document.addEventListener("kg:watched-change",paintWatched);
+document.addEventListener("kg:review-change",paintWatched);
 document.addEventListener("kg:diary-note-change", event => {
+  paintWatched();
   document.querySelectorAll(".kg-film-detail [data-kg-film-note]").forEach(button => {
     const id = button.closest("[data-selected-film]").dataset.selectedFilm;
     if (id !== String(event.detail.id)) return;

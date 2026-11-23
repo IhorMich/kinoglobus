@@ -155,7 +155,7 @@
   function renderStats() {
     const notes = [...Object.values(store.get("kgCinemaDiaryNotes",{}) || {}),
       ...history.episodeEntries.map(entry=>entry.note)].filter(note=>note && note.diary!==false);
-    const reviews = notes.filter(note=>String(note.text || "").trim()).length;
+    const reviews = window.KGReviews.entries().length;
     const rates = notes.map(note=>Number(note.rating)).filter(value=>value>0&&value<=5);
     const rating = rates.length ? number(rates.reduce((sum,v)=>sum+v,0)*2/rates.length) : "—";
     const values = {favorites:number(window.KGFavorites.list().length),bookmarks:number(kgBookmarkIds().length+window.KGSeries.bookmarkIds().length),
@@ -299,7 +299,7 @@
     if (event.target.matches(".kg-pf-poster img")) event.target.remove();
   },true);
 
-  for (const event of ["kg:release-follows-change","kg:favorite-change","kg-bookmark-change","kg:watched-change","kg:diary-note-change","kg:episode-note-change"]) {
+  for (const event of ["kg:release-follows-change","kg:favorite-change","kg-bookmark-change","kg:watched-change","kg:diary-note-change","kg:episode-note-change","kg:review-change"]) {
     document.addEventListener(event,()=>{if(dialog.open && profile)renderProfile();});
   }
   window.KGOpenDemoProfile = () => openProfile();

@@ -67,6 +67,10 @@
 .kg-rv-footer { display: grid; gap: 4px; text-align: center; }
 .kg-rv-empty,.kg-rv-status { margin: 0; padding: 10px; border-radius: 10px; background: var(--rv-panel); color: var(--rv-muted); font-size: 14px; }
 .kg-rv-picker { position: fixed; inset: auto 0 0; margin: 0 auto; width: min(100%,440px); max-width: none; max-height: 75dvh; padding: 14px; border: 0; border-radius: 15px 15px 0 0; color: var(--rv-ink); background: rgb(var(--kg-surface)); }
-.kg-rv-picker[open] { display: grid; gap: 8px; grid-template-rows: auto auto minmax(0,1fr) auto; }
+.kg-rv-picker[open] { display: grid; gap: 8px; grid-template-rows: auto auto auto minmax(0,1fr) auto; }
+.kg-rv-picker[open]:has([data-rv-picker-types][hidden]) { grid-template-rows: auto minmax(0,1fr) auto; }
 .kg-rv-picker [data-rv-choices] { display: grid; gap: 5px; min-height: 0; overflow: auto; }
 .kg-rv-picker [data-rv-pick] { justify-content: start; text-align: start; }
+.kg-rv-picker footer { display: flex; justify-content: space-between; gap: 8px; }
+.kg-rv-picker [data-rv-pick] span { display: grid; min-width: 0; overflow-wrap: anywhere; }
+.kg-rv-picker [data-rv-pick] small { color: var(--rv-muted); }

@@ -313,7 +313,11 @@
   }
 
   function currentList() {
-    if (source === "notes") return savedNotes();
+    if (source === "notes") {
+      const rows=new Map(savedNotes().map(entry=>[entryId(entry),entry]));
+      for(const entry of window.KGReviews?.diaryEntries()||[])rows.set(entryId(entry),entry);
+      return [...rows.values()].sort((a,b)=>b.key.localeCompare(a.key));
+    }
     return entries;
   }
 
@@ -558,6 +562,7 @@
   }
   function compactNote(entry,films,options={}){
     const film=entry.film,id=String(film.id);
+    if(entry.review){const log=film._episodeLog;return window.KGReviews.open(log?.series||film,{log});}
     if(film._episodeLog){const log=film._episodeLog;window.KGSeriesDetail.openEpisodeNote(log.series,log.episode,log.season);return;}
     const draft=(store.get(draftKey,{})||{})[id],initial={date:entry.key||dayKey(new Date()),...(draft||entry.note)};
     return window.KGViewingNote.open({watchAction:!!options.watchAction,onClose:options.onClose,kind:window.KGSeries?.isSeriesId(film.id)?'series':'film',title:filmName(film),subtitle:[film.original,film.year].filter(Boolean).join(' · '),poster:film.poster,runtime:film.runtime,release:film.release_date||film.release||'',initial,legacy:true,
@@ -724,7 +729,7 @@
     }
   });
 
-  document.addEventListener('kg:episode-note-change',()=>{if(dialog.open)render();});
+  for(const event of ['kg:episode-note-change','kg:review-change'])document.addEventListener(event,()=>{if(dialog.open)render();});
   window.KGReadDiaryNotes = () => savedNotes(store.get(notesKey,{}) || {});
   window.KGHasCinemaDiaryNote = id => Object.hasOwn(store.get(notesKey,{}) || {}, String(id));
   window.KGOpenCinemaDiaryNote = (film,options={}) => {

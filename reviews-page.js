@@ -54,9 +54,10 @@
   const main=dialog.querySelector("main");
   const query=main.querySelector("input");
   const picker=dialog.querySelector("[data-rv-picker]");
+  document.body.append(picker);
   const pickerSearch=picker.querySelector("input"), choiceList=picker.querySelector("[data-rv-choices]");
   const reviewTypes=[["all","Все"],["films","Фильмы"],["series","Сериалы"],["episodes","Эпизоды"]];
-  let pickerType="all",pickerMode="history",lookup=0,debounce,selectedSeries,selectedSeason;
+  let pickerType="all",pickerMode="history",lookup=0,debounce,selectedSeries,selectedSeason,pickerOpener;
   const set=(selector,value)=>{dialog.querySelector(selector).textContent=value;};
   let rows=[],choices=[],filter="all",ascending=false,limit=pageSize;
 
@@ -71,7 +72,9 @@
       : [uiText(kind(row)==="series"?"Сериал":"Фильм"),year,film.original_title||film.original].filter(Boolean).join(" · ");
     const copy=`<span class="kg-rv-copy">
       ${row.note.title ? `<strong>${esc(row.note.title)}</strong>` : ""}
-      <span>${esc(reviewText(row))}</span>
+      <span>${window.KGReviews.renderBody(row.note)}</span>
+      ${Array.isArray(row.note.fragments)?row.note.fragments.map(text=>`<details class="kg-re-fragment"><summary>${label("Скрытый фрагмент")}</summary><p>${esc(text)}</p></details>`).join(""):""}
+      ${row.note.viewFormat||row.note.audio||row.note.viewingDate ? `<small>${esc([row.note.viewFormat,row.note.audio,row.note.viewingDate].filter(Boolean).join(" · "))}</small>` : ""}
       ${Array.isArray(row.note.tags)&&row.note.tags.length
         ? `<span class="kg-favorites-tags">${row.note.tags.map(tag=>`<span>${label(tag)}</span>`).join("")}</span>` : ""}
     </span>`;
@@ -96,21 +99,24 @@
   function render() {
     const saved=window.KGReviews.entries();
     const drafts=window.KGReviews.entries(true);
-    rows=filter==="drafts"?drafts:saved;
+    rows=filter==="drafts"?drafts:filter==="all"?[...drafts,...saved]:saved;
     const ratings=saved.map(personalRating).filter(Boolean);
     set("[data-rv-total]",String(saved.length));
     set("[data-rv-average]",ratings.length ? "★ "+scoreFormat.format(ratings.reduce((a,b)=>a+b,0)/ratings.length) : "—");
     set("[data-rv-episodes]",String(saved.filter(row=>row.film._episodeLog).length));
     set("[data-rv-sort] span:last-child",uiText(ascending?"Сначала старые":"Сначала новые"));
     dialog.querySelector("[data-rv-filters]").innerHTML=[...reviewTypes,["drafts","Черновики"]].map(([key,name])=>
-      `<button type="button" data-rv-filter="${key}" aria-pressed="${filter===key}">${label(name)} <small>${key==="drafts"?drafts.length:saved.filter(row=>key==="all"||kind(row)===key).length}</small></button>`).join("");
+      `<button type="button" data-rv-filter="${key}" aria-pressed="${filter===key}">${label(name)} <small>${key==="drafts"?drafts.length:
+        key==="all"?saved.length+drafts.length:saved.filter(row=>kind(row)===key).length}</small></button>`).join("");
     const term=normalize(query.value.trim());
     const matches=rows.map((row,index)=>({row,index})).filter(({row})=>
       (filter==="all"||filter==="drafts"||kind(row)===filter) && (!term || normalize([title(row),row.film.original_title,
         row.film._episodeLog?.episode.name,row.note.title,row.note.author,reviewText(row)].join(" ")).includes(term)));
-    if(ascending)matches.sort((a,b)=>a.row.key&&b.row.key ? a.row.key.localeCompare(b.row.key) : Number(!a.row.key)-Number(!b.row.key));
+    if(ascending)matches.sort((a,b)=>Number(Boolean(b.row.draft))-Number(Boolean(a.row.draft)) ||
+      (a.row.key&&b.row.key?a.row.key.localeCompare(b.row.key):Number(!a.row.key)-Number(!b.row.key)));
     const page=matches.slice(0,limit);
-    dialog.querySelector("[data-rv-list]").innerHTML=page.length ? page.map(({row,index})=>entryCard(row,index)).join("") :
+    dialog.querySelector("[data-rv-list]").innerHTML=page.length ? page.map(({row,index},i)=>`${filter==="all"&&row.draft&&!i?`<h2 class="kg-rv-group-title">${label("Черновики")}</h2>`:
+      filter==="all"&&!row.draft&&page[i-1]?.row.draft?`<h2 class="kg-rv-group-title">${label("Сохранённые рецензии")}</h2>`:""}${entryCard(row,index)}`).join("") :
       `<p class="kg-rv-empty">${label(rows.length?"Ничего не найдено":filter==="drafts"?"У вас пока нет черновиков.":"У вас пока нет рецензий.")}</p>`;
     const footer=dialog.querySelector(".kg-rv-footer");
     footer.hidden=!page.length;
@@ -177,8 +183,8 @@
     },240);
   }
 
-  function pickReview() {
-    pickerType="all";pickerMode="history";pickerSearch.value="";
+  function pickReview(opener=document.activeElement) {
+    pickerOpener=opener;pickerType="all";pickerMode="history";pickerSearch.value="";
     picker.showModal();renderPicker();
   }
 
@@ -228,27 +234,34 @@
   pickerSearch.addEventListener("input",renderPicker);
   picker.addEventListener("close",()=>{if(!picker.open){clearTimeout(debounce);lookup++;}});
   dialog.addEventListener("error",event=>{if(event.target.tagName==="IMG")event.target.hidden=true;},true);
-  dialog.addEventListener("click",event=>{
+  picker.addEventListener("click",event=>{
     const b=event.target.closest("button");
     if(!b)return;
-    const {rvFilter,rvPick,rvEdit,rvShare,rvOpen,rvPickerType,rvSeason}=b.dataset;
-    if(b.hasAttribute("data-rv-back"))dialog.close();
-    else if(b.hasAttribute("data-rv-new"))pickReview();
-    else if(b.hasAttribute("data-rv-picker-back"))picker.close();
-    else if(rvPickerType){pickerType=rvPickerType;renderPicker();picker.querySelector(`[data-rv-picker-type="${pickerType}"]`)?.focus({preventScroll:true});}
-    else if(rvSeason!==undefined)selectSeason(Number(rvSeason));
+    const {rvPick,rvPickerType,rvSeason}=b.dataset;
+    if(b.hasAttribute("data-rv-picker-back"))picker.close();
+    else if(rvPickerType){
+      pickerType=rvPickerType;renderPicker();
+      picker.querySelector(`[data-rv-picker-type="${pickerType}"]`)?.focus({preventScroll:true});
+    }else if(rvSeason!==undefined)selectSeason(Number(rvSeason));
     else if(b.hasAttribute("data-rv-catalog")){
       if(pickerMode==="episodes")selectSeries(selectedSeries);
       else {pickerMode=pickerMode==="history"?"catalog":"history";renderPicker();}
-    }
-    else if(b.hasAttribute("data-rv-sort")){ascending=!ascending;reset();}
-    else if(b.hasAttribute("data-rv-more")){limit+=pageSize;render();}
-    else if(rvFilter){filter=rvFilter;reset();dialog.querySelector(`[data-rv-filter="${filter}"]`).focus({preventScroll:true});}
-    else if(rvPick!==undefined){
+    }else if(rvPick!==undefined){
       const item=choices[Number(rvPick)];if(!item)return;
       if(pickerMode==="catalog"&&pickerType==="episodes"){selectSeries(item.film);return;}
       picker.close();
-      window.KGReviews.open(item.film,{log:item.log,opener:dialog.querySelector("[data-rv-new]")});
+      window.KGReviews.open(item.film,{log:item.log,opener:pickerOpener});
+    }
+  });
+  dialog.addEventListener("click",event=>{
+    const b=event.target.closest("button");
+    if(!b)return;
+    const {rvFilter,rvEdit,rvShare,rvOpen}=b.dataset;
+    if(b.hasAttribute("data-rv-back"))dialog.close();
+    else if(b.hasAttribute("data-rv-new"))pickReview(b);
+    else if(b.hasAttribute("data-rv-sort")){ascending=!ascending;reset();}
+    else if(b.hasAttribute("data-rv-more")){limit+=pageSize;render();}
+    else if(rvFilter){filter=rvFilter;reset();dialog.querySelector(`[data-rv-filter="${filter}"]`).focus({preventScroll:true});
     }else{
       const row=rows[Number(rvEdit??rvShare??rvOpen)];
       if(!row)return;
@@ -262,6 +275,7 @@
     }
   });
   for(const event of ["kg:diary-note-change","kg:episode-note-change","kg:review-change"])document.addEventListener(event,()=>{if(dialog.open)render();});
+  window.KGOpenReviewPicker=pickReview;
   window.KGOpenReviews=()=>{
     filter="all";ascending=false;limit=pageSize;query.value="";
     dialog.querySelector(".kg-rv-status").hidden=true;

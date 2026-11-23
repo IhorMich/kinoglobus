@@ -2070,7 +2070,7 @@ const tvThemes=[
   ["usanimation", "Американская анимация", "16"]
 ].map(([source,name,g,category,options])=>{
   const original=T[source];
-  return {id:`tv-${source}`,name,g,cc:original.cc,region:options?.cc?.map(cname).join(", ")||where(original),category:CAT[category||cat(original)][0],series:true,cover:getThemeCover(source),...options};
+  return {id:`tv-${source}`,name,g,cc:original.cc,region:options?.cc?.map(cname).join(", ")||where(original),category:CAT[category||cat(original)][0],series:true,...options,cover:`assets/covers/series/${options?.id||`tv-${source}`}.webp`};
 });
 let tvCountry="",tvQuery="",tvLayout="list",tvCatalogSort="rating";
 const tvMetadata=new Map();
@@ -2130,7 +2130,8 @@ function renderTvCatalog(){
     const card=seriesCollections.querySelector(`[data-tv-grid] [data-t="${theme.id}"]`);
     if(card){
       card.querySelector('[data-k="cnt"]').textContent=uiText("Сериалов в подборке: {count}",{count:nf(meta.n)});
-      if(meta.p)card.querySelector('[data-k="img"]').src=P(meta.p,"w342");
+      // Локальные обложки TV-коллекций: не заменяем изображениями TMDB.
+        // if(meta.p)card.querySelector('[data-k="img"]').src=P(meta.p,"w342");
     }
     const spotlight=seriesCollections.querySelector("[data-tv-spot]");
     if(spotlight&&theme===featured){

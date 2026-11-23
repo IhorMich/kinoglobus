@@ -4,8 +4,8 @@
   const label = (text,values) => esc(uiText(text,values));
   const icon = name => `<span class="material-symbols-outlined" aria-hidden="true">${name}</span>`;
   const number = new Intl.NumberFormat(interfaceLanguage,{maximumFractionDigits:1});
-  const shortDate = new Intl.DateTimeFormat(interfaceLanguage,{day:"numeric",month:"short"});
-  const media = [["all","Все"],["film","Фильмы"],["series","Сериалы"],["new","Не начато"]];
+  const shortDate = new Intl.DateTimeFormat(interfaceLanguage,{day:"numeric",month:"short",year:"numeric"});
+  const media = [["all","Все"],["film","Фильмы"],["series","Сериалы"]];
   const sorts = [["added","По дате добавления"],["rating","По рейтингу"],["title","По названию"]];
   const dialog = document.createElement("dialog");
   dialog.id = "kg-bookmarks-page";
@@ -13,16 +13,12 @@
   dialog.innerHTML = `<header class="kg-bp-header">
     <button type="button" class="kg-bp-control" data-bp-back autofocus aria-label="${label("Назад")}">${icon("arrow_back")}</button>
     <h1 id="kg-bookmarks-title">${label("Закладки")}</h1>
-    <button type="button" class="kg-bp-control" data-bp-search aria-label="${label("Поиск в закладках")}">${icon("search")}</button>
-    <button type="button" class="kg-bp-control" data-bp-settings aria-label="${label("Настройки")}">${icon("tune")}</button>
-    <button type="button" class="kg-bp-control" data-bp-profile aria-label="${label("Профиль")}">${icon("person")}</button>
   </header>
   <main class="kg-bp-main">
     <section class="kg-bp-tools">
       <div class="kg-bp-intro"><h2>${label("Буду смотреть")}</h2><span data-bp-total></span></div>
       <p>${label("Коллекция фильмов и сериалов, отложенных на будущее")}</p>
-      <div class="kg-bp-search"><label>${icon("search")}<input type="search" aria-label="${label("Поиск в закладках")}" placeholder="${label("Искать в закладках…")}"></label>
-        <button type="button" data-bp-filter class="kg-bp-control" aria-label="${label("Фильтры закладок")}" aria-controls="kg-bp-controls">${icon("tune")}</button></div>
+      <label class="kg-bp-search">${icon("search")}<input type="search" autocomplete="off" enterkeyhint="search" aria-label="${label("Поиск в закладках")}" placeholder="${label("Искать в закладках…")}"></label>
       <div class="kg-bp-chips" data-bp-media aria-label="${label("Тип закладок")}"></div>
       <div class="kg-bp-controls" id="kg-bp-controls">
         <label class="kg-bp-sort"><span>${label("Сортировка")}</span><select aria-label="${label("Сортировка")}">${sorts.map(([key,text])=>`<option value="${key}">${label(text)}</option>`).join("")}</select></label>
@@ -40,7 +36,6 @@
   const main = dialog.querySelector("main");
   const query = dialog.querySelector("input");
   const sort = dialog.querySelector("select");
-  const filter = dialog.querySelector("[data-bp-filter]");
   const providers = dialog.querySelector("[data-bp-providers]");
   const cards = dialog.querySelector("[data-bp-items]");
   const summary = dialog.querySelector("[data-bp-summary]");
@@ -60,7 +55,7 @@
   };
   const providerKey = id => `${window.KGLegalWatch.getEffectiveRegion()}:${id}`;
   const providerNames = id => loadedProviders.get(providerKey(id)) || [];
-  const matchesMedia = (row,mode) => mode === "all" || (mode === "new" ? !row.progress.seen && !row.progress.count : row.kind === mode);
+  const matchesMedia = (row,mode) => mode === "all" || row.kind === mode;
 
   function readRows() {
     const saved = store.get("kgBookmarkFilms",{}) || {};
@@ -100,7 +95,7 @@
           ${original && original!==title || year ? `<small>${esc([original!==title ? original : "",year].filter(Boolean).join(" · "))}</small>` : ""}
           ${genres.length ? `<span class="kg-bp-genres">${genres.map(genre=>`<span>${esc(genre)}</span>`).join("")}</span>` : ""}
           ${progressText ? `<span class="kg-bp-progress"><span>${esc(progressText)}</span>${percent ? `<progress max="100" value="${percent}" aria-label="${label("Просмотрено")}"></progress>` : ""}</span>` : ""}
-          <span class="kg-bp-state"><span>${label(status)}</span>${row.added ? `<small>${label("Добавлено {date}",{date:shortDate.format(row.added)})}</small>` : ""}</span>
+          <span class="kg-bp-state"><span>${label(status)}</span><small data-bp-added>${row.added ? label("Добавлено {date}",{date:shortDate.format(row.added)}) : label("Дата добавления неизвестна")}</small></span>
         </span>
       </button>
       <footer>
@@ -166,10 +161,6 @@
     if (!button) return;
     const {bpTab,bpService,bpLayout,bpOpen,bpWatch} = button.dataset;
     if (button.hasAttribute("data-bp-back")) dialog.close();
-    else if (button.hasAttribute("data-bp-search")) query.focus();
-    else if (button.hasAttribute("data-bp-settings")) window.KGOpenSettings();
-    else if (button.hasAttribute("data-bp-profile")) {dialog.close();window.KGOpenAccountPage("register");}
-    else if (button===filter) sort.focus();
     else if (bpTab) {
       selection=bpTab;render();
       dialog.querySelector(`[data-bp-tab="${bpTab}"]`).focus({preventScroll:true});

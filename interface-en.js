@@ -14,6 +14,7 @@ window.KGInterfaceDictionaries.en = Object.freeze({
   "Хронометраж пока неизвестен": "Runtime unavailable",
   "В закладках пока нет фильмов и сериалов.": "No movies or series bookmarked yet.",
   "Добавлено {date}": "Added {date}",
+  "Дата добавления неизвестна": "Date added unknown",
   "{count} из {total} серий": "{count} of {total} episodes",
   "Просмотрено серий: {count}": "Episodes watched: {count}",
   "Отметить просмотр": "Log viewing",

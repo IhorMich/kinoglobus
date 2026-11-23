@@ -39,7 +39,7 @@
   const providers = dialog.querySelector("[data-bp-providers]");
   const cards = dialog.querySelector("[data-bp-items]");
   const summary = dialog.querySelector("[data-bp-summary]");
-  let closeParent, bookmarkRows = [], visible = [], selection = "all", service = "", generation = 0, hadKey = false;
+  let bookmarkRows = [], visible = [], selection = "all", service = "", generation = 0, hadKey = false;
   let layout = store.get("kgBookmarksLayout","list") === "grid" ? "grid" : "list";
   const metadata = new Map();
   const loadedProviders = new Map();
@@ -192,11 +192,9 @@
       if (event==="kg-bookmark-change") hydrate();
     });
   }
-  window.KGOpenBookmarks = ({closeParent:onNavigate}={})=>{
-    closeParent=onNavigate;
+  window.KGOpenBookmarks = ()=>{
     selection="all";service="";query.value="";
     if (!hadKey && apiKey) { metadata.clear(); loadedProviders.clear(); }
-    window.KGMountBottomNav(dialog,dialog,"bookmarks",()=>{dialog.close();closeParent?.();});
     render();
     if (!dialog.open) dialog.showModal();
     main.scrollTop=0;

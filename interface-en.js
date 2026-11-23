@@ -1,6 +1,21 @@
 // English translations for the Moven interface.
 window.KGInterfaceDictionaries ??= {};
 window.KGInterfaceDictionaries.en = Object.freeze({
+  "Вся история просмотров": "All viewing history",
+  "Поделиться историей": "Share history",
+  "Отметок о просмотре": "Viewing records",
+  "Известный хронометраж": "Known runtime",
+  "Поиск в истории просмотров": "Search viewing history",
+  "Найти в истории…": "Search history\u2026",
+  "Тип записи": "Record type",
+  "Год просмотра": "Viewing year",
+  "Загруженные записи": "Loaded entries",
+  "Загрузить ещё записи": "Load more entries",
+  "Сначала старые": "Oldest first",
+  "Сначала новые": "Newest first",
+  "История просмотров пока пуста.": "Viewing history is empty.",
+  "История просмотров · Записей: {count}": "Viewing history \u00b7 {count} entries",
+  "Не удалось поделиться историей.": "Couldn't share viewing history.",
   "Коллекция фильмов и сериалов, отложенных на будущее": "Movies and series saved for later",
   "Поиск в закладках": "Search bookmarks",
   "Искать в закладках…": "Search bookmarks\u2026",

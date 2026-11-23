@@ -14,7 +14,7 @@
     bookmark:"M6 3h12v19l-6-4-6 4V3Z", diary:"M4 3h15v18H4zm4 0v18m-6-14h4m-4 5h4m-4 5h4",
     notes:"M4 4h16v12H9l-5 4zm4 8 1-3 5-4 2 2-5 4-3 1Z",
     calendar:"M8 3v4m8-4v4M4 10h16M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z",
-    stats:"m3 18 6-7 4 4 7-9M3 18h.01M9 11h.01M13 15h.01M20 6h.01",
+    history:"M4 11a8 8 0 1 1 2 6m-2-6V5m0 6h6m2-4v5l3 2",
     bell:"M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9m-8 12a2 2 0 0 0 4 0",
     tv:"M3 5h18v13H3zm5 16h8", movie:"M3 5h18v15H3zM3 9h18m-13-4 3 4m5-4 3 4",
     chevron:"m9 18 6-6-6-6", back:"M20 12H4m7-7-7 7 7 7",
@@ -33,7 +33,7 @@
     ["diary","diary","Кинодневник"],
     ["notes","notes","Рецензии"],
     ["calendar","calendar","Мой календарь"],
-    ["stats","stats","Статистика"]
+    ["history","history","История просмотров"]
   ];
   const dialog = document.createElement("dialog");
   dialog.id = "kg-profile";
@@ -147,9 +147,8 @@
     const reviews = notes.filter(note=>String(note.text || "").trim()).length;
     const rates = notes.map(note=>Number(note.rating)).filter(value=>value>0&&value<=5);
     const rating = rates.length ? `${number(rates.reduce((sum,v)=>sum+v,0)*2/rates.length)} ★` : "—";
-    const days = new Set([...history.movies,...history.series].map(item=>String(item.watchedAt||"").slice(0,10)).filter(Boolean));
     const values = {favorites:number(window.KGFavorites.list().length),bookmarks:number(kgBookmarkIds().length+window.KGSeries.bookmarkIds().length),
-      diary:number(history.movies.length+history.series.length),notes:number(reviews),stats:uiText("{count} дн.",{count:number(days.size)})};
+      diary:number(history.movies.length+history.series.length),notes:number(reviews),history:number(window.KGViewingHistory.count())};
     for (const [id,value] of Object.entries(values)) dialog.querySelector(`[data-profile-count="${id}"]`).textContent=value;
     dialog.querySelector('[data-profile-stat="reviews"]').textContent=number(reviews);
     dialog.querySelector('[data-profile-stat="rating"]').textContent=rating;
@@ -202,18 +201,6 @@
     scroll.scrollTop = 0;
     window.KGReleaseFollow.refresh();
     return true;
-  }
-
-  function placeholder(name) {
-    const page = document.createElement("dialog");
-    page.className = "kg-pf-empty-page kg-film-dialog";
-    page.setAttribute("aria-labelledby","kg-profile-empty-title");
-    page.innerHTML = `<header class="kg-film-dialog-header"><button type="button" autofocus aria-label="${label("Назад")}">${icon("back")}</button>
-      <h1 id="kg-profile-empty-title">${label(name)}</h1></header>`;
-    page.querySelector("button").onclick=()=>page.close();
-    page.addEventListener("close",()=>page.remove(),{once:true});
-    document.body.append(page);
-    page.showModal();
   }
 
   const logout = () => {sessionId++;profile=null;dialog.close();};
@@ -272,11 +259,13 @@
     }
     if (action === "favorites") window.KGFavorites.open();
     else if (action === "bookmarks" || action === "notes") openDiary({initialSource:action});
-    else if (action === "diary" || action === "stats") openDiary({focusStats:action==="stats"});
+    else if (action === "diary") openDiary();
     else if (action === "calendar") window.KGReleaseFollow.openCalendar();
     else if (action === "week") window.KGPersonalCalendar.open(undefined,{week:true});
-    else if (action === "movies-history") window.KGOpenWatchHistory();
-    else if (action === "series-history") placeholder("Просмотренные сериалы");
+    else if (["history","movies-history","series-history"].includes(action)) {
+      const filter = action === "movies-history" ? "film" : action === "series-history" ? "series" : "all";
+      window.KGViewingHistory.open({filter,avatar:profile.avatar||avatarDefault,closeParent:()=>dialog.close()});
+    }
     else if (action === "search") {
       dialog.close();
       document.querySelector("[data-kg-search-open]")?.click();

@@ -682,7 +682,7 @@
       return;
     }
     if (button.hasAttribute("data-diary-bookmarks")) {
-      window.KGOpenBookmarks({closeParent:()=>{dialog.close();closeParent?.();}});
+      window.KGOpenBookmarks();
       return;
     }
     if (nextSource && nextSource !== source) {
@@ -737,7 +737,7 @@
   };
 
   window.KGOpenCinemaDiary = ({avatar, closeParent: onNavigate, initialSource, focusStats=false} = {}) => {
-    if (initialSource === "bookmarks") return window.KGOpenBookmarks({closeParent:onNavigate});
+    if (initialSource === "bookmarks") return window.KGOpenBookmarks();
     closeParent = onNavigate;
       source = initialSource === "notes" ? "notes" : "watched";
     selectedFilm = "";

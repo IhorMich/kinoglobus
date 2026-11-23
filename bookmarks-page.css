@@ -26,7 +26,7 @@
   background: var(--kg-nav-control-fill); border-radius: 12px; min-height: 44px;
 }
 .kg-bp-header .kg-bp-control { width: 40px; min-height: 40px; flex: none; border-radius: 50%; }
-.kg-bp-main { min-height: 0; flex: 1; overflow: auto; padding: 8px 16px 24px; overscroll-behavior: contain; }
+.kg-bp-main { min-height: 0; flex: 1; overflow: auto; padding: 8px 16px calc(24px + env(safe-area-inset-bottom,0px)); overscroll-behavior: contain; }
 .kg-bp-tools { display: grid; gap: 10px; margin-bottom: 14px; }
 .kg-bp-tools > h2 { margin: 0; font: 600 20px/1.18 var(--kg-font-heading); }
 .kg-bp-tools > p { margin: -5px 0 1px; color: var(--bp-muted); font-size: 13px; }
@@ -87,6 +87,5 @@
 .kg-bp-summary strong { font-size: 14px; }
 .kg-bp-summary small { color: var(--bp-muted); font-size: 12px; }
 .kg-bp-summary button { font-size: 14px; }
-#kg-bookmarks-page .kg-dialog-bottom-nav { flex: none; }
 .kg-bp-state { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1px 6px; }
 .kg-bp-state small { font-size: 11px; }

@@ -10,6 +10,8 @@
     services:["tv","Стриминговые сервисы","Регион для раздела «Где смотреть»"],
     language:["translate","Аудиодорожки и локализация","Язык, регион и субтитры трейлеров"],
     subscription:["stars","Подписка Moven Black Pro","Управление подпиской"],
+    nickname:["person","Никнейм","Подпись к рецензиям"],
+    public:["public","Публичная страница","Предпросмотр и приватность"],
     security:["shield","Безопасность и вход","Электронная почта и пароль"],
     notifications:["calendar_month","Уведомления и радар премьер","Релизы и напоминания"],
     export:["sync","Экспорт и резервные копии","Экспорт данных и синхронизация"],
@@ -40,7 +42,8 @@
   <main class="kg-ps-scroll">
     <section class="kg-ps-hero">
       <div class="kg-ps-cover"><img alt="" data-ps-cover>
-        <button type="button" class="kg-ps-control kg-ps-change" data-ps-edit="banner">${icon("image")}${label("Сменить фон")}</button>
+        <button type="button" class="kg-ps-control kg-ps-change" data-ps-change-cover>${icon("image")}${label("Сменить фон")}</button>
+        <input type="file" data-ps-cover-file accept="image/png,image/jpeg,image/webp,image/avif,image/gif" hidden>
       </div>
       <div class="kg-ps-identity">
         <div class="kg-ps-portrait">
@@ -53,9 +56,10 @@
           <button type="button" data-ps-edit="profile">${label("Изменить")}${icon("arrow_forward")}</button>
         </div>
       </div>
-      <button type="button" class="kg-ps-status kg-ps-control" data-ps-edit="bio" aria-label="${label("Изменить статус")}">
-        <i></i><span data-ps-bio></span>${icon("edit")}
+      <button type="button" class="kg-ps-status kg-ps-control" data-ps-edit-status aria-label="${label("Изменить статус")}">
+        <i></i><span data-ps-status></span>${icon("edit")}
       </button>
+      <p class="kg-ps-message kg-ps-cover-message" data-ps-cover-message role="status" hidden></p>
     </section>
 
     <section class="kg-ps-spotlight">
@@ -72,7 +76,7 @@
 
     <div class="kg-ps-groups">
       ${group("Кино и трекинг",["diary","services","language"])}
-      ${group(subscriptionVisible ? "Подписка и аккаунт" : "Аккаунт",["subscription","security"])}
+      ${group(subscriptionVisible ? "Подписка и аккаунт" : "Аккаунт",["subscription","nickname","public","security"])}
       ${group("Приложение и данные",["notifications","export","appearance"])}
     </div>
     <footer class="kg-ps-footer">
@@ -83,7 +87,9 @@
   document.body.append(hub);
   const scroll = hub.querySelector("main");
   const spoilers = hub.querySelector("[data-ps-spoilers]");
-  let session;
+  const coverPicker = hub.querySelector("[data-ps-cover-file]");
+  const coverButton = hub.querySelector("[data-ps-change-cover]");
+  let session, currentProfile;
 
   function renderSpoilers() {
     const hidden = window.KGCinemaDiarySpoilers.get();
@@ -95,28 +101,148 @@
   }
 
   function render(profile) {
+    currentProfile = profile;
     for (const photo of hub.querySelectorAll("[data-ps-avatar]")) photo.src = profile.avatar;
     hub.querySelector("[data-ps-cover]").src = profile.banner || defaultBanner;
     hub.querySelector("[data-ps-name]").textContent = profile.name;
     hub.querySelector("[data-ps-handle]").textContent = profile.handle || "";
-    hub.querySelector("[data-ps-bio]").textContent = profile.bio || uiText("Добавить статус");
+    hub.querySelector("[data-ps-status]").textContent = profile.status || uiText("Добавить статус");
+    const nickname = hub.querySelector('[data-ps-route="nickname"] small');
+    nickname.textContent = profile.handle || uiText("Подпись к рецензиям");
+    const publicPage = hub.querySelector('[data-ps-route="public"] small');
+    publicPage.textContent = uiText(profile.privatePage ? "Приватная" : "Открытая");
     renderSpoilers();
   }
 
-  function openBlank(route) {
+  function openSubpage(route,title,content="") {
     const page = document.createElement("dialog");
-    page.className = "kg-ps-dialog kg-ps-blank";
+    page.className = "kg-ps-dialog";
     page.dataset.profileSettingsPage = route;
     page.setAttribute("aria-labelledby","kg-ps-page-title");
     page.innerHTML = `<header class="kg-ps-header">
       <button type="button" class="kg-ps-round kg-ps-control" autofocus aria-label="${label("Назад")}">${icon("arrow_back")}</button>
-      <h1 id="kg-ps-page-title">${label(entries[route][1])}</h1>
-    </header>`;
-    page.querySelector("button").addEventListener("click",()=>page.close());
+      <h1 id="kg-ps-page-title">${label(title)}</h1>
+    </header>${content ? `<main class="kg-ps-scroll kg-ps-subpage">${content}</main>` : ""}`;
+    page.querySelector("header button").addEventListener("click",()=>page.close());
     page.addEventListener("close",()=>page.remove(),{once:true});
     document.body.append(page);
     page.showModal();
+    return page;
   }
+
+  function message(element,text="") {
+    element.textContent = text ? uiText(text) : "";
+    element.hidden = !text;
+  }
+
+  function editField(field) {
+    const nickname = field === "handle";
+    const title = nickname ? "Никнейм" : "Статус";
+    const input = nickname
+      ? '<input id="kg-ps-field" type="text" name="value" maxlength="25" autocomplete="off" spellcheck="false" autocapitalize="off">'
+      : '<textarea id="kg-ps-field" name="value" rows="3" maxlength="140"></textarea>';
+    const page = openSubpage(field,title,`<form class="kg-ps-form">
+      <label for="kg-ps-field">${label(title)}</label>${input}
+      <p>${label(nickname ? "Никнейм будет виден рядом с рецензией." : "Статус отображается рядом с именем.")}</p>
+      <p class="kg-ps-message" role="status" hidden></p>
+      <button class="kg-ps-control kg-ps-save" type="submit">${label("Сохранить")}</button>
+    </form>`);
+    const form = page.querySelector("form");
+    const value = form.elements.value;
+    const feedback = form.querySelector("[role=status]");
+    const save = form.querySelector("[type=submit]");
+    const update = session.update;
+    value.value = currentProfile[field] || "";
+    value.focus();
+    form.addEventListener("submit",async event=>{
+      event.preventDefault();
+      const text = value.value.trim();
+      const plain = nickname ? text.replace(/^@/,"") : text;
+      if (nickname && text && !/^[\p{L}\p{N}_.-]{1,24}$/u.test(plain)) {
+        message(feedback,"До 24 символов: буквы, цифры, точка, дефис или подчёркивание.");
+        return;
+      }
+      save.disabled = value.disabled = true;
+      message(feedback);
+      try {
+        render(await update({[field]:nickname && plain ? "@"+plain : plain}));
+        page.close();
+      } catch {
+        message(feedback,"Изменения не сохранены");
+        save.disabled = value.disabled = false;
+      }
+    });
+  }
+
+  function openPublicPage() {
+    const page = openSubpage("public",entries.public[1],`
+      <button class="kg-ps-control kg-ps-privacy" type="button" data-ps-privacy aria-pressed="true">
+        ${icon("lock")}<span>${label("Приватная страница")}</span><b></b>
+      </button>
+      <p class="kg-ps-preview-note">${label("Предпросмотр на этом устройстве")}</p>
+      <p class="kg-ps-private-message" data-ps-private-message>${label("Профиль скрыт")}</p>
+      <section class="kg-ps-hero kg-ps-public-preview" data-ps-public-preview hidden>
+        <div class="kg-ps-cover"><img alt="" data-public-cover></div>
+        <div class="kg-ps-identity"><div class="kg-ps-portrait"><img alt="" data-public-avatar></div>
+          <div class="kg-ps-person"><h2 data-public-name></h2><p data-public-handle></p></div></div>
+        <p class="kg-ps-public-status" data-public-status></p>
+      </section>
+      <p class="kg-ps-message" role="status" hidden></p>`);
+    const toggle = page.querySelector("[data-ps-privacy]");
+    const preview = page.querySelector("[data-ps-public-preview]");
+    const locked = page.querySelector("[data-ps-private-message]");
+    const feedback = page.querySelector("[role=status]");
+    const update = session.update;
+    function paint() {
+      const privatePage = currentProfile.privatePage;
+      toggle.setAttribute("aria-pressed",String(privatePage));
+      toggle.querySelector("b").textContent = uiText(privatePage ? "Включена" : "Выключена");
+      preview.hidden = privatePage;
+      locked.hidden = !privatePage;
+      for (const key of ["cover","avatar","name","handle","status"]) {
+        const element = preview.querySelector(`[data-public-${key}]`);
+        const data = privatePage ? "" : key === "cover" ? currentProfile.banner || defaultBanner : currentProfile[key] || "";
+        if (element.tagName === "IMG") {
+          if (data) element.src = data;
+          else element.removeAttribute("src");
+        } else element.textContent = data;
+      }
+    }
+    paint();
+    toggle.addEventListener("click",async ()=>{
+      toggle.disabled = true;
+      message(feedback);
+      try {
+        render(await update({privatePage:!currentProfile.privatePage}));
+        paint();
+      } catch {message(feedback,"Изменения не сохранены");}
+      finally {toggle.disabled = false;}
+    });
+  }
+
+  coverPicker.addEventListener("change",async ()=>{
+    const [file] = coverPicker.files;
+    coverPicker.value = "";
+    if (!file || !session) return;
+    const feedback = hub.querySelector("[data-ps-cover-message]");
+    if (!/^image\/(png|jpeg|webp|avif|gif)$/.test(file.type) || file.size > 8 * 1024 * 1024) {
+      message(feedback,"Выберите PNG, JPG, WebP, AVIF или GIF до 8 МБ.");
+      return;
+    }
+    const update = session.update;
+    coverButton.disabled = true;
+    message(feedback);
+    try {
+      const banner = await new Promise((resolve,reject)=>{
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(reader.error);
+        reader.readAsDataURL(file);
+      });
+      render(await update({banner}));
+    } catch {message(feedback,"Не удалось загрузить изображение");}
+    finally {coverButton.disabled = false;}
+  });
 
   hub.addEventListener("click",event=>{
     const button = event.target.closest("button");
@@ -128,6 +254,8 @@
       renderSpoilers();
       return;
     }
+    if (button === coverButton) {coverPicker.click();return;}
+    if (button.hasAttribute("data-ps-edit-status")) {editField("status");return;}
     const {psEdit,psRoute} = button.dataset;
     if (psEdit) { session.edit(psEdit, () => hub.close(), render); return; }
     switch (psRoute) {
@@ -136,9 +264,11 @@
       case "language": window.KGOpenSettings("language-and-regional-standards"); break;
       case "notifications": window.KGReleaseFollow.openCalendar(); break;
       case "appearance": window.KGOpenSettings("theme-and-visual-style"); break;
+      case "nickname": editField("handle"); break;
+      case "public": openPublicPage(); break;
       case "security":
-      case "export": openBlank(psRoute); break;
-      case "subscription": if (subscriptionVisible) openBlank(psRoute); break;
+      case "export": openSubpage(psRoute,entries[psRoute][1]); break;
+      case "subscription": if (subscriptionVisible) openSubpage(psRoute,entries[psRoute][1]); break;
     }
   });
   hub.addEventListener("close",()=>{ if (!hub.open) session = null; });

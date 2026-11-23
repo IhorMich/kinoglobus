@@ -466,7 +466,14 @@
     save.dataset.phase = "saving";
     if (event.submitter === done) save.scrollIntoView({block:"nearest",behavior:reducedMotion.matches ? "instant" : "smooth"});
     await delay(1200);
-    session.save(changes);
+    try {
+      await session.save(changes);
+    } catch {
+      delete save.dataset.phase;
+      save.disabled = done.disabled = scroll.inert = busy = false;
+      showToast("Изменения не сохранены","Повторите попытку.");
+      return;
+    }
     original = structuredClone(changes);
     save.dataset.phase = "saved";
     editor.querySelector("#syncText").textContent = uiText("Сохранено в тестовом профиле");
@@ -594,13 +601,9 @@
     const format = new Intl.NumberFormat(interfaceLanguage);
     editor.querySelector("[data-films]").textContent = format.format(watched.length);
     editor.querySelector("[data-countries]").textContent = format.format(Object.keys(window.KGWatchedCountryCounts()).length);
-    editor.querySelector("#syncText").textContent = uiText("Тестовый профиль · Изменения хранятся в этой сессии");
+    editor.querySelector("#syncText").textContent = uiText("Тестовый профиль · Данные хранятся на устройстве");
     if (!editor.open) editor.showModal();
     scroll.scrollTop = 0;
-    if (section === "banner" || section === "avatar") editor.querySelector(`[data-media="${section}"]`).click();
-    if (section === "bio") {
-      fields.bio.scrollIntoView({block:"center"});
-      fields.bio.focus({preventScroll:true});
-    }
+    if (section === "avatar") editor.querySelector('[data-media="avatar"]').click();
   };
 })();

@@ -42,7 +42,11 @@
 }
 .kg-pf-status { margin: 0; color: var(--pf-primary); }
 .kg-pf-status:empty { display: none; }
-.kg-pf-identity { background: var(--pf-panel); border-radius: 16px; padding: 18px clamp(12px,4.5vw,18px); box-shadow: 0 3px 9px rgb(var(--kg-black) / .2); }
+.kg-pf-identity { position: relative; overflow: hidden; background: var(--pf-panel); border-radius: 16px; padding: 18px clamp(12px,4.5vw,18px); box-shadow: 0 3px 9px rgb(var(--kg-black) / .2); }
+.kg-pf-cover { position: absolute; inset: 0 0 auto; height: 145px; pointer-events: none; }
+.kg-pf-cover img { width: 100%; height: 100%; object-fit: cover; }
+.kg-pf-cover::after { content: ""; position: absolute; inset: 0; background: linear-gradient(rgb(var(--kg-black) / .57),var(--pf-panel)); }
+.kg-pf-user,.kg-pf-stats { position: relative; }
 .kg-pf-user {
   --pf-avatar-size: clamp(70px,24vw,88px);
   display: grid; grid-template-columns: var(--pf-avatar-size) minmax(0,1fr) 40px; align-items: center; gap: 12px;
@@ -53,6 +57,7 @@
 }
 .kg-pf-user h2,.kg-pf-section h2 { margin: 0; font: 600 20px/1.18 var(--kg-font-heading); overflow-wrap: anywhere; }
 .kg-pf-user p { margin: 3px 0; color: var(--pf-muted); font-size: 14px; }
+.kg-pf-user .kg-pf-user-status { color: var(--pf-ink); line-height: 1.35; overflow-wrap: anywhere; }
 .kg-pf-user p:empty,.kg-pf-badges:empty { display: none; }
 .kg-pf-user > button { align-self: start; }
 .kg-pf-badges { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }

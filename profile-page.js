@@ -1,6 +1,8 @@
 /* Profile dashboard in the local Moven session. */
 (() => {
   let profile = null;
+  let sessionId = 0;
+  let profileWrites = Promise.resolve();
   const avatarDefault = "assets/interface/profile-page-01.jpg";
   const esc = value => String(value ?? "").replace(/[&<>"']/g, ch =>
     ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[ch]);
@@ -48,9 +50,10 @@
     <main class="kg-pf-scroll">
       <p class="kg-pf-status" role="status"></p>
       <section class="kg-pf-identity">
+        <div class="kg-pf-cover" data-profile-cover hidden><img alt=""></div>
         <div class="kg-pf-user">
           <img data-profile-avatar alt="" width="88" height="88">
-          <div><h2 data-profile-name></h2><p data-profile-caption></p><div class="kg-pf-badges" data-profile-badges></div></div>
+          <div><h2 data-profile-name></h2><p data-profile-caption></p><p class="kg-pf-user-status" data-profile-user-status></p><div class="kg-pf-badges" data-profile-badges></div></div>
           <button type="button" data-profile-edit aria-label="${label("Настройки профиля")}"><span class="material-symbols-outlined" aria-hidden="true">settings</span></button>
         </div>
         <div class="kg-pf-stats">
@@ -170,8 +173,15 @@
 
   function renderProfile() {
     dialog.querySelector("[data-profile-name]").textContent = profile.name;
-    dialog.querySelector("[data-profile-avatar]").src = profile.avatar || avatarDefault;
+    const avatar = dialog.querySelector("[data-profile-avatar]");
+    const cover = dialog.querySelector("[data-profile-cover]");
+    avatar.src = profile.avatar || avatarDefault;
+    cover.hidden = !profile.banner;
+    const coverImage = cover.querySelector("img");
+    if (profile.banner) coverImage.src = profile.banner;
+    else coverImage.removeAttribute("src");
     dialog.querySelector("[data-profile-caption]").textContent = [profile.handle,profile.city].filter(Boolean).join(" · ");
+    dialog.querySelector("[data-profile-user-status]").textContent = profile.status;
     dialog.querySelector("[data-profile-badges]").innerHTML = (profile.badgesVisible === false ? [] : (profile.badges || []).slice(0,2))
       .map(badge=>`<span>${label(badge)}</span>`).join("");
     renderHistory();
@@ -212,7 +222,21 @@
     dialog.close();
     destination.click();
   };
-  const logout = () => {profile=null;dialog.close();};
+  const logout = () => {sessionId++;profile=null;dialog.close();};
+  const settingsProfile = () => ({...profile,avatar:profile.avatar || avatarDefault});
+  function saveProfile(changes,opening) {
+    const write = profileWrites.catch(()=>{}).then(async ()=>{
+      if (!profile || opening !== sessionId) throw new Error("Profile session closed");
+      const updated = {...profile,...changes};
+      await window.KGProfileStorage.write(updated);
+      if (!profile || opening !== sessionId) throw new Error("Profile session closed");
+      profile = updated;
+      renderProfile();
+      return settingsProfile();
+    });
+    profileWrites = write;
+    return write;
+  }
   function openDiary(options={}) {
     window.KGOpenCinemaDiary({avatar:profile.avatar||avatarDefault,closeParent:()=>dialog.close(),...options});
   }
@@ -221,15 +245,13 @@
     const button = event.target.closest("button");
     if (!button) return;
     if (button.hasAttribute("data-profile-edit")) {
-      const settingsProfile = () => ({...profile,avatar:profile.avatar || avatarDefault});
+      const opening = sessionId;
+      const update = changes => saveProfile(changes,opening);
       window.KGOpenProfileSettings(settingsProfile(),{
+        update,
         edit(section,closeSettings,refreshSettings){
           window.KGOpenProfileEditor(profile,{
-            save(changes){
-              profile=changes;
-              renderProfile();
-              refreshSettings(settingsProfile());
-            },
+            async save(changes){refreshSettings(await update(changes));},
             logout(){closeSettings();logout();},
             navigate(action,closeEditor){leaveFor(action,()=>{closeEditor();closeSettings();});}
           },section);
@@ -275,10 +297,23 @@
     document.addEventListener(event,()=>{if(dialog.open && profile)renderProfile();});
   }
   window.KGOpenDemoProfile = () => openProfile();
-  window.KGStartDemoSession = (message,name="") => {
+  window.KGProfileNickname = () => profile?.handle || "";
+  window.KGStartDemoSession = async (message,name="") => {
+    const opening = ++sessionId;
     const displayName = name.trim();
-    profile = {name:displayName || uiText("Александр Воронов"),handle:displayName?"":"@voronov_cinema",
-      bio:uiText("Синефил, собиратель редких плёночных копий, фанат французской новой волны и ночного азиатского нео-нуара.")};
+    await profileWrites.catch(()=>{});
+    const saved = await window.KGProfileStorage.read();
+    if (opening !== sessionId) return;
+    const sameProfile = typeof saved?.name === "string" &&
+      (!displayName || [saved.name,saved.registrationName].includes(displayName));
+    const bio = uiText("Синефил, собиратель редких плёночных копий, фанат французской новой волны и ночного азиатского нео-нуара.");
+    profile = {
+      name:displayName || uiText("Александр Воронов"),
+      registrationName:displayName,
+      handle:displayName ? "" : "@voronov_cinema",
+      bio,status:sameProfile ? saved.bio ?? bio : bio,privatePage:true,
+      ...(sameProfile ? saved : {})
+    };
     openProfile(message);
   };
 })();

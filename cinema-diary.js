@@ -385,6 +385,7 @@
       <div class="kg-diary-film-action" hidden><button type="button" class="kg-diary-edit" data-edit></button></div>
       <div class="kg-diary-note-content">
         <strong data-note-title hidden></strong>
+        <p class="kg-diary-muted" data-note-author hidden></p>
         <blockquote class="kg-diary-note" hidden></blockquote>
         <details hidden><summary>${uiText("Показать спойлер")}</summary><p class="kg-diary-note"></p></details>
         <p class="kg-diary-muted" data-note-extra hidden></p>
@@ -429,6 +430,9 @@
     const title = card.querySelector("[data-note-title]");
     title.hidden = !note.title;
     title.textContent = note.title || "";
+    const author = card.querySelector("[data-note-author]");
+    author.textContent = note.text?.trim() ? note.author || "" : "";
+    author.hidden = !author.textContent;
     const extra = card.querySelector("[data-note-extra]");
     extra.textContent = [uiText(note.vibe || ""), ...(Array.isArray(note.tags) ? note.tags.map(tag => "#" + tag) : [])].filter(Boolean).join(" · ");
     extra.hidden = !extra.textContent;

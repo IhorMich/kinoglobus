@@ -68,17 +68,15 @@ st2.textContent=`.kgr-win{position:relative;height:150px;overflow:hidden;-webkit
 .kg-catalog-title{margin:0;color:rgb(var(--kg-on-surface));overflow-wrap:anywhere}
 .kg-catalog-title button{text-align:start}
 .kg-catalog-summary{margin:-5px 0 1px;color:rgb(var(--kg-primary))}
-.kg-catalog-preview{display:flex;align-items:center;gap:12px;min-height:105px;min-width:0;padding:8px;border:1px solid rgb(var(--kg-outline-variant)/.32);border-radius:14px;background:rgb(var(--kg-surface-container-high)/.66)}
-.kg-catalog-preview-art{display:flex;align-items:center;flex:none;padding-inline:3px}
-.kg-catalog-preview-art>span{position:relative;display:block;width:54px;aspect-ratio:2/3;overflow:hidden;border-radius:8px;border:1px solid rgb(var(--kg-on-surface)/.16);background:rgb(var(--kg-surface-panel));box-shadow:0 3px 9px rgb(var(--kg-black)/.35)}
-.kg-catalog-preview-art>span:nth-child(n+2){margin-inline-start:-30px}
-.kg-catalog-preview-art:has(>span:nth-child(2))>span:first-child{transform:rotate(-7deg)}
-.kg-catalog-preview-art>span:nth-child(3){transform:rotate(6deg)}
-.kg-catalog-preview-art>span>img{display:block;width:100%;height:100%;object-fit:cover}
-.kg-catalog-preview-copy{display:flex;flex-direction:column;gap:3px;flex:1;min-width:0;color:rgb(var(--kg-on-surface-variant))}
-.kg-catalog-preview-copy strong,.kg-catalog-preview-copy li{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.kg-catalog-preview-copy ul{list-style:none;padding:0;margin:0}
-.kg-catalog-preview-copy [data-k="cnt"]{color:rgb(var(--kg-text-muted))}
+.kg-catalog-preview{display:flex;align-items:center;gap:12px;min-height:105px;min-width:0;padding:9px;border:1px solid rgb(var(--kg-outline-variant)/.32);border-radius:14px;background:rgb(var(--kg-surface-container-high)/.66)}
+.kg-catalog-preview-art{position:relative;display:grid;flex:none;place-items:center;width:clamp(62px,20vw,76px);aspect-ratio:5/6;overflow:hidden;border-radius:10px;border:1px solid rgb(var(--kg-on-surface)/.16);background:rgb(var(--kg-surface-panel));color:rgb(var(--kg-text-muted))}
+.kg-catalog-preview-art img{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover}
+.kg-catalog-preview-copy{display:flex;flex-direction:column;gap:4px;flex:1;min-width:0;color:rgb(var(--kg-on-surface-variant));overflow-wrap:anywhere}
+.kg-catalog-preview-copy>strong{color:rgb(var(--kg-on-surface))}
+.kg-catalog-preview-copy ul{list-style:disc outside;padding-inline-start:1.1em;margin:0}
+.kg-catalog-preview-copy li+li{margin-top:2px}
+.kg-catalog-preview-copy [data-k="cnt"]{color:rgb(var(--kg-text-muted));margin-top:2px}
+.kg-catalog-preview-copy [data-k="cnt"] strong{color:rgb(var(--kg-on-surface))}
 .kg-catalog-actions{display:flex;align-items:center;gap:6px;padding-top:8px;border-top:1px solid rgb(var(--kg-outline-variant)/.35)}
 .kg-catalog-progress{flex:1;min-width:0;display:grid;gap:4px;margin-inline-end:3px}
 .kg-catalog-progress>span{display:flex;justify-content:space-between;gap:4px;color:rgb(var(--kg-text-muted))}
@@ -384,7 +382,7 @@ function saveThemeMeta(t,d){
   const top=d.films.slice(0,10);
   const r=top.length?top.reduce((s,f)=>s+Number(f.vote_average||0),0)/top.length:0;
   const titles=d.films.filter(f=>f.title||f.original_title).slice(0,3).map(f=>({
-    title:f.title||f.original_title,poster_path:f.poster_path||"",backdrop_path:f.backdrop_path||""
+    title:f.title||f.original_title,original_title:f.original_title||""
   }));
   const ids=d.films.map(f=>Number(f.id)).filter(Number.isSafeInteger);
   const meta={n:d.total,r:r?r.toFixed(1):"",p:(d.films.find(f=>f.poster_path)||{}).poster_path||"",b:(d.films.find(f=>f.backdrop_path)||{}).backdrop_path||"",titles,ids,previewLocale:filmLocale,ts:Date.now(),...(t.series?{seriesRules:3}:{})};
@@ -417,7 +415,7 @@ async function loadMeta(t,force=false){
   const request=(async()=>{
     try{
       const d=await loadTheme(t,1,force);
-      if(d._stale||d._partial){if(m&&!force)return m;throw new Error("Метаданные подборки временно недоступны.");}
+    if(d._stale||d._partial){if(m&&!force)return m;throw new Error("Метаданные подборки временно недоступны.");}
       const meta=saveThemeMeta(t,d);metaRetryAfter.delete(t.id);
       return meta;
     }catch(error){metaRetryAfter.set(t.id,Date.now()+15*60*1000);throw error;}
@@ -791,18 +789,31 @@ function catalogCount(t,meta) {
   const count=t.films?.length ?? meta?.n;
   return count===undefined ? "—" : t.series ? seriesCollectionCount(count) : collectionFilmCount(count);
 }
+function collectionExampleNames(t,meta) {
+  const source=t.films || (meta?.previewLocale===filmLocale ? meta.titles : null) || [];
+  const live=source.slice(0,3).map(f=>filmLanguage==="original" ? f.original_title||f.title : localizeFilmListItem(f).title);
+  const snapshot=window.KGCollectionExamples?.[t.id]?.[filmLanguage] || [];
+  return [...new Set([...live,...snapshot].filter(Boolean))].slice(0,3);
+}
+function catalogTitleCount(t,count) {
+  if(!t.series)return `${nf(count)} ${fw(count)}`;
+  const plural=new Intl.PluralRules(interfaceLanguage).select(count);
+  const word=interfaceLanguage==="en"?"series":({one:"сериал",few:"сериала",many:"сериалов",other:"сериалов"})[plural];
+  return `${nf(count)} ${word}`;
+}
 function catalogPreview(t,meta) {
-  const titles=(meta?.previewLocale===filmLocale && meta.titles) || (t.films||[]).slice(0,3).map(localizeFilmListItem);
-  const posters=titles.filter(f=>f.poster_path||f.backdrop_path).map(f=>`<span>${collectionPoster(f,"w185")}</span>`);
-  const cover=collectionCover(t);
-  const art=posters.join("") || `<span>${cover && (!t.films || !meta?.p)?
-    `<img alt="" src="${esc(cover)}" loading="lazy" decoding="async" data-collection-poster='[]'>`:
-    collectionPoster({poster_path:meta?.p},"w185")}</span>`;
-  return `<div class="kg-catalog-preview-art" aria-hidden="true">${art}</div>
+  const titles=collectionExampleNames(t,meta);
+  const posters=[collectionCover(t),P(meta?.p,"w342")].filter(Boolean);
+  const [cover,...fallbacks]=posters;
+  const count=t.films?.length ?? meta?.n;
+  return `<div class="kg-catalog-preview-art" aria-hidden="true">
+      <span class="material-symbols-outlined">movie</span>
+      ${cover?`<img alt="" src="${esc(cover)}" loading="lazy" decoding="async" data-collection-poster="${esc(JSON.stringify(fallbacks))}">`:""}
+    </div>
     <div class="kg-catalog-preview-copy font-label-sm text-label-sm">
-      <strong>${uiText("В подборке")}</strong>
-      ${titles.length?`<ul>${titles.map(f=>`<li>${esc(f.title||f.original_title)}</li>`).join("")}</ul>`:""}
-      <span data-k="cnt">${esc(catalogCount(t,meta))}</span>
+      ${titles.length?`<strong>${uiText("Флагманы подборки:")}</strong><ul>${titles.map(name=>`<li>${esc(name)}</li>`).join("")}</ul>`:
+        `<span>${esc(uiText(t.series?t.category:TM[t.id]?.[2]||""))}</span>`}
+      ${count===undefined?"":`<span data-k="cnt">${uiText("Всего:")} <strong>${esc(catalogTitleCount(t,count))}</strong></span>`}
     </div>`;
 }
 function catalogProgress(card,t,meta) {

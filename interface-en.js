@@ -373,6 +373,8 @@ window.KGInterfaceDictionaries.en = Object.freeze({
   "Спецвыпуски": "Specials",
   "Сезон {season}": "Season {season}",
   "Прогресс просмотра": "Watch progress",
+  "Флагманы подборки:": "Featured titles:",
+  "Всего:": "Total:",
   "Среди загруженных": "Among loaded titles",
   "Открыть": "Open",
   "{count} из {total} серий · {percent}%": "{count} of {total} episodes · {percent}%",

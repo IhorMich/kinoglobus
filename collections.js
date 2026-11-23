@@ -724,6 +724,8 @@ function collectionPoster(film, size) {
   return `${placeholder}<img class="absolute inset-0 w-full h-full object-cover" loading="lazy" decoding="async" alt="" src="${esc(src)}" data-collection-poster="${esc(JSON.stringify(fallbacks))}">`;
 }
 
+window.KGCollectionPoster = collectionPoster;
+
 document.addEventListener("error", event => {
   const image = event.target;
   if (!(image instanceof HTMLImageElement) || !image.hasAttribute("data-collection-poster")) return;

@@ -1,6 +1,21 @@
 // English translations for the Moven interface.
 window.KGInterfaceDictionaries ??= {};
 window.KGInterfaceDictionaries.en = Object.freeze({
+  "Мои рецензии": "My reviews",
+  "Журнал кинокритика": "Film review journal",
+  "На эпизоды": "Episode reviews",
+  "Написать новую рецензию": "Write a new review",
+  "Поиск по рецензиям": "Search reviews",
+  "Поиск по рецензиям и названиям…": "Search reviews and titles\u2026",
+  "Показать ещё рецензии": "Show more reviews",
+  "Выберите фильм, сериал или эпизод": "Choose a film, series or episode",
+  "Со спойлерами": "Contains spoilers",
+  "Без спойлеров": "Spoiler free",
+  "Поделиться рецензией": "Share review",
+  "У вас пока нет рецензий.": "You have no reviews yet.",
+  "Сначала добавьте фильм или сериал в закладки либо отметьте просмотр.": "Bookmark a film or series or log a viewing first.",
+  "Рецензия скопирована.": "Review copied.",
+  "Не удалось поделиться рецензией.": "Couldn't share review.",
   "Рейтинг TMDb": "TMDb rating",
   "Рейтинг сериала TMDb": "Series rating on TMDb",
   "Создатель: {name}": "Creator: {name}",

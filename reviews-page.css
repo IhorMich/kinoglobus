@@ -1,0 +1,72 @@
+#kg-reviews {
+  --rv-panel: rgb(var(--kg-surface-panel));
+  --rv-raised: rgb(var(--kg-surface-container-high));
+  --rv-muted: rgb(var(--kg-on-surface-variant));
+  --rv-ink: rgb(var(--kg-on-surface));
+  position: fixed; inset: 0; width: 100%; height: 100dvh; max-width: none; max-height: none;
+  margin: 0; padding: 0; overflow: hidden; border: 0; background: rgb(var(--kg-surface-container-lowest));
+  color: var(--rv-ink); font: 16px/1.4 var(--kg-font-interface);
+}
+#kg-reviews[open] { display: flex; flex-direction: column; }
+#kg-reviews [hidden] { display: none; }
+#kg-reviews::backdrop,.kg-rv-picker::backdrop { background: rgb(var(--kg-black) / .75); }
+#kg-reviews .material-symbols-outlined { font-size: 18px; flex: none; }
+#kg-reviews button:focus-visible { outline: 2px solid rgb(var(--kg-primary)); outline-offset: -2px; }
+.kg-rv-header,.kg-rv-main { width: min(100%,720px); margin-inline: auto; }
+.kg-rv-header { flex: none; display: flex; align-items: center; gap: 8px; min-height: calc(56px + env(safe-area-inset-top,0px)); padding: env(safe-area-inset-top,0px) 14px 0; }
+.kg-rv-header h1 { margin: 0; font: 600 16px/1.2 var(--kg-font-heading); }
+.kg-rv-main { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; padding: 8px 16px calc(24px + env(safe-area-inset-bottom,0px)); }
+.kg-rv-main > * + * { margin-top: 10px; }
+.kg-rv-control {
+  display: flex; align-items: center; justify-content: center; gap: 5px; min-width: 0; min-height: 36px;
+  padding: 4px 8px; border: 1px solid; border-color: var(--kg-nav-control-border) !important; border-radius: 12px;
+  background: var(--kg-nav-control-fill); color: var(--rv-ink); font-size: 13px;
+}
+.kg-rv-header .kg-rv-control { width: 44px; min-height: 44px; padding: 0; border-radius: 50%; }
+.kg-rv-summary { display: grid; gap: 10px; padding: 14px; border-radius: 15px; background: var(--rv-panel); }
+.kg-rv-summary h2,.kg-rv-picker h2 { margin: 0; font: 600 20px/1.18 var(--kg-font-heading); }
+.kg-rv-metrics { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); padding: 7px 0; border-radius: 10px; background: rgb(var(--kg-surface-container-lowest) / .55); text-align: center; }
+.kg-rv-metrics > div { display: grid; align-content: start; gap: 2px; padding-inline: 3px; }
+.kg-rv-metrics > div + div { border-inline-start: 1px solid rgb(var(--kg-outline-variant) / .65); }
+.kg-rv-metrics strong { color: rgb(var(--kg-primary)); font: 600 20px/1.1 var(--kg-font-heading); }
+.kg-rv-metrics small,.kg-rv-footer small { color: var(--rv-muted); font-size: 12px; }
+.kg-rv-new { min-height: 44px; font-weight: 650; }
+.kg-rv-search { display: flex; align-items: center; gap: 7px; padding-inline: 10px; background: var(--rv-panel); border-radius: 12px; }
+.kg-rv-search:focus-within { outline: 2px solid rgb(var(--kg-primary)); outline-offset: -2px; }
+#kg-reviews .kg-rv-search input {
+  appearance: none; width: 100%; min-width: 0; height: 44px; padding: 0; border: 0; outline: none; box-shadow: none;
+  background: transparent; color: inherit; font: 14px var(--kg-font-interface);
+}
+.kg-rv-tools { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+.kg-rv-tools > button { flex: none; font-size: 12px; }
+.kg-rv-filters { display: flex; gap: 5px; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+.kg-rv-filters button { flex: none; min-height: 34px; padding-inline: 8px; border-radius: 999px; background: var(--rv-panel); font-size: 12px; }
+.kg-rv-filters button[aria-pressed="true"] { background: rgb(var(--kg-primary-container)); color: rgb(var(--kg-on-primary-container)); }
+.kg-rv-filters small { font-size: 11px; }
+.kg-rv-list { display: grid; gap: 10px; }
+.kg-rv-card { display: grid; gap: 7px; padding: 10px; min-width: 0; border-radius: 14px; background: var(--rv-panel); }
+.kg-rv-film { position: relative; display: grid; grid-template-columns: 68px minmax(0,1fr); width: 100%; gap: 8px; text-align: start; }
+.kg-rv-art { position: relative; display: grid; place-items: center; width: 100%; aspect-ratio: 2/3; overflow: hidden; border-radius: 7px; background: var(--rv-raised); }
+.kg-rv-art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.kg-rv-meta { display: grid; align-content: start; justify-items: start; gap: 2px; min-width: 0; overflow-wrap: anywhere; }
+.kg-rv-meta strong { font: 700 16px/1.5 var(--kg-font-interface); }
+.kg-rv-meta small { color: var(--rv-muted); font-size: 12px; }
+.kg-rv-spoiler,.kg-rv-score { padding: 2px 5px; border-radius: 6px; background: var(--rv-raised); font-size: 11px; }
+.kg-rv-spoiler[data-spoiler="true"] { color: rgb(var(--kg-accent-warm)); }
+.kg-rv-film:has(.kg-rv-score) .kg-rv-spoiler { margin-inline-end: 56px; }
+.kg-rv-score { position: absolute; inset: 0 0 auto auto; font-size: 12px; white-space: nowrap; }
+.kg-rv-score span { color: rgb(var(--kg-accent-warm)); }
+.kg-rv-copy { display: grid; gap: 4px; font-size: 14px; overflow-wrap: anywhere; }
+.kg-rv-copy > span { white-space: pre-wrap; }
+.kg-rv-card details { padding: 7px; border-radius: 8px; background: rgb(var(--kg-surface-container-lowest) / .55); }
+.kg-rv-card summary { color: var(--rv-muted); font-size: 13px; }
+.kg-rv-card details[open] .kg-rv-copy { margin-top: 7px; }
+.kg-rv-card footer { display: flex; justify-content: end; align-items: center; gap: 6px; }
+.kg-rv-card footer > span { margin-inline-end: auto; color: var(--rv-muted); font-size: 12px; overflow-wrap: anywhere; }
+.kg-rv-card footer .kg-rv-control { width: 36px; padding: 0; border-radius: 50%; }
+.kg-rv-footer { display: grid; gap: 4px; text-align: center; }
+.kg-rv-empty,.kg-rv-status { margin: 0; padding: 10px; border-radius: 10px; background: var(--rv-panel); color: var(--rv-muted); font-size: 14px; }
+.kg-rv-picker { position: fixed; inset: auto 0 0; margin: 0 auto; width: min(100%,440px); max-width: none; max-height: 75dvh; padding: 14px; border: 0; border-radius: 15px 15px 0 0; color: var(--rv-ink); background: rgb(var(--kg-surface)); }
+.kg-rv-picker[open] { display: grid; gap: 8px; grid-template-rows: auto auto minmax(0,1fr) auto; }
+.kg-rv-picker [data-rv-choices] { display: grid; gap: 5px; min-height: 0; overflow: auto; }
+.kg-rv-picker [data-rv-pick] { justify-content: start; text-align: start; }

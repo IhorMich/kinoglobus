@@ -303,13 +303,13 @@
   }
 
   const filmName = film => film.title || film.original || uiText("Фильм №{id}",{id:film.id});
-  function savedNotes() {
-    const films = new Map(entries.map(entry => [String(entry.film.id), entry.film]));
+  function savedNotes(records=notes) {
+    const films = new Map([...watched,...window.KGSeries.watchedList()].filter(Boolean).map(film => [String(film.id),film]));
     const saved = store.get("kgBookmarkFilms", {}) || {};
-    return Object.entries(notes).filter(([,note])=>note.diary!==false).map(([id, note]) => makeEntry({
+    return Object.entries(records).filter(([,note])=>note&&note.diary!==false).map(([id, note]) => makeEntry({
       ...(movieCatalog.savedFilm(note.film) || movieCatalog.savedFilm(saved[id]) || films.get(id)),
       id: Number(id)
-    })).concat((window.KGSeriesDetail?.diaryEntries?.()||[]).map(entry=>makeEntry(entry.film,entry.note))).sort((a, b) => b.key.localeCompare(a.key));
+    },note)).concat((window.KGSeriesDetail?.diaryEntries?.()||[]).map(entry=>makeEntry(entry.film,entry.note))).sort((a, b) => b.key.localeCompare(a.key));
   }
 
   function currentList() {
@@ -725,6 +725,7 @@
   });
 
   document.addEventListener('kg:episode-note-change',()=>{if(dialog.open)render();});
+  window.KGReadDiaryNotes = () => savedNotes(store.get(notesKey,{}) || {});
   window.KGHasCinemaDiaryNote = id => Object.hasOwn(store.get(notesKey,{}) || {}, String(id));
   window.KGOpenCinemaDiaryNote = (film,options={}) => {
     const id = Number(film?.id);

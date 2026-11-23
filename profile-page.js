@@ -258,7 +258,8 @@
       return;
     }
     if (action === "favorites") window.KGFavorites.open();
-    else if (action === "bookmarks" || action === "notes") openDiary({initialSource:action});
+    else if (action === "bookmarks") window.KGOpenBookmarks();
+    else if (action === "notes") window.KGOpenReviews();
     else if (action === "diary") openDiary();
     else if (action === "calendar") window.KGReleaseFollow.openCalendar();
     else if (action === "week") window.KGPersonalCalendar.open(undefined,{week:true});

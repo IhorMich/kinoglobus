@@ -3,7 +3,7 @@
   let profile = null;
   let sessionId = 0;
   let profileWrites = Promise.resolve();
-  const avatarDefault = "assets/interface/profile-page-01.jpg";
+  const avatarDefault = "assets/interface/default-avatar.svg";
   const demoBadges = new Set(["Канны 2024 (Аккредитация)","Венеция (Гость Биеннале)","Cineteca Bologna"]);
   const demoBio = "Синефил, собиратель редких плёночных копий, фанат французской новой волны и ночного азиатского нео-нуара.";
   const esc = value => String(value ?? "").replace(/[&<>"']/g, ch =>
@@ -200,7 +200,17 @@
     const nickname=String(profile.handle||"").trim().replace(/^@+/,"");
     dialog.querySelector("[data-profile-caption]").textContent = nickname ? "@"+nickname : "";
     dialog.querySelector("[data-profile-nickname]").hidden = !!nickname;
-    dialog.querySelector("[data-profile-city]").textContent = profile.city || "";
+    const countryCode = String(profile.country || "");
+    const countryName = /^[A-Z]{2}$/.test(countryCode)
+      ? String.fromCodePoint(
+          ...[...countryCode].map(c=>127397+c.charCodeAt(0))
+        ) + " " + new Intl.DisplayNames(
+          [interfaceLanguage],{type:"region"}
+        ).of(countryCode)
+      : "";
+
+    dialog.querySelector("[data-profile-city]").textContent =
+      [countryName,profile.city].filter(Boolean).join(", ");
     dialog.querySelector("[data-profile-user-status]").textContent = profile.status;
     dialog.querySelector("[data-profile-badges]").innerHTML = (profile.badgesVisible === false ? [] : (profile.badges || []).slice(0,2))
       .map(badge=>`<span>${label(badge)}</span>`).join("");
@@ -222,8 +232,22 @@
     return true;
   }
 
-  const logout = () => {sessionId++;profile=null;dialog.close();};
-  const settingsProfile = () => ({...profile,avatar:profile.avatar || avatarDefault});
+  const logout = () => {sessionId++;profile=null;syncProfileAvatar();dialog.close();};
+  function syncProfileAvatar() {
+    const src = profile?.avatar || avatarDefault;
+
+    const selectors = [
+      "#kg-account-open img",
+      ".kg-dialog-top-nav .kg-header-account-group img"
+    ];
+
+    document.querySelectorAll(selectors.join(",")).forEach(img => {
+      img.src = src;
+      img.style.objectFit = "cover";
+    });
+  }
+
+  const settingsProfile = () => ({...profile,avatar:profile.avatar || ""});
   function saveProfile(changes,opening) {
     const write = profileWrites.catch(()=>{}).then(async ()=>{
       if (!profile || opening !== sessionId) throw new Error("Profile session closed");
@@ -231,6 +255,7 @@
       await window.KGProfileStorage.write(updated);
       if (!profile || opening !== sessionId) throw new Error("Profile session closed");
       profile = updated;
+      syncProfileAvatar();
       renderProfile();
       return settingsProfile();
     });
@@ -326,7 +351,7 @@
     if (opening !== sessionId) return;
     const sameProfile = typeof saved?.name === "string" &&
       (!displayName || [saved.name,saved.registrationName].includes(displayName));
-    const bio = uiText(demoBio);
+    const bio = "";
     profile = {
       name:displayName || uiText("Александр Воронов"),
       registrationName:displayName,
@@ -334,7 +359,14 @@
       bio,status:"",privatePage:true,
       ...(sameProfile ? saved : {})
     };
-    if ([demoBio,bio].includes(profile.status)) profile.status = "";
+    if ([demoBio,uiText(demoBio)].includes(profile.status)) profile.status = "";
+    if ([demoBio,uiText(demoBio)].includes(profile.bio)) profile.bio = "";
+    if ([
+      "assets/interface/profile-page-01.jpg",
+      "assets/interface/profile-editor-06.jpg",
+      "assets/interface/default-avatar.svg"
+    ].includes(profile.avatar)) profile.avatar = "";
+
     if (profile.city === "Париж / Санкт-Петербург") profile.city = "";
     if (Array.isArray(profile.badges)) profile.badges = profile.badges.filter(badge=>!demoBadges.has(badge));
     if (!Number.isFinite(profile.joinedAt) || profile.joinedAt <= 0) {
@@ -344,6 +376,7 @@
       await profileWrites.catch(()=>{});
       if (opening !== sessionId) return;
     }
+    syncProfileAvatar();
     openProfile(message);
   };
 })();

@@ -140,6 +140,138 @@
       }
     }
   `;
+  styles.textContent += `
+    /* PROFILE EDITOR REDESIGN */
+
+    #kg-profile-editor .kg-edit-toolbar {
+      display:grid;
+      grid-template-columns:44px minmax(0,1fr);
+      gap:8px;
+      padding:calc(8px + env(safe-area-inset-top,0px)) 16px 8px;
+      min-height:60px;
+      border:0;
+      box-shadow:none;
+      text-align:left;
+      background:rgb(var(--kg-surface));
+    }
+
+    #kg-profile-editor #topCancelBtn {
+      width:44px;
+      min-height:44px;
+      padding:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:transparent;
+      border:0;
+      color:rgb(var(--kg-primary));
+    }
+
+    #kg-profile-editor #topCancelBtn .font-label-lg,
+    #kg-profile-editor #topDoneBtn {
+      display:none!important;
+    }
+
+    #kg-profile-editor #kg-edit-title {
+      font-family:var(--kg-font-interface);
+      font-size:20px;
+      font-weight:600;
+      line-height:1.2;
+      text-align:left;
+    }
+
+    #kg-profile-editor .kg-edit-toolbar > div {
+      align-items:flex-start;
+    }
+
+    #kg-profile-editor .kg-edit-scroll {
+      padding-bottom:env(safe-area-inset-bottom,0px);
+    }
+
+    #kg-profile-editor .kg-edit-scroll input[type=text],
+    #kg-profile-editor .kg-edit-scroll textarea {
+      box-sizing:border-box;
+      width:100%;
+      min-width:0;
+      font-family:var(--kg-font-interface);
+      font-size:16px;
+      line-height:1.5;
+      color:rgb(var(--kg-on-surface));
+      background:rgb(var(--kg-surface-container-low));
+      border:1px solid rgb(var(--kg-surface-border));
+      border-radius:10px;
+      box-shadow:none;
+      padding:12px 14px;
+    }
+
+    #kg-profile-editor .kg-edit-scroll input[type=text] {
+      min-height:48px;
+    }
+
+    #kg-profile-editor #kg-edit-name {
+      padding-right:36px;
+    }
+
+    #kg-profile-editor #kg-edit-handle,
+    #kg-profile-editor #kg-edit-city {
+      background:transparent;
+      border:0;
+      padding:0;
+      min-height:24px;
+      outline-offset:0;
+    }
+
+    #kg-profile-editor .kg-edit-scroll textarea {
+      resize:none;
+    }
+
+    #kg-profile-editor .kg-edit-scroll label {
+      font-size:12px;
+      font-weight:500;
+      letter-spacing:.02em;
+      text-transform:none;
+    }
+
+    #kg-profile-editor .kg-edit-scroll h3 {
+      font-size:18px;
+      font-weight:600;
+    }
+
+    #kg-profile-editor #saveChangesBtn {
+      min-height:50px;
+      border-radius:12px;
+      font-size:16px;
+      font-weight:600;
+      box-shadow:none;
+    }
+`;
+  styles.textContent += `
+    #kg-profile-editor #kg-edit-country {
+      width:100%;
+      min-width:0;
+      min-height:24px;
+      border:0;
+      background:transparent;
+      color:rgb(var(--kg-on-surface));
+      font:16px var(--kg-font-interface);
+    }
+
+    #kg-profile-editor #kg-edit-country option {
+      background:rgb(var(--kg-surface-container-low));
+      color:rgb(var(--kg-on-surface));
+    }
+
+    #kg-profile-editor #kg-edit-country-search {
+      width:100%;
+      box-sizing:border-box;
+      padding:10px 12px;
+      border:1px solid rgb(var(--kg-surface-border));
+      border-radius:10px;
+      background:rgb(var(--kg-surface-container-low));
+      color:rgb(var(--kg-on-surface));
+      font:14px var(--kg-font-interface);
+    }
+`;
   document.head.appendChild(styles);
 
   const editor = document.createElement("dialog");
@@ -157,11 +289,11 @@
       <form class="kg-edit-form">
         <div class="kg-edit-toolbar bg-surface/90 backdrop-blur-md px-margin-mobile py-space-sm flex items-center justify-between shadow-sm">
 <button class="flex items-center gap-space-xs text-on-surface-variant hover:text-primary transition-colors min-h-[44px] cursor-pointer" id="topCancelBtn" type="button" autofocus>
-<span class="material-symbols-outlined text-[20px]">arrow_back_ios_new</span>
+<span class="material-symbols-outlined text-[20px]">arrow_back</span>
 <span class="font-label-lg text-label-lg">Отмена</span>
 </button>
 <div class="flex flex-col items-center">
-<h1 id="kg-edit-title" class="font-headline-sm text-headline-sm text-on-surface">Профиль синефила</h1>
+<h1 id="kg-edit-title" class="font-headline-sm text-headline-sm text-on-surface">Редактировать профиль</h1>
 <span class="font-label-sm text-label-sm text-primary uppercase tracking-widest">Правка досье</span>
 </div>
 <button class="bg-primary text-on-primary px-space-md py-1.5 rounded-full font-label-lg text-label-lg shadow-[0_0_12px_rgb(var(--kg-primary)/0.25)] hover:bg-primary-container transition-colors min-h-[36px] flex items-center justify-center cursor-pointer" id="topDoneBtn" type="submit">
@@ -170,31 +302,41 @@
 </div>
 
         <div class="kg-edit-scroll"><div class="px-margin-mobile py-space-md flex flex-col gap-space-lg">
-<div class="relative w-full rounded-xl overflow-hidden bg-surface-container-low shadow-md"><div class="relative w-full h-36 bg-surface-container-highest overflow-hidden"><div data-banner class="w-full h-full bg-cover bg-center" data-alt="A car on a neon-lit street at night." style="background-image: url('assets/vibes/after-midnight.jpg')"></div><div class="absolute inset-0 bg-gradient-to-t from-surface-container-low via-surface-container-low/40 to-black/60"></div><div class="absolute top-space-sm left-space-sm bg-surface-container-lowest/80 backdrop-blur-md text-on-surface-variant text-[10px] px-2 py-0.5 rounded-full flex items-center gap-1 border border-outline-variant/30"><span class="material-symbols-outlined text-[12px] text-primary">movie</span><span>2.39:1 Anamorphic • Гонконг</span></div><button data-media="banner" class="absolute top-space-sm right-space-sm bg-surface-container-lowest/80 backdrop-blur-md text-primary font-label-sm text-label-sm px-space-sm py-1 rounded-full flex items-center gap-1.5 shadow-sm hover:bg-surface-container-high transition-colors" type="button"><span class="material-symbols-outlined text-[16px]">movie_filter</span><span>Сменить кинокадр</span></button></div><div class="px-space-md pb-space-md flex flex-col items-center -mt-12 relative z-10"><div class="relative group cursor-pointer"><div class="w-24 h-24 rounded-full p-[2px] bg-gradient-to-tr from-primary via-primary-container to-surface-container-lowest shadow-xl"><img alt="" data-avatar class="w-full h-full rounded-full object-cover" src="assets/interface/profile-editor-06.jpg"/></div><button class="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-lg transition-transform group-hover:scale-110" data-media="avatar" aria-label="Изменить портрет" title="Изменить портрет" type="button"><span class="material-symbols-outlined text-[18px]">photo_camera</span></button></div><div class="mt-space-xs text-center flex flex-col items-center w-full"><div class="flex items-center gap-space-xs"><span class="font-headline-sm text-headline-sm text-on-surface" data-display-name></span><span data-badges-visible class="material-symbols-outlined text-primary text-[18px]" aria-hidden="true">workspace_premium</span></div><div class="flex flex-wrap items-center gap-2 mt-1"><span class="font-label-md text-label-md text-on-surface-variant">35mm Archivist • Curateur Cinéma</span><div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 border border-primary/30 text-primary text-[11px] font-medium"><span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">workspace_premium</span><span>Moven Gold · Демо</span></div></div><div class="grid grid-cols-3 gap-2 w-full mt-3 pt-3 border-t border-outline-variant/30 text-center"><div class="bg-surface-container/60 rounded-lg py-1.5 px-2"><div class="font-headline-sm text-headline-sm text-primary leading-tight font-bold">4</div><div class="font-label-sm text-[10px] text-on-surface-variant uppercase tracking-wider">В ТОПЕ</div></div><div class="bg-surface-container/60 rounded-lg py-1.5 px-2"><div class="font-headline-sm text-headline-sm text-primary leading-tight font-bold" data-films></div><div class="font-label-sm text-[10px] text-on-surface-variant uppercase tracking-wider">ПРОСМОТРЫ</div></div><div class="bg-surface-container/60 rounded-lg py-1.5 px-2"><div class="font-headline-sm text-headline-sm text-primary leading-tight font-bold" data-countries></div><div class="font-label-sm text-[10px] text-on-surface-variant uppercase tracking-wider">СТРАНЫ</div></div></div></div></div></div>
+<div class="relative w-full rounded-xl overflow-hidden bg-surface-container-low shadow-md"><div class="relative w-full h-36 bg-surface-container-highest overflow-hidden"><div data-banner class="w-full h-full bg-cover bg-center" data-alt="A car on a neon-lit street at night." style="background-image: url('assets/vibes/after-midnight.jpg')"></div><div class="absolute inset-0 bg-gradient-to-t from-surface-container-low via-surface-container-low/40 to-black/60"></div><div class="absolute top-space-sm left-space-sm bg-surface-container-lowest/80 backdrop-blur-md text-on-surface-variant text-[10px] px-2 py-0.5 rounded-full flex items-center gap-1 border border-outline-variant/30"><span class="material-symbols-outlined text-[12px] text-primary">movie</span><span>2.39:1 Anamorphic • Гонконг</span></div><button data-media="banner" class="absolute top-space-sm right-space-sm bg-surface-container-lowest/80 backdrop-blur-md text-primary font-label-sm text-label-sm px-space-sm py-1 rounded-full flex items-center gap-1.5 shadow-sm hover:bg-surface-container-high transition-colors" type="button"><span class="material-symbols-outlined text-[16px]">movie_filter</span><span>Сменить фон</span></button></div><div class="px-space-md pb-space-md flex flex-col items-center -mt-12 relative z-10"><div class="relative group cursor-pointer"><div class="w-24 h-24 rounded-full p-[2px] bg-gradient-to-tr from-primary via-primary-container to-surface-container-lowest shadow-xl"><img alt="" data-avatar class="w-full h-full rounded-full object-cover" src="assets/interface/default-avatar.svg"/></div><button class="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-lg transition-transform group-hover:scale-110" data-media="avatar" aria-label="Изменить портрет" title="Изменить портрет" type="button"><span class="material-symbols-outlined text-[18px]">photo_camera</span></button></div><div class="mt-space-xs text-center flex flex-col items-center w-full"><div class="flex items-center gap-space-xs"><span class="font-headline-sm text-headline-sm text-on-surface" data-display-name></span><span data-badges-visible class="material-symbols-outlined text-primary text-[18px]" aria-hidden="true">workspace_premium</span></div><div class="flex flex-wrap items-center gap-2 mt-1"><span class="font-label-md text-label-md text-on-surface-variant">35mm Archivist • Curateur Cinéma</span><div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 border border-primary/30 text-primary text-[11px] font-medium"><span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">workspace_premium</span><span>Moven Gold · Демо</span></div></div><div class="grid grid-cols-3 gap-2 w-full mt-3 pt-3 border-t border-outline-variant/30 text-center"><div class="bg-surface-container/60 rounded-lg py-1.5 px-2"><div class="font-headline-sm text-headline-sm text-primary leading-tight font-bold">4</div><div class="font-label-sm text-[10px] text-on-surface-variant uppercase tracking-wider">В ТОПЕ</div></div><div class="bg-surface-container/60 rounded-lg py-1.5 px-2"><div class="font-headline-sm text-headline-sm text-primary leading-tight font-bold" data-films></div><div class="font-label-sm text-[10px] text-on-surface-variant uppercase tracking-wider">ПРОСМОТРЫ</div></div><div class="bg-surface-container/60 rounded-lg py-1.5 px-2"><div class="font-headline-sm text-headline-sm text-primary leading-tight font-bold" data-countries></div><div class="font-label-sm text-[10px] text-on-surface-variant uppercase tracking-wider">СТРАНЫ</div></div></div></div></div></div>
 <div class="bg-surface-container rounded-xl p-space-md shadow-sm flex flex-col gap-space-sm"><div class="flex items-center justify-between"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-[20px]">movie_filter</span><div><h3 class="font-headline-sm text-headline-sm text-on-surface">Любимые киножанры</h3><p class="font-body-sm text-body-sm text-on-surface-variant">До шести любимых жанров</p></div></div><span class="bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded-full font-label-sm text-label-sm" data-genre-count></span></div><div class="kg-edit-chips" data-genres></div></div>
 <div class="bg-surface-container rounded-xl p-space-md shadow-sm flex flex-col gap-space-md">
 <div class="flex items-center gap-2">
 <span class="material-symbols-outlined text-primary text-[20px]">badge</span>
-<h3 class="font-headline-sm text-headline-sm text-on-surface">Основные данные</h3>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Личные данные</h3>
 </div>
 <div class="flex flex-col gap-1.5">
-<label for="kg-edit-name" class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Имя и фамилия в титрах</label>
+<label for="kg-edit-name" class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Имя</label>
 <div class="relative flex items-center">
 <input class="w-full bg-surface-container-low text-on-surface px-space-md py-3 rounded-lg font-body-md text-body-md focus:bg-surface-container-highest focus:outline-none focus:ring-0 shadow-inner" type="text" id="kg-edit-name" name="displayName" maxlength="40" required/>
 <span class="material-symbols-outlined absolute right-space-md text-on-surface-variant text-[20px]">edit</span>
 </div>
 </div>
 <div class="flex flex-col gap-1.5">
-<label for="kg-edit-handle" class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Синефильский хэндл</label>
+<label for="kg-edit-handle" class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Никнейм</label>
 <div class="flex items-center bg-surface-container-low rounded-lg px-space-md py-3 shadow-inner">
 <span class="text-primary font-label-lg text-label-lg mr-1">@</span>
-<input class="w-full bg-transparent text-on-surface font-body-md text-body-md focus:outline-none" type="text" id="kg-edit-handle" name="handle" readonly/>
+<input class="w-full bg-transparent text-on-surface font-body-md text-body-md focus:outline-none" type="text" id="kg-edit-handle" name="handle" maxlength="24" autocomplete="off" spellcheck="false" autocapitalize="off"/>
 <span class="material-symbols-outlined text-on-surface-variant text-[18px]">lock</span>
 </div>
-<p class="font-body-sm text-body-sm text-on-surface-variant">Псевдоним в тестовом профиле</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">До 24 символов: буквы, цифры, точка, дефис или подчёркивание.</p>
 </div>
 <div class="flex flex-col gap-1.5">
-<label for="kg-edit-city" class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Кинополис / Локация показов</label>
+<label for="kg-edit-country" class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Страна</label>
+<div class="flex items-center bg-surface-container-low rounded-lg px-space-md py-3 shadow-inner">
+<span class="material-symbols-outlined text-primary text-[20px] mr-2">public</span>
+<select id="kg-edit-country" name="country" class="w-full bg-transparent text-on-surface">
+<option value="">Не указана</option>
+</select>
+</div>
+<input type="search" id="kg-edit-country-search" placeholder="Поиск страны" autocomplete="off"/>
+</div>
+<div class="flex flex-col gap-1.5">
+<label for="kg-edit-city" class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Город</label>
 <div class="flex items-center bg-surface-container-low rounded-lg px-space-md py-3 shadow-inner">
 <span class="material-symbols-outlined text-primary text-[20px] mr-2">public</span>
 <input class="w-full bg-transparent text-on-surface font-body-md text-body-md focus:outline-none" type="text" id="kg-edit-city" name="city" maxlength="80"/>
@@ -202,7 +344,7 @@
 </div>
 <div class="flex flex-col gap-1.5">
 <div class="flex items-center justify-between">
-<label for="kg-edit-bio" class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Манифест / О себе</label>
+<label for="kg-edit-bio" class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">О себе</label>
 <span class="font-label-sm text-label-sm text-primary" id="bioCounter">112 / 250</span>
 </div>
 <textarea class="w-full bg-surface-container-low text-on-surface px-space-md py-2.5 rounded-lg font-body-md text-body-md focus:bg-surface-container-highest focus:outline-none shadow-inner leading-relaxed resize-none" rows="3" id="kg-edit-bio" name="bio" maxlength="250"></textarea>
@@ -313,7 +455,42 @@
   localizeInterfaceMarkup(editor);
   document.body.appendChild(editor);
   const form = editor.querySelector("form");
+  const bioField = form.querySelector("#kg-edit-bio");
+  const statusBlock = document.createElement("div");
+  statusBlock.className = "flex flex-col gap-1.5";
+  statusBlock.innerHTML = `
+    <label for="kg-edit-status" class="font-label-sm text-on-surface-variant">Статус</label>
+    <textarea id="kg-edit-status" name="status" maxlength="140" rows="2"
+      class="w-full bg-surface-container-low text-on-surface px-space-md py-3 rounded-lg"
+      placeholder="Добавить статус"></textarea>`;
+  bioField.parentElement.before(statusBlock);
+
   const fields = form.elements;
+
+  const hide = element => {
+    if (element) element.style.setProperty("display", "none", "important");
+  };
+
+  hide(editor.querySelector(".kg-edit-header"));
+  hide(editor.querySelector(".kg-edit-nav"));
+  hide(editor.querySelector("[data-edit-logout]")?.parentElement);
+  hide(editor.querySelector("#resetDefaultBtn"));
+  hide(editor.querySelector("[data-genres]")?.parentElement);
+  hide(editor.querySelector("[data-shelf]")?.parentElement);
+  hide(editor.querySelector("[data-badges]")?.parentElement);
+  hide(fields.goldVisible.closest(".bg-surface-container"));
+  hide(editor.querySelector("[data-films]")?.closest(".grid"));
+  hide(editor.querySelector("[data-display-name]")?.parentElement?.nextElementSibling);
+  hide(editor.querySelector("[data-badges-visible]"));
+  hide(editor.querySelector("[data-banner]")?.parentElement?.querySelector(".absolute.top-space-sm.left-space-sm"));
+  hide(fields.handle.nextElementSibling);
+  hide(editor.querySelector("#kg-edit-title")?.nextElementSibling);
+
+  fields.handle.addEventListener("input", () => {
+    const valid = !fields.handle.value ||
+      /^[\\p{L}\\p{N}_.-]{1,24}$/u.test(fields.handle.value.trim());
+    fields.handle.setCustomValidity(valid ? "" : "Недопустимые символы в никнейме");
+  });
   const scroll = editor.querySelector(".kg-edit-scroll");
   const save = editor.querySelector("#saveChangesBtn");
   const done = editor.querySelector("#topDoneBtn");
@@ -321,6 +498,52 @@
   const panel = editor.querySelector("dialog");
   const panelContent = panel.querySelector("[data-panel-content]");
   const file = editor.querySelector("[type=file]");
+  const countrySelect = editor.querySelector("#kg-edit-country");
+  const countrySearch = editor.querySelector("#kg-edit-country-search");
+  const countryNames = new Intl.DisplayNames(
+    [interfaceLanguage], {type:"region"}
+  );
+
+  const profileCountries = [...new Set(COUNTRIES)]
+    .filter(code => /^[A-Z]{2}$/.test(code))
+    .map(code => ({
+      code,
+      name:countryNames.of(code),
+      flag:String.fromCodePoint(
+        ...[...code].map(c=>127397+c.charCodeAt(0))
+      )
+    }))
+    .sort((a,b)=>a.name.localeCompare(b.name,interfaceLanguage));
+
+  function renderCountryOptions(selected = countrySelect.value) {
+    const query = countrySearch.value.trim().toLowerCase();
+
+    countrySelect.replaceChildren(
+      new Option(uiText("Не указана"),"")
+    );
+
+    for (const item of profileCountries) {
+      if (item.code !== selected &&
+          !item.name.toLowerCase().includes(query) &&
+          !item.code.toLowerCase().includes(query)) continue;
+
+      countrySelect.add(
+        new Option(item.flag+" "+item.name,item.code)
+      );
+    }
+
+    countrySelect.value = selected;
+  }
+
+  countrySearch.addEventListener("input",()=>{
+    renderCountryOptions();
+  });
+
+  countrySelect.addEventListener("change",()=>{
+    countrySearch.value = "";
+    renderCountryOptions();
+  });
+
   const defaultAvatar = editor.querySelector("[data-avatar]").src;
   const defaultBanner = editor.querySelector("[data-banner]").style.backgroundImage;
   const switches = ["badgesVisible","goldVisible","diaryVisible","festivalsVisible"];
@@ -372,13 +595,20 @@
     fields.displayName.value = draft.name;
     fields.handle.value = draft.handle.replace(/^@/,"");
     fields.city.value = draft.city;
-    fields.bio.value = draft.bio;
+    countrySearch.value = "";
+    renderCountryOptions(draft.country || "");
+    fields.bio.value = draft.bio || "";
+    fields.status.value = draft.status || "";
+    fields.handle.setCustomValidity("");
     switches.forEach(key => { fields[key].checked = draft[key]; });
     renderChoices();
   }
 
   function values() {
-    return {...draft, name:fields.displayName.value.trim(), city:fields.city.value.trim(), bio:fields.bio.value.trim(),
+    return {...draft,
+      handle:fields.handle.value.trim() ? "@"+fields.handle.value.trim() : "",
+      status:fields.status.value.trim(),
+      name:fields.displayName.value.trim(), country:fields.country.value, city:fields.city.value.trim(), bio:fields.bio.value.trim(),
       ...Object.fromEntries(switches.map(key => [key, fields[key].checked]))};
   }
 
@@ -476,8 +706,8 @@
     }
     original = structuredClone(changes);
     save.dataset.phase = "saved";
-    editor.querySelector("#syncText").textContent = uiText("Сохранено в тестовом профиле");
-    showToast("Досье синефила обновлено","Изменения сохранены в тестовом профиле");
+    editor.querySelector("#syncText").textContent = uiText("Данные сохранены на устройстве");
+    showToast("Профиль обновлён","Изменения успешно сохранены");
     await delay(2500);
     delete save.dataset.phase;
     save.disabled = done.disabled = false;
@@ -592,7 +822,7 @@
   window.KGOpenProfileEditor = (profile, actions, section) => {
     session = actions;
     original = structuredClone({
-      city:"", avatar:"", banner:"",
+      country:"", city:"", avatar:"", banner:"", status:"", bio:"", handle:"",
       genres:genres.slice(0,4), badges:[],
       shelf:sampleShelf, badgesVisible:true, goldVisible:true, diaryVisible:true, festivalsVisible:true,
       ...profile
@@ -601,7 +831,7 @@
     const format = new Intl.NumberFormat(interfaceLanguage);
     editor.querySelector("[data-films]").textContent = format.format(watched.length);
     editor.querySelector("[data-countries]").textContent = format.format(Object.keys(window.KGWatchedCountryCounts()).length);
-    editor.querySelector("#syncText").textContent = uiText("Тестовый профиль · Данные хранятся на устройстве");
+    editor.querySelector("#syncText").textContent = uiText("Данные хранятся на устройстве");
     if (!editor.open) editor.showModal();
     scroll.scrollTop = 0;
     if (section === "avatar") editor.querySelector('[data-media="avatar"]').click();

@@ -44,7 +44,7 @@
     const events = alerts.events({...item,settings:{...preferences,releases:true}});
     const date = item.kind === "series" ? events.map(e=>e.date).sort()[0] : item.date;
     const poster = image(item.poster);
-    const avatarPath = document.querySelector("#kg-account-open img")?.getAttribute("src") || "assets/interface/index-01.jpg";
+    const avatarPath = document.querySelector("#kg-account-open img")?.getAttribute("src") || "assets/interface/default-avatar.svg";
     const sub = [
       item.original && item.original!==item.title ? item.original : "",
       item.kind === "episode" ? item.episodeTitle || uiText("Эпизод {episode}",{episode:item.number})

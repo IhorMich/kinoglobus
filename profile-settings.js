@@ -11,6 +11,7 @@
     language:["translate","Аудиодорожки и локализация","Язык, регион и субтитры трейлеров"],
     subscription:["stars","Подписка Moven Black Pro","Управление подпиской"],
     nickname:["person","Никнейм","Подпись к рецензиям"],
+    edit:["edit","Редактировать профиль","Имя, никнейм и личные данные"],
     public:["public","Публичная страница","Предпросмотр и приватность"],
     security:["shield","Безопасность и вход","Электронная почта и пароль"],
     notifications:["calendar_month","Уведомления и радар премьер","Релизы и напоминания"],
@@ -69,7 +70,7 @@
     </section>
 
     <div class="kg-ps-groups">
-      ${group("Личные данные",["nickname"])}
+      ${group("Личные данные",["edit"])}
     </div>
     <footer class="kg-ps-footer">
       <button type="button" class="kg-ps-control" data-ps-logout>${icon("logout")}${label("Выйти из аккаунта")}</button>
@@ -94,13 +95,13 @@
 
   function render(profile) {
     currentProfile = profile;
-    for (const photo of hub.querySelectorAll("[data-ps-avatar]")) photo.src = profile.avatar;
+    for (const photo of hub.querySelectorAll("[data-ps-avatar]")) photo.src = profile.avatar || "assets/interface/default-avatar.svg";
     hub.querySelector("[data-ps-cover]").src = profile.banner || defaultBanner;
     hub.querySelector("[data-ps-name]").textContent = profile.name;
     hub.querySelector("[data-ps-handle]").textContent = profile.handle || "";
     hub.querySelector("[data-ps-status]").textContent = profile.status || uiText("Добавить статус");
     const nickname = hub.querySelector('[data-ps-route="nickname"] small');
-    nickname.textContent = profile.handle || uiText("Подпись к рецензиям");
+    if (nickname) nickname.textContent = profile.handle || uiText("Подпись к рецензиям");
     const publicPage = hub.querySelector('[data-ps-route="public"] small');
     if (publicPage) publicPage.textContent = uiText(profile.privatePage ? "Приватная" : "Открытая");
     renderSpoilers();
@@ -262,6 +263,16 @@
       case "language": window.KGOpenSettings("language-and-regional-standards"); break;
       case "notifications": window.KGReleaseFollow.openCalendar(); break;
       case "appearance": window.KGOpenSettings("theme-and-visual-style"); break;
+      case "edit":
+        window.KGOpenProfileEditor(currentProfile,{
+          save: async changes => {
+            const saved = await session.update(changes);
+            render(saved);
+            return saved;
+          },
+          logout: () => session.logout()
+        });
+        break;
       case "nickname": editField("handle"); break;
       case "public": openPublicPage(); break;
       case "security":

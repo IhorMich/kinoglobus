@@ -1,6 +1,23 @@
 // English translations for the Moven interface.
 window.KGInterfaceDictionaries ??= {};
 window.KGInterfaceDictionaries.en = Object.freeze({
+  "Спецматериалы": "Featurettes",
+  "Показать всех ({count})": "Show all ({count})",
+  "Материалы": "Extras",
+  "Кадры": "Stills",
+  "Постеры": "Posters",
+  "Логотипы": "Logos",
+  "Видео": "Videos",
+  "Загружаем видео…": "Loading videos\u2026",
+  "Фрагменты": "Clips",
+  "Закулисье": "Behind the scenes",
+  "Дубли": "Bloopers",
+  "Тизеры": "Teasers",
+  "Трейлеры": "Trailers",
+  "Кадр {n}": "Still {n}",
+  "Постер {n}": "Poster {n}",
+  "Логотип {n}": "Logo {n}",
+  "Далее": "Next",
   "Мои рецензии": "My reviews",
   "Журнал кинокритика": "Film review journal",
   "Рецензии на эпизоды": "Episode reviews",

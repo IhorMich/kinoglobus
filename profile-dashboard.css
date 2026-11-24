@@ -194,7 +194,7 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  
+
   height: 96px;
   min-height: 96px;
   box-sizing: border-box;
@@ -448,4 +448,3 @@
 #kg-profile .kg-pf-head-actions [data-profile-action="search"] {
   display: none !important;
 }
-

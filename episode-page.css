@@ -9,3 +9,87 @@
 .kg-episode-page .kg-ep-icon{display:inline-block;width:20px;height:20px;vertical-align:middle;flex:none}.kg-episode-page .kg-ep-actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));width:min(100%,208px);margin:12px auto 0;padding:2px;gap:2px;border:1px solid var(--kg-nav-control-border);border-radius:999px;background:var(--kg-nav-control-fill)}.kg-episode-page .kg-ep-actions>button{width:100%;height:var(--kg-touch-target);border:0;border-radius:999px;box-shadow:none}.kg-ep-actions .kg-watched-button>span{display:none}.kg-ep-note-heading>.kg-ep-icon{width:36px;height:36px}.kg-ep-badges .kg-ep-icon{width:16px;height:16px}.kg-ep-note-heading>b .kg-ep-icon{width:14px;height:14px}
 
 .kg-episode-page .kg-ep-actions>button svg{color:inherit}.kg-ep-actions [data-kg-bookmark][aria-pressed=true] svg{fill:currentColor}
+
+/* Blur Spoiler */
+
+.kg-ep-synopsis > .kg-ep-spoiler-blur {
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  min-height:144px;
+  padding:18px 16px;
+  box-sizing:border-box;
+  overflow:hidden;
+  isolation:isolate;
+  border:1px solid rgb(var(--kg-on-surface)/.08);
+  border-radius:12px;
+  background:rgb(var(--kg-surface-container));
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+
+.kg-ep-spoiler-lines {
+  position:absolute;
+  inset:20px 16px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:13px;
+  filter:blur(4px);
+  opacity:.28;
+  pointer-events:none;
+}
+
+.kg-ep-spoiler-lines i {
+  display:block;
+  height:8px;
+  border-radius:4px;
+  background:rgb(var(--kg-on-surface-variant));
+}
+
+.kg-ep-spoiler-lines i:nth-child(1) {width:96%}
+.kg-ep-spoiler-lines i:nth-child(2) {width:88%}
+.kg-ep-spoiler-lines i:nth-child(3) {width:100%}
+.kg-ep-spoiler-lines i:nth-child(4) {width:64%}
+
+.kg-ep-spoiler-overlay {
+  position:relative;
+  z-index:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:6px;
+  text-align:center;
+}
+
+.kg-ep-spoiler-overlay > .material-symbols-outlined {
+  font-size:26px;
+  color:rgb(var(--kg-primary));
+}
+
+.kg-ep-spoiler-overlay strong {
+  font-size:var(--kg-type-body);
+  color:rgb(var(--kg-on-surface));
+}
+
+.kg-ep-spoiler-overlay small {
+  font-size:var(--kg-type-meta);
+  color:rgb(var(--kg-primary));
+}
+
+.kg-ep-spoiler-revealed {
+  animation:kgEpSpoilerReveal .35s ease-out;
+}
+
+@keyframes kgEpSpoilerReveal {
+  from {filter:blur(8px);opacity:0}
+  to {filter:blur(0);opacity:1}
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .kg-ep-spoiler-revealed {
+    animation:none;
+  }
+}

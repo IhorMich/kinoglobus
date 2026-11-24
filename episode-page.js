@@ -21,6 +21,10 @@
   function person(p,role){const photo=p.profile_path||p.photo;return `<button type="button" class="kg-ep-person" data-kg-person-id="${Number(p.id)}" data-kg-person-name="${esc(p.name)}" data-kg-person-role="${esc(role)}" data-kg-person-profile="${esc(photo||'')}">${photo?`<img src="${esc(image(photo,'w185'))}" alt="" loading="lazy">`:`<i>${icon('person')}</i>`}<b>${esc(p.name)}</b><small>${esc(p.character||p.role||role)}</small></button>`;}
   function render(){
     const s=state;if(!dialog?.open||!s)return;const f=s.series,e=s.episode,note=log(s),seen=watched(s),rating=Number(e.vote_average),votes=Number(e.vote_count)||0;
+    const hideSpoilers=window.KGCinemaDiarySpoilers?.get();
+    const hideSynopsis=hideSpoilers&&!seen&&!s.revealSynopsis&&!!e.overview;
+    const hideNote=hideSpoilers&&note?.spoiler&&!s.revealNote;
+
     const cast=[...(e.credits?.cast||f.castFull||[]),...(e.credits?.guest_stars||e.guest_stars||[])].filter((p,i,a)=>p?.id&&p.adult!==true&&a.findIndex(x=>x.id===p.id)===i).slice(0,12);
     const crew=e.credits?.crew||e.crew||[],directors=crew.filter(p=>p.job==='Director'),writers=crew.filter(p=>['Writer','Screenplay','Story','Teleplay'].includes(p.job)),producers=crew.filter(p=>/\bproducer\b/i.test(p.job||''));
     const next=nextInSeason(s.episodes,e.episode_number),later=nextSeason(f,s.season),art=image(e.still_path||f.backdrop_path||f.poster_path),personal=Number(note?.rating)*2;
@@ -37,10 +41,46 @@
 
     <section class="kg-ep-title"><div><h2>${e.episode_number}. ${esc(e.name||uiText('Эпизод {episode}',{episode:e.episode_number}))}</h2>${f.cert?`<b>${esc(f.cert)}</b>`:''}</div><p>${esc([e._original_name&&e._original_name!==e.name?e._original_name:'',e.air_date?uiText('Вышел {date}',{date:date(e.air_date)}):''].filter(Boolean).join(' · '))}</p><div class="kg-ep-badges">${rating>0&&votes>0?`<span>${icon('star')}${rating.toFixed(1)} TMDB (${votes.toLocaleString(interfaceLanguage)})</span>`:''}${e.runtime?`<span>${icon('schedule')}${esc(uiText('{minutes} мин',{minutes:e.runtime}))}</span>`:''}${e.air_date?`<span>${icon('calendar_month')}${esc(date(e.air_date))}</span>`:''}</div></section>
     <section class="kg-ep-providers" aria-label="${uiText('Где смотреть')}">${window.KGLegalWatch?.markup(f.id)||''}</section>
-    <section class="kg-ep-note"><div class="kg-ep-note-heading">${icon(seen?'verified':'edit_note')}<div><h3>${uiText('Запись о просмотре')}</h3><small>${esc(seen?(watchedDate?uiText('Просмотрено {date}',{date:watchedDate}):uiText('Просмотрено')):uiText('Серия ещё не отмечена просмотренной'))}</small></div>${personal>0?`<b>${icon('star')}${personal} / 10</b>`:''}</div>${note?.text?`<div class="kg-ep-note-text"><label>${uiText('Моя заметка к серии')}${note.author?' · '+esc(note.author):''}</label><p>${note.spoiler?`${icon('warning')}${uiText('Спойлер')} · `:''}${esc(note.text)}</p></div>`:''}<button type="button" class="kg-ep-edit" data-ep-note>${icon('edit_note')}${uiText(note||seen?'Редактировать запись':'Добавить запись')}</button></section>
-    <section class="kg-ep-synopsis"><h3>${uiText('Синопсис серии')}</h3><p data-ep-synopsis class="${expanded?'is-expanded':''}">${esc(e.overview||uiText('Описание серии пока недоступно.'))}</p>${e.overview?`<button type="button" data-ep-expand aria-expanded="${!!expanded}">${uiText(expanded?'Свернуть':'Читать полностью')}${icon(expanded?'expand_less':'expand_more')}</button>`:''}</section>
+    <section class="kg-ep-note"><div class="kg-ep-note-heading">${icon(seen?'verified':'edit_note')}<div><h3>${uiText('Запись о просмотре')}</h3><small>${esc(seen?(watchedDate?uiText('Просмотрено {date}',{date:watchedDate}):uiText('Просмотрено')):uiText('Серия ещё не отмечена просмотренной'))}</small></div>${personal>0?`<b>${icon('star')}${personal} / 10</b>`:''}</div>${note?.text?`<div class="kg-ep-note-text"><label>${uiText('Моя заметка к серии')}${note.author?' · '+esc(note.author):''}</label><p>${note.spoiler?`${icon('warning')}${uiText('Спойлер')} · `:''}${hideNote?uiText('Заметка содержит спойлеры'):esc(note.text)}</p>${hideNote?`<button type="button" class="kg-ep-edit" data-ep-reveal-note>${uiText('Показать спойлер')}</button>`:''}</div>`:''}<button type="button" class="kg-ep-edit" data-ep-note>${icon('edit_note')}${uiText(note||seen?'Редактировать запись':'Добавить запись')}</button></section>
+    <section class="kg-ep-synopsis">
+      <h3>${uiText('Синопсис серии')}</h3>
+
+      ${hideSynopsis?`
+        <button type="button"
+          class="kg-ep-spoiler-blur"
+          data-ep-reveal-synopsis
+          aria-expanded="false">
+
+          <span class="kg-ep-spoiler-lines" aria-hidden="true">
+            <i></i><i></i><i></i><i></i>
+          </span>
+
+          <span class="kg-ep-spoiler-overlay">
+            <span class="material-symbols-outlined" aria-hidden="true">visibility_off</span>
+            <strong>${uiText('Возможны спойлеры')}</strong>
+            <small>${uiText('Нажмите, чтобы раскрыть')}</small>
+          </span>
+        </button>
+      `:`
+        <p data-ep-synopsis class="${expanded||s.revealSynopsis?'is-expanded':''} ${s.revealSynopsis?'kg-ep-spoiler-revealed':''}">
+          ${esc(e.overview||uiText('Описание серии пока недоступно.'))}
+        </p>
+
+        ${hideSpoilers&&!seen&&s.revealSynopsis?`
+          <button type="button" data-ep-reveal-synopsis aria-expanded="true">
+            <span class="material-symbols-outlined" aria-hidden="true">visibility_off</span>
+            ${uiText('Скрыть описание')}
+          </button>
+        `:e.overview?`
+          <button type="button" data-ep-expand aria-expanded="${!!expanded}">
+            ${uiText(expanded?'Свернуть':'Читать полностью')}
+            ${icon(expanded?'expand_less':'expand_more')}
+          </button>
+        `:''}
+      `}
+    </section>
     ${actors||creators?`<section class="kg-ep-credits"><h3>${uiText('Создатели и состав')}</h3><div class="kg-ep-crew">${creators}</div><div class="kg-ep-cast">${actors}</div></section>`:''}
-    ${next||later?`<section class="kg-ep-next"><h3>${uiText('Следующий эпизод')}</h3><button type="button" data-ep-next>${next?.still_path?`<img src="${esc(image(next.still_path,'w300'))}" alt="">`:icon('tv')}<span><small>${esc(next?uiText('Эпизод {episode}',{episode:next.episode_number}):uiText('Сезон {season}',{season:later.season_number}))}${next?.runtime?' · '+esc(uiText('{minutes} мин',{minutes:next.runtime})):''}</small><b>${esc(next?.name||uiText('Следующий сезон'))}</b><p>${esc(next?.overview||'')}</p></span>${icon('arrow_forward')}</button></section>`:''}<p class="kg-ep-status" role="status">${esc(s.error||'')}</p></main>`;
+    ${next||later?`<section class="kg-ep-next"><h3>${uiText('Следующий эпизод')}</h3><button type="button" data-ep-next>${next?.still_path?`<img src="${esc(image(next.still_path,'w300'))}" alt="">`:icon('tv')}<span><small>${esc(next?uiText('Эпизод {episode}',{episode:next.episode_number}):uiText('Сезон {season}',{season:later.season_number}))}${next?.runtime?' · '+esc(uiText('{minutes} мин',{minutes:next.runtime})):''}</small><b>${esc(next?.name||uiText('Следующий сезон'))}</b><p>${esc(next?.overview&&hideSpoilers&&!window.KGSeriesDetail.readMarks(f.id).has(`${s.season}:${next.episode_number}`)?uiText('Описание скрыто — возможны спойлеры'):next?.overview||'')}</p></span>${icon('arrow_forward')}</button></section>`:''}<p class="kg-ep-status" role="status">${esc(s.error||'')}</p></main>`;
     dialog.scrollTop=top;if(focused)dialog.querySelector(`[${focused}]`)?.focus({preventScroll:true});
   }
   async function load(){const s=state,token=++sequence;try{const d=await details(s.series,s.season,s.episode.episode_number);if(state!==s||sequence!==token||!dialog.open)return;s.episode={...s.episode,...d};window.KGReleaseFollow?.observe(s.series,s.episode,s.season);s.error='';render();}catch{if(state===s&&dialog.open){s.error=uiText('Не удалось обновить сведения о серии.');render();}}}
@@ -50,13 +90,25 @@
     state={series,episode:{...episode},season,episodes,error:''};const own=dialog;
     own.addEventListener('close',()=>{own.remove();if(dialog===own){state=null;sequence++;}if(opener?.isConnected)opener.focus({preventScroll:true});},{once:true});
     own.addEventListener('click',async event=>{
-      const button=event.target.closest('[data-ep-back],[data-ep-watched],[data-ep-note],[data-review-action],[data-ep-expand],[data-ep-next]');if(!button)return;event.preventDefault();const s=state;
+      const button=event.target.closest('[data-ep-back],[data-ep-watched],[data-ep-note],[data-review-action],[data-ep-expand],[data-ep-next],[data-ep-reveal-synopsis],[data-ep-reveal-note]');if(!button)return;event.preventDefault();const s=state;
+      if(button.hasAttribute('data-ep-reveal-synopsis')){
+        s.revealSynopsis=!s.revealSynopsis;
+        render();
+        return;
+      }
+
+      if(button.hasAttribute('data-ep-reveal-note')){
+        s.revealNote=true;
+        render();
+        return;
+      }
+
       if(button.hasAttribute('data-ep-back')){own.close();return;}
       if(button.hasAttribute('data-review-action')){window.KGReviews?.open(s.series,{log:{season:s.season,episode:s.episode},opener:button});return;}
       if(button.hasAttribute('data-ep-note')){window.KGSeriesDetail.openEpisodeNote(s.series,s.episode,s.season);return;}
       if(button.hasAttribute('data-ep-watched')){if(watched(s)){if(await window.KGConfirmRemoval({kind:'watched',title:`${s.series.title} · S${s.season}E${s.episode.episode_number}`}))window.KGSeriesDetail.unmarkEpisode(s.series,s.season,s.episode.episode_number);}else window.KGSeriesDetail.openEpisodeNote(s.series,s.episode,s.season,{watchAction:true});return;}
       if(button.hasAttribute('data-ep-expand')){const p=own.querySelector('[data-ep-synopsis]'),expanded=p.classList.toggle('is-expanded');button.setAttribute('aria-expanded',String(expanded));button.innerHTML=uiText(expanded?'Свернуть':'Читать полностью')+icon(expanded?'expand_less':'expand_more');return;}
-      if(button.hasAttribute('data-ep-next')){button.disabled=true;try{let next=nextInSeason(s.episodes,s.episode.episode_number),season=s.season,list=s.episodes;if(!next){const later=nextSeason(s.series,season);if(!later)return;const data=await requestTmdb(`tv/${window.KGSeries.rawId(s.series.id)}/season/${later.season_number}`,{language:filmLocale});season=later.season_number;list=data.episodes||[];next=nextInSeason(list,0);}if(state!==s||!own.open)return;if(!next)throw new Error('NEXT_EPISODE_MISSING');state={...s,episode:next,season,episodes:list,error:''};render();own.scrollTop=0;load();}catch{if(state===s){s.error=uiText('Не удалось загрузить следующий эпизод.');render();}}finally{button.disabled=false;}}
+      if(button.hasAttribute('data-ep-next')){button.disabled=true;try{let next=nextInSeason(s.episodes,s.episode.episode_number),season=s.season,list=s.episodes;if(!next){const later=nextSeason(s.series,season);if(!later)return;const data=await requestTmdb(`tv/${window.KGSeries.rawId(s.series.id)}/season/${later.season_number}`,{language:filmLocale});season=later.season_number;list=data.episodes||[];next=nextInSeason(list,0);}if(state!==s||!own.open)return;if(!next)throw new Error('NEXT_EPISODE_MISSING');state={...s,episode:next,season,episodes:list,error:'',revealSynopsis:false,revealNote:false};render();own.scrollTop=0;load();}catch{if(state===s){s.error=uiText('Не удалось загрузить следующий эпизод.');render();}}finally{button.disabled=false;}}
     });
     own.showModal();render();own.scrollTop=0;own.querySelector('[data-ep-back]').focus({preventScroll:true});load();return own;
   }

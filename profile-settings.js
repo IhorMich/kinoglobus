@@ -60,13 +60,19 @@
       <p class="kg-ps-message kg-ps-cover-message" data-ps-photo-message role="status" hidden></p>
     </section>
 
-    <section class="kg-ps-spotlight">
-      <button type="button" class="kg-ps-metric kg-ps-control" data-ps-spoilers aria-pressed="true">
-        <span class="kg-ps-metric-top"><span data-ps-spoiler-icon></span><span class="kg-ps-chip"><i></i><b data-ps-spoiler-badge></b></span></span>
-        <span class="kg-ps-metric-text"><small>${label("Спойлеры")}</small>
-          <strong data-ps-spoiler-value></strong><span data-ps-spoiler-description></span></span>
-      </button>
-      
+    <section class="kg-ps-group">
+      <h2>${label("Спойлеры")}</h2>
+      <div class="kg-ps-list">
+        <button type="button" class="kg-ps-row kg-ps-spoiler-row"
+          data-ps-spoilers role="switch" aria-checked="true">
+          <span class="kg-ps-row-icon" data-ps-spoiler-icon></span>
+          <span class="kg-ps-row-text">
+            <strong>${label("Скрывать спойлеры")}</strong>
+            <small>${label("Рецензии, заметки и описания эпизодов")}</small>
+          </span>
+          <span class="kg-ps-toggle" aria-hidden="true"></span>
+        </button>
+      </div>
     </section>
 
     <div class="kg-ps-groups">
@@ -86,11 +92,9 @@
 
   function renderSpoilers() {
     const hidden = window.KGCinemaDiarySpoilers.get();
-    spoilers.setAttribute("aria-pressed", String(hidden));
-    spoilers.querySelector("[data-ps-spoiler-icon]").innerHTML = icon(hidden ? "visibility_off" : "visibility");
-    spoilers.querySelector("[data-ps-spoiler-badge]").textContent = uiText(hidden ? "Активно" : "Выключено");
-    spoilers.querySelector("[data-ps-spoiler-value]").textContent = uiText(hidden ? "Скрыты" : "Показаны");
-    spoilers.querySelector("[data-ps-spoiler-description]").textContent = uiText(hidden ? "Безопасный режим" : "Показывать спойлеры");
+    spoilers.setAttribute("aria-checked", String(hidden));
+    spoilers.querySelector("[data-ps-spoiler-icon]").innerHTML =
+      icon(hidden ? "visibility_off" : "visibility");
   }
 
   function render(profile) {
@@ -247,7 +251,7 @@
     if (button.hasAttribute("data-ps-back")) { hub.close(); return; }
     if (button.hasAttribute("data-ps-logout")) { hub.close(); session.logout(); return; }
     if (button === spoilers) {
-      window.KGCinemaDiarySpoilers.set(spoilers.getAttribute("aria-pressed") !== "true");
+      window.KGCinemaDiarySpoilers.set(spoilers.getAttribute("aria-checked") !== "true");
       renderSpoilers();
       return;
     }

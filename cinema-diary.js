@@ -29,7 +29,7 @@
   const rhythmKey = "kgCinemaDiaryRhythmCollapsed";
   const draftKey = "kgCinemaDiaryDrafts";
   const spoilerKey = "kgCinemaDiaryHideSpoilers";
-  const hideSpoilers = () => store.get(spoilerKey,true) !== false;
+  const hideSpoilers = () => store.get(spoilerKey,false) === true;
   window.KGCinemaDiarySpoilers = {get:hideSpoilers,set:value=>store.set(spoilerKey,value)};
   const vibes = ["Ночная меланхолия","Неоновый пульс","Экзистенциальный дождь",
     "Созерцательное спокойствие","Пьянящая романтика","Сюрреалистический трип","Ностальгия по 90-м"];

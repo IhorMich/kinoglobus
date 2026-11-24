@@ -127,3 +127,240 @@
 @media (max-width: 340px) {
   .kg-fv-person-actions { flex-direction: column; align-items: flex-end; }
 }
+
+/* Favorites dashboard redesign */
+
+#kg-favorites .kg-favorites-shell > header {
+  min-height: calc(56px + env(safe-area-inset-top,0px));
+  padding-inline: 20px;
+  gap: 8px;
+}
+
+#kg-favorites .kg-favorites-shell > header h1 {
+  font-size: 22px;
+  font-weight: 650;
+}
+
+#kg-favorites .kg-favorites-shell > header button {
+  width: 40px;
+  min-height: 44px;
+  background: transparent;
+  border: 0 !important;
+  box-shadow: none;
+  color: rgb(var(--kg-primary));
+}
+
+#kg-favorites .kg-favorites-shell > header
+.material-symbols-outlined {
+  font-size: 21px;
+}
+
+#kg-favorites .kg-favorites-shell > main {
+  padding-inline: 20px;
+  scrollbar-width: none;
+}
+
+#kg-favorites .kg-favorites-shell > main > * + * {
+  margin-top: 12px;
+}
+
+#kg-favorites .kg-favorites-hero {
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--fv-panel);
+  border-color: rgb(var(--kg-outline-variant) / .3);
+}
+
+#kg-favorites .kg-favorites-hero > h2 {
+  font-size: 22px;
+}
+
+#kg-favorites .kg-favorites-hero > p {
+  font-size: 14px;
+  line-height: 1.45;
+  margin: 6px 0 14px;
+}
+
+#kg-favorites .kg-favorites-hero .kg-favorite-icon {
+  color: rgb(var(--kg-primary));
+}
+
+#kg-favorites .kg-favorites-metrics {
+  gap: 10px;
+}
+
+#kg-favorites .kg-favorites-metrics > div {
+  min-height: 64px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--fv-raised);
+}
+
+#kg-favorites .kg-favorites-metrics strong {
+  font-size: 22px;
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+#kg-favorites .kg-favorites-metrics small {
+  font-size: 12px;
+}
+
+#kg-favorites .kg-favorites-metrics
+.material-symbols-outlined {
+  font-size: 23px;
+  color: rgb(var(--kg-primary));
+}
+
+#kg-favorites .kg-favorites-chips {
+  gap: 6px;
+}
+
+#kg-favorites .kg-favorites-chips button {
+  min-height: 38px;
+  padding-inline: 11px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 550;
+}
+
+#kg-favorites .kg-favorites-chips button small {
+  font-size: 11px;
+  opacity: .8;
+}
+
+#kg-favorites :is(
+  .kg-favorites-chips,
+  .kg-favorites-layout
+) button[aria-pressed="true"] {
+  background: rgb(var(--kg-primary) / .14);
+  color: rgb(var(--kg-primary));
+  box-shadow: inset 0 0 0 1px
+    rgb(var(--kg-primary) / .35);
+}
+
+#kg-favorites .kg-favorites-random {
+  min-height: 44px;
+  border-radius: 12px;
+  font-size: 14px;
+  background: var(--fv-panel);
+}
+
+#kg-favorites .kg-favorites-tools {
+  gap: 8px;
+}
+
+#kg-favorites .kg-favorites-sort {
+  flex: 1;
+  min-height: 44px;
+  padding-inline: 10px;
+  border-radius: 12px;
+  font-size: 12px;
+}
+
+#kg-favorites .kg-favorites-sort select {
+  flex: 1;
+  width: 0;
+  font-size: 12px;
+}
+
+#kg-favorites .kg-favorites-layout {
+  padding: 3px;
+  gap: 3px;
+  border-radius: 12px;
+}
+
+#kg-favorites .kg-favorites-layout button {
+  width: 38px;
+  min-height: 38px;
+  border-radius: 9px;
+  color: var(--fv-muted);
+}
+
+#kg-favorites .kg-favorites-layout
+.material-symbols-outlined {
+  font-size: 21px;
+}
+
+#kg-favorites .kg-favorites-empty {
+  gap: 10px;
+  padding: 28px 18px;
+  border-radius: 16px;
+  border: 1px solid rgb(var(--kg-outline-variant) / .25);
+}
+
+#kg-favorites .kg-favorites-empty .kg-favorite-icon {
+  width: 34px;
+  height: 34px;
+  color: rgb(var(--kg-primary));
+  margin-bottom: 4px;
+}
+
+#kg-favorites .kg-favorites-empty h2 {
+  font-size: 21px;
+}
+
+#kg-favorites .kg-favorites-empty p {
+  max-width: 270px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+@media (max-width: 360px) {
+  #kg-favorites .kg-favorites-shell > header,
+  #kg-favorites .kg-favorites-shell > main {
+    padding-inline: 14px;
+  }
+
+  #kg-favorites .kg-favorites-sort > span:first-child {
+    display: none;
+  }
+}
+
+/* Favorites compact navigation */
+
+/* Hide header actions, keep back button */
+#kg-favorites .kg-favorites-shell > header button:not(:first-child),
+#kg-favorites .kg-favorites-shell > header h1 ~ button,
+#kg-favorites .kg-favorites-shell > header h1 ~ div {
+  display: none !important;
+}
+
+/* Four category filters in one row */
+#kg-favorites .kg-favorites-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+  width: 100%;
+  overflow: visible;
+}
+
+#kg-favorites .kg-favorites-tabs button {
+  width: 100%;
+  min-width: 0;
+  min-height: 36px;
+  justify-content: center;
+  padding-inline: 3px;
+  gap: 3px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+#kg-favorites .kg-favorites-tabs button svg,
+#kg-favorites .kg-favorites-tabs button .material-symbols-outlined {
+  display: none;
+}
+
+#kg-favorites .kg-favorites-tabs button small {
+  font-size: 11px;
+}
+
+/* Readable sorting */
+#kg-favorites .kg-favorites-sort,
+#kg-favorites .kg-favorites-sort select {
+  font-size: 13px;
+}
+
+#kg-favorites .kg-favorites-sort {
+  min-height: 40px;
+}

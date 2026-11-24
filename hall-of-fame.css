@@ -67,15 +67,17 @@
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
   overflow-wrap: anywhere; font: 600 12px/1.4 var(--kg-font-interface);
 }
-.kg-hof-works-feature .kg-hof-work-title { margin-top: 4px; }
-.kg-hof-works:not(.kg-hof-works-feature) .kg-hof-work-title {
-  position: absolute; inset: auto 0 0; padding: 3px 4px;
-  color: rgb(var(--kg-white)); background: linear-gradient(0deg,rgb(var(--kg-black) / .95),rgb(var(--kg-black) / .48));
-  border-radius: 0 0 8px 8px;
+.kg-hof-works .kg-hof-work-title { margin-top: 4px; }
+.kg-hof-credit-list { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 6px; }
+.kg-hof-credit-list small { color: var(--hall-muted); font: 600 12px/1.4 var(--kg-font-interface); }
+.kg-hof-credit-list ul { display: flex; flex-wrap: wrap; min-width: 0; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.kg-hof-credit-list li { min-width: 0; max-width: 100%; }
+.kg-hof-credit-list button {
+  display: block; padding: 3px 6px; border-radius: 5px;
+  background: var(--hall-raised); color: var(--hall-ink); text-align: start;
 }
-.kg-hof-still { display: block; width: 100%; aspect-ratio: 16 / 10; overflow: hidden; border-radius: 8px; background: var(--hall-raised); }
-.kg-hof-still img { width: 100%; height: 100%; object-fit: cover; }
-.kg-hof-card .kg-hof-still { max-height: 112px; }
+.kg-hof-card-info .kg-hof-credit-list { display: grid; gap: 2px; }
+.kg-hof-card-info .kg-hof-credit-list button { padding: 2px 4px; }
 .kg-hof-primary,.kg-hof-more { min-height: 42px; border-radius: 9px; text-align: center; font: 600 14px/1.35 var(--kg-font-interface); }
 .kg-hof-primary { display: grid; place-items: center; margin-top: 4px; background: var(--hall-accent); color: rgb(var(--kg-inverse-on-surface)); }
 .kg-hof-catalog { margin-top: 16px; }
@@ -96,7 +98,7 @@
 .kg-hof-portrait-button { display: block; border-radius: 9px; }
 .kg-hof-card-info { display: grid; justify-items: start; align-content: center; gap: 4px; min-width: 0; }
 .kg-hof-card-info small { color: var(--hall-muted); font: 12px/1.4 var(--kg-font-interface); }
-.kg-hof-card [data-hof-card-works]:not(:empty) { margin-top: 8px; }
+.kg-hof-card > [data-hof-card-works]:not(:empty) { margin-top: 8px; }
 .kg-hof-person { min-width: 0; text-align: start; }
 .kg-hof-person strong { overflow-wrap: anywhere; font: var(--kg-font-card-title); }
 .kg-hof-photo { position: relative; display: grid; place-items: center; width: 80px; height: 96px; flex: none; overflow: hidden; border-radius: 9px; background: var(--hall-raised); color: var(--hall-muted); }

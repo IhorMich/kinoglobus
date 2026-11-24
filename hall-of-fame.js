@@ -140,25 +140,30 @@
       ${url?`<img src="${url}" alt="" loading="lazy" decoding="async">`:""}
     </span>`;
   }
-  function worksMarkup(works,feature=false){
-    if(!works.length)return "";
+  function pickWorks(works){
     const today=new Date();
     today.setHours(23,59,59,999);
-    const available=works.filter(film=>film.backdrop_path||film.poster_path);
-    const ranked=[...available.filter(film=>new Date(film.release_date||film.first_air_date)<=today),
-      ...available.filter(film=>!(new Date(film.release_date||film.first_air_date)<=today))];
-    const picked=ranked.slice(0,3);
+    const released=film=>new Date(film.release_date||film.first_air_date)<=today;
+    return [...works.filter(released),...works.filter(film=>!released(film))].slice(0,3);
+  }
+  function workLink(film,poster=false){
+    const id=Number(film.id);
+    const title=esc(film.title||film.name||uiText("Без названия"));
+    mountedWorks.set(id,film);
+    const frame=poster?`<span class="kg-film-grid-poster">${window.KGCollectionPoster(film,"w342")}</span>`:"";
+    return `<button type="button" data-hof-work="${id}" title="${title}">${frame}<span class="kg-hof-work-title">${title}</span></button>`;
+  }
+  function spotlightWorks(works){
+    const picked=pickWorks(works.filter(film=>film.backdrop_path||film.poster_path));
+    return picked.length?`<h4>${label("Знаковые работы")}</h4>
+      <div class="kg-hof-works" style="--hof-work-count:${picked.length}">${picked.map(film=>workLink(film,true)).join("")}</div>`:"";
+  }
+  function catalogueWorks(works,mode){
+    const picked=pickWorks(works);
     if(!picked.length)return "";
-    return `<div class="kg-hof-works${feature?" kg-hof-works-feature":""}" style="--hof-work-count:${picked.length}">${picked.map(film=>{
-      mountedWorks.set(Number(film.id),film);
-      const title=film.title||film.name||uiText("Без названия");
-      const wide=art(film.backdrop_path,"w780")||art(film.poster_path,"w342");
-      const frame=feature
-        ?`<span class="kg-film-grid-poster">${window.KGCollectionPoster(film,"w342")}</span>`
-        :`<span class="kg-hof-still">${wide?`<img alt="" src="${wide}" loading="lazy" decoding="async">`:""}</span>`;
-      return `<button type="button" data-hof-work="${Number(film.id)}" title="${esc(title)}">
-        ${frame}<span class="kg-hof-work-title">${esc(title)}</span></button>`;
-    }).join("")}</div>`;
+    const name=mode==="actors"?"Знаковые роли":"Знаковые фильмы";
+    return `<div class="kg-hof-credit-list"><small>${label(name)}</small>
+      <ul aria-label="${label(name)}">${picked.map(film=>`<li>${workLink(film)}</li>`).join("")}</ul></div>`;
   }
   function renderFeature(person,mode){
     const description=person.biography.length>300?person.biography.slice(0,300).replace(/\s+\S*$/,"")+"…":person.biography;
@@ -172,7 +177,7 @@
           ${description?`<p>${esc(description)}</p>`:""}</div></div>
         <div class="kg-hof-metrics">${person.works.length?`<span>${label("Работ: {count}",{count:number.format(person.works.length)})}</span>`:""}
           ${average?`<span>★ ${average} TMDB</span>`:""}${dates.length?`<span>${dates[0]}${dates.at(-1)!==dates[0]?"–"+dates.at(-1):""}</span>`:""}</div>
-        ${person.works.length?`<h4>${label("Знаковые работы")}</h4>${worksMarkup(person.works,true)}`:""}
+        ${spotlightWorks(person.works)}
         <span class="kg-hof-primary" aria-hidden="true">${label("Открыть профиль")} →</span>
       </div></article>`;
   }
@@ -200,7 +205,7 @@
       const card=results.querySelector(`[data-hof-card="${id}"]`);
       if(!card)return;
       card.querySelector("[data-hof-card-meta]").innerHTML=cardDetails(person,mode);
-      const previews=worksMarkup(person.works);
+      const previews=catalogueWorks(person.works,mode);
       if(previews)card.querySelector("[data-hof-card-works]").innerHTML=previews;
     }catch{
       if(api===readyKey)failedPeople.add(key);
@@ -256,9 +261,10 @@
           <div class="kg-hof-card-info"><button type="button" class="kg-hof-person" ${attrs}><strong>${esc(person.name)}</strong></button>
             <small data-hof-card-meta>${full?cardDetails(full,current):label(tabs[current].role)}</small>
             <button class="kg-hof-favorite" type="button" data-hof-favorite="${person.id}" aria-pressed="${active}">${label(active?"В любимых":"В любимые")}</button>
+            ${current==="actors"?`<div data-hof-card-works>${catalogueWorks(full?.works.length?full.works:person.works,current)}</div>`:""}
           </div>
         </div>
-        <div data-hof-card-works>${(full&&worksMarkup(full.works))||worksMarkup(person.works)}</div>
+        ${current==="directors"?`<div data-hof-card-works>${catalogueWorks(full?.works.length?full.works:person.works,current)}</div>`:""}
       </article>`;
     }).join("");
     if(apiKey)results.querySelectorAll("[data-hof-card]").forEach((card,index)=>{

@@ -246,15 +246,38 @@
     root.querySelector("[data-kg-person-favorites]").textContent=personNumber.format(projects.filter(f=>window.KGFavorites?.has(f.id)).length);
   }
   const personActionsKey="kgPersonActions.v1";
-  window.KGFavoritePersonIds=()=>Object.entries(store.get(personActionsKey,{})||{})
-    .map(([id,record])=>record?.favorite?Number(id):0)
-    .filter(id=>Number.isSafeInteger(id)&&id>0);
-  function setPersonAction(id,action,enabled) {
-    const records=store.get(personActionsKey,{})||{};
-    localStorage.setItem(personActionsKey,JSON.stringify({...records,[id]:{...records[id],[action]:enabled}}));
+  const personRecords=()=>store.get(personActionsKey,{})||{};
+  const savedPeople=()=>Object.entries(personRecords())
+    .map(([id,record])=>({...record,id:Number(id)}))
+    .filter(person=>Number.isSafeInteger(person.id)&&person.id>0&&(person.favorite||person.follow));
+  window.KGFavoritePersonIds=()=>savedPeople().filter(person=>person.favorite).map(person=>person.id);
+  function setPersonAction(id,action,enabled,metadata={}) {
+    if(!Number.isSafeInteger(id)||id<=0)return;
+    const records=personRecords();
+    const {name,role,profilePath}=metadata;
+    const entry={...records[id],...(name?{name}:{}),...(role?{role}:{}),...(profilePath?{profilePath}:{}),[action]:Boolean(enabled)};
+    if(entry.favorite||entry.follow)records[id]=entry;
+    else delete records[id];
+    localStorage.setItem(personActionsKey,JSON.stringify(records));
     if(action==="favorite")document.dispatchEvent(new Event("kg:favorite-person-change"));
+    document.dispatchEvent(new Event("kg:person-action-change"));
   }
-  window.KGSetPersonFavorite=(id,enabled)=>setPersonAction(id,"favorite",enabled);
+  window.KGSetPersonFavorite=(id,enabled,metadata)=>setPersonAction(id,"favorite",enabled,metadata);
+  window.KGPeopleActions={
+    list:savedPeople,
+    setFollow:(id,enabled)=>setPersonAction(id,"follow",enabled),
+    async details(id){
+      const person=await personDetails(id);
+      const combined=await personCredits(id,person);
+      const projects=mergePersonCredits(combined);
+      const role=({Directing:"Режиссёр",Acting:"Актёр",Production:"Продюсер",Writing:"Сценарист"})[person.known_for_department];
+      const today=new Date();
+      const day=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}-${String(today.getDate()).padStart(2,"0")}`;
+      const upcoming=projects.filter(project=>/^\d{4}-\d{2}-\d{2}$/.test(project.release_date)&&project.release_date>=day)
+        .sort((a,b)=>a.release_date.localeCompare(b.release_date));
+      return {name:person.name,role,profilePath:person.profile_path,upcoming};
+    }
+  };
   function paintPersonActions(root) {
     const record=store.get(personActionsKey,{})?.[root.dataset.personId]||{};
     for(const button of root.querySelectorAll("[data-kg-person-action]")){
@@ -282,6 +305,20 @@
       host.querySelector("img")?.remove();host.append(art);
     };
     art.src=src;
+  }
+  const profileLocale=interfaceLanguage==="en"?"en-US":"ru-RU";
+  function personDetails(id){
+    const cacheKey=`${id}:${profileLocale}:${filmLocale}`;
+    if(!personCache.has(cacheKey)){
+      const params=profileLocale===filmLocale?{append_to_response:"combined_credits"}:{};
+      personCache.set(cacheKey,tmdb(`person/${id}`,params,profileLocale).catch(error=>{personCache.delete(cacheKey);throw error;}));
+    }
+    return personCache.get(cacheKey);
+  }
+  async function personCredits(id,data){
+    if(data.combined_credits)return data.combined_credits;
+    data.combined_credits=await tmdb(`person/${id}/combined_credits`,{},filmLocale);
+    return data.combined_credits;
   }
   const biographyPreviewLength=320;
   function paintPersonBiography(root,biography,original="") {
@@ -393,7 +430,10 @@
         const records=store.get(personActionsKey,{})||{},record=records[id]||{};
         const enabled=!record[action];
         try {
-          setPersonAction(id,action,enabled);
+          setPersonAction(id,action,enabled,{
+            name:root.querySelector("[data-kg-person-title]").textContent,role,
+            profilePath:root.dataset.personProfilePath
+          });
           paintPersonActions(root);
           setPersonStatus(root,action==="follow"&&enabled?"Отслеживание сохранено на устройстве.":"");
         } catch {setPersonStatus(root,"Изменения не сохранены");}
@@ -416,18 +456,10 @@
         if(film)window.KGFilmCard.openDialog({...film,_kgRelatedPool:profile.projects},button);
       }
     });
-    const profileLocale=interfaceLanguage==="en"?"en-US":"ru-RU",path=`person/${id}`;
     const current=()=>root.isConnected&&root.open&&request===personOpenRequest;
     const meta=(selector,value)=>{const element=root.querySelector(selector);element.textContent=value;element.hidden=!value;};
     try{
-      const cacheKey=`${id}:${profileLocale}:${filmLocale}`;
-      let data=personCache.get(cacheKey);
-      if(!data){
-        const sameLocale=profileLocale===filmLocale;
-        data=await tmdb(path,sameLocale?{append_to_response:"combined_credits"}:{},profileLocale);
-        if(!current())return;
-        personCache.set(cacheKey,data);
-      }
+      const data=await personDetails(id);
       if(!current())return;
       const aliases=Array.isArray(data.also_known_as)?data.also_known_as.filter(value=>typeof value==="string"):[];
       const name=interfaceLanguage==="ru"?[data.name,...aliases].find(value=>/\p{Script=Cyrillic}/u.test(value||""))||data.name||personName:
@@ -440,16 +472,17 @@
       meta("[data-kg-person-location]",data.place_of_birth||"");
       root.querySelector(".kgpi-person-location").hidden=!data.place_of_birth;
       if(/^\/[\w.-]+$/.test(data.profile_path||"")){
+        root.dataset.personProfilePath=data.profile_path;
         paintPortrait(root,image(data.profile_path,"h632"));
       }else{
         const cached=sourceElement?.dataset?.kgPersonProfile;
         if(/^\/[\w.-]+$/.test(cached||""))paintPortrait(root,image(cached,"h632"));
         else preloadPersonBackdrop(id).then(art=>{if(current()&&art)paintPortrait(root,art.src);}).catch(()=>{});
       }
-      loadPersonBiography(root,data,path,profileLocale,current);
-      data.combined_credits ||= await tmdb(`${path}/combined_credits`,{},filmLocale);
+      loadPersonBiography(root,data,`person/${id}`,profileLocale,current);
+      const credits=await personCredits(id,data);
       if(!current())return;
-      const projects=mergePersonCredits(data.combined_credits);
+      const projects=mergePersonCredits(credits);
       root._kgPersonProfile.projects=projects;
       const roles=new Set(projects.flatMap(f=>[...f._personRoles]));
       const jobChips=crewRoles.filter(([id])=>id!=="other"&&roles.has(id)).map(([,text])=>text);

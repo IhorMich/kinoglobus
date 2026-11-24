@@ -21,9 +21,11 @@
   }
   const glyph=name=>`<span class="material-symbols-outlined" aria-hidden="true">${name}</span>`;
   const labelText=(key,params)=>esc(uiText(key,params));
-  const categories=[["all","Все","collections_bookmark"],["films","Фильмы","movie"],["series","Сериалы","tv"]];
+  const categories=[["all","Все","collections_bookmark"],["films","Фильмы","movie"],["series","Сериалы","tv"],["people","Персоны","person"]];
   const sortOptions=[["added","По дате добавления"],["rating","По рейтингу"],["title","По названию"]];
-  const meta=new Map();
+  const meta=new Map(),peopleDetails=new Map(),peopleLoading=new Set();
+  let peopleFilter="all";
+  let peopleDates;
   let genre="",layout="list",visible=[],generation=0;
   const count=(n,text)=>labelText(text,{count:n.toLocaleString(interfaceLanguage)});
   const poster=(path,size)=>/^\/[\w.-]+$/.test(path||"") ? "https://image.tmdb.org/t/p/"+size+path : "";
@@ -87,10 +89,78 @@
     </article>`;
   }
 
+  function peopleCard(saved){
+    const {id,favorite,follow}=saved;
+    const data=peopleDetails.get(id);
+    const name=data?.name||saved.name||uiText("Профиль TMDB #{id}",{id});
+    const role=data?.role||saved.role||"Кинематографист";
+    const photo=poster(data?.profilePath||saved.profilePath,"w185");
+    const upcoming=follow?(data?.upcoming||[]).slice(0,3):[];
+    return `<article class="kg-fv-person">`
+      +`<button type="button" class="kg-fv-person-open" data-fv-person="${id}" data-fv-name="${esc(name)}" data-fv-role="${esc(role)}">
+        <span class="kg-fv-person-photo">${glyph("person")}${photo?`<img src="${photo}" alt="" loading="lazy">`:""}</span>
+        <span><strong>${esc(name)}</strong><small>${labelText(role)}</small></span>
+      </button>
+      <div class="kg-fv-person-actions">
+        <button type="button" class="kg-favorites-control" data-fv-person-follow="${id}" aria-pressed="${Boolean(follow)}">${labelText(follow?"Отслеживаю":"Отслеживать")}</button>
+        ${favorite?`<button type="button" class="kg-favorites-control" data-fv-person-favorite="${id}" aria-label="${labelText("Убрать из любимых")}">${icon()}</button>`:""}
+      </div>
+      ${follow?`<div class="kg-fv-upcoming"><h3>${labelText("Ближайшие работы")}</h3>
+        ${upcoming.length?`<ul>${upcoming.map(film=>{
+          const title=film.title||film.name||uiText("Без названия");
+          const date=peopleDates.format(new Date(film.release_date+"T12:00:00"));
+          return `<li><button type="button" data-fv-work="${film.id}" data-fv-work-owner="${id}"><strong>${esc(title)}</strong><small>${esc(date)}</small></button>
+            ${window.KGReleaseFollow?.compactButton(film)||""}</li>`;
+        }).join("")}</ul>`:`<p>${labelText(data?"Пока нет предстоящих работ с датой.":peopleLoading.has(id)?"Загружаем…":"Не удалось загрузить ближайшие работы.")}</p>`}
+      </div>`:""}</article>`;
+  }
+  async function loadPeople(people){
+    if(!apiKey)return;
+    const queue=people.filter(person=>!peopleDetails.has(person.id)&&!peopleLoading.has(person.id));
+    queue.forEach(person=>peopleLoading.add(person.id));
+    const worker=async()=>{
+      while(queue.length){
+        const {id}=queue.shift();
+        try{peopleDetails.set(id,await window.KGPeopleActions.details(id));}catch{}
+        finally{peopleLoading.delete(id);}
+        if(dialog.open&&filter==="people"){
+          const node=dialog.querySelector(`[data-fv-person="${id}"]`)?.closest("article");
+          const saved=window.KGPeopleActions.list().find(person=>person.id===id);
+          if(node&&saved){
+            const active=node.contains(document.activeElement)?document.activeElement:null;
+            const focus=active?.hasAttribute("data-fv-person-follow")?"data-fv-person-follow":
+              active?.hasAttribute("data-fv-person-favorite")?"data-fv-person-favorite":active?.hasAttribute("data-fv-person")?"data-fv-person":"";
+            node.outerHTML=peopleCard(saved);
+            if(focus)dialog.querySelector(`[${focus}="${id}"]`)?.focus({preventScroll:true});
+          }
+        }
+      }
+    };
+    await Promise.all(Array.from({length:Math.min(4,queue.length)},worker));
+  }
+  function renderPeople(people){
+    peopleDates ||= new Intl.DateTimeFormat(interfaceLanguage,{day:"numeric",month:"short",year:"numeric"});
+    const root=dialog.querySelector("[data-favorites-people]");
+    const shown=people.filter(person=>peopleFilter==="all"||(peopleFilter==="follow"?person.follow:person.favorite));
+    root.querySelector(".kg-fv-people-filters").innerHTML=[["all","Все"],["favorite","В любимых"],["follow","Отслеживаю"]].map(([key,text])=>
+      `<button type="button" data-fv-people-filter="${key}" aria-pressed="${peopleFilter===key}">${labelText(text)}</button>`).join("");
+    loadPeople(shown);
+    root.querySelector(".kg-fv-people-list").innerHTML=shown.length?shown.map(peopleCard).join(""):`<div class="kg-favorites-empty">
+      <h2>${labelText(people.length?"В этом разделе пока пусто":"Пока нет любимых персон")}</h2>
+      <p>${labelText("Добавляйте актёров и режиссёров из «Зала славы» или их профиля.")}</p></div>`;
+  }
   function render() {
     if(!dialog?.open)return;
     const main=dialog.querySelector("main"),top=main.scrollTop;
     const items=list().map(f=>({...f,...meta.get(Number(f.id)),id:Number(f.id)}));
+    const people=window.KGPeopleActions?.list()||[];
+    const showingPeople=filter==="people";
+    dialog.querySelector('[data-favorites-movies]').textContent=String(items.filter(f=>!isSeries(f.id)).length);
+    dialog.querySelector('[data-favorites-series]').textContent=String(items.filter(f=>isSeries(f.id)).length);
+    dialog.querySelector('.kg-favorites-tabs').innerHTML=categories.map(([key,text,symbol])=>`<button type="button" data-favorites-filter="${key}" aria-pressed="${filter===key}">${glyph(symbol)}${labelText(text)} <small>${key==="people"?people.length:items.filter(f=>inCategory(f,key)).length}</small></button>`).join("");
+    for(const control of dialog.querySelectorAll("[data-favorites-random],[data-favorites-genres],.kg-favorites-tools,.kg-favorites-list,[data-favorites-settings],[data-favorites-share]"))control.hidden=showingPeople;
+    dialog.querySelector("[data-favorites-people]").hidden=!showingPeople;
+    if(showingPeople){renderPeople(people);main.scrollTop=top;return;}
     const category=items.filter(f=>inCategory(f,filter));
     const genres=[...new Set(category.flatMap(genresOf))].sort((a,b)=>a.localeCompare(b,interfaceLanguage));
     if(!genres.includes(genre))genre="";
@@ -98,9 +168,6 @@
     const sort=dialog.querySelector("select").value;
     if(sort==="rating")visible.sort((a,b)=>rating(b)-rating(a));
     if(sort==="title")visible.sort((a,b)=>a.title.localeCompare(b.title,interfaceLanguage));
-    dialog.querySelector('[data-favorites-movies]').textContent=String(items.filter(f=>!isSeries(f.id)).length);
-    dialog.querySelector('[data-favorites-series]').textContent=String(items.filter(f=>isSeries(f.id)).length);
-    dialog.querySelector('.kg-favorites-tabs').innerHTML=categories.map(([key,text,symbol])=>`<button type="button" data-favorites-filter="${key}" aria-pressed="${filter===key}">${glyph(symbol)}${labelText(text)} <small>${items.filter(f=>inCategory(f,key)).length}</small></button>`).join("");
     dialog.querySelector('[data-favorites-genres]').innerHTML=["",...genres].map(value=>`<button type="button" data-favorites-genre="${esc(value)}" aria-pressed="${genre===value}">${value?esc(value):labelText("Все жанры")}</button>`).join("");
     dialog.querySelector('[data-favorites-random]').disabled=!visible.length;
     for(const btn of dialog.querySelectorAll("[data-favorites-layout]"))btn.setAttribute("aria-pressed",String(layout===btn.dataset.favoritesLayout));
@@ -179,6 +246,10 @@
         </div>
         <p data-favorites-message role="status"></p>
         <div class="kg-favorites-list"></div>
+        <section data-favorites-people hidden>
+          <div class="kg-favorites-chips kg-fv-people-filters" role="group" aria-label="${labelText("Персоны")}"></div>
+          <div class="kg-fv-people-list"></div>
+        </section>
       </main></div>
       <dialog class="kg-favorites-share" data-favorites-share-sheet aria-labelledby="kg-favorites-share-title">
         <h2 id="kg-favorites-share-title">${labelText("Поделиться коллекцией")}</h2>
@@ -191,11 +262,15 @@
       document.body.append(dialog);
       const shareSheet=dialog.querySelector('[data-favorites-share-sheet]');
       dialog.querySelector("select").addEventListener("change",render);
-      dialog.addEventListener("error",recoverCardArt,true);
+      dialog.addEventListener("error",event=>{
+        if(event.target.matches?.(".kg-fv-person-photo img"))event.target.remove();
+        else recoverCardArt(event);
+      },true);
       dialog.addEventListener("click",event=>{
         const b=event.target.closest("button");
         if(!b)return;
-        const {favoritesFilter,favoritesGenre,favoritesLayout,favoriteOpen,favoritesNote,favoritesExport}=b.dataset;
+        const {favoritesFilter,favoritesGenre,favoritesLayout,favoriteOpen,favoritesNote,favoritesExport,
+          fvPeopleFilter,fvPerson,fvName,fvRole,fvPersonFollow,fvPersonFavorite,fvWork,fvWorkOwner}=b.dataset;
         if(b.hasAttribute("data-favorites-back"))dialog.close();
         else if(b.hasAttribute("data-favorites-share")&&list().length){shareSheet.querySelector("[data-favorite-status]").textContent="";shareSheet.showModal();}
         else if(b.hasAttribute("data-favorites-share-close"))shareSheet.close();
@@ -203,6 +278,22 @@
         else if(b.hasAttribute("data-favorites-settings")){const select=dialog.querySelector("select");select.scrollIntoView({block:"nearest"});select.focus({preventScroll:true});}
         else if(b.hasAttribute("data-favorites-profile")){dialog.close();window.KGOpenAccountPage("register");}
         else if(favoritesFilter){filter=favoritesFilter;genre="";render();dialog.querySelector(`[data-favorites-filter="${filter}"]`).focus({preventScroll:true});}
+        else if(fvPeopleFilter){
+          peopleFilter=fvPeopleFilter;render();
+          dialog.querySelector(`[data-fv-people-filter="${peopleFilter}"]`)?.focus({preventScroll:true});
+        }
+        else if(fvPerson)window.KGOpenPersonProfile(Number(fvPerson),fvName,fvRole,b);
+        else if(fvPersonFollow||fvPersonFavorite){
+          try{
+            if(fvPersonFollow)window.KGPeopleActions.setFollow(Number(fvPersonFollow),b.getAttribute("aria-pressed")!=="true");
+            else window.KGSetPersonFavorite(Number(fvPersonFavorite),false);
+          }catch{dialog.querySelector("[data-favorites-message]").textContent=uiText("Изменения не сохранены");}
+          if(fvPersonFollow)dialog.querySelector(`[data-fv-person-follow="${fvPersonFollow}"]`)?.focus({preventScroll:true});
+        }
+        else if(fvWork){
+          const film=peopleDetails.get(Number(fvWorkOwner))?.upcoming.find(item=>item.id===Number(fvWork));
+          if(film)window.KGFilmCard.openDialog(film,b);
+        }
         else if(favoritesGenre!==undefined){genre=favoritesGenre;render();}
         else if(favoritesLayout){layout=favoritesLayout;store.set("kgFavoritesLayout",layout);render();}
         else if(b.hasAttribute("data-favorites-random")&&visible.length)window.KGFilmCard.openDialog(visible[Math.floor(Math.random()*visible.length)],b);
@@ -216,10 +307,11 @@
       dialog.addEventListener("close",()=>{if(dialog.open)return;generation++;dialog.__opener?.isConnected&&dialog.__opener.focus({preventScroll:true});});
     }
     dialog.__opener=document.activeElement;
-    filter="all";genre="";layout=store.get("kgFavoritesLayout","list")==="grid"?"grid":"list";
+    filter="all";genre="";peopleFilter="all";layout=store.get("kgFavoritesLayout","list")==="grid"?"grid":"list";
     if(!dialog.open)dialog.showModal();
     render();dialog.querySelector("main").scrollTop=0;hydrate();
   }
+  document.addEventListener('kg:person-action-change',render);
   document.addEventListener('click',event=>{const target=event.target.closest('[data-kg-favorite]');if(!target)return;event.preventDefault();event.stopPropagation();try{toggle(JSON.parse(decodeURIComponent(target.dataset.kgFavoriteFilm)));}catch{const host=target.closest('.kg-film-detail')||dialog;if(host){let status=host.querySelector('[data-favorite-status]');if(!status){status=document.createElement('p');status.dataset.favoriteStatus='';status.setAttribute('role','status');host.append(status);}status.textContent=uiText('Не удалось изменить список любимых.');}}},true);
   window.KGFavorites={button,icon,has,toggle,list,snapshot,open,cardArt,recoverCardArt};
 })();

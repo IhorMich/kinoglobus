@@ -341,7 +341,12 @@
     else if(hofPerson)window.KGOpenPersonProfile(Number(hofPerson),hofName,tabs[current].role,button);
     else if(hofWork){const film=mountedWorks.get(Number(hofWork));if(film)window.KGFilmCard.openDialog(film,button);}
     else if(hofFavorite){
-      try{window.KGSetPersonFavorite(Number(hofFavorite),button.getAttribute("aria-pressed")!=="true");}
+      try{
+        const card=button.closest("[data-hof-card]"),person=card.querySelector(".kg-hof-person");
+        const path=card.querySelector(".kg-hof-photo img")?.getAttribute("src")?.split("/").at(-1);
+        window.KGSetPersonFavorite(Number(hofFavorite),button.getAttribute("aria-pressed")!=="true",
+          {name:person.dataset.hofName,role:tabs[current].role,profilePath:path?"/"+path:""});
+      }
       catch{catalogStatus("Изменения не сохранены");}
     }
   });

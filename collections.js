@@ -484,7 +484,7 @@ nav.className="kg-bottom-nav fixed bottom-0 w-full z-50";
 const hallNavIcon = '<svg aria-hidden="true" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2m10-14a4 4 0 1 1-8 0 4 4 0 0 1 8 0Zm4 8a4 4 0 0 1 3 4v2M17 3a4 4 0 0 1 0 8"/></svg>';
 const bottomNavLink = (view,icon,label) => `<a href="#" data-view="${view}" class="kg-bottom-nav-link" aria-label="${esc(uiText(label))}"${view==="calendar"?' aria-haspopup="dialog"':""}>${view==="hall"?hallNavIcon:`<span class="material-symbols-outlined text-[24px]" aria-hidden="true">${icon}</span>`}</a>`;
 nav.innerHTML='<div class="kg-bottom-nav-grid">'+
-[["home","casino","Глобус"],["collections","movie_filter","Подборки"],["journey","travel_explore","Путешествие"],["hall","groups","Зал славы"]]
+[["home","casino","Глобус"],["collections","movie_filter","Подборки"],["hall","groups","Зал славы"],["journey","travel_explore","Путешествие"]]
 .map(([view,icon,label])=>bottomNavLink(view,icon,label)).join("")+"</div>";
 nav.setAttribute("aria-label",uiText("Навигация"));
 document.body.appendChild(nav);

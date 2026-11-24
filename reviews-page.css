@@ -114,3 +114,114 @@
 .kg-rv-picker [data-rv-pick] small { color: var(--rv-muted); }
 
 .kg-rv-group-title { margin: 3px 0 0; font: 600 14px/1.35 var(--kg-font-interface); }
+
+/* Reviews page unified redesign */
+
+#kg-reviews .kg-rv-header {
+  min-height: calc(60px + env(safe-area-inset-top, 0px));
+  padding-inline: 20px;
+  box-sizing: border-box;
+}
+
+#kg-reviews .kg-rv-header h1 {
+  font-size: 22px;
+  font-weight: 600;
+}
+
+#kg-reviews .kg-rv-header .kg-rv-control {
+  width: 28px;
+  min-height: 40px;
+  background: transparent;
+  border: 0 !important;
+  color: rgb(var(--kg-primary));
+}
+
+#kg-reviews .kg-rv-main {
+  padding-inline: 20px;
+  box-sizing: border-box;
+}
+
+#kg-reviews .kg-rv-main > * + * {
+  margin-top: 12px;
+}
+
+#kg-reviews .kg-rv-summary {
+  padding: 16px;
+  gap: 12px;
+  border-radius: 16px;
+}
+
+#kg-reviews .kg-rv-summary h2 {
+  font-size: 23px;
+}
+
+#kg-reviews .kg-rv-metrics {
+  gap: 8px;
+  padding: 0;
+  background: transparent;
+}
+
+#kg-reviews .kg-rv-metrics > div {
+  padding: 12px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--rv-raised);
+}
+
+#kg-reviews .kg-rv-metrics strong {
+  font-size: 25px;
+}
+
+#kg-reviews .kg-rv-metrics small {
+  font-size: 13px;
+}
+
+#kg-reviews .kg-rv-new {
+  min-height: 44px;
+  font-size: 14px;
+  border-radius: 10px;
+}
+
+#kg-reviews .kg-rv-search {
+  border-radius: 10px;
+  padding-inline: 12px;
+}
+
+#kg-reviews .kg-rv-search input {
+  height: 46px;
+  font-size: 14px;
+}
+
+#kg-reviews .kg-rv-search .material-symbols-outlined {
+  color: rgb(var(--kg-primary));
+}
+
+#kg-reviews .kg-rv-group-title {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+#kg-reviews .kg-rv-card {
+  border-radius: 16px;
+  padding: 12px;
+  gap: 9px;
+}
+
+#kg-reviews .kg-rv-filters button {
+  border-radius: 8px;
+  min-height: 36px;
+  font-size: 13px;
+}
+
+#kg-reviews .kg-rv-filters button[aria-pressed="true"] {
+  background: rgb(var(--kg-primary) / .12);
+  color: rgb(var(--kg-primary));
+  box-shadow: inset 0 0 0 1px rgb(var(--kg-primary) / .35);
+}
+
+#kg-reviews .kg-rv-empty {
+  padding: 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.5;
+}

@@ -78,3 +78,132 @@
 .kg-bp-summary button { font-size: 14px; }
 .kg-bp-state { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1px 6px; }
 .kg-bp-state small { font-size: 11px; }
+
+/* Bookmarks dashboard redesign */
+
+#kg-bookmarks-page .kg-bp-header {
+  padding-inline: 20px;
+  gap: 8px;
+}
+
+#kg-bookmarks-page .kg-bp-header h1 {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+#kg-bookmarks-page .kg-bp-header .kg-bp-control {
+  width: 32px;
+  min-height: 44px;
+  border: 0 !important;
+  background: transparent;
+  color: rgb(var(--kg-primary));
+}
+
+#kg-bookmarks-page .kg-bp-main {
+  padding-inline: 20px;
+  scrollbar-width: none;
+}
+
+#kg-bookmarks-page .kg-bp-tools {
+  gap: 12px;
+}
+
+#kg-bookmarks-page .kg-favorites-hero {
+  padding: 16px;
+  border: 0;
+  border-radius: 16px;
+  background: var(--bp-panel);
+}
+
+#kg-bookmarks-page .kg-favorites-hero h2 {
+  font-size: 22px;
+}
+
+#kg-bookmarks-page .kg-favorites-hero p {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+#kg-bookmarks-page .kg-bp-search {
+  min-height: 46px;
+  border-radius: 10px;
+}
+
+#kg-bookmarks-page .kg-bp-search > .material-symbols-outlined {
+  color: rgb(var(--kg-primary));
+}
+
+#kg-bookmarks-page [data-bp-media] {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+#kg-bookmarks-page .kg-bp-chips button {
+  min-height: 36px;
+  border-radius: 8px;
+  font-size: 12px;
+}
+
+#kg-bookmarks-page [data-bp-media] button {
+  width: 100%;
+  padding-inline: 4px;
+  white-space: nowrap;
+}
+
+#kg-bookmarks-page :is(.kg-bp-chips,.kg-bp-layout) button[aria-pressed="true"] {
+  background: rgb(var(--kg-primary) / .12);
+  color: rgb(var(--kg-primary));
+  box-shadow: inset 0 0 0 1px rgb(var(--kg-primary) / .35);
+}
+
+#kg-bookmarks-page .kg-bp-sort {
+  flex: 1;
+  min-height: 42px;
+  border-radius: 10px;
+  font-size: 13px;
+}
+
+#kg-bookmarks-page .kg-bp-sort select {
+  flex: 1;
+  font-size: 13px;
+}
+
+#kg-bookmarks-page .kg-bp-layout {
+  flex: none;
+  gap: 4px;
+  padding: 0;
+  background: transparent;
+}
+
+#kg-bookmarks-page .kg-bp-layout button {
+  width: 40px;
+  min-height: 42px;
+  border-radius: 10px;
+  background: var(--bp-panel);
+  color: rgb(var(--kg-primary));
+}
+
+#kg-bookmarks-page .kg-bp-card {
+  border-radius: 14px;
+  background: var(--bp-panel);
+}
+
+#kg-bookmarks-page .kg-bp-empty {
+  padding: 28px 16px;
+  border-radius: 14px;
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+@media (max-width: 360px) {
+  #kg-bookmarks-page .kg-bp-header,
+  #kg-bookmarks-page .kg-bp-main {
+    padding-inline: 14px;
+  }
+
+  #kg-bookmarks-page .kg-bp-sort > span:first-child {
+    display: none;
+  }
+}

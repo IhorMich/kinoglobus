@@ -15,7 +15,7 @@ function trailerThumb(v,f){
 }
 const castButton=c=>`<button type="button" data-kg-person-id="${c.id||""}" data-kg-person-profile="${esc(c.photo||"")}" data-kg-person-name="${esc(c.name)}" data-kg-person-role="Актёр" class="kg-person-card flex flex-col items-center text-center py-1" ${c.id?"":"disabled"}>
 <div class="kg-cast-avatar rounded-full overflow-hidden mb-1 bg-surface-variant flex items-center justify-center">${c.photo?`<img class="w-full h-full object-cover" loading="lazy" alt="" src="${P(c.photo,"w185")}">`:'<span class="material-symbols-outlined text-text-muted">person</span>'}</div>
-<span class="kg-cast-name text-on-surface font-semibold">${esc(c.name)}</span><span class="font-micro-caption text-micro-caption text-text-muted truncate w-full">${esc(c.role)}</span></button>`;
+<span class="kg-cast-name text-on-surface font-semibold">${esc(c.name)}</span><span class="font-micro-caption text-micro-caption text-text-muted truncate w-full">${esc(c.role)}</span>${c.eps?`<span class="font-micro-caption text-micro-caption text-text-muted">${uiText("{count} эп.",{count:c.eps})}</span>`:""}</button>`;
 const COUNT_UNIT=n=>n%10===1&&n!==11?"актёр":n%10>1&&n%10<5&&(n<10||n>20)?"актёра":"актёров";
 function castPart(f){
   const short=f.castFull||[],full=f.castAll&&f.castAll.length>short.length?f.castAll:short;
@@ -37,7 +37,7 @@ function extrasTabs(f){
   return EXTRA_TABS.filter(([id])=>id==="videos"?(f._extraVideos===undefined||f._extraVideos==="loading"||(Array.isArray(f._extraVideos)&&f._extraVideos.length)):extraItems(f,id).length);
 }
 function extrasPart(f){
-  if(!f._detailsLoaded||window.KGSeries?.isSeriesId(f.id))return `<div data-film-part="extras" hidden></div>`;
+  if(!f._detailsLoaded)return `<div data-film-part="extras" hidden></div>`;
   const tabs=extrasTabs(f);
   if(!tabs.length)return `<div data-film-part="extras" hidden></div>`;
   const active=tabs.some(([id])=>id===f._extrasTab)?f._extrasTab:tabs[0][0];
@@ -265,6 +265,7 @@ div.relative:has(> [id^="mood-roulette-winner-detail-"]>.kg-film-detail){
 
 .kg-cast-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:.5rem .375rem}
 .kg-cast-grid .kg-person-card{min-width:0;appearance:none;border:0;background:transparent;box-shadow:none}
+.kg-series-detail [data-film-part="extras"]{padding:0 20px 20px}
 .kg-extras-more{align-self:flex-start;min-height:44px;padding:0 4px;color:rgb(var(--kg-primary));font-size:.85rem;text-decoration:underline;text-underline-offset:3px}
 .kg-extras-tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
 .kg-extras-tab{flex:none;display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 12px;border:1px solid rgb(var(--kg-surface-border-subtle));border-radius:999px;color:rgb(var(--kg-on-surface));font-size:.8rem}
@@ -667,9 +668,9 @@ async function loadExtraVideos(model){
     model._extraVideos=[];
   }
 }
-function openExtra(model,tab,start){
-  const items=extraItems(model,tab);
-  if(!items[start])return;
+// items: [{img}] or [{video,name}]. Shared by the film/series "Материалы" block and the person page photos.
+function openLightbox(items,start=0){
+  if(!items||!items[start])return;
   stopTrailers();
   let index=start;
   const dialog=document.createElement("dialog");
@@ -677,9 +678,9 @@ function openExtra(model,tab,start){
   dialog.setAttribute("aria-label",uiText("Материалы"));
   const paint=()=>{
     const x=items[index];
-    const media=tab==="videos"
-      ?`<iframe src="${esc(embedSrc(x,true))}" allow="${trailerFramePermissions}" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" title="${esc(x.name)}"></iframe>`
-      :`<img alt="" src="${P(x.p,tab==="shots"?"w1280":tab==="posters"?"w780":"w500")}">`;
+    const media=x.video
+      ?`<iframe src="${esc(x.video)}" allow="${trailerFramePermissions}" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" title="${esc(x.name||"")}"></iframe>`
+      :`<img alt="" src="${esc(x.img)}">`;
     const nav=items.length>1?`<button type="button" data-lb-prev aria-label="${esc(uiText("Назад"))}"><span class="material-symbols-outlined" aria-hidden="true">chevron_left</span></button><button type="button" data-lb-next aria-label="${esc(uiText("Далее"))}"><span class="material-symbols-outlined" aria-hidden="true">chevron_right</span></button>`:"";
     dialog.innerHTML=`<button type="button" data-lb-close aria-label="${esc(uiText("Закрыть"))}"><span class="material-symbols-outlined" aria-hidden="true">close</span></button>${nav}<div class="kg-extras-stage">${media}</div><div class="kg-extras-count">${index+1} / ${items.length}</div>`;
   };
@@ -697,6 +698,10 @@ function openExtra(model,tab,start){
   paint();
   document.body.append(dialog);
   dialog.showModal();
+}
+function openExtra(model,tab,start){
+  const list=extraItems(model,tab);
+  openLightbox(list.map(x=>tab==="videos"?{video:embedSrc(x,true),name:x.name}:{img:P(x.p,tab==="shots"?"w1280":tab==="posters"?"w780":"w500")}),start);
 }
 document.addEventListener("click",event=>{
   const control=event.target.closest("[data-kg-cast-toggle],[data-kg-extras-tab],[data-kg-extras-open]");
@@ -719,5 +724,5 @@ document.addEventListener("click",event=>{
   }
 });
 
-window.KGFilmCard={markup, createModel, hydrate, mount, update, playTrailer, stopTrailers, openDialog, savedFilm, modelFor, navigateDialogRelated, openInlineRelated};
+window.KGFilmCard={castPart, extrasPart, openLightbox, markup, createModel, hydrate, mount, update, playTrailer, stopTrailers, openDialog, savedFilm, modelFor, navigateDialogRelated, openInlineRelated};
 })();

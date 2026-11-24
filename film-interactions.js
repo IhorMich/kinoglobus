@@ -1,6 +1,6 @@
 /* Shared TMDB person profiles and related-film carousels. */
 (function(){
-  const pools=new Map(),relatedCache=new Map(),personCache=new Map(),personBackdropWarmCache=new Map(),personAltPortraitCache=new Map();
+  const pools=new Map(),relatedCache=new Map(),personCache=new Map(),personBackdropWarmCache=new Map(),personAltPortraitCache=new Map(),personPhotoCache=new Map();
   const personBackdropPreloadTasks=new Map();
   let scrollFrame=0,personScrollFrame=0,personOpenRequest=0;
   const image=(path,size="w342")=>path?`https://image.tmdb.org/t/p/${size}${path}`:"";
@@ -354,6 +354,29 @@
       if(isCurrent()&&original.length>biography.length)paintPersonBiography(root,biography,original);
     });
   }
+  // Photo rail on the person page: one small request, rendered only when there is more than the main portrait.
+  function personPhotos(id){
+    const key=String(id);
+    if(!personPhotoCache.has(key)){
+      personPhotoCache.set(key,tmdb(`person/${key}/images`,{},null).then(data=>(data.profiles||[])
+        .filter(p=>/^\/[\w.-]+$/.test(p.file_path||""))
+        .sort((a,b)=>(Number(b.vote_average)||0)-(Number(a.vote_average)||0)||(Number(b.vote_count)||0)-(Number(a.vote_count)||0))
+        .slice(0,24).map(p=>p.file_path)
+      ).catch(error=>{personPhotoCache.delete(key);throw error;}));
+    }
+    return personPhotoCache.get(key);
+  }
+  async function loadPersonPhotos(root,id,isCurrent){
+    try{
+      const paths=await personPhotos(id);
+      if(!isCurrent()||paths.length<2)return;
+      const section=root.querySelector("[data-kg-person-photos]");
+      section.querySelector("[data-kg-person-photo-total]").textContent=String(paths.length);
+      section.querySelector("[data-kg-person-photo-rail]").innerHTML=paths.map((path,i)=>`<button type="button" class="kgpi-photo" data-kg-person-photo="${i}" aria-label="${esc(uiText("Фото {n}",{n:i+1}))}"><img loading="lazy" decoding="async" alt="" src="${image(path,"w185")}"></button>`).join("");
+      section._kgPhotos=paths;
+      section.hidden=false;
+    }catch(error){console.warn("[Moven person] Фото недоступны",{personId:id,message:error?.message||String(error)});}
+  }
   async function showPerson(id,name,role,sourceElement=null){
     id=Number(id);
     if(!Number.isSafeInteger(id)||id<=0)return;
@@ -401,6 +424,10 @@
             <p data-kg-person-bio-full hidden></p>
             <div data-kg-person-bio-original lang="en" hidden><h3>${label("Биография на английском")}</h3><p></p></div>
           </details>
+        </section>
+        <section class="kgpi-person-photos" data-kg-person-photos hidden>
+          <h2>${label("Фото")} <small data-kg-person-photo-total></small></h2>
+          <div class="kgpi-photo-rail" data-kg-person-photo-rail></div>
         </section>
         <section id="kgpi-person-filmography" class="kgpi-person-filmography">
           <div class="kgpi-person-filters kgpi-person-role-tabs" data-kg-person-role-tabs role="group" aria-label="${label("Профессия")}"></div>
@@ -456,6 +483,11 @@
         if(film)window.KGFilmCard.openDialog({...film,_kgRelatedPool:profile.projects},button);
       }
     });
+    root.addEventListener("click",event=>{
+      const photo=event.target.closest("[data-kg-person-photo]"),section=photo&&root.querySelector("[data-kg-person-photos]");
+      if(!photo||!section?._kgPhotos)return;
+      window.KGFilmCard?.openLightbox?.(section._kgPhotos.map(path=>({img:image(path,"h632")})),Number(photo.dataset.kgPersonPhoto));
+    });
     const current=()=>root.isConnected&&root.open&&request===personOpenRequest;
     const meta=(selector,value)=>{const element=root.querySelector(selector);element.textContent=value;element.hidden=!value;};
     try{
@@ -480,6 +512,7 @@
         else preloadPersonBackdrop(id).then(art=>{if(current()&&art)paintPortrait(root,art.src);}).catch(()=>{});
       }
       loadPersonBiography(root,data,`person/${id}`,profileLocale,current);
+      loadPersonPhotos(root,id,current);
       const credits=await personCredits(id,data);
       if(!current())return;
       const projects=mergePersonCredits(credits);

@@ -52,7 +52,7 @@ const movieCatalog = (() => {
       for (const key of ['known_for', 'items']) {
         if (Array.isArray(item[key])) result[key] = filterRows(item[key], true);
       }
-      for (const key of ['movie_credits', 'combined_credits', 'credits']) {
+      for (const key of ['movie_credits', 'combined_credits', 'credits', 'aggregate_credits']) {
         if (item[key]) result[key] = clean(item[key]);
       }
       if (Array.isArray(item.cast)) result.cast = filterRows(item.cast, personCredits);

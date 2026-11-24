@@ -157,9 +157,9 @@
 <span class="text-primary-container text-sm">✦</span>
 <h2 class="font-headline-sm text-headline-sm text-primary">Тема и визуальный стиль</h2>
 </div>
-<span class="text-[10px] uppercase font-micro-caption px-2 py-0.5 rounded-full bg-primary-container/10 text-primary-container border border-primary-container/30">5 тем доступно</span>
+<span class="text-[10px] uppercase font-micro-caption px-2 py-0.5 rounded-full bg-primary-container/10 text-primary-container border border-primary-container/30">6 тем доступно</span>
 </div>
-<div class="grid grid-cols-2 sm:grid-cols-5 gap-2" role="group" aria-label="Тема оформления">
+<div class="grid grid-cols-2 sm:grid-cols-6 gap-2" role="group" aria-label="Тема оформления">
 <button class="theme-card relative rounded-xl p-2.5 bg-surface-container-lowest border border-surface-border-subtle flex flex-col items-center justify-between min-h-[104px] w-full" type="button" data-kgs-theme="midnight" aria-pressed="false">
 <span aria-hidden="true" class="material-symbols-outlined text-primary mt-1">dark_mode</span>
 <span class="text-[10px] font-semibold text-on-surface uppercase leading-tight theme-title">Синяя ночь</span>
@@ -183,6 +183,11 @@
 <button class="theme-card relative rounded-xl p-2.5 bg-surface-container-lowest border border-surface-border-subtle flex flex-col items-center justify-between min-h-[104px] w-full" type="button" data-kgs-theme="golden-age" aria-pressed="false">
 <span aria-hidden="true" class="text-primary-container mt-1 text-base">🏆</span>
 <span class="text-[10px] font-semibold text-on-surface uppercase leading-tight theme-title">Золотой век</span>
+<span class="text-[9px] text-primary-container" data-kgs-theme-current hidden>Выбрано</span>
+</button>
+<button class="theme-card relative rounded-xl p-2.5 bg-surface-container-lowest border border-surface-border-subtle flex flex-col items-center justify-between min-h-[104px] w-full" type="button" data-kgs-theme="cinema-amber" aria-pressed="false">
+<span aria-hidden="true" class="text-primary-container mt-1 text-base">✦</span>
+<span class="text-[10px] font-semibold text-on-surface uppercase leading-tight theme-title">Cinema Amber</span>
 <span class="text-[9px] text-primary-container" data-kgs-theme-current hidden>Выбрано</span>
 </button>
 </div>
@@ -529,7 +534,7 @@ ${[["light","Лёгкое"],["find","Открытие"],["wild","Случайн�
     const usesThemeAccent = appThemeHasFixedAccent(theme);
     const themeAccent = $("[data-kgs-theme-accent]");
     themeAccent.hidden = !usesThemeAccent;
-    themeAccent.textContent = uiText(theme === "steel" ? "Серебристый акцент включён в тему" : "Синий акцент включён в тему");
+    themeAccent.textContent = uiText(theme === "cinema-amber" ? "Янтарный акцент включён в тему" : theme === "steel" ? "Серебристый акцент включён в тему" : "Синий акцент включён в тему");
     $("[data-kgs-accent-picker]").hidden = usesThemeAccent;
     themeButtons.forEach(button => {
       const selected = button.dataset.kgsTheme === theme;

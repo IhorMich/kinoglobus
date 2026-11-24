@@ -670,7 +670,7 @@
   outline-color: rgb(var(--kg-primary));
 }
 
-:root:is([data-kg-theme="midnight"], [data-kg-theme="steel"]) {
+:root:is([data-kg-theme="midnight"], [data-kg-theme="steel"], [data-kg-theme="cinema-amber"]) {
   color-scheme: dark;
   --kg-canvas-obsidian: 9 13 24;
   --kg-surface-container-lowest: var(--kg-canvas-obsidian);
@@ -910,15 +910,15 @@
   --kg-metal-panel-shadow: inset 0 1.5px 1.5px rgb(255 255 255 / .78), inset 0 0 25px rgb(226 232 240 / .14), 0 12px 30px -4px #000a;
 }
 
-:root:is([data-kg-theme="midnight"], [data-kg-theme="steel"]) :is(h1, h2, h3, h4) {
+:root:is([data-kg-theme="midnight"], [data-kg-theme="steel"], [data-kg-theme="cinema-amber"]) :is(h1, h2, h3, h4) {
   color: rgb(var(--kg-heading));
 }
 
-:root:is([data-kg-theme="midnight"], [data-kg-theme="steel"]) .text-primary-container {
+:root:is([data-kg-theme="midnight"], [data-kg-theme="steel"], [data-kg-theme="cinema-amber"]) .text-primary-container {
   color: rgb(var(--kg-accent-text));
 }
 
-:root:is([data-kg-theme="midnight"], [data-kg-theme="steel"]) .material-symbols-outlined:not(.text-feedback-error, .text-error, .text-success) {
+:root:is([data-kg-theme="midnight"], [data-kg-theme="steel"], [data-kg-theme="cinema-amber"]) .material-symbols-outlined:not(.text-feedback-error, .text-error, .text-success) {
   color: rgb(var(--kg-primary));
 }
 
@@ -1025,7 +1025,7 @@
   background-color: rgb(var(--kg-accent-deep));
 }
 
-:root:is([data-kg-theme="midnight"], [data-kg-theme="steel"]) :is(.genre-pill, #genre-filter-chips button, #theme-filter button).text-canvas-obsidian {
+:root:is([data-kg-theme="midnight"], [data-kg-theme="steel"], [data-kg-theme="cinema-amber"]) :is(.genre-pill, #genre-filter-chips button, #theme-filter button).text-canvas-obsidian {
   color: rgb(var(--kg-white));
 }
 
@@ -1087,11 +1087,11 @@
   box-shadow: var(--kg-action-elevation-pressed);
 }
 
-:root:is([data-kg-theme="midnight"], [data-kg-theme="steel"]) :is(#btn-spin-roulette, [data-vibe-spin]):hover:not(:disabled) {
+:root:is([data-kg-theme="midnight"], [data-kg-theme="steel"], [data-kg-theme="cinema-amber"]) :is(#btn-spin-roulette, [data-vibe-spin]):hover:not(:disabled) {
   filter: none;
 }
 
-:root:is([data-kg-theme="midnight"], [data-kg-theme="steel"]) #btn-spin-text {
+:root:is([data-kg-theme="midnight"], [data-kg-theme="steel"], [data-kg-theme="cinema-amber"]) #btn-spin-text {
   color: inherit;
   filter: none;
 }
@@ -1146,22 +1146,22 @@
 }
 
 /* Профиль использует те же поверхности и цвета текста, что и остальные экраны. */
-:root:is([data-kg-theme="midnight"], [data-kg-theme="steel"]) #kg-profile {
+:root:is([data-kg-theme="midnight"], [data-kg-theme="steel"], [data-kg-theme="cinema-amber"]) #kg-profile {
   --profile-muted: rgb(var(--kg-text-muted));
   --profile-card: rgb(var(--kg-surface-panel));
   --profile-tile: rgb(var(--kg-surface-container-high));
 }
 
-:root:is([data-kg-theme="midnight"], [data-kg-theme="steel"]) #kg-profile :is(.kg-profile-button.gold, .kg-profile-tabs button[aria-pressed="true"]) {
+:root:is([data-kg-theme="midnight"], [data-kg-theme="steel"], [data-kg-theme="cinema-amber"]) #kg-profile :is(.kg-profile-button.gold, .kg-profile-tabs button[aria-pressed="true"]) {
   background: rgb(var(--kg-primary-container));
   color: rgb(var(--kg-white));
 }
 
-:root:is([data-kg-theme="midnight"], [data-kg-theme="steel"]) #kg-profile :is(.kg-profile-button.gold, .kg-profile-tabs button[aria-pressed="true"]):active {
+:root:is([data-kg-theme="midnight"], [data-kg-theme="steel"], [data-kg-theme="cinema-amber"]) #kg-profile :is(.kg-profile-button.gold, .kg-profile-tabs button[aria-pressed="true"]):active {
   background: rgb(var(--kg-accent-deep));
 }
 
-:root:is([data-kg-theme="midnight"], [data-kg-theme="steel"]) #kg-profile .kg-profile-tabs button[aria-pressed="true"] {
+:root:is([data-kg-theme="midnight"], [data-kg-theme="steel"], [data-kg-theme="cinema-amber"]) #kg-profile .kg-profile-tabs button[aria-pressed="true"] {
   box-shadow: 0 0 12px rgb(var(--kg-selection-glow)/.25);
 }
 
@@ -2055,4 +2055,160 @@ body {
 .kg-film-detail:not(.kg-series-detail) .text-micro-caption {
   font-size: var(--kg-type-caption);
   line-height: var(--kg-leading-ui);
+}
+
+
+/* ========================================
+   CINEMA AMBER — CENTRAL COLOR PALETTE
+   ======================================== */
+
+:root[data-kg-theme="cinema-amber"] {
+  --amber-background: 16 16 18;
+  --amber-surface: 24 24 28;
+  --amber-card: 34 34 38;
+  --amber-surface-high: 44 43 48;
+  --amber-surface-highest: 54 52 57;
+  --amber-surface-bright: 66 63 68;
+
+  --amber-accent: 216 180 119;
+  --amber-accent-light: 245 220 166;
+  --amber-accent-dark: 172 129 72;
+
+  --amber-secondary: 65 53 37;
+  --amber-secondary-dark: 39 33 26;
+  --amber-border: 64 58 50;
+
+  --amber-text: 242 245 255;
+  --amber-text-muted: 167 164 170;
+  --amber-button-text: 16 16 18;
+
+  --amber-pressed-light: 226 200 148;
+  --amber-pressed-accent: 195 159 100;
+  --amber-pressed-dark: 153 111 58;
+
+  --amber-primary-gradient: linear-gradient(
+    90deg,
+    rgb(var(--amber-accent-light)) 0%,
+    rgb(var(--amber-accent)) 45%,
+    rgb(var(--amber-accent-dark)) 100%
+  );
+
+  --amber-primary-pressed-gradient: linear-gradient(
+    90deg,
+    rgb(var(--amber-pressed-light)),
+    rgb(var(--amber-pressed-accent)) 45%,
+    rgb(var(--amber-pressed-dark))
+  );
+
+  --amber-secondary-gradient: linear-gradient(
+    90deg,
+    rgb(var(--amber-secondary)),
+    rgb(var(--amber-secondary-dark))
+  );
+
+  --amber-selected-gradient: linear-gradient(
+    90deg,
+    rgb(var(--amber-accent-light)),
+    rgb(var(--amber-accent))
+  );
+
+  /* Global theme token mapping */
+
+  --kg-canvas-obsidian: var(--amber-background);
+  --kg-surface: var(--amber-surface);
+  --kg-surface-panel: var(--amber-card);
+
+  --kg-surface-container-high: var(--amber-surface-high);
+  --kg-surface-container-highest: var(--amber-surface-highest);
+  --kg-surface-bright: var(--amber-surface-bright);
+  --kg-surface-border: var(--amber-border);
+
+  --kg-heading: var(--amber-text);
+  --kg-on-surface: var(--amber-text);
+  --kg-on-surface-variant: var(--amber-text-muted);
+
+  --kg-primary: var(--amber-accent);
+  --kg-primary-container: var(--amber-accent);
+  --kg-primary-fixed: var(--amber-accent-light);
+  --kg-primary-fixed-dim: var(--amber-accent-dark);
+  --kg-accent-deep: var(--amber-accent-dark);
+
+  --kg-on-primary: var(--amber-button-text);
+  --kg-on-primary-container: var(--amber-button-text);
+  --kg-on-primary-fixed: var(--amber-button-text);
+
+  --kg-secondary: var(--amber-accent);
+  --kg-secondary-container: var(--amber-secondary);
+  --kg-secondary-fixed: var(--amber-accent-light);
+
+  --kg-nav-inactive: var(--amber-text-muted);
+
+  --kg-action-gradient: var(--amber-primary-gradient);
+  --kg-action-gradient-pressed: var(--amber-primary-pressed-gradient);
+  --kg-action-ink: var(--amber-button-text);
+  --kg-action-shadow: var(--amber-accent);
+
+  --kg-quick-action-background: var(--amber-secondary-gradient);
+
+  /* Preserve the original globe palette */
+
+  --kg-globe-outline-glow: 53 200 255;
+  --kg-globe-outline-core: 53 200 255;
+  --kg-globe-pin-core: 53 200 255;
+  --kg-globe-beacon-ring: 53 200 255;
+}
+
+:root[data-kg-theme="cinema-amber"] :is(
+  #btn-top-one,
+  #btn-oscar-laureate,
+  #btn-mode-surprise
+) {
+  background: var(--amber-secondary-gradient);
+  border: 1px solid rgb(var(--amber-border));
+  border-radius: var(--kg-radius-button);
+  color: rgb(var(--amber-accent-light));
+  box-shadow: 0 4px 14px rgb(0 0 0 / .18);
+}
+
+:root[data-kg-theme="cinema-amber"] :is(
+  #btn-top-one,
+  #btn-oscar-laureate,
+  #btn-mode-surprise
+) .material-symbols-outlined {
+  color: rgb(var(--amber-accent));
+}
+
+:root[data-kg-theme="cinema-amber"] :is(
+  #btn-top-one,
+  #btn-oscar-laureate,
+  #btn-mode-surprise
+)[aria-pressed="true"] {
+  background: var(--amber-selected-gradient);
+  border-color: rgb(var(--amber-accent-light));
+  color: rgb(var(--amber-button-text));
+  box-shadow: 0 0 14px rgb(var(--amber-accent) / .25);
+}
+
+:root[data-kg-theme="cinema-amber"] :is(
+  #btn-top-one,
+  #btn-oscar-laureate,
+  #btn-mode-surprise
+)[aria-pressed="true"] .material-symbols-outlined {
+  color: rgb(var(--amber-button-text));
+}
+
+:root[data-kg-theme="cinema-amber"] :is(
+  #btn-spin-text .material-symbols-outlined,
+  #btn-spin-secondary-icon
+) {
+  color: rgb(var(--amber-button-text));
+}
+
+:root[data-kg-theme="cinema-amber"] .kg-digital-release-badge {
+  color: rgb(var(--amber-accent));
+}
+
+:root[data-kg-theme="cinema-amber"] .kg-sh {
+  --kg-primary-button-fill: var(--amber-primary-gradient);
+  --kg-on-primary: var(--amber-button-text);
 }

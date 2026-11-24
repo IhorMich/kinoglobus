@@ -65,10 +65,10 @@ function readPaletteColor(token, asNumber = false) {
 }
 const DEFAULT_APP_THEME = "midnight";
 const DEFAULT_APP_ACCENT = "blue";
-const APP_THEMES = [DEFAULT_APP_THEME, "cinematic", "oled", "golden-age", "steel"];
+const APP_THEMES = [DEFAULT_APP_THEME, "cinematic", "oled", "golden-age", "steel", "cinema-amber"];
 const APP_ACCENTS = [DEFAULT_APP_ACCENT, "cyan", "gold", "lavender", "coral"];
 function appThemeHasFixedAccent(theme) {
-  return theme === DEFAULT_APP_THEME || theme === "steel";
+  return theme === DEFAULT_APP_THEME || theme === "steel" || theme === "cinema-amber";
 }
 function resolveAppAccent(theme, savedAccent) {
   return !appThemeHasFixedAccent(theme) && APP_ACCENTS.includes(savedAccent) ? savedAccent : DEFAULT_APP_ACCENT;

@@ -72,7 +72,7 @@
         ${quick.map(([route,symbol,name])=>`<button type="button" data-profile-action="${route}" ${route==="calendar"?"data-profile-calendar":""}
           aria-label="${label(name)}" title="${label(name)}" aria-describedby="kg-pf-count-${route}">
           <span class="kg-pf-quick-icon">${icon(symbol)}</span>
-          <b id="kg-pf-count-${route}" data-profile-count="${route}"></b></button>`).join("")}
+          <b id="kg-pf-count-${route}" data-profile-count="${route}"></b><span class="kg-pf-quick-label">${label(name) === "История просмотров" ? "История" : label(name) === "Viewing history" ? "History" : label(name)}</span></button>`).join("")}
       </div>
       <section class="kg-pf-section">
         <header>${icon("calendarClock")}<h2>${label("Календарь моих релизов")}</h2>

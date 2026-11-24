@@ -169,3 +169,283 @@
 @media (prefers-reduced-motion: reduce) {
   #kg-profile button,.kg-pf-dock-indicator,.kg-pf-week,.kg-pf-week-toggle svg { transition: none; }
 }
+
+
+/* Profile quick cards */
+#kg-profile .kg-pf-quick {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+#kg-profile .kg-pf-dock-indicator {
+  display: none;
+}
+
+#kg-profile .kg-pf-quick button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  
+  height: 96px;
+  min-height: 96px;
+  box-sizing: border-box;
+  padding: 8px 4px;
+  border-radius: 14px;
+  border: 1px solid var(--pf-control-border);
+  border-color: color-mix(in srgb, var(--pf-primary) 22%, transparent);
+  background: var(--pf-panel);
+}
+
+#kg-profile .kg-pf-quick-icon {
+  color: var(--pf-primary);
+}
+
+#kg-profile .kg-pf-quick-icon svg {
+  width: 26px;
+  height: 26px;
+  fill: none;
+}
+
+#kg-profile .kg-pf-quick b {
+  position: static;
+  padding: 0;
+  background: transparent;
+  color: var(--pf-ink);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+#kg-profile .kg-pf-quick-label {
+  color: var(--pf-muted);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.3;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+#kg-profile .kg-pf-quick button:hover,
+#kg-profile .kg-pf-quick button:active {
+  background: var(--pf-raised);
+  border-color: var(--pf-primary);
+}
+
+
+/* Profile identity redesign */
+
+#kg-profile .kg-pf-identity {
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid var(--pf-control-border);
+  border-color: color-mix(in srgb, var(--pf-primary) 22%, transparent);
+  box-shadow: none;
+}
+
+#kg-profile .kg-pf-user {
+  display: grid;
+  grid-template-columns: 80px minmax(0, 1fr) 36px;
+  align-items: center;
+  justify-items: stretch;
+  gap: 12px;
+  text-align: start;
+}
+
+#kg-profile .kg-pf-user > img {
+  width: 80px;
+  height: 100px;
+  border-radius: 10px;
+  border: 1px solid var(--pf-primary);
+  box-shadow: none;
+  object-fit: cover;
+}
+
+#kg-profile .kg-pf-user > div {
+  min-width: 0;
+}
+
+#kg-profile .kg-pf-user h2 {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+#kg-profile .kg-pf-user p {
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+#kg-profile .kg-pf-nickname {
+  padding: 4px 0;
+  min-height: 28px;
+  font-size: 13px;
+  text-align: start;
+}
+
+#kg-profile .kg-pf-user > button {
+  position: static;
+  align-self: start;
+  width: 36px;
+  height: 36px;
+  color: var(--pf-primary);
+  background: var(--pf-raised);
+  border-radius: 10px;
+}
+
+#kg-profile .kg-pf-badges {
+  justify-content: flex-start;
+}
+
+#kg-profile .kg-pf-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: 100%;
+  max-width: none;
+  margin: 14px 0 0;
+  padding: 12px 0 0;
+  border: 0;
+  border-top: 1px solid rgb(var(--kg-outline-variant) / .65);
+  border-radius: 0;
+  background: transparent;
+}
+
+#kg-profile .kg-pf-stats > div {
+  flex-direction: column;
+  gap: 3px;
+  padding-inline: 4px;
+}
+
+#kg-profile .kg-pf-stats strong {
+  color: var(--pf-primary);
+  font-size: 22px;
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+#kg-profile .kg-pf-stats strong + span {
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+
+
+/* Profile dashboard polish */
+
+#kg-profile .kg-pf-heading h1 {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+#kg-profile .kg-pf-back {
+  width: 40px;
+  height: 40px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--pf-muted);
+}
+
+#kg-profile .kg-pf-back:hover {
+  color: var(--pf-primary);
+  background: var(--pf-raised);
+}
+
+#kg-profile .kg-pf-section header {
+  min-height: 42px;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+#kg-profile .kg-pf-section header h2 {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+#kg-profile .kg-pf-section header button {
+  font-size: 13px;
+}
+
+#kg-profile .kg-pf-section header .kg-pf-week-toggle {
+  width: 36px;
+  height: 36px;
+  min-height: 36px;
+  border-radius: 10px;
+  border: 1px solid var(--pf-control-border);
+  background: var(--pf-panel);
+  color: var(--pf-primary);
+}
+
+#kg-profile .kg-pf-empty {
+  box-sizing: border-box;
+  padding: 14px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--pf-control-border);
+  background: var(--pf-panel);
+  color: var(--pf-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+#kg-profile .kg-pf-footer button {
+  min-height: 44px;
+  border-color: transparent !important;
+  background: transparent;
+  box-shadow: none;
+  font-size: 14px;
+  font-weight: 500;
+  color: rgb(var(--kg-error));
+}
+
+#kg-profile .kg-pf-footer button:hover {
+  background: rgb(var(--kg-error) / .07);
+}
+
+
+
+/* Profile dashboard final adjustments */
+
+#kg-profile .kg-pf-section header {
+  gap: 5px;
+}
+
+#kg-profile .kg-pf-section header h2 {
+  font-size: 15px;
+  line-height: 1.3;
+}
+
+#kg-profile .kg-pf-section header button {
+  font-size: 12px;
+  white-space: nowrap;
+  max-width: none;
+  gap: 3px;
+}
+
+#kg-profile .kg-pf-section[data-profile-history] header button {
+  max-width: none;
+}
+
+#kg-profile .kg-pf-back {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+#kg-profile .kg-pf-back:not(:focus-visible) {
+  outline: none !important;
+}
+
+#kg-profile .kg-pf-head-actions [data-profile-action="search"] {
+  display: none !important;
+}
+

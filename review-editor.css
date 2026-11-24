@@ -118,3 +118,152 @@
 }
 .kg-review-action:focus-visible { outline: 2px solid rgb(var(--kg-primary)); outline-offset: 1px; }
 #kg-review-editor [data-re-status] { margin: 0; color: rgb(var(--kg-error)); }
+
+
+/* Review editor — unified mobile design */
+
+#kg-review-editor {
+  font: 14px/1.5 var(--kg-font-interface);
+}
+
+#kg-review-editor .kg-re-header {
+  gap: 10px;
+  padding-inline: 12px;
+}
+
+#kg-review-editor .kg-re-header h1 {
+  font: 700 20px/1.25 var(--kg-font-interface);
+}
+
+#kg-review-editor [data-re-back] {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+#kg-review-editor [data-re-back] .material-symbols-outlined {
+  font-size: 22px;
+}
+
+#kg-review-editor .kg-re-header [type="submit"] {
+  min-height: 38px;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+#kg-review-editor .kg-re-main {
+  padding-inline: 12px;
+  gap: 14px;
+}
+
+#kg-review-editor .kg-re-context,
+#kg-review-editor .kg-re-panel {
+  padding: 14px;
+  border-radius: 14px;
+}
+
+#kg-review-editor .kg-re-context strong {
+  font-size: 18px;
+}
+
+#kg-review-editor .kg-re-main small {
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+#kg-review-editor .kg-re-label {
+  font: 650 16px/1.35 var(--kg-font-interface);
+  color: var(--rv-ink);
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+#kg-review-editor .kg-re-genres span {
+  font-size: 11px;
+  padding: 3px 7px;
+}
+
+#kg-review-editor .kg-re-rating output {
+  font-size: 14px;
+  border-radius: 8px;
+}
+
+#kg-review-editor .kg-re-stars > div {
+  min-height: 42px;
+}
+
+#kg-review-editor .kg-re-tags .kg-rv-control {
+  min-height: 34px;
+  padding-inline: 10px;
+  border-radius: 8px;
+  font-size: 12px;
+}
+
+#kg-review-editor .kg-re-heading-field input {
+  font-size: 16px;
+  padding-top: 8px;
+}
+
+#kg-review-editor .kg-re-fields textarea {
+  font-size: 16px;
+  line-height: 1.6;
+  min-height: 180px;
+  padding: 8px;
+  border-radius: 8px;
+}
+
+#kg-review-editor .kg-re-toolbar button {
+  min-height: 44px;
+  font-size: 16px;
+}
+
+#kg-review-editor .kg-re-spoiler strong {
+  font-size: 14px;
+}
+
+#kg-review-editor .kg-re-options {
+  gap: 10px;
+}
+
+#kg-review-editor .kg-re-inline input {
+  min-height: 42px;
+  border-radius: 8px;
+}
+
+#kg-review-editor .kg-re-inline button {
+  min-height: 42px;
+  border-radius: 8px;
+}
+
+#kg-review-editor .kg-re-view-meta label {
+  padding: 10px;
+  font-size: 12px;
+  border-radius: 10px;
+}
+
+#kg-review-editor .kg-re-view-meta input {
+  font-size: 14px;
+}
+
+#kg-review-editor .kg-re-destinations label {
+  min-height: 48px;
+  font-size: 14px;
+}
+
+#kg-review-editor .kg-re-destinations input {
+  width: 18px;
+  height: 18px;
+}
+
+#kg-review-editor .kg-re-footer {
+  gap: 8px;
+}
+
+#kg-review-editor .kg-re-footer button {
+  min-height: 48px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+}

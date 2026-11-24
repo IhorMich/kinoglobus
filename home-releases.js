@@ -94,7 +94,7 @@
       <span class="relative block w-full aspect-[2/3] overflow-hidden rounded-xl bg-surface-container-high shadow-md">
         ${digital ? poster : `<span aria-hidden="true">${poster || '<span class="material-symbols-outlined absolute inset-0 grid place-items-center text-primary-container">movie</span>'}</span>`}
         <span class="absolute inset-x-1.5 top-1.5 flex flex-wrap justify-between gap-0.5">
-          ${digital ? `<span class="px-1.5 py-1 rounded bg-surface-container-lowest/90 text-secondary font-label-sm text-label-sm">${copy("Цифровой релиз")}</span>` : ""}
+          ${digital ? `<span class="px-1.5 py-1 rounded bg-surface-container-lowest/90 text-secondary font-label-sm text-label-sm kg-digital-release-badge">${copy("Цифровой релиз")}</span>` : ""}
           ${rating(film)}
         </span>
       </span>

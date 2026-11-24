@@ -488,7 +488,7 @@
 
   fields.handle.addEventListener("input", () => {
     const valid = !fields.handle.value ||
-      /^[\\p{L}\\p{N}_.-]{1,24}$/u.test(fields.handle.value.trim());
+      /^[\p{L}\p{N}_.-]{1,24}$/u.test(fields.handle.value.trim());
     fields.handle.setCustomValidity(valid ? "" : "Недопустимые символы в никнейме");
   });
   const scroll = editor.querySelector(".kg-edit-scroll");

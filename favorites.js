@@ -74,7 +74,7 @@
     const note=notes[f.id];
     const tags=genresOf(f).slice(0,3);
     return `<article class="kg-favorites-row">
-      <button type="button" class="kg-favorites-open" data-favorite-open="${f.id}" aria-label="${esc(f.title)}">
+      <button type="button" class="kg-favorites-open" data-favorite-open="${esc(f.id)}" aria-label="${esc(f.title)}">
         ${cardArt(f,{subtitle})}
         ${overview||tags.length ? `<span class="kg-favorites-copy">
           ${overview?`<span class="kg-favorites-overview">${esc(overview)}</span>`:""}
@@ -82,8 +82,8 @@
         </span>` : ""}
       </button>
       <footer>
-        ${note?.title ? `<button class="kg-favorites-note" type="button" data-favorites-note="${f.id}">${glyph("edit_note")}<span>${esc(note.title)}</span></button>` : ""}
-        <button class="kg-favorites-control" type="button" data-favorite-open="${f.id}">${glyph("play_arrow")}${labelText("Смотреть")}</button>
+        ${note?.title ? `<button class="kg-favorites-note" type="button" data-favorites-note="${esc(f.id)}">${glyph("edit_note")}<span>${esc(note.title)}</span></button>` : ""}
+        <button class="kg-favorites-control" type="button" data-favorite-open="${esc(f.id)}">${glyph("play_arrow")}${labelText("Смотреть")}</button>
         ${button(f)}
       </footer>
     </article>`;
@@ -97,19 +97,19 @@
     const photo=poster(data?.profilePath||saved.profilePath,"w185");
     const upcoming=follow?(data?.upcoming||[]).slice(0,3):[];
     return `<article class="kg-fv-person">`
-      +`<button type="button" class="kg-fv-person-open" data-fv-person="${id}" data-fv-name="${esc(name)}" data-fv-role="${esc(role)}">
-        <span class="kg-fv-person-photo">${glyph("person")}${photo?`<img src="${photo}" alt="" loading="lazy">`:""}</span>
+      +`<button type="button" class="kg-fv-person-open" data-fv-person="${esc(id)}" data-fv-name="${esc(name)}" data-fv-role="${esc(role)}">
+        <span class="kg-fv-person-photo">${glyph("person")}${photo?`<img src="${esc(photo)}" alt="" loading="lazy">`:""}</span>
         <span><strong>${esc(name)}</strong><small>${labelText(role)}</small></span>
       </button>
       <div class="kg-fv-person-actions">
-        <button type="button" class="kg-favorites-control" data-fv-person-follow="${id}" aria-pressed="${Boolean(follow)}">${labelText(follow?"Отслеживаю":"Отслеживать")}</button>
-        ${favorite?`<button type="button" class="kg-favorites-control" data-fv-person-favorite="${id}" aria-label="${labelText("Убрать из любимых")}">${icon()}</button>`:""}
+        <button type="button" class="kg-favorites-control" data-fv-person-follow="${esc(id)}" aria-pressed="${Boolean(follow)}">${labelText(follow?"Отслеживаю":"Отслеживать")}</button>
+        ${favorite?`<button type="button" class="kg-favorites-control" data-fv-person-favorite="${esc(id)}" aria-label="${labelText("Убрать из любимых")}">${icon()}</button>`:""}
       </div>
       ${follow?`<div class="kg-fv-upcoming"><h3>${labelText("Ближайшие работы")}</h3>
         ${upcoming.length?`<ul>${upcoming.map(film=>{
           const title=film.title||film.name||uiText("Без названия");
           const date=peopleDates.format(new Date(film.release_date+"T12:00:00"));
-          return `<li><button type="button" data-fv-work="${film.id}" data-fv-work-owner="${id}"><strong>${esc(title)}</strong><small>${esc(date)}</small></button>
+          return `<li><button type="button" data-fv-work="${esc(film.id)}" data-fv-work-owner="${esc(id)}"><strong>${esc(title)}</strong><small>${esc(date)}</small></button>
             ${window.KGReleaseFollow?.compactButton(film)||""}</li>`;
         }).join("")}</ul>`:`<p>${labelText(data?"Пока нет предстоящих работ с датой.":peopleLoading.has(id)?"Загружаем…":"Не удалось загрузить ближайшие работы.")}</p>`}
       </div>`:""}</article>`;

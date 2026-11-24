@@ -4,7 +4,22 @@
   const defaultBanner = "assets/vibes/after-midnight.jpg";
   const label = source => uiText(source).replace(/[&<>"']/g, ch =>
     ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[ch]);
-  const icon = name => `<span class="material-symbols-outlined" aria-hidden="true">${name}</span>`;
+  const backupIcons = {
+    backup: '<path d="M4 4h16v16H4z M8 4v6h8V4 M8 20v-6h8v6"/>',
+    download: '<path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"/>',
+    upload: '<path d="M12 16V4m-5 5 5-5 5 5M4 16v5h16v-5"/>',
+    menu_book: '<path d="M12 6v15M12 6C9 3 5 3 2 5v15c4-2 7-1 10 1 3-2 6-3 10-1V5c-3-2-7-2-10 1Z"/>',
+    shield: '<path d="M12 2 21 6v6c0 5-4 8-9 10-5-2-9-5-9-10V6Z M8 12l3 3 5-6"/>'
+  };
+
+  const icon = name => backupIcons[name]
+    ? `<svg class="kg-bk-svg" viewBox="0 0 24 24"
+        fill="none" stroke="currentColor"
+        stroke-width="1.7" stroke-linecap="round"
+        stroke-linejoin="round" aria-hidden="true">
+        ${backupIcons[name]}
+      </svg>`
+    : `<span class="material-symbols-outlined" aria-hidden="true">${name}</span>`;
   const entries = {
     diary:["movie_filter","Кинодневник и трекинг","Записи, оценки и даты просмотра"],
     services:["tv","Стриминговые сервисы","Регион для раздела «Где смотреть»"],
@@ -15,7 +30,7 @@
     public:["public","Публичная страница","Предпросмотр и приватность"],
     security:["shield","Безопасность и вход","Электронная почта и пароль"],
     notifications:["calendar_month","Уведомления и радар премьер","Релизы и напоминания"],
-    export:["sync","Экспорт и резервные копии","Экспорт данных и синхронизация"],
+    export:["backup","Резервные копии","Сохранение и восстановление данных"],
     appearance:["palette","Внешний вид и тема","Темы и цвет кнопок"]
   };
   const row = id => {
@@ -77,6 +92,7 @@
 
     <div class="kg-ps-groups">
       ${group("Личные данные",["edit"])}
+      ${group("Управление данными",["export"])}
     </div>
     <footer class="kg-ps-footer">
       <button type="button" class="kg-ps-control" data-ps-logout>${icon("logout")}${label("Выйти из аккаунта")}</button>
@@ -169,6 +185,498 @@
         save.disabled = value.disabled = false;
       }
     });
+    return page;
+  }
+
+
+  function confirmBackupRestore(downloadInfo) {
+    return new Promise(resolve => {
+      const modal = document.createElement("dialog");
+      modal.className = "kg-bk-confirm";
+      modal.setAttribute("aria-labelledby", "kg-bk-confirm-title");
+
+      const size = downloadInfo.bytes >= 1024 * 1024
+        ? (downloadInfo.bytes / (1024 * 1024)).toFixed(2) + " МБ"
+        : (downloadInfo.bytes / 1024).toFixed(1) + " КБ";
+
+      modal.innerHTML = `
+        <div class="kg-bk-confirm-content">
+          <div class="kg-bk-confirm-emblem">
+            ${icon("shield")}
+          </div>
+
+          <h2 id="kg-bk-confirm-title">
+            ${label("Восстановление данных")}
+          </h2>
+
+          <p class="kg-bk-confirm-description">
+            ${label("Страховочная копия создана. Убедитесь, что файл сохранён на вашем устройстве.")}
+          </p>
+
+          <div class="kg-bk-confirm-file">
+            ${icon("backup")}
+            <div>
+              <strong>${label("Страховочная копия")}</strong>
+              <small>JSON · ${size}</small>
+            </div>
+          </div>
+
+          <div class="kg-bk-confirm-warning">
+            <span class="kg-bk-warning-symbol">!</span>
+            <p>${label("Текущие данные будут заменены. После восстановления приложение перезапустится.")}</p>
+          </div>
+
+          <label class="kg-bk-confirm-check">
+            <input type="checkbox" data-bk-saved>
+            <span>${label("Я сохранил страховочную копию")}</span>
+          </label>
+
+          <div class="kg-bk-actions">
+            <button type="button"
+              class="kg-bk-button kg-bk-primary"
+              data-bk-confirm disabled>
+              ${label("Восстановить данные")}
+            </button>
+
+            <button type="button"
+              class="kg-bk-button kg-ps-control"
+              data-bk-decline>
+              ${label("Отмена")}
+            </button>
+          </div>
+        </div>
+      `;
+
+      const checkbox = modal.querySelector("[data-bk-saved]");
+      const confirm = modal.querySelector("[data-bk-confirm]");
+      const decline = modal.querySelector("[data-bk-decline]");
+
+      let accepted = false;
+
+      checkbox.addEventListener("change", () => {
+        confirm.disabled = !checkbox.checked;
+      });
+
+      confirm.addEventListener("click", () => {
+        if (!checkbox.checked) return;
+        accepted = true;
+        modal.close();
+      });
+
+      decline.addEventListener("click", () => {
+        modal.close();
+      });
+
+      modal.addEventListener("close", () => {
+        modal.remove();
+        resolve(accepted);
+      }, {once:true});
+
+      document.body.append(modal);
+
+      try {
+        modal.showModal();
+      } catch (error) {
+        modal.remove();
+        resolve(false);
+        console.error("Backup confirmation failed:", error);
+      }
+    });
+  }
+
+  function openBackupPage() {
+    const items = [
+      ["person","Личный профиль"],
+      ["favorite","Любимые фильмы и персоны"],
+      ["bookmark","Закладки"],
+      ["history","История просмотров"],
+      ["tv","Просмотренные эпизоды"],
+      ["star","Оценки и рецензии"],
+      ["menu_book","Кинодневник"],
+      ["settings","Настройки приложения"]
+    ];
+
+    const page = openSubpage(
+      "export",
+      "Резервные копии",
+      `
+      <section class="kg-bk-hero">
+        <div class="kg-bk-emblem">
+          ${icon("shield")}
+        </div>
+        <h2>${label("Ваши данные под контролем")}</h2>
+        <p>${label("Сохраните свою киноисторию или перенесите её на другое устройство.")}</p>
+      </section>
+
+      <section class="kg-bk-section">
+        <h2>${label("Что сохраняется")}</h2>
+
+        <div class="kg-bk-list">
+          ${items.map(([symbol,title])=>`
+            <div class="kg-bk-row">
+              ${icon(symbol)}
+              <span>${label(title)}</span>
+              ${icon("check")}
+            </div>
+          `).join("")}
+        </div>
+      </section>
+
+      <div class="kg-bk-actions">
+        <button type="button"
+          class="kg-bk-button kg-bk-primary"
+          data-bk-export>
+          ${icon("download")}
+          ${label("Создать резервную копию")}
+        </button>
+
+        <button type="button"
+          class="kg-bk-button kg-ps-control"
+          data-bk-import>
+          ${icon("upload")}
+          ${label("Восстановить из файла")}
+        </button>
+      </div>
+
+      <section class="kg-bk-preview" data-bk-preview hidden>
+        <div class="kg-bk-preview-card">
+          <div class="kg-bk-preview-heading">
+            ${icon("shield")}
+            <div>
+              <h2>${label("Резервная копия проверена")}</h2>
+              <p>${label("Файл готов к восстановлению")}</p>
+            </div>
+          </div>
+
+          <div class="kg-bk-preview-details">
+            <div>
+              <span>${label("Дата создания")}</span>
+              <strong data-bk-date></strong>
+            </div>
+            <div>
+              <span>${label("Версия формата")}</span>
+              <strong data-bk-version></strong>
+            </div>
+            <div>
+              <span>${label("Ключи данных")}</span>
+              <strong data-bk-keys></strong>
+            </div>
+            <div>
+              <span>${label("Личный профиль")}</span>
+              <strong data-bk-profile></strong>
+            </div>
+          </div>
+        </div>
+
+        <section class="kg-bk-section">
+          <h2>${label("Изменения в данных")}</h2>
+
+          <div class="kg-bk-preview-card kg-bk-changes">
+            <div class="kg-bk-change" data-kind="added">
+              <span class="kg-bk-change-symbol">+</span>
+              <span>${label("Будет добавлено")}</span>
+              <strong data-bk-added></strong>
+            </div>
+            <div class="kg-bk-change" data-kind="replaced">
+              <span class="kg-bk-change-symbol">↻</span>
+              <span>${label("Будет заменено")}</span>
+              <strong data-bk-replaced></strong>
+            </div>
+            <div class="kg-bk-change" data-kind="removed">
+              <span class="kg-bk-change-symbol">−</span>
+              <span>${label("Будет удалено")}</span>
+              <strong data-bk-removed></strong>
+            </div>
+            <div class="kg-bk-change" data-kind="unchanged">
+              <span class="kg-bk-change-symbol">✓</span>
+              <span>${label("Без изменений")}</span>
+              <strong data-bk-unchanged></strong>
+            </div>
+          </div>
+        </section>
+
+        <div class="kg-bk-warning">
+          <span class="kg-bk-warning-symbol">!</span>
+          <div>
+            <strong>${label("Полное восстановление")}</strong>
+            <p>${label("Текущие данные будут заменены содержимым файла. Перед восстановлением будет создана страховочная копия.")}</p>
+            <p data-bk-profile-action></p>
+          </div>
+        </div>
+
+        <div class="kg-bk-actions">
+          <button type="button"
+            class="kg-bk-button kg-bk-primary"
+            data-bk-continue disabled>
+            ${label("Продолжить восстановление")}
+          </button>
+
+          <button type="button"
+            class="kg-bk-button kg-ps-control"
+            data-bk-cancel>
+            ${label("Отмена")}
+          </button>
+        </div>
+      </section>
+
+      <div class="kg-bk-privacy">
+        ${icon("lock")}
+        <p>${label("Ваши данные хранятся локально. Резервные копии не отправляются на сервер. API-ключи не включаются в файл.")}</p>
+      </div>
+
+      <p class="kg-bk-feedback"
+        data-bk-feedback role="status" hidden></p>
+      `
+    );
+
+    const importButton = page.querySelector("[data-bk-import]");
+
+    const fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.accept = ".json,application/json";
+    fileInput.hidden = true;
+    page.append(fileInput);
+
+    const exportButton = page.querySelector("[data-bk-export]");
+    const feedback = page.querySelector("[data-bk-feedback]");
+    const previewPanel = page.querySelector("[data-bk-preview]");
+    const cancelButton = page.querySelector("[data-bk-cancel]");
+    const continueButton = page.querySelector("[data-bk-continue]");
+
+    let pendingBackup = null;
+    let pendingSafetyBackup = null;
+
+    continueButton.addEventListener("click", async () => {
+      if (!pendingBackup) return;
+
+      continueButton.disabled = true;
+      cancelButton.disabled = true;
+      importButton.disabled = true;
+      exportButton.disabled = true;
+      feedback.hidden = true;
+      pendingSafetyBackup = null;
+
+      try {
+        await window.KGWaitForProfileWrites();
+
+        const result =
+          await window.KGBackupStorage.createSafetyBackup();
+
+        pendingSafetyBackup = result.backup;
+
+        feedback.dataset.state = "success";
+        feedback.textContent = uiText(
+          "Страховочная копия создана. Сохраните скачанный файл."
+        );
+
+        console.log("Safety backup:", {
+          keys: result.downloadInfo.keys,
+          bytes: result.downloadInfo.bytes,
+          hasProfile: result.downloadInfo.hasProfile
+        });
+
+        const confirmed = await confirmBackupRestore(
+          result.downloadInfo
+        );
+
+        if (!confirmed) {
+          pendingSafetyBackup = null;
+
+          feedback.textContent = uiText(
+            "Восстановление отменено. Данные не изменены."
+          );
+
+          return;
+        }
+
+        console.log("Restore confirmation: accepted");
+
+        await window.KGWaitForProfileWrites();
+
+        if (!page.isConnected || !page.open) {
+          throw new Error("Страница восстановления закрыта");
+        }
+
+        const restored =
+          await window.KGBackupStorage.restoreCombined(
+            localStorage,
+            window.KGProfileStorage,
+            pendingBackup,
+            pendingSafetyBackup
+          );
+
+        console.log("Backup restore result:", restored);
+
+        pendingBackup = null;
+        pendingSafetyBackup = null;
+
+        feedback.dataset.state = "success";
+        feedback.textContent = uiText(
+          "Данные успешно восстановлены. Перезапуск приложения."
+        );
+
+        feedback.hidden = false;
+
+        window.location.reload();
+
+      } catch (error) {
+        pendingSafetyBackup = null;
+
+        feedback.dataset.state = "error";
+        feedback.textContent = uiText(
+          "Не удалось выполнить восстановление."
+        );
+
+        console.error("Restore preparation failed:", error);
+
+      } finally {
+        feedback.hidden = false;
+        continueButton.disabled = !pendingBackup;
+        cancelButton.disabled = false;
+        importButton.disabled = false;
+        exportButton.disabled = false;
+      }
+    });
+
+    function hideBackupPreview() {
+      previewPanel.hidden = true;
+      pendingBackup = null;
+      pendingSafetyBackup = null;
+      continueButton.disabled = true;
+    }
+
+    function renderBackupPreview(summary, preview) {
+      const set = (field, value) => {
+        previewPanel.querySelector(
+          "[data-bk-" + field + "]"
+        ).textContent = String(value);
+      };
+
+      set("date", new Date(summary.createdAt).toLocaleDateString(
+        document.documentElement.lang || "ru-RU"
+      ));
+
+      set("version", summary.version);
+      set("keys", summary.keys);
+      set("profile", uiText(
+        summary.hasProfile ? "Включён" : "Отсутствует"
+      ));
+
+      set("added", preview.added.length);
+      set("replaced", preview.replaced.length);
+      set("removed", preview.removed.length);
+      set("unchanged", preview.unchanged.length);
+
+      const profileActions = {
+        preserve: "Текущий личный профиль будет сохранён.",
+        create: "Личный профиль будет создан из резервной копии.",
+        replace: "Личный профиль будет восстановлен из файла."
+      };
+
+      set("profile-action", uiText(
+        profileActions[preview.profileAction] || ""
+      ));
+
+      previewPanel.hidden = false;
+
+      previewPanel.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+    }
+
+    cancelButton.addEventListener("click", () => {
+      hideBackupPreview();
+      feedback.hidden = true;
+      fileInput.value = "";
+    });
+
+    exportButton.addEventListener("click", async () => {
+      exportButton.disabled = true;
+      importButton.disabled = true;
+      feedback.hidden = true;
+
+      try {
+        const result = await window.KGBackupStorage.download();
+
+        const size = result.bytes >= 1024 * 1024
+          ? (result.bytes / (1024 * 1024)).toFixed(2) + " МБ"
+          : (result.bytes / 1024).toFixed(1) + " КБ";
+
+        feedback.dataset.state = "success";
+        feedback.textContent =
+          uiText("Резервная копия создана. Скачивание запущено.") +
+          " (" + size + ")";
+
+      } catch (error) {
+        feedback.dataset.state = "error";
+        feedback.textContent =
+          uiText("Не удалось создать резервную копию.");
+
+        console.error("Backup export failed:", error);
+
+      } finally {
+        feedback.hidden = false;
+        exportButton.disabled = false;
+        importButton.disabled = false;
+      }
+    });
+
+    importButton.addEventListener("click", () => {
+      fileInput.value = "";
+      fileInput.click();
+    });
+
+    fileInput.addEventListener("change", async () => {
+      const file = fileInput.files?.[0];
+
+      if (!file) return;
+
+      hideBackupPreview();
+
+      importButton.disabled = true;
+      exportButton.disabled = true;
+      feedback.hidden = true;
+
+      try {
+        const {backup, summary} =
+          await window.KGBackupStorage.readFile(file);
+
+        const preview =
+          await window.KGBackupStorage.previewRestore(backup);
+
+        feedback.dataset.state = "success";
+        feedback.textContent =
+          uiText("Резервная копия успешно проверена.") +
+          " " + uiText("Записей:") +
+          " " + summary.keys + ".";
+
+        pendingBackup = backup;
+        pendingSafetyBackup = null;
+
+        renderBackupPreview(summary, preview);
+
+        continueButton.disabled = false;
+
+        console.log("Backup validation:", summary);
+        console.log("Backup preview:", preview);
+
+      } catch (error) {
+        feedback.dataset.state = "error";
+        feedback.textContent =
+          uiText("Не удалось прочитать резервную копию.") +
+          " " + (error.message || "");
+
+        console.error("Backup import failed:", error);
+
+      } finally {
+        feedback.hidden = false;
+        importButton.disabled = false;
+        exportButton.disabled = false;
+        fileInput.value = "";
+      }
+    });
+
     return page;
   }
 
@@ -279,8 +787,8 @@
         break;
       case "nickname": editField("handle"); break;
       case "public": openPublicPage(); break;
-      case "security":
-      case "export": openSubpage(psRoute,entries[psRoute][1]); break;
+      case "security": openSubpage(psRoute,entries[psRoute][1]); break;
+      case "export": openBackupPage(); break;
       case "subscription": if (subscriptionVisible) openSubpage(psRoute,entries[psRoute][1]); break;
     }
   });

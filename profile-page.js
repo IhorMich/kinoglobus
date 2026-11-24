@@ -341,6 +341,10 @@
   for (const event of ["kg:release-follows-change","kg:favorite-change","kg-bookmark-change","kg:watched-change","kg:diary-note-change","kg:episode-note-change","kg:review-change"]) {
     document.addEventListener(event,()=>{if(dialog.open && profile)renderProfile();});
   }
+  window.KGWaitForProfileWrites = async () => {
+    await profileWrites;
+  };
+
   window.KGOpenDemoProfile = () => openProfile();
   window.KGProfileNickname = () => profile?.handle || "";
   window.KGStartDemoSession = async (message,name="") => {

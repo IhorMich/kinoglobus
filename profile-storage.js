@@ -27,6 +27,7 @@
 
   window.KGProfileStorage = {
     read:() => profileRecord().catch(()=>null),
+    readStrict:() => profileRecord(),
     write:profile => profileRecord(profile)
   };
 })();

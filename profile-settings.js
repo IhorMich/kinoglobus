@@ -65,16 +65,11 @@
         <span class="kg-ps-metric-text"><small>${label("Спойлеры")}</small>
           <strong data-ps-spoiler-value></strong><span data-ps-spoiler-description></span></span>
       </button>
-      <div class="kg-ps-metric">
-        <span class="kg-ps-metric-top">${icon("star")}<small>TMDb</small></span>
-        <span class="kg-ps-metric-text"><small>${label("Шкала оценок")}</small><strong>10 / 10.0</strong></span>
-      </div>
+      
     </section>
 
     <div class="kg-ps-groups">
-      ${group("Кино и трекинг",["diary","services","language"])}
-      ${group(subscriptionVisible ? "Подписка и аккаунт" : "Аккаунт",["subscription","nickname","public","security"])}
-      ${group("Приложение и данные",["notifications","export","appearance"])}
+      ${group("Личные данные",["nickname"])}
     </div>
     <footer class="kg-ps-footer">
       <button type="button" class="kg-ps-control" data-ps-logout>${icon("logout")}${label("Выйти из аккаунта")}</button>
@@ -107,7 +102,7 @@
     const nickname = hub.querySelector('[data-ps-route="nickname"] small');
     nickname.textContent = profile.handle || uiText("Подпись к рецензиям");
     const publicPage = hub.querySelector('[data-ps-route="public"] small');
-    publicPage.textContent = uiText(profile.privatePage ? "Приватная" : "Открытая");
+    if (publicPage) publicPage.textContent = uiText(profile.privatePage ? "Приватная" : "Открытая");
     renderSpoilers();
   }
 

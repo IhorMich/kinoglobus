@@ -30,6 +30,98 @@
       <section class="kg-vs-panel" data-vs-ratings></section>
     </main>`;
   document.body.append(dialog);
+  const statisticsStyle = document.createElement("style");
+  statisticsStyle.textContent = `
+/* Viewing statistics redesign */
+#kg-viewing-statistics [data-vs-share],
+#kg-viewing-statistics [data-vs-people] {
+  display: none !important;
+}
+
+#kg-viewing-statistics .kg-vh-header {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+#kg-viewing-statistics .kg-vh-header h1 {
+  font-size: 22px;
+}
+
+#kg-viewing-statistics .kg-vh-header [data-vs-close] {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  color: rgb(var(--kg-primary));
+}
+
+#kg-viewing-statistics .kg-vs-tabs {
+  border-radius: 12px;
+  gap: 5px;
+  padding: 4px;
+}
+
+#kg-viewing-statistics .kg-vs-tabs > * {
+  border-radius: 8px;
+  font-size: 13px;
+  min-height: 38px;
+}
+
+#kg-viewing-statistics .kg-vs-intro h2 {
+  font-size: 24px;
+  line-height: 1.25;
+}
+
+#kg-viewing-statistics .kg-vs-panel {
+  border: 0;
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: none;
+  background: rgb(var(--kg-surface-panel));
+}
+
+#kg-viewing-statistics .kg-vs-panel h2 {
+  font-size: 20px;
+  line-height: 1.3;
+}
+
+#kg-viewing-statistics .kg-vs-panel p {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+#kg-viewing-statistics .kg-vs-periods {
+  display: grid;
+  grid-template-columns: .8fr 1.6fr .8fr 1fr;
+  gap: 4px;
+  overflow: visible;
+}
+
+#kg-viewing-statistics .kg-vs-periods button {
+  min-width: 0;
+  min-height: 36px;
+  padding: 4px;
+  font-size: 12px;
+  border-radius: 8px;
+}
+
+#kg-viewing-statistics .kg-vs-periods button[aria-pressed="true"] {
+  background: rgb(var(--kg-primary-container) / .14);
+  color: rgb(var(--kg-primary));
+  box-shadow: inset 0 0 0 1px rgb(var(--kg-primary) / .35);
+}
+
+#kg-viewing-statistics .kg-vs-metrics small {
+  font-size: 13px;
+}
+
+#kg-viewing-statistics .kg-vs-metrics strong {
+  font-size: 20px;
+  line-height: 1.3;
+}
+`;
+  document.head.append(statisticsStyle);
+
   let period="all",source,notes,summary="",peopleLimit=4,peopleRequest=0;
   const personRequests=new Map();
   const runtime=rows=>rows.reduce((total,row)=>total+row.runtime,0);
@@ -38,7 +130,7 @@
     return Number.isFinite(rating)&&rating>0&&rating<=5?rating*2:0;
   };
   const percent=(count,total)=>total?Math.round(count/total*100):0;
-  const minutesText=value=>value>=60?uiText("{count} ч",{count:number.format(value/60)}):uiText("{minutes} мин",{minutes:number.format(value)});
+  const minutesText=value=>value>=60?(interfaceLanguage==="en"?number.format(value/60)+" h":uiText("{count} ч",{count:number.format(value/60)})):uiText("{minutes} мин",{minutes:number.format(value)});
   const duration=value=>value?esc(minutesText(value)):"—";
   function intervals(now){
     const year=now.getFullYear(),m=now.getMonth(),day=now.getDate();
@@ -137,6 +229,7 @@
   }
   async function renderPeople(){
     const token=++peopleRequest,host=dialog.querySelector("[data-vs-people]");
+    if (getComputedStyle(host).display === "none") return;
     const favoriteIds=window.KGFavoritePersonIds();
     const ids=favoriteIds.slice(0,peopleLimit);
     host.innerHTML=`<header><h2>${label("Любимые персоны")}</h2>

@@ -11,3 +11,178 @@
 #kg-viewing-note :is(.kg-vn-date-unknown,.kg-vn-time-choice) input{appearance:none;display:grid;place-items:center;position:relative;border:1px solid rgb(var(--kg-primary)/.18);border-radius:4px;background:var(--vn-card)}#kg-viewing-note :is(.kg-vn-date-unknown,.kg-vn-time-choice) input:checked{background:var(--kg-primary-button-fill);border-color:var(--vn-accent)}#kg-viewing-note :is(.kg-vn-date-unknown,.kg-vn-time-choice) input:checked::after{content:'✓';font:700 11px/12px var(--kg-font-interface);color:rgb(var(--kg-on-primary))}
 
 .kg-vn-author { margin: 0 0 6px; color: var(--vn-muted); font-size: 13px; overflow-wrap: anywhere; }
+
+
+/* Viewing note — unified mobile design */
+
+#kg-viewing-note {
+    padding: 12px 14px calc(24px + env(safe-area-inset-bottom, 0px));
+    border-radius: 20px 20px 0 0;
+    font-size: 14px;
+}
+
+#kg-viewing-note form {
+    gap: 16px;
+}
+
+#kg-viewing-note form > section {
+    gap: 9px;
+}
+
+#kg-viewing-note .kg-vn-header {
+    gap: 12px;
+    padding-bottom: 14px;
+}
+
+#kg-viewing-note .kg-vn-thumb {
+    width: 54px;
+    height: 72px;
+    border-radius: 10px;
+}
+
+#kg-viewing-note .kg-vn-heading h1 {
+    font: 700 20px/1.3 var(--kg-font-interface);
+}
+
+#kg-viewing-note .kg-vn-heading p {
+    font-size: 12px;
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+#kg-viewing-note .kg-vn-heading small {
+    font-size: 12px;
+}
+
+#kg-viewing-note .kg-vn-close {
+    background: transparent;
+    border-radius: 0;
+    color: var(--vn-ink) !important;
+}
+
+#kg-viewing-note .kg-vn-close .kg-vn-icon {
+    width: 20px;
+    height: 20px;
+}
+
+#kg-viewing-note .kg-vn-label > span {
+    font-size: 15px;
+    line-height: 20px;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--vn-ink);
+}
+
+#kg-viewing-note .kg-vn-label small {
+    font-size: 12px;
+}
+
+#kg-viewing-note .kg-vn-date-chips {
+    gap: 6px;
+}
+
+#kg-viewing-note .kg-vn-date-chips button {
+    font-size: 12px;
+    min-height: 40px;
+    border-radius: 10px;
+}
+
+#kg-viewing-note .kg-vn-date-bar {
+    border-radius: 12px;
+}
+
+#kg-viewing-note .kg-vn-date-bar > [data-date-full] {
+    font-size: 14px;
+}
+
+#kg-viewing-note .kg-vn-choose {
+    font-size: 11px;
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+#kg-viewing-note .kg-vn-date-unknown,
+#kg-viewing-note .kg-vn-time-choice,
+#kg-viewing-note .kg-vn-spoiler {
+    font-size: 12px;
+}
+
+#kg-viewing-note .kg-vn-time-section > [data-zone] {
+    font-size: 12px;
+}
+
+#kg-viewing-note .kg-vn-stars {
+    border-radius: 12px;
+    padding: 5px 8px;
+}
+
+#kg-viewing-note .kg-vn-star > svg {
+    width: 22px;
+    max-width: 100%;
+    height: 22px;
+}
+
+#kg-viewing-note .kg-vn-star-base {
+    fill: rgb(var(--kg-on-surface-variant) / .45);
+}
+
+#kg-viewing-note .kg-vn-score-label strong {
+    font-size: 16px;
+    color: var(--vn-accent);
+}
+
+#kg-viewing-note .kg-vn-diary {
+    background: var(--vn-card);
+    border-radius: 12px;
+    padding: 12px;
+}
+
+#kg-viewing-note .kg-vn-diary > span {
+    font-size: 14px;
+}
+
+#kg-viewing-note .kg-vn-text-box {
+    border-radius: 12px;
+    padding: 12px;
+}
+
+#kg-viewing-note textarea {
+    font-size: 14px;
+    line-height: 21px;
+    min-height: 64px;
+}
+
+#kg-viewing-note textarea::placeholder {
+    color: var(--vn-muted);
+}
+
+#kg-viewing-note .kg-vn-text-footer,
+#kg-viewing-note .kg-vn-text-footer button {
+    font-size: 12px;
+}
+
+#kg-viewing-note .kg-vn-extra {
+    font-size: 13px;
+}
+
+#kg-viewing-note footer {
+    gap: 12px;
+}
+
+#kg-viewing-note .kg-vn-confirm {
+    border-radius: 12px;
+    font-size: 15px;
+    min-height: 50px;
+    padding: 12px;
+}
+
+#kg-viewing-note .kg-vn-delete {
+    font-size: 13px;
+}
+
+@media (min-width: 640px) {
+    #kg-viewing-note {
+        border-radius: 20px;
+    }
+}

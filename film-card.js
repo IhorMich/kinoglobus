@@ -13,15 +13,55 @@ function trailerThumb(v,f){
   const src=v&&v.site==="YouTube"?`https://i.ytimg.com/vi/${encodeURIComponent(v.key)}/hqdefault.jpg`:f.backdrop_path?P(f.backdrop_path,"w780"):"";
   return src?`<img src="${src}" alt="" class="absolute inset-0 w-full h-full object-cover opacity-80" loading="eager" decoding="async" onerror="this.remove()">`:"";
 }
+const castButton=c=>`<button type="button" data-kg-person-id="${c.id||""}" data-kg-person-profile="${esc(c.photo||"")}" data-kg-person-name="${esc(c.name)}" data-kg-person-role="Актёр" class="kg-person-card flex flex-col items-center text-center py-1" ${c.id?"":"disabled"}>
+<div class="kg-cast-avatar rounded-full overflow-hidden mb-1 bg-surface-variant flex items-center justify-center">${c.photo?`<img class="w-full h-full object-cover" loading="lazy" alt="" src="${P(c.photo,"w185")}">`:'<span class="material-symbols-outlined text-text-muted">person</span>'}</div>
+<span class="kg-cast-name text-on-surface font-semibold">${esc(c.name)}</span><span class="font-micro-caption text-micro-caption text-text-muted truncate w-full">${esc(c.role)}</span></button>`;
+const COUNT_UNIT=n=>n%10===1&&n!==11?"актёр":n%10>1&&n%10<5&&(n<10||n>20)?"актёра":"актёров";
+function castPart(f){
+  const short=f.castFull||[],full=f.castAll&&f.castAll.length>short.length?f.castAll:short;
+  const expanded=!!f._castExpanded&&full!==short,list=expanded?full:short,total=full.length;
+  const buttons=list.map(castButton).join("");
+  const toggle=full!==short?`<button type="button" data-kg-cast-toggle class="kg-extras-more" aria-expanded="${expanded}">${expanded?uiText("Свернуть"):uiText("Показать всех ({count})",{count:total})}</button>`:"";
+  return `<div data-film-part="cast" class="flex flex-col gap-2"><div class="flex items-center justify-between"><span class="font-label-md text-label-md text-primary-fixed tracking-wide uppercase">${uiText("В главных ролях")}</span>${total?`<span class="font-micro-caption text-micro-caption text-text-muted">${uiText("{count} {unit}",{count:total,unit:COUNT_UNIT(total)})}</span>`:""}</div>${buttons?`<div class="${expanded?"kg-cast-grid":"kg-cast-rail flex overflow-x-auto py-1"}">${buttons}</div>${toggle}`:`<p class="font-body-sm text-body-sm text-text-muted">${f._detailsLoaded?uiText("Сведения об актёрах недоступны."):uiText("Загружаем актёров…")}</p>`}</div>`;
+}
+
+// Stills, posters, logos and extra videos. The markup depends only on the model, so update() can repaint it safely.
+const EXTRA_TABS=[["shots","Кадры"],["posters","Постеры"],["logos","Логотипы"],["videos","Видео"]];
+const VIDEO_TYPES=["Clip","Behind the Scenes","Featurette","Bloopers","Teaser","Trailer"];
+const VIDEO_LABELS={"Clip":"Фрагменты","Behind the Scenes":"Закулисье","Featurette":"Спецматериалы","Bloopers":"Дубли","Teaser":"Тизеры","Trailer":"Трейлеры"};
+function extraItems(f,tab){
+  const g=f.gallery||{};
+  return tab==="shots"?(g.backdrops||[]):tab==="posters"?(g.posters||[]):tab==="logos"?(g.logos||[]):Array.isArray(f._extraVideos)?f._extraVideos:[];
+}
+function extrasTabs(f){
+  return EXTRA_TABS.filter(([id])=>id==="videos"?(f._extraVideos===undefined||f._extraVideos==="loading"||(Array.isArray(f._extraVideos)&&f._extraVideos.length)):extraItems(f,id).length);
+}
+function extrasPart(f){
+  if(!f._detailsLoaded||window.KGSeries?.isSeriesId(f.id))return `<div data-film-part="extras" hidden></div>`;
+  const tabs=extrasTabs(f);
+  if(!tabs.length)return `<div data-film-part="extras" hidden></div>`;
+  const active=tabs.some(([id])=>id===f._extrasTab)?f._extrasTab:tabs[0][0];
+  const head=tabs.map(([id,label])=>`<button type="button" role="tab" aria-selected="${id===active}" data-kg-extras-tab="${id}" class="kg-extras-tab">${uiText(label)}${id!=="videos"?`<span>${extraItems(f,id).length}</span>`:""}</button>`).join("");
+  let body="";
+  if(active==="videos"){
+    if(f._extraVideos==="loading"||f._extraVideos===undefined)body=`<p class="font-body-sm text-body-sm text-text-muted">${uiText("Загружаем видео…")}</p>`;
+    else{
+      const list=f._extraVideos,groups=VIDEO_TYPES.filter(type=>list.some(v=>v.type===type));
+      body=groups.map(type=>`<div class="kg-extras-group"><span class="font-micro-caption text-micro-caption uppercase text-text-muted">${uiText(VIDEO_LABELS[type])}</span><div class="kg-extras-rail">${list.map((v,i)=>[v,i]).filter(([v])=>v.type===type).map(([v,i])=>`<button type="button" class="kg-extras-video" data-kg-extras-open="${i}" title="${esc(v.name)}" aria-label="${esc(v.name)}"><span class="kg-extras-video-thumb">${v.site==="YouTube"?`<img loading="lazy" decoding="async" alt="" src="https://i.ytimg.com/vi/${encodeURIComponent(v.key)}/mqdefault.jpg" onerror="this.remove()">`:""}<span class="material-symbols-outlined" aria-hidden="true">play_arrow</span></span><span class="kg-extras-video-name">${esc(v.name)}</span></button>`).join("")}</div></div>`).join("");
+    }
+  }else{
+    const items=extraItems(f,active),size=active==="shots"?"w300":active==="posters"?"w185":"w185";
+    body=`<div class="kg-extras-rail kg-extras-${active}">${items.map((x,i)=>`<button type="button" class="kg-extras-img" data-kg-extras-open="${i}" aria-label="${esc(uiText(active==="shots"?"Кадр {n}":active==="posters"?"Постер {n}":"Логотип {n}",{n:i+1}))}"><img loading="lazy" decoding="async" alt="" src="${P(x.p,size)}"></button>`).join("")}</div>`;
+  }
+  return `<div data-film-part="extras" class="flex flex-col gap-2" data-kg-extras-active="${active}"><span class="font-label-md text-label-md text-primary-fixed tracking-wide uppercase">${uiText("Материалы")}</span><div class="kg-extras-tabs" role="tablist">${head}</div>${body}</div>`;
+}
 function markup(f, {closable = true, inline = false} = {}) {
   if(window.KGSeries?.isSeriesId(f.id)&&window.KGSeriesDetail)return window.KGSeriesDetail.markup(f,{closable,inline});
   if (f.backdrop_path && ((f.castFull && f.castFull.length) || (f.dirsFull && f.dirsFull.length)))
     window.KGPersonBackdropWarm?.(f.backdrop_path);
   const year=String(f.release_date||f.year||"").slice(0,4);
   const personLink=(p,role)=>p&&p.id?`<button type="button" data-kg-person-id="${p.id}" data-kg-person-profile="${esc(p.photo||"")}" data-kg-person-name="${esc(p.name)}" data-kg-person-role="${role}" class="kg-person-link">${esc(p.name)}</button>`:esc(p&&p.name||"");
-  const cast=(f.castFull||[]).map(c=>`<button type="button" data-kg-person-id="${c.id||""}" data-kg-person-profile="${esc(c.photo||"")}" data-kg-person-name="${esc(c.name)}" data-kg-person-role="Актёр" class="kg-person-card flex flex-col items-center text-center py-1" ${c.id?"":"disabled"}>
-<div class="kg-cast-avatar rounded-full overflow-hidden mb-1 bg-surface-variant flex items-center justify-center">${c.photo?`<img class="w-full h-full object-cover" loading="lazy" alt="" src="${P(c.photo,"w185")}">`:'<span class="material-symbols-outlined text-text-muted">person</span>'}</div>
-<span class="kg-cast-name text-on-surface font-semibold">${esc(c.name)}</span><span class="font-micro-caption text-micro-caption text-text-muted truncate w-full">${esc(c.role)}</span></button>`).join("");
+  const cast=castPart(f);
   const video=f._trailer;
   const oscar=f._oscarContext ? window.KGOscarPage?.info(f) : null;
   const awardRows=Array.isArray(f._oscarAwards)?f._oscarAwards:[];
@@ -92,7 +132,8 @@ ${video? `<a href="${esc(watchUrl(video))}" target="_blank" rel="noopener norefe
 <div data-film-part="providers">${window.KGLegalWatch?.markup(f.id)||""}</div>
 <div data-film-part="awards">${oscarBlock}</div>
 <div data-film-part="producers" ${producers?"":"hidden"} class="flex flex-wrap gap-2"><strong>${uiText("Продюсеры")}</strong><span>${producers}</span></div>
-<div data-film-part="cast" class="flex flex-col gap-2"><div class="flex items-center justify-between"><span class="font-label-md text-label-md text-primary-fixed tracking-wide uppercase">${uiText("В главных ролях")}</span>${(f.castFull||[]).length?`<span class="font-micro-caption text-micro-caption text-text-muted">${uiText("{count} {unit}", {count: f.castFull.length, unit: f.castFull.length%10===1&&f.castFull.length!==11?"актёр":f.castFull.length%10>1&&f.castFull.length%10<5&&(f.castFull.length<10||f.castFull.length>20)?"актёра":"актёров"})}</span>`:""}</div>${cast?`<div class="kg-cast-rail flex overflow-x-auto py-1">${cast}</div>`:`<p class="font-body-sm text-body-sm text-text-muted">${f._detailsLoaded?uiText("Сведения об актёрах недоступны."):uiText("Загружаем актёров…")}</p>`}</div>
+${cast}
+${extrasPart(f)}
 <div data-film-part="facts" class="flex flex-col gap-2"><span class="font-label-md text-label-md text-primary-fixed tracking-wide uppercase px-0.5">${uiText("Факты производства")}</span><div class="grid grid-cols-2 gap-2.5">
 ${fact("Режиссёр",`<span class="font-label-md text-label-md text-on-surface">${dirName}</span>`)}
 ${fact("Выход",`<span class="font-label-md text-label-md text-on-surface">${releaseText}</span>`)}
@@ -221,6 +262,38 @@ div.relative:has(> [id^="mood-roulette-winner-detail-"]>.kg-film-detail){
 .kg-film-dialog-header{position:sticky;top:0;z-index:2;display:flex;align-items:center;min-height:56px;padding:env(safe-area-inset-top,0px) 12px 0;background:rgb(var(--kg-surface));border-bottom:1px solid rgb(var(--kg-surface-border-subtle))}
 .kg-film-dialog-header button{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 10px;color:rgb(var(--kg-primary))}
 .kg-film-dialog [data-kg-film-dialog-content]{padding:10px 16px calc(12px + env(safe-area-inset-bottom,0px))}
+
+.kg-cast-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:.5rem .375rem}
+.kg-cast-grid .kg-person-card{min-width:0;appearance:none;border:0;background:transparent;box-shadow:none}
+.kg-extras-more{align-self:flex-start;min-height:44px;padding:0 4px;color:rgb(var(--kg-primary));font-size:.85rem;text-decoration:underline;text-underline-offset:3px}
+.kg-extras-tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+.kg-extras-tab{flex:none;display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 12px;border:1px solid rgb(var(--kg-surface-border-subtle));border-radius:999px;color:rgb(var(--kg-on-surface));font-size:.8rem}
+.kg-extras-tab span{opacity:.6;font-size:.72rem}
+.kg-extras-tab[aria-selected="true"]{color:rgb(var(--kg-primary));border-color:rgb(var(--kg-primary-container)/.6);background:rgb(var(--kg-primary-container)/.14)}
+.kg-extras-rail{display:flex;gap:8px;overflow-x:auto;padding:2px 0 6px;scroll-snap-type:x proximity;scrollbar-width:thin}
+.kg-extras-rail>*{scroll-snap-align:start}
+.kg-extras-group{display:flex;flex-direction:column;gap:6px}
+.kg-extras-img{flex:none;display:block;padding:0;border:1px solid rgb(var(--kg-surface-border-subtle));border-radius:10px;overflow:hidden;background:rgb(var(--kg-surface))}
+.kg-extras-shots .kg-extras-img{height:96px;aspect-ratio:16/9}
+.kg-extras-posters .kg-extras-img{height:150px;aspect-ratio:2/3}
+.kg-extras-logos .kg-extras-img{height:64px;min-width:110px;display:flex;align-items:center;justify-content:center;padding:8px;background:rgb(var(--kg-black)/.55)}
+.kg-extras-img img{width:100%;height:100%;object-fit:cover;display:block}
+.kg-extras-logos .kg-extras-img img{object-fit:contain}
+.kg-extras-video{flex:none;display:flex;flex-direction:column;gap:4px;width:160px;padding:0;text-align:left;color:rgb(var(--kg-on-surface))}
+.kg-extras-video-thumb{position:relative;display:flex;align-items:center;justify-content:center;aspect-ratio:16/9;border-radius:10px;overflow:hidden;background:rgb(var(--kg-black)/.7)}
+.kg-extras-video-thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.85}
+.kg-extras-video-thumb .material-symbols-outlined{position:relative;font-size:34px;color:#fff;filter:drop-shadow(0 1px 4px rgb(0 0 0/.6))}
+.kg-extras-video-name{display:-webkit-box;overflow:hidden;font-size:.72rem;line-height:1.2;-webkit-box-orient:vertical;-webkit-line-clamp:2}
+.kg-extras-lightbox{position:fixed;inset:0;margin:auto;width:100%;max-width:100%;height:100dvh;max-height:100dvh;padding:0;border:0;color:#fff;background:rgb(var(--kg-black)/.92)}
+.kg-extras-lightbox::backdrop{background:rgb(var(--kg-black)/.8)}
+.kg-extras-stage{position:absolute;inset:56px 8px 40px;display:flex;align-items:center;justify-content:center}
+.kg-extras-stage img{max-width:100%;max-height:100%;object-fit:contain}
+.kg-extras-stage iframe{width:100%;max-width:960px;aspect-ratio:16/9;border:0;border-radius:12px;background:#000}
+.kg-extras-lightbox button{position:absolute;display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:999px;color:#fff;background:rgb(var(--kg-black)/.55)}
+.kg-extras-lightbox [data-lb-close]{top:calc(env(safe-area-inset-top,0px) + 8px);right:8px;z-index:2}
+.kg-extras-lightbox [data-lb-prev]{left:8px;top:50%;z-index:2}
+.kg-extras-lightbox [data-lb-next]{right:8px;top:50%;z-index:2}
+.kg-extras-count{position:absolute;bottom:calc(env(safe-area-inset-bottom,0px) + 10px);left:0;right:0;text-align:center;font-size:.78rem;opacity:.75}
 `;
 document.head.append(style);
 
@@ -568,5 +641,83 @@ document.addEventListener("kg:diary-note-change", event => {
     button.title = label;
   });
 });
+// Full cast, stills/posters/logos and the lazy "Видео" tab. State lives on the film model; the parts repaint from it.
+function repaintPart(card,model,name){
+  const current=card.querySelector(`[data-film-part="${name}"]`);
+  if(!current)return null;
+  const template=document.createElement("template");
+  template.innerHTML=name==="cast"?castPart(model):extrasPart(model);
+  const next=template.content.firstElementChild;
+  if(current.outerHTML!==next.outerHTML)current.replaceWith(next);
+  return next;
+}
+async function loadExtraVideos(model){
+  model._extraVideos="loading";
+  try{
+    const response=await movieCatalog.request(`https://api.themoviedb.org/3/movie/${encodeURIComponent(model.id)}/videos?`+new URLSearchParams({api_key:apiKey,include_video_language:"ru,en,null"}));
+    if(!response.ok)throw new Error(`TMDB videos: ${response.status}`);
+    const main=model._trailer?.key,seen=new Set();
+    const lang=v=>v.iso_639_1==="ru"?0:v.iso_639_1==="en"?1:2;
+    const rows=((await response.json()).results||[])
+      .filter(v=>v&&v.key&&(v.site==="YouTube"||v.site==="Vimeo")&&VIDEO_TYPES.includes(v.type)&&movieCatalog.allowsTrailer(v)&&v.key!==main&&!seen.has(v.key)&&seen.add(v.key))
+      .sort((a,b)=>VIDEO_TYPES.indexOf(a.type)-VIDEO_TYPES.indexOf(b.type)||lang(a)-lang(b)||(b.official===true)-(a.official===true));
+    model._extraVideos=rows.slice(0,18).map(v=>({key:v.key,site:v.site,name:v.name||"",type:v.type}));
+  }catch(error){
+    console.warn("[Moven: Extras] Не удалось загрузить видео TMDB:",error);
+    model._extraVideos=[];
+  }
+}
+function openExtra(model,tab,start){
+  const items=extraItems(model,tab);
+  if(!items[start])return;
+  stopTrailers();
+  let index=start;
+  const dialog=document.createElement("dialog");
+  dialog.className="kg-extras-lightbox";
+  dialog.setAttribute("aria-label",uiText("Материалы"));
+  const paint=()=>{
+    const x=items[index];
+    const media=tab==="videos"
+      ?`<iframe src="${esc(embedSrc(x,true))}" allow="${trailerFramePermissions}" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" title="${esc(x.name)}"></iframe>`
+      :`<img alt="" src="${P(x.p,tab==="shots"?"w1280":tab==="posters"?"w780":"w500")}">`;
+    const nav=items.length>1?`<button type="button" data-lb-prev aria-label="${esc(uiText("Назад"))}"><span class="material-symbols-outlined" aria-hidden="true">chevron_left</span></button><button type="button" data-lb-next aria-label="${esc(uiText("Далее"))}"><span class="material-symbols-outlined" aria-hidden="true">chevron_right</span></button>`:"";
+    dialog.innerHTML=`<button type="button" data-lb-close aria-label="${esc(uiText("Закрыть"))}"><span class="material-symbols-outlined" aria-hidden="true">close</span></button>${nav}<div class="kg-extras-stage">${media}</div><div class="kg-extras-count">${index+1} / ${items.length}</div>`;
+  };
+  const step=delta=>{index=(index+delta+items.length)%items.length;paint();dialog.querySelector(delta<0?"[data-lb-prev]":"[data-lb-next]")?.focus({preventScroll:true});};
+  dialog.addEventListener("click",event=>{
+    if(event.target===dialog||event.target.closest("[data-lb-close]"))dialog.close();
+    else if(event.target.closest("[data-lb-prev]"))step(-1);
+    else if(event.target.closest("[data-lb-next]"))step(1);
+  });
+  dialog.addEventListener("keydown",event=>{
+    if(items.length<2||event.key!=="ArrowLeft"&&event.key!=="ArrowRight")return;
+    event.preventDefault();step(event.key==="ArrowLeft"?-1:1);
+  });
+  dialog.addEventListener("close",()=>dialog.remove(),{once:true});
+  paint();
+  document.body.append(dialog);
+  dialog.showModal();
+}
+document.addEventListener("click",event=>{
+  const control=event.target.closest("[data-kg-cast-toggle],[data-kg-extras-tab],[data-kg-extras-open]");
+  if(!control)return;
+  const card=control.closest(".kg-film-detail"),model=card&&modelFor(card);
+  if(!model)return;
+  if(control.matches("[data-kg-cast-toggle]")){
+    model._castExpanded=!model._castExpanded;
+    repaintPart(card,model,"cast")?.querySelector("[data-kg-cast-toggle]")?.focus({preventScroll:true});
+  }else if(control.matches("[data-kg-extras-tab]")){
+    const tab=control.dataset.kgExtrasTab;
+    model._extrasTab=tab;
+    if(tab==="videos"&&model._extraVideos===undefined){
+      loadExtraVideos(model).then(()=>{if(card.isConnected)repaintPart(card,model,"extras");});
+    }
+    repaintPart(card,model,"extras")?.querySelector(`[data-kg-extras-tab="${tab}"]`)?.focus({preventScroll:true});
+  }else{
+    const part=control.closest('[data-film-part="extras"]');
+    openExtra(model,part?.dataset.kgExtrasActive||"shots",Number(control.dataset.kgExtrasOpen));
+  }
+});
+
 window.KGFilmCard={markup, createModel, hydrate, mount, update, playTrailer, stopTrailers, openDialog, savedFilm, modelFor, navigateDialogRelated, openInlineRelated};
 })();

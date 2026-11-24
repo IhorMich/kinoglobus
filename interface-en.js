@@ -1,6 +1,9 @@
 // English translations for the Moven interface.
 window.KGInterfaceDictionaries ??= {};
 window.KGInterfaceDictionaries.en = Object.freeze({
+  "Фото": "Photos",
+  "Фото {n}": "Photo {n}",
+  "{count} эп.": "{count} ep.",
   "Спецматериалы": "Featurettes",
   "Показать всех ({count})": "Show all ({count})",
   "Материалы": "Extras",

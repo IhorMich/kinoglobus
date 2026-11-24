@@ -132,3 +132,189 @@
 .kg-ps-public-preview .kg-ps-person { grid-column: 2 / -1; }
 .kg-ps-public-status { margin: 0 14px 15px; color: var(--ps-muted); overflow-wrap: anywhere; }
 .kg-ps-public-status:empty { display: none; }
+
+/* Settings dashboard — profile header */
+
+#kg-profile-settings .kg-ps-header {
+  grid-template-columns: 40px minmax(0,1fr);
+  gap: 8px;
+  min-height: calc(56px + env(safe-area-inset-top,0px));
+}
+
+#kg-profile-settings .kg-ps-header h1 {
+  text-align: start;
+  font-size: 20px;
+}
+
+#kg-profile-settings .kg-ps-header [data-ps-back] {
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  border-color: transparent !important;
+  color: var(--ps-muted);
+  box-shadow: none;
+}
+
+#kg-profile-settings .kg-ps-header [data-ps-back]:focus:not(:focus-visible) {
+  outline: none;
+}
+
+#kg-profile-settings .kg-ps-header [data-ps-photo-action="avatar"] {
+  display: none;
+}
+
+#kg-profile-settings .kg-ps-hero {
+  border: 1px solid var(--ps-edge);
+  box-shadow: none;
+}
+
+#kg-profile-settings .kg-ps-identity {
+  grid-template-columns: 88px minmax(0,1fr);
+  align-items: center;
+  gap: 12px;
+  margin: -44px 14px 12px;
+}
+
+#kg-profile-settings .kg-ps-portrait img {
+  width: 88px;
+  height: 88px;
+  border: 3px solid var(--ps-panel);
+  box-shadow: 0 0 0 1px rgb(var(--kg-primary) / .45);
+}
+
+#kg-profile-settings .kg-ps-portrait button {
+  width: 30px;
+  height: 30px;
+}
+
+#kg-profile-settings .kg-ps-person {
+  padding-bottom: 0;
+}
+
+#kg-profile-settings .kg-ps-person h2 {
+  font-size: 20px;
+}
+
+#kg-profile-settings .kg-ps-change {
+  min-height: 36px;
+  padding: 5px 12px;
+  font-size: 13px;
+  background: rgb(var(--kg-surface-container-lowest) / .85);
+  backdrop-filter: blur(8px);
+  color: var(--ps-ink);
+}
+
+#kg-profile-settings .kg-ps-change .material-symbols-outlined {
+  color: rgb(var(--kg-primary));
+}
+
+/* Settings dashboard — metric cards */
+
+#kg-profile-settings .kg-ps-spotlight {
+  gap: 8px;
+  align-items: stretch;
+}
+
+#kg-profile-settings .kg-ps-metric {
+  min-height: 112px;
+  padding: 12px;
+  gap: 8px;
+  border: 1px solid var(--ps-edge) !important;
+  border-radius: 14px;
+  background: var(--ps-panel);
+  box-shadow: none;
+}
+
+#kg-profile-settings .kg-ps-metric-top .material-symbols-outlined {
+  font-size: 23px;
+}
+
+#kg-profile-settings .kg-ps-metric-top > small {
+  font-size: 12px;
+}
+
+#kg-profile-settings .kg-ps-metric-text > small {
+  font-size: 12px;
+  letter-spacing: .02em;
+}
+
+#kg-profile-settings .kg-ps-metric-text > strong {
+  font: 650 20px/1.25 var(--kg-font-interface);
+}
+
+#kg-profile-settings .kg-ps-metric-text > span {
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+#kg-profile-settings .kg-ps-metric .kg-ps-chip {
+  font-size: 11px;
+}
+
+#kg-profile-settings button.kg-ps-metric:hover {
+  background: var(--ps-raised);
+}
+
+#kg-profile-settings .kg-ps-metric[aria-pressed="true"] {
+  border-color: rgb(var(--kg-primary) / .35) !important;
+}
+
+/* Settings dashboard — list redesign */
+
+#kg-profile-settings .kg-ps-groups {
+  gap: 20px;
+}
+
+#kg-profile-settings .kg-ps-group h2 {
+  font-size: 13px;
+  letter-spacing: .06em;
+  margin-bottom: 8px;
+}
+
+#kg-profile-settings .kg-ps-list {
+  border: 1px solid var(--ps-edge);
+  border-radius: 14px;
+}
+
+#kg-profile-settings .kg-ps-row {
+  grid-template-columns: 32px minmax(0,1fr) 18px;
+  gap: 8px;
+  min-height: 68px;
+  padding: 10px 12px;
+}
+
+#kg-profile-settings .kg-ps-row-icon {
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  color: rgb(var(--kg-primary));
+}
+
+#kg-profile-settings .kg-ps-row-text > * {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  overflow-wrap: anywhere;
+}
+
+#kg-profile-settings .kg-ps-row-text strong {
+  font-size: 16px;
+  line-height: 1.3;
+}
+
+#kg-profile-settings .kg-ps-row-text small {
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+#kg-profile-settings .kg-ps-row > .material-symbols-outlined {
+  font-size: 18px;
+  color: var(--ps-muted);
+}
+
+#kg-profile-settings .kg-ps-footer button {
+  background: transparent;
+  border-color: transparent !important;
+  color: rgb(var(--kg-error));
+  box-shadow: none;
+}

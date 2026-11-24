@@ -168,3 +168,233 @@ body:has(#settings[open]) > :is(.kg-ambient-background, .kg-main-header, .kg-mai
   background: linear-gradient(to bottom, rgb(var(--kg-primary-container) / .1), transparent);
   box-shadow: 0 0 12px rgb(var(--kg-primary-container) / .25);
 }
+
+
+/* Settings visual redesign */
+
+#settings.kgs-dialog {
+  font-family: var(--kg-font-interface);
+}
+
+/* Header */
+
+#settings.kgs-dialog > header {
+  background: rgb(var(--kg-canvas-obsidian));
+  border: 0;
+  box-shadow: none;
+  padding-bottom: 12px;
+}
+
+#settings.kgs-dialog #kgs-title {
+  font-family: var(--kg-font-interface);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: rgb(var(--kg-on-surface));
+}
+
+#settings.kgs-dialog #kgs-title + p {
+  display: none;
+}
+
+#settings.kgs-dialog [data-kgs-close] {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  color: rgb(var(--kg-primary));
+  width: 40px;
+  height: 40px;
+}
+
+#settings.kgs-dialog > header .text-center {
+  padding-right: 40px;
+}
+
+/* Sections */
+
+#settings .kgs-scroll {
+  padding-top: 12px;
+}
+
+#settings .kgs-scroll > section + section {
+  margin-top: 16px;
+}
+
+#settings .kgs-scroll > section:not([data-purpose="core-configuration"]),
+#settings [data-purpose="core-configuration"] > div:first-child {
+  background: rgb(var(--kg-surface-panel));
+  border: 0;
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: none;
+}
+
+#settings .theme-ambient-light {
+  display: none;
+}
+
+/* Typography */
+
+#settings .kgs-scroll h2 {
+  font-family: var(--kg-font-interface);
+  font-size: 18px;
+  font-weight: 650;
+  line-height: 1.3;
+  color: rgb(var(--kg-on-surface));
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+#settings .kgs-scroll .text-xs {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+#settings .kgs-scroll [class~="text-[10px]"],
+#settings .kgs-scroll [class~="text-[11px]"],
+#settings .kgs-scroll .text-micro-caption {
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+#settings .kgs-scroll .uppercase {
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+#settings .kgs-scroll label {
+  font-size: 14px;
+  line-height: 1.4;
+  font-weight: 500;
+}
+
+#settings .kgs-scroll p {
+  font-family: var(--kg-font-interface);
+  font-size: 13px;
+  line-height: 1.5;
+  letter-spacing: 0;
+}
+
+/* Inputs and dropdowns */
+
+#settings .kgs-scroll select,
+#settings .kgs-scroll #kgs-token {
+  min-height: 44px;
+  font-size: 14px;
+  border-radius: 10px;
+  background-color: rgb(var(--kg-surface-container-lowest));
+}
+
+#settings .kgs-scroll select {
+  max-width: 100%;
+}
+
+/* Buttons */
+
+#settings .kgs-scroll button:not(.kgs-switch) {
+  font-family: var(--kg-font-interface);
+  letter-spacing: 0;
+}
+
+#settings .kgs-scroll button.kgs-gold-shadow {
+  box-shadow: none;
+}
+
+#settings .kgs-scroll :is(
+  [data-kgs-auth-open],
+  [data-kgs-save],
+  [data-kgs-change],
+  [data-kgs-check],
+  [data-kgs-preview],
+  [data-kgs-reel-preview],
+  [data-kgs-history],
+  [data-kgs-reset]
+) {
+  min-height: 44px;
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* Theme selection */
+
+#settings [data-kgs-theme] {
+  min-height: 104px;
+  border-radius: 10px;
+  padding: 12px 8px;
+}
+
+#settings [data-kgs-theme] .theme-title {
+  font-family: var(--kg-font-interface);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.3;
+  text-transform: none;
+  text-align: center;
+}
+
+#settings [data-kgs-theme-current] {
+  font-size: 11px;
+}
+
+#settings [data-kgs-theme][aria-pressed="true"] {
+  box-shadow: none;
+  background: rgb(var(--kg-primary-container) / .12);
+}
+
+/* Graphics and reel styles */
+
+#settings .kgs-reel-choice {
+  border-radius: 10px;
+  padding: 12px;
+}
+
+#settings .kgs-reel-title,
+#settings .kgs-reel-choice[aria-checked="true"] .kgs-reel-title {
+  font-family: var(--kg-font-interface);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+#settings .kgs-reel-choice[aria-checked="true"] {
+  background: rgb(var(--kg-primary-container) / .10);
+}
+
+/* Switches and segmented controls */
+
+#settings .kgs-switch[aria-checked="true"],
+#settings [data-kgs-mode][aria-pressed="true"] {
+  box-shadow: none;
+}
+
+#settings [data-kgs-mode],
+#settings [data-kgs-surprise] {
+  min-height: 40px;
+  font-size: 12px;
+  border-radius: 8px;
+}
+
+#settings [data-kgs-atlas] {
+  border-radius: 10px;
+}
+
+/* Mobile layout */
+
+@media (max-width: 480px) {
+  #settings .kgs-scroll {
+    padding-inline: 12px;
+  }
+
+  #settings [data-purpose="theme-and-visual-style"]
+  [role="group"][aria-label]:has(> [data-kgs-theme]) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  #settings .kgs-scroll section h2 {
+    overflow-wrap: break-word;
+  }
+}

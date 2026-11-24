@@ -142,6 +142,153 @@
     #kg-diary-note :is(select,input:not([type=checkbox]),textarea) {width:100%;min-width:0;background:rgb(var(--kg-surface-container-high));padding:8px;border-radius:8px;font-size:16px}
     #kg-diary-note button {padding:9px;border-radius:9px}
   `;
+  style.textContent += `
+    /* Cinema diary redesign */
+
+    #kg-diary {
+      background: rgb(var(--kg-surface-container-lowest));
+    }
+
+    #kg-diary .kg-diary-header {
+      background: transparent;
+      padding-inline: 20px;
+      min-height: calc(56px + env(safe-area-inset-top,0px));
+    }
+
+    #kg-diary .kg-diary-header [data-route="search"],
+    #kg-diary .kg-diary-header [data-diary-portrait] {
+      display: none !important;
+    }
+
+    #kg-diary .kg-diary-header strong {
+      font-size: 20px;
+    }
+
+    #kg-diary .kg-diary-scroll {
+      width: 100%;
+      max-width: 720px;
+      margin-inline: auto;
+      box-sizing: border-box;
+      padding: 12px 20px 28px;
+    }
+
+    #kg-diary .kg-diary-scroll > * + * {
+      margin-top: 14px;
+    }
+
+    #kg-diary .kg-diary-intro h1 {
+      font-family: var(--kg-font-heading);
+      font-size: 26px;
+      line-height: 1.2;
+    }
+
+    #kg-diary .kg-diary-muted {
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    #kg-diary .kg-diary-stats {
+      gap: 8px;
+    }
+
+    #kg-diary .kg-diary-stat,
+    #kg-diary .kg-diary-card {
+      background: rgb(var(--kg-surface-panel));
+      border: 0;
+      border-radius: 16px;
+      padding: 14px;
+    }
+
+    #kg-diary .kg-diary-stat {
+      min-width: 0;
+    }
+
+    #kg-diary .kg-diary-stat strong {
+      font-size: 26px;
+      line-height: 1.4;
+    }
+
+    #kg-diary .kg-diary-kicker {
+      font-size: 11px;
+      letter-spacing: .05em;
+    }
+
+    #kg-diary .kg-diary-stat .material-symbols-outlined {
+      color: rgb(var(--kg-primary));
+      font-size: 18px;
+    }
+
+    #kg-diary .kg-diary-actions button,
+    #kg-diary .kg-diary-actions input {
+      border-radius: 10px;
+      min-height: 42px;
+    }
+
+    #kg-diary .kg-diary-actions .kg-diary-primary {
+      background: rgb(var(--kg-primary-container));
+      color: rgb(var(--kg-on-primary-container));
+      font-size: 14px;
+    }
+
+    #kg-diary .kg-diary-row h2 {
+      font-family: var(--kg-font-heading);
+      font-size: 18px;
+    }
+
+    #kg-diary .kg-diary-strip {
+      grid-template-columns: repeat(7,minmax(0,1fr));
+      gap: 5px;
+      padding: 8px;
+      border-radius: 10px;
+    }
+
+    #kg-diary .kg-diary-strip button {
+      min-height: 32px;
+      border-radius: 6px;
+      font-size: 12px;
+    }
+
+    #kg-diary .kg-diary-legend {
+      font-size: 11px;
+      gap: 8px;
+    }
+
+    #kg-diary .kg-diary-sources {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr 1fr;
+      gap: 4px;
+      padding: 0;
+      background: transparent;
+    }
+
+    #kg-diary .kg-diary-sources button {
+      min-width: 0;
+      min-height: 40px;
+      padding: 5px 3px;
+      background: rgb(var(--kg-surface-panel));
+      border-radius: 9px;
+      font-size: 12px;
+    }
+
+    #kg-diary .kg-diary-sources button[aria-pressed="true"],
+    #kg-diary .kg-diary-tabs button[aria-pressed="true"] {
+      background: rgb(var(--kg-primary) / .12);
+      color: rgb(var(--kg-primary));
+      box-shadow: inset 0 0 0 1px rgb(var(--kg-primary) / .35);
+    }
+
+    #kg-diary .kg-diary-tabs button {
+      border-radius: 8px;
+      min-height: 34px;
+      font-size: 12px;
+      background: rgb(var(--kg-surface-panel));
+    }
+
+    #kg-diary .kg-diary-count {
+      border-radius: 8px;
+      font-size: 12px;
+    }
+`;
   document.head.appendChild(style);
 
   const dialog = document.createElement("dialog");
@@ -751,7 +898,7 @@
     notes = store.get(notesKey,{}) || {};
     limitToMonth = false;
     refreshEntries();
-    setRhythmCollapsed(store.get(rhythmKey,false) === true);
+    setRhythmCollapsed(true);
     month = entries.find(entry => entry.key)?.key.slice(0,7) || dayKey(new Date()).slice(0,7);
     calendar.value = month;
     filter = "all";

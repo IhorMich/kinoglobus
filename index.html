@@ -2490,7 +2490,24 @@ $("extraCard").addEventListener("toggle",()=>{
   if($("extraCard").open) showHint("yearNote");
   else $("yearNote").hidden=true;
 });
-function showKeyUi(){ $("keyCard").hidden=!!apiKey; }
+let recommendationApiKey = apiKey;
+
+function showKeyUi(){
+  $("keyCard").hidden = !!apiKey;
+
+  if (recommendationApiKey !== apiKey) {
+    recommendationApiKey = apiKey;
+
+    window.KGHomeRecommendationsController
+      ?.refresh()
+      .catch(error => {
+        console.warn(
+          "[Moven] Recommendations key refresh failed",
+          error
+        );
+      });
+  }
+}
 function updHist(){
   const resetButton = $("resetHist");
   if (resetButton) resetButton.textContent = `Сбросить историю (${seen.size})`;
@@ -4836,6 +4853,7 @@ console.info("[Moven: Explore] Bridge v6 ready");
 <script src="profile-page.js?v=37"></script>
 <script src="viewing-preferences.js?v=1"></script>
 <script src="personal-preferences.js?v=3"></script>
+<script src="personal-recommendations.js?v=2"></script>
 <script src="profile-settings.js?v=25"></script>
 <script src="viewing-note.js?v=4"></script>
 <script src="cinema-diary.js?v=28"></script>
@@ -4862,7 +4880,7 @@ console.info("[Moven: Explore] Bridge v6 ready");
 <script src="personal-calendar.js?v=3"></script>
 <script src="series-gold.js?v=9"></script>
 <script src="collection-examples.js?v=1"></script>
-<script src="collections.js?v=176"></script>
+<script src="collections.js?v=177"></script>
 <script src="film-interactions.js?v=56"></script>
 <script src="hall-of-fame.js?v=8"></script>
 <script src="legal-watch.js?v=10"></script>
@@ -4873,6 +4891,8 @@ console.info("[Moven: Explore] Bridge v6 ready");
 <script src="reviews-page.js?v=6"></script>
 <script src="global-search.js?v=21"></script>
 <script src="home-releases.js?v=14"></script>
+<script src="home-recommendations.js?v=2"></script>
+<script src="home-recommendations-controller.js?v=3"></script>
 <script src="settings-page.js?v=68"></script>
 <script>
 (() => {

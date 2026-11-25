@@ -768,6 +768,17 @@ function showView(v, remember = true){
     vd.replaceChildren();delete vd.dataset.collectionMedia;
   }
   home.style.display=v==="home"?"":"none";
+  if(v==="home"){
+    window.KGHomeRecommendationsController
+      ?.refresh()
+      .catch(error => {
+        console.warn(
+          "[Moven] Home recommendations refresh failed",
+          error
+        );
+      });
+  }
+
   seriesPage.hidden=v!=="series";
   seriesCalendar.hidden=v!=="series-calendar";
   seriesGold.hidden=v!=="series-gold";
@@ -1837,6 +1848,76 @@ window.KGCloseFilmFromRelated=(detailTarget,restoreFocus=false)=>{
     target?.replaceChildren();
     if (target?.hasAttribute("data-home-inline-film")) target.hidden = true;
   }
+};
+
+
+/* ---------- personal recommendation detail state ---------- */
+
+function recommendationDetailRoot(detailTarget) {
+  if (detailTarget !== "kg-home-personal-movie-detail") {
+    return null;
+  }
+
+  const selected = D.selected;
+
+  if (!selected ||
+      selected._detailTarget !== detailTarget) {
+    return null;
+  }
+
+  let root = selected;
+
+  while (
+    root._relatedPrevious &&
+    root._relatedPrevious._detailTarget === detailTarget
+  ) {
+    root = root._relatedPrevious;
+  }
+
+  return root;
+}
+
+window.KGGetRecommendationDetail = detailTarget => {
+  const root = recommendationDetailRoot(detailTarget);
+
+  if (!root) return null;
+
+  return {
+    rootId: String(root.id),
+    currentId: String(D.selected.id),
+    related: root !== D.selected
+  };
+};
+
+window.KGUpdateRecommendationOpener = (
+  detailTarget, opener
+) => {
+  const root = recommendationDetailRoot(detailTarget);
+
+  if (!root ||
+      !opener?.isConnected ||
+      opener.dataset.id !== String(root.id) ||
+      !opener.closest("#kg-home-personal-movie")) {
+    return false;
+  }
+
+  root._opener = opener;
+
+  return true;
+};
+
+window.KGCloseRecommendationDetail = detailTarget => {
+  if (!recommendationDetailRoot(detailTarget)) {
+    return false;
+  }
+
+  const selected = D.selected;
+
+  selected._relatedPrevious = null;
+
+  closeInlineFilm(selected, false);
+
+  return true;
 };
 
 /* ---------- рулетка с плёнкой прямо в подборке ---------- */

@@ -881,12 +881,42 @@
 
         const key = String(item.id);
 
+        const params = queries[index].params;
+
+        const source = {
+          genres: Boolean(params.with_genres),
+          countries: Boolean(params.with_origin_country),
+          decades: Boolean(
+            params["primary_release_date.gte"] ||
+            params["first_air_date.gte"]
+          )
+        };
+
+        source.fullMatch =
+          source.genres &&
+          source.countries &&
+          source.decades;
+
         if (candidates.has(key)) {
           duplicates++;
+
+          const existing = candidates.get(key);
+          const previous = existing._kgRecommendationSource;
+
+          existing._kgRecommendationSource = {
+            genres: previous.genres || source.genres,
+            countries: previous.countries || source.countries,
+            decades: previous.decades || source.decades,
+            fullMatch: previous.fullMatch || source.fullMatch
+          };
+
           continue;
         }
 
-        candidates.set(key, item);
+        candidates.set(key, {
+          ...item,
+          _kgRecommendationSource: source
+        });
       }
     }
 
@@ -982,8 +1012,54 @@
       a.index - b.index
     );
 
-    const selected = candidates.slice(
-      0, COUNTRY_CONFIG.maxCandidates
+    const limit = COUNTRY_CONFIG.maxCandidates;
+    const fullQuota = Math.floor(limit * 0.30);
+    const countryQuota = Math.floor(limit * 0.30);
+
+    const selected = [];
+    const selectedIndexes = new Set();
+
+    function takeCandidates(predicate, quota) {
+      let added = 0;
+
+      for (const candidate of candidates) {
+        if (added >= quota ||
+            selected.length >= limit) {
+          break;
+        }
+
+        if (selectedIndexes.has(candidate.index)) {
+          continue;
+        }
+
+        const item = result.items[candidate.index];
+        const source = item._kgRecommendationSource;
+
+        if (!predicate(source)) {
+          continue;
+        }
+
+        selected.push(candidate);
+        selectedIndexes.add(candidate.index);
+        added++;
+      }
+
+      return added;
+    }
+
+    const fullAdded = takeCandidates(
+      source => source?.fullMatch === true,
+      fullQuota
+    );
+
+    takeCandidates(
+      source => source?.countries === true,
+      countryQuota + fullQuota - fullAdded
+    );
+
+    takeCandidates(
+      () => true,
+      limit - selected.length
     );
 
     result.remaining =

@@ -540,7 +540,17 @@
       const data=await tmdb(`movie/${id}/recommendations`,{page:"1"});let results=(data.results||[]).filter(f=>Number(f.id)!==Number(id)&&(!allowed||allowed.has(Number(f.id))));
       if(results.length<8){const similar=await tmdb(`movie/${id}/similar`,{page:"1"});const have=new Set(results.map(f=>Number(f.id)));results=results.concat((similar.results||[]).filter(f=>Number(f.id)!==Number(id)&&!have.has(Number(f.id))&&(!allowed||allowed.has(Number(f.id)))));}
       if(pool&&results.length<8){const have=new Set(results.map(f=>Number(f.id)));const current=pool.find(f=>Number(f.id)===Number(id));const genres=new Set(current&&current.genre_ids||[]);const fallback=pool.filter(f=>Number(f.id)!==Number(id)&&!have.has(Number(f.id))).sort((a,b)=>{const score=f=>(f.genre_ids||[]).filter(g=>genres.has(g)).length*5+(Number(f.vote_average)||0)*.5+(Number(f.popularity)||0)*.01;return score(b)-score(a);});results=results.concat(fallback);}
-      results=results.slice(0,14);relatedCache.set(cacheKey,results);paint(section,results);
+      const uniqueResults = new Map();
+        for (const film of results) {
+          if (film?.id == null) continue;
+          const filmId = String(film.id);
+          if (!uniqueResults.has(filmId)) {
+            uniqueResults.set(filmId, film);
+          }
+        }
+        results = [...uniqueResults.values()];
+        relatedCache.set(cacheKey, results);
+        paint(section, results);
     }catch(error){list.innerHTML=`<span class="text-xs text-[rgb(var(--kg-text-muted))]">${uiText("Не удалось загрузить похожие фильмы.")}</span>`;console.warn("[Moven] related films:",error);}
   }
   function paint(section, films) {
@@ -552,7 +562,7 @@
     );
 
     const visibleFilms = isSeries
-      ? films
+      ? films.slice(0, 14)
       : window.KGViewingPreferences?.filter(
           "recommendations", films
         ) ?? films;
@@ -564,7 +574,7 @@
         ) ?? visibleFilms;
 
     list.innerHTML = rankedFilms.length
-      ? rankedFilms.map(filmButton).join("")
+      ? rankedFilms.slice(0, 14).map(filmButton).join("")
       : `<span class="text-xs text-[rgb(var(--kg-text-muted))]">${uiText("В этом списке больше нет похожих фильмов.")}</span>`;
   }
 

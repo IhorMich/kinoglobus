@@ -607,7 +607,7 @@
     }
   );
 
-  
+
 
   document.getElementById("settings")
     ?.addEventListener("close", refreshAutomatically);

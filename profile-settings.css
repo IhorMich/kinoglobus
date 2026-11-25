@@ -506,8 +506,8 @@
 }
 
 .kg-bk-primary {
-  background:rgb(var(--kg-primary));
-  color:rgb(var(--kg-on-primary));
+  background:var(--kg-primary-button-fill);
+  color:rgb(var(--kg-primary-button-ink, var(--kg-on-primary)));
   border:1px solid transparent;
 }
 
@@ -885,12 +885,213 @@
 }
 
 .kg-bk-confirm .kg-ps-control {
-  background:transparent;
-  border:1px solid var(--ps-edge);
-  color:var(--ps-ink);
+  background:var(--kg-secondary-button-fill);
+  border:1px solid var(--kg-secondary-button-border);
+  color:rgb(var(--kg-secondary-button-ink));
 }
 
 .kg-bk-confirm button:disabled {
   opacity:.4;
   cursor:default;
+}
+
+
+/* Personal preferences picker */
+
+.kg-pp-picker {
+  gap: 18px;
+}
+
+.kg-pp-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.kg-pp-toolbar strong {
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.kg-pp-reset {
+  min-height: 36px;
+  padding: 4px 8px;
+  border: 0;
+  background: transparent;
+  color: rgb(var(--kg-primary));
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.kg-pp-reset:disabled {
+  opacity: .4;
+  cursor: default;
+}
+
+.kg-pp-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.kg-pp-option {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 42px;
+  max-width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--kg-secondary-button-border);
+  border-radius: 12px;
+  background: var(--kg-secondary-button-fill);
+  color: rgb(var(--kg-secondary-button-ink));
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
+  cursor: pointer;
+  transition:
+    background .15s ease,
+    border-color .15s ease,
+    color .15s ease;
+}
+
+.kg-pp-option[aria-pressed="true"] {
+  border-color: var(--kg-selected-button-border);
+  background: var(--kg-selected-button-fill);
+  color: rgb(var(--kg-selected-button-ink));
+}
+
+.kg-pp-check {
+  display: none;
+  flex: none;
+}
+
+.kg-pp-option[aria-pressed="true"] .kg-pp-check {
+  display: inline-flex;
+  align-items: center;
+}
+
+.kg-pp-check .material-symbols-outlined {
+  font-size: 17px;
+  color: inherit;
+}
+
+.kg-pp-option:focus-visible,
+.kg-pp-reset:focus-visible {
+  outline: 2px solid rgb(var(--kg-primary));
+  outline-offset: 2px;
+}
+
+.kg-pp-picker [data-pp-save] {
+  width: 100%;
+  min-height: 48px;
+}
+
+
+
+/* Country preferences picker */
+
+.kg-pp-search {
+  width: 100%;
+  min-height: 46px;
+  padding: 10px 13px;
+  border: 1px solid rgba(128,128,128,.28);
+  border-radius: 12px;
+  background: rgba(128,128,128,.07);
+  color: inherit;
+  font-size: 15px;
+}
+
+.kg-pp-search:focus {
+  outline: 2px solid rgb(var(--kg-primary));
+  outline-offset: 2px;
+}
+
+.kg-pp-options:has(.kg-pp-country-option) {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 7px;
+  max-height: 55vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.kg-pp-country-option {
+  width: 100%;
+  min-height: 48px;
+  justify-content: flex-start;
+  text-align: left;
+}
+
+.kg-pp-country-option .flag-img,
+.kg-pp-country-option > svg {
+  width: 28px;
+  height: 19px;
+  flex: none;
+  object-fit: cover;
+  border-radius: 3px;
+}
+
+.kg-pp-country-option .wave {
+  display: inline-flex;
+  flex: none;
+}
+
+.kg-pp-country-option .flag-emoji {
+  width: 28px;
+  text-align: center;
+  font-size: 20px;
+}
+
+.kg-pp-option[hidden] {
+  display: none;
+}
+
+
+/* Personal country preferences */
+
+.kg-pp-countries {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  max-height: 50vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.kg-pp-countries .kg-pp-option {
+  width: 100%;
+  min-height: 46px;
+  justify-content: flex-start;
+  text-align: left;
+  gap: 10px;
+}
+
+.kg-pp-countries .kg-pp-option[hidden] {
+  display: none;
+}
+
+.kg-pp-flag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 20px;
+  flex: none;
+}
+
+.kg-pp-flag img,
+.kg-pp-flag svg {
+  width: 28px;
+  height: 20px;
+  object-fit: contain;
+  border-radius: 3px;
+}
+
+.kg-pp-picker [data-pp-search] {
+  width: 100%;
+  min-height: 46px;
+  font-size: 16px;
 }

@@ -65,7 +65,7 @@
     .kg-recovery-advice p {margin-top:2px;color:rgb(var(--kg-on-surface-variant));font-size:12px}
     .kg-recovery-submit {
       display:flex;align-items:center;justify-content:center;gap:6px;min-height:50px;margin-top:4px;padding:8px 12px;border-radius:999px;
-      background:linear-gradient(90deg,rgb(var(--kg-primary-container)),rgb(var(--kg-primary)),rgb(var(--kg-primary-container)));color:rgb(var(--kg-on-primary));
+      background:var(--kg-primary-button-fill);color:rgb(var(--kg-primary-button-ink, var(--kg-on-primary)));
       font-weight:700;letter-spacing:.04em;box-shadow:0 12px 36px -6px rgb(var(--kg-primary-container)/0.32157);
     }
     .kg-recovery-preview {min-height:44px;border-radius:12px;background:rgb(var(--kg-surface-container-high));color:rgb(var(--kg-primary));font-weight:600}

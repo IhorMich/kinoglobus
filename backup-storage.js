@@ -40,6 +40,7 @@
     "kgHideWatchedRecommendations",
     "kgHideWatchedCollections",
     "kgHideWatchedRoulette",
+    "kgPersonalPreferences",
     "kgCinemaDiaryRhythmCollapsed",
     "kgSeriesRegion",
     "kgSeriesMode",
@@ -204,6 +205,7 @@
     "kgHideWatchedRecommendations": "boolean",
     "kgHideWatchedCollections": "boolean",
     "kgHideWatchedRoulette": "boolean",
+    "kgPersonalPreferences": "object",
     "kgCinemaDiaryNotes": "object",
     "kgCinemaDiaryRhythmCollapsed": "boolean",
     "kgFavorites.v1": "object",
@@ -388,6 +390,25 @@
   });
 
   function validateSetting(key, value) {
+
+    if (key === "kgPersonalPreferences") {
+      const personal = window.KGPersonalPreferences;
+
+      if (typeof personal?.validate !== "function") {
+        throw new Error(
+          "Модуль персональных предпочтений недоступен"
+        );
+      }
+
+      try {
+        personal.validate(value);
+      } catch (error) {
+        throw new Error(
+          "Некорректные персональные предпочтения",
+          {cause: error}
+        );
+      }
+    }
 
     if (key === "soundVolume" &&
         (!Number.isFinite(value) || value < 0 || value > 100)) {

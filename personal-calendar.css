@@ -57,7 +57,7 @@
   display: flex; flex: none; width: auto; height: 35px; padding: 0 12px;
   border-radius: 999px; background: var(--mc-panel); color: var(--mc-muted); font-size: 12px; font-weight: 600;
 }
-#kg-personal-calendar .kg-mc-chips [aria-pressed=true] { background: var(--kg-primary-button-fill); color: rgb(var(--kg-on-primary)); }
+#kg-personal-calendar .kg-mc-chips [aria-pressed=true] { background: var(--kg-primary-button-fill); color: rgb(var(--kg-primary-button-ink, var(--kg-on-primary))); }
 .kg-mc-day { display: grid; gap: 7px; min-width: 0; }
 #kg-personal-calendar .kg-mc-day > header { display: flex; justify-content: space-between; gap: 8px; padding: 0 2px; }
 .kg-mc-day > header > span { flex: none; color: var(--mc-muted); font-size: 11px; }

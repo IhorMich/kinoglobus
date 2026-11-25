@@ -543,10 +543,31 @@
       results=results.slice(0,14);relatedCache.set(cacheKey,results);paint(section,results);
     }catch(error){list.innerHTML=`<span class="text-xs text-[rgb(var(--kg-text-muted))]">${uiText("Не удалось загрузить похожие фильмы.")}</span>`;console.warn("[Moven] related films:",error);}
   }
-  function paint(section,films){const list=section.querySelector("[data-kg-related-list]");if(!list)return;const visibleFilms=window.KGSeries?.isSeriesId(Number(section.dataset.filmId))
+  function paint(section, films) {
+    const list = section.querySelector("[data-kg-related-list]");
+    if (!list) return;
+
+    const isSeries = window.KGSeries?.isSeriesId(
+      Number(section.dataset.filmId)
+    );
+
+    const visibleFilms = isSeries
       ? films
-      : window.KGViewingPreferences?.filter("recommendations",films) ?? films;
-    list.innerHTML=visibleFilms.length?visibleFilms.map(filmButton).join(""):`<span class="text-xs text-[rgb(var(--kg-text-muted))]">${uiText("В этом списке больше нет похожих фильмов.")}</span>`;}
+      : window.KGViewingPreferences?.filter(
+          "recommendations", films
+        ) ?? films;
+
+    const rankedFilms = isSeries
+      ? visibleFilms
+      : window.KGPersonalPreferences?.rank(
+          visibleFilms
+        ) ?? visibleFilms;
+
+    list.innerHTML = rankedFilms.length
+      ? rankedFilms.map(filmButton).join("")
+      : `<span class="text-xs text-[rgb(var(--kg-text-muted))]">${uiText("В этом списке больше нет похожих фильмов.")}</span>`;
+  }
+
   function refreshRelatedPreferences() {
     document.querySelectorAll("[data-kg-related-films]").forEach(section=>{
       const id=section.dataset.filmId;
@@ -566,6 +587,11 @@
       refreshRelatedPreferences();
     }
   });
+
+  window.addEventListener(
+    "kg:personal-preferences-changed",
+    refreshRelatedPreferences
+  );
 
   document.addEventListener("kg:watched-change",()=>{
     if(window.KGViewingPreferences?.get("recommendations")){

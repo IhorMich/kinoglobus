@@ -162,45 +162,35 @@
 <div class="grid grid-cols-2 sm:grid-cols-6 gap-2" role="group" aria-label="Тема оформления">
 <button class="theme-card relative rounded-xl p-2.5 bg-surface-container-lowest border border-surface-border-subtle flex flex-col items-center justify-between min-h-[104px] w-full" type="button" data-kgs-theme="midnight" aria-pressed="false">
 <span aria-hidden="true" class="material-symbols-outlined text-primary mt-1">dark_mode</span>
-<span class="text-[10px] font-semibold text-on-surface uppercase leading-tight theme-title">Синяя ночь</span>
+<span class="text-[10px] font-semibold text-on-surface uppercase leading-tight theme-title">Полуночный сапфир</span>
 <span class="text-[9px] text-primary-container" data-kgs-theme-current hidden>Выбрано</span>
 </button>
 <button class="theme-card relative rounded-xl p-2.5 bg-surface-container-lowest border border-surface-border-subtle flex flex-col items-center justify-between min-h-[104px] w-full" type="button" data-kgs-theme="steel" aria-pressed="false">
 <span aria-hidden="true" class="material-symbols-outlined text-primary mt-1">auto_awesome</span>
-<span class="text-[10px] font-semibold text-on-surface uppercase leading-tight theme-title">Холодная сталь</span>
+<span class="text-[10px] font-semibold text-on-surface uppercase leading-tight theme-title">Серебряный хром</span>
 <span class="text-[9px] text-primary-container" data-kgs-theme-current hidden>Выбрано</span>
 </button>
 <button class="theme-card relative rounded-xl p-2.5 bg-surface-container-lowest border border-surface-border-subtle flex flex-col items-center justify-between min-h-[104px] w-full" type="button" data-kgs-theme="cinematic" aria-pressed="false">
 <span aria-hidden="true" class="text-primary-container mt-1 text-base">🎞</span>
-<span class="text-[10px] font-semibold text-on-surface uppercase leading-tight theme-title">Кинематографичная</span>
+<span class="text-[10px] font-semibold text-on-surface uppercase leading-tight theme-title">Чёрная вишня</span>
 <span class="text-[9px] text-primary-container" data-kgs-theme-current hidden>Выбрано</span>
 </button>
 <button class="theme-card relative rounded-xl p-2.5 bg-surface-container-lowest border border-surface-border-subtle flex flex-col items-center justify-between min-h-[104px] w-full" type="button" data-kgs-theme="oled" aria-pressed="false">
 <span aria-hidden="true" class="text-text-muted mt-1 text-base">■</span>
-<span class="text-[10px] font-semibold text-on-surface uppercase leading-tight theme-title">OLED Black</span>
+<span class="text-[10px] font-semibold text-on-surface uppercase leading-tight theme-title">Изумрудный нуар</span>
 <span class="text-[9px] text-primary-container" data-kgs-theme-current hidden>Выбрано</span>
 </button>
 <button class="theme-card relative rounded-xl p-2.5 bg-surface-container-lowest border border-surface-border-subtle flex flex-col items-center justify-between min-h-[104px] w-full" type="button" data-kgs-theme="golden-age" aria-pressed="false">
 <span aria-hidden="true" class="text-primary-container mt-1 text-base">🏆</span>
-<span class="text-[10px] font-semibold text-on-surface uppercase leading-tight theme-title">Золотой век</span>
+<span class="text-[10px] font-semibold text-on-surface uppercase leading-tight theme-title">Античная медь</span>
 <span class="text-[9px] text-primary-container" data-kgs-theme-current hidden>Выбрано</span>
 </button>
 <button class="theme-card relative rounded-xl p-2.5 bg-surface-container-lowest border border-surface-border-subtle flex flex-col items-center justify-between min-h-[104px] w-full" type="button" data-kgs-theme="cinema-amber" aria-pressed="false">
 <span aria-hidden="true" class="text-primary-container mt-1 text-base">✦</span>
-<span class="text-[10px] font-semibold text-on-surface uppercase leading-tight theme-title">Cinema Amber</span>
+<span class="text-[10px] font-semibold text-on-surface uppercase leading-tight theme-title">Янтарный кадр</span>
 <span class="text-[9px] text-primary-container" data-kgs-theme-current hidden>Выбрано</span>
 </button>
 </div>
-<p data-kgs-theme-accent class="font-label-sm text-label-sm text-on-surface" hidden>Синий акцент включён в тему</p>
-<div data-kgs-accent-picker class="flex flex-wrap items-center justify-between gap-2" role="group" aria-label="Акцент приложения">
-<span class="font-label-sm text-label-sm text-on-surface">Акцент приложения</span>
-<div class="grid w-full grid-cols-2 gap-1 rounded-lg bg-surface-container-lowest p-1">
-<button type="button" class="flex items-center gap-1.5 rounded-md px-2 py-1.5 font-label-sm text-label-sm text-on-surface aria-pressed:bg-surface-container-high" data-kgs-button-accent="blue" aria-pressed="false"><span class="w-3 h-3 shrink-0 rounded-full bg-[rgb(var(--kg-swatch-blue))]" aria-hidden="true"></span>Синий</button>
-<button type="button" class="flex items-center gap-1.5 rounded-md px-2 py-1.5 font-label-sm text-label-sm text-on-surface aria-pressed:bg-surface-container-high" data-kgs-button-accent="cyan" aria-pressed="false"><span class="w-3 h-3 rounded-full bg-[rgb(var(--kg-swatch-cyan))]" aria-hidden="true"></span>Бирюза</button>
-<button type="button" class="flex items-center gap-1.5 rounded-md px-2 py-1.5 font-label-sm text-label-sm text-on-surface aria-pressed:bg-surface-container-high" data-kgs-button-accent="gold" aria-pressed="false"><span class="w-3 h-3 rounded-full bg-[rgb(var(--kg-swatch-gold))]" aria-hidden="true"></span>Золото</button>
-<button type="button" class="flex items-center gap-1.5 rounded-md px-2 py-1.5 font-label-sm text-label-sm text-on-surface aria-pressed:bg-surface-container-high" data-kgs-button-accent="lavender" aria-pressed="false"><span class="w-3 h-3 shrink-0 rounded-full bg-[rgb(var(--kg-swatch-lavender))]" aria-hidden="true"></span>Лаванда</button>
-<button type="button" class="flex items-center gap-1.5 rounded-md px-2 py-1.5 font-label-sm text-label-sm text-on-surface aria-pressed:bg-surface-container-high" data-kgs-button-accent="coral" aria-pressed="false"><span class="w-3 h-3 shrink-0 rounded-full bg-[rgb(var(--kg-swatch-coral))]" aria-hidden="true"></span>Коралл</button>
-</div></div>
 <div class="pt-2 border-t border-surface-border-subtle flex items-center justify-between gap-3">
 <div>
 <div class="text-xs font-bold text-primary-container uppercase tracking-tight font-micro-caption">КИНЕМАТОГРАФИЧЕСКИЕ ПЕРЕХОДЫ</div>
@@ -516,26 +506,8 @@ ${[["light","Лёгкое"],["find","Открытие"],["wild","Случайн�
   });
 
   const themeButtons = dialog.querySelectorAll("[data-kgs-theme]");
-  const buttonAccents = dialog.querySelectorAll("[data-kgs-button-accent]");
-  function syncButtonAccent() {
-    const current = document.documentElement.dataset.kgButtonAccent;
-    buttonAccents.forEach(button => {
-      button.setAttribute("aria-pressed", String(button.dataset.kgsButtonAccent === current));
-    });
-  }
-  buttonAccents.forEach(button => {
-    button.addEventListener("click", () => {
-      setAppButtonAccent(button.dataset.kgsButtonAccent);
-      syncButtonAccent();
-    });
-  });
   function syncTheme() {
     const theme = document.documentElement.dataset.kgTheme || DEFAULT_APP_THEME;
-    const usesThemeAccent = appThemeHasFixedAccent(theme);
-    const themeAccent = $("[data-kgs-theme-accent]");
-    themeAccent.hidden = !usesThemeAccent;
-    themeAccent.textContent = uiText(theme === "cinema-amber" ? "Янтарный акцент включён в тему" : theme === "steel" ? "Серебристый акцент включён в тему" : "Синий акцент включён в тему");
-    $("[data-kgs-accent-picker]").hidden = usesThemeAccent;
     themeButtons.forEach(button => {
       const selected = button.dataset.kgsTheme === theme;
       button.setAttribute("aria-pressed", String(selected));
@@ -546,7 +518,6 @@ ${[["light","Лёгкое"],["find","Открытие"],["wild","Случайн�
   themeButtons.forEach(button => {
     button.addEventListener("click", () => {
       setAppTheme(button.dataset.kgsTheme);
-      syncButtonAccent();
       syncTheme();
     });
   });
@@ -567,7 +538,6 @@ ${[["light","Лёгкое"],["find","Открытие"],["wild","Случайн�
     trailerSubtitlesSelect.value = getTrailerSubtitles();
     syncVolume();
     syncTheme();
-    syncButtonAccent();
     const hasKey = !!apiKey;
     $("[data-kgs-status]").textContent = hasKey ? uiText("Ключ сохранён") : uiText("Ключ не добавлен");
     $("[data-kgs-api-badge]").textContent = hasKey ? uiText("КЛЮЧ СОХРАНЁН") : uiText("НУЖЕН КЛЮЧ");

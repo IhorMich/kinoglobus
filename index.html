@@ -1,4 +1,4 @@
-<!DOCTYPE html><html class="dark kg-launch-pending" lang="ru" data-kg-theme="midnight" data-kg-button-accent="blue"><head><meta charset="utf-8">
+<!DOCTYPE html><html class="dark kg-launch-pending" lang="ru" data-kg-theme="midnight"><head><meta charset="utf-8">
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport">
 <style>
 html.kg-launch-pending,html.kg-launch-pending body{background:#07060a!important}
@@ -18,26 +18,26 @@ html.kg-launch-pending body>:not(#kg-launch-splash){visibility:hidden!important;
 <meta name="theme-color" content="#0c0d12">
 <meta name="application-name" content="Moven: Explore">
 <meta name="description" content="Explore the world of cinema">
-<link rel="stylesheet" href="app-theme.css?v=79">
+<link rel="stylesheet" href="app-theme.css?v=99">
 <link rel="stylesheet" href="global-search.css?v=3">
-<link rel="stylesheet" href="series-hub.css?v=7">
+<link rel="stylesheet" href="series-hub.css?v=8">
 <link rel="stylesheet" href="series-calendar.css?v=2">
 <link rel="stylesheet" href="series-gold.css?v=9">
-<link rel="stylesheet" href="series-detail.css?v=6">
+<link rel="stylesheet" href="series-detail.css?v=8">
 <link rel="stylesheet" href="episode-page.css?v=4">
-<link rel="stylesheet" href="release-follow.css?v=4">
-<link rel="stylesheet" href="release-settings.css?v=2">
-<link rel="stylesheet" href="personal-calendar.css?v=3">
+<link rel="stylesheet" href="release-follow.css?v=5">
+<link rel="stylesheet" href="release-settings.css?v=4">
+<link rel="stylesheet" href="personal-calendar.css?v=4">
 <link rel="stylesheet" href="profile-dashboard.css?v=14">
 <link rel="stylesheet" href="bookmarks-page.css?v=7">
 <link rel="stylesheet" href="viewing-history-page.css?v=7">
-<link rel="stylesheet" href="reviews-page.css?v=7">
+<link rel="stylesheet" href="reviews-page.css?v=8">
 <link rel="stylesheet" href="review-editor.css?v=3">
 <link rel="stylesheet" href="person-profile.css?v=7">
 <link rel="stylesheet" href="hall-of-fame.css?v=8">
-<link rel="stylesheet" href="profile-settings.css?v=11">
-<link rel="stylesheet" href="viewing-note.css?v=4">
-<link rel="stylesheet" href="favorites.css?v=8">
+<link rel="stylesheet" href="profile-settings.css?v=17">
+<link rel="stylesheet" href="viewing-note.css?v=5">
+<link rel="stylesheet" href="favorites.css?v=9">
 <script>
 try {
   if (!navigator.connection?.saveData) {
@@ -53,7 +53,7 @@ try {
 } catch (_) {}
 </script>
 <script src="steel-motion.js?v=4" defer></script>
-<script src="interface-en.js?v=131"></script>
+<script src="interface-en.js?v=132"></script>
 <script src="interface-i18n.js?v=2"></script>
 <script src="catalog-safety.js?v=4"></script>
 <script>
@@ -64,23 +64,10 @@ function readPaletteColor(token, asNumber = false) {
   return (red << 16) | (green << 8) | blue;
 }
 const DEFAULT_APP_THEME = "midnight";
-const DEFAULT_APP_ACCENT = "blue";
 const APP_THEMES = [DEFAULT_APP_THEME, "cinematic", "oled", "golden-age", "steel", "cinema-amber"];
-const APP_ACCENTS = [DEFAULT_APP_ACCENT, "cyan", "gold", "lavender", "coral"];
-function appThemeHasFixedAccent(theme) {
-  return theme === DEFAULT_APP_THEME || theme === "steel" || theme === "cinema-amber";
-}
-function resolveAppAccent(theme, savedAccent) {
-  return !appThemeHasFixedAccent(theme) && APP_ACCENTS.includes(savedAccent) ? savedAccent : DEFAULT_APP_ACCENT;
-}
 try {
   const savedTheme = JSON.parse(localStorage.getItem("kgAppTheme"));
   if (APP_THEMES.includes(savedTheme)) document.documentElement.dataset.kgTheme = savedTheme;
-} catch (_) {}
-try {
-  const savedAccent = JSON.parse(localStorage.getItem("kgButtonAccent"));
-  const { kgTheme } = document.documentElement.dataset;
-  document.documentElement.dataset.kgButtonAccent = resolveAppAccent(kgTheme, savedAccent);
 } catch (_) {}
 </script><meta content="mobile_tab" name="shell-type">
 <link rel="stylesheet" href="./assets/vendor/tailwind.min.css"><script src="./assets/vendor/three-r128.min.js"></script><style>@layer base{html,body{width:100vw;margin:0;padding:0;background-color:rgb(var(--kg-canvas-obsidian));color:rgb(var(--kg-on-surface));}body{overscroll-behavior:none;}.pb-safe{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 0.5rem);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><style>
@@ -242,7 +229,7 @@ try {
 </div>
 <div id="genre-filter-panel" class="rounded-xl bg-surface-panel shadow-sm p-3.5" hidden>
 <div id="genre-filter-chips" class="flex flex-wrap gap-2">
-<button class="genre-pill h-[34px] px-4 rounded-full font-label-sm text-label-sm flex items-center gap-1 text-canvas-obsidian font-bold cursor-pointer border border-white/20 transition-all" style="background: var(--kg-filter-selection-background, linear-gradient(135deg, rgb(var(--kg-accent-edge)) 0%, rgb(var(--kg-accent-strong)) 50%, rgb(var(--kg-action-gradient-end)) 100%)); box-shadow: rgb(var(--kg-filter-selection-glow)/0.4) 0px 2px 14px, rgb(var(--kg-white)/0.35) 0px 1px 0px inset;" type="button"><span class="">🌐 Любой жанр</span></button>
+<button class="genre-pill h-[34px] px-4 rounded-full font-label-sm text-label-sm flex items-center gap-1 text-canvas-obsidian font-bold cursor-pointer border border-white/20 transition-all" style="background: var(--kg-selected-button-fill); box-shadow: rgb(var(--kg-filter-selection-glow)/0.4) 0px 2px 14px, rgb(var(--kg-white)/0.35) 0px 1px 0px inset;" type="button"><span class="">🌐 Любой жанр</span></button>
 <button class="genre-pill h-[34px] px-3.5 rounded-full font-label-sm text-label-sm flex items-center gap-1 bg-surface-container text-text-muted hover:text-on-surface" type="button">
 <span class="">Боевик</span>
 </button>
@@ -1851,7 +1838,7 @@ if (areaRing) {
           p.style.boxShadow = '';
         });
         pill.className = 'genre-pill h-[34px] px-4 rounded-full font-label-sm text-label-sm flex items-center gap-1 text-canvas-obsidian font-bold cursor-pointer border border-white/20 transition-all';
-        pill.style.background = 'var(--kg-filter-selection-background, linear-gradient(135deg, rgb(var(--kg-accent-edge)) 0%, rgb(var(--kg-accent-strong)) 50%, rgb(var(--kg-action-gradient-end)) 100%))';
+        pill.style.background = 'var(--kg-selected-button-fill)';
         pill.style.boxShadow = 'rgb(var(--kg-filter-selection-glow)/0.4) 0px 2px 14px, rgb(var(--kg-white)/0.35) 0px 1px 0px inset';
       });
     });
@@ -2422,17 +2409,10 @@ filmLabel();
 function setAppTheme(value) {
   const theme = APP_THEMES.includes(value) ? value : DEFAULT_APP_THEME;
   document.documentElement.dataset.kgTheme = theme;
-  document.documentElement.dataset.kgButtonAccent = resolveAppAccent(theme, store.get("kgButtonAccent", DEFAULT_APP_ACCENT));
   store.set("kgAppTheme", theme);
   window.dispatchEvent(new Event("kg-palette-change"));
 }
 
-function setAppButtonAccent(value) {
-  const accent = APP_ACCENTS.includes(value) ? value : DEFAULT_APP_ACCENT;
-  document.documentElement.dataset.kgButtonAccent = resolveAppAccent(document.documentElement.dataset.kgTheme, accent);
-  store.set("kgButtonAccent", accent);
-  window.dispatchEvent(new Event("kg-palette-change"));
-}
 
 function getTrailerSubtitles() {
   const value = store.get("kgTrailerSubtitles", "auto");
@@ -2445,7 +2425,6 @@ window.KGResetSettings = () => {
   window.KGLegalWatch?.setRegion("auto");
   store.set("kgFilmLanguage", "auto");
   setAppTheme(DEFAULT_APP_THEME);
-  setAppButtonAccent(DEFAULT_APP_ACCENT);
   sel.clear();
   store.set("cats",[]);
   countryFilters.clear();
@@ -2635,12 +2614,12 @@ async function buildPool(cc,o){
   return null;
 }
 
-function currentQuery(){
+function currentQuery(personalPreferences=null){
   if(playMode==="surprise"){
     if(window.KGSeries?.active)return window.KGSeriesDiscovery.surpriseQuery(surprise);
-    if(surprise==="find") return {g:pick(discoveryGenreIds()),find:true,worst:false,rmin:"",rmax:"",y:"",yto:"",theme:"",themeName:""};
+    if(surprise==="find") return {g:personalSurpriseGenre(personalPreferences),find:true,worst:false,rmin:"",rmax:"",y:"",yto:"",theme:"",themeName:""};
     if(surprise==="wild") return {g:"",wild:true,worst:false,rmin:"",rmax:"",y:"",yto:"",theme:"",themeName:""};
-    return {g:pick(discoveryGenreIds()),light:true,worst:false,rmin:"",rmax:"",y:"",yto:"",theme:"",themeName:""};
+    return {g:personalSurpriseGenre(personalPreferences),light:true,worst:false,rmin:"",rmax:"",y:"",yto:"",theme:"",themeName:""};
   }
   const theme=THEMES.find(t=>t.id===themeId);
   const years=yearQuery();
@@ -3490,6 +3469,91 @@ function shuffle(arr){
 }
 function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
 
+function personalWeightedPick(items,weightOf){
+  if(!items.length)return undefined;
+
+  const weights=items.map(item=>
+    Math.max(1,Number(weightOf(item))||1)
+  );
+
+  const total=weights.reduce((sum,w)=>sum+w,0);
+  let ticket=Math.random()*total;
+
+  for(let i=0;i<items.length;i++){
+    ticket-=weights[i];
+    if(ticket<0)return items[i];
+  }
+
+  return items[items.length-1];
+}
+
+function personalSurpriseGenre(preferences){
+  const genres=discoveryGenreIds();
+
+  if(!preferences?.genres.length){
+    return pick(genres);
+  }
+
+  return personalWeightedPick(genres,id=>
+    preferences.genres.includes(Number(id))?3:1
+  );
+}
+
+function personalSurpriseCountries(countries,preferences){
+  if(!preferences?.countries.length){
+    return shuffle(countries);
+  }
+
+  const remaining=countries.slice();
+  const ordered=[];
+
+  while(remaining.length){
+    const country=personalWeightedPick(
+      remaining,
+      code=>preferences.countries.includes(code)?3:1
+    );
+
+    ordered.push(country);
+    remaining.splice(remaining.indexOf(country),1);
+  }
+
+  return ordered;
+}
+
+function personalSurpriseFilm(films,enabled,cc){
+  const personal=window.KGPersonalPreferences;
+  const preferences=personal?.get();
+
+  if(!enabled||!personal?.isActive(preferences)){
+    return pick(films);
+  }
+
+  return personalWeightedPick(films,film=>{
+    if(window.KGSeries?.isSeriesId(film.id))return 1;
+
+    const hasCountry=
+      (Array.isArray(film.production_countries) &&
+        film.production_countries.some(c=>c?.iso_3166_1)) ||
+      (Array.isArray(film._homeProductionCountries) &&
+        film._homeProductionCountries.some(Boolean)) ||
+      (Array.isArray(film.origin_country) &&
+        film.origin_country.some(Boolean));
+
+    const candidate={
+      ...film,
+      _cc:hasCountry?undefined:(film._cc||cc)
+    };
+
+    const score=personal.score(
+      candidate,
+      preferences
+    );
+
+    return 1+Math.floor(score/25);
+  });
+}
+
+
 function joinRu(list){
   if(list.length<=1) return list[0]||"";
   if(list.length===2) return list[0]+" и "+list[1];
@@ -3894,7 +3958,21 @@ async function spin(countryCode = ""){
   if(!apiKey){showKeyUi();$("err").textContent="Сначала введите ключ TMDB.";return;}
   store.set("year",$("year").value);store.set("yearTo",$("yearTo").value);
   audio();
-  const q=currentQuery();
+  const surpriseMode=
+    playMode==="surprise" &&
+    !window.KGSeries?.active &&
+    !countryCode &&
+    countryFilters.size===0;
+
+  const personal=window.KGPersonalPreferences;
+  const preferences=personal?.get();
+
+  const activePreferences=
+    surpriseMode && personal?.isActive(preferences)
+      ? preferences
+      : null;
+
+  const q=currentQuery(activePreferences);
   const manualCountries=countryCode ? [countryCode] : [...countryFilters];
   const frameOnly=manualCountries.length > 0;
   if (frameOnly) q.countries=manualCountries;
@@ -3906,7 +3984,10 @@ async function spin(countryCode = ""){
       closePlayer();
       window.KGFrameSelectedCountry(manualCountries[0],manualCountries);
     } else reelStart(themedCountries);
-    const shuffled=shuffle(q.countries||COUNTRIES);
+    const shuffled=personalSurpriseCountries(
+      q.countries||COUNTRIES,
+      activePreferences
+    );
     const order=q.seriesSurprise&&!q.countries?window.KGSeriesDiscovery.countryOrder(shuffled,cur?.cc):shuffled;
     const cap=q.countries?order.length:Math.min(order.length,18);
     for(let i=0;i<cap;i+=3){   // проверяем небольшими параллельными партиями, чтобы поиск оставался отзывчивым
@@ -3918,8 +3999,16 @@ async function spin(countryCode = ""){
         if(!pool) continue;                   // too few films
         const left=fresh(pool);
         if(!left.length) continue;            // everything here already watched
-        const film=pick(left);
-        await presentFilmSearchResult(batch[k], pool, film, frameOnly, themedCountries);
+        const film=personalSurpriseFilm(
+          left,surpriseMode,batch[k]
+        );
+        await presentFilmSearchResult(
+          batch[k],
+          {...pool,_kgPersonalSurprise:surpriseMode},
+          film,
+          frameOnly,
+          themedCountries
+        );
         return;
       }
     }
@@ -3948,7 +4037,17 @@ $("again").onclick=async()=>{
     let pool=cur.pool;
     const left=fresh(pool,cur.film.id);
     if(!left.length){$("err").textContent="Больше фильмов из этой страны нет. Крутите глобус заново.";return;}
-    const film=pool.top1?left[0]:pick(left);
+    const film=pool.top1
+      ? left[0]
+      : personalSurpriseFilm(
+          left,
+          pool._kgPersonalSurprise===true &&
+          !pool.oscar &&
+          !pool.emmy &&
+          !pool.saved &&
+          !window.KGSeries?.active,
+          cur.cc
+        );
     await filmDetails(film.id);
     pool = {...pool, films:pool.films.filter(f=>movieCatalog.allows(f)&&rouletteAllows(f))};
     const cc=filmCC(pool,film,cur.cc);
@@ -4165,7 +4264,7 @@ function syncDesign(){
     const on=b._h.getAttribute("aria-pressed")==="true";b.style.display=b._h.hidden?"none":"";
     b.setAttribute("aria-pressed",String(on));
     b.className=BASE+(on?"text-canvas-obsidian font-bold border border-white/20":"bg-surface-container text-text-muted hover:text-on-surface");
-    b.style.background=on?"var(--kg-filter-selection-background, linear-gradient(135deg,rgb(var(--kg-accent-edge)),rgb(var(--kg-accent-strong)) 50%,rgb(var(--kg-action-gradient-end))))":"";
+    b.style.background=on?"var(--kg-selected-button-fill)":"";
     b.style.boxShadow=on?"0 2px 14px rgb(var(--kg-filter-selection-glow)/.4)":"";
   });
   paint(gBox);paint(tBox);
@@ -4719,26 +4818,27 @@ console.info("[Moven: Explore] Bridge v6 ready");
 
 <script src="exact-top.js?v=2"></script>
 <script src="globe-visuals.js?v=5"></script>
-<script src="confirm-action.js?v=4"></script>
+<script src="confirm-action.js?v=5"></script>
 <script src="watch-history.js?v=18"></script>
 <script src="country-statistics.js?v=4"></script>
-<script src="country-pages.js?v=60"></script>
+<script src="country-pages.js?v=64"></script>
 <script src="favorites.js?v=7"></script>
 <script src="release-alerts.js?v=2"></script>
 <script src="release-follow.js?v=8"></script>
 <script src="release-settings.js?v=3"></script>
 <script src="profile-storage.js?v=2"></script>
-<script src="backup-storage.js?v=15"></script>
+<script src="backup-storage.js?v=16"></script>
 <script src="profile-page.js?v=37"></script>
 <script src="viewing-preferences.js?v=1"></script>
-<script src="profile-settings.js?v=19"></script>
+<script src="personal-preferences.js?v=3"></script>
+<script src="profile-settings.js?v=25"></script>
 <script src="viewing-note.js?v=4"></script>
-<script src="cinema-diary.js?v=27"></script>
+<script src="cinema-diary.js?v=28"></script>
 <script src="profile-editor.js?v=17"></script>
-<script src="login-page.js?v=8"></script>
-<script src="password-recovery.js?v=8"></script>
+<script src="login-page.js?v=9"></script>
+<script src="password-recovery.js?v=9"></script>
 <script src="recovery-code.js?v=7"></script>
-<script src="account-page.js?v=13"></script>
+<script src="account-page.js?v=14"></script>
 <script src="mood-vibe-additions.js?v=5"></script>
 <script src="mood-page.js?v=49"></script>
 <script src="mood-vibe-page.js?v=33"></script>
@@ -4757,8 +4857,8 @@ console.info("[Moven: Explore] Bridge v6 ready");
 <script src="personal-calendar.js?v=3"></script>
 <script src="series-gold.js?v=9"></script>
 <script src="collection-examples.js?v=1"></script>
-<script src="collections.js?v=174"></script>
-<script src="film-interactions.js?v=54"></script>
+<script src="collections.js?v=176"></script>
+<script src="film-interactions.js?v=55"></script>
 <script src="hall-of-fame.js?v=8"></script>
 <script src="legal-watch.js?v=10"></script>
 <script src="bookmarks-page.js?v=8"></script>
@@ -4768,7 +4868,7 @@ console.info("[Moven: Explore] Bridge v6 ready");
 <script src="reviews-page.js?v=6"></script>
 <script src="global-search.js?v=21"></script>
 <script src="home-releases.js?v=14"></script>
-<script src="settings-page.js?v=66"></script>
+<script src="settings-page.js?v=68"></script>
 <script>
 (() => {
   const earth = document.getElementById("earth-canvas-container");

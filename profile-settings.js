@@ -120,6 +120,73 @@
       </div>
     </section>
 
+    <section class="kg-ps-group">
+      <h2>${label("Персональные предпочтения")}</h2>
+
+      <div class="kg-ps-list">
+
+        <button type="button"
+          class="kg-ps-row kg-ps-spoiler-row"
+          data-ps-personal-toggle
+          role="switch" aria-checked="false">
+
+          <span class="kg-ps-row-icon">
+            ${icon("auto_awesome")}
+          </span>
+
+          <span class="kg-ps-row-text">
+            <strong>${label("Персонализация")}</strong>
+            <small>${label("Учитывать мои предпочтения")}</small>
+          </span>
+
+          <span class="kg-ps-toggle" aria-hidden="true"></span>
+        </button>
+
+        ${[
+          ["genres","movie","Любимые жанры"],
+          ["countries","public","Любимые страны"],
+          ["decades","calendar_month","Любимые десятилетия"]
+        ].map(([field,symbol,title])=>`
+          <button type="button"
+            class="kg-ps-row"
+            data-ps-personal="${field}"
+            >
+
+            <span class="kg-ps-row-icon">${icon(symbol)}</span>
+
+            <span class="kg-ps-row-text">
+              <strong>${label(title)}</strong>
+              <small data-ps-personal-summary="${field}">
+                ${label("Не выбраны")}
+              </small>
+            </span>
+
+            ${icon("chevron_right")}
+          </button>
+        `).join("")}
+
+        <button type="button"
+          class="kg-ps-row"
+          data-ps-personal-reset>
+
+          <span class="kg-ps-row-icon">
+            ${icon("restart_alt")}
+          </span>
+
+          <span class="kg-ps-row-text">
+            <strong>${label("Сбросить предпочтения")}</strong>
+            <small>${label("Вернуть стандартные настройки")}</small>
+          </span>
+
+          ${icon("chevron_right")}
+        </button>
+
+      </div>
+
+      <p class="kg-ps-message"
+        data-ps-personal-message role="status" hidden></p>
+    </section>
+
     <div class="kg-ps-groups">
       ${group("Личные данные",["edit"])}
       ${group("Управление данными",["export"])}
@@ -145,6 +212,292 @@
     });
   }
 
+  function renderPersonalPreferences() {
+    const preferences = window.KGPersonalPreferences.get();
+
+    hub.querySelector("[data-ps-personal-toggle]")
+      .setAttribute("aria-checked", String(preferences.enabled));
+
+    const summaries = {
+      genres: preferences.genres.map(id =>
+        uiText(GENRES[id])
+      ),
+      countries: preferences.countries.map(code =>
+        cname(code)
+      ),
+      decades: preferences.decades.map(decade =>
+        decade === 0
+          ? uiText("До 1950")
+          : decade + uiText("-е")
+      )
+    };
+
+    for (const [field, values] of Object.entries(summaries)) {
+      const element = hub.querySelector(
+        `[data-ps-personal-summary="${field}"]`
+      );
+
+      element.textContent = values.length
+        ? values.join(", ")
+        : uiText("Не выбраны");
+
+      element.title = element.textContent;
+    }
+
+    const empty = !preferences.enabled &&
+      !preferences.genres.length &&
+      !preferences.countries.length &&
+      !preferences.decades.length;
+
+    hub.querySelector("[data-ps-personal-reset]").disabled = empty;
+  }
+
+  function openPersonalPicker(field, title, description, options, saveValues) {
+    const preferences = window.KGPersonalPreferences;
+    const selected = new Set(preferences.get()[field]);
+
+    const page = openSubpage(
+      "personal-" + field,
+      title,
+      `
+        <section class="kg-ps-form kg-pp-picker">
+
+          <p>${label(description)}</p>
+
+          ${field === "countries" ? `
+            <input type="search"
+              data-pp-search
+              placeholder="${label("Поиск страны...")}"
+              aria-label="${label("Поиск страны")}"
+              autocomplete="off">
+          ` : ""}
+
+          <div class="kg-pp-toolbar">
+            <strong data-pp-count></strong>
+
+            <button type="button"
+              class="kg-pp-reset"
+              data-pp-reset>
+              ${label("Сбросить")}
+            </button>
+          </div>
+
+          <div class="kg-pp-options ${field === "countries" ? "kg-pp-countries" : ""}">
+            ${options.map((option,index)=>`
+              <button type="button"
+                class="kg-pp-option"
+                data-pp-option="${index}"
+                aria-pressed="false">
+
+                <span class="kg-pp-check" aria-hidden="true">
+                  ${icon("check")}
+                </span>
+
+                ${field === "countries" ? `
+                  <span class="kg-pp-flag" aria-hidden="true">
+                    ${flag(option.value, false)}
+                  </span>
+                ` : ""}
+
+                <span>${label(option.name)}</span>
+              </button>
+            `).join("")}
+          </div>
+
+          <p class="kg-ps-message"
+            role="status" hidden></p>
+
+          <button type="button"
+            class="kg-bk-button kg-bk-primary"
+            data-pp-save>
+            ${label("Сохранить")}
+          </button>
+
+        </section>
+      `
+    );
+
+    const buttons = page.querySelectorAll("[data-pp-option]");
+    const count = page.querySelector("[data-pp-count]");
+    const reset = page.querySelector("[data-pp-reset]");
+    const feedback = page.querySelector("[role=status]");
+
+    function paint() {
+      buttons.forEach((button,index)=>{
+        button.setAttribute(
+          "aria-pressed",
+          String(selected.has(options[index].value))
+        );
+      });
+
+      count.textContent =
+        uiText("Выбрано:") + " " +
+        selected.size + " / " + options.length;
+
+      reset.disabled = selected.size === 0;
+    }
+
+    buttons.forEach((button,index)=>{
+      button.addEventListener("click",()=>{
+        const value = options[index].value;
+
+        if (selected.has(value)) {
+          selected.delete(value);
+        } else {
+          selected.add(value);
+        }
+
+        message(feedback);
+        paint();
+      });
+    });
+
+    reset.addEventListener("click",()=>{
+      selected.clear();
+      message(feedback);
+      paint();
+    });
+
+    page.querySelector("[data-pp-save]")
+      .addEventListener("click",()=>{
+        try {
+          const values = options
+            .filter(option=>selected.has(option.value))
+            .map(option=>option.value);
+
+          saveValues(values);
+          renderPersonalPreferences();
+          page.close();
+
+        } catch (error) {
+          message(feedback,"Изменения не сохранены");
+          console.error("[Moven] Personal preferences:", error);
+        }
+      });
+
+    const search = page.querySelector("[data-pp-search]");
+
+    search?.addEventListener("input", () => {
+      const query = search.value.trim().toLocaleLowerCase();
+
+      buttons.forEach((button, index) => {
+        const option = options[index];
+
+        const searchable = (
+          option.name + " " + option.value
+        ).toLocaleLowerCase();
+
+        button.hidden = !searchable.includes(query);
+      });
+    });
+
+    paint();
+    return page;
+  }
+
+  function openPersonalGenres() {
+    const options = Object.entries(GENRES)
+      .filter(([id])=>id !== "")
+      .map(([id,name])=>({
+        value: Number(id),
+        name
+      }))
+      .sort((a,b)=>
+        uiText(a.name).localeCompare(uiText(b.name))
+      );
+
+    return openPersonalPicker(
+      "genres",
+      "Любимые жанры",
+      "Выберите жанры, которые вам нравятся больше всего.",
+      options,
+      values=>window.KGPersonalPreferences.setGenres(values)
+    );
+  }
+
+  function openPersonalCountries() {
+    const options = [...new Set(COUNTRIES)]
+      .map(code => ({
+        value: code,
+        name: code === "US" ? uiText("США") : cname(code)
+      }))
+      .sort((a,b) => a.name.localeCompare(b.name));
+
+    return openPersonalPicker(
+      "countries",
+      "Любимые страны",
+      "Выберите страны, кинематограф которых вам интересен.",
+      options,
+      values => window.KGPersonalPreferences.setCountries(values)
+    );
+  }
+
+  function openPersonalDecades() {
+    const options = [
+      0, 1950, 1960, 1970, 1980,
+      1990, 2000, 2010, 2020
+    ].map(decade => ({
+      value: decade,
+      name: decade === 0
+        ? "До 1950"
+        : decade + "-е"
+    }));
+
+    return openPersonalPicker(
+      "decades",
+      "Любимые десятилетия",
+      "Выберите периоды кинематографа, которые вам нравятся больше всего.",
+      options,
+      values => window.KGPersonalPreferences.setDecades(values)
+    );
+  }
+
+  function confirmPersonalReset() {
+    const page = openSubpage(
+      "personal-reset",
+      "Сбросить предпочтения",
+      `
+        <section class="kg-ps-form">
+          <p>${label("Выбранные жанры, страны и десятилетия будут удалены. Персонализация будет выключена.")}</p>
+
+          <p>${label("История просмотров, избранное и остальные настройки не изменятся.")}</p>
+
+          <p class="kg-ps-message" role="status" hidden></p>
+
+          <button type="button"
+            class="kg-bk-button kg-bk-primary"
+            data-personal-confirm>
+            ${label("Сбросить предпочтения")}
+          </button>
+
+          <button type="button"
+            class="kg-ps-control kg-ps-save"
+            data-personal-cancel>
+            ${label("Отмена")}
+          </button>
+        </section>
+      `
+    );
+
+    page.querySelector("[data-personal-cancel]")
+      .addEventListener("click", () => page.close());
+
+    page.querySelector("[data-personal-confirm]")
+      .addEventListener("click", () => {
+        try {
+          window.KGPersonalPreferences.reset();
+          renderPersonalPreferences();
+          page.close();
+        } catch (error) {
+          message(
+            page.querySelector("[role=status]"),
+            "Изменения не сохранены"
+          );
+          console.error("[Moven] Personal preferences:", error);
+        }
+      });
+  }
+
   function renderSpoilers() {
     const hidden = window.KGCinemaDiarySpoilers.get();
     spoilers.setAttribute("aria-checked", String(hidden));
@@ -165,6 +518,7 @@
     if (publicPage) publicPage.textContent = uiText(profile.privatePage ? "Приватная" : "Открытая");
     renderSpoilers();
     renderViewingPreferences();
+    renderPersonalPreferences();
   }
 
   function openSubpage(route,title,content="") {
@@ -798,6 +1152,42 @@
     if (!button) return;
     if (button.hasAttribute("data-ps-back")) { hub.close(); return; }
     if (button.hasAttribute("data-ps-logout")) { hub.close(); session.logout(); return; }
+    if (button.hasAttribute("data-ps-personal-toggle")) {
+      const preferences = window.KGPersonalPreferences;
+      const feedback = hub.querySelector("[data-ps-personal-message]");
+
+      try {
+        preferences.setEnabled(!preferences.get().enabled);
+        renderPersonalPreferences();
+        message(feedback);
+      } catch (error) {
+        message(feedback,"Изменения не сохранены");
+        console.error("[Moven] Personal preferences:", error);
+      }
+
+      return;
+    }
+
+    if (button.dataset.psPersonal === "genres") {
+      openPersonalGenres();
+      return;
+    }
+
+    if (button.dataset.psPersonal === "countries") {
+      openPersonalCountries();
+      return;
+    }
+
+    if (button.dataset.psPersonal === "decades") {
+      openPersonalDecades();
+      return;
+    }
+
+    if (button.hasAttribute("data-ps-personal-reset")) {
+      confirmPersonalReset();
+      return;
+    }
+
     if (button.hasAttribute("data-ps-viewing")) {
       const scope = button.dataset.psViewing;
       const preferences = window.KGViewingPreferences;

@@ -225,3 +225,11 @@
   font-size: 14px;
   line-height: 1.5;
 }
+
+
+/* Shared secondary action palette */
+.kg-rv-control[data-rv-picker-back] {
+  background:var(--kg-secondary-button-fill);
+  color:rgb(var(--kg-secondary-button-ink));
+  border-color:var(--kg-secondary-button-border) !important;
+}

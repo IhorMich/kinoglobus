@@ -39,7 +39,7 @@
     #kg-login .kg-login-field input {width:100%;min-width:0;padding:13px 0;background:transparent;border:0;box-shadow:none;color:inherit;font:inherit}
     #kg-login .kg-login-field input::placeholder {color:rgb(var(--kg-text-muted))}
     .kg-login-primary,.kg-login-biometrics {width:100%;display:flex;align-items:center;justify-content:center;gap:8px;min-height:49px;padding:8px 12px;border-radius:99px;font-weight:700}
-    .kg-login-primary {background:linear-gradient(110deg,rgb(var(--kg-primary-container)),rgb(var(--kg-primary-container)));color:rgb(var(--kg-on-primary-fixed));font-family:var(--kg-font-interface)}
+    .kg-login-primary {background:var(--kg-primary-button-fill);color:rgb(var(--kg-primary-button-ink, var(--kg-on-primary)));font-family:var(--kg-font-interface)}
     .kg-login-biometrics {background:rgb(var(--kg-surface-container));color:rgb(var(--kg-on-surface))}
     #kg-login button:focus-visible,#kg-login input:focus-visible {outline:2px solid rgb(var(--kg-primary));outline-offset:2px}
   `;

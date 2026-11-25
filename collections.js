@@ -869,6 +869,10 @@ window.KGHandleBack = () => {
 let catBuilt=false,activeCat="all",sortMode="rating";
 let catalogLayout="list",collectionFilmLayout="list";
 
+function collectionPageSize(){
+  return collectionFilmLayout==="grid"?6:5;
+}
+
 function layoutSwitch(layout,scope){
   const modes=[["list","view_list","Списком"],["grid","grid_view","Сеткой"]];
   return `<div class="flex shrink-0 gap-1 rounded-full bg-surface-container p-0.5">${modes.map(([mode,icon,label])=>`<button type="button" data-kg-layout="${scope}" data-mode="${mode}" aria-label="${uiText(label)}" title="${uiText(label)}" aria-pressed="${mode===layout}" class="w-9 h-9 rounded-full flex items-center justify-center ${mode===layout?"bg-primary-container text-on-primary-container":"text-text-muted hover:text-primary"}"><span class="material-symbols-outlined text-[18px]" aria-hidden="true">${icon}</span></button>`).join("")}</div>`;
@@ -1287,7 +1291,7 @@ vc.addEventListener("keydown",e=>{
 });
 
 /* ================= СТРАНИЦА ПОДБОРКИ ================= */
-let D={t:null,all:[],total:0,totals:{},cc:"",sort:"rating",shown:5,selected:null,picked:null};
+let D={t:null,all:[],total:0,totals:{},cc:"",sort:"rating",shown:collectionPageSize(),selected:null,picked:null};
 async function markPageWatched(film){
   if(window.KGToggleWatched) return window.KGIsFilmWatched(film.id)?true:window.KGToggleWatched(film);
   const details=await filmDetails(film.id).catch(()=>null);
@@ -1568,7 +1572,7 @@ async function openCollection(id,opt){
   rStop();
   const cached=themeDataCache.get(themeDataKey(t,2));
   const initial=cached?.data || (t.films ? curatedData(t.films.map(localizeFilmListItem)) : null);
-  D={t,all:initial?initial.films:[],total:initial?initial.total:0,totals:initial?initial.totals:{},pageLimits:initial?.pageLimits||{},pages:2,cc:"",sort:"rating",shown:5,selected:null,picked:null};
+  D={t,all:initial?initial.films:[],total:initial?initial.total:0,totals:initial?initial.totals:{},pageLimits:initial?.pageLimits||{},pages:2,cc:"",sort:"rating",shown:collectionPageSize(),selected:null,picked:null};
   const selection=D;
   collectionPreferencesRefreshPending=false;
   renderCollection();showView(destination, false);
@@ -1609,7 +1613,7 @@ async function openCollection(id,opt){
 async function showMoreCollection(){
   if(D.loadingMore)return;
   if(!moreSeriesPages()||derived().rest.length>D.shown){
-    D.shown+=5;renderFilms();return;
+    D.shown+=collectionPageSize();renderFilms();return;
   }
   const selection=D,pages=Math.min(500,D.pages+2);
   D.loadingMore=true;renderFilms();
@@ -1618,7 +1622,7 @@ async function showMoreCollection(){
     if(D!==selection||view!=="series-collection")return;
     if(result._partial||result._stale)throw new Error("Partial series collection");
     D.all=result.films;D.total=result.total;D.totals=result.totals;D.pageLimits=result.pageLimits;
-    D.pages=pages;D.shown+=5;
+    D.pages=pages;D.shown+=collectionPageSize();
     $("cl-count").textContent=seriesCollectionCount(D.total);
   }catch{
     if(D===selection&&view==="series-collection")toast("Часть данных недоступна.","info");
@@ -2005,6 +2009,9 @@ vd.addEventListener("click",e=>{
   if(layout){
     if(collectionFilmLayout===layout.dataset.mode)return;
     collectionFilmLayout=layout.dataset.mode;
+    if(collectionFilmLayout==="grid"){
+      D.shown=Math.max(6,Math.ceil(D.shown/3)*3);
+    }
     if(D.selected?._placement==="list") closeInlineFilm(D.selected,false);
     renderFilms();
     vd.querySelector(`[data-kg-layout="collection"][data-mode="${collectionFilmLayout}"]`)?.focus({preventScroll:true});
@@ -2021,7 +2028,7 @@ vd.addEventListener("click",e=>{
   if(a==="cc"){
     if (D.cc === el.dataset.cc) return;
     D.cc = el.dataset.cc;
-    D.shown = 5;
+    D.shown = collectionPageSize();
     D.selected = null;
     D.picked = null;
     rStop();
@@ -2237,9 +2244,57 @@ function visibleHomeFilms(){
 
 function currentHomeFeatured(){
   const films=visibleHomeFilms();
-  return films.length
-    ? films[(homeDayNumber()-1)%films.length]
-    : null;
+
+  if(!films.length)return null;
+
+  const personal=window.KGPersonalPreferences;
+  const preferences=personal?.get();
+
+  // Preserve the original daily rotation.
+  const original=films[
+    (homeDayNumber()-1)%films.length
+  ];
+
+  if(!personal?.isActive(preferences)){
+    return original;
+  }
+
+  const scored=films.map(film=>({
+    film,
+    score:personal.score(film,preferences)
+  }));
+
+  // Equal preferences must not change the original rotation.
+  if(scored.every(item=>item.score===scored[0].score)){
+    return original;
+  }
+
+  const weighted=scored.map(item=>({
+    film:item.film,
+    weight:1+Math.floor(item.score/25)
+  }));
+
+  const total=weighted.reduce(
+    (sum,item)=>sum+item.weight,0
+  );
+
+  // Deterministic daily selection, independent of page reloads.
+  const day=Math.floor(Date.now()/86400000);
+
+  let hash=day>>>0;
+  hash=Math.imul(hash^(hash>>>16),0x45d9f3b);
+  hash=Math.imul(hash^(hash>>>16),0x45d9f3b);
+  hash=(hash^(hash>>>16))>>>0;
+
+  let ticket=(hash/4294967296)*total;
+
+  for(const item of weighted){
+    ticket-=item.weight;
+
+    if(ticket<0)return item.film;
+  }
+
+  return original;
 }
 
 function homePaletteFilms(films,featured,alternatives){
@@ -2408,6 +2463,11 @@ function refreshHomePreferences(){
   homePreferencesRefreshPending=false;
   renderHomeEditorial();
 }
+
+window.addEventListener(
+  "kg:personal-preferences-changed",
+  refreshHomePreferences
+);
 
 window.addEventListener("kg:viewing-preferences-changed",event=>{
   if(event.detail?.scope==="recommendations"){

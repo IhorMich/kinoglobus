@@ -69,7 +69,7 @@
     .kg-diary-stat:nth-child(2n) .material-symbols-outlined {color:rgb(var(--kg-cool-highlight-02))}
     .kg-diary-actions,.kg-diary-row {display:flex;align-items:center;gap:8px}
     .kg-diary-actions button,.kg-diary-actions input,.kg-diary-edit,.kg-diary-route {border-radius:10px;background:rgb(var(--kg-surface-container-high));min-height:40px;padding:6px 10px}
-    .kg-diary-actions .kg-diary-primary,.kg-diary-primary {background:rgb(var(--kg-primary));color:rgb(var(--kg-canvas-obsidian));font-weight:700}
+    .kg-diary-actions .kg-diary-primary,.kg-diary-primary {background:var(--kg-primary-button-fill);color:rgb(var(--kg-primary-button-ink, var(--kg-on-primary)));font-weight:700}
     .kg-diary-actions .kg-diary-primary {flex:1;display:flex;align-items:center;justify-content:center;gap:5px}
     .kg-diary-actions input {width:44px;position:relative;color:transparent}
     .kg-diary-actions input::-webkit-calendar-picker-indicator {position:absolute;inset:0;width:auto;height:auto;margin:auto;cursor:pointer}
@@ -141,6 +141,11 @@
     #kg-diary-note label:not(.kg-diary-check) {display:grid;gap:4px}
     #kg-diary-note :is(select,input:not([type=checkbox]),textarea) {width:100%;min-width:0;background:rgb(var(--kg-surface-container-high));padding:8px;border-radius:8px;font-size:16px}
     #kg-diary-note button {padding:9px;border-radius:9px}
+
+    #kg-diary-note .kg-diary-editor-head [data-cancel] {
+      background:var(--kg-secondary-button-fill);
+      color:rgb(var(--kg-secondary-button-ink));
+    }
   `;
   style.textContent += `
     /* Cinema diary redesign */
@@ -225,8 +230,8 @@
     }
 
     #kg-diary .kg-diary-actions .kg-diary-primary {
-      background: rgb(var(--kg-primary-container));
-      color: rgb(var(--kg-on-primary-container));
+      background: var(--kg-primary-button-fill);
+      color: rgb(var(--kg-primary-button-ink, var(--kg-on-primary)));
       font-size: 14px;
     }
 

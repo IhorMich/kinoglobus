@@ -364,3 +364,11 @@
 #kg-favorites .kg-favorites-sort {
   min-height: 40px;
 }
+
+
+/* Shared secondary action palette */
+.kg-favorites-control[data-favorites-share-close] {
+  background:var(--kg-secondary-button-fill);
+  color:rgb(var(--kg-secondary-button-ink));
+  border-color:var(--kg-secondary-button-border) !important;
+}

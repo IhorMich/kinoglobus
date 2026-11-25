@@ -2114,6 +2114,41 @@ function runHomeProductionQueue(){
   }
 }
 
+const homeFranchiseCache = new Map();
+
+function rememberHomeFranchise(id, data) {
+  if (!data ||
+      !Object.prototype.hasOwnProperty.call(
+        data, "belongs_to_collection"
+      )) {
+    return;
+  }
+
+  const key = Number(id);
+
+  if (!Number.isSafeInteger(key) || key <= 0) {
+    return;
+  }
+
+  if (data.belongs_to_collection === null) {
+    homeFranchiseCache.set(key, null);
+    return;
+  }
+
+  const collectionId = Number(
+    data.belongs_to_collection?.id
+  );
+
+  if (Number.isSafeInteger(collectionId) &&
+      collectionId > 0) {
+    homeFranchiseCache.set(key, collectionId);
+  }
+}
+
+function homeFranchiseId(id) {
+  return homeFranchiseCache.get(Number(id));
+}
+
 function homeProductionCountries(id){
   const key=Number(id);
 
@@ -2141,6 +2176,8 @@ function homeProductionCountries(id){
           .map(c=>c.iso_3166_1)
           .filter(Boolean);
 
+        rememberHomeFranchise(key, data);
+
         resolve(countries);
       }catch(error){
         homeProductionCache.delete(key);
@@ -2154,6 +2191,12 @@ function homeProductionCountries(id){
 
   return result;
 }
+
+window.KGHomeMetadata = Object.freeze({
+  loadCountries: homeProductionCountries,
+  getFranchise: homeFranchiseId,
+  rememberFranchise: rememberHomeFranchise
+});
 
 async function verifyHomeCandidates(films,cc){
   const languages=HOME_EUROPE_LANGUAGES[cc]||[];

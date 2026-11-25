@@ -16,6 +16,14 @@
     1990, 2000, 2010, 2020
   ]);
 
+  function getOptions() {
+    return {
+      genres: [...validGenres],
+      countries: [...validCountries],
+      decades: [...validDecades]
+    };
+  }
+
   function defaults() {
     return {
       enabled: false,
@@ -239,6 +247,7 @@
   }
 
   window.KGPersonalPreferences = Object.freeze({
+    getOptions,
     get,
     setEnabled,
     setGenres,

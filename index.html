@@ -3686,7 +3686,16 @@ function paintCrew(film){
 }
 
 function discoverySeen(id){return window.KGSeries?.isSeriesId(id)?window.KGSeries.isWatched(id):seen.has(id);}
-function fresh(pool,exceptId){return pool.films.filter(f=>!discoverySeen(f.id)&&f.id!==exceptId)}
+function rouletteAllows(film){
+  if(window.KGSeries?.isSeriesId(film.id))return true;
+  return window.KGViewingPreferences?.allows("roulette",film)??true;
+}
+
+function fresh(pool,exceptId){
+  return pool.films.filter(f=>
+    !discoverySeen(f.id)&&f.id!==exceptId&&rouletteAllows(f)
+  );
+}
 function filmCC(pool,film,fallback){return (pool.byCountry&&pool.byCountry[film.id])||fallback}
 function lockSpin(label){
   $("go").disabled=true;$("top1").disabled=true;$("oscar").disabled=true;
@@ -3736,7 +3745,7 @@ async function topOfCountry(cc,q){
 }
 async function presentFilmSearchResult(cc, pool, film, frameOnly, themedCountries = []) {
   await filmDetails(film.id);
-  pool = {...pool, films:pool.films.filter(movieCatalog.allows)};
+  pool = {...pool, films:pool.films.filter(f=>movieCatalog.allows(f)&&rouletteAllows(f))};
   const warm = preloadPosters(pool, film);
   if (frameOnly) window.KGFrameSelectedCountry(cc);
   else await reelLand(cc, themedCountries);
@@ -3778,7 +3787,7 @@ async function spinTop(){
       for(let k=0;k<batch.length;k++){
         const pool=pools[k];
         if(!pool||!pool.films.length) continue;
-        if(!series&&discoverySeen(pool.films[0].id)) continue;
+        if(!series&&(discoverySeen(pool.films[0].id)||!rouletteAllows(pool.films[0]))) continue;
         const film=pool.films[0];
         const ids=new Set([film.id]);
         const filler=shuffle(extra.filter(f=>f.poster_path&&!ids.has(f.id)&&ids.add(f.id))).slice(0,40);
@@ -3849,7 +3858,7 @@ async function spinOscar(){
   lockSpin(uiText("Ищем фильм…"));
   try{
     reelStart();
-    const left=(await oscarFilms()).filter(f=>!seen.has(f.id));
+    const left=(await oscarFilms()).filter(f=>!seen.has(f.id)&&rouletteAllows(f));
     if(!left.length){$("err").textContent="Все лауреаты из списка уже в истории. Сбросьте историю, чтобы смотреть их снова.";return;}
     const film=pick(left);
     let cc=(film.origin_country&&film.origin_country[0])||"US";
@@ -3941,7 +3950,7 @@ $("again").onclick=async()=>{
     if(!left.length){$("err").textContent="Больше фильмов из этой страны нет. Крутите глобус заново.";return;}
     const film=pool.top1?left[0]:pick(left);
     await filmDetails(film.id);
-    pool = {...pool, films:pool.films.filter(movieCatalog.allows)};
+    pool = {...pool, films:pool.films.filter(f=>movieCatalog.allows(f)&&rouletteAllows(f))};
     const cc=filmCC(pool,film,cur.cc);
     window.kgPreserveGlobeFrame=true;
     show(cc,pool,film);
@@ -4713,15 +4722,16 @@ console.info("[Moven: Explore] Bridge v6 ready");
 <script src="confirm-action.js?v=4"></script>
 <script src="watch-history.js?v=18"></script>
 <script src="country-statistics.js?v=4"></script>
-<script src="country-pages.js?v=58"></script>
+<script src="country-pages.js?v=60"></script>
 <script src="favorites.js?v=7"></script>
 <script src="release-alerts.js?v=2"></script>
 <script src="release-follow.js?v=8"></script>
 <script src="release-settings.js?v=3"></script>
 <script src="profile-storage.js?v=2"></script>
-<script src="backup-storage.js?v=14"></script>
+<script src="backup-storage.js?v=15"></script>
 <script src="profile-page.js?v=37"></script>
-<script src="profile-settings.js?v=18"></script>
+<script src="viewing-preferences.js?v=1"></script>
+<script src="profile-settings.js?v=19"></script>
 <script src="viewing-note.js?v=4"></script>
 <script src="cinema-diary.js?v=27"></script>
 <script src="profile-editor.js?v=17"></script>
@@ -4730,9 +4740,9 @@ console.info("[Moven: Explore] Bridge v6 ready");
 <script src="recovery-code.js?v=7"></script>
 <script src="account-page.js?v=13"></script>
 <script src="mood-vibe-additions.js?v=5"></script>
-<script src="mood-page.js?v=47"></script>
+<script src="mood-page.js?v=49"></script>
 <script src="mood-vibe-page.js?v=33"></script>
-<script src="oscar-page.js?v=49"></script>
+<script src="oscar-page.js?v=51"></script>
 <script src="oscar-design.js?v=30"></script>
 <script src="curated-collections.js?v=3"></script>
 <script src="film-card.js?v=27"></script>
@@ -4747,8 +4757,8 @@ console.info("[Moven: Explore] Bridge v6 ready");
 <script src="personal-calendar.js?v=3"></script>
 <script src="series-gold.js?v=9"></script>
 <script src="collection-examples.js?v=1"></script>
-<script src="collections.js?v=169"></script>
-<script src="film-interactions.js?v=53"></script>
+<script src="collections.js?v=174"></script>
+<script src="film-interactions.js?v=54"></script>
 <script src="hall-of-fame.js?v=8"></script>
 <script src="legal-watch.js?v=10"></script>
 <script src="bookmarks-page.js?v=8"></script>

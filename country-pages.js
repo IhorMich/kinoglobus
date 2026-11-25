@@ -642,6 +642,12 @@
   });
 
   document.addEventListener('kg:watched-change', () => {
+    if(root.dataset.page==="country"){
+      if(window.KGViewingPreferences?.get("recommendations")){
+        refreshCountryRecommendation();
+      }
+      return;
+    }
     if (root.dataset.page !== 'catalog') return;
     const data = catalogData();
     root.querySelector('.kgc-catalog-summary').innerHTML = catalogSummary(data);
@@ -660,6 +666,7 @@
   // Bayesian rating prevents a tiny number of perfect scores from dominating the country feature.
   const countryScore=f=>{const votes=Number(f?.vote_count)||0,rating=Number(f?.vote_average)||0,priorVotes=1000,priorRating=6.6;return (votes/(votes+priorVotes))*rating+(priorVotes/(votes+priorVotes))*priorRating;};
   const pickCountryFeature=films=>{
+    films=window.KGViewingPreferences?.filter("recommendations",films)??films;
     if(!films?.length)return null;
     const established=films.filter(f=>(Number(f.vote_count)||0)>=50);
     return (established.length?established:films).slice().sort((a,b)=>countryScore(b)-countryScore(a)||(Number(b.popularity)||0)-(Number(a.popularity)||0))[0]||null;
@@ -785,13 +792,33 @@
         if(!active())return;
       }
       const recent=countrySearchHistory.get(code)||new Set();
-      const film=chooseCountryFilm(films,new Set(app.watched().map(f=>Number(f.id))),recent);
-      if(!film){if(status){status.hidden=false;status.textContent=uiText("Для этой страны пока не удалось найти фильм.");}return;}
+      const watchedIds=new Set(app.watched().map(f=>Number(f.id)));
+      const strict=window.KGViewingPreferences?.get("roulette")===true;
+
+      const candidates=strict
+        ? films.filter(f=>!watchedIds.has(Number(f.id)))
+        : films;
+
+      const film=chooseCountryFilm(candidates,watchedIds,recent);
+
+      if(!film){
+        const hiddenWatched=strict&&films.some(f=>
+          movieCatalog.allows(f)&&watchedIds.has(Number(f.id))
+        );
+
+        if(status){
+          status.hidden=false;
+          status.textContent=uiText(hiddenWatched
+            ?"В загруженной выборке нет непросмотренных фильмов. Повторите поиск."
+            :"Для этой страны пока не удалось найти фильм.");
+        }
+        return;
+      }
       const model=countrySearchModel=window.KGFilmCard.createModel({...film,_kgCountry:code},{_cc:code,_kgGlobalRelated:true});
       const refresh=()=>{if(active() && countrySearchModel===model && result?.isConnected)window.KGFilmCard.mount(result,model,{closable:true,inline:true});};
       refresh();
       window.KGFilmCard.hydrate(model,film,refresh,()=>active() && countrySearchModel===model && !!result?.isConnected);
-      const landed=await animateCountrySearch(host,films,film,active);
+      const landed=await animateCountrySearch(host,candidates,film,active);
       if(!landed || !active())return;
       countrySearchHistory.set(code,recent);recent.add(Number(film.id));
       revealed=true;result.hidden=false;
@@ -906,9 +933,54 @@
     if(tile)openPassportSection(tile.dataset.passportSection);
   });
 
+  function countryRecommendationMarkup(featured,films,message=''){
+    if(featured){
+      return `<div class="kgc-films-grid">${countryFilmCard(featured)}</div>`;
+    }
+
+    const filtered=films.length>0
+      && window.KGViewingPreferences?.get("recommendations");
+
+    const empty=message||uiText(filtered
+      ?"В доступном списке нет непросмотренных фильмов."
+      :"Каталог TMDB пока не вернул фильмы для этой страны.");
+
+    return `<div class="kgc-pad"><div class="kgc-empty" role="status">${esc(empty)}</div></div>`;
+  }
+
+  let countryRecommendationLoading=false;
+  let countryRecommendationMessage='';
+
+  function refreshCountryRecommendation(){
+    if(root.dataset.page!=="country")return;
+    if(root.dataset.code!==state.code)return;
+    if(countryRecommendationLoading)return;
+
+    const host=root.querySelector("[data-country-recommendation]");
+    if(!host)return;
+
+    const featured=pickCountryFeature(state.films);
+    const markup=countryRecommendationMarkup(
+      featured,state.films,countryRecommendationMessage
+    );
+
+    if(host.innerHTML!==markup)host.innerHTML=markup;
+
+    const label=root.querySelector("[data-country-recommendation-label]");
+    if(label)label.textContent=uiText(featured?"Выбор страны":"Каталог");
+  }
+
+  window.addEventListener("kg:viewing-preferences-changed",event=>{
+    if(event.detail?.scope==="recommendations"){
+      refreshCountryRecommendation();
+    }
+  });
+
   function renderCountry(code,films,total,marked,loading=false,message=''){
     if(root.dataset.code!==code)return;
     state.code=code;state.films=films;state.total=total;state.marked=marked;
+    countryRecommendationLoading=loading;
+    countryRecommendationMessage=message;
     const name=app.countryName(code),nWatched=marked.length;
     const {average:avg,range}=countryStatistics(films);
     const featured=pickCountryFeature(films);
@@ -930,8 +1002,8 @@
       ${message? `<p class="kgc-muted kgc-pad" style="margin:0;padding-top:0">${esc(message)}</p>` : ''}
       <div class="kgc-section" style="margin-top:7px"><div style="display:flex;align-items:center;gap:8px"><span class="material-symbols-outlined kgc-section-icon">badge</span><h3>${uiText("Синефильский паспорт")}</h3></div><span class="kgc-kicker">${nWatched?uiText("Статус: золотой"):uiText("Статус: новый")}</span></div>
       <section class="kgc-passport-grid"><button type="button" class="kgc-passport-tile" data-passport-section="catalog"><div class="kgc-passport-label"><span>${uiText("Каталог")}</span><span class="material-symbols-outlined">movie</span></div><div><div class="kgc-passport-value">${catalogCount}</div><div class="kgc-passport-foot">${catalogFoot}</div></div></button><button type="button" class="kgc-passport-tile" data-passport-section="rating"><div class="kgc-passport-label"><span>${uiText("Средний рейтинг")}</span><span class="kgc-rating">★ ${avg?avg.toFixed(1):'—'}</span></div><div><div class="kgc-passport-value">${avg?avg.toFixed(1):'—'}</div><div class="kgc-passport-foot">${uiText("По всему каталогу страны")}</div></div></button><button type="button" class="kgc-passport-tile" data-passport-section="stamps"><div class="kgc-passport-label"><span>${uiText("Штампы")}</span><span class="material-symbols-outlined">verified</span></div><div class="kgc-passport-value">—</div><div class="kgc-passport-foot">${uiText("Система наград")}</div></button><button type="button" class="kgc-passport-tile" data-passport-section="epochs"><div class="kgc-passport-label"><span>${uiText("Эпохи кинематографа")}</span><span class="material-symbols-outlined">history_edu</span></div><div><div class="kgc-passport-value" style="font-size:17px">${range}</div><div class="kgc-passport-foot">${uiText("По всему каталогу страны")}</div></div></button></section>
-      <div class="kgc-section"><div style="display:flex;align-items:center;gap:8px"><span class="material-symbols-outlined kgc-section-icon rose">military_tech</span><h3>${uiText("Рекомендуемый фильм")}</h3></div><span class="kgc-kicker">${featured?uiText("Выбор страны"):uiText("Каталог")}</span></div>
-      ${featured?`<div class="kgc-films-grid" data-country-recommendation>${countryFilmCard(featured)}</div>`:`<div class="kgc-pad"><div class="kgc-empty">${esc(message||uiText("Каталог TMDB пока не вернул фильмы для этой страны."))}</div></div>`}
+      <div class="kgc-section"><div style="display:flex;align-items:center;gap:8px"><span class="material-symbols-outlined kgc-section-icon rose">military_tech</span><h3>${uiText("Рекомендуемый фильм")}</h3></div><span class="kgc-kicker" data-country-recommendation-label>${featured?uiText("Выбор страны"):uiText("Каталог")}</span></div>
+      <div data-country-recommendation>${countryRecommendationMarkup(featured,films,message)}</div>
       <div class="kgc-section"><div style="display:flex;align-items:center;gap:8px"><span style="color:rgb(var(--kg-primary))">🎭</span><h3>${uiText("Мэтры кинематографа")}</h3></div><span class="kgc-kicker" data-master-count>TMDB</span></div><div class="kgc-rowcards kg-cast-rail" id="kg-country-people"><div class="kgc-empty">${loading ? uiText("Загружаем участников…") : total == null ? uiText("Нет данных") : uiText("Для этого списка TMDB пока не вернул режиссёров.")}</div></div>
       <div class="kgc-section" id="kg-country-collection" tabindex="-1"><div style="display:flex;align-items:center;gap:8px"><span style="color:rgb(var(--kg-primary))">▣</span><h3>${uiText("Коллекция картин")}</h3></div><span class="kgc-muted" data-country-catalog-count>${total == null && !films.length ? uiText("Нет данных") : uiText("{count} лент", {count: fmt(filmCount)})}</span></div><div class="kgc-filter">${[['all',total == null && !films.length ? uiText("Все ленты") : uiText("Все ленты ({count})", {count: fmt(filmCount)})],['classic',uiText("Золотая классика")],['newwave','1970–1999'],['modern','2000+']].map(([key,label])=>`<button class="${key==='all'?'active':''}" data-country-filter="${key}">${label}</button>`).join('')}</div><div class="kgc-films-grid" id="kg-country-films"></div>
       ${latest?`<div class="kgc-section"><h3>${uiText("Последняя отмеченная лента")}</h3></div><div class="kgc-pad" style="padding-top:0"><button class="kgc-country-pill has" data-open-saved="${esc(latest.id)}">${flag(code)} ${esc(latest.title||uiText("Фильм"))} · ${esc(latest.year||'')}</button></div>`:''}

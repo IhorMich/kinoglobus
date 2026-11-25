@@ -1379,7 +1379,11 @@ function sortCollectionFilms(films,sort){
 
 const inCollectionCountry=f=>!D.cc||(D.t.series?f.origin_country?.includes(D.cc):f._cc===D.cc);
 function derived(){
-  const a=D.all.filter(inCollectionCountry);
+  const original=D.all.filter(inCollectionCountry);
+
+  const a=D.t.series
+    ? original
+    : window.KGViewingPreferences?.filter("collections",original)??original;
   const best=a.slice().sort((x,y)=>weighed(y)-weighed(x))[0];
   const rest=sortCollectionFilms(a.filter(f=>f!==best),D.sort);
   return {best,rest};
@@ -1429,8 +1433,25 @@ function renderFilms(){
   const keepScroll=()=>{if(anchorId==null)return;
     const el=[...box.querySelectorAll('[data-act="open"]')].find(e=>String(e.dataset.id)===String(anchorId));
     if(el){const d=el.getBoundingClientRect().top-anchorTop;if(d)window.scrollBy(0,d);}};
-  if(!best){box.innerHTML=`<p class="font-body-sm text-body-sm text-text-muted px-1">${uiText(D.t.series?"Подходящих сериалов не нашлось.":"Подходящих фильмов не нашлось.")}</p>`;return;}
+  if(!best){
+    const filtered=!D.t.series
+      && window.KGViewingPreferences?.get("collections")
+      && D.all.some(inCollectionCountry);
+
+    const message=D.t.series
+      ?"Подходящих сериалов не нашлось."
+      :filtered
+        ?"В доступной подборке нет непросмотренных фильмов."
+        :"Подходящих фильмов не нашлось.";
+
+    box.innerHTML=`<p role="status" class="font-body-sm text-body-sm text-text-muted px-1">${uiText(message)}</p>`;
+    return;
+  }
   const list=rest.slice(0,D.shown);
+  const filteredTotal=!D.t.series
+    && window.KGViewingPreferences?.get("collections")
+    ? rest.length
+    : Math.max(totalFor(),list.length+1);
   const grid=collectionFilmLayout==="grid";
   const listMarkup=grid?filmGridRows(list,row=>{
     const selected=selectedInList&&row.some(f=>String(D.selected.id)===String(f.id))?D.selected:null;
@@ -1438,7 +1459,7 @@ function renderFilms(){
   }):list.map(f=>filmItem(f)).join("");
   const pearl=pearlHtml(best,selectedInList&&String(D.selected.id)===String(best.id)?D.selected:null);
   box.innerHTML=pearl+
-  `<div class="flex flex-col gap-space-sm"><div class="flex items-center justify-between gap-2 px-1"><div><h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">${uiText("Отобранные шедевры")}</h3><span class="font-micro-caption text-micro-caption text-text-muted">${uiText("{opened} из {total}", {opened: list.length, total: nf(Math.max(totalFor(),list.length+1))})}</span></div>${layoutSwitch(collectionFilmLayout,"collection")}</div>
+  `<div class="flex flex-col gap-space-sm"><div class="flex items-center justify-between gap-2 px-1"><div><h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">${uiText("Отобранные шедевры")}</h3><span class="font-micro-caption text-micro-caption text-text-muted">${uiText("{opened} из {total}", {opened: list.length, total: nf(filteredTotal)})}</span></div>${layoutSwitch(collectionFilmLayout,"collection")}</div>
   <div class="flex flex-col gap-space-sm">${listMarkup}</div>
   ${rest.length>D.shown||moreSeriesPages()?`<button type="button" data-act="more" ${D.loadingMore?"disabled aria-busy=\"true\"":""} class="w-full py-3 rounded-xl bg-surface-panel hover:bg-surface-container-low text-primary text-center font-label-md text-label-md font-semibold flex items-center justify-center gap-2 transition-colors shadow-sm"><span class="material-symbols-outlined text-[18px]">expand_more</span><span>${uiText(D.loadingMore?"Загружаем подборку…":"Показать ещё")}</span></button>`:""}</div>`;
   paintWatchedButtons(box);
@@ -1450,6 +1471,33 @@ function renderFilms(){
     dr.forEach(e=>e.innerHTML=(d.dirsFull||[]).length?uiText("Реж.")+" "+d.dirsFull.slice(0,2).map(p=>kgPersonLink(p,"Режиссёр")).join(", "):"");
   }).catch(()=>{}));
 }
+let collectionPreferencesRefreshPending=false;
+
+function refreshCollectionPreferences(){
+  if(view!=="collection"||!D.t||D.t.series)return;
+  if(!$("cl-films")||!D.all.length)return;
+
+  if(D.selected?._placement==="list"){
+    collectionPreferencesRefreshPending=true;
+    return;
+  }
+
+  collectionPreferencesRefreshPending=false;
+  renderFilms();
+}
+
+window.addEventListener("kg:viewing-preferences-changed",event=>{
+  if(event.detail?.scope==="collections"){
+    refreshCollectionPreferences();
+  }
+});
+
+document.addEventListener("kg:watched-change",()=>{
+  if(window.KGViewingPreferences?.get("collections")){
+    refreshCollectionPreferences();
+  }
+});
+
 function selectedFilmHtml(f) {
   return window.KGFilmCard.markup(f, {inline:true});
 }
@@ -1522,6 +1570,7 @@ async function openCollection(id,opt){
   const initial=cached?.data || (t.films ? curatedData(t.films.map(localizeFilmListItem)) : null);
   D={t,all:initial?initial.films:[],total:initial?initial.total:0,totals:initial?initial.totals:{},pageLimits:initial?.pageLimits||{},pages:2,cc:"",sort:"rating",shown:5,selected:null,picked:null};
   const selection=D;
+  collectionPreferencesRefreshPending=false;
   renderCollection();showView(destination, false);
   if(initial){
     $("cl-count").textContent=t.series?seriesCollectionCount(D.total):collectionFilmCount(D.total);
@@ -1644,9 +1693,12 @@ function renderSelectedPanel(refresh = false){
     return;
   }
   if(selected._placement==="home"){
-    const film=homeEditorial.films.find(f=>String(f.id)===String(selected.id));
+    const film=findHomeFilm(selected.id);
     if(film){
-      homeEditorial.featureDetails={...homeEditorial.featureDetails,...selected};
+      homeEditorial.featureDetails={
+        ...homeEditorial.directorData.get(film.id),
+        ...selected
+      };
       renderHomeFeature(film,homeEditorial.featureDetails,selected);
     }
     return;
@@ -1709,6 +1761,15 @@ function closeInlineFilm(film = D.selected, restoreFocus = true) {
   const panel = inlineFilmCard(film);
   window.KGFilmCard.stopTrailers(panel?.parentElement || document);
   D.selected = null;
+
+  if(homePreferencesRefreshPending){
+    queueMicrotask(()=>{
+      if(homePreferencesRefreshPending){
+        refreshHomePreferences();
+      }
+    });
+  }
+
   if(film._relatedPrevious){
     const previous=film._relatedPrevious;
     D.selected=previous;
@@ -1717,8 +1778,16 @@ function closeInlineFilm(film = D.selected, restoreFocus = true) {
     return;
   }
   if (film._placement === "home") {
-    const featured = homeEditorial.films.find(item=>String(item.id)===String(film.id));
-    if (featured) renderHomeFeature(featured,homeEditorial.featureDetails,null);
+    const featured=currentHomeFeatured();
+    if(featured){
+      renderHomeFeature(
+        featured,
+        homeEditorial.directorData.get(featured.id)||null,
+        null
+      );
+    }else{
+      renderHomeEditorial();
+    }
     const button = $("kg-home-feature").querySelector('[data-home-act="open"]');
     if (restoreFocus && button) {
       button.focus({preventScroll:true});
@@ -1726,7 +1795,14 @@ function closeInlineFilm(film = D.selected, restoreFocus = true) {
     }
     return;
   }
-  if (film._placement === "list") { if (!placeListPanel()) renderFilms(); }
+  if (film._placement === "list") {
+    if(collectionPreferencesRefreshPending){
+      collectionPreferencesRefreshPending=false;
+      renderFilms();
+    }else if(!placeListPanel()){
+      renderFilms();
+    }
+  }
   else {
     const target = film._detailTarget ? $(film._detailTarget) :
       film._placement === "roulette" ? $("cl-result") : $("kg-home-europe-detail");
@@ -1816,10 +1892,15 @@ async function inPageRoulette(){
   if(R.busy)return;
   if(!D.all.length){toast("Подборка ещё загружается","movie");return;}
   const inCc=f=>inCollectionCountry(f);
-  const pool=D.all.filter(f=>inCc(f)&&!seen.has(f.id));
+  const originalPool=D.all.filter(inCc);
+  const candidates=D.t.series
+    ? originalPool
+    : window.KGViewingPreferences?.filter("roulette",originalPool)??originalPool;
+
+  const pool=candidates.filter(f=>!seen.has(f.id));
   if(!pool.length){toast("Все фильмы из выборки уже в истории","history");return;}
   const film=pick(pool);
-  const others=shuffle(D.all.filter(f=>inCc(f)&&f.id!==film.id&&(f.poster_path||D.t.films)));
+  const others=shuffle(candidates.filter(f=>f.id!==film.id&&(f.poster_path||D.t.films)));
   const token=++R.token;R.busy=true;R.skip=false;D.picked=null;D.selected=null;
   renderFilms();
   $("cl-reel").style.display="";$("cl-result").innerHTML="";
@@ -1833,7 +1914,7 @@ async function inPageRoulette(){
       if(landed&&token===R.token){$("cl-fc").textContent=uiText("Фильм найден");finishPick(film,token);}return;
     }
   if(window.KGCinemaReel?.isCassetteMode?.()){
-      const eligible=D.all.filter(inCc),landed=await window.KGCinemaReel.spinCassetteDeck($("cl-reel"),eligible,[film],film,{reducedMotion:true,cancelled:()=>token!==R.token,onOpen:f=>D.t.series?window.KGSeriesHub.openSeries(f,document.activeElement):openFilm(f,"roulette")});
+      const eligible=candidates,landed=await window.KGCinemaReel.spinCassetteDeck($("cl-reel"),eligible,[film],film,{reducedMotion:true,cancelled:()=>token!==R.token,onOpen:f=>D.t.series?window.KGSeriesHub.openSeries(f,document.activeElement):openFilm(f,"roulette")});
       if(landed&&token===R.token){$("cl-fc").textContent=uiText("Фильм выбран");finishPick(film,token);}return;
     }
     if(window.KGCinemaReel?.isTicketMode?.()){
@@ -1850,30 +1931,30 @@ async function inPageRoulette(){
   await Promise.race([Promise.all(seq.filter(f=>f.poster_path).map(f=>new Promise(r=>{const im=new Image();im.onload=im.onerror=r;im.src=P(f.poster_path,"w185");}))),wait(2500)]);
   if(token!==R.token)return;
   if(window.KGCinemaReel?.isProjectionMode?.()){
-    const total=D.all.filter(inCc).length;$("cl-fc").textContent=uiText("Проектор запускается…");snd(()=>startFilmReelSound());
+    const total=candidates.length;$("cl-fc").textContent=uiText("Проектор запускается…");snd(()=>startFilmReelSound());
     const landed=await window.KGCinemaReel.spinProjectionTrack($("cl-reel"),seq,film,{meta:{country:cname(film._cc||D.cc||D.t.cc[0])},cancelled:()=>token!==R.token,shouldSkip:()=>R.skip,onFrame:(_candidate,index)=>{if(token===R.token)$("cl-fc").textContent=uiText("Кадр {current} / {total}", {current: p2(index+1), total: p2(total)});}});
     if(token!==R.token)return;
-    snd(()=>stopFilmReelSound());if(!landed)return;const all=D.all.filter(inCc),k=all.findIndex(f=>f.id===film.id);$("cl-fc").textContent=uiText("Фильм {current} / {total}", {current: p2((k<0?0:k)+1), total: p2(all.length||total)});snd(()=>buzz([25,50,60]));finishPick(film,token);return;
+    snd(()=>stopFilmReelSound());if(!landed)return;const all=candidates,k=all.findIndex(f=>f.id===film.id);$("cl-fc").textContent=uiText("Фильм {current} / {total}", {current: p2((k<0?0:k)+1), total: p2(all.length||total)});snd(()=>buzz([25,50,60]));finishPick(film,token);return;
   }
   if(window.KGCinemaReel?.isCassetteMode?.()){
-    const eligible=D.all.filter(inCc);$("cl-fc").textContent=uiText("Кассета перематывается…");snd(()=>startFilmReelSound());
+    const eligible=candidates;$("cl-fc").textContent=uiText("Кассета перематывается…");snd(()=>startFilmReelSound());
     const landed=await window.KGCinemaReel.spinCassetteDeck($("cl-reel"),eligible,seq,film,{cancelled:()=>token!==R.token,shouldSkip:()=>R.skip,onOpen:f=>D.t.series?window.KGSeriesHub.openSeries(f,document.activeElement):openFilm(f,"roulette"),onFrame:(_f,index,total)=>{if(token===R.token)$("cl-fc").textContent=uiText("Фильм {current} / {total}", {current: p2(index+1), total: p2(total)});}});
     if(token!==R.token)return;
-    snd(()=>stopFilmReelSound());if(!landed)return;const all=D.all.filter(inCc),k=all.findIndex(f=>f.id===film.id);$("cl-fc").textContent=uiText("Фильм {current} / {total}", {current: p2((k<0?0:k)+1), total: p2(all.length)});snd(()=>buzz([25,50,60]));finishPick(film,token);return;
+    snd(()=>stopFilmReelSound());if(!landed)return;const all=candidates,k=all.findIndex(f=>f.id===film.id);$("cl-fc").textContent=uiText("Фильм {current} / {total}", {current: p2((k<0?0:k)+1), total: p2(all.length)});snd(()=>buzz([25,50,60]));finishPick(film,token);return;
   }
   if(window.KGCinemaReel?.isTicketMode?.()){
-    const total=D.all.filter(inCc).length;$(`cl-fc`).textContent="Билеты перемешиваются…";
+    const total=candidates.length;$(`cl-fc`).textContent="Билеты перемешиваются…";
     snd(()=>startFilmReelSound());
     const landed=await window.KGCinemaReel.animateTicketDeck($("cl-reel"),seq,film,{duration:T,meta:{country:cname(film._cc||D.cc||D.t.cc[0])},cancelled:()=>token!==R.token,shouldSkip:()=>R.skip,onFrame:(_candidate,index,total)=>{if(token===R.token)$(`cl-fc`).textContent=`Билет ${p2(index+1)} / ${p2(total)}`;}});
     if(token!==R.token)return;
     snd(()=>stopFilmReelSound());if(!landed)return;
-    const all=D.all.filter(inCc),k=all.findIndex(f=>f.id===film.id);$("cl-fc").textContent=`Билет ${p2((k<0?0:k)+1)} / ${p2(all.length||total)}`;
+    const all=candidates,k=all.findIndex(f=>f.id===film.id);$("cl-fc").textContent=`Билет ${p2((k<0?0:k)+1)} / ${p2(all.length||total)}`;
     snd(()=>buzz([25,50,60]));finishPick(film,token);return;
   }
   const run=rMount(seq,NEED,"");
   if(!run){R.busy=false;return;}
   [...run.children].forEach(c=>c.classList.add("spin"));
-  const total=D.all.filter(inCc).length;
+  const total=candidates.length;
   $("cl-fc").textContent="Кадр -- / "+p2(total);
   snd(()=>startFilmReelSound());
   const x0=rX(0),x1=rX(NEED);
@@ -1893,7 +1974,7 @@ async function inPageRoulette(){
     run.style.transform=`translateX(${-rX(NEED)}px)`;
     [...run.children].forEach((c,i)=>{c.classList.remove("spin");c.classList.toggle("chosen",i===NEED);});
     const fr=$("cl-frame");fr.classList.remove("hit");void fr.offsetWidth;fr.classList.add("hit");
-    const all=D.all.filter(inCc),k=all.findIndex(f=>f.id===film.id);
+    const all=candidates,k=all.findIndex(f=>f.id===film.id);
     $("cl-fc").textContent=uiText("Кадр {current} / {total}", {current: p2((k<0?0:k)+1), total: p2(all.length)});
     snd(()=>buzz([25,50,60]));
     finishPick(film,token);
@@ -1974,34 +2055,209 @@ if(typeof _showFilm==="function")window.show=function(){if(reelCard)reelCard.sty
 
 /* ---------- Главная: редакционная карточка и европейская палитра ---------- */
 const HOME_EUROPE=["FR","IT","ES","DE","GB","PL","SE","DK","NO","FI","PT","NL","BE","IE"];
+const HOME_EUROPE_LANGUAGES=Object.freeze({
+  FR:["fr"],
+  IT:["it"],
+  ES:["es","ca","eu","gl"],
+  DE:["de"],
+  GB:["en","cy","gd"],
+  PL:["pl"],
+  SE:["sv"],
+  DK:["da"],
+  NO:["no","nb","nn"],
+  FI:["fi","sv"],
+  PT:["pt"],
+  NL:["nl","fy"],
+  BE:["fr","nl","de"],
+  IE:["en","ga"]
+});
+
+const HOME_EDITORIAL_RULES_VERSION=3;
+
+function homeCandidateAllowed(film,cc){
+  if(!film?.id || !movieCatalog.allows(film))return false;
+
+  const languages=HOME_EUROPE_LANGUAGES[cc]||[];
+  const countries=film._homeProductionCountries;
+
+  return languages.includes(film.original_language)
+    && Number(film.vote_average)>=6.5
+    && Number(film.vote_count)>=30
+    && Array.isArray(countries)
+    && countries.includes(cc)
+    && !countries.includes("US");
+}
+
 const homeEditorial={films:[],alternatives:new Map(),details:new Set(),directorData:new Map(),loadedKey:"",token:0,loading:false,pending:null,observer:null,scrollAnchorId:null};
 const homePosterWarmCache=new Set();
 const homeEditorialRoot=$("kg-home-editorial");
+const homeProductionCache=new Map();
+const homeProductionQueue=[];
+let homeProductionActive=0;
+
+function runHomeProductionQueue(){
+  while(homeProductionActive<4&&homeProductionQueue.length){
+    const task=homeProductionQueue.shift();
+    homeProductionActive++;
+
+    Promise.resolve().then(task).finally(()=>{
+      homeProductionActive--;
+      runHomeProductionQueue();
+    });
+  }
+}
+
+function homeProductionCountries(id){
+  const key=Number(id);
+
+  if(homeProductionCache.has(key)){
+    return homeProductionCache.get(key);
+  }
+
+  const cached=detailCache[key]?.countries;
+
+  if(Array.isArray(cached)&&cached.length){
+    const result=Promise.resolve(cached);
+    homeProductionCache.set(key,result);
+    return result;
+  }
+
+  const result=new Promise((resolve,reject)=>{
+    homeProductionQueue.push(async()=>{
+      try{
+        const data=await requestTmdb(
+          "movie/"+key,
+          {language:filmLocale}
+        );
+
+        const countries=(data.production_countries||[])
+          .map(c=>c.iso_3166_1)
+          .filter(Boolean);
+
+        resolve(countries);
+      }catch(error){
+        homeProductionCache.delete(key);
+        reject(error);
+      }
+    });
+  });
+
+  homeProductionCache.set(key,result);
+  runHomeProductionQueue();
+
+  return result;
+}
+
+async function verifyHomeCandidates(films,cc){
+  const languages=HOME_EUROPE_LANGUAGES[cc]||[];
+  const seen=new Set();
+
+  const candidates=films.filter(f=>{
+    if(!f?.id||seen.has(Number(f.id)))return false;
+    seen.add(Number(f.id));
+
+    return movieCatalog.allows(f)
+      && languages.includes(f.original_language)
+      && Number(f.vote_average)>=6.5
+      && Number(f.vote_count)>=30;
+  });
+
+  const verified=[];
+
+  for(let i=0;i<candidates.length&&verified.length<8;i+=4){
+    const batch=candidates.slice(i,i+4);
+
+    const results=await Promise.allSettled(
+      batch.map(async film=>{
+        const countries=await homeProductionCountries(film.id);
+
+        return {
+          ...film,
+          _homeProductionCountries:countries
+        };
+      })
+    );
+
+    for(const result of results){
+      if(result.status==="fulfilled"
+        && homeCandidateAllowed(result.value,cc)){
+        verified.push(result.value);
+      }
+    }
+  }
+
+  return verified.slice(0,8);
+}
+
 function uniqueHomeFilms(candidatesByCountry){
   const seen=new Set();
   const films=[];
   for(const cc of HOME_EUROPE){
-    const film=(Array.isArray(candidatesByCountry.get(cc))?candidatesByCountry.get(cc):[]).find(f=>f?.id!=null&&!seen.has(String(f.id))&&movieCatalog.allows(f));
+    const film=(Array.isArray(candidatesByCountry.get(cc))?candidatesByCountry.get(cc):[]).find(f=>f?.id!=null&&!seen.has(String(f.id))&&homeCandidateAllowed(f,cc));
     if(!film)continue;
     seen.add(String(film.id));
     films.push({...film,_cc:cc});
   }
   return films;
 }
+function visibleHomeFilms(){
+  const original=homeEditorial.films;
+
+  if(!window.KGViewingPreferences?.get("recommendations")){
+    return original;
+  }
+
+  const used=new Set();
+  const visible=[];
+
+  for(const cc of HOME_EUROPE){
+    const primary=original.find(f=>f._cc===cc);
+    const alternatives=homeEditorial.alternatives.get(cc);
+
+    const candidates=[
+      ...(primary?[primary]:[]),
+      ...(Array.isArray(alternatives)?alternatives:[])
+    ];
+
+    const film=candidates.find(f=>
+      f?.id!=null &&
+      !used.has(String(f.id)) &&
+      homeCandidateAllowed(f,cc) &&
+      window.KGViewingPreferences.allows("recommendations",f)
+    );
+
+    if(!film)continue;
+
+    used.add(String(film.id));
+    visible.push({...film,_cc:cc});
+  }
+
+  return visible;
+}
+
+function currentHomeFeatured(){
+  const films=visibleHomeFilms();
+  return films.length
+    ? films[(homeDayNumber()-1)%films.length]
+    : null;
+}
+
 function homePaletteFilms(films,featured,alternatives){
   const used=new Set(films.map(f=>String(f.id)));
   return films.flatMap(f=>{
     if(String(f.id)!==String(featured.id))return [f];
-    const replacement=(Array.isArray(alternatives.get(f._cc))?alternatives.get(f._cc):[]).find(x=>x?.id!=null&&!used.has(String(x.id))&&movieCatalog.allows(x));
+    const replacement=(Array.isArray(alternatives.get(f._cc))?alternatives.get(f._cc):[]).find(x=>x?.id!=null&&!used.has(String(x.id))&&homeCandidateAllowed(x,f._cc)&&
+      (window.KGViewingPreferences?.allows("recommendations",x)??true));
     return replacement?[{...replacement,_cc:f._cc}]:[];
   });
 }
 function currentHomePalette(){
-  const films=homeEditorial.films;
-  return films.length?homePaletteFilms(films,films[(homeDayNumber()-1)%films.length],homeEditorial.alternatives):[];
+  const films=visibleHomeFilms();
+  const featured=currentHomeFeatured();
+  return featured?homePaletteFilms(films,featured,homeEditorial.alternatives):[];
 }
 function findHomeFilm(id){
-  return [...homeEditorial.films,...currentHomePalette()].find(f=>String(f.id)===String(id));
+  return [...visibleHomeFilms(),...homeEditorial.films,...currentHomePalette()].find(f=>String(f.id)===String(id));
 }
 function homeFilmYear(f){return (f.release_date||"").slice(0,4);}
 function homeFeatureMarkup(f,d,expandedFilm=null){
@@ -2066,9 +2322,18 @@ function renderHomeEditorial(){
   if(!homeEditorialRoot)return;
   const carousel=$("kg-home-europe");
   const scrollLeft=carousel.scrollLeft,anchor=homeEditorial.scrollAnchorId&&carousel.querySelector(`[data-home-meta="${homeEditorial.scrollAnchorId}"]`),anchorTop=anchor?anchor.getBoundingClientRect().top:null;
-  const films=homeEditorial.films;
-  if(!films.length)return;
-  const dayIndex=(homeDayNumber()-1)%films.length,featured=films[dayIndex];
+  if(!homeEditorial.films.length)return;
+  const featured=currentHomeFeatured();
+
+  if(!featured){
+    homeEditorial.observer?.disconnect();
+    renderHomeEditorialMessage("Нет непросмотренных фильмов.");
+    carousel.replaceChildren();
+    return;
+  }
+
+  homeEditorial.featureDetails=
+    homeEditorial.directorData.get(featured.id)||null;
   const selected=D.selected&&D.selected._placement==="home"&&String(D.selected.id)===String(featured.id)?D.selected:null;
   renderHomeFeature(featured,homeEditorial.featureDetails||null,selected);
   const palette=currentHomePalette();
@@ -2095,7 +2360,8 @@ function renderHomeEditorial(){
     homeEditorial.details.add(featured.id);
     trailerFor(featured).catch(()=>{});
     filmDetails(featured.id).then(d=>{
-      if(!homeEditorial.films.length||homeEditorial.films[dayIndex]?.id!==featured.id)return;
+      homeEditorial.directorData.set(featured.id,d);
+      if(currentHomeFeatured()?.id!==featured.id)return;
       homeEditorial.featureDetails=d;homeEditorial.directorData.set(featured.id,d);
       const selected=D.selected&&D.selected._placement==="home"&&String(D.selected.id)===String(featured.id)?D.selected:null;
       renderHomeFeature(featured,d,selected);
@@ -2113,16 +2379,14 @@ async function loadHomeDirector(id){
     const d=await filmDetails(f.id),target=document.querySelector(`[data-home-director="${f.id}"]`);
     homeEditorial.directorData.set(f.id,d);
     if(target)target.innerHTML=[d.dirsFull&&d.dirsFull[0]?kgPersonLink(d.dirsFull[0],"Режиссёр"):esc(d.dirs[0]||cname(f._cc)),homeFilmYear(f)].filter(Boolean).join(" · ");
-    const featureIndex=(homeDayNumber()-1)%homeEditorial.films.length;
-    if(homeEditorial.films[featureIndex]?.id===f.id){
+    if(currentHomeFeatured()?.id===f.id){
       homeEditorial.featureDetails=d;
       const selected=D.selected&&D.selected._placement==="home"&&String(D.selected.id)===String(f.id)?D.selected:null;
       renderHomeFeature(f,d,selected);
     }
   }catch(e){
     homeEditorial.details.delete(f.id);
-    const featureIndex=(homeDayNumber()-1)%homeEditorial.films.length;
-    if(homeEditorial.films[featureIndex]?.id===f.id){
+    if(currentHomeFeatured()?.id===f.id){
       const emptyDetails={dirs:[],genres:[],companies:[],runtime:0,tagline:"",overview:""};
       homeEditorial.featureDetails=emptyDetails;
       const selected=D.selected&&D.selected._placement==="home"&&String(D.selected.id)===String(f.id)?D.selected:null;
@@ -2131,6 +2395,32 @@ async function loadHomeDirector(id){
     console.warn("[Moven] Не удалось загрузить режиссёра:",e);
   }
 }
+let homePreferencesRefreshPending=false;
+
+function refreshHomePreferences(){
+  if(!homeEditorial.films.length)return;
+
+  if(["home","home-europe"].includes(D.selected?._placement)){
+    homePreferencesRefreshPending=true;
+    return;
+  }
+
+  homePreferencesRefreshPending=false;
+  renderHomeEditorial();
+}
+
+window.addEventListener("kg:viewing-preferences-changed",event=>{
+  if(event.detail?.scope==="recommendations"){
+    refreshHomePreferences();
+  }
+});
+
+document.addEventListener("kg:watched-change",()=>{
+  if(window.KGViewingPreferences?.get("recommendations")){
+    refreshHomePreferences();
+  }
+});
+
 function renderHomeEditorialMessage(message,action){
   $("kg-home-feature").innerHTML=`<p class="font-micro-caption text-micro-caption text-primary font-bold uppercase tracking-wider">${uiText("Выбор дня")}</p><p role="status" class="font-body-sm text-body-sm text-text-muted mt-2">${esc(uiText(message))}</p>${action?`<button type="button" data-home-act="${action}" class="mt-3 px-3 py-2 rounded-lg bg-surface-container-highest text-primary-container font-label-sm text-label-sm font-semibold">${uiText(action==="set-key"?"Добавить ключ TMDB":"Повторить загрузку")}</button>`:""}`;
   $("kg-home-europe").innerHTML=`<p class="font-body-sm text-body-sm text-text-muted py-2">${uiText("Фильмы появятся после загрузки данных.")}</p>`;
@@ -2144,13 +2434,61 @@ async function loadHomeEditorial(force=false){
   if(!homeEditorial.films.length)renderHomeEditorialMessage("Загружаем фильмы и данные TMDB…");
   const pending=(async()=>{
     const results=await Promise.allSettled(HOME_EUROPE.map(async cc=>{
-      let response=await api({with_origin_country:cc,sort_by:"popularity.desc","vote_count.gte":30,include_adult:"false",page:1},{fresh:force});
-      let films=response.results||[];
-      if(!films.length){
-        response=await api({with_origin_country:cc,sort_by:"popularity.desc","vote_count.gte":1,include_adult:"false",page:1},{fresh:force});
-        films=response.results||[];
+      const languages=HOME_EUROPE_LANGUAGES[cc]||[];
+      const verified=[];
+      const checked=new Set();
+      const totalPages=new Map();
+
+      for(let page=1;page<=5&&verified.length<8;page++){
+        const activeLanguages=languages.filter(language=>
+          page===1||page<=(totalPages.get(language)||0)
+        );
+
+        if(!activeLanguages.length)break;
+
+        const responses=await Promise.all(
+          activeLanguages.map(async language=>{
+            const response=await api({
+              with_origin_country:cc,
+              with_original_language:language,
+              sort_by:"popularity.desc",
+              "vote_count.gte":30,
+              "vote_average.gte":6.5,
+              include_adult:"false",
+              page
+            },{fresh:force});
+
+            totalPages.set(
+              language,
+              Number(response.total_pages)||0
+            );
+
+            return response;
+          })
+        );
+
+        const films=responses
+          .flatMap(response=>response.results||[])
+          .filter(f=>{
+            const id=Number(f.id);
+            if(!id||checked.has(id))return false;
+            checked.add(id);
+            return true;
+          })
+          .sort((a,b)=>
+            Number(b.popularity||0)-Number(a.popularity||0)
+          );
+
+        const accepted=await verifyHomeCandidates(films,cc);
+
+        verified.push(...accepted);
+
+        console.info(
+          `[Moven] European palette ${cc}: page ${page}, ${Math.min(verified.length,8)}/8`
+        );
       }
-      return films;
+
+      return verified.slice(0,8);
     }));
     if(token!==homeEditorial.token)return false;
     results.forEach((result,i)=>{if(result.status==="rejected")console.warn(`[Moven] Не удалось загрузить фильмы ${HOME_EUROPE[i]}:`,result.reason);});
@@ -2158,7 +2496,17 @@ async function loadHomeEditorial(force=false){
     const byCountry=new Map();
     results.forEach((result,i)=>{
       if(result.status==="fulfilled"){byCountry.set(HOME_EUROPE[i],result.value);}
-      else if(oldByCountry.has(HOME_EUROPE[i]))byCountry.set(HOME_EUROPE[i],[oldByCountry.get(HOME_EUROPE[i])]);
+      else {
+        const cc=HOME_EUROPE[i];
+        const previous=homeEditorial.alternatives.get(cc)||[];
+        const primary=oldByCountry.get(cc);
+        const safe=[...previous,...(primary?[primary]:[])]
+          .filter(f=>homeCandidateAllowed(f,cc));
+
+        byCountry.set(cc,[...new Map(
+          safe.map(f=>[Number(f.id),f])
+        ).values()]);
+      }
     });
     const films=uniqueHomeFilms(byCountry);
     if(!succeeded||!films.length){
@@ -2170,7 +2518,13 @@ async function loadHomeEditorial(force=false){
     homeEditorial.alternatives=byCountry;
     homeEditorial.loadedKey=apiKey;
     homeEditorial.details.clear();homeEditorial.directorData.clear();homeEditorial.featureDetails=null;
-    store.set("kgHomeEditorial",{films,alternatives:[...byCountry],language:filmLanguage,ts:Date.now()});
+    store.set("kgHomeEditorial",{
+      rulesVersion:HOME_EDITORIAL_RULES_VERSION,
+      films,
+      alternatives:[...byCountry],
+      language:filmLanguage,
+      ts:Date.now()
+    });
     renderHomeEditorial();
     return results.every(result=>result.status==="fulfilled");
   })();
@@ -2310,9 +2664,14 @@ $("saveKey").addEventListener("click",()=>setTimeout(refreshForNewKey,0));
 // Cached editorial data must never prevent the collections UI from starting.
 try {
   const savedHome=store.get("kgHomeEditorial",null);
-  if(savedHome&&(savedHome.language||"ru")===filmLanguage&&Array.isArray(savedHome.films)&&savedHome.films.length){
+  if(savedHome&&savedHome.rulesVersion===HOME_EDITORIAL_RULES_VERSION&&(savedHome.language||"ru")===filmLanguage&&Array.isArray(savedHome.films)&&savedHome.films.length){
     homeEditorial.films=uniqueHomeFilms(new Map(savedHome.films.filter(f=>f&&HOME_EUROPE.includes(f._cc)).map(f=>[f._cc,[f]])));
-    homeEditorial.alternatives=new Map(Array.isArray(savedHome.alternatives)?savedHome.alternatives.filter(e=>Array.isArray(e)&&HOME_EUROPE.includes(e[0])&&Array.isArray(e[1])):[]);
+    homeEditorial.alternatives=new Map(Array.isArray(savedHome.alternatives)?savedHome.alternatives
+      .filter(e=>Array.isArray(e)&&HOME_EUROPE.includes(e[0])&&Array.isArray(e[1]))
+      .map(([cc,films])=>[
+        cc,
+        films.filter(f=>homeCandidateAllowed(f,cc))
+      ]):[]);
     homeEditorial.loadedKey=homeEditorial.films.length===savedHome.films.length&&homeEditorial.alternatives.size?apiKey:"";
     renderHomeEditorial();
   }

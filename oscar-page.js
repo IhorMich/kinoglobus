@@ -8,6 +8,8 @@
   const image=(path,size="w342")=>path?`https://image.tmdb.org/t/p/${size}${path}`:"";
   const state={films:[],decade:"all",shown:6,sort:"new",onlyBest:false,onlyUnseen:false,group:true,view:"list",feature:null,featureDetails:null,selected:null,loading:false,loaded:false,request:0,spinToken:0,spinFrame:0,spinning:false,skipSpin:false,spun:false};
   let boundRoot=null;
+  let oscarDependencies=null;
+  let oscarPreferencesPending=false;
   const yearOf=f=>Number((f.release_date||"").slice(0,4))||0;
   const decadeOf=y=>y<1960?"gold":`${Math.floor(y/10)*10}`;
   // «Лучший фильм» по порядку церемоний (номер церемонии = индекс + 1): [год выхода, оригинальное название]
@@ -92,6 +94,8 @@
   function poolFilms(){return state.decade==="all"?state.films:state.films.filter(f=>decadeOf(yearOf(f))===state.decade);}
   function render(root,deps){
     stopSpin(root);
+    oscarDependencies=deps;
+    oscarPreferencesPending=false;
     state.sort="new";state.onlyBest=false;state.onlyUnseen=false;state.group=true;state.view="list";
     state.films=[];state.decade="all";state.shown=6;state.feature=null;state.featureDetails=null;state.selected=null;state.loaded=false;
     root.innerHTML=`<div class="flex flex-col w-full pb-safe">
@@ -128,11 +132,43 @@
         if(e.target.id==="oscar-list-era")selectEra(e.target.value,root,deps);
       });
       root.addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&e.target.matches&&e.target.matches("[role=button][data-oscar-open]")){e.preventDefault();e.target.click();}});
-      document.addEventListener("kg:watched-change",()=>{if(root.isConnected)renderProgress(root,deps);});
+      document.addEventListener("kg:watched-change",()=>{
+        if(root.isConnected){
+          renderProgress(root,oscarDependencies||deps);
+
+          if(effectiveOnlyUnseen()){
+            refreshOscarPreferences();
+          }
+        }
+      });
       boundRoot=root;
     }
     load(root,deps);
   }
+  function refreshOscarPreferences(){
+    const root=boundRoot;
+    const deps=oscarDependencies;
+
+    if(!root?.isConnected||!root.offsetParent||!deps)return;
+    if(!state.loaded||state.loading)return;
+
+    renderToolbar(root);
+
+    if(root.querySelector("#oscar-list [data-oscar-detail-host]:not(:empty)")){
+      oscarPreferencesPending=true;
+      return;
+    }
+
+    oscarPreferencesPending=false;
+    renderList(root,deps);
+  }
+
+  window.addEventListener("kg:viewing-preferences-changed",event=>{
+    if(event.detail?.scope==="collections"){
+      refreshOscarPreferences();
+    }
+  });
+
   async function load(root,deps){
     const token=++state.request,error=root.querySelector("#oscar-error"),retry=root.querySelector("#oscar-retry");
     if(retry)retry.hidden=true;
@@ -230,6 +266,9 @@
   const pageSize=()=>state.view==="grid"?PAGE_GRID:PAGE_LIST;
   const SORTS=[["new","Новые"],["old","Старые"],["rating","Рейтинг"],["pop","Популярные"]];
   const canGroup=()=>state.decade==="all"&&(state.sort==="new"||state.sort==="old");
+  const globalHideWatched=()=>window.KGViewingPreferences?.get("collections")===true;
+  const effectiveOnlyUnseen=()=>state.onlyUnseen||globalHideWatched();
+
   function filteredFilms(deps){
     const rate=f=>Number(f.vote_average||0);
     const cmp={
@@ -238,7 +277,7 @@
       rating:(a,b)=>rate(b)-rate(a)||yearOf(b)-yearOf(a),
       pop:(a,b)=>Number(b.popularity||0)-Number(a.popularity||0)||rate(b)-rate(a)
     }[state.sort];
-    return poolFilms().filter(f=>(!state.onlyBest||oscarInfo(f).best)&&(!state.onlyUnseen||!deps.isWatched(f.id))).sort(cmp);
+    return poolFilms().filter(f=>(!state.onlyBest||oscarInfo(f).best)&&(!effectiveOnlyUnseen()||!deps.isWatched(f.id))).sort(cmp);
   }
   const chipOn="bg-primary-container text-on-primary-container shadow-md font-semibold",chipOff="bg-surface-container text-text-muted font-medium hover:text-on-surface";
   function renderToolbar(root){
@@ -247,11 +286,12 @@
     const chip=(attrs,on,inner)=>`<button type="button" ${attrs} aria-pressed="${on}" class="shrink-0 px-3 py-1.5 rounded-full ${on?chipOn:chipOff} font-label-sm text-label-sm transition-all flex items-center gap-1">${inner}</button>`;
     const views=[["list","view_list","Списком"],["grid","grid_view","Сеткой"]].map(([id,ic,label])=>`<button type="button" data-oscar-view="${id}" aria-label="${uiText(label)}" aria-pressed="${state.view===id}" class="w-8 h-8 rounded-full flex items-center justify-center ${state.view===id?"bg-primary-container text-on-primary-container":"text-text-muted"}"><span class="material-symbols-outlined text-[18px]">${ic}</span></button>`).join("");
     box.innerHTML=`<div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">${SORTS.map(([id,label])=>chip(`data-oscar-sort="${id}"`,state.sort===id,uiText(label))).join("")}</div>
-<div class="flex items-center gap-2 flex-wrap">${chip('data-oscar-filter="best"',state.onlyBest,icon("workspace_premium")+uiText("Лучший фильм"))}${chip('data-oscar-filter="unseen"',state.onlyUnseen,icon("visibility_off")+uiText("Непросмотренные"))}${canGroup()?chip('data-oscar-filter="group"',state.group,icon("view_timeline")+uiText("По десятилетиям")):""}<div class="ml-auto flex items-center gap-1 rounded-full bg-surface-container p-0.5">${views}</div></div>`;
+<div class="flex items-center gap-2 flex-wrap">${chip('data-oscar-filter="best"',state.onlyBest,icon("workspace_premium")+uiText("Лучший фильм"))}${chip(globalHideWatched()?'data-oscar-filter="unseen" aria-disabled="true" title="'+esc(uiText("Включено в настройках профиля"))+'"':'data-oscar-filter="unseen"',effectiveOnlyUnseen(),icon("visibility_off")+uiText("Непросмотренные"))}${canGroup()?chip('data-oscar-filter="group"',state.group,icon("view_timeline")+uiText("По десятилетиям")):""}<div class="ml-auto flex items-center gap-1 rounded-full bg-surface-container p-0.5">${views}</div></div>`;
   }
   // любое изменение сортировки/фильтров/вида: закрыть раскрытую карточку списка и перерисовать с первой страницы
   function relist(root,deps){
     if(root.querySelector("#oscar-list [data-oscar-detail-host]:not(:empty)"))deps.closeFilm("oscar");
+    oscarPreferencesPending=false;
     state.shown=pageSize();
     renderToolbar(root);renderList(root,deps);
   }
@@ -307,7 +347,9 @@ ${info.best?`<span class="block font-micro-caption text-micro-caption text-prima
       }
       return head+`<div class="flex flex-col gap-space-sm">${g.films.map(f=>listItemHtml(f,deps)).join("")}</div>`;
     }).join("");
-    box.innerHTML=all.length?body:`<div class="p-3 rounded-xl bg-surface-panel text-center"><p class="font-body-sm text-body-sm text-text-muted">${uiText("Нет фильмов по выбранным фильтрам.")}</p><button type="button" data-oscar-reset class="mt-2 px-3 py-1.5 rounded-lg bg-surface-container-high text-primary font-label-sm text-label-sm">${uiText("Сбросить фильтры")}</button></div>`;
+    box.innerHTML=all.length?body:`<div class="p-3 rounded-xl bg-surface-panel text-center"><p class="font-body-sm text-body-sm text-text-muted">${uiText(globalHideWatched()
+      ?"Нет непросмотренных фильмов по выбранным фильтрам. Скрытие просмотренных включено в настройках профиля."
+      :"Нет фильмов по выбранным фильтрам.")}</p><button type="button" data-oscar-reset class="mt-2 px-3 py-1.5 rounded-lg bg-surface-container-high text-primary font-label-sm text-label-sm">${uiText("Сбросить фильтры")}</button></div>`;
     const count=root.querySelector("#oscar-list-count");
     if(count)count.textContent=all.length?uiText("Показано {shown} из {total}", {shown: shownList.length, total: all.length}):"";
     const more=root.querySelector("#oscar-more");
@@ -334,7 +376,15 @@ ${info.best?`<span class="block font-micro-caption text-micro-caption text-prima
   }
   function handleClick(e,root,deps){
     if(e.target.closest("[data-oscar-back]")){deps.back();return;}
-    if(e.target.closest('[data-act="close-film"]')){deps.closeFilm("oscar",true);return;}
+    if(e.target.closest('[data-act="close-film"]')){
+      deps.closeFilm("oscar",true);
+
+      if(oscarPreferencesPending){
+        refreshOscarPreferences();
+      }
+
+      return;
+    }
     const decade=e.target.closest("[data-decade]");
     if(decade){selectEra(decade.dataset.decade,root,deps);return;}
     if(e.target.closest("#oscar-more")){state.shown+=pageSize();renderList(root,deps);return;}
@@ -344,7 +394,10 @@ ${info.best?`<span class="block font-micro-caption text-micro-caption text-prima
     const sortBtn=e.target.closest("[data-oscar-sort]");
     if(sortBtn){state.sort=sortBtn.dataset.oscarSort;relist(root,deps);return;}
     const filterBtn=e.target.closest("[data-oscar-filter]");
-    if(filterBtn){const k=filterBtn.dataset.oscarFilter;if(k==="best")state.onlyBest=!state.onlyBest;else if(k==="unseen")state.onlyUnseen=!state.onlyUnseen;else state.group=!state.group;relist(root,deps);return;}
+    if(filterBtn){const k=filterBtn.dataset.oscarFilter;if(k==="best")state.onlyBest=!state.onlyBest;else if(k==="unseen"){
+      if(globalHideWatched())return;
+      state.onlyUnseen=!state.onlyUnseen;
+    }else state.group=!state.group;relist(root,deps);return;}
     const viewBtn=e.target.closest("[data-oscar-view]");
     if(viewBtn){if(state.view!==viewBtn.dataset.oscarView){state.view=viewBtn.dataset.oscarView;relist(root,deps);}return;}
     if(e.target.closest("[data-oscar-reset]")){state.onlyBest=false;state.onlyUnseen=false;selectEra("all",root,deps);return;}
@@ -398,9 +451,30 @@ ${info.best?`<span class="block font-micro-caption text-micro-caption text-prima
   }
   async function spinReel(root,deps){
     if(state.spinning)return;
-    const pool=poolFilms();
+    const originalPool=poolFilms();
+    const strict=window.KGViewingPreferences?.get("roulette")===true;
+
+    const pool=strict
+      ? originalPool.filter(f=>!deps.isWatched(f.id))
+      : originalPool;
+
     const panel=root.querySelector("#oscar-reel");
-    if(!panel||!pool.length)return;
+    if(!panel)return;
+
+    const status=root.querySelector("#oscar-error");
+
+    if(!pool.length){
+      if(strict&&originalPool.length&&status){
+        status.textContent=uiText("Все фильмы выбранной эпохи уже просмотрены. Выберите другую эпоху.");
+        status.hidden=false;
+      }
+      return;
+    }
+
+    if(status){
+      status.hidden=true;
+      status.textContent="";
+    }
     const fresh=pool.filter(f=>!deps.isWatched(f.id)),source=fresh.length?fresh:pool;
     const film=source[Math.floor(Math.random()*source.length)];
     const others=shuffled(pool.filter(f=>f.id!==film.id&&f.poster_path));

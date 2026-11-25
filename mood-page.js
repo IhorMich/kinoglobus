@@ -31,12 +31,23 @@
 const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:"",token:0,spinToken:0,spinFrame:0,spinning:false,skipSpin:false,page:0,totalPages:0,jobs:null};  const reelStep=90,reelPadding=8,reelCellWidth=80;
   const prefersReducedMotion=()=>window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches||false;
   let boundRoot=null;
+  let moodDependencies=null;
+  let moodPreferencesPending=false;
+  let moodPageActive=false;
   const activeMoods=()=>series?window.KGMoodVibeAdditions.seriesCards:moods;
   const currentMood=()=>activeMoods().find(m=>m.id===state.mood)||activeMoods()[0];
   const currentRuntime=()=>runtimeOptions(series).find(r=>r.id===state.runtime)||runtimeOptions(series)[0];
   const activeCard=root=>root.querySelector(`.mood-card[data-mood-card="${state.mood}"]`);
   const activeElement=(root,selector)=>activeCard(root)?.querySelector(selector)||null;
   function filtered(){return state.films.filter(f=>currentRuntime().test(f.runtime||0));}
+
+  function visibleFilms(){
+    const films=filtered();
+
+    return series
+      ? films
+      : window.KGViewingPreferences?.filter("collections",films)??films;
+  }
   function scrollToMoodResult(panel,moodId=state.mood){
     requestAnimationFrame(()=>{
       if(!panel.isConnected||moodId!==state.mood)return;
@@ -51,10 +62,18 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
   let moodCatalogLayout="list",moodFilmLayout="list";
   function renderFilms(root,deps){
     const box=activeElement(root,"[data-mood-films]");if(!box)return;
-    const films=filtered();
+    const films=visibleFilms();
     if(state.loading){box.replaceChildren();return;}
     if(!films.length){
-      box.innerHTML=`<p class="font-body-sm text-body-sm text-text-muted p-3 rounded-xl bg-surface-panel">${uiText("Нет фильмов для выбранного настроения и хронометража. Выберите другой интервал или настроение.")}</p>`;
+      const hiddenWatched=!series
+        && window.KGViewingPreferences?.get("collections")
+        && filtered().length>0;
+
+      const message=hiddenWatched
+        ?"В загруженной подборке нет непросмотренных фильмов."
+        :"Нет фильмов для выбранного настроения и хронометража. Выберите другой интервал или настроение.";
+
+      box.innerHTML=`<p role="status" class="font-body-sm text-body-sm text-text-muted p-3 rounded-xl bg-surface-panel">${uiText(message)}</p>`;
       const emptyMore=activeElement(root,"[data-mood-more]");if(emptyMore)emptyMore.hidden=state.page>=state.totalPages;
       return;
     }
@@ -72,6 +91,35 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
     }
     if(deps?.refreshFilm)deps.refreshFilm();
   }
+  function refreshMoodPreferences(){
+    if(!moodPageActive||series||!boundRoot||!moodDependencies)return;
+
+    const box=activeElement(boundRoot,"[data-mood-films]");
+    if(!box)return;
+
+    if(state.loading)return;
+
+    if(box.querySelector("[data-selected-film]")){
+      moodPreferencesPending=true;
+      return;
+    }
+
+    moodPreferencesPending=false;
+    renderFilms(boundRoot,moodDependencies);
+  }
+
+  window.addEventListener("kg:viewing-preferences-changed",event=>{
+    if(event.detail?.scope==="collections"){
+      refreshMoodPreferences();
+    }
+  });
+
+  document.addEventListener("kg:watched-change",()=>{
+    if(window.KGViewingPreferences?.get("collections")){
+      refreshMoodPreferences();
+    }
+  });
+
   function ensureStyle(){
     if(document.getElementById("kg-mood-style"))return;
     const s=document.createElement("style");s.id="kg-mood-style";
@@ -82,6 +130,9 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
     ensureStyle();
     if(boundRoot===root)stop(root);
     series=deps.series;
+    moodDependencies=deps;
+    moodPreferencesPending=false;
+    moodPageActive=true;
     root.innerHTML=`
 <div class="flex flex-col w-full pb-8">
 <div class="flex items-center justify-between pt-2 pb-1"><button type="button" data-mood-back class="flex items-center gap-1.5 text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined text-[20px]">arrow_back</span><span class="font-label-sm text-label-sm">${uiText("Подборки")}</span></button><span class="font-micro-caption text-micro-caption text-primary/80 uppercase tracking-widest">Mood &amp; Vibe</span></div>
@@ -149,6 +200,7 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
     stopSpin(root);deps.closeFilm("mood");
     root.querySelectorAll("[data-mood-result],[data-mood-films]").forEach(el=>el.replaceChildren());
     state.autoSpin=null;
+    moodPreferencesPending=false;
     state.mood=id;state.films=[];state.shown=4;state.loadedKey="";state.page=0;state.totalPages=0;state.jobs=null;
     paintSelection(root);loadMood(root,deps);renderFilms(root,deps);updateLaunchLabel(root);
   }
@@ -241,7 +293,15 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
       return;
     }
     if(e.target.closest("[data-mood-back]")){deps.back();return;}
-    if(e.target.closest('[data-act="close-film"]')){deps.closeFilm("mood",true);return;}
+    if(e.target.closest('[data-act="close-film"]')){
+      deps.closeFilm("mood",true);
+
+      if(moodPreferencesPending){
+        refreshMoodPreferences();
+      }
+
+      return;
+    }
     const ownerCard=e.target.closest(".mood-card");
     if(ownerCard&&ownerCard.dataset.moodCard!==state.mood&&!e.target.closest("[data-mood-select]")&&e.target.closest("[data-mood-workbench]"))selectMood(ownerCard.dataset.moodCard,root,deps);
     const select=e.target.closest("[data-mood-select]");
@@ -276,7 +336,10 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
     }
     if(e.target.closest("[data-mood-more]")){
       state.shown+=4;
-      if(filtered().length<state.shown&&state.page<state.totalPages)loadMood(root,deps,state.shown);
+      if(visibleFilms().length<state.shown&&state.page<state.totalPages){
+        const hidden=filtered().length-visibleFilms().length;
+        loadMood(root,deps,Math.max(filtered().length+1,state.shown+hidden));
+      }
       else renderFilms(root,deps);
       return;
     }
@@ -289,10 +352,30 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
   async function launch(root,deps){
     if(state.spinning)return;
     deps.closeFilm("mood");
-    const error=activeElement(root,"[data-mood-error]"),pool=filtered();
+    const error=activeElement(root,"[data-mood-error]");
+    const originalPool=filtered();
+    const pool=series
+      ? originalPool
+      : window.KGViewingPreferences?.filter("roulette",originalPool)??originalPool;
     if(error){error.hidden=true;error.textContent="";}
     if(state.loading){state.autoSpin=state.mood;if(error){error.textContent=uiText("Подборка загружается — рулетка запустится сама.");error.hidden=false;}return;}
-    if(!pool.length){if(error){error.textContent=uiText(series?"В выбранном настроении нет сериалов с такой длительностью серии.":"В выбранном настроении и хронометраже фильмов не нашлось. Выберите другой хронометраж.");error.hidden=false;}return;}
+    if(!pool.length){
+      const hiddenWatched=!series
+        && originalPool.length>0
+        && window.KGViewingPreferences?.get("roulette");
+
+      const message=series
+        ?"В выбранном настроении нет сериалов с такой длительностью серии."
+        :hiddenWatched
+          ?"В загруженной подборке нет непросмотренных фильмов. Выберите другое настроение или хронометраж."
+          :"В выбранном настроении и хронометраже фильмов не нашлось. Выберите другой хронометраж.";
+
+      if(error){
+        error.textContent=uiText(message);
+        error.hidden=false;
+      }
+      return;
+    }
     const moodId=state.mood,film=pool[Math.floor(Math.random()*pool.length)],winnerDetailId=`mood-roulette-winner-detail-${moodId}`;
     const token=++state.spinToken,winnerIndex=26,others=pool.filter(item=>item.id!==film.id),sequence=[];
     const showWinner = () => {
@@ -382,6 +465,13 @@ const state={mood:"wine",runtime:"any",films:[],shown:4,loading:false,loadedKey:
     }
     scrollToMoodResult(panel,moodId);
   }
-  function stop(root){stopSpin(root);state.token++;state.loading=false;state.autoSpin=null;}
+  function stop(root){
+    stopSpin(root);
+    state.token++;
+    state.loading=false;
+    state.autoSpin=null;
+    moodPageActive=false;
+    moodPreferencesPending=false;
+  }
   window.KGMoodPage={render,stop,runtimeOptions,getRuntime:()=>state.runtime};
 })();

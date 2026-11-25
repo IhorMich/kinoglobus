@@ -90,6 +90,36 @@
       </div>
     </section>
 
+
+    <section class="kg-ps-group">
+      <h2>${label("Просмотренные фильмы")}</h2>
+      <div class="kg-ps-list">
+        ${[
+          ["recommendations","auto_awesome",
+            "Скрывать в рекомендациях",
+            "Выбор дня и похожие фильмы"],
+          ["collections","collections_bookmark",
+            "Скрывать в подборках",
+            "Тематические коллекции и Вайб"],
+          ["roulette","shuffle",
+            "Скрывать в рулетке",
+            "Случайный поиск фильмов"]
+        ].map(([scope,symbol,title,description])=>`
+          <button type="button"
+            class="kg-ps-row kg-ps-spoiler-row"
+            data-ps-viewing="${scope}"
+            role="switch" aria-checked="false">
+            <span class="kg-ps-row-icon">${icon(symbol)}</span>
+            <span class="kg-ps-row-text">
+              <strong>${label(title)}</strong>
+              <small>${label(description)}</small>
+            </span>
+            <span class="kg-ps-toggle" aria-hidden="true"></span>
+          </button>
+        `).join("")}
+      </div>
+    </section>
+
     <div class="kg-ps-groups">
       ${group("Личные данные",["edit"])}
       ${group("Управление данными",["export"])}
@@ -105,6 +135,15 @@
   const photoPickers = hub.querySelectorAll("[data-ps-photo]");
   const photoFeedback = hub.querySelector("[data-ps-photo-message]");
   let session, currentProfile;
+
+  function renderViewingPreferences() {
+    hub.querySelectorAll("[data-ps-viewing]").forEach(button=>{
+      const enabled = window.KGViewingPreferences.get(
+        button.dataset.psViewing
+      );
+      button.setAttribute("aria-checked", String(enabled));
+    });
+  }
 
   function renderSpoilers() {
     const hidden = window.KGCinemaDiarySpoilers.get();
@@ -125,6 +164,7 @@
     const publicPage = hub.querySelector('[data-ps-route="public"] small');
     if (publicPage) publicPage.textContent = uiText(profile.privatePage ? "Приватная" : "Открытая");
     renderSpoilers();
+    renderViewingPreferences();
   }
 
   function openSubpage(route,title,content="") {
@@ -758,6 +798,19 @@
     if (!button) return;
     if (button.hasAttribute("data-ps-back")) { hub.close(); return; }
     if (button.hasAttribute("data-ps-logout")) { hub.close(); session.logout(); return; }
+    if (button.hasAttribute("data-ps-viewing")) {
+      const scope = button.dataset.psViewing;
+      const preferences = window.KGViewingPreferences;
+
+      try {
+        preferences.set(scope, !preferences.get(scope));
+        renderViewingPreferences();
+      } catch (error) {
+        console.error("[Moven] Viewing preferences:", error);
+      }
+
+      return;
+    }
     if (button === spoilers) {
       window.KGCinemaDiarySpoilers.set(spoilers.getAttribute("aria-checked") !== "true");
       renderSpoilers();

@@ -543,7 +543,36 @@
       results=results.slice(0,14);relatedCache.set(cacheKey,results);paint(section,results);
     }catch(error){list.innerHTML=`<span class="text-xs text-[rgb(var(--kg-text-muted))]">${uiText("Не удалось загрузить похожие фильмы.")}</span>`;console.warn("[Moven] related films:",error);}
   }
-  function paint(section,films){const list=section.querySelector("[data-kg-related-list]");if(!list)return;list.innerHTML=films.length?films.map(filmButton).join(""):`<span class="text-xs text-[rgb(var(--kg-text-muted))]">${uiText("В этом списке больше нет похожих фильмов.")}</span>`;}
+  function paint(section,films){const list=section.querySelector("[data-kg-related-list]");if(!list)return;const visibleFilms=window.KGSeries?.isSeriesId(Number(section.dataset.filmId))
+      ? films
+      : window.KGViewingPreferences?.filter("recommendations",films) ?? films;
+    list.innerHTML=visibleFilms.length?visibleFilms.map(filmButton).join(""):`<span class="text-xs text-[rgb(var(--kg-text-muted))]">${uiText("В этом списке больше нет похожих фильмов.")}</span>`;}
+  function refreshRelatedPreferences() {
+    document.querySelectorAll("[data-kg-related-films]").forEach(section=>{
+      const id=section.dataset.filmId;
+      if(!id || window.KGSeries?.isSeriesId(Number(id)))return;
+
+      const key=section.dataset.contextKey||"";
+      const cacheKey=`${id}:${key}`;
+
+      if(relatedCache.has(cacheKey)){
+        paint(section,relatedCache.get(cacheKey));
+      }
+    });
+  }
+
+  window.addEventListener("kg:viewing-preferences-changed",event=>{
+    if(event.detail?.scope==="recommendations"){
+      refreshRelatedPreferences();
+    }
+  });
+
+  document.addEventListener("kg:watched-change",()=>{
+    if(window.KGViewingPreferences?.get("recommendations")){
+      refreshRelatedPreferences();
+    }
+  });
+
   // Apply carousel poster sizing on every screen, not just after opening a person profile.
   ensureStyles();
   const personVisibilityObserver="IntersectionObserver" in window?new IntersectionObserver(entries=>entries.forEach(entry=>{

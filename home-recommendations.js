@@ -92,7 +92,7 @@
 
   function render(state) {
     state.feed.innerHTML =
-      `<div class="${railClass}">
+      `<div class="${state.type === "tv" ? railClass.replace("-mx-margin-mobile ", "") : railClass}">
         ${state.items.slice(0,state.visible)
           .map(posterCard).join("")}
         ${moreCard(state)}
@@ -358,13 +358,185 @@
     state.visible = PAGE_SIZE;
   }
 
+
+  function mountSeries() {
+    if (states.has("tv")) {
+      return states.get("tv");
+    }
+
+    const root = document.getElementById("kg-series-hub");
+    const anchor = root?.querySelector(
+      '[data-sh-feed="premieres"]'
+    )?.closest("section");
+
+    if (!anchor) {
+      throw new Error("Series premieres anchor missing");
+    }
+
+    const element = document.createElement("section");
+
+    element.id = "kg-home-personal-tv";
+    element.className = "flex flex-col gap-3.5";
+    element.hidden = true;
+    element.style.display = "none";
+
+    element.setAttribute(
+      "aria-labelledby",
+      "kg-home-personal-tv-title"
+    );
+
+    element.innerHTML = `
+      <div class="min-w-0">
+        <div class="flex items-center gap-1.5 text-primary-container">
+          <span class="material-symbols-outlined text-[18px]"
+            aria-hidden="true">auto_awesome</span>
+          <h2 id="kg-home-personal-tv-title"
+            class="font-headline-sm text-headline-sm text-on-surface font-semibold tracking-tight">
+            ${copy("Сериалы для вас")}
+          </h2>
+        </div>
+        <p class="font-body-sm text-body-sm text-on-surface-variant">
+          ${copy("На основе ваших предпочтений")}
+        </p>
+      </div>
+      <div data-recommendation-feed></div>`;
+
+    anchor.after(element);
+
+    const state = {
+      type: "tv",
+      element,
+      feed: element.querySelector(
+        "[data-recommendation-feed]"
+      ),
+      items: [],
+      visible: PAGE_SIZE
+    };
+
+    states.set("tv", state);
+
+    element.addEventListener("click", event => {
+      const button = event.target.closest(
+        "[data-recommendation-action]"
+      );
+
+      if (!button) return;
+
+      const action = button.dataset.recommendationAction;
+
+      if (action === "more") {
+        expand(state, button);
+        return;
+      }
+
+      if (action === "film") {
+        const series = state.items.find(item =>
+          String(item.id) === button.dataset.id
+        );
+
+        if (!series) return;
+
+        window.KGSeriesHub.openSeries(series, button);
+      }
+    });
+
+    return state;
+  }
+
+  function showSeries(items) {
+    const state = mountSeries();
+
+    const preserveState =
+      !state.element.hidden && state.items.length > 0;
+
+    const previousVisible = state.visible;
+    const scrollLeft =
+      state.feed.firstElementChild?.scrollLeft || 0;
+
+    const focused = document.activeElement;
+    const focusedId = state.feed.contains(focused)
+      ? focused.dataset.id || null
+      : null;
+
+    const focusedMore =
+      state.feed.contains(focused) &&
+      focused.dataset.recommendationAction === "more";
+
+    const unique = new Map();
+
+    for (const item of items || []) {
+      if (!item?.id) continue;
+
+      const series = window.KGSeries.normalize(item);
+
+      if (!window.KGSeries.isSeriesId(series?.id)) {
+        continue;
+      }
+
+      const key = String(series.id);
+
+      if (!unique.has(key)) {
+        unique.set(key, series);
+      }
+    }
+
+    state.items = [...unique.values()];
+
+    if (!state.items.length) {
+      hideSeries();
+      return;
+    }
+
+    state.visible = Math.min(
+      preserveState ? previousVisible : PAGE_SIZE,
+      state.items.length
+    );
+
+    render(state);
+    state.element.hidden = false;
+    state.element.style.display = "";
+
+    if (preserveState) {
+      if (focusedId) {
+        [...state.feed.querySelectorAll(
+          '[data-recommendation-action="film"]'
+        )].find(button =>
+          button.dataset.id === focusedId
+        )?.focus({preventScroll:true});
+      } else if (focusedMore) {
+        state.feed.querySelector(
+          '[data-recommendation-action="more"]'
+        )?.focus({preventScroll:true});
+      }
+
+      const rail = state.feed.firstElementChild;
+
+      if (rail) rail.scrollLeft = scrollLeft;
+    }
+  }
+
+  function hideSeries() {
+    const state = states.get("tv");
+    if (!state) return;
+
+    state.element.hidden = true;
+    state.element.style.display = "none";
+    state.feed.replaceChildren();
+    state.items = [];
+    state.visible = PAGE_SIZE;
+  }
+
   window.KGHomeRecommendations = Object.freeze({
     mountMovie,
     showMovie,
-    hideMovie
+    hideMovie,
+    mountSeries,
+    showSeries,
+    hideSeries
   });
 
   mountMovie();
+  mountSeries();
 
   console.info("[Moven] Personal recommendations UI ready");
 })();

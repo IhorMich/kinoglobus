@@ -78,6 +78,11 @@
   }
   const records=kind=>read(`kgSeries.${kind}`,{});
   const isWatched=id=>!!records('watched')[Number(id)];
+
+  function createWatchedChecker(){
+    const saved=records('watched');
+    return id=>!!saved[Number(id)];
+  }
   const isBookmarked=id=>!!records('bookmarks')[Number(id)];
   async function toggleRecord(kind,id,film){
     id=Number(id);let saved=records(kind);const enabled=!saved[id];
@@ -97,5 +102,5 @@
   const originalBookmark=window.kgIsBookmarked,originalToggleBookmark=window.kgToggleBookmark;
   window.kgIsBookmarked=id=>isSeriesId(id)?isBookmarked(id):originalBookmark(id);
   window.kgToggleBookmark=(id,film)=>isSeriesId(id)?toggleRecord('bookmarks',id,film):originalToggleBookmark(id,film);
-  window.KGSeries={get active(){return active;},genreLabels,isSeriesId,rawId,normalize,route,normalizeResponse,query,discover,mount,setMode,isWatched,watchedList:()=>Object.values(records("watched")),bookmarkList:()=>Object.values(records("bookmarks")),bookmarkIds:()=>Object.keys(records("bookmarks")).map(Number).filter(isSeriesId),storageKey:key=>active && filterKeys.has(key)?'series.'+key:key};
+  window.KGSeries={get active(){return active;},genreLabels,isSeriesId,rawId,normalize,route,normalizeResponse,query,discover,mount,setMode,isWatched,createWatchedChecker,watchedList:()=>Object.values(records("watched")),bookmarkList:()=>Object.values(records("bookmarks")),bookmarkIds:()=>Object.keys(records("bookmarks")).map(Number).filter(isSeriesId),storageKey:key=>active && filterKeys.has(key)?'series.'+key:key};
 })();

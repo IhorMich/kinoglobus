@@ -780,6 +780,16 @@ function showView(v, remember = true){
   }
 
   seriesPage.hidden=v!=="series";
+  if(v==="series"){
+    window.KGHomeRecommendationsController
+      ?.series?.refresh()
+      .catch(error => {
+        console.warn(
+          "[Moven] Series recommendations refresh failed",
+          error
+        );
+      });
+  }
   seriesCalendar.hidden=v!=="series-calendar";
   seriesGold.hidden=v!=="series-gold";
   if(enterGold)window.KGSeriesGold.show();

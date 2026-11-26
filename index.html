@@ -2497,6 +2497,14 @@ function showKeyUi(){
 
   if (recommendationApiKey !== apiKey) {
     recommendationApiKey = apiKey;
+    window.KGHomeRecommendationsController
+      ?.series?.refresh()
+      .catch(error => {
+        console.warn(
+          "[Moven] TV recommendations key refresh failed",
+          error
+        );
+      });
 
     window.KGHomeRecommendationsController
       ?.refresh()
@@ -2530,14 +2538,63 @@ async function api(params,options={}){
 
 async function requestTmdb(endpoint, params, options={}) {
   const q = new URLSearchParams({api_key: apiKey, ...params});
-  const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),10000);
-  let r;
-  try{r=await movieCatalog.request("https://api.themoviedb.org/3/"+endpoint+"?"+q,{cache:options.fresh?"no-store":"default",signal:controller.signal});}
-  catch(error){if(error.name==="AbortError")throw new Error("TMDB отвечает слишком долго. Повторите поиск.");throw error;}
-  finally{clearTimeout(timeout);}
-  if(r.status===401) throw new Error("Ключ не подошёл. Проверьте его и введите заново.");
-  if(!r.ok) throw new Error("TMDB недоступен, попробуйте ещё раз.");
-  return r.json();
+  const controller = new AbortController();
+  const externalSignal = options.signal;
+
+  let timedOut = false;
+
+  const abortExternal = () => controller.abort();
+
+  if (externalSignal?.aborted) {
+    throw new DOMException("Request aborted", "AbortError");
+  }
+
+  externalSignal?.addEventListener(
+    "abort", abortExternal, {once: true}
+  );
+
+  const timeout = setTimeout(() => {
+    timedOut = true;
+    controller.abort();
+  }, 10000);
+
+  try {
+    const r = await movieCatalog.request(
+      "https://api.themoviedb.org/3/" + endpoint + "?" + q,
+      {
+        cache: options.fresh ? "no-store" : "default",
+        signal: controller.signal
+      }
+    );
+
+    if (r.status === 401) {
+      throw new Error("Ключ не подошёл. Проверьте его и введите заново.");
+    }
+
+    if (!r.ok) {
+      throw new Error("TMDB недоступен, попробуйте ещё раз.");
+    }
+
+    return await r.json();
+
+  } catch (error) {
+    if (externalSignal?.aborted) {
+      throw new DOMException("Request aborted", "AbortError");
+    }
+
+    if (timedOut && error.name === "AbortError") {
+      throw new Error("TMDB отвечает слишком долго. Повторите поиск.");
+    }
+
+    throw error;
+
+  } finally {
+    clearTimeout(timeout);
+
+    externalSignal?.removeEventListener(
+      "abort", abortExternal
+    );
+  }
 }
 
 // Rating pass needs 100 films. Otherwise the same query is sorted by number of reviews.
@@ -3681,6 +3738,7 @@ function filmPosterMarkup(film, size = "w342") {
 }
 
 const detailCache={};
+const detailInflight=new Map();
 // Stills, posters and logos from the images block that filmDetails already requests. Language-free stills go first.
 function galleryFrom(images){
   const pick=(rows,limit,textFree)=>{
@@ -3693,6 +3751,30 @@ function galleryFrom(images){
 }
 async function filmDetails(id){
   if(id in detailCache) return detailCache[id];
+
+  const key=JSON.stringify([
+    String(apiKey||""),
+    filmLocale,
+    String(id)
+  ]);
+
+  if(detailInflight.has(key)){
+    return detailInflight.get(key);
+  }
+
+  const pending=loadFilmDetails(id);
+  detailInflight.set(key,pending);
+
+  try{
+    return await pending;
+  }finally{
+    if(detailInflight.get(key)===pending){
+      detailInflight.delete(key);
+    }
+  }
+}
+
+async function loadFilmDetails(id){
   const r=await movieCatalog.request("https://api.themoviedb.org/3/movie/"+id+"?"+new URLSearchParams({
     api_key:apiKey, language:filmLocale, append_to_response:"credits,translations,release_dates,images"+(window.KGSeries?.isSeriesId(id)?",aggregate_credits":""),
     include_image_language:"ru,en,null"}),{cache:"no-store"});
@@ -4875,12 +4957,12 @@ console.info("[Moven: Explore] Bridge v6 ready");
 <script src="series-detail.js?v=18"></script>
 <script src="episode-page.js?v=8"></script>
 <script src="watch-entry.js?v=1"></script>
-<script src="series-hub.js?v=12.6"></script>
+<script src="series-hub.js?v=12.7"></script>
 <script src="series-calendar.js?v=5"></script>
 <script src="personal-calendar.js?v=3"></script>
 <script src="series-gold.js?v=9"></script>
 <script src="collection-examples.js?v=1"></script>
-<script src="collections.js?v=177"></script>
+<script src="collections.js?v=178"></script>
 <script src="film-interactions.js?v=56"></script>
 <script src="hall-of-fame.js?v=8"></script>
 <script src="legal-watch.js?v=10"></script>
@@ -4891,8 +4973,8 @@ console.info("[Moven: Explore] Bridge v6 ready");
 <script src="reviews-page.js?v=6"></script>
 <script src="global-search.js?v=21"></script>
 <script src="home-releases.js?v=14"></script>
-<script src="home-recommendations.js?v=2"></script>
-<script src="home-recommendations-controller.js?v=3"></script>
+<script src="home-recommendations.js?v=3"></script>
+<script src="home-recommendations-controller.js?v=4"></script>
 <script src="settings-page.js?v=68"></script>
 <script>
 (() => {

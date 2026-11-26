@@ -744,6 +744,14 @@
     return queries;
   }
 
+  function ensureNotAborted(signal) {
+    if (signal?.aborted) {
+      throw new DOMException(
+        "Request aborted", "AbortError"
+      );
+    }
+  }
+
   async function fetchCandidates(
     preferences,
     type = "movie",
@@ -775,7 +783,9 @@
     let cursor = 0;
 
     async function worker() {
+      ensureNotAborted(options.signal);
       while (cursor < queries.length) {
+        ensureNotAborted(options.signal);
         const index = cursor++;
         const query = queries[index];
 
@@ -797,6 +807,7 @@
           };
 
         } catch (error) {
+          ensureNotAborted(options.signal);
           responses[index] = {
             error: String(
               error?.message || error
@@ -817,6 +828,8 @@
         () => worker()
       )
     );
+
+    ensureNotAborted(options.signal);
 
     const candidates = new Map();
     const errors = [];
@@ -1074,7 +1087,9 @@
     let cursor = 0;
 
     async function worker() {
+      ensureNotAborted(options.signal);
       while (cursor < selected.length) {
+        ensureNotAborted(options.signal);
         const position = cursor++;
         const candidate = selected[position];
         const item = result.items[candidate.index];
@@ -1106,6 +1121,7 @@
           result.succeeded++;
 
         } catch (error) {
+          ensureNotAborted(options.signal);
           result.failed++;
 
           result.errors.push({
@@ -1129,6 +1145,8 @@
         () => worker()
       )
     );
+
+    ensureNotAborted(options.signal);
 
     return result;
   }
@@ -1262,6 +1280,8 @@
       throw new Error("Unknown media type");
     }
 
+    ensureNotAborted(options.signal);
+
     const model = options.model || DEFAULT_MODEL;
 
     if (!MODELS[model]) {
@@ -1328,6 +1348,7 @@
         today,
         profile,
         language: options.language,
+        signal: options.signal,
         request: options.request,
         normalize: options.normalize,
         allows: options.allows
@@ -1338,6 +1359,8 @@
       items: loadedItems,
       ...loadingStats
     } = loaded;
+
+    ensureNotAborted(options.signal);
 
     result.stats.loading = loadingStats;
 
@@ -1372,6 +1395,7 @@
       {
         model,
         profile,
+        signal: options.signal,
         loadCountries: options.loadCountries
       }
     );
@@ -1380,6 +1404,8 @@
       items: enrichedItems,
       ...countryStats
     } = enriched;
+
+    ensureNotAborted(options.signal);
 
     result.stats.countries = countryStats;
 

@@ -1,6 +1,7 @@
 /* Series home editorial block, adapted from the supplied Stitch layout. */
 (() => {
   const DAY=86400000;
+  const REUSE_TTL=30*60*1000;
   const platforms={all:'Все',netflix:'Netflix',prime:'Prime Video',disney:'Disney+',hbomax:'HBO Max',apple:'Apple TV+',hulu:'Hulu',paramount:'Paramount+',peacock:'Peacock',max:'HBO',crunchyroll:'Crunchyroll',fx:'FX',showtime:'Showtime',starz:'Starz',amc:'AMC+'};
   const mainKeys=Object.keys(platforms), networks={netflix:213,apple:2552,max:49,prime:1024,fx:88,disney:2739,hulu:453,paramount:4330,peacock:3353,hbomax:3186,amc:4661,starz:318,showtime:67,crunchyroll:1112};
   const aliases={netflix:/^Netflix$/i,apple:/^Apple TV(?:\+| Plus)?$/i,max:/^HBO$/i,prime:/^Amazon Prime Video$|^Prime Video$/i,fx:/^FX$/i,disney:/^Disney\+$/i,hulu:/^Hulu$/i,paramount:/^Paramount(?: Plus|\+)(?: Premium| Essential)?$/i,peacock:/^Peacock( Premium)?$/i,hbomax:/^Max$|^HBO Max$/i,amc:/^AMC(?:\+| Plus)$/i,starz:/^Starz$/i,showtime:/^Showtime$/i,crunchyroll:/^Crunchyroll$/i};
@@ -92,9 +93,10 @@
   }
   const categories=[['all','Все новинки'],['week','Премьеры недели'],['crime','Триллер & Детектив'],['scifi','Фантастика'],['complete','Завершенные сезоны']];
   let root,category='all',platform='all',generation=0,loadedKey='',loading=false,expanded=false;
+  let completedAt=0;
   const networkCache=new Map(),featured=new Map();
-  let period=7,sortMode=0,limits={},pages={},busy=new Set(),errors=new Set();
-  const resetFeeds=()=>{limits={top:6,premieres:6,popular:6,schedule:6};pages={};busy=new Set();errors=new Set();};resetFeeds();
+  let period=7,sortMode=0,limits={},pages={},pageRows={},busy=new Set(),errors=new Set();
+  const resetFeeds=()=>{limits={top:6,premieres:6,popular:6,schedule:6};pages={};pageRows={};busy=new Set();errors=new Set();};resetFeeds();
   let heroFrame=0,heroKey='';
   let data={hero:null,popular:[],premieres:[],schedule:[],top:[]},allShows=new Map();
   const heading=(text,aside='')=>`<div class="kg-sh-heading"><h3>${esc(uiText(text))}</h3>${aside}</div>`;
@@ -120,7 +122,42 @@
     remember([data.hero,...data.popular,...data.premieres,...(data.top||[]),...data.schedule.map(x=>x.show)]);
     const liveHero=root.querySelector('[data-sh-hero]');
     const holder=document.createElement('div');holder.innerHTML=`<div class="kg-sh-categories">${categories.map(([key,text])=>`<button type="button" data-sh-category="${key}" aria-pressed="${category===key}">${key==='all'?icon('spark',14):''}${esc(uiText(text))}</button>`).join('')}</div>${heroMarkup(data.hero)}<section class="kg-sh-platforms">${heading('Сервисы')}${regionControls()}<div class="kg-sh-platform-scroll">${platformMarkup()}</div></section><section class="kg-sh-schedule">${heading('График выхода новых серий',`<button type="button" data-sh-period>${esc(uiText(period===7?'Неделя':'Месяц'))}${icon('chevron',14)}</button>`)}<div class="kg-sh-scroll" data-sh-schedule data-sh-feed="schedule">${feedMarkup('schedule')}</div></section><section class="kg-sh-premieres">${heading('Топ лучших сериалов')}<div class="kg-sh-scroll" data-sh-feed="top">${feedMarkup('top')}</div></section><section class="kg-sh-premieres">${heading('Громкие премьеры и продолжения')}<div class="kg-sh-scroll" data-sh-feed="premieres">${feedMarkup('premieres')}</div></section><section class="kg-sh-popular-section">${heading('Популярно в сети',`<button type="button" data-sh-sort>${esc(uiText(['Популярность','Рейтинг','Новинки'][sortMode]))}${icon('chevron',14)}</button>`)}<div class="kg-sh-grid" data-sh-feed="popular">${feedMarkup('popular')}</div></section><div class="kg-sh-empty" data-sh-empty hidden>${icon('info',30)}<h4>${esc(uiText('Релизы не найдены'))}</h4><p>${esc(uiText('На данной платформе пока нет добавленных премьер в этом разделе.'))}</p><button type="button" data-sh-reset>${esc(uiText('Показать все сериалы'))}</button></div><p class="kg-sh-data-status" data-sh-status role="status"></p>`;
-    if(liveHero){liveHero.hidden=!data.hero;for(const child of [...root.children])if(child!==liveHero)child.remove();for(const child of [...holder.children]){if(child.matches('[data-sh-hero]'))continue;if(child.matches('.kg-sh-categories'))root.insertBefore(child,liveHero);else root.append(child);}updateHero(data.hero);}else{root.append(...holder.children);heroKey=String(data.hero?.id);queueParallax();}
+    const personal=root.querySelector('#kg-home-personal-tv');
+
+    if(liveHero){
+      liveHero.hidden=!data.hero;
+
+      for(const child of [...root.children]){
+        if(child!==liveHero&&child!==personal)child.remove();
+      }
+
+      let afterPersonal=false;
+
+      for(const child of [...holder.children]){
+        if(child.matches('[data-sh-hero]'))continue;
+
+        if(child.matches('.kg-sh-categories')){
+          root.insertBefore(child,liveHero);
+          continue;
+        }
+
+        if(personal&&!afterPersonal){
+          root.insertBefore(child,personal);
+        }else{
+          root.append(child);
+        }
+
+        if(child.querySelector('[data-sh-feed="premieres"]')){
+          afterPersonal=true;
+        }
+      }
+
+      updateHero(data.hero);
+    }else{
+      root.append(...holder.children);
+      heroKey=String(data.hero?.id);
+      queueParallax();
+    }
     localizeInterfaceMarkup(root);root.querySelectorAll('.kg-sh-categories,.kg-sh-platform-scroll,.kg-sh-scroll').forEach((el,i)=>el.scrollLeft=rails[i]||0);if(focused)root.querySelector(`[${focused[0]}="${focused[1]}"]`)?.focus({preventScroll:true});applyPlatform(platform);
   }
   function selectPlatform(value){
@@ -143,7 +180,7 @@
   }
   function updateHero(f){
     const hero=root?.querySelector('[data-sh-hero]');if(!hero||!f)return;
-    remember([f]);const key=JSON.stringify([f.id,f.vote_average,f.number_of_episodes,f.overview,heroImage(f)]);if(key===heroKey)return;heroKey=key;
+    remember([f]);const key=JSON.stringify([f.id,f.vote_average,f.number_of_episodes,f.overview,heroImage(f),service(f)]);if(key===heroKey)return;heroKey=key;
     const next=document.createElement('div');next.innerHTML=heroMarkup(f);const target=next.firstElementChild;
     const content=hero.querySelector('.kg-sh-content-crossfade'),ribbon=hero.querySelector('.kg-sh-showcase-ribbon');
     if(!content||!ribbon){hero.replaceWith(target);queueParallax();return;}
@@ -188,7 +225,7 @@
     queueParallax();return host.firstElementChild;
   }
   function platformResults(rows,selected){return rows.filter(movieCatalog.allows).map(f=>selected==='all'?f:{...f,_hubService:selected});}
-  async function tmdb(path,params={}){return requestTmdb(path,{language:filmLocale,include_adult:'false',...params});}
+  async function tmdb(path,params={},options={}){return requestTmdb(path,{language:filmLocale,include_adult:'false',...params},options);}
   // One filter per selection, shared by every feed. Never silently widen it.
   function buildStreamingFilter(selected, selectedMode, selectedRegion, ids=[]){
     if(selected==='all')return {};
@@ -203,27 +240,209 @@
     const filter=buildStreamingFilter(selected,selectedMode,selectedRegion,providerIds.get(selected)||[]);
     return {filter,notice:filter===null?'Для этой платформы нет данных в выбранной стране или режиме. Попробуйте изменить страну или режим.':''};
   }
-  async function discoverFeed(query,filter,page){
-    const result=await tmdb('discover/tv',{...query,...filter,page});
+  async function discoverFeed(query,filter,page,signal){
+    const result=await tmdb('discover/tv',{...query,...filter,page},{signal});
     if(!Array.isArray(result.results))throw new Error('Invalid TMDB results');
     return result;
   }
   let activeFilter=null;
-  // Shared per-generation detail queue: at most four concurrent requests across all feeds.
-  function detailQueue(){
-    const cache=new Map(),queue=[];let running=0;
-    function pump(){while(running<4&&queue.length){const job=queue.shift();running++;job().finally(()=>{running--;pump();});}}
-    return (f,token)=>{
-      if(!cache.has(f.id))cache.set(f.id,new Promise(resolve=>{
-        queue.push(async()=>{
-          if(token!==generation){resolve(null);return;}
-          try{const raw=await tmdb(`tv/${window.KGSeries.rawId(f.id)}`);resolve(movieCatalog.allows(raw)?{...f,...localizeFilmListItem(raw),_hubService:f._hubService}:null);}
-          catch(error){console.warn('[SeriesHub v12.2] detail',window.KGSeries.rawId(f.id),error.code||error.name);resolve(error.code==='CATALOG_RESTRICTED'?null:undefined);}
-        });pump();
-      }));return cache.get(f.id).then(value=>{if(value===undefined)cache.delete(f.id);return value;});
+  // Successful TV metadata shared across load generations.
+  const DETAIL_TTL=30*60*1000;
+  const DETAIL_MAX=500;
+  const detailMetadataCache=new Map();
+
+  function detailMetadataKey(id){
+    return JSON.stringify([
+      String(apiKey||''),
+      'tv/'+window.KGSeries.rawId(id),
+      filmLocale,
+      'include_adult=false',
+      'append_to_response=keywords'
+    ]);
+  }
+
+  function readDetailMetadata(key){
+    const entry=detailMetadataCache.get(key);
+    if(!entry)return undefined;
+
+    const age=Date.now()-entry.savedAt;
+
+    if(age<0||age>=DETAIL_TTL||
+       !movieCatalog.allows(entry.raw)){
+      detailMetadataCache.delete(key);
+      return undefined;
+    }
+
+    // LRU touch without extending the original TTL.
+    detailMetadataCache.delete(key);
+    detailMetadataCache.set(key,entry);
+
+    return entry.raw;
+  }
+
+  function writeDetailMetadata(key,raw){
+    if(!movieCatalog.allows(raw))return;
+
+    const now=Date.now();
+
+    for(const [cachedKey,entry] of detailMetadataCache){
+      const age=now-entry.savedAt;
+      if(age<0||age>=DETAIL_TTL){
+        detailMetadataCache.delete(cachedKey);
+      }
+    }
+
+    detailMetadataCache.delete(key);
+    detailMetadataCache.set(key,{raw,savedAt:now});
+
+    while(detailMetadataCache.size>DETAIL_MAX){
+      const oldest=detailMetadataCache.keys().next().value;
+      detailMetadataCache.delete(oldest);
+    }
+  }
+
+  // One metadata scheduler shared by all load generations.
+  const detailJobs=[];
+  let detailRunning=0;
+  let generationController=new AbortController();
+
+  function pumpDetailJobs(){
+    while(detailRunning<4&&detailJobs.length){
+      const index=detailJobs.findIndex(job=>job.priority>0);
+      const job=detailJobs.splice(index<0?0:index,1)[0];
+
+      if(!job.current()){
+        job.cancel();
+        continue;
+      }
+
+      detailRunning++;
+
+      job.run().finally(()=>{
+        detailRunning--;
+        pumpDetailJobs();
+      });
+    }
+  }
+
+  function cancelDetailGeneration(){
+    generationController.abort();
+
+    for(let i=detailJobs.length-1;i>=0;i--){
+      const job=detailJobs[i];
+
+      if(!job.current()){
+        detailJobs.splice(i,1);
+        job.cancel();
+      }
+    }
+  }
+
+  function detailQueue(signal){
+    const cache=new Map(),queued=new Map();
+
+    return (f,token,priority=0)=>{
+      if(token!==generation||signal.aborted){
+        return Promise.resolve(null);
+      }
+
+      const key=detailMetadataKey(f.id);
+
+      const current=()=>token===generation&&
+        !signal.aborted&&key===detailMetadataKey(f.id);
+
+      const waiting=queued.get(key);
+
+      if(waiting){
+        waiting.priority=Math.max(waiting.priority,priority);
+      }
+
+      if(!cache.has(key)){
+        let resolve;
+        const promise=new Promise(r=>{resolve=r;});
+
+        const job={
+          key,
+          priority,
+          current,
+
+          cancel:()=>{
+            queued.delete(key);
+            resolve(null);
+          },
+
+          run:async()=>{
+            queued.delete(key);
+
+            try{
+              if(!current()){
+                resolve(null);
+                return;
+              }
+
+              let raw=readDetailMetadata(key);
+
+              if(raw===undefined){
+                raw=await tmdb(
+                  `tv/${window.KGSeries.rawId(f.id)}`,
+                  {},
+                  {signal}
+                );
+
+                if(!current()){
+                  resolve(null);
+                  return;
+                }
+
+                if(movieCatalog.allows(raw)){
+                  writeDetailMetadata(key,raw);
+                }
+              }
+
+              resolve(movieCatalog.allows(raw)?raw:null);
+
+            }catch(error){
+              if(!current()){
+                resolve(null);
+                return;
+              }
+
+              console.warn('[SeriesHub v12.2] detail',
+                window.KGSeries.rawId(f.id),
+                error.code||error.name);
+
+              resolve(error.code==='CATALOG_RESTRICTED'
+                ?null:undefined);
+            }
+          }
+        };
+
+        cache.set(key,promise);
+        queued.set(key,job);
+        detailJobs.push(job);
+        pumpDetailJobs();
+      }
+
+      const pending=cache.get(key);
+
+      return pending.then(raw=>{
+        if(cache.get(key)===pending){
+          cache.delete(key);
+        }
+
+        if(!current())return null;
+        if(raw===undefined)return undefined;
+        if(!raw||!movieCatalog.allows(raw))return null;
+
+        return {
+          ...f,
+          ...localizeFilmListItem(raw),
+          _hubService:f._hubService
+        };
+      });
     };
   }
-  let getDetail=detailQueue();
+  let getDetail=detailQueue(generationController.signal);
   function feedMarkup(k){
     const rows=data[k]||[],filtered=rows.filter(x=>platform==='all'||service(k==='schedule'?x.show:x)===platform);
     const cards=filtered.slice(0,limits[k]).map(x=>k==='schedule'?scheduleMarkup(x):k==='popular'?popularMarkup(x):premiereMarkup(x,k==='top')).join('');
@@ -254,35 +473,241 @@
     if(k==='premieres')return {...q,'air_date.gte':category==='week'?today:dayAfter(today,-30),'air_date.lte':dayAfter(today,7)};
     return {...q,'air_date.gte':today,'air_date.lte':dayAfter(today,period)};
   }
-  async function fetchPage(k,token){
-    if(busy.has(k)||pages[k]?.done)return;
+  // Resolve the first eligible hero in discovery order.
+  // Duplicate IDs retain the last eligible metadata record.
+  async function earlyPopularHero(rows,tasks,token){
+    const groups=new Map();
+    const visited=new Set();
+
+    const isCurrent=()=>
+      token===generation&&window.KGSeries.active;
+
+    const eligible=(detail,index)=>{
+      if(!detail)return null;
+
+      const item={
+        ...detail,
+        _hubService:rows[index]._hubService
+      };
+
+      return movieCatalog.allows(item)?item:null;
+    };
+
+    for(let i=0;i<rows.length;i++){
+      const key=String(rows[i].id);
+
+      if(!groups.has(key))groups.set(key,[]);
+      groups.get(key).push(i);
+    }
+
+    for(let i=0;i<rows.length;i++){
+      if(!isCurrent())return null;
+
+      const detail=await tasks[i];
+
+      if(!isCurrent())return null;
+
+      const first=eligible(detail,i);
+
+      if(!first)continue;
+
+      const key=String(first.id);
+
+      if(visited.has(key))continue;
+      visited.add(key);
+
+      const indices=groups.get(key)||[i];
+
+      const values=await Promise.all(
+        indices.map(index=>tasks[index])
+      );
+
+      if(!isCurrent())return null;
+
+      let candidate=null;
+
+      for(let j=0;j<indices.length;j++){
+        const item=eligible(values[j],indices[j]);
+
+        if(item)candidate=item;
+      }
+
+      if(candidate?.backdrop_path&&
+         movieCatalog.allows(candidate)){
+        return candidate;
+      }
+    }
+
+    return null;
+  }
+
+  async function fetchPage(k,token,onEarlyHero=null){
+    if(token!==generation||generationController.signal.aborted||busy.has(k)||pages[k]?.done)return;
+    const signal=generationController.signal;
     busy.add(k);errors.delete(k);if(!loading)updateFeed(k);
     try{
       const filter=activeFilter?.filter,selected=platform;if(token!==generation)return;if(filter==null){pages[k]={page:0,done:true};return;}
       const page=(pages[k]?.page||0)+1,today=dateKey();
-      const result=await discoverFeed(feedQuery(k,today),filter,page);if(token!==generation)return;
+      const result=await discoverFeed(feedQuery(k,today),filter,page,signal);if(token!==generation)return;
       const rows=platformResults(result.results.map(f=>localizeFilmListItem(window.KGSeries.normalize(f))),selected);
-      const details=await Promise.all(rows.map(f=>getDetail(f,token)));if(token!==generation)return;
+      const detailTasks=rows.map((f,i)=>
+        getDetail(f,token,loading&&page===1&&k==='popular'&&i<4?1:0)
+      );
+
+      const detailsReady=Promise.all(detailTasks);
+
+      if(onEarlyHero&&loading&&page===1&&k==='popular'){
+        earlyPopularHero(rows,detailTasks,token)
+          .then(hero=>{
+            if(hero&&token===generation&&loading&&window.KGSeries.active){
+              onEarlyHero(hero);
+            }
+          })
+          .catch(()=>{});
+      }
+
+      const details=await detailsReady;
+      if(token!==generation)return;
       const enriched=rows.flatMap((f,i)=>details[i]?[{...details[i],_hubService:f._hubService}]:[]).filter(movieCatalog.allows);
       if(details.some(f=>f===undefined))errors.add(k);
       const incoming=k==='schedule'?scheduleFor(enriched,today,period):enriched;
       console.info('[SeriesHub v12.2]',selected,k,{page,filter,received:result.results.length,allowed:rows.length,verified:enriched.length,shown:incoming.length});
       const key=x=>k==='schedule'?`${x.show.id}:${x.episode.season_number}:${x.episode.episode_number}`:String(x.id);
-      data[k]=[...new Map([...(data[k]||[]),...incoming].map(x=>[key(x),x])).values()];
+      // Replace the retried page instead of appending
+      // recovered items to the end of the feed.
+      if(!pageRows[k])pageRows[k]=new Map();
+      pageRows[k].set(page,incoming);
+
+      const orderedRows=[...pageRows[k].entries()]
+        .sort((a,b)=>a[0]-b[0])
+        .flatMap(([,rows])=>rows);
+
+      data[k]=[...new Map(
+        orderedRows.map(x=>[key(x),x])
+      ).values()];
       if(k==='schedule')data[k].sort((a,b)=>a.episode.air_date.localeCompare(b.episode.air_date));
       if(!details.some(f=>f===undefined))pages[k]={page,done:page>=Math.min(result.total_pages||1,500)};
     }catch(error){if(token===generation){errors.add(k);console.warn("[SeriesHub v12.2] feed",k,error.name);}}finally{if(token===generation){busy.delete(k);if(!loading)updateFeed(k);}}
   }
+  function selectHero(){
+    const firstPage=k=>[
+      ...new Map(
+        (pageRows[k]?.get(1)||[])
+          .map(f=>[String(f.id),f])
+      ).values()
+    ];
+    const hero=firstPage('popular').find(f=>f.backdrop_path)
+      ||firstPage('premieres')[0]
+      ||firstPage('top')[0];
+
+    data.hero=hero||null;
+
+    if(hero&&platform==='all'){
+      featured.set(category,hero);
+    }
+
+    return hero;
+  }
+
+  function syncHero(hero){
+    const live=root.querySelector('[data-sh-hero]');
+
+    if(!hero){
+      if(live)live.hidden=true;
+      return;
+    }
+
+    if(live){
+      live.hidden=false;
+      updateHero(hero);
+    }else{
+      const holder=document.createElement('div');
+      holder.innerHTML=heroMarkup(hero);
+      root.querySelector('.kg-sh-categories')
+        .after(...holder.children);
+      queueParallax();
+    }
+  }
+
   async function moreFeed(k){
     if(loading||!Object.hasOwn(limits,k)||busy.has(k)||!apiKey)return;
-    const token=generation;limits[k]+=6;
+    const token=generation;
+    if(errors.has(k)){
+      const retryPage=(pages[k]?.page||0)+1;
+      await fetchPage(k,token);
+
+      if(
+        token===generation &&
+        !loading &&
+        window.KGSeries.active &&
+        !errors.has(k) &&
+        k!=='schedule' && retryPage===1
+      ){
+        syncHero(selectHero());
+      }
+
+      return;
+    }
+    limits[k]+=6;
     if((data[k]||[]).length<limits[k]&&!pages[k]?.done)await fetchPage(k,token);
     else if(token===generation)updateFeed(k);
   }
+  function selectionKey(){
+    return JSON.stringify([
+      String(apiKey||''),
+      category,
+      platform,
+      period,
+      sortMode,
+      region,
+      mode,
+      filmLocale,
+      interfaceLanguage,
+      dateKey()
+    ]);
+  }
+
+  function canReuseLoaded(){
+    const age=Date.now()-completedAt;
+
+    return Boolean(
+      root &&
+      root.isConnected &&
+      apiKey &&
+      completedAt>0 &&
+      age>=0 &&
+      age<REUSE_TTL &&
+      loadedKey===selectionKey() &&
+      !loading &&
+      busy.size===0 &&
+      errors.size===0 &&
+      providerKey===String(apiKey||'')+':'+region &&
+      ['popular','premieres','schedule','top']
+        .every(k=>Object.hasOwn(pages,k))
+    );
+  }
+
+  function leaveSeries(){
+    if(loading||busy.size>0){
+      completedAt=0;
+      generation++;
+      cancelDetailGeneration();
+      loading=false;
+      root?.removeAttribute('aria-busy');
+    }
+  }
+
   async function load(force=false){
     if(!root || !window.KGSeries.active)return;
-    const key=String(apiKey||'')+':'+category+':'+platform+':'+period+':'+sortMode+':'+region+':'+mode;if(!force&&loading&&loadedKey===key)return;
-    const token=++generation;resetFeeds();getDetail=detailQueue();loadProviders();
+    const key=selectionKey();
+    if(!force&&loading&&loadedKey===key)return;
+    completedAt=0;
+    const token=++generation;
+    cancelDetailGeneration();
+    generationController=new AbortController();
+    resetFeeds();
+    getDetail=detailQueue(generationController.signal);
+    loadProviders();
     
     if(!apiKey){root.querySelector('[data-sh-status]').textContent=uiText('Добавьте ключ TMDB, чтобы обновлять сериалы и расписание.');return;}
     loadedKey=key;loading=true;root.setAttribute('aria-busy','true');root.querySelector('[data-sh-empty]').hidden=true;root.querySelector('[data-sh-status]').textContent='';
@@ -290,22 +715,105 @@
     try{
       data={hero:null,popular:[],premieres:[],schedule:[],top:[]};
       const resolved=await networkQuery(platform,mode,region);if(token!==generation)return;activeFilter=resolved;
-      await Promise.allSettled(['popular','premieres','schedule','top'].map(k=>fetchPage(k,token)));
-      if(token!==generation)return;
-      const hero=data.popular.find(f=>f.backdrop_path)||data.premieres[0]||data.top[0];
-      if(hero){data.hero=hero;if(platform==='all')featured.set(category,hero);}
+      let earlyHero=null;
+      let earlyOpen=true;
+
+      function publishHero(hero){
+        if(token!==generation||!window.KGSeries.active)return;
+
+        data.hero=hero||null;
+
+
+        // Register the early hero before enabling its actions.
+        if(hero)remember([hero]);
+
+        // Preserve the viewport when the hero changes height.
+        const heroAnchor=[...root.querySelectorAll('.kg-sh-platforms,[data-sh-feed]')]
+          .find(el=>el.getBoundingClientRect().bottom>0);
+        const heroBefore=heroAnchor?.getBoundingClientRect().top;
+
+        syncHero(hero);
+
+        if(heroAnchor&&Number.isFinite(heroBefore)){
+          const delta=heroAnchor.getBoundingClientRect().top-heroBefore;
+          if(Math.abs(delta)>1){
+            let scroller=heroAnchor.parentElement;
+            while(scroller&&scroller!==document.body&&!/(auto|scroll)/.test(getComputedStyle(scroller).overflowY)){
+              scroller=scroller.parentElement;
+            }
+            if(scroller&&scroller!==document.body&&scroller.scrollHeight>scroller.clientHeight){
+              scroller.scrollTop+=delta;
+            }else{
+              window.scrollBy(0,delta);
+            }
+          }
+        }
+      }
+
+      // Start all feeds concurrently.
+      const feedTasks=Object.fromEntries(
+        ['popular','premieres','schedule','top']
+          .map(k=>[k,fetchPage(k,token,
+            k==='popular'?hero=>{
+              if(!earlyOpen||token!==generation||!loading||
+                 !window.KGSeries.active)return;
+
+              publishHero(hero);
+              earlyHero=hero;
+            }:null
+          )])
+      );
+
+      const feedsReady=Promise.allSettled(
+        Object.values(feedTasks)
+      );
+
+      await feedTasks.popular;
+      earlyOpen=false;
+      if(token!==generation||!window.KGSeries.active)return;
+
+      if(!data.popular.some(f=>f.backdrop_path)){
+        await feedTasks.premieres;
+        if(token!==generation||!window.KGSeries.active)return;
+
+        if(!data.premieres.length){
+          await feedTasks.top;
+          if(token!==generation||!window.KGSeries.active)return;
+        }
+      }
+
+      const hero=selectHero();
+
+      // Reconcile against the original complete-feed selector.
+      if(!earlyHero||
+         JSON.stringify(earlyHero)!==JSON.stringify(hero)){
+        publishHero(hero);
+      }else if(hero){
+        remember([hero]);
+      }
+
+      // Finalize the remaining feeds without delaying the hero.
+      await feedsReady;
+      if(token!==generation||!window.KGSeries.active)return;
       const anchor=[...root.querySelectorAll('.kg-sh-platforms,[data-sh-feed]')].find(el=>el.getBoundingClientRect().bottom>0);
       const before=anchor?.getBoundingClientRect().top;
       loading=false;root.removeAttribute('aria-busy');
       for(const k of ['schedule','top','premieres','popular'])updateFeed(k);
-      if(!hero){const live=root.querySelector('[data-sh-hero]');if(live)live.hidden=true;}
-      if(hero){const live=root.querySelector('[data-sh-hero]');if(live){live.hidden=false;updateHero(hero);}else{const holder=document.createElement('div');holder.innerHTML=heroMarkup(hero);root.querySelector('.kg-sh-categories').after(...holder.children);queueParallax();}}
       const empty=root.querySelector('[data-sh-empty]');empty.hidden=true;
       const periodButton=root.querySelector('[data-sh-period]');if(periodButton)periodButton.innerHTML=esc(uiText(period===7?'Неделя':'Месяц'))+icon('chevron',14);
       const sortButton=root.querySelector('[data-sh-sort]');if(sortButton)sortButton.innerHTML=esc(uiText(['Популярность','Рейтинг','Новинки'][sortMode]))+icon('chevron',14);
       root.querySelector('[data-sh-status]').textContent=activeFilter?.notice?uiText(activeFilter.notice):'';
       if(anchor&&Number.isFinite(before)){const delta=anchor.getBoundingClientRect().top-before;if(Math.abs(delta)>1){let scroller=anchor.parentElement;while(scroller&&scroller!==document.body&&!/(auto|scroll)/.test(getComputedStyle(scroller).overflowY))scroller=scroller.parentElement;if(scroller&&scroller!==document.body&&scroller.scrollHeight>scroller.clientHeight)scroller.scrollTop+=delta;else window.scrollBy(0,delta);}}
-    }catch{if(token!==generation)return;loading=false;root.removeAttribute('aria-busy');root.querySelector('[data-sh-empty]').hidden=true;if(!data.schedule.length)root.querySelector('[data-sh-schedule]').innerHTML=`<div class="kg-sh-message"><p>${esc(uiText('Не удалось загрузить расписание.'))}</p><button type="button" data-sh-retry>${esc(uiText('Повторить'))}</button></div>`;root.querySelector('[data-sh-status]').innerHTML=`${esc(uiText('Не удалось обновить сериалы.'))} <button type="button" data-sh-retry>${esc(uiText('Повторить'))}</button>`;}
+      // Keep the initial load timestamp even when a feed
+      // needs retry. canReuseLoaded still requires every
+      // feed to be complete and free of errors.
+      if(
+        loadedKey===selectionKey() &&
+        busy.size===0
+      ){
+        completedAt=Date.now();
+      }
+    }catch{if(token!==generation)return;completedAt=0;loading=false;root.removeAttribute('aria-busy');root.querySelector('[data-sh-empty]').hidden=true;if(!data.schedule.length)root.querySelector('[data-sh-schedule]').innerHTML=`<div class="kg-sh-message"><p>${esc(uiText('Не удалось загрузить расписание.'))}</p><button type="button" data-sh-retry>${esc(uiText('Повторить'))}</button></div>`;root.querySelector('[data-sh-status]').innerHTML=`${esc(uiText('Не удалось обновить сериалы.'))} <button type="button" data-sh-retry>${esc(uiText('Повторить'))}</button>`;}
   }
   function mount(panel){
     if(root)return;root=document.createElement('section');root.id='kg-series-hub';root.className='kg-sh kg-home-full-width';root.setAttribute('aria-label',uiText('Сериалы: новинки и расписание'));panel.append(root);
@@ -313,7 +821,19 @@
     root.addEventListener('change',event=>{if(event.target.matches('[data-sh-region]')){region=event.target.value;savePref('kgSeriesRegion',region);platform='all';loadProviders();load(true)}});
     root.addEventListener('click',event=>{
       if(event.target.closest('[data-sh-regional]')){regionalExpanded=!regionalExpanded;updatePlatforms();return;}
-      if(event.target.closest('[data-sh-mode]')){if(networkOnly(platform))return;mode=mode==='original'?'available':'original';savePref('kgSeriesMode',mode);load(true);return;}
+      const modeButton=event.target.closest('[data-sh-mode]');
+      if(modeButton){
+        if(networkOnly(platform))return;
+        mode=mode==='original'?'available':'original';
+        savePref('kgSeriesMode',mode);
+        modeButton.textContent=uiText(
+          mode==='original'
+            ?'Оригинальные сериалы'
+            :'Доступны для просмотра'
+        )+' ↔';
+        load(true);
+        return;
+      }
       if(event.target.closest('[data-sh-auto]')){region=guessRegion();savePref('kgSeriesRegion',region);platform='all';loadProviders();load(true);return;}
 
       if(event.target.closest('[data-kg-bookmark]'))return;
@@ -327,7 +847,13 @@
       const open=event.target.closest('[data-sh-open]');if(open){const f=allShows.get(open.dataset.shOpen);if(f)openSeries(f,open.matches('button,a')?open:open.querySelector('.kg-sh-primary')||open);}
     });
     window.addEventListener('scroll',queueParallax,{passive:true});window.addEventListener('resize',queueParallax,{passive:true});
-    document.addEventListener('kg:media-change',event=>{if(event.detail.mediaType==='tv')load();else{generation++;loading=false;}});
+    document.addEventListener('kg:media-change',event=>{
+      if(event.detail.mediaType==='tv'){
+        if(!canReuseLoaded())load();
+      }else{
+        leaveSeries();
+      }
+    });
     document.addEventListener('kg-bookmark-change',()=>{if(root)root.querySelectorAll('[data-kg-bookmark]').forEach(b=>paintBookmarkButton(b,kgIsBookmarked(b.dataset.kgBookmark)));});
   }
   window.KGSeriesHub={mount,mountDiscovery,openSeries,heroMarkup,load,scheduleFor,categoryQuery,service,applyPlatform,parallaxState,platformResults,matchesProvider,discoverFeed,buildStreamingFilter};

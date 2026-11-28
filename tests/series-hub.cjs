@@ -1,5 +1,5 @@
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict'),path=require('node:path');
-const window={KGSeries:{rawId:id=>Number(id)}};vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../series-hub.js'),'utf8'),{window,Date,Map,Set,console,movieCatalog:{allows:f=>f?.adult===false}});
+const window={KGSeries:{rawId:id=>Number(id)}};vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../series-hub.js'),'utf8'),{window,Date,Map,Set,console,AbortController,movieCatalog:{allows:f=>f?.adult===false}});
 const hub=window.KGSeriesHub;
 const a={id:1,title:'A',next_episode_to_air:{season_number:2,episode_number:3,air_date:'2026-11-20'},last_episode_to_air:{season_number:2,episode_number:2,air_date:'2026-11-12'}};
 const b={id:2,title:'B',last_episode_to_air:{season_number:1,episode_number:8,air_date:'2026-11-19'},next_episode_to_air:{season_number:1,episode_number:9,air_date:'2026-11-19'}};

@@ -1,0 +1,3905 @@
+{
+  "schemaVersion": 1,
+  "synthetic": true,
+  "referenceDate": "2026-11-26",
+  "availabilityAssembly": "relationships",
+  "regions": [
+    {
+      "iso_3166_1": "PL",
+      "english_name": "Poland",
+      "native_name": "Polska"
+    },
+    {
+      "iso_3166_1": "US",
+      "english_name": "United States",
+      "native_name": "United States"
+    },
+    {
+      "iso_3166_1": "UA",
+      "english_name": "Ukraine",
+      "native_name": "Україна"
+    },
+    {
+      "iso_3166_1": "DE",
+      "english_name": "Germany",
+      "native_name": "Deutschland"
+    },
+    {
+      "iso_3166_1": "GB",
+      "english_name": "United Kingdom",
+      "native_name": "United Kingdom"
+    },
+    {
+      "iso_3166_1": "FR",
+      "english_name": "France",
+      "native_name": "France"
+    },
+    {
+      "iso_3166_1": "IT",
+      "english_name": "Italy",
+      "native_name": "Italia"
+    },
+    {
+      "iso_3166_1": "ES",
+      "english_name": "Spain",
+      "native_name": "España"
+    },
+    {
+      "iso_3166_1": "CZ",
+      "english_name": "Czechia",
+      "native_name": "Česko"
+    },
+    {
+      "iso_3166_1": "PT",
+      "english_name": "Portugal",
+      "native_name": "Portugal"
+    },
+    {
+      "iso_3166_1": "CA",
+      "english_name": "Canada",
+      "native_name": "Canada"
+    },
+    {
+      "iso_3166_1": "JP",
+      "english_name": "Japan",
+      "native_name": "日本"
+    },
+    {
+      "iso_3166_1": "KR",
+      "english_name": "South Korea",
+      "native_name": "대한민국"
+    },
+    {
+      "iso_3166_1": "AU",
+      "english_name": "Australia",
+      "native_name": "Australia"
+    },
+    {
+      "iso_3166_1": "BR",
+      "english_name": "Brazil",
+      "native_name": "Brasil"
+    }
+  ],
+  "networks": [
+    {
+      "key": "netflix",
+      "networkOnly": false,
+      "details": {
+        "id": 213,
+        "name": "Netflix",
+        "origin_country": "US",
+        "logo_path": "/fixture_network_213.png",
+        "headquarters": "Fixture City",
+        "homepage": ""
+      }
+    },
+    {
+      "key": "prime",
+      "networkOnly": false,
+      "details": {
+        "id": 1024,
+        "name": "Prime Video",
+        "origin_country": "US",
+        "logo_path": "/fixture_network_1024.png",
+        "headquarters": "Fixture City",
+        "homepage": ""
+      }
+    },
+    {
+      "key": "disney",
+      "networkOnly": false,
+      "details": {
+        "id": 2739,
+        "name": "Disney+",
+        "origin_country": "US",
+        "logo_path": "/fixture_network_2739.png",
+        "headquarters": "Fixture City",
+        "homepage": ""
+      }
+    },
+    {
+      "key": "hbomax",
+      "networkOnly": false,
+      "details": {
+        "id": 3186,
+        "name": "HBO Max",
+        "origin_country": "US",
+        "logo_path": "/fixture_network_3186.png",
+        "headquarters": "Fixture City",
+        "homepage": ""
+      }
+    },
+    {
+      "key": "apple",
+      "networkOnly": false,
+      "details": {
+        "id": 2552,
+        "name": "Apple TV+",
+        "origin_country": "US",
+        "logo_path": "/fixture_network_2552.png",
+        "headquarters": "Fixture City",
+        "homepage": ""
+      }
+    },
+    {
+      "key": "hulu",
+      "networkOnly": false,
+      "details": {
+        "id": 453,
+        "name": "Hulu",
+        "origin_country": "US",
+        "logo_path": "/fixture_network_453.png",
+        "headquarters": "Fixture City",
+        "homepage": ""
+      }
+    },
+    {
+      "key": "paramount",
+      "networkOnly": false,
+      "details": {
+        "id": 4330,
+        "name": "Paramount+",
+        "origin_country": "US",
+        "logo_path": "/fixture_network_4330.png",
+        "headquarters": "Fixture City",
+        "homepage": ""
+      }
+    },
+    {
+      "key": "peacock",
+      "networkOnly": false,
+      "details": {
+        "id": 3353,
+        "name": "Peacock",
+        "origin_country": "US",
+        "logo_path": "/fixture_network_3353.png",
+        "headquarters": "Fixture City",
+        "homepage": ""
+      }
+    },
+    {
+      "key": "max",
+      "networkOnly": true,
+      "details": {
+        "id": 49,
+        "name": "HBO",
+        "origin_country": "US",
+        "logo_path": "/fixture_network_49.png",
+        "headquarters": "Fixture City",
+        "homepage": ""
+      }
+    },
+    {
+      "key": "crunchyroll",
+      "networkOnly": false,
+      "details": {
+        "id": 1112,
+        "name": "Crunchyroll",
+        "origin_country": "US",
+        "logo_path": "/fixture_network_1112.png",
+        "headquarters": "Fixture City",
+        "homepage": ""
+      }
+    },
+    {
+      "key": "fx",
+      "networkOnly": false,
+      "details": {
+        "id": 88,
+        "name": "FX",
+        "origin_country": "US",
+        "logo_path": "/fixture_network_88.png",
+        "headquarters": "Fixture City",
+        "homepage": ""
+      }
+    },
+    {
+      "key": "showtime",
+      "networkOnly": true,
+      "details": {
+        "id": 67,
+        "name": "Showtime",
+        "origin_country": "US",
+        "logo_path": "/fixture_network_67.png",
+        "headquarters": "Fixture City",
+        "homepage": ""
+      }
+    },
+    {
+      "key": "starz",
+      "networkOnly": false,
+      "details": {
+        "id": 318,
+        "name": "Starz",
+        "origin_country": "US",
+        "logo_path": "/fixture_network_318.png",
+        "headquarters": "Fixture City",
+        "homepage": ""
+      }
+    },
+    {
+      "key": "amc",
+      "networkOnly": false,
+      "details": {
+        "id": 4661,
+        "name": "AMC+",
+        "origin_country": "US",
+        "logo_path": "/fixture_network_4661.png",
+        "headquarters": "Fixture City",
+        "homepage": ""
+      }
+    }
+  ],
+  "providers": [
+    {
+      "key": "netflix",
+      "regions": [
+        "AU",
+        "BR",
+        "CA",
+        "CZ",
+        "DE",
+        "ES",
+        "FR",
+        "GB",
+        "IT",
+        "JP",
+        "KR",
+        "PL",
+        "PT",
+        "UA",
+        "US"
+      ],
+      "mediaTypes": [
+        "movie",
+        "tv"
+      ],
+      "details": {
+        "provider_id": 8,
+        "provider_name": "Netflix",
+        "logo_path": "/fixture_provider_8.png",
+        "display_priority": 1,
+        "display_priorities": {
+          "AU": 1,
+          "BR": 1,
+          "CA": 1,
+          "CZ": 1,
+          "DE": 1,
+          "ES": 1,
+          "FR": 1,
+          "GB": 1,
+          "IT": 1,
+          "JP": 1,
+          "KR": 1,
+          "PL": 1,
+          "PT": 1,
+          "UA": 1,
+          "US": 1
+        }
+      }
+    },
+    {
+      "key": "prime",
+      "regions": [
+        "AU",
+        "BR",
+        "CA",
+        "CZ",
+        "DE",
+        "ES",
+        "FR",
+        "GB",
+        "IT",
+        "JP",
+        "KR",
+        "PL",
+        "PT",
+        "UA",
+        "US"
+      ],
+      "mediaTypes": [
+        "movie",
+        "tv"
+      ],
+      "details": {
+        "provider_id": 9,
+        "provider_name": "Amazon Prime Video",
+        "logo_path": "/fixture_provider_9.png",
+        "display_priority": 2,
+        "display_priorities": {
+          "AU": 2,
+          "BR": 2,
+          "CA": 2,
+          "CZ": 2,
+          "DE": 2,
+          "ES": 2,
+          "FR": 2,
+          "GB": 2,
+          "IT": 2,
+          "JP": 2,
+          "KR": 2,
+          "PL": 2,
+          "PT": 2,
+          "UA": 2,
+          "US": 2
+        }
+      }
+    },
+    {
+      "key": "disney",
+      "regions": [
+        "AU",
+        "BR",
+        "CA",
+        "CZ",
+        "DE",
+        "ES",
+        "FR",
+        "GB",
+        "IT",
+        "JP",
+        "KR",
+        "PL",
+        "PT",
+        "US"
+      ],
+      "mediaTypes": [
+        "movie",
+        "tv"
+      ],
+      "details": {
+        "provider_id": 337,
+        "provider_name": "Disney+",
+        "logo_path": "/fixture_provider_337.png",
+        "display_priority": 3,
+        "display_priorities": {
+          "AU": 3,
+          "BR": 3,
+          "CA": 3,
+          "CZ": 3,
+          "DE": 3,
+          "ES": 3,
+          "FR": 3,
+          "GB": 3,
+          "IT": 3,
+          "JP": 3,
+          "KR": 3,
+          "PL": 3,
+          "PT": 3,
+          "US": 3
+        }
+      }
+    },
+    {
+      "key": "hbomax",
+      "regions": [
+        "BR",
+        "ES",
+        "FR",
+        "PL",
+        "PT",
+        "US"
+      ],
+      "mediaTypes": [
+        "movie",
+        "tv"
+      ],
+      "details": {
+        "provider_id": 1899,
+        "provider_name": "Max",
+        "logo_path": "/fixture_provider_1899.png",
+        "display_priority": 4,
+        "display_priorities": {
+          "BR": 4,
+          "ES": 4,
+          "FR": 4,
+          "PL": 4,
+          "PT": 4,
+          "US": 4
+        }
+      }
+    },
+    {
+      "key": "apple",
+      "regions": [
+        "AU",
+        "BR",
+        "CA",
+        "CZ",
+        "DE",
+        "ES",
+        "FR",
+        "GB",
+        "IT",
+        "JP",
+        "KR",
+        "PL",
+        "PT",
+        "UA",
+        "US"
+      ],
+      "mediaTypes": [
+        "movie",
+        "tv"
+      ],
+      "details": {
+        "provider_id": 350,
+        "provider_name": "Apple TV+",
+        "logo_path": "/fixture_provider_350.png",
+        "display_priority": 5,
+        "display_priorities": {
+          "AU": 5,
+          "BR": 5,
+          "CA": 5,
+          "CZ": 5,
+          "DE": 5,
+          "ES": 5,
+          "FR": 5,
+          "GB": 5,
+          "IT": 5,
+          "JP": 5,
+          "KR": 5,
+          "PL": 5,
+          "PT": 5,
+          "UA": 5,
+          "US": 5
+        }
+      }
+    },
+    {
+      "key": "hulu",
+      "regions": [
+        "US"
+      ],
+      "mediaTypes": [
+        "movie",
+        "tv"
+      ],
+      "details": {
+        "provider_id": 283,
+        "provider_name": "Hulu",
+        "logo_path": "/fixture_provider_283.png",
+        "display_priority": 6,
+        "display_priorities": {
+          "US": 6
+        }
+      }
+    },
+    {
+      "key": "paramount",
+      "regions": [
+        "AU",
+        "BR",
+        "CA",
+        "DE",
+        "FR",
+        "GB",
+        "IT",
+        "US"
+      ],
+      "mediaTypes": [
+        "movie",
+        "tv"
+      ],
+      "details": {
+        "provider_id": 531,
+        "provider_name": "Paramount Plus",
+        "logo_path": "/fixture_provider_531.png",
+        "display_priority": 7,
+        "display_priorities": {
+          "AU": 7,
+          "BR": 7,
+          "CA": 7,
+          "DE": 7,
+          "FR": 7,
+          "GB": 7,
+          "IT": 7,
+          "US": 7
+        }
+      }
+    },
+    {
+      "key": "peacock",
+      "regions": [
+        "US"
+      ],
+      "mediaTypes": [
+        "movie",
+        "tv"
+      ],
+      "details": {
+        "provider_id": 386,
+        "provider_name": "Peacock Premium",
+        "logo_path": "/fixture_provider_386.png",
+        "display_priority": 8,
+        "display_priorities": {
+          "US": 8
+        }
+      }
+    },
+    {
+      "key": "crunchyroll",
+      "regions": [
+        "AU",
+        "BR",
+        "CA",
+        "CZ",
+        "DE",
+        "ES",
+        "FR",
+        "GB",
+        "IT",
+        "JP",
+        "KR",
+        "PL",
+        "PT",
+        "UA",
+        "US"
+      ],
+      "mediaTypes": [
+        "movie",
+        "tv"
+      ],
+      "details": {
+        "provider_id": 2830,
+        "provider_name": "Crunchyroll",
+        "logo_path": "/fixture_provider_2830.png",
+        "display_priority": 9,
+        "display_priorities": {
+          "AU": 9,
+          "BR": 9,
+          "CA": 9,
+          "CZ": 9,
+          "DE": 9,
+          "ES": 9,
+          "FR": 9,
+          "GB": 9,
+          "IT": 9,
+          "JP": 9,
+          "KR": 9,
+          "PL": 9,
+          "PT": 9,
+          "UA": 9,
+          "US": 9
+        }
+      }
+    },
+    {
+      "key": "starz",
+      "regions": [
+        "US"
+      ],
+      "mediaTypes": [
+        "movie",
+        "tv"
+      ],
+      "details": {
+        "provider_id": 940001,
+        "provider_name": "Starz",
+        "logo_path": "/fixture_provider_940001.png",
+        "display_priority": 10,
+        "display_priorities": {
+          "US": 10
+        }
+      }
+    },
+    {
+      "key": "amc",
+      "regions": [
+        "AU",
+        "CA",
+        "US"
+      ],
+      "mediaTypes": [
+        "movie",
+        "tv"
+      ],
+      "details": {
+        "provider_id": 940002,
+        "provider_name": "AMC+",
+        "logo_path": "/fixture_provider_940002.png",
+        "display_priority": 11,
+        "display_priorities": {
+          "AU": 11,
+          "CA": 11,
+          "US": 11
+        }
+      }
+    },
+    {
+      "key": "fx",
+      "regions": [
+        "US"
+      ],
+      "mediaTypes": [
+        "movie",
+        "tv"
+      ],
+      "details": {
+        "provider_id": 940003,
+        "provider_name": "FX",
+        "logo_path": "/fixture_provider_940003.png",
+        "display_priority": 12,
+        "display_priorities": {
+          "US": 12
+        }
+      }
+    },
+    {
+      "key": "showtime",
+      "regions": [
+        "US"
+      ],
+      "mediaTypes": [
+        "movie",
+        "tv"
+      ],
+      "details": {
+        "provider_id": 940004,
+        "provider_name": "Showtime",
+        "logo_path": "/fixture_provider_940004.png",
+        "display_priority": 13,
+        "display_priorities": {
+          "US": 13
+        }
+      }
+    },
+    {
+      "key": "netflix",
+      "regions": [
+        "AU",
+        "BR",
+        "CA",
+        "DE",
+        "ES",
+        "FR",
+        "GB",
+        "IT",
+        "JP",
+        "KR",
+        "US"
+      ],
+      "mediaTypes": [
+        "movie",
+        "tv"
+      ],
+      "details": {
+        "provider_id": 940005,
+        "provider_name": "Netflix Standard with Ads",
+        "logo_path": "/fixture_provider_940005.png",
+        "display_priority": 14,
+        "display_priorities": {
+          "AU": 14,
+          "BR": 14,
+          "CA": 14,
+          "DE": 14,
+          "ES": 14,
+          "FR": 14,
+          "GB": 14,
+          "IT": 14,
+          "JP": 14,
+          "KR": 14,
+          "US": 14
+        }
+      }
+    },
+    {
+      "key": "prime",
+      "regions": [
+        "CA",
+        "DE",
+        "GB",
+        "US"
+      ],
+      "mediaTypes": [
+        "movie",
+        "tv"
+      ],
+      "details": {
+        "provider_id": 940006,
+        "provider_name": "Amazon Prime Video with Ads",
+        "logo_path": "/fixture_provider_940006.png",
+        "display_priority": 15,
+        "display_priorities": {
+          "CA": 15,
+          "DE": 15,
+          "GB": 15,
+          "US": 15
+        }
+      }
+    },
+    {
+      "key": "hbomax",
+      "regions": [
+        "PL",
+        "US"
+      ],
+      "mediaTypes": [
+        "movie",
+        "tv"
+      ],
+      "details": {
+        "provider_id": 940007,
+        "provider_name": "HBO Max Standard",
+        "logo_path": "/fixture_provider_940007.png",
+        "display_priority": 16,
+        "display_priorities": {
+          "PL": 16,
+          "US": 16
+        }
+      }
+    },
+    {
+      "key": "paramount",
+      "regions": [
+        "US"
+      ],
+      "mediaTypes": [
+        "movie",
+        "tv"
+      ],
+      "details": {
+        "provider_id": 940008,
+        "provider_name": "Paramount Plus Premium",
+        "logo_path": "/fixture_provider_940008.png",
+        "display_priority": 17,
+        "display_priorities": {
+          "US": 17
+        }
+      }
+    },
+    {
+      "key": "apple",
+      "regions": [
+        "US"
+      ],
+      "mediaTypes": [
+        "movie",
+        "tv"
+      ],
+      "details": {
+        "provider_id": 940009,
+        "provider_name": "Apple TV Plus Amazon Channel",
+        "logo_path": "/fixture_provider_940009.png",
+        "display_priority": 18,
+        "display_priorities": {
+          "US": 18
+        }
+      }
+    },
+    {
+      "key": "regional",
+      "regions": [
+        "PL"
+      ],
+      "mediaTypes": [
+        "movie",
+        "tv"
+      ],
+      "details": {
+        "provider_id": 940010,
+        "provider_name": "Fixture Polska",
+        "logo_path": "/fixture_provider_940010.png",
+        "display_priority": 19,
+        "display_priorities": {
+          "PL": 19
+        }
+      }
+    },
+    {
+      "key": "regional",
+      "regions": [
+        "UA"
+      ],
+      "mediaTypes": [
+        "movie",
+        "tv"
+      ],
+      "details": {
+        "provider_id": 940011,
+        "provider_name": "Fixture Ukraine",
+        "logo_path": "/fixture_provider_940011.png",
+        "display_priority": 20,
+        "display_priorities": {
+          "UA": 20
+        }
+      }
+    },
+    {
+      "key": "regional",
+      "regions": [
+        "DE"
+      ],
+      "mediaTypes": [
+        "movie",
+        "tv"
+      ],
+      "details": {
+        "provider_id": 940012,
+        "provider_name": "Fixture Deutschland",
+        "logo_path": "/fixture_provider_940012.png",
+        "display_priority": 21,
+        "display_priorities": {
+          "DE": 21
+        }
+      }
+    },
+    {
+      "key": "regional",
+      "regions": [
+        "IT"
+      ],
+      "mediaTypes": [
+        "movie",
+        "tv"
+      ],
+      "details": {
+        "provider_id": 940013,
+        "provider_name": "Fixture Italia",
+        "logo_path": "/fixture_provider_940013.png",
+        "display_priority": 22,
+        "display_priorities": {
+          "IT": 22
+        }
+      }
+    },
+    {
+      "key": "regional",
+      "regions": [
+        "PL"
+      ],
+      "mediaTypes": [
+        "movie",
+        "tv"
+      ],
+      "details": {
+        "provider_id": 940014,
+        "provider_name": "Fixture No Logo",
+        "logo_path": null,
+        "display_priority": 23,
+        "display_priorities": {
+          "PL": 23
+        }
+      }
+    },
+    {
+      "key": "regional",
+      "regions": [
+        "JP"
+      ],
+      "mediaTypes": [
+        "movie",
+        "tv"
+      ],
+      "details": {
+        "provider_id": 940015,
+        "provider_name": "Fixture Japan",
+        "logo_path": "/fixture_provider_940015.png",
+        "display_priority": 24,
+        "display_priorities": {
+          "JP": 24
+        }
+      }
+    },
+    {
+      "key": "regional",
+      "regions": [
+        "FR"
+      ],
+      "mediaTypes": [
+        "movie",
+        "tv"
+      ],
+      "details": {
+        "provider_id": 940016,
+        "provider_name": "Fixture France",
+        "logo_path": "/fixture_provider_940016.png",
+        "display_priority": 25,
+        "display_priorities": {
+          "FR": 25
+        }
+      }
+    }
+  ],
+  "networkRelationships": [
+    {
+      "tvId": 920001,
+      "networkIds": [
+        213
+      ]
+    },
+    {
+      "tvId": 920002,
+      "networkIds": [
+        213
+      ]
+    },
+    {
+      "tvId": 920003,
+      "networkIds": [
+        213,
+        2739
+      ]
+    },
+    {
+      "tvId": 920004,
+      "networkIds": [
+        49
+      ]
+    },
+    {
+      "tvId": 920005,
+      "networkIds": [
+        2739
+      ]
+    },
+    {
+      "tvId": 920006,
+      "networkIds": [
+        67
+      ]
+    },
+    {
+      "tvId": 920007,
+      "networkIds": [
+        2552
+      ]
+    },
+    {
+      "tvId": 920008,
+      "networkIds": [
+        88
+      ]
+    },
+    {
+      "tvId": 920009,
+      "networkIds": [
+        453
+      ]
+    },
+    {
+      "tvId": 920010,
+      "networkIds": [
+        4330
+      ]
+    },
+    {
+      "tvId": 920011,
+      "networkIds": [
+        1024
+      ]
+    },
+    {
+      "tvId": 920012,
+      "networkIds": [
+        3186
+      ]
+    },
+    {
+      "tvId": 920013,
+      "networkIds": [
+        3353
+      ]
+    },
+    {
+      "tvId": 920014,
+      "networkIds": [
+        1112
+      ]
+    },
+    {
+      "tvId": 920015,
+      "networkIds": [
+        318
+      ]
+    },
+    {
+      "tvId": 920016,
+      "networkIds": [
+        4661
+      ]
+    },
+    {
+      "tvId": 920017,
+      "networkIds": [
+        49
+      ]
+    },
+    {
+      "tvId": 920018,
+      "networkIds": [
+        67
+      ]
+    },
+    {
+      "tvId": 920019,
+      "networkIds": []
+    },
+    {
+      "tvId": 920020,
+      "networkIds": []
+    },
+    {
+      "tvId": 920021,
+      "networkIds": [
+        213
+      ]
+    },
+    {
+      "tvId": 920022,
+      "networkIds": [
+        2739
+      ]
+    },
+    {
+      "tvId": 920023,
+      "networkIds": [
+        2552
+      ]
+    },
+    {
+      "tvId": 920024,
+      "networkIds": [
+        1024
+      ]
+    },
+    {
+      "tvId": 920025,
+      "networkIds": [
+        213
+      ]
+    },
+    {
+      "tvId": 920026,
+      "networkIds": [
+        2739
+      ]
+    },
+    {
+      "tvId": 920027,
+      "networkIds": [
+        2552
+      ]
+    },
+    {
+      "tvId": 920028,
+      "networkIds": [
+        1024
+      ]
+    },
+    {
+      "tvId": 920029,
+      "networkIds": [
+        213
+      ]
+    },
+    {
+      "tvId": 920030,
+      "networkIds": [
+        2739
+      ]
+    },
+    {
+      "tvId": 920031,
+      "networkIds": [
+        2552
+      ]
+    },
+    {
+      "tvId": 920032,
+      "networkIds": [
+        1024
+      ]
+    }
+  ],
+  "availability": [
+    {
+      "mediaType": "tv",
+      "mediaId": 920001,
+      "regions": {
+        "AU": {
+          "flatrate": [
+            8
+          ]
+        },
+        "BR": {
+          "flatrate": [
+            8
+          ]
+        },
+        "CA": {
+          "flatrate": [
+            8
+          ]
+        },
+        "CZ": {
+          "flatrate": [
+            8
+          ]
+        },
+        "DE": {
+          "flatrate": [
+            8
+          ]
+        },
+        "ES": {
+          "flatrate": [
+            8
+          ]
+        },
+        "FR": {
+          "flatrate": [
+            8
+          ]
+        },
+        "GB": {
+          "flatrate": [
+            8
+          ]
+        },
+        "IT": {
+          "flatrate": [
+            8
+          ]
+        },
+        "JP": {
+          "flatrate": [
+            8
+          ]
+        },
+        "KR": {
+          "flatrate": [
+            8
+          ]
+        },
+        "PL": {
+          "flatrate": [
+            8,
+            940010
+          ]
+        },
+        "PT": {
+          "flatrate": [
+            8
+          ]
+        },
+        "UA": {
+          "flatrate": [
+            8
+          ]
+        },
+        "US": {
+          "flatrate": [
+            8,
+            940005
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "tv",
+      "mediaId": 920002,
+      "regions": {
+        "AU": {
+          "flatrate": [
+            8
+          ]
+        },
+        "BR": {
+          "flatrate": [
+            8
+          ]
+        },
+        "CA": {
+          "flatrate": [
+            8
+          ]
+        },
+        "CZ": {
+          "flatrate": [
+            8
+          ]
+        },
+        "DE": {
+          "flatrate": [
+            8
+          ]
+        },
+        "ES": {
+          "flatrate": [
+            8
+          ]
+        },
+        "FR": {
+          "flatrate": [
+            8
+          ]
+        },
+        "GB": {
+          "flatrate": [
+            8
+          ]
+        },
+        "IT": {
+          "flatrate": [
+            8
+          ]
+        },
+        "JP": {
+          "flatrate": [
+            8
+          ]
+        },
+        "KR": {
+          "flatrate": [
+            8
+          ]
+        },
+        "PL": {
+          "flatrate": [
+            8
+          ]
+        },
+        "PT": {
+          "flatrate": [
+            8
+          ]
+        },
+        "UA": {
+          "flatrate": [
+            8
+          ]
+        },
+        "US": {
+          "flatrate": [
+            8
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "tv",
+      "mediaId": 920003,
+      "regions": {
+        "AU": {
+          "flatrate": [
+            8,
+            337
+          ]
+        },
+        "BR": {
+          "flatrate": [
+            8,
+            337
+          ]
+        },
+        "CA": {
+          "flatrate": [
+            8,
+            337
+          ]
+        },
+        "CZ": {
+          "flatrate": [
+            8,
+            337
+          ]
+        },
+        "DE": {
+          "flatrate": [
+            8,
+            337
+          ]
+        },
+        "ES": {
+          "flatrate": [
+            8,
+            337
+          ]
+        },
+        "FR": {
+          "flatrate": [
+            8,
+            337
+          ]
+        },
+        "GB": {
+          "flatrate": [
+            8,
+            337
+          ]
+        },
+        "IT": {
+          "flatrate": [
+            8,
+            337
+          ]
+        },
+        "JP": {
+          "flatrate": [
+            8,
+            337
+          ]
+        },
+        "KR": {
+          "flatrate": [
+            8,
+            337
+          ]
+        },
+        "PL": {
+          "flatrate": [
+            8,
+            337
+          ]
+        },
+        "PT": {
+          "flatrate": [
+            8,
+            337
+          ]
+        },
+        "UA": {
+          "flatrate": [
+            8
+          ]
+        },
+        "US": {
+          "flatrate": [
+            8,
+            337,
+            940005
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "tv",
+      "mediaId": 920004,
+      "regions": {
+        "AU": {
+          "flatrate": [
+            8
+          ]
+        },
+        "BR": {
+          "flatrate": [
+            8
+          ]
+        },
+        "CA": {
+          "flatrate": [
+            8
+          ]
+        },
+        "CZ": {
+          "flatrate": [
+            8
+          ]
+        },
+        "DE": {
+          "flatrate": [
+            8
+          ]
+        },
+        "ES": {
+          "flatrate": [
+            8
+          ]
+        },
+        "FR": {
+          "flatrate": [
+            8
+          ]
+        },
+        "GB": {
+          "flatrate": [
+            8
+          ]
+        },
+        "IT": {
+          "flatrate": [
+            8
+          ]
+        },
+        "JP": {
+          "flatrate": [
+            8
+          ]
+        },
+        "KR": {
+          "flatrate": [
+            8
+          ]
+        },
+        "PL": {
+          "flatrate": [
+            8,
+            1899,
+            940007
+          ]
+        },
+        "PT": {
+          "flatrate": [
+            8
+          ]
+        },
+        "UA": {
+          "flatrate": [
+            8
+          ]
+        },
+        "US": {
+          "flatrate": [
+            8
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "tv",
+      "mediaId": 920005,
+      "regions": {
+        "AU": {
+          "flatrate": [
+            337
+          ]
+        },
+        "BR": {
+          "flatrate": [
+            337
+          ]
+        },
+        "CA": {
+          "flatrate": [
+            337
+          ]
+        },
+        "CZ": {
+          "flatrate": [
+            337
+          ]
+        },
+        "DE": {
+          "flatrate": [
+            337
+          ]
+        },
+        "ES": {
+          "flatrate": [
+            337
+          ]
+        },
+        "FR": {
+          "flatrate": [
+            337
+          ]
+        },
+        "GB": {
+          "flatrate": [
+            337
+          ]
+        },
+        "IT": {
+          "flatrate": [
+            337
+          ]
+        },
+        "JP": {
+          "flatrate": [
+            337
+          ]
+        },
+        "KR": {
+          "flatrate": [
+            337
+          ]
+        },
+        "PL": {
+          "flatrate": [
+            337
+          ]
+        },
+        "PT": {
+          "flatrate": [
+            337
+          ]
+        },
+        "US": {
+          "flatrate": [
+            337
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "tv",
+      "mediaId": 920006,
+      "regions": {
+        "AU": {
+          "flatrate": [
+            8
+          ]
+        },
+        "BR": {
+          "flatrate": [
+            8
+          ]
+        },
+        "CA": {
+          "flatrate": [
+            8
+          ]
+        },
+        "CZ": {
+          "flatrate": [
+            8
+          ]
+        },
+        "DE": {
+          "flatrate": [
+            8
+          ]
+        },
+        "ES": {
+          "flatrate": [
+            8
+          ]
+        },
+        "FR": {
+          "flatrate": [
+            8
+          ]
+        },
+        "GB": {
+          "flatrate": [
+            8
+          ]
+        },
+        "IT": {
+          "flatrate": [
+            8
+          ]
+        },
+        "JP": {
+          "flatrate": [
+            8
+          ]
+        },
+        "KR": {
+          "flatrate": [
+            8
+          ]
+        },
+        "PL": {
+          "flatrate": [
+            8
+          ]
+        },
+        "PT": {
+          "flatrate": [
+            8
+          ]
+        },
+        "UA": {
+          "flatrate": [
+            8
+          ]
+        },
+        "US": {
+          "flatrate": [
+            8,
+            940004
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "tv",
+      "mediaId": 920007,
+      "regions": {
+        "AU": {
+          "flatrate": [
+            350
+          ]
+        },
+        "BR": {
+          "flatrate": [
+            350
+          ]
+        },
+        "CA": {
+          "flatrate": [
+            350
+          ]
+        },
+        "CZ": {
+          "flatrate": [
+            350
+          ]
+        },
+        "DE": {
+          "flatrate": [
+            350
+          ]
+        },
+        "ES": {
+          "flatrate": [
+            350
+          ]
+        },
+        "FR": {
+          "flatrate": [
+            350
+          ]
+        },
+        "GB": {
+          "flatrate": [
+            350
+          ]
+        },
+        "IT": {
+          "flatrate": [
+            350
+          ]
+        },
+        "JP": {
+          "flatrate": [
+            350
+          ]
+        },
+        "KR": {
+          "flatrate": [
+            350
+          ]
+        },
+        "PL": {
+          "flatrate": [
+            350
+          ]
+        },
+        "PT": {
+          "flatrate": [
+            350
+          ]
+        },
+        "UA": {
+          "flatrate": [
+            350
+          ]
+        },
+        "US": {
+          "flatrate": [
+            350
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "tv",
+      "mediaId": 920008,
+      "regions": {
+        "AU": {
+          "flatrate": [
+            8
+          ]
+        },
+        "BR": {
+          "flatrate": [
+            8
+          ]
+        },
+        "CA": {
+          "flatrate": [
+            8
+          ]
+        },
+        "CZ": {
+          "flatrate": [
+            8
+          ]
+        },
+        "DE": {
+          "flatrate": [
+            8
+          ]
+        },
+        "ES": {
+          "flatrate": [
+            8
+          ]
+        },
+        "FR": {
+          "flatrate": [
+            8
+          ]
+        },
+        "GB": {
+          "flatrate": [
+            8
+          ]
+        },
+        "IT": {
+          "flatrate": [
+            8
+          ]
+        },
+        "JP": {
+          "flatrate": [
+            8
+          ]
+        },
+        "KR": {
+          "flatrate": [
+            8
+          ]
+        },
+        "PL": {
+          "flatrate": [
+            8
+          ]
+        },
+        "PT": {
+          "flatrate": [
+            8
+          ]
+        },
+        "UA": {
+          "flatrate": [
+            8
+          ]
+        },
+        "US": {
+          "flatrate": [
+            8
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "tv",
+      "mediaId": 920009,
+      "regions": {
+        "US": {
+          "flatrate": [
+            283
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "tv",
+      "mediaId": 920010,
+      "regions": {
+        "AU": {
+          "flatrate": [
+            8
+          ]
+        },
+        "BR": {
+          "flatrate": [
+            8
+          ]
+        },
+        "CA": {
+          "flatrate": [
+            8
+          ]
+        },
+        "CZ": {
+          "flatrate": [
+            8
+          ]
+        },
+        "DE": {
+          "flatrate": [
+            8
+          ]
+        },
+        "ES": {
+          "flatrate": [
+            8
+          ]
+        },
+        "FR": {
+          "flatrate": [
+            8
+          ]
+        },
+        "GB": {
+          "flatrate": [
+            8
+          ]
+        },
+        "IT": {
+          "flatrate": [
+            8
+          ]
+        },
+        "JP": {
+          "flatrate": [
+            8
+          ]
+        },
+        "KR": {
+          "flatrate": [
+            8
+          ]
+        },
+        "PL": {
+          "flatrate": [
+            8
+          ]
+        },
+        "PT": {
+          "flatrate": [
+            8
+          ]
+        },
+        "UA": {
+          "flatrate": [
+            8
+          ]
+        },
+        "US": {
+          "flatrate": [
+            8
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "tv",
+      "mediaId": 920011,
+      "regions": {
+        "AU": {
+          "flatrate": [
+            9
+          ]
+        },
+        "BR": {
+          "flatrate": [
+            9
+          ]
+        },
+        "CA": {
+          "flatrate": [
+            9
+          ]
+        },
+        "CZ": {
+          "flatrate": [
+            9
+          ]
+        },
+        "DE": {
+          "flatrate": [
+            9
+          ]
+        },
+        "ES": {
+          "flatrate": [
+            9
+          ]
+        },
+        "FR": {
+          "flatrate": [
+            9
+          ]
+        },
+        "GB": {
+          "flatrate": [
+            9
+          ]
+        },
+        "IT": {
+          "flatrate": [
+            9
+          ]
+        },
+        "JP": {
+          "flatrate": [
+            9
+          ]
+        },
+        "KR": {
+          "flatrate": [
+            9
+          ]
+        },
+        "PL": {
+          "flatrate": [
+            9
+          ]
+        },
+        "PT": {
+          "flatrate": [
+            9
+          ]
+        },
+        "UA": {
+          "flatrate": [
+            9
+          ]
+        },
+        "US": {
+          "flatrate": [
+            9,
+            940006
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "tv",
+      "mediaId": 920012,
+      "regions": {
+        "BR": {
+          "flatrate": [
+            1899
+          ]
+        },
+        "ES": {
+          "flatrate": [
+            1899
+          ]
+        },
+        "FR": {
+          "flatrate": [
+            1899
+          ]
+        },
+        "PL": {
+          "flatrate": [
+            1899
+          ]
+        },
+        "PT": {
+          "flatrate": [
+            1899
+          ]
+        },
+        "US": {
+          "flatrate": [
+            1899
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "tv",
+      "mediaId": 920013,
+      "regions": {
+        "US": {
+          "flatrate": [
+            386
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "tv",
+      "mediaId": 920014,
+      "regions": {
+        "JP": {
+          "flatrate": [
+            2830
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "tv",
+      "mediaId": 920015,
+      "regions": {
+        "US": {
+          "flatrate": [
+            940001
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "tv",
+      "mediaId": 920016,
+      "regions": {
+        "US": {
+          "flatrate": [
+            940002
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "tv",
+      "mediaId": 920017,
+      "regions": {
+        "UA": {
+          "flatrate": [
+            940011
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "tv",
+      "mediaId": 920018,
+      "regions": {}
+    },
+    {
+      "mediaType": "tv",
+      "mediaId": 920019,
+      "regions": {}
+    },
+    {
+      "mediaType": "tv",
+      "mediaId": 920020,
+      "regions": {}
+    },
+    {
+      "mediaType": "tv",
+      "mediaId": 920021,
+      "regions": {
+        "AU": {
+          "flatrate": [
+            8
+          ]
+        },
+        "BR": {
+          "flatrate": [
+            8
+          ]
+        },
+        "CA": {
+          "flatrate": [
+            8
+          ]
+        },
+        "CZ": {
+          "flatrate": [
+            8
+          ]
+        },
+        "DE": {
+          "flatrate": [
+            8
+          ]
+        },
+        "ES": {
+          "flatrate": [
+            8
+          ]
+        },
+        "FR": {
+          "flatrate": [
+            8
+          ]
+        },
+        "GB": {
+          "flatrate": [
+            8
+          ]
+        },
+        "IT": {
+          "flatrate": [
+            8
+          ]
+        },
+        "JP": {
+          "flatrate": [
+            8
+          ]
+        },
+        "KR": {
+          "flatrate": [
+            8
+          ]
+        },
+        "PL": {
+          "flatrate": [
+            8
+          ]
+        },
+        "PT": {
+          "flatrate": [
+            8
+          ]
+        },
+        "UA": {
+          "flatrate": [
+            8
+          ]
+        },
+        "US": {
+          "flatrate": [
+            8
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "tv",
+      "mediaId": 920022,
+      "regions": {
+        "AU": {
+          "flatrate": [
+            337
+          ]
+        },
+        "BR": {
+          "flatrate": [
+            337
+          ]
+        },
+        "CA": {
+          "flatrate": [
+            337
+          ]
+        },
+        "CZ": {
+          "flatrate": [
+            337
+          ]
+        },
+        "DE": {
+          "flatrate": [
+            337
+          ]
+        },
+        "ES": {
+          "flatrate": [
+            337
+          ]
+        },
+        "FR": {
+          "flatrate": [
+            337
+          ]
+        },
+        "GB": {
+          "flatrate": [
+            337
+          ]
+        },
+        "IT": {
+          "flatrate": [
+            337
+          ]
+        },
+        "JP": {
+          "flatrate": [
+            337
+          ]
+        },
+        "KR": {
+          "flatrate": [
+            337
+          ]
+        },
+        "PL": {
+          "flatrate": [
+            337
+          ]
+        },
+        "PT": {
+          "flatrate": [
+            337
+          ]
+        },
+        "US": {
+          "flatrate": [
+            337
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "tv",
+      "mediaId": 920023,
+      "regions": {
+        "AU": {
+          "flatrate": [
+            350
+          ]
+        },
+        "BR": {
+          "flatrate": [
+            350
+          ]
+        },
+        "CA": {
+          "flatrate": [
+            350
+          ]
+        },
+        "CZ": {
+          "flatrate": [
+            350
+          ]
+        },
+        "DE": {
+          "flatrate": [
+            350
+          ]
+        },
+        "ES": {
+          "flatrate": [
+            350
+          ]
+        },
+        "FR": {
+          "flatrate": [
+            350
+          ]
+        },
+        "GB": {
+          "flatrate": [
+            350
+          ]
+        },
+        "IT": {
+          "flatrate": [
+            350
+          ]
+        },
+        "JP": {
+          "flatrate": [
+            350
+          ]
+        },
+        "KR": {
+          "flatrate": [
+            350
+          ]
+        },
+        "PL": {
+          "flatrate": [
+            350
+          ]
+        },
+        "PT": {
+          "flatrate": [
+            350
+          ]
+        },
+        "UA": {
+          "flatrate": [
+            350
+          ]
+        },
+        "US": {
+          "flatrate": [
+            350
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "tv",
+      "mediaId": 920024,
+      "regions": {
+        "AU": {
+          "flatrate": [
+            9
+          ]
+        },
+        "BR": {
+          "flatrate": [
+            9
+          ]
+        },
+        "CA": {
+          "flatrate": [
+            9
+          ]
+        },
+        "CZ": {
+          "flatrate": [
+            9
+          ]
+        },
+        "DE": {
+          "flatrate": [
+            9
+          ]
+        },
+        "ES": {
+          "flatrate": [
+            9
+          ]
+        },
+        "FR": {
+          "flatrate": [
+            9
+          ]
+        },
+        "GB": {
+          "flatrate": [
+            9
+          ]
+        },
+        "IT": {
+          "flatrate": [
+            9
+          ]
+        },
+        "JP": {
+          "flatrate": [
+            9
+          ]
+        },
+        "KR": {
+          "flatrate": [
+            9
+          ]
+        },
+        "PL": {
+          "flatrate": [
+            9
+          ]
+        },
+        "PT": {
+          "flatrate": [
+            9
+          ]
+        },
+        "UA": {
+          "flatrate": [
+            9
+          ]
+        },
+        "US": {
+          "flatrate": [
+            9
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "tv",
+      "mediaId": 920025,
+      "regions": {
+        "AU": {
+          "flatrate": [
+            8
+          ]
+        },
+        "BR": {
+          "flatrate": [
+            8
+          ]
+        },
+        "CA": {
+          "flatrate": [
+            8
+          ]
+        },
+        "CZ": {
+          "flatrate": [
+            8
+          ]
+        },
+        "DE": {
+          "flatrate": [
+            8
+          ]
+        },
+        "ES": {
+          "flatrate": [
+            8
+          ]
+        },
+        "FR": {
+          "flatrate": [
+            8
+          ]
+        },
+        "GB": {
+          "flatrate": [
+            8
+          ]
+        },
+        "IT": {
+          "flatrate": [
+            8
+          ]
+        },
+        "JP": {
+          "flatrate": [
+            8
+          ]
+        },
+        "KR": {
+          "flatrate": [
+            8
+          ]
+        },
+        "PL": {
+          "flatrate": [
+            8
+          ]
+        },
+        "PT": {
+          "flatrate": [
+            8
+          ]
+        },
+        "UA": {
+          "flatrate": [
+            8
+          ]
+        },
+        "US": {
+          "flatrate": [
+            8
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "tv",
+      "mediaId": 920026,
+      "regions": {
+        "AU": {
+          "flatrate": [
+            337
+          ]
+        },
+        "BR": {
+          "flatrate": [
+            337
+          ]
+        },
+        "CA": {
+          "flatrate": [
+            337
+          ]
+        },
+        "CZ": {
+          "flatrate": [
+            337
+          ]
+        },
+        "DE": {
+          "flatrate": [
+            337
+          ]
+        },
+        "ES": {
+          "flatrate": [
+            337
+          ]
+        },
+        "FR": {
+          "flatrate": [
+            337
+          ]
+        },
+        "GB": {
+          "flatrate": [
+            337
+          ]
+        },
+        "IT": {
+          "flatrate": [
+            337
+          ]
+        },
+        "JP": {
+          "flatrate": [
+            337
+          ]
+        },
+        "KR": {
+          "flatrate": [
+            337
+          ]
+        },
+        "PL": {
+          "flatrate": [
+            337
+          ]
+        },
+        "PT": {
+          "flatrate": [
+            337
+          ]
+        },
+        "US": {
+          "flatrate": [
+            337
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "tv",
+      "mediaId": 920027,
+      "regions": {
+        "AU": {
+          "flatrate": [
+            350
+          ]
+        },
+        "BR": {
+          "flatrate": [
+            350
+          ]
+        },
+        "CA": {
+          "flatrate": [
+            350
+          ]
+        },
+        "CZ": {
+          "flatrate": [
+            350
+          ]
+        },
+        "DE": {
+          "flatrate": [
+            350
+          ]
+        },
+        "ES": {
+          "flatrate": [
+            350
+          ]
+        },
+        "FR": {
+          "flatrate": [
+            350
+          ]
+        },
+        "GB": {
+          "flatrate": [
+            350
+          ]
+        },
+        "IT": {
+          "flatrate": [
+            350
+          ]
+        },
+        "JP": {
+          "flatrate": [
+            350
+          ]
+        },
+        "KR": {
+          "flatrate": [
+            350
+          ]
+        },
+        "PL": {
+          "flatrate": [
+            350
+          ]
+        },
+        "PT": {
+          "flatrate": [
+            350
+          ]
+        },
+        "UA": {
+          "flatrate": [
+            350
+          ]
+        },
+        "US": {
+          "flatrate": [
+            350
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "tv",
+      "mediaId": 920028,
+      "regions": {
+        "AU": {
+          "flatrate": [
+            9
+          ]
+        },
+        "BR": {
+          "flatrate": [
+            9
+          ]
+        },
+        "CA": {
+          "flatrate": [
+            9
+          ]
+        },
+        "CZ": {
+          "flatrate": [
+            9
+          ]
+        },
+        "DE": {
+          "flatrate": [
+            9
+          ]
+        },
+        "ES": {
+          "flatrate": [
+            9
+          ]
+        },
+        "FR": {
+          "flatrate": [
+            9
+          ]
+        },
+        "GB": {
+          "flatrate": [
+            9
+          ]
+        },
+        "IT": {
+          "flatrate": [
+            9
+          ]
+        },
+        "JP": {
+          "flatrate": [
+            9
+          ]
+        },
+        "KR": {
+          "flatrate": [
+            9
+          ]
+        },
+        "PL": {
+          "flatrate": [
+            9
+          ]
+        },
+        "PT": {
+          "flatrate": [
+            9
+          ]
+        },
+        "UA": {
+          "flatrate": [
+            9
+          ]
+        },
+        "US": {
+          "flatrate": [
+            9
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "tv",
+      "mediaId": 920029,
+      "regions": {
+        "AU": {
+          "flatrate": [
+            8
+          ]
+        },
+        "BR": {
+          "flatrate": [
+            8
+          ]
+        },
+        "CA": {
+          "flatrate": [
+            8
+          ]
+        },
+        "CZ": {
+          "flatrate": [
+            8
+          ]
+        },
+        "DE": {
+          "flatrate": [
+            8
+          ]
+        },
+        "ES": {
+          "flatrate": [
+            8
+          ]
+        },
+        "FR": {
+          "flatrate": [
+            8
+          ]
+        },
+        "GB": {
+          "flatrate": [
+            8
+          ]
+        },
+        "IT": {
+          "flatrate": [
+            8
+          ]
+        },
+        "JP": {
+          "flatrate": [
+            8
+          ]
+        },
+        "KR": {
+          "flatrate": [
+            8
+          ]
+        },
+        "PL": {
+          "flatrate": [
+            8
+          ]
+        },
+        "PT": {
+          "flatrate": [
+            8
+          ]
+        },
+        "UA": {
+          "flatrate": [
+            8
+          ]
+        },
+        "US": {
+          "flatrate": [
+            8
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "tv",
+      "mediaId": 920030,
+      "regions": {
+        "AU": {
+          "flatrate": [
+            337
+          ]
+        },
+        "BR": {
+          "flatrate": [
+            337
+          ]
+        },
+        "CA": {
+          "flatrate": [
+            337
+          ]
+        },
+        "CZ": {
+          "flatrate": [
+            337
+          ]
+        },
+        "DE": {
+          "flatrate": [
+            337
+          ]
+        },
+        "ES": {
+          "flatrate": [
+            337
+          ]
+        },
+        "FR": {
+          "flatrate": [
+            337
+          ]
+        },
+        "GB": {
+          "flatrate": [
+            337
+          ]
+        },
+        "IT": {
+          "flatrate": [
+            337
+          ]
+        },
+        "JP": {
+          "flatrate": [
+            337
+          ]
+        },
+        "KR": {
+          "flatrate": [
+            337
+          ]
+        },
+        "PL": {
+          "flatrate": [
+            337
+          ]
+        },
+        "PT": {
+          "flatrate": [
+            337
+          ]
+        },
+        "US": {
+          "flatrate": [
+            337
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "tv",
+      "mediaId": 920031,
+      "regions": {
+        "AU": {
+          "flatrate": [
+            350
+          ]
+        },
+        "BR": {
+          "flatrate": [
+            350
+          ]
+        },
+        "CA": {
+          "flatrate": [
+            350
+          ]
+        },
+        "CZ": {
+          "flatrate": [
+            350
+          ]
+        },
+        "DE": {
+          "flatrate": [
+            350
+          ]
+        },
+        "ES": {
+          "flatrate": [
+            350
+          ]
+        },
+        "FR": {
+          "flatrate": [
+            350
+          ]
+        },
+        "GB": {
+          "flatrate": [
+            350
+          ]
+        },
+        "IT": {
+          "flatrate": [
+            350
+          ]
+        },
+        "JP": {
+          "flatrate": [
+            350
+          ]
+        },
+        "KR": {
+          "flatrate": [
+            350
+          ]
+        },
+        "PL": {
+          "flatrate": [
+            350
+          ]
+        },
+        "PT": {
+          "flatrate": [
+            350
+          ]
+        },
+        "UA": {
+          "flatrate": [
+            350
+          ]
+        },
+        "US": {
+          "flatrate": [
+            350
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "tv",
+      "mediaId": 920032,
+      "regions": {
+        "AU": {
+          "flatrate": [
+            9
+          ]
+        },
+        "BR": {
+          "flatrate": [
+            9
+          ]
+        },
+        "CA": {
+          "flatrate": [
+            9
+          ]
+        },
+        "CZ": {
+          "flatrate": [
+            9
+          ]
+        },
+        "DE": {
+          "flatrate": [
+            9
+          ]
+        },
+        "ES": {
+          "flatrate": [
+            9
+          ]
+        },
+        "FR": {
+          "flatrate": [
+            9
+          ]
+        },
+        "GB": {
+          "flatrate": [
+            9
+          ]
+        },
+        "IT": {
+          "flatrate": [
+            9
+          ]
+        },
+        "JP": {
+          "flatrate": [
+            9
+          ]
+        },
+        "KR": {
+          "flatrate": [
+            9
+          ]
+        },
+        "PL": {
+          "flatrate": [
+            9
+          ]
+        },
+        "PT": {
+          "flatrate": [
+            9
+          ]
+        },
+        "UA": {
+          "flatrate": [
+            9
+          ]
+        },
+        "US": {
+          "flatrate": [
+            9
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "movie",
+      "mediaId": 910001,
+      "regions": {
+        "PL": {
+          "flatrate": [
+            8,
+            9
+          ],
+          "free": [
+            940010
+          ],
+          "ads": [
+            940010
+          ],
+          "rent": [
+            9
+          ],
+          "buy": [
+            9
+          ]
+        },
+        "US": {
+          "flatrate": [
+            283
+          ],
+          "rent": [
+            9
+          ],
+          "buy": [
+            9
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "movie",
+      "mediaId": 910002,
+      "regions": {
+        "PL": {
+          "rent": [
+            9
+          ],
+          "buy": [
+            9
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "movie",
+      "mediaId": 910003,
+      "regions": {
+        "PL": {
+          "free": [
+            940010
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "movie",
+      "mediaId": 910004,
+      "regions": {
+        "US": {
+          "flatrate": [
+            283
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "movie",
+      "mediaId": 910005,
+      "regions": {}
+    },
+    {
+      "mediaType": "movie",
+      "mediaId": 910006,
+      "regions": {
+        "PL": {
+          "flatrate": [
+            940014
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "movie",
+      "mediaId": 910007,
+      "regions": {
+        "PL": {
+          "flatrate": [
+            337
+          ]
+        },
+        "US": {
+          "flatrate": [
+            337
+          ]
+        },
+        "DE": {
+          "flatrate": [
+            337
+          ]
+        },
+        "GB": {
+          "flatrate": [
+            337
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "movie",
+      "mediaId": 910008,
+      "regions": {
+        "PL": {
+          "flatrate": [
+            350
+          ]
+        },
+        "US": {
+          "flatrate": [
+            350
+          ]
+        },
+        "DE": {
+          "flatrate": [
+            350
+          ]
+        },
+        "GB": {
+          "flatrate": [
+            350
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "movie",
+      "mediaId": 910009,
+      "regions": {
+        "PL": {
+          "flatrate": [
+            8
+          ]
+        },
+        "US": {
+          "flatrate": [
+            8
+          ]
+        },
+        "DE": {
+          "flatrate": [
+            8
+          ]
+        },
+        "GB": {
+          "flatrate": [
+            8
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "movie",
+      "mediaId": 910010,
+      "regions": {
+        "PL": {
+          "flatrate": [
+            9
+          ]
+        },
+        "US": {
+          "flatrate": [
+            9
+          ]
+        },
+        "DE": {
+          "flatrate": [
+            9
+          ]
+        },
+        "GB": {
+          "flatrate": [
+            9
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "movie",
+      "mediaId": 910011,
+      "regions": {
+        "PL": {
+          "flatrate": [
+            337
+          ]
+        },
+        "US": {
+          "flatrate": [
+            337
+          ]
+        },
+        "DE": {
+          "flatrate": [
+            337
+          ]
+        },
+        "GB": {
+          "flatrate": [
+            337
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "movie",
+      "mediaId": 910012,
+      "regions": {
+        "PL": {
+          "flatrate": [
+            350
+          ]
+        },
+        "US": {
+          "flatrate": [
+            350
+          ]
+        },
+        "DE": {
+          "flatrate": [
+            350
+          ]
+        },
+        "GB": {
+          "flatrate": [
+            350
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "movie",
+      "mediaId": 910013,
+      "regions": {
+        "PL": {
+          "flatrate": [
+            8
+          ]
+        },
+        "US": {
+          "flatrate": [
+            8
+          ]
+        },
+        "DE": {
+          "flatrate": [
+            8
+          ]
+        },
+        "GB": {
+          "flatrate": [
+            8
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "movie",
+      "mediaId": 910014,
+      "regions": {
+        "PL": {
+          "flatrate": [
+            9
+          ]
+        },
+        "US": {
+          "flatrate": [
+            9
+          ]
+        },
+        "DE": {
+          "flatrate": [
+            9
+          ]
+        },
+        "GB": {
+          "flatrate": [
+            9
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "movie",
+      "mediaId": 910015,
+      "regions": {
+        "PL": {
+          "flatrate": [
+            337
+          ]
+        },
+        "US": {
+          "flatrate": [
+            337
+          ]
+        },
+        "DE": {
+          "flatrate": [
+            337
+          ]
+        },
+        "GB": {
+          "flatrate": [
+            337
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "movie",
+      "mediaId": 910016,
+      "regions": {
+        "PL": {
+          "flatrate": [
+            350
+          ]
+        },
+        "US": {
+          "flatrate": [
+            350
+          ]
+        },
+        "DE": {
+          "flatrate": [
+            350
+          ]
+        },
+        "GB": {
+          "flatrate": [
+            350
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "movie",
+      "mediaId": 910017,
+      "regions": {
+        "PL": {
+          "flatrate": [
+            8
+          ]
+        },
+        "US": {
+          "flatrate": [
+            8
+          ]
+        },
+        "DE": {
+          "flatrate": [
+            8
+          ]
+        },
+        "GB": {
+          "flatrate": [
+            8
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "movie",
+      "mediaId": 910018,
+      "regions": {
+        "PL": {
+          "flatrate": [
+            9
+          ]
+        },
+        "US": {
+          "flatrate": [
+            9
+          ]
+        },
+        "DE": {
+          "flatrate": [
+            9
+          ]
+        },
+        "GB": {
+          "flatrate": [
+            9
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "movie",
+      "mediaId": 910019,
+      "regions": {
+        "PL": {
+          "flatrate": [
+            337
+          ]
+        },
+        "US": {
+          "flatrate": [
+            337
+          ]
+        },
+        "DE": {
+          "flatrate": [
+            337
+          ]
+        },
+        "GB": {
+          "flatrate": [
+            337
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "movie",
+      "mediaId": 910020,
+      "regions": {
+        "PL": {
+          "flatrate": [
+            350
+          ]
+        },
+        "US": {
+          "flatrate": [
+            350
+          ]
+        },
+        "DE": {
+          "flatrate": [
+            350
+          ]
+        },
+        "GB": {
+          "flatrate": [
+            350
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "movie",
+      "mediaId": 910021,
+      "regions": {
+        "PL": {
+          "flatrate": [
+            8
+          ]
+        },
+        "US": {
+          "flatrate": [
+            8
+          ]
+        },
+        "DE": {
+          "flatrate": [
+            8
+          ]
+        },
+        "GB": {
+          "flatrate": [
+            8
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "movie",
+      "mediaId": 910022,
+      "regions": {
+        "PL": {
+          "flatrate": [
+            9
+          ]
+        },
+        "US": {
+          "flatrate": [
+            9
+          ]
+        },
+        "DE": {
+          "flatrate": [
+            9
+          ]
+        },
+        "GB": {
+          "flatrate": [
+            9
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "movie",
+      "mediaId": 910023,
+      "regions": {
+        "PL": {
+          "flatrate": [
+            337
+          ]
+        },
+        "US": {
+          "flatrate": [
+            337
+          ]
+        },
+        "DE": {
+          "flatrate": [
+            337
+          ]
+        },
+        "GB": {
+          "flatrate": [
+            337
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "movie",
+      "mediaId": 910024,
+      "regions": {
+        "PL": {
+          "flatrate": [
+            350
+          ]
+        },
+        "US": {
+          "flatrate": [
+            350
+          ]
+        },
+        "DE": {
+          "flatrate": [
+            350
+          ]
+        },
+        "GB": {
+          "flatrate": [
+            350
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "movie",
+      "mediaId": 910025,
+      "regions": {
+        "PL": {
+          "flatrate": [
+            8
+          ]
+        },
+        "US": {
+          "flatrate": [
+            8
+          ]
+        },
+        "DE": {
+          "flatrate": [
+            8
+          ]
+        },
+        "GB": {
+          "flatrate": [
+            8
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "movie",
+      "mediaId": 910026,
+      "regions": {
+        "PL": {
+          "flatrate": [
+            9
+          ]
+        },
+        "US": {
+          "flatrate": [
+            9
+          ]
+        },
+        "DE": {
+          "flatrate": [
+            9
+          ]
+        },
+        "GB": {
+          "flatrate": [
+            9
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "movie",
+      "mediaId": 910027,
+      "regions": {
+        "PL": {
+          "flatrate": [
+            337
+          ]
+        },
+        "US": {
+          "flatrate": [
+            337
+          ]
+        },
+        "DE": {
+          "flatrate": [
+            337
+          ]
+        },
+        "GB": {
+          "flatrate": [
+            337
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "movie",
+      "mediaId": 910028,
+      "regions": {
+        "PL": {
+          "flatrate": [
+            350
+          ]
+        },
+        "US": {
+          "flatrate": [
+            350
+          ]
+        },
+        "DE": {
+          "flatrate": [
+            350
+          ]
+        },
+        "GB": {
+          "flatrate": [
+            350
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "movie",
+      "mediaId": 910029,
+      "regions": {
+        "PL": {
+          "flatrate": [
+            8
+          ]
+        },
+        "US": {
+          "flatrate": [
+            8
+          ]
+        },
+        "DE": {
+          "flatrate": [
+            8
+          ]
+        },
+        "GB": {
+          "flatrate": [
+            8
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "movie",
+      "mediaId": 910030,
+      "regions": {
+        "PL": {
+          "flatrate": [
+            9
+          ]
+        },
+        "US": {
+          "flatrate": [
+            9
+          ]
+        },
+        "DE": {
+          "flatrate": [
+            9
+          ]
+        },
+        "GB": {
+          "flatrate": [
+            9
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "movie",
+      "mediaId": 910031,
+      "regions": {
+        "PL": {
+          "flatrate": [
+            337
+          ]
+        },
+        "US": {
+          "flatrate": [
+            337
+          ]
+        },
+        "DE": {
+          "flatrate": [
+            337
+          ]
+        },
+        "GB": {
+          "flatrate": [
+            337
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "movie",
+      "mediaId": 910032,
+      "regions": {
+        "PL": {
+          "flatrate": [
+            350
+          ]
+        },
+        "US": {
+          "flatrate": [
+            350
+          ]
+        },
+        "DE": {
+          "flatrate": [
+            350
+          ]
+        },
+        "GB": {
+          "flatrate": [
+            350
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "movie",
+      "mediaId": 910033,
+      "regions": {
+        "PL": {
+          "flatrate": [
+            8
+          ]
+        },
+        "US": {
+          "flatrate": [
+            8
+          ]
+        },
+        "DE": {
+          "flatrate": [
+            8
+          ]
+        },
+        "GB": {
+          "flatrate": [
+            8
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "movie",
+      "mediaId": 910034,
+      "regions": {
+        "PL": {
+          "flatrate": [
+            9
+          ]
+        },
+        "US": {
+          "flatrate": [
+            9
+          ]
+        },
+        "DE": {
+          "flatrate": [
+            9
+          ]
+        },
+        "GB": {
+          "flatrate": [
+            9
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "movie",
+      "mediaId": 910035,
+      "regions": {
+        "PL": {
+          "flatrate": [
+            337
+          ]
+        },
+        "US": {
+          "flatrate": [
+            337
+          ]
+        },
+        "DE": {
+          "flatrate": [
+            337
+          ]
+        },
+        "GB": {
+          "flatrate": [
+            337
+          ]
+        }
+      }
+    },
+    {
+      "mediaType": "movie",
+      "mediaId": 910036,
+      "regions": {
+        "PL": {
+          "flatrate": [
+            350
+          ]
+        },
+        "US": {
+          "flatrate": [
+            350
+          ]
+        },
+        "DE": {
+          "flatrate": [
+            350
+          ]
+        },
+        "GB": {
+          "flatrate": [
+            350
+          ]
+        }
+      }
+    }
+  ],
+  "monetizationTypes": [
+    "flatrate",
+    "free",
+    "ads",
+    "rent",
+    "buy"
+  ],
+  "edgeCases": {
+    "missingLogoProviderId": 940014,
+    "unknownProviderId": 999999,
+    "unknownNetworkId": 999999,
+    "unknownRegion": "ZZ",
+    "emptyAvailabilityMovieId": 910005,
+    "emptyAvailabilityTvId": 920020,
+    "multipleMonetizationMovieId": 910001,
+    "rentBuyOnlyMovieId": 910002,
+    "freeOnlyMovieId": 910003,
+    "usOnlyMovieId": 910004,
+    "multipleNetworksTvId": 920003,
+    "networkProviderMismatchTvId": 920004
+  }
+}

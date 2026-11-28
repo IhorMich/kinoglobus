@@ -1,0 +1,7135 @@
+{
+  "schemaVersion": 1,
+  "synthetic": true,
+  "historicalDigest": "e86c7eb9c6fa2f2569346488b5d4e92b8385e8757d93cbd4c451d185d5742974",
+  "records": [
+    {
+      "method": "getManifest",
+      "args": [],
+      "sha256": "e29e6c67f0597dd41c3344673664eada0926141979fefd39990d3fffdf58812d"
+    },
+    {
+      "method": "getStats",
+      "args": [],
+      "sha256": "ea8dce4fc35d5baf72eb51a267b3e33323714cb83e5883d785a08413037e9d76"
+    },
+    {
+      "method": "getDataset",
+      "args": [
+        "movies"
+      ],
+      "sha256": "897c3f538d31377320bc58b9b424667a70b04625681d103b96ede795e7fb335b"
+    },
+    {
+      "method": "getDataset",
+      "args": [
+        "series"
+      ],
+      "sha256": "1acf8c493038988f2f447e51a223042f49ee295dd7316bb3d8256ca80c6970dd"
+    },
+    {
+      "method": "getDataset",
+      "args": [
+        "people"
+      ],
+      "sha256": "c85a6428a71e68e02be196ebc676e35a4584b55b542870eedca8fdb30145a3b0"
+    },
+    {
+      "method": "getDataset",
+      "args": [
+        "seasons"
+      ],
+      "sha256": "f5d97f9d9a7e62596b7bab9e69cea277818d49eaa127a6d1f047a533d6904563"
+    },
+    {
+      "method": "getDataset",
+      "args": [
+        "episodes"
+      ],
+      "sha256": "f86cd144d51f6042c66bed9ecab24e1842fe8ad023f1804d4bcb61f6f1f7f979"
+    },
+    {
+      "method": "getDataset",
+      "args": [
+        "providers"
+      ],
+      "sha256": "39502e3fadb462817331b738cf76fdefa7cd72913a25af01b21042ca82c252b3"
+    },
+    {
+      "method": "getDataset",
+      "args": [
+        "lists"
+      ],
+      "sha256": "86cfa1496bfb73f692328633991cecbfb1a8dc3e7187b68dab6fba168254f087"
+    },
+    {
+      "method": "getDataset",
+      "args": [
+        "scenarios"
+      ],
+      "sha256": "3531fd59fea3b20f3b3f06080ac53e2e724a6cb287f01f005d3e4b7514de3351"
+    },
+    {
+      "method": "getEntities",
+      "args": [
+        "movie"
+      ],
+      "sha256": "ce08d7f15a76ef6c27dc6edebc1804c9fc0b3ff6f714de92248a7873c09ab935"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "movie",
+        910001
+      ],
+      "sha256": "6fff02c7eede4b81035ca83a0fa7f250a55e89400a825158b92a619a47479c9b"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "movie",
+        910001
+      ],
+      "sha256": "0c34542ebcc9b837421dc38fa6045be36fc40da8702b5959bf6ff5ce45427771"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "movie",
+        910001
+      ],
+      "sha256": "16a4586c4bd21d51432c75016607070c70014b84f6aa7016774c657316ffd586"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "movie:910001"
+      ],
+      "sha256": "3ab628bdbb1a8be10d9423fc9a5157deb0ed97af370ada01224fefdd3a11ac85"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "movie",
+        910002
+      ],
+      "sha256": "75e44825f1c9b797489e33f5dfcfe112248b0d928ff7b1363ca926fe7e25bc14"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "movie",
+        910002
+      ],
+      "sha256": "2f9a9c8824fbb9b70347b1db85f8ca0f81d0189827782d4cf2b2f845054181ab"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "movie",
+        910002
+      ],
+      "sha256": "ec5560b650871687af574ce6c7c1eb33ff2960f34874d0ba996dbdb495e0e66d"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "movie:910002"
+      ],
+      "sha256": "a3b385c77fc1d66556870a87d5649fc0cfa2f0d3c7de00f9d972cfd17de57683"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "movie",
+        910003
+      ],
+      "sha256": "1ee0dbfdcd3a5fc851ffc48ff8029ecf20f6de16fbafc190fd415d755243b2cf"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "movie",
+        910003
+      ],
+      "sha256": "cf4829b9bb5128d8b5c359ededbc0afbdb4cc0e47833690e8af0fb4953810859"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "movie",
+        910003
+      ],
+      "sha256": "e6087c4cbd5cbce209501db08a36ce50c4493c4da0b48a0347421f70dea1e650"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "movie:910003"
+      ],
+      "sha256": "affa913a908ea16c48416a7e96086eecf9b0a5d0e684ebac329d3b1193402347"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "movie",
+        910004
+      ],
+      "sha256": "8f0d5c0fda30d39c22d65b9942710c697440e434e3a5ad8c8a6ee9ae1a79c37e"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "movie",
+        910004
+      ],
+      "sha256": "ac12485f6da3f3e02f26ad782b92f6dad48fb2f22ed4167ae78611abb9a4c7ca"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "movie",
+        910004
+      ],
+      "sha256": "fefb879cb7e2c7210eb6bc09b1417657259e5cb285c43f480d84cf0f785161f1"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "movie:910004"
+      ],
+      "sha256": "201f6cf9ee489428b29abd9c8c988a060b9700138b4ed827c020783dc14c1fe1"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "movie",
+        910005
+      ],
+      "sha256": "b7c7a9b783feca12404360a0433e568c3961b40c15959252fe0499284a67981e"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "movie",
+        910005
+      ],
+      "sha256": "0a47518d0e32ba9649fb66c94bccda65d77e6ccde963e91608b38f1d1a8e6fb9"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "movie",
+        910005
+      ],
+      "sha256": "cacca7dfef80ed9147a03495eb4b48e4e4b6a1c211cb41436180c945d0280d5f"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "movie:910005"
+      ],
+      "sha256": "85361db2999a7bd0f64592c9043d1a83e27a0725776508b547d1615f31211ff8"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "movie",
+        910006
+      ],
+      "sha256": "6fac80a78a012f193a8c7097a03bb6c7ca816d4dcb7c625d70a387a6c21b88a3"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "movie",
+        910006
+      ],
+      "sha256": "9eb77b8515fb3ac2760ec80ca0c2f0f013f87ce45376af7cf56b5b2ffa7b6bae"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "movie",
+        910006
+      ],
+      "sha256": "701589eb2cd4d3080f4f7f08613e99ae76ac8042c0385d6d88fae8277406395a"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "movie:910006"
+      ],
+      "sha256": "ad0bb2ae2b89745362b3b3cf6c3b12198a40ce4623fc81c9f3bd174195de382b"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "movie",
+        910007
+      ],
+      "sha256": "07c9cf223f2be6191acfc7b008755e2d7f695a7a59bb51afd7e22c9b9000db69"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "movie",
+        910007
+      ],
+      "sha256": "23c56c213778c330265810f6eb3266e01e8bd3cf8981daf48523b236cf9078d0"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "movie",
+        910007
+      ],
+      "sha256": "56d6d7a54088bd96edb3467f512b3382c85bb9b0d34ff8daf6f826e18232f6a9"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "movie:910007"
+      ],
+      "sha256": "2a93b15d978a2d7e11bd71624d85f321d610e9a4a1a5e5332b07e0675ffeaf4f"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "movie",
+        910008
+      ],
+      "sha256": "1b4ccb7102eb7156557ca86c3dfbf9c995d51e6dbebde5b0455cfdf20c19da71"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "movie",
+        910008
+      ],
+      "sha256": "0983f2b42c781bf1213077c9a96a62946ff13af885902a610af6c0eebd1dd2a0"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "movie",
+        910008
+      ],
+      "sha256": "73b580bdf25af591c7986eb8f7b3cf6285393516b130e9bd8e1db2ad8ebd794b"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "movie:910008"
+      ],
+      "sha256": "af2c5c548c19bf58e02bdaae3e376a0c24fbcee392c105d023bfc8811794e66f"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "movie",
+        910009
+      ],
+      "sha256": "e105614d13aac30c4a872a60af55715a45079cec61094f3dba7db5788f674417"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "movie",
+        910009
+      ],
+      "sha256": "2aa392f2bd576a5323b2c80d96bebb34439006423eb7e60994e46f2d3939c7f2"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "movie",
+        910009
+      ],
+      "sha256": "896006e549053ce36b864d3d48e93e9addfda12849d9a5ed9fae38368a8d5ef6"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "movie:910009"
+      ],
+      "sha256": "2322ea0ea459b6dd8351ef5d0d1f307b699db1def50effb06d757d3999136907"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "movie",
+        910010
+      ],
+      "sha256": "b05be8a05471db344c0cbf0cfaeb107314d2d1e5c3f635e830a7116929606a75"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "movie",
+        910010
+      ],
+      "sha256": "b6809f87f5d5568da6e6184a2704147f8d3b11120ceaa5861ca821e146c67914"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "movie",
+        910010
+      ],
+      "sha256": "9124b1c4d1579c3a0cc5682c22af02e3ee70788195d40c2b7c6b7df8d03de164"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "movie:910010"
+      ],
+      "sha256": "1d933c47072be1389490980400ecc43ef4d75b9c95c831cb614151869a413a2e"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "movie",
+        910011
+      ],
+      "sha256": "ec141178a16b465a0f01f07b97eefcd569040e36f21efdec903ad459524fac62"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "movie",
+        910011
+      ],
+      "sha256": "05a88ea966d2640b9b3f5b169bc7bc875bc71565a75f61f22e45ffbffef5be1e"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "movie",
+        910011
+      ],
+      "sha256": "e3ce0d71fba83e7924872ef49fe20bb7011949103e27bc71af4ff02c03ca3ed6"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "movie:910011"
+      ],
+      "sha256": "6399cb02b49ab2ca82d794d84e228b873f233bc21f6785169c0885603e4c1494"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "movie",
+        910012
+      ],
+      "sha256": "0688551b73eeef3c477449a5ea546d77cd666d5aa76b2df87dce2babc8fe1c65"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "movie",
+        910012
+      ],
+      "sha256": "76b53ba64832228fabf6815cb37300994e2b7ad3eee8c6b24827085b893cb8a2"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "movie",
+        910012
+      ],
+      "sha256": "77cc61c3911aeceef7d7b4f19b57a32872d2fe73bb94990fd821d6adfdf0656b"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "movie:910012"
+      ],
+      "sha256": "8093d227eb9857b90f26aa14e6b3835079813678037d1b149bcb619a2774b0d4"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "movie",
+        910013
+      ],
+      "sha256": "e4b94e5df5b4e26f5b4f8b0dcb348cf87d5851e6726bfa944bc830364cdfb35e"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "movie",
+        910013
+      ],
+      "sha256": "a80bac1d8ea0c069d0f2af2a16373195ee83f85b68217b7afba66ca13c3dd5d0"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "movie",
+        910013
+      ],
+      "sha256": "3155fcd45d741ffeb34215e6e7c02b1651f5aba39b26f9715e0e8625cfde9a75"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "movie:910013"
+      ],
+      "sha256": "7933596193d3df0d4816728098f9641375d4601e543337e21bbb6217a60b314a"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "movie",
+        910014
+      ],
+      "sha256": "8ef25593403dc1002fe65e653cba8b8e0c9b9ddc605fe5670697967fd15fced0"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "movie",
+        910014
+      ],
+      "sha256": "9f6c02a4225400cfcb93526204e59f5722a81f476c8c0758e72ae308b8f75cb4"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "movie",
+        910014
+      ],
+      "sha256": "64575bf369c5ec89ab9c5aaa37059a44482a502b39fb826d013ed0b769c87b20"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "movie:910014"
+      ],
+      "sha256": "a9ccd82f028eb81fa065c67dc20feaa216d4dfab5393d416de1022435896e231"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "movie",
+        910015
+      ],
+      "sha256": "1a4fa36d249dcf54793cc4dc05b7b155c10e5fa962ee976bab0b404148b63a65"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "movie",
+        910015
+      ],
+      "sha256": "7de860109c93349851e65d51c34716614e3bcc5f869adb78039306ad633108ce"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "movie",
+        910015
+      ],
+      "sha256": "779e821f55d665f98b5fb44cfae79be2d882b45452b51419f64d903ff96394f8"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "movie:910015"
+      ],
+      "sha256": "19a3a2c10a4af8d61428c607c21a895e247dfa867349f0be3108ae8a1177ef32"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "movie",
+        910016
+      ],
+      "sha256": "ad926f92cbe5703900fbc7fbe62e2896bb5ef5a72a7447e713325df4095d62c3"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "movie",
+        910016
+      ],
+      "sha256": "b0af491e81faadcc43794837fd371a42616ddeb30494c7f642c6cad0eff3ffaf"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "movie",
+        910016
+      ],
+      "sha256": "e808f415b63c4bde6da3e3f6c7a0895e2844b5e64885ea87e6aa55b0c6a283a3"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "movie:910016"
+      ],
+      "sha256": "0a39314b44510dead25e8761ee4e2948e8c5d11448c67b70207574f06e37e7e6"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "movie",
+        910017
+      ],
+      "sha256": "bb552180cdee9f9bc33213fcf13ed84185a1149ce382837c0bf2c897591e411a"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "movie",
+        910017
+      ],
+      "sha256": "92b64b3a862740d6464e262fd05451f59e782cf3acad29d22aecc709ce77d7be"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "movie",
+        910017
+      ],
+      "sha256": "99b8df37f6137eec8a2fe52117bf8c70a2b4de11d8bb97a05da1e6cb25be4e45"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "movie:910017"
+      ],
+      "sha256": "d50ffbfdd91f31cc8101b46988ba1c58c9c74d4de4b039702ef5a402947f0953"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "movie",
+        910018
+      ],
+      "sha256": "56baa064a31111887dd18706cae4b2f980233d4b499c57f1b7f69d3bc58fd854"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "movie",
+        910018
+      ],
+      "sha256": "08cf86a0b4543ce8c7c6687025df3dbda15f898882efc37996f07f3264c61966"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "movie",
+        910018
+      ],
+      "sha256": "2bf76edff81dae4952ed4b0f0bcc51cc26d6f8744a67bc08ef5b390dd9a3b27c"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "movie:910018"
+      ],
+      "sha256": "edd509326ba81fe4e65fa97073be83b82bc954a48cb23d94ef05077b41253328"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "movie",
+        910019
+      ],
+      "sha256": "6668572d0406f9231c7a4f50e3cfa81ebf4ef7f224ff7484455b5c9e4e832ec2"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "movie",
+        910019
+      ],
+      "sha256": "3219ce40d13647912fd07c58c50071ecca6a62e4124ecb32fabeeccc3d39284d"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "movie",
+        910019
+      ],
+      "sha256": "4d5216f7b6a55ac00531364155ef03d83e06417ba5571ea0224f8e6f0139dc60"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "movie:910019"
+      ],
+      "sha256": "bc033a6122683917e0823add824556a9c1c3036ba3af3d15d9eea23da0bbd5d7"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "movie",
+        910020
+      ],
+      "sha256": "45a9be2d40a66004b1c78c285009cb23b2ed4e0c38bf31a6946565df198b5138"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "movie",
+        910020
+      ],
+      "sha256": "91268b1aebca45877e696e9f382e0fd421d2c36daf3af1f0c76b3b179bfcf5fa"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "movie",
+        910020
+      ],
+      "sha256": "7166d2ec93ca13257625158ceb521a7da66f17df9493add1b2541999a495b855"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "movie:910020"
+      ],
+      "sha256": "c6e326886c073e8d56274dccb1962f7267cbd678515a4ea2b8f86b4858b16e09"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "movie",
+        910021
+      ],
+      "sha256": "d671b20fa81667ccef24603d37f8cf8510473e05b077c1cc074952d8dfe8855c"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "movie",
+        910021
+      ],
+      "sha256": "1cbe0b1e96fc46e20a418060ba5f5a57204305e1f1cb23d4b860c0e42d0d22a3"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "movie",
+        910021
+      ],
+      "sha256": "09cdaa715b6eeabff188fe2a968448cabc0afdd872fbac59b3822f732f92fc25"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "movie:910021"
+      ],
+      "sha256": "369cb6fc3dace420b60a983eecce5be3f62875821b6255e58dbf5863cd482de4"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "movie",
+        910022
+      ],
+      "sha256": "49744b3471889e6ff2cbb9a2a67f9642b807b3029fc72cc97568e594daaf88ab"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "movie",
+        910022
+      ],
+      "sha256": "8570a43d7223c2ffe085bdc657a6dcce43deb0ee76823678453abdb884acdb2b"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "movie",
+        910022
+      ],
+      "sha256": "b6f30aeba3814612f96f43628a7bf69b18f271ceee5f71e8dac50297613e096c"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "movie:910022"
+      ],
+      "sha256": "f476e849387cfb1eaa31255092399cd288dcad6edfdfc844284e2659ae573786"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "movie",
+        910023
+      ],
+      "sha256": "4871d0d358b6a5c3216a950f36fc91caa6fddd3d51545b05632d80727d9bc4fe"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "movie",
+        910023
+      ],
+      "sha256": "0ca05c5c3f15a54858b8e88c48f7ebd65bded26e74a180fb167378f1e27f8769"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "movie",
+        910023
+      ],
+      "sha256": "3a68c299a53dd0a19614ece5f33cf1aebf8773a6115de717a65a5c2c11d415e8"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "movie:910023"
+      ],
+      "sha256": "e0c5c4fe8e3965c3e0ef88f34f0e8c6615cefa9ae550cd278cd2416354adb5c0"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "movie",
+        910024
+      ],
+      "sha256": "f82ce7d85395d583b851efff8c06dafdb4a4b9f95c0dfcdeaea3b30b6f6490b4"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "movie",
+        910024
+      ],
+      "sha256": "914a77c356c21c96aa46c52dfcab3ca79281525cd49b5660e27cd7432e3efe5b"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "movie",
+        910024
+      ],
+      "sha256": "19c56a622d0726e4044c0622cf1b44ed3c6e75d71d343fc8ceba21ac075c3bc1"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "movie:910024"
+      ],
+      "sha256": "47f28b0b7423790c60e0e1f03c12ba1c666b3ae902ddcb2887d94bbbecf617be"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "movie",
+        910025
+      ],
+      "sha256": "47b9917cf3f602fc03102a09b4601590ac61b90405426a3e8e297381f19382ea"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "movie",
+        910025
+      ],
+      "sha256": "6f6132ecbb27e1dcf378f5d964093ffaad934e98a12a51faaba1e8826b28350f"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "movie",
+        910025
+      ],
+      "sha256": "b6f7dc16673f5a0b52b1c01a6e5c634d101a60ae2521b568a647c991685fd815"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "movie:910025"
+      ],
+      "sha256": "d10a415af6bb924253011df9753d669bf6d6ced9d96e3187b179a8d23adecd80"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "movie",
+        910026
+      ],
+      "sha256": "43420839af07235d42f89ffeddc38ac060818fc1753922dd7c39c4d31f6c342e"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "movie",
+        910026
+      ],
+      "sha256": "6bf25c10492a8c76b408995af04d7f9a3036e52977bf58fa3d62ace4a91f82b4"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "movie",
+        910026
+      ],
+      "sha256": "317b9c7fccfa87fa899b246b77cafcf4d2aaebcee3a42bffcd7b0fa57304204f"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "movie:910026"
+      ],
+      "sha256": "15f4842f076c7a1c4a314b0bb5a529694edc9eaf51294a87c6bc9d7fad3148c8"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "movie",
+        910027
+      ],
+      "sha256": "f4e4e01fa4a94bcdce48e57cd8b6f2b72f305a7d3978af3d0ea3ebfdf6c7235f"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "movie",
+        910027
+      ],
+      "sha256": "96466b3c49d6d7d785e4c4cdedee8a284640066df6ab034ef49988a8e7882ecd"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "movie",
+        910027
+      ],
+      "sha256": "2db0796c86a9d65aa7bcb46c4a37ed8ea8d8b83268218bf306560adafc28bc63"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "movie:910027"
+      ],
+      "sha256": "fd1301db6ffb867de75c5dff41fa14991d8f734c6c34428b2cd3b47d67abbcf6"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "movie",
+        910028
+      ],
+      "sha256": "0905ed40fe0a5473570eb5863c5fab0de0c8cd5f04a9cd673c068bb8dc767b4e"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "movie",
+        910028
+      ],
+      "sha256": "20874a9492b767150231e1974e5eb2a38f633dc802220b70c19a62d2f6363114"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "movie",
+        910028
+      ],
+      "sha256": "bf65b5472e70ebf9a7e169231aa3a6efef30cd8e6f8a2faa97ef4d7cf131ea58"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "movie:910028"
+      ],
+      "sha256": "9d2b7c2695c92b726b22197e43a2263284e6e251cc1f601cb461d69c6d134b11"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "movie",
+        910029
+      ],
+      "sha256": "600cf242dcd82296a53f94a73a0384e9d6cedc40845deff76f582a369356b2e0"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "movie",
+        910029
+      ],
+      "sha256": "2320a49c7c9a97b13920e9ad31822a8dbcb09b612f3e382039d16108dad8915c"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "movie",
+        910029
+      ],
+      "sha256": "bb30ec41b111c1c3f4f2229577b307be35634e3859c94661552e67678e9039b6"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "movie:910029"
+      ],
+      "sha256": "c14861fdddf78d0dbe9ea89e11a0c5e323f73e3d631199e1df28a7596b76b7c6"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "movie",
+        910030
+      ],
+      "sha256": "6da608ae0f893a88d6682638e89d4fb8731e062395639efff424c9900edb2a05"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "movie",
+        910030
+      ],
+      "sha256": "8f0f79aabc750123519090c7d184d06e0e7435039dd882d6fff7fb900574932a"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "movie",
+        910030
+      ],
+      "sha256": "e859a382239134033b7bb1c8f25271b304696f183a4948c948bfbbd847afe5a9"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "movie:910030"
+      ],
+      "sha256": "105cc7a2e1c495f7d89d1b951cb0f8c6b32b0205de42f01dadfdc21e056f0560"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "movie",
+        910031
+      ],
+      "sha256": "75fc10b1b3da602dc0d2ce4d2693bd5934d98915d4579971254e3379f679753b"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "movie",
+        910031
+      ],
+      "sha256": "6c8cdb88dc99da2c752c68d965445ce65d987e652b01546c6f6104b6db56c312"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "movie",
+        910031
+      ],
+      "sha256": "3cc17fa632f029cf8db7b3e05585740aec00f72211dfbea6c5e48c34e8450d37"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "movie:910031"
+      ],
+      "sha256": "8565115e4d2a22a8a2b1783b486bda60c9c1e5595b4f3d9cca25230a83ed24eb"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "movie",
+        910032
+      ],
+      "sha256": "eb3987b99909f1690411bb7b0d2c6cf0d114c0eb476578b2ed66a7ee0220c178"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "movie",
+        910032
+      ],
+      "sha256": "aeb3f611615e8798e5a17ac4a613dd34bf8bf15eec2e4dd75e2151d90e23d5c0"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "movie",
+        910032
+      ],
+      "sha256": "94659bf8d70a91d6a0c02e730d982e836c19517c70c7031327e3a4dda6ae9ed9"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "movie:910032"
+      ],
+      "sha256": "ffb20c266b6b9ab2457d6f132868ddb70b443dca37b327c6acf56a2c97dbdcae"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "movie",
+        910033
+      ],
+      "sha256": "593996c11dcf090808cf2069c01b9f1da091c8b5cc6b81d80e62d7e2c9fc03da"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "movie",
+        910033
+      ],
+      "sha256": "ca24283a442779b0e1cdf30db7a127e5b855ef1ea02583b4b9bbcc25540c928c"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "movie",
+        910033
+      ],
+      "sha256": "a5a476855834f2c1f6db006d5c16aac576d3326260ea3aa39d5045af402d9b74"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "movie:910033"
+      ],
+      "sha256": "2d77c7a7f43bd49f4887fb04128f3ec54db201dd5af1b7058a126f91ac00c5e0"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "movie",
+        910034
+      ],
+      "sha256": "ce8a3a11d9cc767f5837d0be7c5451db42c337bbf865dae5e10760cfaa8276e9"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "movie",
+        910034
+      ],
+      "sha256": "555f54023dd1af9454ba7697493cee3f20216a98716adc36366eae59223c8306"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "movie",
+        910034
+      ],
+      "sha256": "883e805f1e280a3ce4689d71eceb3f71365cbbc5f16951d0745fece0d544a837"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "movie:910034"
+      ],
+      "sha256": "ccd991065c606eba6e32d02d85ed158627e2af14e6ba061798524c29203937b1"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "movie",
+        910035
+      ],
+      "sha256": "4b17364b57ea809697f674a8c04b1a8356a3b956f768de4f3c2457b60015ca02"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "movie",
+        910035
+      ],
+      "sha256": "5fe11610d6086489f23713582f32f196d4bc3922c4370257dc470814f56814bc"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "movie",
+        910035
+      ],
+      "sha256": "623a8117a8aabd0268989fa4351e987bf8ee0ee0201c5df971fb4d909d96e62e"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "movie:910035"
+      ],
+      "sha256": "b5301c64fb365fb8753c37e87c29f8f59a69758c09e474a774cc921b64dc0b90"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "movie",
+        910036
+      ],
+      "sha256": "38eed55a574318ef90b136be2fd86c494a2311b91a6cfed7abff030ad8b61320"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "movie",
+        910036
+      ],
+      "sha256": "5d46dfe32c8482b2896d549c7c83e7fbf26863e2b78da7c1b6c0ddc7a6d8e6ae"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "movie",
+        910036
+      ],
+      "sha256": "72edb0bb3a807b171e47faa0f4e31497cb7117750efac98db89a0432125e0cd8"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "movie:910036"
+      ],
+      "sha256": "083a78e47f7e7996a9b1728efd5b943993a0e0c6b330e20734ba6c7a6f0247db"
+    },
+    {
+      "method": "getEntities",
+      "args": [
+        "tv"
+      ],
+      "sha256": "fcfe18b2ed06cecb68f206e7057e45e28c523f0ea3d25e032ba10b6245e42c15"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "tv",
+        920001
+      ],
+      "sha256": "15a67449370d6be78d1e5c2a9188424c007f706ddbf19f810231f0bb950994c1"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "tv",
+        920001
+      ],
+      "sha256": "78efc6c674c45302852404c0eee143931e2b750c04b6d0b2fd240a4f819ef3c9"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "tv",
+        920001
+      ],
+      "sha256": "0ac997f591255cec61ee1e74afde40d5d92fc3f19250e0abebff9b6fc2ea31a2"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "tv:920001"
+      ],
+      "sha256": "8e1439d48a27ac0cacc701b9be7c41b3c89ef81ce62f16536ae4425b26acdce2"
+    },
+    {
+      "method": "getAggregateCredits",
+      "args": [
+        920001
+      ],
+      "sha256": "64c1e27e49e9c078e75f96465d74e44bfe13d1608559a9f5f7982fd412a1efa0"
+    },
+    {
+      "method": "getCreatedBy",
+      "args": [
+        920001
+      ],
+      "sha256": "ffb6fe8fbfd0be3cbab1b441985bf475518f96a232807a9af7c7630ed8815549"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "tv",
+        920002
+      ],
+      "sha256": "4732c68b79d80e65827382f2d5d83a20c726d1cbbbde2590937a32b9cc8c29ab"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "tv",
+        920002
+      ],
+      "sha256": "22ea792bb6ba5458615f9cf710f06b2eef92ae213af6664a3803e40f89f88f3d"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "tv",
+        920002
+      ],
+      "sha256": "713c5afe6b6507eb99b72c582f76e0a1fdabf8f8add0f184054862ac11781b6a"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "tv:920002"
+      ],
+      "sha256": "24a610b04f6f53d681b2b005728c24e3edb49f03b7ae5c4efee22d51e7bca4e6"
+    },
+    {
+      "method": "getAggregateCredits",
+      "args": [
+        920002
+      ],
+      "sha256": "0b32ee7fa16b0f99ffb8267259d7b7184b09cd221b1faf21daaa7eebdcaf9895"
+    },
+    {
+      "method": "getCreatedBy",
+      "args": [
+        920002
+      ],
+      "sha256": "6e2913c98502188f99575daf2baf82a724c80afa059e0d9745fa2a2fb9b8f95d"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "tv",
+        920003
+      ],
+      "sha256": "fee92dfbb65f12af398ba9fa165dfc0574902896fbc5a8f100e03beb23aa943a"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "tv",
+        920003
+      ],
+      "sha256": "c80f8e303af5fa3a6602c18e7570da30613b54899a8a71e31188dcfe20c52f9b"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "tv",
+        920003
+      ],
+      "sha256": "65ac781a05cb49f542b7dc1476aeabd19535fac704aa08c7ec2ae608125b1cca"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "tv:920003"
+      ],
+      "sha256": "123ba83f87961e43b2fc2bd6efc39c1456e80731fa58d1a4833933fea7555914"
+    },
+    {
+      "method": "getAggregateCredits",
+      "args": [
+        920003
+      ],
+      "sha256": "6138817f16a40da9e6f7b1f1c8a5506e9e5623ecfb97199a2f968fca95e9b72b"
+    },
+    {
+      "method": "getCreatedBy",
+      "args": [
+        920003
+      ],
+      "sha256": "08faaa84f4878bbaf51f2fdd4ccde38ba36690da1c956630f0d7cb645c26c380"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "tv",
+        920004
+      ],
+      "sha256": "2ef34c9281904b3a7d2494a9688d62e40041dc862b33696725d45bb78f1cab49"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "tv",
+        920004
+      ],
+      "sha256": "09bc0dbda39fda65954d088ad4e03ef01a79e3d0a3ec6d712be135c3fb98735f"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "tv",
+        920004
+      ],
+      "sha256": "0d4bda8877ce703e57deae2b667f995b3925ccd9efa22e6e5884eeed5c343926"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "tv:920004"
+      ],
+      "sha256": "c2f262b9968f7d7340f5c15f3c55e491ff58f064896ac6415b65fc6a1101a827"
+    },
+    {
+      "method": "getAggregateCredits",
+      "args": [
+        920004
+      ],
+      "sha256": "2221638d90cc43b3f987dbcfbde1113acd18aa662acb1e38257f4a2576212b8d"
+    },
+    {
+      "method": "getCreatedBy",
+      "args": [
+        920004
+      ],
+      "sha256": "56009207d11737c5f4c578736b8c77976c894cdf48aaa334c945f0dd30a57881"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "tv",
+        920005
+      ],
+      "sha256": "c0a627e71486ee06dc3c11b46b72afd3d22a363da9454840b0a1cd18b2b408c2"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "tv",
+        920005
+      ],
+      "sha256": "9274be1ed3936aecf5b100ecc4a00aece714dc6e5f046b6f12eff324ab35a906"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "tv",
+        920005
+      ],
+      "sha256": "e8e10d17cf7155338412897e680a50674c0cb60fb3e94df96016454f6430dae7"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "tv:920005"
+      ],
+      "sha256": "3809f1936a8046e09f33b247e43d065581469675a9c1b8791025057af3d90322"
+    },
+    {
+      "method": "getAggregateCredits",
+      "args": [
+        920005
+      ],
+      "sha256": "7d1960b6e1471e82f4688e8cc6d5a97eb26898b3ba4a8d13ca09b080eb1f98dc"
+    },
+    {
+      "method": "getCreatedBy",
+      "args": [
+        920005
+      ],
+      "sha256": "b955a2f297abde5b0d558cbc31a97eda781212d9f0270c99ac4fbe3fe1a67869"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "tv",
+        920006
+      ],
+      "sha256": "62fb474990e97b732bd35afafe7156514bdc4c9e51395642df7c5b70713f792e"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "tv",
+        920006
+      ],
+      "sha256": "8987bdc52b6d332b7bb81af7d78b1d5961af6d3a86e2e36204bdc6d25a0f1cd2"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "tv",
+        920006
+      ],
+      "sha256": "ffd066fa71b5bf6c477b8fd9ae2af448e6a89c0212c8b7bc76439c8f103aa31d"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "tv:920006"
+      ],
+      "sha256": "59aa3d901a227a89353386b11963fdfca8bc13f10edf728babfd84cb45f943c3"
+    },
+    {
+      "method": "getAggregateCredits",
+      "args": [
+        920006
+      ],
+      "sha256": "bfdc5ecb1184c0e3c383819ce8ff5287d1d3eb353b5a0c553c0ff63dc03116c9"
+    },
+    {
+      "method": "getCreatedBy",
+      "args": [
+        920006
+      ],
+      "sha256": "af6b3d4c93b8a4201ba3d0faaa11a331c77663e44bac154cd0837c0eb34a3cd1"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "tv",
+        920007
+      ],
+      "sha256": "f28d36fa7dac5bcef84be67c339cfdc73467e64f285aee2c8816cbc110b63a96"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "tv",
+        920007
+      ],
+      "sha256": "9c0ba7b2b9b8ed5cbcb7739631ebb1ddf10a6a6da6d36c1f6d57b59dc02c63fa"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "tv",
+        920007
+      ],
+      "sha256": "44f43a88c862ad134953a53f4d31a1f2015c38d832a12c4c42045aee9fa84cc9"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "tv:920007"
+      ],
+      "sha256": "753aee9bb836a70ed3b3b2c9df70e578b0fee94459244430dcd885a2e2ffedc4"
+    },
+    {
+      "method": "getAggregateCredits",
+      "args": [
+        920007
+      ],
+      "sha256": "f956c5b2e3c06c691c1c89e519116484f517fa716ed123cefd3a75722e3a80b7"
+    },
+    {
+      "method": "getCreatedBy",
+      "args": [
+        920007
+      ],
+      "sha256": "22d0488bee454e22da6b66f4eab44e1fef1552e2085426640414afd56eb9d61d"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "tv",
+        920008
+      ],
+      "sha256": "d1eb4f3ead0688cf484b67d12888e20c8f04fb1a390b0f005bb27f413837842e"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "tv",
+        920008
+      ],
+      "sha256": "7abc705a61c493694bc45db3464b5311b1d48758ca3814556ae049126e41ecdb"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "tv",
+        920008
+      ],
+      "sha256": "d7776695f534071f67462c9db0258d4268bdc2071436a13fa9957859369cde6a"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "tv:920008"
+      ],
+      "sha256": "87737034a85be5ce156756074ea1464b6c9f788eb6a249176fc8db13e55d780b"
+    },
+    {
+      "method": "getAggregateCredits",
+      "args": [
+        920008
+      ],
+      "sha256": "9181b10b45e5614b75ac8115e42d89a960d4a8a8e6ce64f238122b3107160583"
+    },
+    {
+      "method": "getCreatedBy",
+      "args": [
+        920008
+      ],
+      "sha256": "49c83a1acca658b81c87e7ae688bd7d71a95ba794c9359aab827616912aaad70"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "tv",
+        920009
+      ],
+      "sha256": "d050d8bf4c56b14902753bfa4de0d3cb3cba30a964581e6fa26f7be68d898247"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "tv",
+        920009
+      ],
+      "sha256": "75c15562112d3f48075826eabcec6f4a9648b830f5a50c495652556314802c66"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "tv",
+        920009
+      ],
+      "sha256": "8b86e1d727df3e11b3cafca8fbbdfb90aea0e571d38a57e698256df48f728282"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "tv:920009"
+      ],
+      "sha256": "acf08971b81c03bd3bf79d8fdaf8ef9d8e498924e8a59c6c03fe39a2e89a76a5"
+    },
+    {
+      "method": "getAggregateCredits",
+      "args": [
+        920009
+      ],
+      "sha256": "e1dd28c08e86692a8678275f2848bb146959ae73aff20e5dab81e47c7713b3a6"
+    },
+    {
+      "method": "getCreatedBy",
+      "args": [
+        920009
+      ],
+      "sha256": "d475ba6bf50f083114ffdf79233c2de7632af99e35fc9480ac0c46e566a3411c"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "tv",
+        920010
+      ],
+      "sha256": "5c06454fe657b1d883484e03192fa296114641cba09e0e58683cf06cbfd4cb8d"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "tv",
+        920010
+      ],
+      "sha256": "06b84112fc5570410beef0ad5daf0e49daaa93697b984de21225294a63520af7"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "tv",
+        920010
+      ],
+      "sha256": "c3f721998554234c81539803645e3be0d91c83ab56d6b1646b28022046f08ea5"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "tv:920010"
+      ],
+      "sha256": "cc11870b526db76723d20ba604fc0331525ece59b2f6d224021183e3b5243cea"
+    },
+    {
+      "method": "getAggregateCredits",
+      "args": [
+        920010
+      ],
+      "sha256": "191cbb118591f8b289460a86c0997472603d50b9e211ff3e159e0f2fafe59c8c"
+    },
+    {
+      "method": "getCreatedBy",
+      "args": [
+        920010
+      ],
+      "sha256": "e80ed9480070b17075299717b178bfdfb5534312cbbd64a75b1f7466e8707426"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "tv",
+        920011
+      ],
+      "sha256": "c9c03111f3d10be117097c06830503fcb346ea49f7df401dff290ebb0f459b88"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "tv",
+        920011
+      ],
+      "sha256": "a9c4fcb0ea43b4517ab292d721e5fb580bb1d1aea63891b257406394dd99d9ca"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "tv",
+        920011
+      ],
+      "sha256": "b1d4bff95245d35846c69975d0c2468f393c0053884c2d83641f36d37ef70118"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "tv:920011"
+      ],
+      "sha256": "b269798cae2a3a688e0bc367863be2cbdad2c56c963a7d0ba4b26de58c07db68"
+    },
+    {
+      "method": "getAggregateCredits",
+      "args": [
+        920011
+      ],
+      "sha256": "e92febb3df929adfd84a776e47cfaeffeff1c5346899f6799d00f65b31afa5f6"
+    },
+    {
+      "method": "getCreatedBy",
+      "args": [
+        920011
+      ],
+      "sha256": "b4e349fc74b09103849a9f01d8a5339e1b5b4edb285f833f0cb31a107bb05467"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "tv",
+        920012
+      ],
+      "sha256": "925842a219f8ae3378926c850f064f30b36739673e12d1c3b1c5286db7ff10b3"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "tv",
+        920012
+      ],
+      "sha256": "996fe021ca04af5ecde1fd036d771b59a8fb3424afd9e62d3907565b979398ce"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "tv",
+        920012
+      ],
+      "sha256": "a8dc2703d81bf4f2ee9f81dfd28501641a03d29980a390a7ab2486f358d0d059"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "tv:920012"
+      ],
+      "sha256": "912998c74960d35d4e4bf066c0197a4f630046b1b5013a4a50c0399a9b204892"
+    },
+    {
+      "method": "getAggregateCredits",
+      "args": [
+        920012
+      ],
+      "sha256": "4126d13fb1411f70581dcc1c3dc7622a44212d928062176ad9ee0a165eb82145"
+    },
+    {
+      "method": "getCreatedBy",
+      "args": [
+        920012
+      ],
+      "sha256": "b039cfd41489d1fc19ab43c71a21fa4132e81adb427e9e9b694e9a058cc113a1"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "tv",
+        920013
+      ],
+      "sha256": "56b0d290d58a1f239cf025b67a5e3716f05634a82b34a8657c9769df0b3581e5"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "tv",
+        920013
+      ],
+      "sha256": "1aa86647197fd5cc218890f0bb11707e4ce59b369e9b053af40b0fd71c8b75fc"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "tv",
+        920013
+      ],
+      "sha256": "9392effcadc749651947af8e416e7d2808c303ccf6a3facbd5b5d5a522f6fbaf"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "tv:920013"
+      ],
+      "sha256": "2d763c1b950079344c466e30f8641f5406f86d426d6aa8565154a7ec467c8e69"
+    },
+    {
+      "method": "getAggregateCredits",
+      "args": [
+        920013
+      ],
+      "sha256": "056d30283775be93490c490138fe2c1e3b4a5f02aa1336a39353fce7188f8f7f"
+    },
+    {
+      "method": "getCreatedBy",
+      "args": [
+        920013
+      ],
+      "sha256": "c2a1cdd92e4c246e142e2265f846e93a755ac9ea57d270d007228a56ce4d152f"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "tv",
+        920014
+      ],
+      "sha256": "3dd0fc23acb3ad2e98c2e08a3dce7d98b05c892ad38e9f20c86986ac7d27a8d5"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "tv",
+        920014
+      ],
+      "sha256": "54af9c83e04aded5a1fef44f723e4fc67f2eef4c23c92d2fa290f3f207e56be8"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "tv",
+        920014
+      ],
+      "sha256": "c234ebf429c7f481591b975bdeec2661d5614107da1bd4804d04be87e3481d22"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "tv:920014"
+      ],
+      "sha256": "8849c391b5ce4a2af9936f10cf72189ab7b81e689b0c10813f466eabe0470571"
+    },
+    {
+      "method": "getAggregateCredits",
+      "args": [
+        920014
+      ],
+      "sha256": "eb6a7c8233cfb548712fa6424de746eab85f5641f02e3fb7f0e06a05152a9ffd"
+    },
+    {
+      "method": "getCreatedBy",
+      "args": [
+        920014
+      ],
+      "sha256": "1126d93e54c0d199ec640eb860e999d70ce27104941b5bd80b05a148ccff8bca"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "tv",
+        920015
+      ],
+      "sha256": "caeb8f9664dd9c0b75f11e8a31ccdf21dec38ff74c5d227d4d864f2297f06f53"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "tv",
+        920015
+      ],
+      "sha256": "68157b87e431f8eeafb2cc6a0185a50ae42f47a421e4c08dc5f9b8b057dd676a"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "tv",
+        920015
+      ],
+      "sha256": "bc2b71b03c60168a9a48a4728c7f3ea437b53c66baa6b206b2905187bd19dad1"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "tv:920015"
+      ],
+      "sha256": "9c5ba15d5f5b0c8902fff475dc483c9c2ea738c874cf765a30400dcb2d9530fc"
+    },
+    {
+      "method": "getAggregateCredits",
+      "args": [
+        920015
+      ],
+      "sha256": "db8dc3dbeb320490074a8743e58b4bd06de8a7b7d6408de2fa2664be6626eaa1"
+    },
+    {
+      "method": "getCreatedBy",
+      "args": [
+        920015
+      ],
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "tv",
+        920016
+      ],
+      "sha256": "9864c70b1786d778f2ef700023ffd5d4b27a5885c9bd556268650446cadb0a40"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "tv",
+        920016
+      ],
+      "sha256": "08da5c3996131593c1633e43c916df724722d1d906c0926111cb9c4bf2dbcb29"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "tv",
+        920016
+      ],
+      "sha256": "a69566ed797769468da3affc948b8a8b96f3eaa3bff0282bfea9b055dfed18ad"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "tv:920016"
+      ],
+      "sha256": "e1cc613cede0c40c8a0093fa4a08945af1478f4722270f4db93d0916e1f3c7c5"
+    },
+    {
+      "method": "getAggregateCredits",
+      "args": [
+        920016
+      ],
+      "sha256": "697a4d0ce6249b3d477776cfdd664337dcd9473ea5b9da8f531bfeaef77673d4"
+    },
+    {
+      "method": "getCreatedBy",
+      "args": [
+        920016
+      ],
+      "sha256": "1be06a59d4b85637757291e057b2eba0caed171a32a529da588cedb856a29908"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "tv",
+        920017
+      ],
+      "sha256": "e3495bf02d17757aa641f496f2cbe5711ec5ceb090f9327a1b280b342e1cc309"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "tv",
+        920017
+      ],
+      "sha256": "5afc4073d47f1bc6ae9a0670a59e05ed35da3c15194ec39ebe0ba9e760190d08"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "tv",
+        920017
+      ],
+      "sha256": "90fd04eee1b4fda700cb5a410ab9187b3dbceb96e193ed8cea8baccca05551c6"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "tv:920017"
+      ],
+      "sha256": "8a51755eeed86972e6b9b9771bfdad9220651ad89e07892eaebc567842f30c07"
+    },
+    {
+      "method": "getAggregateCredits",
+      "args": [
+        920017
+      ],
+      "sha256": "c2e19b0f2e90aaadcfe0aecf988f5cf148de20c28172c9a1ef41878c7ffb8025"
+    },
+    {
+      "method": "getCreatedBy",
+      "args": [
+        920017
+      ],
+      "sha256": "1662dc85f4b3302046f870d4cc15af787ae9a591a0ffda379550019bb8968810"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "tv",
+        920018
+      ],
+      "sha256": "ba42ba348b1838c9ab424377c7a57e1131d71e3fc7faf5734d6582ed5cdccbfa"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "tv",
+        920018
+      ],
+      "sha256": "a81797822363f4540dc9d32fe6fb1eff6b858b731162f8796079c0f6828180ae"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "tv",
+        920018
+      ],
+      "sha256": "8175a5463752dd710ab7ce0424415b95355faf58e33499acd771b006cb9b4a17"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "tv:920018"
+      ],
+      "sha256": "25d873f2c667b32210537a017d4d792aeff7e2ab6dc8dfcbe997203b13089b80"
+    },
+    {
+      "method": "getAggregateCredits",
+      "args": [
+        920018
+      ],
+      "sha256": "2e30dbfa0de3376b6fdffadefcf07a3551c64093e1bf5a5675496eaa1e603b30"
+    },
+    {
+      "method": "getCreatedBy",
+      "args": [
+        920018
+      ],
+      "sha256": "a4432f601ae4cc7bc4d5216af4a8b1e7a8de0914a2011d03bebb1a7c7e761bdb"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "tv",
+        920019
+      ],
+      "sha256": "fcde281bf032b0b76e54249ec5a69835e55c940936b1e4c5ee5b74f83c5c7d8a"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "tv",
+        920019
+      ],
+      "sha256": "8601f7893a6609beb22beba98341b9d2d649f3aa77245e38a35234f08711fba7"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "tv",
+        920019
+      ],
+      "sha256": "6d39c69dd1645f84eabf7909b79794bf9f92221a4411fc386e9484de6283687b"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "tv:920019"
+      ],
+      "sha256": "5977143da15566ab61cc048e4cbded5e6adc2f5ffff115d256070a7811adc896"
+    },
+    {
+      "method": "getAggregateCredits",
+      "args": [
+        920019
+      ],
+      "sha256": "85e38c969e5ae9f43fad8c4776b678f6e270ce8e07e769aae4f982ef6167358f"
+    },
+    {
+      "method": "getCreatedBy",
+      "args": [
+        920019
+      ],
+      "sha256": "98cdd02c09b3e0461c236ef08721d1cb5028cba7caae8d48892d09f9cd492660"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "tv",
+        920020
+      ],
+      "sha256": "70d132c33d53080b1017d46002127becdc3ebfc9f73558fa7a7334cf78891278"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "tv",
+        920020
+      ],
+      "sha256": "013e573a0318db3207549afd345f4f0f5122e244ea830401f4d2d7fa618cf551"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "tv",
+        920020
+      ],
+      "sha256": "82b75c741d3809ade91b29fcf69ebb400517120d88f8db954b0115579419c7b6"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "tv:920020"
+      ],
+      "sha256": "c48b333da3993f2f2b4eb2a0e51ab50c3a025989e5bf2bd58b91e499c2088f2a"
+    },
+    {
+      "method": "getAggregateCredits",
+      "args": [
+        920020
+      ],
+      "sha256": "50a9b4b11fcbf9bec58ce0eb8fec0296aab6724359ae7d5e0adcb58f75778565"
+    },
+    {
+      "method": "getCreatedBy",
+      "args": [
+        920020
+      ],
+      "sha256": "60f2397d9e8fa2f8871d0171b63331dfc73b089e90f6ddf7358795a5e32abeec"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "tv",
+        920021
+      ],
+      "sha256": "b56f2e1f7dab4124776a58d346990e9b40b3b31c95268d7f25591f9a6ed35159"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "tv",
+        920021
+      ],
+      "sha256": "29b7e81d1fed0d69599f5fe7685d065a0d8ac2c5d591e0c7b7c13eab80a80ceb"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "tv",
+        920021
+      ],
+      "sha256": "108955482070b279721352c8ccfc416000a7f0b4511e169cd7747c701a6fd8c1"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "tv:920021"
+      ],
+      "sha256": "b33934f772b2e2fff8a9472448b033bea4be7dee58f8b96817f1439d9b187669"
+    },
+    {
+      "method": "getAggregateCredits",
+      "args": [
+        920021
+      ],
+      "sha256": "c444ad421c43298fc781c10ddadb295c4fbfbb01fac0c3cc69f419f0a1f6a033"
+    },
+    {
+      "method": "getCreatedBy",
+      "args": [
+        920021
+      ],
+      "sha256": "2336291d35e267d47833fb4737cfc79c3314a44f0c7c21eab9c422d0cdcd8c35"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "tv",
+        920022
+      ],
+      "sha256": "f61aa09ad42a050eebee0f89ba67f90c91ce36aa95bf03eec00d095f512aab76"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "tv",
+        920022
+      ],
+      "sha256": "4a7ca0907dbd820261b030502f45c06fe13bfcc61e94d229352a7148dd470086"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "tv",
+        920022
+      ],
+      "sha256": "c596a28b46cff5d5ecd97a6f31faefd09d78bd467d08082727e99746a8100927"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "tv:920022"
+      ],
+      "sha256": "cb901f3296c79d6116bd4a9c4f0af8f1d1916807226530f744a35916979f244c"
+    },
+    {
+      "method": "getAggregateCredits",
+      "args": [
+        920022
+      ],
+      "sha256": "e52f4144ddedc31f9ea965fcb94439c46d89b75180db8deec95ac33206c60be7"
+    },
+    {
+      "method": "getCreatedBy",
+      "args": [
+        920022
+      ],
+      "sha256": "c7a344ed381d638f81e54eadaa6f1c08cf4aa4d4800456a18cd13573b49f7a97"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "tv",
+        920023
+      ],
+      "sha256": "dd6c27ad29d6456169017b5da01eb4f4895b894d0b7bd34aacf2ccf0e722a3b5"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "tv",
+        920023
+      ],
+      "sha256": "1e1aeb68e9c63e7d167e2055e7123e25f4b10b0a6676d13f411cb0bed27041ba"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "tv",
+        920023
+      ],
+      "sha256": "e8ff7f05fd63570da745e224f5232ce7e8998fa26b312e31fdd1138887b9d6de"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "tv:920023"
+      ],
+      "sha256": "e945f417f2475d1738ef84dc13db351a8bfa18bbd9b77fdb406978337ed07bbd"
+    },
+    {
+      "method": "getAggregateCredits",
+      "args": [
+        920023
+      ],
+      "sha256": "f0f832cdeb892835f2d6b74c1f04c3a21b4258aeff062349939d32557bbfa020"
+    },
+    {
+      "method": "getCreatedBy",
+      "args": [
+        920023
+      ],
+      "sha256": "e13ac285e69fbb5154cd6f288fd3be370e9705fd42e49bc2a0045941efa59b85"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "tv",
+        920024
+      ],
+      "sha256": "e781a81427f70561ba822151ab9785515e4678ea69da96cd6492d5097a59cbf2"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "tv",
+        920024
+      ],
+      "sha256": "ea4eb28d3ecf24cf47598e2522f4da35e4033fc55128f6ed741b44611d7b3932"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "tv",
+        920024
+      ],
+      "sha256": "e19e58af4846b04aa45dc9aeccac78d91e6ac61ce6cd15733137031635763606"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "tv:920024"
+      ],
+      "sha256": "d6e509a33dd9e5770db789693947e5b81bfbb937de0f7c2a17eef7b44438377b"
+    },
+    {
+      "method": "getAggregateCredits",
+      "args": [
+        920024
+      ],
+      "sha256": "cddba060e84a4b98076e7a5701da2738dc15ce6d6cf26e915f0a40da664a5724"
+    },
+    {
+      "method": "getCreatedBy",
+      "args": [
+        920024
+      ],
+      "sha256": "31599a06bb9b8de4c6135e5f0ebb52f1d5405bdc840a7f2675e27b4f9f81a509"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "tv",
+        920025
+      ],
+      "sha256": "6b9278852f29413a5b9451ea5ded44e2d9e7f1be3cf99d50c8530287e615b3df"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "tv",
+        920025
+      ],
+      "sha256": "359bbc82587d6f9e69060350d2c6359dbe55345247a0b559fd96c345c6c317fa"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "tv",
+        920025
+      ],
+      "sha256": "7e1bdb6ceb1d25f5773f7b1a1cb932d596b745b89146a4a19f52f340f7610902"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "tv:920025"
+      ],
+      "sha256": "07d5d35db1b01c20cfd5c6501ec8cbf9f2e339450acf1b7fb21dea32315d4da9"
+    },
+    {
+      "method": "getAggregateCredits",
+      "args": [
+        920025
+      ],
+      "sha256": "bfa5a7d7e3b2b41c6749395f13b64fbc9cfc57bad281ca1265f6f1818922f713"
+    },
+    {
+      "method": "getCreatedBy",
+      "args": [
+        920025
+      ],
+      "sha256": "52fc19d696d3693a9d195ca866f3201799dd23ec383d5a9483bd46750831aa8e"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "tv",
+        920026
+      ],
+      "sha256": "2338de6538d93be241ae5e9b9de8eb1641cdf6ba76e4bceb67a126d9b073f188"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "tv",
+        920026
+      ],
+      "sha256": "af39eb025880432d8ca7a571ea5465b1a55983beebe170beabd9242def569418"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "tv",
+        920026
+      ],
+      "sha256": "7915f0899602c7a5006041159933486a260ba4e531bdbea5cd5f2bb55f1b625b"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "tv:920026"
+      ],
+      "sha256": "487a00aa02ea103dfd6fa813221b2005f8c2a34fff92dab8963d4e1bceca660e"
+    },
+    {
+      "method": "getAggregateCredits",
+      "args": [
+        920026
+      ],
+      "sha256": "7f8d5e8d22027ea43e7e7111c235c9d44f7ddc3d65370eb9cbc0dc1d3a1a01a5"
+    },
+    {
+      "method": "getCreatedBy",
+      "args": [
+        920026
+      ],
+      "sha256": "23c61685e4487f637f4f8a29d663c0df67d2ae97af112f8283321c554ada5b5a"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "tv",
+        920027
+      ],
+      "sha256": "497cb4bb473ba3881e09c9c2fbcca0d7768150605d10f1ae66759ddc82b0e98a"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "tv",
+        920027
+      ],
+      "sha256": "097410f4f2053ba70bbf04bd58aa6cbe5f65db6320cb4949f232ce611da665f3"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "tv",
+        920027
+      ],
+      "sha256": "70d9437f0771afce4c159be94e29d6865e90be2b3719580424a2b10aa70ee632"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "tv:920027"
+      ],
+      "sha256": "1018e99bd26a12adda90130d411e390c6f26be2645a371fc9494ac01553fb0fc"
+    },
+    {
+      "method": "getAggregateCredits",
+      "args": [
+        920027
+      ],
+      "sha256": "83045f8b25af0e2a2e7a67dcfc52454640caa910373bc40c5709259ec05facc8"
+    },
+    {
+      "method": "getCreatedBy",
+      "args": [
+        920027
+      ],
+      "sha256": "e64b9f0e82c957ed98f49ce4e1ddc8c1d4ab1b801c4334a9fad732c9203af138"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "tv",
+        920028
+      ],
+      "sha256": "9ed78fa1f934072035944a9a654ac9e009af3482aeaded814dff4d059268b1e2"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "tv",
+        920028
+      ],
+      "sha256": "b0f8afa46d3185a296d1243371c1f084302a1313bdebe6a7900275439379a332"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "tv",
+        920028
+      ],
+      "sha256": "88e5c4b6019e719b51bcfc0160c7c4fbfd4527d548d76f31c58c201852faa60c"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "tv:920028"
+      ],
+      "sha256": "2a304da92494e1e875723b31315fe6e06b75cb0afc97e4a2145be43fa9e19b51"
+    },
+    {
+      "method": "getAggregateCredits",
+      "args": [
+        920028
+      ],
+      "sha256": "04556a7a083325fdf60fc843f30edf047ce1bb710ce7a59229a1f23623b295a2"
+    },
+    {
+      "method": "getCreatedBy",
+      "args": [
+        920028
+      ],
+      "sha256": "b99fb866517162f29a09be33dfc3386687f32d19d0d6861235939418457d2927"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "tv",
+        920029
+      ],
+      "sha256": "7d0b5106b29b7b9034d0d47b4d4ba0e4e327cfbe9fcaa74cf5f9905f67df6760"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "tv",
+        920029
+      ],
+      "sha256": "ebe71258a86e1e8081cd93fa62a8515ea4a7afe772d15b142fe145f587d18a79"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "tv",
+        920029
+      ],
+      "sha256": "72af10f7043368a8cc50482aaf66740d718c72e1e438d5f7a1e9b41fe3e8a272"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "tv:920029"
+      ],
+      "sha256": "c162c260c2df76ce22eb6203cca2a2613546d46e14ed57aa1d5e6601fabea96e"
+    },
+    {
+      "method": "getAggregateCredits",
+      "args": [
+        920029
+      ],
+      "sha256": "c662dee9218ea593c60de796af66a537b17e9e9c6658ec657f26afe873f3531b"
+    },
+    {
+      "method": "getCreatedBy",
+      "args": [
+        920029
+      ],
+      "sha256": "09bab7281855d276b11adf9b1b0cb90500658d032c05aeacbaf767d3fb8d7daa"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "tv",
+        920030
+      ],
+      "sha256": "f0912b35894d376954a5b329d241d617b6cf31589fc9327916baa854be5b73c1"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "tv",
+        920030
+      ],
+      "sha256": "a9c592fc373861983d3750fc0ecb8afa36d7e2092db6efbf09acd93e5dbdc96f"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "tv",
+        920030
+      ],
+      "sha256": "b8035ede3a224c72d76bdd75043b83091263d53ad0ede96f339564ff22e12a40"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "tv:920030"
+      ],
+      "sha256": "2d0c1396345ee2eb3cede2a48bfd63895ec9a5c5d87756ecd0c9732d5bfa5da1"
+    },
+    {
+      "method": "getAggregateCredits",
+      "args": [
+        920030
+      ],
+      "sha256": "af60e0e56e2cf2466f39be40a4fbecccadf1402dfe7714002ce571933bf25d37"
+    },
+    {
+      "method": "getCreatedBy",
+      "args": [
+        920030
+      ],
+      "sha256": "e3943f80c40a72672892951f7251376d114317104f30a21f3c00a1c6595136bb"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "tv",
+        920031
+      ],
+      "sha256": "7415b57ca3f184e5dacd61b0e24a1a8ca07132995eb0cb34732c8591728e5ee3"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "tv",
+        920031
+      ],
+      "sha256": "a16215a7a2572bcbad27e799514f4bdd38ebeb0c19c2f01b07b205e6c2a0d2eb"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "tv",
+        920031
+      ],
+      "sha256": "5065164dc603cf043881363996ab3cd898c4b1ef46eb88c725cb097c3d0368ac"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "tv:920031"
+      ],
+      "sha256": "ef5e855f574db187c29fb63dd68c7f333c14249494bdd644dc98d2e52441b965"
+    },
+    {
+      "method": "getAggregateCredits",
+      "args": [
+        920031
+      ],
+      "sha256": "8ed072f45cb79b4cda6548710ddc14c459d259d677534243a5fb637c498159f4"
+    },
+    {
+      "method": "getCreatedBy",
+      "args": [
+        920031
+      ],
+      "sha256": "ecec6018adcfd54bdd12b9d83aa8b8fd49709dee99c0354870135d768dad0ba3"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "tv",
+        920032
+      ],
+      "sha256": "c24ab53a50152edf43853470f93826dbc420f4fe890edc47cbe6a75baa132df6"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "tv",
+        920032
+      ],
+      "sha256": "8acaf28d7db0fe57f94596b7be3853cbdbc0ad376c008227eb57f096becb125f"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "tv",
+        920032
+      ],
+      "sha256": "96eeb1252a5424b512053bebe4a73e0f174cf5d6ca153b268247fd14c9971158"
+    },
+    {
+      "method": "getIndex",
+      "args": [
+        "creditsByMedia",
+        "tv:920032"
+      ],
+      "sha256": "2a316546660b3d0b4561f38e712a659ec33ed8cc67c39f066f6be2a4e86a6d13"
+    },
+    {
+      "method": "getAggregateCredits",
+      "args": [
+        920032
+      ],
+      "sha256": "ce414ca4a9abd4d415e9b17815e65e9ef33652176891651627736671f4cd9a82"
+    },
+    {
+      "method": "getCreatedBy",
+      "args": [
+        920032
+      ],
+      "sha256": "298d90f0c01155d02238a07e92088b6384cb2d7b04773529f542d2fd39b7cd8b"
+    },
+    {
+      "method": "getEntities",
+      "args": [
+        "person"
+      ],
+      "sha256": "d00e0854a6ece9d2a36f33067268ddb11ce0fc69ab2ca1460a33788bb862cd49"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "person",
+        930001
+      ],
+      "sha256": "ca76c7dec9602080288e0c648cffc95f683c2cbf102bece638770f68e30f933a"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "person",
+        930002
+      ],
+      "sha256": "a34d9bcbdf7d266514376bef75c3c35b6c4bef870e10bc825b87102c8f0dc27b"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "person",
+        930003
+      ],
+      "sha256": "dd127a88a242e191a95e79d1ba853c71a273d95c8c53594de88e3c060a032a60"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "person",
+        930004
+      ],
+      "sha256": "fffddd45a30a970af37691eea05b586b1c130ec0c34e73122c23b9cd53aa1868"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "person",
+        930005
+      ],
+      "sha256": "a3e9e7ca744b3bacf115283872ef1a2769644b514d395c45915dca6a01363583"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "person",
+        930006
+      ],
+      "sha256": "124788112b9ef6d2920d5571b16ea47736b434332af04a37c4250244702a8309"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "person",
+        930007
+      ],
+      "sha256": "186366460d0c48db68c24828f25547af78988b4c2f06777743891f9cf881e6fd"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "person",
+        930008
+      ],
+      "sha256": "cb2d0dd81971a928e9881b3bbe2bd7ffd35d1e4cf6343eebc20c6f04ea8bd36e"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "person",
+        930009
+      ],
+      "sha256": "73e626a4a23561a69971b2d6b024d89092aafea8a7771f9710ac07b4db76fa86"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "person",
+        930010
+      ],
+      "sha256": "8c57b04d1f58e46962bb38cf00caa16fc97a8762769d26427694da8aa07f4343"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "person",
+        930011
+      ],
+      "sha256": "91045b7b3bf6d94ebffd5b587d816155d88a376039963bbd3ba68fd14c5e2e24"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "person",
+        930012
+      ],
+      "sha256": "554342bf4e46d8dab31c14c4be03471298db0ed0f36f6eacdbc96bcee144238d"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "person",
+        930013
+      ],
+      "sha256": "f734cf76a8d889837b610c9a70ec98144f7ab1334d7c704c4de3a679826d99fd"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "person",
+        930014
+      ],
+      "sha256": "19b3b0af5a7633333d56427f55f4f400c119f6cd243312e531cc4774c264115a"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "person",
+        930015
+      ],
+      "sha256": "00aef7635f9dfb02fbd53175362644dae5109f81e17719fbfffd2dc7b4ef08c4"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "person",
+        930016
+      ],
+      "sha256": "55f7d2083d07c6d2d12c6d49cb5108a7fa5c2173d5f91c2a63bb3cb9b8ced28b"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "person",
+        930017
+      ],
+      "sha256": "bd66bc363c61e6c11a81d290e20b27a015d5d5b480cd7a7cbc0b37041f239805"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "person",
+        930018
+      ],
+      "sha256": "e9d71f95997e843c893287269af967ad90231bda952e1e2122523a8cfc04a854"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "person",
+        930019
+      ],
+      "sha256": "cc1b42bc1f521850e64fb1496f3c49a0977c1ef2fc14866f8735d13a7defe59b"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "person",
+        930020
+      ],
+      "sha256": "a16e1db63b44b4be1870b7ded6cc92cabf4ee5ab1c73f1c76dc7b4c06a128389"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "person",
+        930021
+      ],
+      "sha256": "d0854bf014e861ab5070e2dcea3f63ee0792657f72232c1a423238806fbf210b"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "person",
+        930022
+      ],
+      "sha256": "a7950e4b8af3ec1752e9d8ad1d107faed0402b14bd18febaf1a5d9ec05be54f2"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "person",
+        930023
+      ],
+      "sha256": "3967c10844e1a31be4241a087dfd74bbe37db51882540d07f07e21c34e5d48cf"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "person",
+        930024
+      ],
+      "sha256": "41441ed6b2ce6efe830996238baff76ea69838ba271749a66724992b281da3ec"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "person",
+        930025
+      ],
+      "sha256": "75bc0a84dac83babbf56362a1854ce4f657d8e8f0d0e99dbc09236585516e789"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "person",
+        930026
+      ],
+      "sha256": "7c44a11397e71340d10c7cbcc3876cf941365b51f74e3a4fd1ecfcff22c03886"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "person",
+        930027
+      ],
+      "sha256": "31011e8e9189e4789a9b397344298efccebd2ee8dcec596d056a49b385e37daa"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "person",
+        930028
+      ],
+      "sha256": "c1ff8f1e5a7b05b4a202867d18a0270412f15913154fe336e52c221b7ccf98fc"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "person",
+        930029
+      ],
+      "sha256": "d4716955344a0fe1e0525af990affd5c6662fda3bd18ab52caf84843fafecffe"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "person",
+        930030
+      ],
+      "sha256": "0611f51b50a1f3ee920d073598eb56c852af1aed6afa8a6ea2782ad7c24d54ab"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "person",
+        930031
+      ],
+      "sha256": "1a380d4739ba44e6bc57db93b5babbfbb8dd18db79cc657ef769ad7ee80133dd"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "person",
+        930032
+      ],
+      "sha256": "789a8ee546154975a3cd002d3400c545f1a310a34867538bd0ecb26713847225"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "person",
+        930033
+      ],
+      "sha256": "013db9ebdcca85783ffaf16d8ebf1f2881e9d7923accd81dcdd1ee0de6c5a314"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "person",
+        930034
+      ],
+      "sha256": "8617481df2f843a0d727f4c94296229d83aee3fb0425e7e16484d87903514c87"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "person",
+        930035
+      ],
+      "sha256": "2fbd63e81c08d729a23194e89a7c121ca657de62838be7e0b56ed706c95fe709"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "person",
+        930036
+      ],
+      "sha256": "bcbcc5275bef9f83ff8ea9222dda60648902be43c4ad5f06c6ebc459300d24dd"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "person",
+        930037
+      ],
+      "sha256": "25db50cdf1883ffc946948f8b1ba3469f7c6cd2b504107a1e7dc1bc8fdf1a177"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "person",
+        930038
+      ],
+      "sha256": "bac32d1283d8f9b9767a3d3d2e8bc8b77023a7971f152c6147ee6e0c603c61fe"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "person",
+        930039
+      ],
+      "sha256": "74890c914e52cca233dbcde24919574c9c5e01ea3e0ad114840e8e505e3cf1f4"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "person",
+        930040
+      ],
+      "sha256": "a18e397f8eab82458ecc40ae8e1da49a0ae984058e9afe58bc530d404591ea66"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "person",
+        930041
+      ],
+      "sha256": "4af3d0dba660f5c86b5807b1565e41db24a729bc88b4f0ab34d58cccc5ed3493"
+    },
+    {
+      "method": "getEntities",
+      "args": [
+        "season"
+      ],
+      "sha256": "53545c102769a11d851f17b2944b4002fe569942ece398ac09bc0bc938d9b762"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "season",
+        92000100
+      ],
+      "sha256": "e45b828fa27819edaac3d185108910e25836efd90c3da4c6dbcd2e43edcd06f1"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "season",
+        92000101
+      ],
+      "sha256": "885b6a3fae375d36432b6bfc918998f213221c6495509319a20812654295c9e4"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "season",
+        92000102
+      ],
+      "sha256": "94f898d2e07ec69d0a482f22b62e097d8049c256e5c609ad0b0c2c21ff6e74a3"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "season",
+        92000201
+      ],
+      "sha256": "6c926fb6d6f186e39943051c8a289430136f1fa48d9c5f5ad6783fae14c3eb04"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "season",
+        92000301
+      ],
+      "sha256": "8bcd3e8101c292642349aca048629b649aa09800098739136ce6d0c1afa2d26b"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "season",
+        92000302
+      ],
+      "sha256": "bb16eae0426ee3cc03d06a7d27d13c2b8c3cf66e33bb7bfcaa9df90121d33701"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "season",
+        92000303
+      ],
+      "sha256": "4b55f840b67bf92cef4f1c1f0d0d8da5e72e2a95d6bb7bde60d2c6e711065397"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "season",
+        92000401
+      ],
+      "sha256": "dcdd82e9c1ad3876796a7039980fed476e2747c851ac1c55a9af812ef36475fc"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "season",
+        92000402
+      ],
+      "sha256": "a1590cda8e1cd3c744aed702cafd39a650b4d7190855aa308e79d2625a9d6b94"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "season",
+        92000501
+      ],
+      "sha256": "b66844cb3896063b33d1dc59d30dfee00d78a41c46c8f28817840f81e11dcf21"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "season",
+        92000502
+      ],
+      "sha256": "73ddd2d4f5658e51b5490a4540cc26271cff707955dbf75c6ecc740efb84f8bb"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "season",
+        92000601
+      ],
+      "sha256": "2d7e4f495e6dbd20fdf3c70a3d4ae31a23e7f7d7305245d4b50da6b9d8942079"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "season",
+        92000701
+      ],
+      "sha256": "264c978dac33980c897db227a6297401652c7aac566f4ceab9a4cf3090243be1"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "season",
+        92000702
+      ],
+      "sha256": "b1df4b3805a0f1d8711eb5d6ade102929d22ec0c8f7a4e7780161d55c0b8cd9d"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "season",
+        92000801
+      ],
+      "sha256": "6db85203773ffcbb74e65121043a91a9147c91bc8b87cb8e999728b1b3cd0b00"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "season",
+        92000802
+      ],
+      "sha256": "73b1c5827b292c6118855ba53ad80638d5a7793ee03c37ed465706d5fd0214da"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "season",
+        92000901
+      ],
+      "sha256": "439e9dc366703b11a0f5fa9355141f76108d1c13c66a45c7f6ab993849c3524c"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "season",
+        92000902
+      ],
+      "sha256": "5285813345e5f95af98308b133d720076497791ea9b05a0ee8c18765c2a3be7c"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "season",
+        92001001
+      ],
+      "sha256": "a00ed9f61873cdb0372aa15474ee9f6beeca1c5a3c0deb391ed7c5b883ffeade"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "season",
+        92001101
+      ],
+      "sha256": "27cf5cb0ba7ae24d81d80acbbed7003ff825bfe2a2298343fa55c770ebaac8be"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "season",
+        92001201
+      ],
+      "sha256": "5f8833c2e005d2e53a521e2af5e26fd616e22c0ab83831c66bb5842c5466c138"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "season",
+        92001202
+      ],
+      "sha256": "e3fa6f93b38859cfde9ab49b78b54487e855f1d2dcc7ca5be9cd90b087a08c47"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "season",
+        92001301
+      ],
+      "sha256": "9924d9829175c6b24375ed9985ef01c346e4e0786c56e8484edd4796822cc6c5"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "season",
+        92001401
+      ],
+      "sha256": "4936b888719de0c6c842be3eef78bc0bd8dcf8f411a3176e32708d9d2b84de02"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "season",
+        92001701
+      ],
+      "sha256": "f29a6affeece8aeed4056dd297e7b676ab550a55a57f2f64f7441f63eaae8bba"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "season",
+        92001801
+      ],
+      "sha256": "0e2ed2c704df601c3825e909b706de63dbc9abcfe748b7a641ce83b4de317849"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "season",
+        92001901
+      ],
+      "sha256": "68f9c87920b2038f4b7939986bd02f3f1a0b29bf8ee7184b40d64f992f8c1262"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "season",
+        92002001
+      ],
+      "sha256": "e9807dcab6fe23b1a4e7f553d11dfa3b2372a513a0013732a94884b2aaa2c6c5"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "season",
+        92002101
+      ],
+      "sha256": "4c5f23f157d2738f091a345148138aec0355dc3d2c3f814c52fe0779a9e54e7b"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "season",
+        92002201
+      ],
+      "sha256": "fe1a94906ead7132244446bd5216ebf104752a08be2d55059c67992ab596cf33"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "season",
+        92002202
+      ],
+      "sha256": "ed63060c56bcdefe252f2a3ec73a2789c4c1068fc46aafa28475c824580cb512"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "season",
+        92002301
+      ],
+      "sha256": "d9d445153d4b9aaf95a23203034ae9fb9ea417a37a248fc352bb6232db7771a8"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "season",
+        92002401
+      ],
+      "sha256": "92eadd661ed228f428d803683994dd9b83d9921d5b8684ad9ff28fd3d46ade87"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "season",
+        92002402
+      ],
+      "sha256": "15c2b7ab3a2c1c650cf2343d3f0c99a30f7325220b373482aa699ce5c639bc03"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "season",
+        92002501
+      ],
+      "sha256": "33b49790e1fd723dcfde76cdf3fb41aa2cfa94900d5e35c4cc5a919b147725f4"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "season",
+        92002601
+      ],
+      "sha256": "f49931585ccabe9cc427c56a3279fae1f140b4ff27b5aceda435d58c02c31179"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "season",
+        92002602
+      ],
+      "sha256": "f5da6a6015e43e8f9f59b32d7f27e12372519f8eafe21452ac68769d71ab904d"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "season",
+        92002701
+      ],
+      "sha256": "2c07e693e6093e16ad6a8297d1b43075dab757c36252dbb7dafc2641d75864e3"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "season",
+        92002801
+      ],
+      "sha256": "710093032a0226e1897ebd44cd03a24aa63e639ba7b733b14b1dcdfdb2c54441"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "season",
+        92002802
+      ],
+      "sha256": "25b2b0392e61a8ea3e6406a3a876c4dee53dcf330144d8967f3d58611b9b70bd"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "season",
+        92002901
+      ],
+      "sha256": "b7f238369a91ff03e126697ffdd30556614bfea91d9f28893b8ac09359b87666"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "season",
+        92003001
+      ],
+      "sha256": "12b4e2502f86acec1bd10724503451d7b1281c98b78e83e6b99f53afca18a6bf"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "season",
+        92003002
+      ],
+      "sha256": "98eb43182c7595104a027c91f89e9d95f7ee92199dee59465986232c61afabc2"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "season",
+        92003101
+      ],
+      "sha256": "d2a774527bf375718149ea33ed3868b26cd1c03e8480b0de7b9ec3ede0083142"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "season",
+        92003201
+      ],
+      "sha256": "2693e8324d2092ecd5f34cfbfcdc9728363071c381ef0916e4097ded3713f194"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "season",
+        92003202
+      ],
+      "sha256": "17e97eb8913a5443c8f7418a6c42b37ef16b3ce8413ae077ada0646ef50fd279"
+    },
+    {
+      "method": "getEntities",
+      "args": [
+        "episode"
+      ],
+      "sha256": "3e1362fbd8c3550ab3fa28b63d80490580dac0fc90f9a8f03e500d3f04394464"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000100001
+      ],
+      "sha256": "ca2cfad44b5d49324dfc1537f44a31cdc58cfead99ec0b7853e06caf9deae26e"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000100002
+      ],
+      "sha256": "c0d6735dbaeedf54c89176c96db869b50308b08d96581ad8b77eba7d6451408f"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000101001
+      ],
+      "sha256": "21144f88effdfccfd465ab0b2ff1e70762d016b876830ec60f5763931b4631fa"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000101002
+      ],
+      "sha256": "d55e0188022d8c66428b5418ee22fbcd2e763fc016f4c08c0b5cf0c06d5717dd"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000101003
+      ],
+      "sha256": "2466fde75d7fb5ed096c8c1439674094a246ae17ebac108ce3d6a17323f3a8c7"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000101004
+      ],
+      "sha256": "f92189610c1d286e175542a7f2fce46c295d7ee74eb3f65b761365c6162c6c48"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000101005
+      ],
+      "sha256": "cf223c4117a38669e6d10230fa208c3ae1ac128da5c1de072f815719f05fbce1"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000101006
+      ],
+      "sha256": "351e198b77df080972db97505d690e6cb5f085dc37ac16eacd29f79b7109cafc"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000102001
+      ],
+      "sha256": "db73c0d28bd42d4519c261f431b81dabef6eb723cc335dbf5bd462edba0a72e8"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000102002
+      ],
+      "sha256": "97f094b95afd9060a5c1ede15cc0894b800a83df9f8f834ebedbd13430fbb5c4"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000102003
+      ],
+      "sha256": "52d10784fe8d05d2b20032aa2fa27cf539c2318c52fb242b01c0a705def1d52c"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000102004
+      ],
+      "sha256": "d18d0631327c827f0cbc777f251e631cea3ee172e9b5b85b13d69675d499b6d2"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000102005
+      ],
+      "sha256": "69d36cdadc57981f6bee58ce9a2e844c1955163646719f146f07fad83aa3d460"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000102006
+      ],
+      "sha256": "9e429ad10fff2977a7e5885ef2d0f6142c05bf7c9eddc9f1c0253b22bbccfd5a"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000102007
+      ],
+      "sha256": "ef614809968ff2552d084e2f29e03fa5f175e56f851cdc63f1c636e6ca7fc9cb"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000102008
+      ],
+      "sha256": "bdc34bf38ad8b0ebc8f73fb75a02e6ca2e9351e203f764db9e910c05113f3f1a"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000201001
+      ],
+      "sha256": "17b8deac825700b7c19bb530cb33eb78a2161eb0a486bf73f64c1dbca6808681"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000201002
+      ],
+      "sha256": "9c3bd439b2a9df29c4d31d6ee80e273f9c765e81caa9070ded533535670936c2"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000201003
+      ],
+      "sha256": "8c3ffb7378ec10f1e0e8ba9634a81dc73a5016205f1dc0e43cc56e2cd7fd7ab2"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000201004
+      ],
+      "sha256": "2efa49d6400b866d0d50647c2e621ee6ac193296994de8a5dfe8aaa737644645"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000201005
+      ],
+      "sha256": "5e4994ccc26e3f509e05a5f2182aa3b2fbdf343224c5fdf82dec7a487184c0e1"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000201006
+      ],
+      "sha256": "1cfa9819a5931a570e452ab33ee554cb0d2fd05c6eb40db5253e2ca12d421c08"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000301001
+      ],
+      "sha256": "9cd1274ba46d7ec51b288d07bddcb10a1b31f5d7ff9214eab2b55da3c0e08a37"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000301002
+      ],
+      "sha256": "43049028a41ffdc08be16fef659bb98cba8a592473d6099742fbb3076bf8b515"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000301003
+      ],
+      "sha256": "622f2ee346319cef1c3f88dd69038b80bc7cb2eeb22252cdc3f33fae6d2b8932"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000301004
+      ],
+      "sha256": "b78d79d41ee4aa24f6823631394fe39b744ac0e2d26b446aa21c7491b7e3ea19"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000301005
+      ],
+      "sha256": "2a330ddf8dd90dcf90fc2ae7d712d131be2bfa2aa55d10dd328882c6ceed27fa"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000301006
+      ],
+      "sha256": "9a84e649ecd6e62d5f5b57ab2cce3bfe06c1394e43ad2fd2016e8833130ffbcc"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000301007
+      ],
+      "sha256": "67b6b4a2eb5a4364b1d88a25e3035e41aac38a51764b87cdb2a913a623396f7b"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000301008
+      ],
+      "sha256": "78a352d777acec68b3814cfab63a7327d02c064445cb0c3ccc869a7044dc075b"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000302001
+      ],
+      "sha256": "818e487c8af97f5444e3d4d629f4338120ecc61d660aa062cb34c3767b0c8e3e"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000302002
+      ],
+      "sha256": "fc41bf1795f2b601d893655487776528142475cf79d749951a2f2379ac98bda4"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000302003
+      ],
+      "sha256": "4cb0322fafe8df17140eb935782c25e4ae8b2c469c66a26548e7673874040bb7"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000302004
+      ],
+      "sha256": "151332c9eb0c0c5a800da964c0ed4b5036391a9c3c968a77ee3406bf69b78029"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000302005
+      ],
+      "sha256": "5e7ea0bcb4661b60e5d9cd74cfeb07bf7f695a2deef0bff6dc085a79493f148d"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000302006
+      ],
+      "sha256": "c0f38fce84e2c3e1de48ca6efbbb2c15d7a4bf94abad129f50a1a8b30a30b3be"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000303001
+      ],
+      "sha256": "9b9cce39595c695c537f98bd12df01aa46f0b95e72bf9bddff60613582c48d4f"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000303002
+      ],
+      "sha256": "34f1ae60b9d522bb2a6387e8e6c4838fdac3d9e6d39cc3d823d34f59bcc93f6b"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000303003
+      ],
+      "sha256": "115fbb3db2360a0a297757c5dded7b3a6a0d2a6b901991a7a020e42c420df089"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000303004
+      ],
+      "sha256": "863955c85442d6b7a9fd10b310146b3c829b5807a531d0f4ba94a1dd50532c9f"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000401001
+      ],
+      "sha256": "d3bd18f67bf8d21d35c3c32cf87433d235b6241a332b5cb6e24f61d91ae046ee"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000401002
+      ],
+      "sha256": "2fff84457a09ab19f53ed00742f816114e92c6d5eea8a64b682cf36c386c7fed"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000401003
+      ],
+      "sha256": "1dff23099b37772cf38e5f08a0d0551551aab1e16decdbcfb0611895fb46f1c0"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000401004
+      ],
+      "sha256": "9411f406bc829f38f1597a735d826e0f6f7a4c83d4c21b365c149aa5336eb032"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000401005
+      ],
+      "sha256": "f4ba63a9b6e0cdaad4d6150f03eba7d8445ce166d08d91a2c904e384aec935b1"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000401006
+      ],
+      "sha256": "ccb378602221a433146874a8ff2bf034bcab08dc29859998cb7754a6c9fe74a5"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000401007
+      ],
+      "sha256": "65651bb765b575d40901c09e21bf99aec15ec8084639d52719f714f3c279a521"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000401008
+      ],
+      "sha256": "30c63b21f37ddc40600fe13bac25e02f81b0b2b011168a54f7ee6f0c78de9a3e"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000401009
+      ],
+      "sha256": "3bf4cc0b126bbf7ace630081399687745fb1851c96866ebb25f9779bfa70c9d4"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000401010
+      ],
+      "sha256": "7ba5a366978a4791c8efbe3178b24485ba66a49935a514587d517ccf90be7974"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000402001
+      ],
+      "sha256": "f2226bf60d17bc4b1841c63f1d7819a1db5dff2d2cb277bc7df53fe53232bf7c"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000402002
+      ],
+      "sha256": "7bd96b9802939197fceff091a376dc3336f4537af03c30601b557aa08ade3977"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000402003
+      ],
+      "sha256": "0d0339012a563b865edf2012e9103779395f08884f8214bdb3273de5c01a4e8a"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000402004
+      ],
+      "sha256": "8587426e12b42100daf75990e0144422bcc3bcd806bd46ea881727ca9225c0ad"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000402005
+      ],
+      "sha256": "1d7f8f69badaab447edef0a30a688370a94d481c7a0f7178ec9a76bd0fad84d4"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000402006
+      ],
+      "sha256": "e0d273d6f07c0942e8c20fd2fa75ad280723af0b89a9a656e179859aede05b01"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000402007
+      ],
+      "sha256": "51bf7d9c4720535ee63b99de27b018e34cf621a516205753d316233a76ae852e"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000402008
+      ],
+      "sha256": "79a23766d3679ac571f17b8a923e557ae19f8b5ffbebc7907aa04efd2ca38d04"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000402009
+      ],
+      "sha256": "f563d9345d9c4b97b483c2a9663f3988698f33e8efeb9b7cd7e0f6f79e1547b1"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000402010
+      ],
+      "sha256": "660a731786ca5cbfe5a193de94a8bde465a053cf0fff3fc277e4db17ce0e4a6c"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000501001
+      ],
+      "sha256": "4575fa4da8728f27a1c3c1d56bc7c627cae1891415997e366cbf30f045b13584"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000501002
+      ],
+      "sha256": "f39ccecd5c4a3db9143ca3e545b26603e43335b09b156566a94359cc2c2285b8"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000501003
+      ],
+      "sha256": "b8118a4acf72ef06a0b6bf9ff4fd7188319a9d3138a60dcc5a2bcd19f8d135f5"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000501004
+      ],
+      "sha256": "990376e35343033b808bc7b14b6c824c20b1cba7ec83502257df32b9d4218768"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000501005
+      ],
+      "sha256": "f6454344d52aa7fd206fa9bb2241d348dd6924ba5b6583870d43f82159134b85"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000501006
+      ],
+      "sha256": "e00367d829b08122a672676ab7292914c941a1dcf107691b4545ed4bb2b20901"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000501007
+      ],
+      "sha256": "f295db080718d1b006ae634448671f767f575f6860dc6a7ef1d38f2051d9af7b"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000501008
+      ],
+      "sha256": "005c8e36583e3793ef72e231a737f529d476b5e05a370b8ddc44766c621594fa"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000502001
+      ],
+      "sha256": "a8651287231546c54d79b12aae439914677e16a6c9311b6c067e3e9dac17063f"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000502002
+      ],
+      "sha256": "0a81ab1c301f079e5d23aa918c0b52fabcbd5b465ee5c5648c4eda430cc622a5"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000502003
+      ],
+      "sha256": "4709785ea0bfb9fd4b8e75010f9e37943f27a438e8a836a02e3180ea3cb75a2a"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000502004
+      ],
+      "sha256": "d62223fccd8c21027d0d9afdbaaf509e80c8d4120aa6b213f7564250c5283467"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000502005
+      ],
+      "sha256": "6b5d65780be5b319e4743eeef8ece129e558caacd02744ec802736611bfe791d"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000502006
+      ],
+      "sha256": "3ef5f5592050ef17437345dd968f81444fcb1d87d875cbcd7ab5c4be9937d456"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000502007
+      ],
+      "sha256": "f5f1de3747d7c35c377cad3367866c1d16136a4055139cbc7e705e2c4015e8d6"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000502008
+      ],
+      "sha256": "a952bf56799b192564463715f2b6d14f161b9e72b5d8a338478f41a299fd2e04"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000601001
+      ],
+      "sha256": "10f5b36ef4b391fad10add984b7f0888d038140a250d7fc4106ae32ce9225e3d"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000601002
+      ],
+      "sha256": "51abb7bcd407f097d914b787cee9d2ccc5425097be009d9dc3ad95fde603c7e5"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000601003
+      ],
+      "sha256": "c410b78413901fe3ec23b927f64c5dd5a3ac751fb2c9b90a128c16b14d236674"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000601004
+      ],
+      "sha256": "deab60917dd3a29ac4d86a8e64dac9d284914b11edc497d89c2c114600fb152a"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000601005
+      ],
+      "sha256": "e36c547605cb15d6375cd5815ddaa8713551682ff7cc6407dce519702c93dee0"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000601006
+      ],
+      "sha256": "1e1cdf08926cb5a159743f008e948739d6789cd41561a6a707c54d803d486a4f"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000701001
+      ],
+      "sha256": "95513c968c386618ca3cbe90d8b798873294159614cfd1b0bd3a7e31ae6c2dfa"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000701002
+      ],
+      "sha256": "e2d2bbdcb61d9f624e5d9826fc2ba8db1d013b8c374ec31e78e337a747142025"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000701003
+      ],
+      "sha256": "e0223bfe39beb4f7cf1c9507abd856939773bc66edeef99c35da9d4e52e6e7a0"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000701004
+      ],
+      "sha256": "27761556f813b1fbb363dc6ee4dddb39ee208ed39eb1339426677b87fea61da7"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000701005
+      ],
+      "sha256": "3520a3b057ec08f685a8b2dca6ccb03e9830ae56290ded520f08929a7dedff5d"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000701006
+      ],
+      "sha256": "a9d22d79ea88fe83937fadabc06af35f6b162188cc9a9ed509fea03c9df91593"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000701007
+      ],
+      "sha256": "876020ecc68458125c94ec22ddd4b23174e9f398c714af489c6794c0108f7e99"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000701008
+      ],
+      "sha256": "ef4c0a7a7c4b03ea2abd1dd39bd7e8d8b8b8d55bdca4af39d3d157ae2f1901b4"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000702001
+      ],
+      "sha256": "dbe9db6168fc4e5e6909ba0b449d3e86a0d0b40d4e31e56dcde6310a0fcb6f4f"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000702002
+      ],
+      "sha256": "35df3fb5910e72c7e0d56fda219754eecb2a54efdc6e3dc6c7344de44d2e0962"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000702003
+      ],
+      "sha256": "4ba74b7d3385bc998f9f72c74f9a1d9bd62a73bc477c93ebcd4ed8bbc97aa7c1"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000702004
+      ],
+      "sha256": "dc0af26b1bae7da6e8b78e15a5c70d690ee9fc39d6403fb0bf6ded3379b77fdf"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000702005
+      ],
+      "sha256": "f6798652a6c2972af19139d2fdd19b5f984d1ad6ed8158f44cf120b3cb0c03ec"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000702006
+      ],
+      "sha256": "57fd6879a434daade9c93beb986bb42041d99bfca799c2323ec30468774660ff"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000702007
+      ],
+      "sha256": "07ab81553454aec3107b2ea285953a034c036dc5663256122dfc6d5b02e240f9"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000702008
+      ],
+      "sha256": "9ee4dfe4e4af80fa1bd36d408fce7725b33f347ddd79f2afbf318bed9b9261c5"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000801001
+      ],
+      "sha256": "b32fb372a17c75e496a8dcb0ce831e9bdc6166538498b9ff54e03764f24bc6a2"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000801002
+      ],
+      "sha256": "832ab1e63697a8a2971ab3c2d92074ccc0b48d9d99e168b8f0a3052eef773848"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000801003
+      ],
+      "sha256": "9a4138941570bf8b32d00be3d750e8d807794a97252f97b42e3a3db21d6cb24e"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000801004
+      ],
+      "sha256": "1342cee8cd27323f9dae0051053c828c462ae4d596c71be0d9d34e7d67329801"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000801005
+      ],
+      "sha256": "fdb3214872cef83aadfa30f4af63a39fdd164ffc9ec78b8e2fb0b72434df4e43"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000801006
+      ],
+      "sha256": "c15ff2aedc27c0130f72864e29a9d5c9e1da84c30f1b479b1d5703a0a7dc1477"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000802001
+      ],
+      "sha256": "dfdb919b1a20f5d15bb72993b3600428737990bac5b7be42922d1445f761de89"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000802002
+      ],
+      "sha256": "5b244debdb4b9f629e96dff8fc22c19ae57c09a02d24dc42b049a3ba77375729"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000802003
+      ],
+      "sha256": "2eb567e731030bd1ce26a4aedca74def241dea2268dfa331d0b5d0fdbb5e435a"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000802004
+      ],
+      "sha256": "adb36c22e58b49c457162b9736c6b86c19377e3cc6999d9b49e555c6c965a210"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000802005
+      ],
+      "sha256": "4c5b343d9f2c9352ea618e29db6679cadeaf249ba53eae970136bc977a19ac66"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000802006
+      ],
+      "sha256": "bc3a2f0bb9d3b5d4eab5d291225a7b00d0c8e4e9dd5f65ffed9f10308d2d601d"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000901001
+      ],
+      "sha256": "3309ec471c78d976319fbf76443ea9c7dc01fe208611930423014f27337f6474"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000901002
+      ],
+      "sha256": "8d31e47f8cc13455a9557127c450625609fc966d62010d7e955a0bdf32ed43c6"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000901003
+      ],
+      "sha256": "105e7d968343d544f856f2da9bb202a64e6879ebcb467212eca4453ec6e7ba3c"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000901004
+      ],
+      "sha256": "f09595f8f0953262b9ebfcfc05a2783b68540d6773be5e16b9668a41ca0df27d"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000901005
+      ],
+      "sha256": "877e344f332ddfc8b5e8c5627a7df49ed995cc05b26a834c770c0190c51174c4"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000901006
+      ],
+      "sha256": "23023423c17dfc532981f9383ea196d51a7bc43d00fd573cd9439cb1d64aa2e7"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000901007
+      ],
+      "sha256": "945b6faea622fa9a5ff32df97f6b673c8e27a952bd1025be8a10bd1c5d62189e"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000901008
+      ],
+      "sha256": "0b072b19ff6062d4d0b1ca0b5279fdf0523341fd5e555f5d3105e352bcd055ec"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000901009
+      ],
+      "sha256": "a002bee8cc0f6eae29cf4d57783c5ff383608fd6acf196d8dd0eb837d992a6c3"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000901010
+      ],
+      "sha256": "763a035d6133e8e98bbd741400b3ae2ef79fa91456b88a239a1cf5f055e84fce"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000901011
+      ],
+      "sha256": "17c2a756d5ec51ddf59121e5dc66764f1a9971a69298522f491d565fec384377"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000901012
+      ],
+      "sha256": "ca2f809f8a79c5c18a89cd235e9f8110bac5318b7ae9c8d28c174e7cd97a157f"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000902001
+      ],
+      "sha256": "1aa394cfe7f91427997b804a0ffbc7df9447d8ce246d4d9a5f50a90ee6d2a083"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000902002
+      ],
+      "sha256": "241f570f9b40284263baea317d79d31907b676aaa30bdfe8428c5afb40a90285"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000902003
+      ],
+      "sha256": "b1753a2ac89ecea99a27327a9a22c57fc8db2e5c505a3cc6aeb756eca8c2c8c6"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000902004
+      ],
+      "sha256": "918236c7932d06f0c34ebaee1dbbb642a34aa389bf8260b706946784b5bdb483"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000902005
+      ],
+      "sha256": "bc986868c31a380b6696db477264d80a45d94c146430eca6f8a70939cf1ffba9"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000902006
+      ],
+      "sha256": "027b477d993ef0f9be17162c57796c7250abcb3fdb3bba655778ed7f20af2df7"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000902007
+      ],
+      "sha256": "e80ce20684f160f2af338ff9aa8a84e9a7cca4e07d5b19080632c1f5dbe7dc67"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000902008
+      ],
+      "sha256": "c973a3ad27821f3dac4ff2beba5b4d9d4ee98ac316c8fdc1f3d8ddc2a3f40866"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000902009
+      ],
+      "sha256": "19fdb58b3b8d58f3feb0e32af1956fe40d6199fca2b2e2c968764b5f79cf13d2"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000902010
+      ],
+      "sha256": "86191bbfa1e4400dbf07fd9a5f22cdc16d96edf1d171006f43ca418773a50fd6"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000902011
+      ],
+      "sha256": "79d3f11a17736dcc5f34be8ec447b0fd98a4d738e9186b2eea399e43ed5e379d"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92000902012
+      ],
+      "sha256": "cb923531a472d98cf35533e07173b72e962581665b584ffcdbd54bc75f7b4968"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001001001
+      ],
+      "sha256": "8819f7b9afe535f98dff4657ebac3b7c4d4d16ef94061532ad53362057970633"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001001002
+      ],
+      "sha256": "f04468a8c0955eaab535fb8ee66d3d35fe2b8e01c031905377f8b7166c6f7b21"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001001003
+      ],
+      "sha256": "612250be434466b4f4fea327a3264868f3e8b04951e46da98793c366ede5c074"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001001004
+      ],
+      "sha256": "212f0be017eb628ac98a6faacd92d7a7898f3ca978a8a3f885911c17bcf9c7db"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001001005
+      ],
+      "sha256": "24b7f8b4d9d48b596e5fd94e2cb9af3665c034b9a8fa37ffc318684f28fefb85"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001001006
+      ],
+      "sha256": "0dbcceeb4ca575439b07ead583cf576f6b4e40870011f02da8d84c00b85215b0"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001001007
+      ],
+      "sha256": "e4a3bfeea2a4446384a0d956c94115ca8af7b955cba816de59d4c6cd158db8cf"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001001008
+      ],
+      "sha256": "8ca645577e2eabe320464db883428c1a3de3153a42a510a19820d6856f47c5f1"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001001009
+      ],
+      "sha256": "99c05e9d064db111af979631a037912afee30f5d2ccfa1e384ce4e0c4753c056"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001001010
+      ],
+      "sha256": "86ac387ee50bd556a011ad9dfa9b3b11731f0900f9cc509cf83646dc20a53d83"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001001011
+      ],
+      "sha256": "9d367221851140be4ba7b8c883a2996d9b6f8540a83571fcf01c838c0bab06c6"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001001012
+      ],
+      "sha256": "73eef4a81890b1cbf3f8c034966b532cddf718bf43e3c5cd7a3e0307606a87b7"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001001013
+      ],
+      "sha256": "90af086d6efdb481aa4bccba5f766b9cfe6a64491a14d1e8938bdda7164ef9d6"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001001014
+      ],
+      "sha256": "44204d84b9c5cf0c5a5e0233037b4856868e13ce3362f63bd461d0696e93e705"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001001015
+      ],
+      "sha256": "57eb1af9d5dbfeb3a4bd1531d898442d4db4ba56977ecf2519d41bba3977d29d"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001001016
+      ],
+      "sha256": "b1afedcee62f5fb395b453b7c05c810cdcd540d24c6d2217c6f0c3f39f787d9a"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001101001
+      ],
+      "sha256": "1195b23a3296af2ab35a3a4873a1a8e14cb372b0aa52dcfedee708d75bb2b9f8"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001101002
+      ],
+      "sha256": "979e474658cf03138e20a60dcee6b502b1ca58e115a3c6f834ae77b1d073d8ad"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001101003
+      ],
+      "sha256": "7ad86bd249d693a8d5922028a46fca43f6f81bff7a3ba17e38c0037fdbf90585"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001101004
+      ],
+      "sha256": "cc50878122ac349b3c96c8d86f7b0a5ca8995c99d7b55e8472c2d4e0a04313f4"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001201001
+      ],
+      "sha256": "08bd5146c93caab370cee039399c8fb840ae4fa1a5dbc0f87f7b65ec4cbb860e"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001201002
+      ],
+      "sha256": "534e264d26300b1367a356cef1d0a1a3a3e1f95dad27f1459ce1baa92793c628"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001201003
+      ],
+      "sha256": "f6a2570924cdc6e666ab5e8c88236918cc4946723759b93ad96554e25d699692"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001201004
+      ],
+      "sha256": "95a02f490dd9449ea352c00f34f731b191a6c584b0298b5a8f277c090cf18ef5"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001201005
+      ],
+      "sha256": "398c815958e97c6aadeb63143ff6dd022c12aa61a04f421983db7b8ede2ac060"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001201006
+      ],
+      "sha256": "8d73dcc47dffb9e74f8011baf4e05971e7fdafce96891b0d2dd6000e882cc4f4"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001202001
+      ],
+      "sha256": "7c366d4aadbc47f279fd813f6ef1b53cfbca5e77cf356ac28439934792600e23"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001202002
+      ],
+      "sha256": "be4bc5d35d72129dd9903c35ba493dbe807ae3deebac0e4e4730a24219f3b748"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001202003
+      ],
+      "sha256": "fd8125617ec563716786c85c1cd2a58d8a66f2fa833807de5e45e8499f147558"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001202004
+      ],
+      "sha256": "bb398c323a533b70652e85f88ef727b2885a24d00b22715bfea5df9d30473ae8"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001202005
+      ],
+      "sha256": "e6e348c7860d2e1c0dcf73d144196166e6f2ee423f63ffc3a6d50a05c17a6651"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001202006
+      ],
+      "sha256": "67bab8e84a3e4ba6edb3610d04934258a1dc48d032cccaf94260bc5755bd2f93"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001301001
+      ],
+      "sha256": "c056ac5d811f486110d74156faee6473069b321bf8750aac268f0fab7f80a784"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001301002
+      ],
+      "sha256": "2dc9ae0d118b37a6aa428eadd545f7f9926e1ab18b6fb3e0bcdcff46ce84eab7"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001301003
+      ],
+      "sha256": "20dac685c4f770515bd825b90fdce89682eb1621cd78405d279e91367d8f197d"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001301004
+      ],
+      "sha256": "a54ef9f88d3c1bc28e34ecd135a04fc1252b100fe3e5c928759c8b9a511b6e30"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001301005
+      ],
+      "sha256": "d79e895436af762d8a917d53ea6ccf46892d106c772f880137952ff91e1aa57b"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001301006
+      ],
+      "sha256": "49729722221f9f9db10baa8dec8defa9c0213e041958ec04da7c1bcab30cab6f"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001401001
+      ],
+      "sha256": "c6d5b50bce158698d1c3b185cb01d2e417c45f24d6dd7d6079180c6c2131c9f5"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001401002
+      ],
+      "sha256": "b081ad176417117cc89234683e1d6dcf3341b744dbeef5f79066259f28a4acef"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001401003
+      ],
+      "sha256": "684dbc4738bdad0db7acf630719ef11c238f63904fc56a47bf306d2fdc5b099b"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001401004
+      ],
+      "sha256": "c2ce429e2a1713d612da0b1c2f43e800cb83c0ea6b59b5c220ea86e1a71eb556"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001701001
+      ],
+      "sha256": "a680f6ec7c5183800e6b34c61b55edcf8370b66b0719db1af10fdee0a1cf7f6c"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001701002
+      ],
+      "sha256": "f42b869c65e7fc638da7a553732b6fcaa80938c9ed1991472d217e1d2097899c"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001701003
+      ],
+      "sha256": "61c53c629a9d50f1c19739a08ea32120ca3fa2e817c95aaf9cf3e5aae79f4ab8"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001701004
+      ],
+      "sha256": "ddef3d37edc78cd0248163104d2967752d28b61f9749f9a4ee6a24e5d47d10c3"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001801001
+      ],
+      "sha256": "2d4e23902ef408045d0246e40adbc743cb36aeccf12fb4f479fd6c3adb241e86"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001801002
+      ],
+      "sha256": "cb39812b5aff278762229d5f0a56cd34b3c271c679fd9161bb27dbd244d04cb9"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001801003
+      ],
+      "sha256": "f9c7d85a55a0d81140e72d10f7a7f4b2518000b7e75ed5c17a6b58bb82776c53"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001801004
+      ],
+      "sha256": "2649887d002c494a283c6912611ea70b31979ea2d95e25259bc83387f272b3cf"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001801005
+      ],
+      "sha256": "3497dda509ea3ccc11dc4b2c8ee5a766ef3255096b8a61c96df68a4666678fff"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001801006
+      ],
+      "sha256": "a485a927f1a02d79a9fc284d36d08ed58b69567ce7d3a049d855cbea37176ad8"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001901001
+      ],
+      "sha256": "260e0edf50c1458bf05aa276e3c938927330f4d30b46e8df59b248cf9ebb988e"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001901002
+      ],
+      "sha256": "1b4a6a63f526d1e1bbd60af722a6a4ad3e1ca43a1a4893f5af6addf7cca08178"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001901003
+      ],
+      "sha256": "9c2fb1ecd60cc03e1a621ae6f817664a52603c6c16a04db6ba5d9560b65a9ac6"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001901004
+      ],
+      "sha256": "95ec65975b38ee2c58232f4576ce287ab21f6e9292f39e40c72afa8b906e1ab9"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001901005
+      ],
+      "sha256": "6d028f99ff727f32aebf0042f1250f9f10adebe8e7050051d34fcfb758105be8"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92001901006
+      ],
+      "sha256": "502c92bf654bc7ebc1252d00d692aef8633a2e6fc62b87900b63d1af8fc14160"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002001001
+      ],
+      "sha256": "bed1ab14910ce0ce112a47db88e67387fe8b24df66c58fb7978243cf4e2ed90b"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002001002
+      ],
+      "sha256": "cb5b4271bcfd8378c0a21fa025172cf0bd08c6c568e53bbd39cd795cc8f4d46a"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002001003
+      ],
+      "sha256": "9e6db4650f8c812c13af6aa22dd789ef0ffb6eb7b89281c1c4aaec58a635ac00"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002001004
+      ],
+      "sha256": "de59e075b9f09834e703b1787fb908f3f1dec89b3e6aacaa3b255b1c66bd59d4"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002101001
+      ],
+      "sha256": "acd722fd26063dbfacc715d3ac15ac538b4a93eb906e9c50f26f6c3128860ec2"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002101002
+      ],
+      "sha256": "3a0c7725024b36a471575beb3a1fe7ae975eaebb527bcc89dbf45baa425ce9bc"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002101003
+      ],
+      "sha256": "8757976ee6375550246d7943bc8bec41bd821420637abcb17671e9033b011ed8"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002101004
+      ],
+      "sha256": "d860ca8a383fb35e4fd58ba782e43a5ff903eca443a14af32c4697ae3a298913"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002101005
+      ],
+      "sha256": "0dbb3bef8f59d108ff48de5c66d3ea698395eed20371a98e9b2f05a4069ba95e"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002101006
+      ],
+      "sha256": "fd8ca7853a5f03acd586d5aa174719772f5cab33b05f8e7afc595f141b0d366e"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002201001
+      ],
+      "sha256": "9894e15e5eb54660650bb24fca0cb937ece3dda25cd0be3d0e4d2580ba6fe4a3"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002201002
+      ],
+      "sha256": "c984facc32fe487258ffe2cdcdb441aa12857c3fafc4511416b46396c38ed14a"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002201003
+      ],
+      "sha256": "7c3ba3cdcc6a1a36ca56cfb2a9395605572c64d4d624b4db8e0a9e22837fe251"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002201004
+      ],
+      "sha256": "dae348dd610549a59331327332ec699262d645e449cdad5f682f421d0817da43"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002202001
+      ],
+      "sha256": "8a20f062e362062e99b1b48e3795d657dbc74d360d2911f560666e252d7a73f0"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002202002
+      ],
+      "sha256": "75ab2542f82578d34ccb349600ca1969e7e05995cbff41385b165f4dc38637e0"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002202003
+      ],
+      "sha256": "f2f2278435d59b0d74c4921c3873e5cd5af9955ed71e7962a6dbdc1f0aa8d298"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002202004
+      ],
+      "sha256": "67e46bdc09b56db3e6935adc1798ccf18d18de89f192d27963b74894a500d971"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002202005
+      ],
+      "sha256": "c59095fb082496ee3e0986d325539bbc8c587df4d98b904abdfd9510b681e154"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002202006
+      ],
+      "sha256": "312a82c35540b389c88defe4a3082c23b7cf9a7c66e76d70bfa8a34dcee08810"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002301001
+      ],
+      "sha256": "2a507cffd6f2de34bbc5aa297e347fc801b4976263b2d68f2a3773b7b691ca4d"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002301002
+      ],
+      "sha256": "31669378f1cb8dbda139756dc30bda66bad906371200c7e7c38c94455bfe1fb4"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002301003
+      ],
+      "sha256": "9ab5c0d4d60fb5a7f1b1d0f310297437779122fc0b9b3ee5b13a6d938e1d1b17"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002301004
+      ],
+      "sha256": "883653164abe69915951c24269405dea92d361ec9ddcf10bdd8ca94ca5150d13"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002301005
+      ],
+      "sha256": "62c1b097c8edde05743e051549572715f9c8b49ea64da3d6f11e9aaf5957aa4e"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002301006
+      ],
+      "sha256": "22b75de128338514198a358c82cf192b8847457dfec77849524a5053a8329db0"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002401001
+      ],
+      "sha256": "458381bc6f98a545559081ba64925a60a8b8e326c654ecbe604c568a54d8d910"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002401002
+      ],
+      "sha256": "356437feccc5da65e8a0023d0a4df3dc52a3536d39056991c7ff55b5fd1c7b9f"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002401003
+      ],
+      "sha256": "ba00611bdfa1e14820f5f064d1b76b75bd607e503de6443615c57fd2e246a33b"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002401004
+      ],
+      "sha256": "18203f2198c31a5a0744b1e0c7e04744d541a6968cc6fddea924b678c7fd0390"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002402001
+      ],
+      "sha256": "09247874671fba89a40d799b5ffa38192cde106c0dc6469bbb49462a7d329820"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002402002
+      ],
+      "sha256": "21d316428eafdcaaef02437f93fd6f319757d5b1ea42b59cb4a3d3b046c9cae9"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002402003
+      ],
+      "sha256": "1bc5d6bbabb1bb3566be46cd9ffe4577b80b86ab2a2d69ec8b1530e6a7891d87"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002402004
+      ],
+      "sha256": "da639631fe63bf2c3d8f2a490dbdfbe20ab15416d97f9a7df96d52f498cabf51"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002402005
+      ],
+      "sha256": "311ed0ee2a055166efae0e7998839048e2f3c337dd8954ba7815621b8f3e5f3a"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002402006
+      ],
+      "sha256": "17ee8dcab6ec4f87c94282afef651a381229e7efe497ca76b77ee1fd84125f44"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002501001
+      ],
+      "sha256": "a2df9caacac65ed45dcf53745d11d3189e7f9d484bf24b1afc4cd6887677922f"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002501002
+      ],
+      "sha256": "1b293dd54bf1f19385f19b216ab6e595ba316e10e28888fef28829779b1d3b59"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002501003
+      ],
+      "sha256": "9666716de81916cf2a4c1689e6b387979dcba5e22498fa0524bb06039f05bb9d"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002501004
+      ],
+      "sha256": "01643fb500c21857aad62c8d5dc10b518b30f72a5be5e39b4cf10911b7edb6f8"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002501005
+      ],
+      "sha256": "c7cc4f3d2ac392ea2bb9dea4cbfe350c39bb29b5c83520ed751791907eff9e00"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002501006
+      ],
+      "sha256": "3b442d9a41f92fa66913859527d525e2699de2d92f9c67dc666c42c184647ae3"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002601001
+      ],
+      "sha256": "9e5bdc9d930be8f17ad7a8d3b3b08c0b692ea2ab997121119a6d5016f78f2a60"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002601002
+      ],
+      "sha256": "d794066e8d5e6949f6408d8f58794df5efb278be26412bddfdffd0f02aa6a23d"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002601003
+      ],
+      "sha256": "f481943956ae7b87fe7e6c2529b3715c21ad06dff64e8fb453bb460cb897cca9"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002601004
+      ],
+      "sha256": "3335c9a05233a7b9f67717fbc2c7909f8df5046fbde6e3f5e0243866a3776fbb"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002602001
+      ],
+      "sha256": "46752b507b03512eb8991aa055cc00e839da4bb0a3c31b5536f70a1c07abbd98"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002602002
+      ],
+      "sha256": "fb0cbefbfe37403fd762907ccb465bb0d7d56a82973527df538296bc7ca19311"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002602003
+      ],
+      "sha256": "24874fb7eaa58fad0553f210a702af4db7239e13c30d1b0594983ffcadb18ff4"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002602004
+      ],
+      "sha256": "1ea1733163ca59ad053bfa8c9e7b4c4922fdf32a082bd63ab3fc17685f55efd8"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002602005
+      ],
+      "sha256": "0dad45d67fb9edc6deb3954ab093fdff5257eb69df63b28ccc2a89fceb7eb98e"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002602006
+      ],
+      "sha256": "0bacc0fbcdffeff206d768c91c978119897954456163b642d2c05495d846577e"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002701001
+      ],
+      "sha256": "e16d4a0c39f1b60ad78ae35db360a83f377ea2bb8d742de5d9ef4d59fed8d592"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002701002
+      ],
+      "sha256": "9b7596329d008146b0dda7510f60a91f4f604b868195df5e7d4fef9a158b9bdc"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002701003
+      ],
+      "sha256": "0ff90aeca1e5623906b309f18013a0c9be010a84114036f831bd68acfeaacd37"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002701004
+      ],
+      "sha256": "001bc83bb76475b46f8b6207169f11a6bfd610979a17374b6d8d775a01769f15"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002701005
+      ],
+      "sha256": "2fffe49cabb7507e38003d3391d608a4dce9b3a0ea906c118d63d165969995ac"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002701006
+      ],
+      "sha256": "621f023df13f97ab397e3005eda39ba6ca1d67ea2aef186ba558f07c9501ab04"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002801001
+      ],
+      "sha256": "ca357b68d7b824c8cbfb80c5620b527e1174007fd5b6a2fd495f5c0a9f53368f"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002801002
+      ],
+      "sha256": "4dc33e0b8e36b947babbfe5a8bc0d36e06d848f0ce1d85fd163d3fc2f9ca7243"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002801003
+      ],
+      "sha256": "23ebbdbef31713b4393c06c4cc57b45ccef8c4f934ae8c48299b4c6e379681ce"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002801004
+      ],
+      "sha256": "b422e011ac9532b2b7095ef32a7101299aa50e63d20881793eec5a4609328a10"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002802001
+      ],
+      "sha256": "11fcfed4c1d3809d7351190d12af6ca5bc5b86a228d95016756c6ee29a3d3d23"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002802002
+      ],
+      "sha256": "2ccb47e8c97544e55656ebb5b872ae767e85e12d626e39f83e9d806628b05127"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002802003
+      ],
+      "sha256": "2bca81cd9b5844c358704b13a7e4082f9f487d211042fd9b9e41021f6526e821"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002802004
+      ],
+      "sha256": "94797969c0407c18d2672f0914db01a964e8c45392133dd3a6ff919f8326e40e"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002802005
+      ],
+      "sha256": "8f051288b1a3de843ef5f24983be33a90aa0a9a7744620c89b26e3f1edc2d144"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002802006
+      ],
+      "sha256": "1819a476c55b248768e159b6c81a24169552939a46159a31647ac07ac3bdbe89"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002901001
+      ],
+      "sha256": "605ca5ce230d2ba2b54cce7c5fd10f56b0837f6a7203058c8f646ec71b2ff7bf"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002901002
+      ],
+      "sha256": "0684f9fbda611c417ea9b81a0580573989ff67e0c26580540a11a4e8eece9abb"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002901003
+      ],
+      "sha256": "9d8cdf91e7be86d82d7252b90e9caf3fcfea00b598ac0fdc9602389ceb4294ce"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002901004
+      ],
+      "sha256": "a8371fc13d31addddf1b06ac2baf402a23a63bee38d23364427cdb08e42db67c"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002901005
+      ],
+      "sha256": "11a7c6945b4d50d8b616efbf1134d43cbf717cef9a1be2e850414a9675a87016"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92002901006
+      ],
+      "sha256": "47635238743af7b2bd71a252a0bb4b03a497474cfa52bb818a27a05e4037c765"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92003001001
+      ],
+      "sha256": "9bf58967ee83567689cff43e10128e8f3a2b95b57577c900121b04925d1c3b30"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92003001002
+      ],
+      "sha256": "a359ce5e4e0280ad4bb411182940ccaecd4c3da62bc52940b64cdd8bed6dc6fa"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92003001003
+      ],
+      "sha256": "c4c5fab65a1bf99af81c7652f316cdb217767831dbef2a3d501ed569ff25d66f"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92003001004
+      ],
+      "sha256": "244390075191012a7dd648f0c50457f7d04399e64d4e957e3205374e76fd29f3"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92003002001
+      ],
+      "sha256": "3ecdf8260b37642ba291d5f0d529292b5a92e72b5e54bc3e87b805e2d1ef8593"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92003002002
+      ],
+      "sha256": "90f0db501e8b7e6269008da6c4f7d3977d60e177e92fd7859b4db671fed49ed1"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92003002003
+      ],
+      "sha256": "3b1e7ae8f02aae2d3d346241f41775acf9af82b46ac430d28324ffc7c09d4e61"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92003002004
+      ],
+      "sha256": "de83d9fd0dfcab81ae732d81bf7bbf95800c2c0f9818a1e5c1fcf1f595be8598"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92003002005
+      ],
+      "sha256": "284d288fdad494b256feec199900ca126c744d13ea09aaddd9ff337c62467002"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92003002006
+      ],
+      "sha256": "0bcc93737fff402fa5b3f58af3c13d2922e54693d78cc4727ab531bc93601631"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92003101001
+      ],
+      "sha256": "a47f6539a699485a82614e88af95b7c5565b28a39766b42a564dbc13113ec338"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92003101002
+      ],
+      "sha256": "17f830f6cf68448bd164e48a73ee06459736ab01f4cccffe94d5784c9f42abe7"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92003101003
+      ],
+      "sha256": "583d1f51f276a7bf9f42c9f4d58b132b76bc1a6a960ce77ac87b2ecc00a9b355"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92003101004
+      ],
+      "sha256": "d117fd99b4addfabdd4ee7b9c91f0d1d6a7c9a4e8f0eab20de96a4c82710f597"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92003101005
+      ],
+      "sha256": "7012ab4e8dd24302d3aef3d16fe8ed258d21bccc6cbc78336a11acd8f54adca4"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92003101006
+      ],
+      "sha256": "5537747ab412b6409f5dbb898d21554aabd71d3e82bfccb565d027bf4f4339f5"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92003201001
+      ],
+      "sha256": "df01ded55c4f323df8b3d002fcae1b68a704c198a01f38a3952a7c9fd795adab"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92003201002
+      ],
+      "sha256": "4c74827e9cdde81013bf7ced3f633682dafbfa40f98f4c5a61ee0fb1c89fc423"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92003201003
+      ],
+      "sha256": "7449e8267fa04585b29c8bdfdec2e2069c9f84df5ce11d3384204ccfab5b45b4"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92003201004
+      ],
+      "sha256": "14c7b949667d0eed3afd6869ecb41a2947af2652966bba25f81cc4932d4ccc13"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92003202001
+      ],
+      "sha256": "c8400f2633b27eb954904f72020866df22c3a0e2b2ab5144f866d3d8eaace31c"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92003202002
+      ],
+      "sha256": "5c5e405b7217b5f9bb9fe77d0e48c0f074b6d4b8dde71045e3f4b4ef75437fe7"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92003202003
+      ],
+      "sha256": "f546efe530b2c7867c48af6b9c8880b0360292d551d46090c13b8a7f9d2f3dc8"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92003202004
+      ],
+      "sha256": "9580f386c0852b842c69a43e8644540061b7225f98e11eb1e6da7bd10223551a"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92003202005
+      ],
+      "sha256": "374c95277ddec0e2deed8f57ab4f8184bccee97efee78ee83a195fa34f6c98d1"
+    },
+    {
+      "method": "getEntity",
+      "args": [
+        "episode",
+        92003202006
+      ],
+      "sha256": "f79c357cae26a3d68e4b03b95df949f9e887a333cf40dcfc0b539967babbf27b"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "movie",
+        999999999
+      ],
+      "sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "movie",
+        999999999
+      ],
+      "sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+    },
+    {
+      "method": "getDetails",
+      "args": [
+        "tv",
+        999999999
+      ],
+      "sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+    },
+    {
+      "method": "getCredits",
+      "args": [
+        "tv",
+        999999999
+      ],
+      "sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+    },
+    {
+      "method": "getAggregateCredits",
+      "args": [
+        999999999
+      ],
+      "sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+    },
+    {
+      "method": "getCreatedBy",
+      "args": [
+        999999999
+      ],
+      "sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+    },
+    {
+      "method": "filterDiscover",
+      "args": [
+        "movie",
+        {}
+      ],
+      "argumentEncoding": "URLSearchParams",
+      "sha256": "0ba5b9b950d56e2b962be55010b20859eb8c9186585977714187c9ef1d48624f"
+    },
+    {
+      "method": "filterDiscover",
+      "args": [
+        "movie",
+        {
+          "include_adult": "true"
+        }
+      ],
+      "argumentEncoding": "URLSearchParams",
+      "sha256": "ce08d7f15a76ef6c27dc6edebc1804c9fc0b3ff6f714de92248a7873c09ab935"
+    },
+    {
+      "method": "filterDiscover",
+      "args": [
+        "movie",
+        {
+          "with_origin_country": "IT",
+          "with_genres": "37"
+        }
+      ],
+      "argumentEncoding": "URLSearchParams",
+      "sha256": "178382b8abad5654716cf698e9ed8ffa6d8e0d5a281adc30d8593fad1601b841"
+    },
+    {
+      "method": "filterDiscover",
+      "args": [
+        "tv",
+        {}
+      ],
+      "argumentEncoding": "URLSearchParams",
+      "sha256": "d527934bfd62bd7ba8507851cd57d529bb9eb0ec297d2c9312940dbe37d0694d"
+    },
+    {
+      "method": "filterDiscover",
+      "args": [
+        "tv",
+        {
+          "include_adult": "true"
+        }
+      ],
+      "argumentEncoding": "URLSearchParams",
+      "sha256": "a899a460df2d1e0c315f5b1b352532822cafec544e55976771fdc5b83a9565a0"
+    },
+    {
+      "method": "filterDiscover",
+      "args": [
+        "tv",
+        {
+          "include_null_first_air_dates": "true"
+        }
+      ],
+      "argumentEncoding": "URLSearchParams",
+      "sha256": "40b5a6e208bca3f47f5206a7d6dc0705e5c91071d6ca17e01c80f4cbea7a6e87"
+    },
+    {
+      "method": "filterDiscover",
+      "args": [
+        "tv",
+        {
+          "include_adult": "true",
+          "include_null_first_air_dates": "true"
+        }
+      ],
+      "argumentEncoding": "URLSearchParams",
+      "sha256": "fcfe18b2ed06cecb68f206e7057e45e28c523f0ea3d25e032ba10b6245e42c15"
+    },
+    {
+      "method": "filterDiscover",
+      "args": [
+        "tv",
+        {
+          "with_watch_providers": "283",
+          "watch_region": "PL"
+        }
+      ],
+      "argumentEncoding": "URLSearchParams",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "method": "filterDiscover",
+      "args": [
+        "tv",
+        {
+          "with_watch_providers": "283",
+          "watch_region": "US"
+        }
+      ],
+      "argumentEncoding": "URLSearchParams",
+      "sha256": "c5ba7c74a3e4bbfb9378cf39c3f6b540961dabe8c218db1c5fd2dcbcd5a73722"
+    }
+  ],
+  "protectedDetails": [
+    {
+      "type": "movie",
+      "id": 910001,
+      "language": null,
+      "sha256": "0c34542ebcc9b837421dc38fa6045be36fc40da8702b5959bf6ff5ce45427771"
+    },
+    {
+      "type": "movie",
+      "id": 910001,
+      "language": "ru-RU",
+      "sha256": "35c7ed3cbf90ffc1ab056a02bed7b2856df12bc465e1577170bbb05045d72693"
+    },
+    {
+      "type": "movie",
+      "id": 910001,
+      "language": "en-US",
+      "sha256": "65f19f1c272eb8291bc0ceca3f4aacedcd3d744f7a8e5bf30782ce8edc71a44a"
+    },
+    {
+      "type": "movie",
+      "id": 910002,
+      "language": null,
+      "sha256": "2f9a9c8824fbb9b70347b1db85f8ca0f81d0189827782d4cf2b2f845054181ab"
+    },
+    {
+      "type": "movie",
+      "id": 910002,
+      "language": "ru-RU",
+      "sha256": "c0a791ee259bf07615bcc1797cf5eea5c03285744d466ef5ad18a9505ab073f6"
+    },
+    {
+      "type": "movie",
+      "id": 910002,
+      "language": "en-US",
+      "sha256": "34bdb46b106e1c53412d4783a0c79d649b02f7e7a81860fd5ec1c2d87861864d"
+    },
+    {
+      "type": "movie",
+      "id": 910003,
+      "language": null,
+      "sha256": "cf4829b9bb5128d8b5c359ededbc0afbdb4cc0e47833690e8af0fb4953810859"
+    },
+    {
+      "type": "movie",
+      "id": 910003,
+      "language": "ru-RU",
+      "sha256": "36157dea2c0cc9a1358da055368b899022bc7eec1c4e81f35a806fb7254cb068"
+    },
+    {
+      "type": "movie",
+      "id": 910003,
+      "language": "en-US",
+      "sha256": "97159fb23b531a515271e65a8ce34a431b775bcfdb93ae2d010895b38cd395d0"
+    },
+    {
+      "type": "movie",
+      "id": 910004,
+      "language": null,
+      "sha256": "ac12485f6da3f3e02f26ad782b92f6dad48fb2f22ed4167ae78611abb9a4c7ca"
+    },
+    {
+      "type": "movie",
+      "id": 910004,
+      "language": "ru-RU",
+      "sha256": "82eada85438ea23d5deb2ad18e57e0948daa1dacbcad35716f1d7288d927b2f4"
+    },
+    {
+      "type": "movie",
+      "id": 910004,
+      "language": "en-US",
+      "sha256": "7909a1081e36e1ba01411ef9f0721e45ac82f0601073d7cef14d9bef189e2d26"
+    },
+    {
+      "type": "movie",
+      "id": 910005,
+      "language": null,
+      "sha256": "0a47518d0e32ba9649fb66c94bccda65d77e6ccde963e91608b38f1d1a8e6fb9"
+    },
+    {
+      "type": "movie",
+      "id": 910005,
+      "language": "ru-RU",
+      "sha256": "ddd016e2dfbfa774497b7cbfa00e4ddcb60be0e03a8c64462f9018e622adb476"
+    },
+    {
+      "type": "movie",
+      "id": 910005,
+      "language": "en-US",
+      "sha256": "36e71452fef47208b5f8a833e3dc9309dc496c21275cd0497ba96fd3a8926822"
+    },
+    {
+      "type": "movie",
+      "id": 910006,
+      "language": null,
+      "sha256": "9eb77b8515fb3ac2760ec80ca0c2f0f013f87ce45376af7cf56b5b2ffa7b6bae"
+    },
+    {
+      "type": "movie",
+      "id": 910006,
+      "language": "ru-RU",
+      "sha256": "47d347708f83253f8dcfd6a370957c47f67f8e8d4e063c5b59586435f86a57fa"
+    },
+    {
+      "type": "movie",
+      "id": 910006,
+      "language": "en-US",
+      "sha256": "aeb3e2586ef4b577e1dfac402ca4436bf03923926109bcb9f5d00675af975574"
+    },
+    {
+      "type": "movie",
+      "id": 910007,
+      "language": null,
+      "sha256": "23c56c213778c330265810f6eb3266e01e8bd3cf8981daf48523b236cf9078d0"
+    },
+    {
+      "type": "movie",
+      "id": 910007,
+      "language": "ru-RU",
+      "sha256": "43a6f7f7672267234b28608458081857550e3f61f0090bd06ea796e3a2b22cdd"
+    },
+    {
+      "type": "movie",
+      "id": 910007,
+      "language": "en-US",
+      "sha256": "daf4d8d9ed604c8d2101a69a4f47a71be61f794435e603066f1e49b049bde4e2"
+    },
+    {
+      "type": "movie",
+      "id": 910008,
+      "language": null,
+      "sha256": "0983f2b42c781bf1213077c9a96a62946ff13af885902a610af6c0eebd1dd2a0"
+    },
+    {
+      "type": "movie",
+      "id": 910008,
+      "language": "ru-RU",
+      "sha256": "aa4c8871158673691d3fbd1135263fdf6c6e0228c5f90923f1420f03b0f8d208"
+    },
+    {
+      "type": "movie",
+      "id": 910008,
+      "language": "en-US",
+      "sha256": "5bad5ced322e3482fb057795da4ba25c1977dd047652210bc1c38896ce322bf7"
+    },
+    {
+      "type": "movie",
+      "id": 910009,
+      "language": null,
+      "sha256": "2aa392f2bd576a5323b2c80d96bebb34439006423eb7e60994e46f2d3939c7f2"
+    },
+    {
+      "type": "movie",
+      "id": 910009,
+      "language": "ru-RU",
+      "sha256": "893c35aa6745478ae1ffb9f4736f916a479bf61fa43c4c9128f6e845f31a10ed"
+    },
+    {
+      "type": "movie",
+      "id": 910009,
+      "language": "en-US",
+      "sha256": "9d5be3d7a48c3547d215747f95f3a573d692d4821a850bdfd8349fcd50727295"
+    },
+    {
+      "type": "movie",
+      "id": 910010,
+      "language": null,
+      "sha256": "b6809f87f5d5568da6e6184a2704147f8d3b11120ceaa5861ca821e146c67914"
+    },
+    {
+      "type": "movie",
+      "id": 910010,
+      "language": "ru-RU",
+      "sha256": "a93f111dba3c3ea0c783701d73bdae54183f3bf9b633387b958986d226aa22e8"
+    },
+    {
+      "type": "movie",
+      "id": 910010,
+      "language": "en-US",
+      "sha256": "66509a7ff8daf2be299ef5a9ffe0883c708b8780b3c2a74dfc0cfc047313de65"
+    },
+    {
+      "type": "movie",
+      "id": 910011,
+      "language": null,
+      "sha256": "05a88ea966d2640b9b3f5b169bc7bc875bc71565a75f61f22e45ffbffef5be1e"
+    },
+    {
+      "type": "movie",
+      "id": 910011,
+      "language": "ru-RU",
+      "sha256": "b1491010cb9ebf5d0bb30dbef8ad3243efeec4e56e0949f3a22430ff3ff8bf63"
+    },
+    {
+      "type": "movie",
+      "id": 910011,
+      "language": "en-US",
+      "sha256": "b38518da77b398a8fefece7d957a8c99dc7b553912f21f9e49f0023c334d6e47"
+    },
+    {
+      "type": "movie",
+      "id": 910012,
+      "language": null,
+      "sha256": "76b53ba64832228fabf6815cb37300994e2b7ad3eee8c6b24827085b893cb8a2"
+    },
+    {
+      "type": "movie",
+      "id": 910012,
+      "language": "ru-RU",
+      "sha256": "2fb592a3e47f9a2f8aa4c48794b692baa0de15282ccdb696a08697c2de02d0cb"
+    },
+    {
+      "type": "movie",
+      "id": 910012,
+      "language": "en-US",
+      "sha256": "1308b0522a39e8be4309b6fe1138f266ff8c80aaa5cc57bf8bbf1229364dba85"
+    },
+    {
+      "type": "movie",
+      "id": 910013,
+      "language": null,
+      "sha256": "a80bac1d8ea0c069d0f2af2a16373195ee83f85b68217b7afba66ca13c3dd5d0"
+    },
+    {
+      "type": "movie",
+      "id": 910013,
+      "language": "ru-RU",
+      "sha256": "5f3e54b83b7f8bf0c2d42f9cca2c44c5f54ab8db134ada941648e8adaf30ae68"
+    },
+    {
+      "type": "movie",
+      "id": 910013,
+      "language": "en-US",
+      "sha256": "5c7c041ad2545495aea3a15a1397a8f6eb1321227b5ade9b40245371f57a7d56"
+    },
+    {
+      "type": "movie",
+      "id": 910014,
+      "language": null,
+      "sha256": "9f6c02a4225400cfcb93526204e59f5722a81f476c8c0758e72ae308b8f75cb4"
+    },
+    {
+      "type": "movie",
+      "id": 910014,
+      "language": "ru-RU",
+      "sha256": "f242d35ff3152687ff5b850cbb552dc6343f81ea3ef0858a26a1bcd89c6b654d"
+    },
+    {
+      "type": "movie",
+      "id": 910014,
+      "language": "en-US",
+      "sha256": "d8a758c192ba81535ef1083d67adb7e08ae76e93190e7d92bd86f1382bbecca8"
+    },
+    {
+      "type": "movie",
+      "id": 910015,
+      "language": null,
+      "sha256": "7de860109c93349851e65d51c34716614e3bcc5f869adb78039306ad633108ce"
+    },
+    {
+      "type": "movie",
+      "id": 910015,
+      "language": "ru-RU",
+      "sha256": "2edcbb82ea596d795acfa0ee4baf7de8308dcae6b6ccd938bdb0c7ba6716fac8"
+    },
+    {
+      "type": "movie",
+      "id": 910015,
+      "language": "en-US",
+      "sha256": "264a573a5125bff44fc60aa8e92345bd9476f3b13759f12a352744dd6085f214"
+    },
+    {
+      "type": "movie",
+      "id": 910016,
+      "language": null,
+      "sha256": "b0af491e81faadcc43794837fd371a42616ddeb30494c7f642c6cad0eff3ffaf"
+    },
+    {
+      "type": "movie",
+      "id": 910016,
+      "language": "ru-RU",
+      "sha256": "ffd9da875eeea52e5e114c079e3b334d45c00a673957f13e3d482dcd27c83bc6"
+    },
+    {
+      "type": "movie",
+      "id": 910016,
+      "language": "en-US",
+      "sha256": "5cd6efa7c3cca0fb10db547a99c584c3e0b15d0374b75c3866976fac5bbf5794"
+    },
+    {
+      "type": "movie",
+      "id": 910017,
+      "language": null,
+      "sha256": "92b64b3a862740d6464e262fd05451f59e782cf3acad29d22aecc709ce77d7be"
+    },
+    {
+      "type": "movie",
+      "id": 910017,
+      "language": "ru-RU",
+      "sha256": "90c7d0a45295f989e5eddd1eca968883014b0442c403c67fd46d4a19cc1cd17c"
+    },
+    {
+      "type": "movie",
+      "id": 910017,
+      "language": "en-US",
+      "sha256": "2e6a9dff61196829aa41ec6fda5ebcd32e8307dad2bb21eeaf2708c4d263a286"
+    },
+    {
+      "type": "movie",
+      "id": 910018,
+      "language": null,
+      "sha256": "08cf86a0b4543ce8c7c6687025df3dbda15f898882efc37996f07f3264c61966"
+    },
+    {
+      "type": "movie",
+      "id": 910018,
+      "language": "ru-RU",
+      "sha256": "af59c6f0379f0dab3a637586cf269edc0095146e436ee2fac250b40eb077c89e"
+    },
+    {
+      "type": "movie",
+      "id": 910018,
+      "language": "en-US",
+      "sha256": "9ff46e7c9c68301123c8973e452c1fd405d30d1b09c50d16976aa45da34c77d3"
+    },
+    {
+      "type": "movie",
+      "id": 910019,
+      "language": null,
+      "sha256": "3219ce40d13647912fd07c58c50071ecca6a62e4124ecb32fabeeccc3d39284d"
+    },
+    {
+      "type": "movie",
+      "id": 910019,
+      "language": "ru-RU",
+      "sha256": "f3456fc64c3e57149f8cf4675ae0f1d702f4e8eb9399351be410c0dc52e8c1c4"
+    },
+    {
+      "type": "movie",
+      "id": 910019,
+      "language": "en-US",
+      "sha256": "41a4632208811f00583ef476d2068428ae4a938e1ce0a82e1a599be6fdd33b95"
+    },
+    {
+      "type": "movie",
+      "id": 910020,
+      "language": null,
+      "sha256": "91268b1aebca45877e696e9f382e0fd421d2c36daf3af1f0c76b3b179bfcf5fa"
+    },
+    {
+      "type": "movie",
+      "id": 910020,
+      "language": "ru-RU",
+      "sha256": "79bdd8cc24a0a951c6b281e595db5dd9bf3f00520ef46add9d92e9a701e63318"
+    },
+    {
+      "type": "movie",
+      "id": 910020,
+      "language": "en-US",
+      "sha256": "f0f64eeb47909b2de6858b9efa186d235b0a0f1c3a8ff50f47582c919f919426"
+    },
+    {
+      "type": "movie",
+      "id": 910021,
+      "language": null,
+      "sha256": "1cbe0b1e96fc46e20a418060ba5f5a57204305e1f1cb23d4b860c0e42d0d22a3"
+    },
+    {
+      "type": "movie",
+      "id": 910021,
+      "language": "ru-RU",
+      "sha256": "3c2b28555614d245f48266c5627b3918de5d3f733429853f5e3e79e735da43c9"
+    },
+    {
+      "type": "movie",
+      "id": 910021,
+      "language": "en-US",
+      "sha256": "0824015b2fe1de21866ebc64db7928f9c670b8afd6100a75554d2437c6b1527d"
+    },
+    {
+      "type": "movie",
+      "id": 910022,
+      "language": null,
+      "sha256": "8570a43d7223c2ffe085bdc657a6dcce43deb0ee76823678453abdb884acdb2b"
+    },
+    {
+      "type": "movie",
+      "id": 910022,
+      "language": "ru-RU",
+      "sha256": "c8a29a7c1f1100658e4823ae1509078a50fb9dfb757986fa4b658f35d4d7a222"
+    },
+    {
+      "type": "movie",
+      "id": 910022,
+      "language": "en-US",
+      "sha256": "11e04e8d15de3b2b187883fe44ef3b84ba50b4b77956748c614307cb4beeb505"
+    },
+    {
+      "type": "movie",
+      "id": 910023,
+      "language": null,
+      "sha256": "0ca05c5c3f15a54858b8e88c48f7ebd65bded26e74a180fb167378f1e27f8769"
+    },
+    {
+      "type": "movie",
+      "id": 910023,
+      "language": "ru-RU",
+      "sha256": "e6c860c92e56c109255c2491362ca3f1003a7633134e2dda8871912e30c630cb"
+    },
+    {
+      "type": "movie",
+      "id": 910023,
+      "language": "en-US",
+      "sha256": "0650c102b473716a663cdcf233458c27ab86e0e7a714cc71ea00efe7f899d2f1"
+    },
+    {
+      "type": "movie",
+      "id": 910024,
+      "language": null,
+      "sha256": "914a77c356c21c96aa46c52dfcab3ca79281525cd49b5660e27cd7432e3efe5b"
+    },
+    {
+      "type": "movie",
+      "id": 910024,
+      "language": "ru-RU",
+      "sha256": "008d7f67d671914ce1160da40ffd6b5e150d5632f300225c84aaf3b35a5ddc20"
+    },
+    {
+      "type": "movie",
+      "id": 910024,
+      "language": "en-US",
+      "sha256": "ca44b6f5d6658e261fd94c497bee4b063b9d7d4f5aa90d568d49e9c7252c8316"
+    },
+    {
+      "type": "movie",
+      "id": 910025,
+      "language": null,
+      "sha256": "6f6132ecbb27e1dcf378f5d964093ffaad934e98a12a51faaba1e8826b28350f"
+    },
+    {
+      "type": "movie",
+      "id": 910025,
+      "language": "ru-RU",
+      "sha256": "70b589fad5b6d4a1c34b3a325debdda345d9e32d1590c8cb9854e2c2766745ab"
+    },
+    {
+      "type": "movie",
+      "id": 910025,
+      "language": "en-US",
+      "sha256": "8dfe8518a3dc7a649c0871186206aefd800df512942d9114d9f6324decb15783"
+    },
+    {
+      "type": "movie",
+      "id": 910026,
+      "language": null,
+      "sha256": "6bf25c10492a8c76b408995af04d7f9a3036e52977bf58fa3d62ace4a91f82b4"
+    },
+    {
+      "type": "movie",
+      "id": 910026,
+      "language": "ru-RU",
+      "sha256": "f1116de35f74aa4a7fbd60ef50b996ea2a911cc3ded58c1b0e747d8adcb4c84f"
+    },
+    {
+      "type": "movie",
+      "id": 910026,
+      "language": "en-US",
+      "sha256": "ad9cebb27eaf2a5deb8c5c0e823a79da936d592084ceedc898ceda348f0f99f9"
+    },
+    {
+      "type": "movie",
+      "id": 910027,
+      "language": null,
+      "sha256": "96466b3c49d6d7d785e4c4cdedee8a284640066df6ab034ef49988a8e7882ecd"
+    },
+    {
+      "type": "movie",
+      "id": 910027,
+      "language": "ru-RU",
+      "sha256": "581703d294af33d7a0f857d6b125fb6979c9fe8910acbeb6189a2c7c99f9995c"
+    },
+    {
+      "type": "movie",
+      "id": 910027,
+      "language": "en-US",
+      "sha256": "bd2c6715d81f6f864cc41f0f36a9f1fffa4fad0fee55c8e2f7ae6e10ac1509c5"
+    },
+    {
+      "type": "movie",
+      "id": 910028,
+      "language": null,
+      "sha256": "20874a9492b767150231e1974e5eb2a38f633dc802220b70c19a62d2f6363114"
+    },
+    {
+      "type": "movie",
+      "id": 910028,
+      "language": "ru-RU",
+      "sha256": "b24ba687f6a6420f91a5f147893166e50533d6c93d75cdec6857128b6e967cc6"
+    },
+    {
+      "type": "movie",
+      "id": 910028,
+      "language": "en-US",
+      "sha256": "2151a3ef4b6d2c8043ee3a7293d527a2f6feb4048fbf5a65a6c1defd85b47132"
+    },
+    {
+      "type": "movie",
+      "id": 910029,
+      "language": null,
+      "sha256": "2320a49c7c9a97b13920e9ad31822a8dbcb09b612f3e382039d16108dad8915c"
+    },
+    {
+      "type": "movie",
+      "id": 910029,
+      "language": "ru-RU",
+      "sha256": "cca7c98a606af778b94034c652cc0afc6d5a474bacb74dc4940c5f69a9054afd"
+    },
+    {
+      "type": "movie",
+      "id": 910029,
+      "language": "en-US",
+      "sha256": "23430b8d8521b2ef8dd0c8ea9e5bd6275c73dfad0811c530c7e427b3f213973a"
+    },
+    {
+      "type": "movie",
+      "id": 910030,
+      "language": null,
+      "sha256": "8f0f79aabc750123519090c7d184d06e0e7435039dd882d6fff7fb900574932a"
+    },
+    {
+      "type": "movie",
+      "id": 910030,
+      "language": "ru-RU",
+      "sha256": "ee0dc312bbacd00d29d849b307af1954372c262d79598450f39bebeefc070e8a"
+    },
+    {
+      "type": "movie",
+      "id": 910030,
+      "language": "en-US",
+      "sha256": "4515e50f29a4d86f0bf269254612921d1aa8ff68aaa7d38b1de04f6ab42bee02"
+    },
+    {
+      "type": "movie",
+      "id": 910031,
+      "language": null,
+      "sha256": "6c8cdb88dc99da2c752c68d965445ce65d987e652b01546c6f6104b6db56c312"
+    },
+    {
+      "type": "movie",
+      "id": 910031,
+      "language": "ru-RU",
+      "sha256": "cc7cd2f519bff801967053e8f7f159258a64d9c0245023cd4b48c0a992cd78e5"
+    },
+    {
+      "type": "movie",
+      "id": 910031,
+      "language": "en-US",
+      "sha256": "9a4bcfbcdc3c935ace18461f6ba79af5cb19cf41203033fc0164d0437ff4ecf4"
+    },
+    {
+      "type": "movie",
+      "id": 910032,
+      "language": null,
+      "sha256": "aeb3f611615e8798e5a17ac4a613dd34bf8bf15eec2e4dd75e2151d90e23d5c0"
+    },
+    {
+      "type": "movie",
+      "id": 910032,
+      "language": "ru-RU",
+      "sha256": "ce3286aadf46f48aa37fc315065fade01142903754a6958d60f2ded1eec28a80"
+    },
+    {
+      "type": "movie",
+      "id": 910032,
+      "language": "en-US",
+      "sha256": "c4b2cd9dc1190ae0260670fbb60b75a52effc66359e4a9261489a3613dbeb277"
+    },
+    {
+      "type": "movie",
+      "id": 910033,
+      "language": null,
+      "sha256": "ca24283a442779b0e1cdf30db7a127e5b855ef1ea02583b4b9bbcc25540c928c"
+    },
+    {
+      "type": "movie",
+      "id": 910033,
+      "language": "ru-RU",
+      "sha256": "904ac2a93a52087e1a075a9162625b46b88768e27826163c901c4abb0f96323d"
+    },
+    {
+      "type": "movie",
+      "id": 910033,
+      "language": "en-US",
+      "sha256": "af96e9567f6a940e4057a4f021c97864d2f292068e7095f327c010465c5a462d"
+    },
+    {
+      "type": "movie",
+      "id": 910034,
+      "language": null,
+      "sha256": "555f54023dd1af9454ba7697493cee3f20216a98716adc36366eae59223c8306"
+    },
+    {
+      "type": "movie",
+      "id": 910034,
+      "language": "ru-RU",
+      "sha256": "6823f2ae1a913dd05612b4a3811036316416df8a867ad383dcfd622928193815"
+    },
+    {
+      "type": "movie",
+      "id": 910034,
+      "language": "en-US",
+      "sha256": "6eb40989e137e4723e18511a316926fc0d3a08160ade0550730b4d319a0672e6"
+    },
+    {
+      "type": "movie",
+      "id": 910035,
+      "language": null,
+      "sha256": "5fe11610d6086489f23713582f32f196d4bc3922c4370257dc470814f56814bc"
+    },
+    {
+      "type": "movie",
+      "id": 910035,
+      "language": "ru-RU",
+      "sha256": "b89c74cdd9e5e05f54fe945ccb03012e861e182167f92b678e2ed519d688d8bb"
+    },
+    {
+      "type": "movie",
+      "id": 910035,
+      "language": "en-US",
+      "sha256": "264e3d65be74a3e055a040920e7d2a6c857f90a688c8a518f531249ae4d0cf02"
+    },
+    {
+      "type": "movie",
+      "id": 910036,
+      "language": null,
+      "sha256": "5d46dfe32c8482b2896d549c7c83e7fbf26863e2b78da7c1b6c0ddc7a6d8e6ae"
+    },
+    {
+      "type": "movie",
+      "id": 910036,
+      "language": "ru-RU",
+      "sha256": "85a1fef00ee53a60cc23dbcccf432dfb95161366a4f01f9acdb565f3d182e9d3"
+    },
+    {
+      "type": "movie",
+      "id": 910036,
+      "language": "en-US",
+      "sha256": "cc363d9196affd1101c63168678802a90945dce345119d8e28a1758dff526590"
+    },
+    {
+      "type": "tv",
+      "id": 920001,
+      "language": null,
+      "sha256": "78efc6c674c45302852404c0eee143931e2b750c04b6d0b2fd240a4f819ef3c9"
+    },
+    {
+      "type": "tv",
+      "id": 920001,
+      "language": "ru-RU",
+      "sha256": "713b9d30ca29abeba0df5fac9377b8ce0f580c027d26dd8171780317eac72207"
+    },
+    {
+      "type": "tv",
+      "id": 920001,
+      "language": "en-US",
+      "sha256": "7caf723a9f8ad1eba08bbed4b518d9fdaf720008965d9a15eca3a00ac1c121f5"
+    },
+    {
+      "type": "tv",
+      "id": 920002,
+      "language": null,
+      "sha256": "22ea792bb6ba5458615f9cf710f06b2eef92ae213af6664a3803e40f89f88f3d"
+    },
+    {
+      "type": "tv",
+      "id": 920002,
+      "language": "ru-RU",
+      "sha256": "71c4d3a617243a6124f528c72eb51397f2bc18d979ed36fbf9a5f12821336194"
+    },
+    {
+      "type": "tv",
+      "id": 920002,
+      "language": "en-US",
+      "sha256": "7a4186dae60ec90384f3ab55d04c97746ab1c4ea078fa12171d3abec6d3db384"
+    },
+    {
+      "type": "tv",
+      "id": 920003,
+      "language": null,
+      "sha256": "c80f8e303af5fa3a6602c18e7570da30613b54899a8a71e31188dcfe20c52f9b"
+    },
+    {
+      "type": "tv",
+      "id": 920003,
+      "language": "ru-RU",
+      "sha256": "4529d68b3a3816bc2268eac794808e72c03f057ce0f9a81cc4165124c5f7e717"
+    },
+    {
+      "type": "tv",
+      "id": 920003,
+      "language": "en-US",
+      "sha256": "92ab68e57c381cac3291afc8a888cc8a267c05c668cbd71c55179ff5b1b545e7"
+    },
+    {
+      "type": "tv",
+      "id": 920004,
+      "language": null,
+      "sha256": "09bc0dbda39fda65954d088ad4e03ef01a79e3d0a3ec6d712be135c3fb98735f"
+    },
+    {
+      "type": "tv",
+      "id": 920004,
+      "language": "ru-RU",
+      "sha256": "1c1fc5967d735364575df9e2be91c9b99a9d33ef19a1a6fcbd67e5282753d1ad"
+    },
+    {
+      "type": "tv",
+      "id": 920004,
+      "language": "en-US",
+      "sha256": "9b94d0d106ea58aa09ab561bf7b7bf894bb28beac24539fd41db78124f274647"
+    },
+    {
+      "type": "tv",
+      "id": 920005,
+      "language": null,
+      "sha256": "9274be1ed3936aecf5b100ecc4a00aece714dc6e5f046b6f12eff324ab35a906"
+    },
+    {
+      "type": "tv",
+      "id": 920005,
+      "language": "ru-RU",
+      "sha256": "90b57aba8b20713e83fd36acae37e919fbfedad01ef6aa5db2396352e79cd7cb"
+    },
+    {
+      "type": "tv",
+      "id": 920005,
+      "language": "en-US",
+      "sha256": "391262c156277857f3286b87808335b4bfb17ab46700d7bbef17607001d210c2"
+    },
+    {
+      "type": "tv",
+      "id": 920006,
+      "language": null,
+      "sha256": "8987bdc52b6d332b7bb81af7d78b1d5961af6d3a86e2e36204bdc6d25a0f1cd2"
+    },
+    {
+      "type": "tv",
+      "id": 920006,
+      "language": "ru-RU",
+      "sha256": "a61d47371de2e15d0c3f5724c8e45f36f33b584a585975fb2b7bc57808546416"
+    },
+    {
+      "type": "tv",
+      "id": 920006,
+      "language": "en-US",
+      "sha256": "a3058e29563c8b40bfd6897bcc10acd5b40124f11dbcdf9aae4c45911be61db5"
+    },
+    {
+      "type": "tv",
+      "id": 920007,
+      "language": null,
+      "sha256": "9c0ba7b2b9b8ed5cbcb7739631ebb1ddf10a6a6da6d36c1f6d57b59dc02c63fa"
+    },
+    {
+      "type": "tv",
+      "id": 920007,
+      "language": "ru-RU",
+      "sha256": "87c620c33aae28a55bcdd0861d5cf20ecca5f2d3fb8aed39cd079701d33236a4"
+    },
+    {
+      "type": "tv",
+      "id": 920007,
+      "language": "en-US",
+      "sha256": "0b0d9a8ca858d387b863ef3d76490646da3771b1331245b713e421d4eae64baf"
+    },
+    {
+      "type": "tv",
+      "id": 920008,
+      "language": null,
+      "sha256": "7abc705a61c493694bc45db3464b5311b1d48758ca3814556ae049126e41ecdb"
+    },
+    {
+      "type": "tv",
+      "id": 920008,
+      "language": "ru-RU",
+      "sha256": "18b6d0bad04d4243a3e80c285f06a463bcf7518cb9bf4b0d17a231b2f1a8dff9"
+    },
+    {
+      "type": "tv",
+      "id": 920008,
+      "language": "en-US",
+      "sha256": "a689dd66e400358d9fa8f5f39eb892e7268f360b0900cda3a5366c888ebc8fdb"
+    },
+    {
+      "type": "tv",
+      "id": 920009,
+      "language": null,
+      "sha256": "75c15562112d3f48075826eabcec6f4a9648b830f5a50c495652556314802c66"
+    },
+    {
+      "type": "tv",
+      "id": 920009,
+      "language": "ru-RU",
+      "sha256": "e22b6dd4e0ccfebfa070ef69ad6c3f3173b795e3950a29db64e1b69c1030bf37"
+    },
+    {
+      "type": "tv",
+      "id": 920009,
+      "language": "en-US",
+      "sha256": "95e839eba16b905f216cf41bb570ee626d2fe8d4321def6938d664ac4eb1f02d"
+    },
+    {
+      "type": "tv",
+      "id": 920010,
+      "language": null,
+      "sha256": "06b84112fc5570410beef0ad5daf0e49daaa93697b984de21225294a63520af7"
+    },
+    {
+      "type": "tv",
+      "id": 920010,
+      "language": "ru-RU",
+      "sha256": "38e9f84f5d963c7cd35365a8f0975aaa00dc6af7881c427cb89fec4d931f486f"
+    },
+    {
+      "type": "tv",
+      "id": 920010,
+      "language": "en-US",
+      "sha256": "1ea7ffeabb33a87ea157fd64a7c3b8ed83ab6f210f5bf0c3faa0c81dffe44806"
+    },
+    {
+      "type": "tv",
+      "id": 920011,
+      "language": null,
+      "sha256": "a9c4fcb0ea43b4517ab292d721e5fb580bb1d1aea63891b257406394dd99d9ca"
+    },
+    {
+      "type": "tv",
+      "id": 920011,
+      "language": "ru-RU",
+      "sha256": "1b1e0778cac54eeac5f93c62513ec131f423d807317a4dc5a523e10a158c46f5"
+    },
+    {
+      "type": "tv",
+      "id": 920011,
+      "language": "en-US",
+      "sha256": "596ad68a56da812e1a5f5db79988b9c0e19031626aaf9ab8ec6775a0ca293e0e"
+    },
+    {
+      "type": "tv",
+      "id": 920012,
+      "language": null,
+      "sha256": "996fe021ca04af5ecde1fd036d771b59a8fb3424afd9e62d3907565b979398ce"
+    },
+    {
+      "type": "tv",
+      "id": 920012,
+      "language": "ru-RU",
+      "sha256": "461b65744c7fdabcb1c25dc90f29e503cb65dd175aa1561e517437b2d50d58ab"
+    },
+    {
+      "type": "tv",
+      "id": 920012,
+      "language": "en-US",
+      "sha256": "0e60de037cd91aaf0d5cc368c98b8d61ddd7872375dea1ca2e7ff75c3a007a10"
+    },
+    {
+      "type": "tv",
+      "id": 920013,
+      "language": null,
+      "sha256": "1aa86647197fd5cc218890f0bb11707e4ce59b369e9b053af40b0fd71c8b75fc"
+    },
+    {
+      "type": "tv",
+      "id": 920013,
+      "language": "ru-RU",
+      "sha256": "ebcd0652d768d54a568f6c56d9990eee0b1e40d35230847e4a51e5b5fbd17cfb"
+    },
+    {
+      "type": "tv",
+      "id": 920013,
+      "language": "en-US",
+      "sha256": "7b28b6b49a15b4de88519e89ecdb622806b8e8d6e622ad57dcb890fbbccfd4d0"
+    },
+    {
+      "type": "tv",
+      "id": 920014,
+      "language": null,
+      "sha256": "54af9c83e04aded5a1fef44f723e4fc67f2eef4c23c92d2fa290f3f207e56be8"
+    },
+    {
+      "type": "tv",
+      "id": 920014,
+      "language": "ru-RU",
+      "sha256": "afc33b0985db99e49853d35abf1134134c2bc07fecd55e7e60ca5080f5e0dbc7"
+    },
+    {
+      "type": "tv",
+      "id": 920014,
+      "language": "en-US",
+      "sha256": "013c14aa1cf68280d256da0996e3dafbe9808456458d6c696abe430b7248e612"
+    },
+    {
+      "type": "tv",
+      "id": 920015,
+      "language": null,
+      "sha256": "68157b87e431f8eeafb2cc6a0185a50ae42f47a421e4c08dc5f9b8b057dd676a"
+    },
+    {
+      "type": "tv",
+      "id": 920015,
+      "language": "ru-RU",
+      "sha256": "89ac44eaa931cce9c867de881fd89b18e6dd652c5d5ff1d1f58c024ac51e0882"
+    },
+    {
+      "type": "tv",
+      "id": 920015,
+      "language": "en-US",
+      "sha256": "9b044149d25881153d2f1253f66c0d9f6b8faf964e81fcded779e6fb7e70122f"
+    },
+    {
+      "type": "tv",
+      "id": 920016,
+      "language": null,
+      "sha256": "08da5c3996131593c1633e43c916df724722d1d906c0926111cb9c4bf2dbcb29"
+    },
+    {
+      "type": "tv",
+      "id": 920016,
+      "language": "ru-RU",
+      "sha256": "6cb3f0deabe40f55545bb0eebe4c59cea4dfdd90b1374788fb4f10fcbdfe4b58"
+    },
+    {
+      "type": "tv",
+      "id": 920016,
+      "language": "en-US",
+      "sha256": "9ea1bc13bbd6c7e5535dee6c16f67ca9d09b29df7e0f64a61610e4970d293014"
+    },
+    {
+      "type": "tv",
+      "id": 920017,
+      "language": null,
+      "sha256": "5afc4073d47f1bc6ae9a0670a59e05ed35da3c15194ec39ebe0ba9e760190d08"
+    },
+    {
+      "type": "tv",
+      "id": 920017,
+      "language": "ru-RU",
+      "sha256": "639c311887e6a8aabcb5892e76941b0a89b20661b1807668405899b9a7072b6e"
+    },
+    {
+      "type": "tv",
+      "id": 920017,
+      "language": "en-US",
+      "sha256": "828e1b336cdcda460e419250411a9c33a8ea376ad47460d5ef9794df0343236b"
+    },
+    {
+      "type": "tv",
+      "id": 920018,
+      "language": null,
+      "sha256": "a81797822363f4540dc9d32fe6fb1eff6b858b731162f8796079c0f6828180ae"
+    },
+    {
+      "type": "tv",
+      "id": 920018,
+      "language": "ru-RU",
+      "sha256": "dd16f651a0ad2a74a4b0d5c6bd755530f2bc85170c7dcc71a78ad64ef2769910"
+    },
+    {
+      "type": "tv",
+      "id": 920018,
+      "language": "en-US",
+      "sha256": "e83d4778e5da93c2ca2b062d59803e3a3b9e5015de308703488a03a7f2d22fe5"
+    },
+    {
+      "type": "tv",
+      "id": 920019,
+      "language": null,
+      "sha256": "8601f7893a6609beb22beba98341b9d2d649f3aa77245e38a35234f08711fba7"
+    },
+    {
+      "type": "tv",
+      "id": 920019,
+      "language": "ru-RU",
+      "sha256": "dede643de213dc3f31c642d3631d28fa3b9f1597b2b79fe766b15411b817dd3f"
+    },
+    {
+      "type": "tv",
+      "id": 920019,
+      "language": "en-US",
+      "sha256": "d167ff45b1ff4077fa12b48bcf443be4d5d5e16ef1e7c3714351f4c46062054f"
+    },
+    {
+      "type": "tv",
+      "id": 920020,
+      "language": null,
+      "sha256": "013e573a0318db3207549afd345f4f0f5122e244ea830401f4d2d7fa618cf551"
+    },
+    {
+      "type": "tv",
+      "id": 920020,
+      "language": "ru-RU",
+      "sha256": "5af9a587ceb79e497f43674461a61795bcda468f44c313504abab1d877f464ea"
+    },
+    {
+      "type": "tv",
+      "id": 920020,
+      "language": "en-US",
+      "sha256": "0080aecd7c35899dd798ed772cb3bef592aa16c0bb2ceda10e64ec630be7daea"
+    },
+    {
+      "type": "tv",
+      "id": 920021,
+      "language": null,
+      "sha256": "29b7e81d1fed0d69599f5fe7685d065a0d8ac2c5d591e0c7b7c13eab80a80ceb"
+    },
+    {
+      "type": "tv",
+      "id": 920021,
+      "language": "ru-RU",
+      "sha256": "77974a0c499cd9ad7c6edd7df5c954eb03bc4527734318c1110b79f255055b89"
+    },
+    {
+      "type": "tv",
+      "id": 920021,
+      "language": "en-US",
+      "sha256": "4ffa694a3e0ae2319b79970df1b7611ccbe044d567d450e8965416fa2a00740a"
+    },
+    {
+      "type": "tv",
+      "id": 920022,
+      "language": null,
+      "sha256": "4a7ca0907dbd820261b030502f45c06fe13bfcc61e94d229352a7148dd470086"
+    },
+    {
+      "type": "tv",
+      "id": 920022,
+      "language": "ru-RU",
+      "sha256": "2d8e92a50bde48a3feb0f6382b9add60b5fe7b896c3548fec322f533f3b9ec40"
+    },
+    {
+      "type": "tv",
+      "id": 920022,
+      "language": "en-US",
+      "sha256": "5440ebea5460ec0b3370c19e0f713bbcbde61005a134fcf72a827a799cc491ff"
+    },
+    {
+      "type": "tv",
+      "id": 920023,
+      "language": null,
+      "sha256": "1e1aeb68e9c63e7d167e2055e7123e25f4b10b0a6676d13f411cb0bed27041ba"
+    },
+    {
+      "type": "tv",
+      "id": 920023,
+      "language": "ru-RU",
+      "sha256": "f7dd5c55c41794612fdc5e9ed09395658e7a0afc3bea521ee6b4fe9d2bfecc3a"
+    },
+    {
+      "type": "tv",
+      "id": 920023,
+      "language": "en-US",
+      "sha256": "30177b7d8abbfea9a63db79679c80b0eb5c794e15b7735b02c3075e9e779a647"
+    },
+    {
+      "type": "tv",
+      "id": 920024,
+      "language": null,
+      "sha256": "ea4eb28d3ecf24cf47598e2522f4da35e4033fc55128f6ed741b44611d7b3932"
+    },
+    {
+      "type": "tv",
+      "id": 920024,
+      "language": "ru-RU",
+      "sha256": "d78961d6f16b93bf0ccacdf88a8dcfb049d5b8baee53cfbba926fbe213ef6769"
+    },
+    {
+      "type": "tv",
+      "id": 920024,
+      "language": "en-US",
+      "sha256": "6c84045e48fa3d090dfdb8057cd1fb14caac4fd8c391a1ad9eeaf92a49b38560"
+    },
+    {
+      "type": "tv",
+      "id": 920025,
+      "language": null,
+      "sha256": "359bbc82587d6f9e69060350d2c6359dbe55345247a0b559fd96c345c6c317fa"
+    },
+    {
+      "type": "tv",
+      "id": 920025,
+      "language": "ru-RU",
+      "sha256": "12fe5f4cf50c8f0734924e3ca900fd949182bc00ab663b2ca9129918d814ea2b"
+    },
+    {
+      "type": "tv",
+      "id": 920025,
+      "language": "en-US",
+      "sha256": "562140a19cdebcde48c3a0a77109840c432a307e5eee650dd51827ffbefeda67"
+    },
+    {
+      "type": "tv",
+      "id": 920026,
+      "language": null,
+      "sha256": "af39eb025880432d8ca7a571ea5465b1a55983beebe170beabd9242def569418"
+    },
+    {
+      "type": "tv",
+      "id": 920026,
+      "language": "ru-RU",
+      "sha256": "c991cf1dab6f141b666e016c4b05269165a72bcb3afe82b1fc0dff7b2378dc66"
+    },
+    {
+      "type": "tv",
+      "id": 920026,
+      "language": "en-US",
+      "sha256": "cee20034fac932863e4c837feecad156c9ccfb1402bc1c4c0be65da01a049aef"
+    },
+    {
+      "type": "tv",
+      "id": 920027,
+      "language": null,
+      "sha256": "097410f4f2053ba70bbf04bd58aa6cbe5f65db6320cb4949f232ce611da665f3"
+    },
+    {
+      "type": "tv",
+      "id": 920027,
+      "language": "ru-RU",
+      "sha256": "f70abe795ca779ee3c4ef94d05a307008d3b988e7de4fb06fcde032f46fdeb2e"
+    },
+    {
+      "type": "tv",
+      "id": 920027,
+      "language": "en-US",
+      "sha256": "fe3ef6e8f12bcbf51b92e0d4fca4d63b7d803fc936c3e4bc3acbcce033f58936"
+    },
+    {
+      "type": "tv",
+      "id": 920028,
+      "language": null,
+      "sha256": "b0f8afa46d3185a296d1243371c1f084302a1313bdebe6a7900275439379a332"
+    },
+    {
+      "type": "tv",
+      "id": 920028,
+      "language": "ru-RU",
+      "sha256": "066f1206c61d5ccdaa736517aa79f4801f2684e204b7438412e20ebfecb4c6d4"
+    },
+    {
+      "type": "tv",
+      "id": 920028,
+      "language": "en-US",
+      "sha256": "fc8fe4601b6af313d86cb6ee56fcca40296dec7cf9a230f287d0cadc0589ab07"
+    },
+    {
+      "type": "tv",
+      "id": 920029,
+      "language": null,
+      "sha256": "ebe71258a86e1e8081cd93fa62a8515ea4a7afe772d15b142fe145f587d18a79"
+    },
+    {
+      "type": "tv",
+      "id": 920029,
+      "language": "ru-RU",
+      "sha256": "11d2001cf9272eab49182db7b8d744bd27f04562692b8ce4d09b19c385d2cce2"
+    },
+    {
+      "type": "tv",
+      "id": 920029,
+      "language": "en-US",
+      "sha256": "a168800d26573d8f48322e51197329d263584b89afe8d17aa30642c365ef319b"
+    },
+    {
+      "type": "tv",
+      "id": 920030,
+      "language": null,
+      "sha256": "a9c592fc373861983d3750fc0ecb8afa36d7e2092db6efbf09acd93e5dbdc96f"
+    },
+    {
+      "type": "tv",
+      "id": 920030,
+      "language": "ru-RU",
+      "sha256": "fa18cb042e7a658a9b82c96b99e4c95b6d36bffefcc6a9e92bae49508b349f92"
+    },
+    {
+      "type": "tv",
+      "id": 920030,
+      "language": "en-US",
+      "sha256": "3a476f23019f0841cbf37b6c8f3d509866637816bbda6bc3209430cecd05758e"
+    },
+    {
+      "type": "tv",
+      "id": 920031,
+      "language": null,
+      "sha256": "a16215a7a2572bcbad27e799514f4bdd38ebeb0c19c2f01b07b205e6c2a0d2eb"
+    },
+    {
+      "type": "tv",
+      "id": 920031,
+      "language": "ru-RU",
+      "sha256": "9f6f2a78e85d1974a6ca8a967b8dcb7163addaf119b15e6514ccc5ba8d9107fc"
+    },
+    {
+      "type": "tv",
+      "id": 920031,
+      "language": "en-US",
+      "sha256": "b65856171d3724536194105dc5227fbce8847c2de6643297926b3530072934b8"
+    },
+    {
+      "type": "tv",
+      "id": 920032,
+      "language": null,
+      "sha256": "8acaf28d7db0fe57f94596b7be3853cbdbc0ad376c008227eb57f096becb125f"
+    },
+    {
+      "type": "tv",
+      "id": 920032,
+      "language": "ru-RU",
+      "sha256": "7830496fe2959be80a1edf29aa5571c70e2fa0d974d38943bf476a5c5c29c03f"
+    },
+    {
+      "type": "tv",
+      "id": 920032,
+      "language": "en-US",
+      "sha256": "3c7dc2950e88c998fc9b9b910c9e03b88bd6c4f97dfa112979c9ed6ac5b8279d"
+    }
+  ]
+}

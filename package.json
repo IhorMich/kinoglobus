@@ -1,0 +1,13 @@
+{
+  "name": "moven-test-infrastructure",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Automated tests for Moven",
+  "scripts": {
+    "test": "node scripts/run-tests.cjs",
+    "test:syntax": "node scripts/run-tests.cjs --syntax-only"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.65.1"
+  }
+}

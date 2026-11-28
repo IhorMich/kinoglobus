@@ -1,0 +1,2003 @@
+{
+  "schemaVersion": 1,
+  "synthetic": true,
+  "referenceDate": "2026-11-26",
+  "executionStatus": "not-executed",
+  "scenarioPolicy": {
+    "allowRealTMDB": false,
+    "allowExternalNetwork": false,
+    "resetBetweenTests": true,
+    "freezeClockWhenRequired": true,
+    "unknownEndpoint": "fail",
+    "expectedResultsAreNotTestResults": true
+  },
+  "scenarios": [
+    {
+      "id": "REC-MOV-01",
+      "category": "recommendations",
+      "title": "Exact country and genre matches",
+      "layer": "application",
+      "phase": "regression",
+      "status": "pending",
+      "inputs": {
+        "mediaType": "movie",
+        "countries": [
+          "IT"
+        ],
+        "genres": [
+          37
+        ],
+        "minRating": 6.5,
+        "minVotes": 30
+      },
+      "expected": {
+        "exactIds": [
+          910001,
+          910002,
+          910003
+        ],
+        "exactCount": 3,
+        "excludePartialFromPrimary": true,
+        "allowSilentFallback": false
+      },
+      "references": [
+        {
+          "media_type": "movie",
+          "id": 910001
+        },
+        {
+          "media_type": "movie",
+          "id": 910002
+        },
+        {
+          "media_type": "movie",
+          "id": 910003
+        }
+      ]
+    },
+    {
+      "id": "REC-MOV-02",
+      "category": "recommendations",
+      "title": "Separate partial suggestions",
+      "layer": "application",
+      "phase": "regression",
+      "status": "pending",
+      "inputs": {
+        "mediaType": "movie",
+        "countries": [
+          "IT"
+        ],
+        "genres": [
+          37
+        ],
+        "minRating": 6.5,
+        "minVotes": 30
+      },
+      "expected": {
+        "candidateIds": [
+          910004,
+          910005,
+          910006,
+          910020
+        ],
+        "separateSection": true,
+        "overlapWithExact": 0,
+        "sectionLabelRu": "Также может понравиться"
+      },
+      "references": [
+        {
+          "media_type": "movie",
+          "id": 910004
+        },
+        {
+          "media_type": "movie",
+          "id": 910005
+        },
+        {
+          "media_type": "movie",
+          "id": 910006
+        },
+        {
+          "media_type": "movie",
+          "id": 910020
+        }
+      ]
+    },
+    {
+      "id": "REC-MOV-03",
+      "category": "recommendations",
+      "title": "Exact results exhausted",
+      "layer": "application",
+      "phase": "regression",
+      "status": "pending",
+      "inputs": {
+        "mediaType": "movie",
+        "countries": [
+          "IT"
+        ],
+        "genres": [
+          37
+        ],
+        "minRating": 6.5,
+        "minVotes": 30,
+        "pageSize": 12
+      },
+      "expected": {
+        "primaryCount": 3,
+        "showMoreExact": false,
+        "fillPrimaryWithPartial": false
+      },
+      "references": []
+    },
+    {
+      "id": "REC-MOV-04",
+      "category": "recommendations",
+      "title": "Watched content excluded",
+      "layer": "application",
+      "phase": "regression",
+      "status": "pending",
+      "inputs": {
+        "mediaType": "movie",
+        "countries": [
+          "IT"
+        ],
+        "genres": [
+          37
+        ],
+        "minRating": 6.5,
+        "minVotes": 30,
+        "watchedIds": [
+          910001
+        ],
+        "hideWatched": true
+      },
+      "expected": {
+        "excludedIds": [
+          910001
+        ],
+        "remainingExactIds": [
+          910002,
+          910003
+        ]
+      },
+      "references": []
+    },
+    {
+      "id": "REC-TV-01",
+      "category": "recommendations",
+      "title": "Exact country and genre matches",
+      "layer": "application",
+      "phase": "regression",
+      "status": "pending",
+      "inputs": {
+        "mediaType": "tv",
+        "countries": [
+          "IT"
+        ],
+        "genres": [
+          80
+        ],
+        "minRating": 6.5,
+        "minVotes": 20
+      },
+      "expected": {
+        "exactIds": [
+          920001,
+          920002,
+          920003
+        ],
+        "exactCount": 3,
+        "excludePartialFromPrimary": true,
+        "allowSilentFallback": false
+      },
+      "references": [
+        {
+          "media_type": "tv",
+          "id": 920001
+        },
+        {
+          "media_type": "tv",
+          "id": 920002
+        },
+        {
+          "media_type": "tv",
+          "id": 920003
+        }
+      ]
+    },
+    {
+      "id": "REC-TV-02",
+      "category": "recommendations",
+      "title": "Separate partial suggestions",
+      "layer": "application",
+      "phase": "regression",
+      "status": "pending",
+      "inputs": {
+        "mediaType": "tv",
+        "countries": [
+          "IT"
+        ],
+        "genres": [
+          80
+        ],
+        "minRating": 6.5,
+        "minVotes": 20
+      },
+      "expected": {
+        "candidateIds": [
+          920004,
+          920005,
+          920006,
+          920008,
+          920020
+        ],
+        "separateSection": true,
+        "overlapWithExact": 0,
+        "sectionLabelRu": "Также может понравиться"
+      },
+      "references": [
+        {
+          "media_type": "tv",
+          "id": 920004
+        },
+        {
+          "media_type": "tv",
+          "id": 920005
+        },
+        {
+          "media_type": "tv",
+          "id": 920006
+        },
+        {
+          "media_type": "tv",
+          "id": 920008
+        },
+        {
+          "media_type": "tv",
+          "id": 920020
+        }
+      ]
+    },
+    {
+      "id": "REC-TV-03",
+      "category": "recommendations",
+      "title": "Exact results exhausted",
+      "layer": "application",
+      "phase": "regression",
+      "status": "pending",
+      "inputs": {
+        "mediaType": "tv",
+        "countries": [
+          "IT"
+        ],
+        "genres": [
+          80
+        ],
+        "minRating": 6.5,
+        "minVotes": 20,
+        "pageSize": 12
+      },
+      "expected": {
+        "primaryCount": 3,
+        "showMoreExact": false,
+        "fillPrimaryWithPartial": false
+      },
+      "references": []
+    },
+    {
+      "id": "REC-TV-04",
+      "category": "recommendations",
+      "title": "Watched content excluded",
+      "layer": "application",
+      "phase": "regression",
+      "status": "pending",
+      "inputs": {
+        "mediaType": "tv",
+        "countries": [
+          "IT"
+        ],
+        "genres": [
+          80
+        ],
+        "minRating": 6.5,
+        "minVotes": 20,
+        "watchedIds": [
+          920001
+        ],
+        "hideWatched": true
+      },
+      "expected": {
+        "excludedIds": [
+          920001
+        ],
+        "remainingExactIds": [
+          920002,
+          920003
+        ]
+      },
+      "references": []
+    },
+    {
+      "id": "REC-09",
+      "category": "recommendations",
+      "title": "Zero exact results",
+      "layer": "application",
+      "phase": "regression",
+      "status": "pending",
+      "inputs": {
+        "mediaType": "movie",
+        "countries": [
+          "AQ"
+        ],
+        "genres": [
+          37
+        ]
+      },
+      "expected": {
+        "primaryCount": 0,
+        "allowSilentFallback": false
+      },
+      "references": []
+    },
+    {
+      "id": "REC-10",
+      "category": "recommendations",
+      "title": "Duplicate candidate identities",
+      "layer": "application",
+      "phase": "regression",
+      "status": "pending",
+      "inputs": {
+        "candidateIds": [
+          910001,
+          910002,
+          910001,
+          910003
+        ]
+      },
+      "expected": {
+        "uniqueIds": [
+          910001,
+          910002,
+          910003
+        ]
+      },
+      "references": [
+        {
+          "media_type": "movie",
+          "id": 910001
+        },
+        {
+          "media_type": "movie",
+          "id": 910002
+        },
+        {
+          "media_type": "movie",
+          "id": 910003
+        }
+      ]
+    },
+    {
+      "id": "SAFE-MOVIE-ADULT",
+      "category": "safety",
+      "title": "Restricted or unknown safety record",
+      "layer": "application",
+      "phase": "regression",
+      "status": "pending",
+      "inputs": {
+        "mediaType": "movie",
+        "ids": [
+          910018
+        ]
+      },
+      "expected": {
+        "preserveInInjectedResponse": true,
+        "visibleIds": [],
+        "rejectDetail": true
+      },
+      "references": [
+        {
+          "media_type": "movie",
+          "id": 910018
+        }
+      ]
+    },
+    {
+      "id": "SAFE-MOVIE-MISSING",
+      "category": "safety",
+      "title": "Restricted or unknown safety record",
+      "layer": "application",
+      "phase": "regression",
+      "status": "pending",
+      "inputs": {
+        "mediaType": "movie",
+        "ids": [
+          910019
+        ]
+      },
+      "expected": {
+        "preserveInInjectedResponse": true,
+        "visibleIds": [],
+        "rejectDetail": true
+      },
+      "references": [
+        {
+          "media_type": "movie",
+          "id": 910019
+        }
+      ]
+    },
+    {
+      "id": "SAFE-TV-ADULT",
+      "category": "safety",
+      "title": "Restricted or unknown safety record",
+      "layer": "application",
+      "phase": "regression",
+      "status": "pending",
+      "inputs": {
+        "mediaType": "tv",
+        "ids": [
+          920018
+        ]
+      },
+      "expected": {
+        "preserveInInjectedResponse": true,
+        "visibleIds": [],
+        "rejectDetail": true
+      },
+      "references": [
+        {
+          "media_type": "tv",
+          "id": 920018
+        }
+      ]
+    },
+    {
+      "id": "SAFE-TV-MISSING",
+      "category": "safety",
+      "title": "Restricted or unknown safety record",
+      "layer": "application",
+      "phase": "regression",
+      "status": "pending",
+      "inputs": {
+        "mediaType": "tv",
+        "ids": [
+          920019
+        ]
+      },
+      "expected": {
+        "preserveInInjectedResponse": true,
+        "visibleIds": [],
+        "rejectDetail": true
+      },
+      "references": [
+        {
+          "media_type": "tv",
+          "id": 920019
+        }
+      ]
+    },
+    {
+      "id": "SAFE-PERSON-ADULT",
+      "category": "safety",
+      "title": "Restricted or unknown safety record",
+      "layer": "application",
+      "phase": "regression",
+      "status": "pending",
+      "inputs": {
+        "mediaType": "person",
+        "ids": [
+          930024
+        ]
+      },
+      "expected": {
+        "preserveInInjectedResponse": true,
+        "visibleIds": [],
+        "rejectDetail": true
+      },
+      "references": [
+        {
+          "media_type": "person",
+          "id": 930024
+        }
+      ]
+    },
+    {
+      "id": "SAFE-PERSON-MISSING",
+      "category": "safety",
+      "title": "Restricted or unknown safety record",
+      "layer": "application",
+      "phase": "regression",
+      "status": "pending",
+      "inputs": {
+        "mediaType": "person",
+        "ids": [
+          930019
+        ]
+      },
+      "expected": {
+        "preserveInInjectedResponse": true,
+        "visibleIds": [],
+        "rejectDetail": true
+      },
+      "references": [
+        {
+          "media_type": "person",
+          "id": 930019
+        }
+      ]
+    },
+    {
+      "id": "SAFE-LIST-01",
+      "category": "safety",
+      "title": "Unsafe items in list response",
+      "layer": "application",
+      "phase": "regression",
+      "status": "pending",
+      "inputs": {
+        "listId": 950005
+      },
+      "expected": {
+        "rawCount": 5,
+        "visibleCount": 3
+      },
+      "references": []
+    },
+    {
+      "id": "MOV-01",
+      "category": "movies",
+      "title": "Movie detail identity",
+      "layer": "mock",
+      "phase": "mock-api",
+      "status": "pending",
+      "inputs": {
+        "movieId": 910001
+      },
+      "expected": {
+        "responseId": 910001
+      },
+      "references": [
+        {
+          "media_type": "movie",
+          "id": 910001
+        }
+      ]
+    },
+    {
+      "id": "DATE-MOVIE-01",
+      "category": "release-dates",
+      "title": "Exclude future and undated recommendations",
+      "layer": "application",
+      "phase": "regression",
+      "status": "pending",
+      "inputs": {
+        "mediaType": "movie"
+      },
+      "expected": {
+        "excludedIds": [
+          910015,
+          910016
+        ]
+      },
+      "references": [
+        {
+          "media_type": "movie",
+          "id": 910015
+        },
+        {
+          "media_type": "movie",
+          "id": 910016
+        }
+      ]
+    },
+    {
+      "id": "DATE-TV-01",
+      "category": "release-dates",
+      "title": "Exclude future and undated recommendations",
+      "layer": "application",
+      "phase": "regression",
+      "status": "pending",
+      "inputs": {
+        "mediaType": "tv"
+      },
+      "expected": {
+        "excludedIds": [
+          920015,
+          920016
+        ]
+      },
+      "references": [
+        {
+          "media_type": "tv",
+          "id": 920015
+        },
+        {
+          "media_type": "tv",
+          "id": 920016
+        }
+      ]
+    },
+    {
+      "id": "TV-01",
+      "category": "series",
+      "title": "Raw and normalized TV identity",
+      "layer": "application",
+      "phase": "regression",
+      "status": "pending",
+      "inputs": {
+        "rawId": 920001,
+        "appId": 1000000920001
+      },
+      "expected": {
+        "requestRawId": 920001,
+        "normalizedId": 1000000920001
+      },
+      "references": [
+        {
+          "media_type": "tv",
+          "id": 920001
+        }
+      ]
+    },
+    {
+      "id": "TV-02",
+      "category": "series",
+      "title": "Special and regular seasons",
+      "layer": "application",
+      "phase": "regression",
+      "status": "pending",
+      "inputs": {
+        "tvId": 920001
+      },
+      "expected": {
+        "seasonNumbers": [
+          0,
+          1,
+          2
+        ],
+        "episodeCounts": {
+          "0": 2,
+          "1": 6,
+          "2": 8
+        }
+      },
+      "references": [
+        {
+          "media_type": "tv",
+          "id": 920001
+        }
+      ]
+    },
+    {
+      "id": "TV-03",
+      "category": "series",
+      "title": "Series without seasons",
+      "layer": "application",
+      "phase": "regression",
+      "status": "pending",
+      "inputs": {
+        "tvIds": [
+          920015,
+          920016
+        ]
+      },
+      "expected": {
+        "seasonCount": 0,
+        "noCrash": true
+      },
+      "references": [
+        {
+          "media_type": "tv",
+          "id": 920015
+        },
+        {
+          "media_type": "tv",
+          "id": 920016
+        }
+      ]
+    },
+    {
+      "id": "EP-01",
+      "category": "episodes",
+      "title": "Episode with missing or zero metadata",
+      "layer": "application",
+      "phase": "regression",
+      "status": "pending",
+      "inputs": {
+        "tvId": 920001,
+        "seasonNumber": 1,
+        "episodeNumber": 2
+      },
+      "expected": {
+        "field": "still_path",
+        "value": null,
+        "noCrash": true
+      },
+      "references": [
+        {
+          "media_type": "episode",
+          "id": 92000101002
+        }
+      ]
+    },
+    {
+      "id": "EP-02",
+      "category": "episodes",
+      "title": "Episode with missing or zero metadata",
+      "layer": "application",
+      "phase": "regression",
+      "status": "pending",
+      "inputs": {
+        "tvId": 920001,
+        "seasonNumber": 1,
+        "episodeNumber": 3
+      },
+      "expected": {
+        "field": "overview",
+        "value": "",
+        "noCrash": true
+      },
+      "references": [
+        {
+          "media_type": "episode",
+          "id": 92000101003
+        }
+      ]
+    },
+    {
+      "id": "EP-03",
+      "category": "episodes",
+      "title": "Episode with missing or zero metadata",
+      "layer": "application",
+      "phase": "regression",
+      "status": "pending",
+      "inputs": {
+        "tvId": 920001,
+        "seasonNumber": 1,
+        "episodeNumber": 4
+      },
+      "expected": {
+        "field": "runtime",
+        "value": null,
+        "noCrash": true
+      },
+      "references": [
+        {
+          "media_type": "episode",
+          "id": 92000101004
+        }
+      ]
+    },
+    {
+      "id": "EP-04",
+      "category": "episodes",
+      "title": "Episode with missing or zero metadata",
+      "layer": "application",
+      "phase": "regression",
+      "status": "pending",
+      "inputs": {
+        "tvId": 920001,
+        "seasonNumber": 1,
+        "episodeNumber": 5
+      },
+      "expected": {
+        "field": "vote_average",
+        "value": 0,
+        "noCrash": true
+      },
+      "references": [
+        {
+          "media_type": "episode",
+          "id": 92000101005
+        }
+      ]
+    },
+    {
+      "id": "EP-05",
+      "category": "episodes",
+      "title": "Episode with missing or zero metadata",
+      "layer": "application",
+      "phase": "regression",
+      "status": "pending",
+      "inputs": {
+        "tvId": 920003,
+        "seasonNumber": 2,
+        "episodeNumber": 2
+      },
+      "expected": {
+        "field": "air_date",
+        "value": null,
+        "noCrash": true
+      },
+      "references": [
+        {
+          "media_type": "episode",
+          "id": 92000302002
+        }
+      ]
+    },
+    {
+      "id": "PER-01",
+      "category": "people",
+      "title": "Person detail and filmography edge case",
+      "layer": "application",
+      "phase": "regression",
+      "status": "pending",
+      "inputs": {
+        "personId": 930020
+      },
+      "expected": {
+        "profilePath": null,
+        "imageCount": 0,
+        "noCrash": true
+      },
+      "references": [
+        {
+          "media_type": "person",
+          "id": 930020
+        }
+      ]
+    },
+    {
+      "id": "PER-02",
+      "category": "people",
+      "title": "Person detail and filmography edge case",
+      "layer": "application",
+      "phase": "regression",
+      "status": "pending",
+      "inputs": {
+        "personId": 930021
+      },
+      "expected": {
+        "biography": "",
+        "noCrash": true
+      },
+      "references": [
+        {
+          "media_type": "person",
+          "id": 930021
+        }
+      ]
+    },
+    {
+      "id": "PER-03",
+      "category": "people",
+      "title": "Person detail and filmography edge case",
+      "layer": "application",
+      "phase": "regression",
+      "status": "pending",
+      "inputs": {
+        "personId": 930022
+      },
+      "expected": {
+        "birthday": null,
+        "noCrash": true
+      },
+      "references": [
+        {
+          "media_type": "person",
+          "id": 930022
+        }
+      ]
+    },
+    {
+      "id": "PER-04",
+      "category": "people",
+      "title": "Person detail and filmography edge case",
+      "layer": "application",
+      "phase": "regression",
+      "status": "pending",
+      "inputs": {
+        "personId": 930023
+      },
+      "expected": {
+        "deceased": true,
+        "noCrash": true
+      },
+      "references": [
+        {
+          "media_type": "person",
+          "id": 930023
+        }
+      ]
+    },
+    {
+      "id": "PER-05",
+      "category": "people",
+      "title": "Person detail and filmography edge case",
+      "layer": "application",
+      "phase": "regression",
+      "status": "pending",
+      "inputs": {
+        "personId": 930001
+      },
+      "expected": {
+        "movieAndTvCredits": true,
+        "multipleTvRoles": true,
+        "noCrash": true
+      },
+      "references": [
+        {
+          "media_type": "person",
+          "id": 930001
+        }
+      ]
+    },
+    {
+      "id": "PRO-01",
+      "category": "providers",
+      "title": "Streaming filter exact result",
+      "layer": "mock",
+      "phase": "mock-api",
+      "status": "pending",
+      "inputs": {
+        "networkIds": [
+          49
+        ]
+      },
+      "expected": {
+        "rawTvIds": [
+          920004,
+          920017
+        ],
+        "allowSilentFallback": false
+      },
+      "references": [
+        {
+          "media_type": "tv",
+          "id": 920004
+        },
+        {
+          "media_type": "tv",
+          "id": 920017
+        }
+      ]
+    },
+    {
+      "id": "PRO-02",
+      "category": "providers",
+      "title": "Streaming filter exact result",
+      "layer": "mock",
+      "phase": "mock-api",
+      "status": "pending",
+      "inputs": {
+        "networkIds": [
+          67
+        ]
+      },
+      "expected": {
+        "rawTvIds": [
+          920006,
+          920018
+        ],
+        "allowSilentFallback": false
+      },
+      "references": [
+        {
+          "media_type": "tv",
+          "id": 920006
+        },
+        {
+          "media_type": "tv",
+          "id": 920018
+        }
+      ]
+    },
+    {
+      "id": "PRO-03",
+      "category": "providers",
+      "title": "Streaming filter exact result",
+      "layer": "mock",
+      "phase": "mock-api",
+      "status": "pending",
+      "inputs": {
+        "networkIds": [
+          3186
+        ]
+      },
+      "expected": {
+        "rawTvIds": [
+          920012
+        ],
+        "allowSilentFallback": false
+      },
+      "references": [
+        {
+          "media_type": "tv",
+          "id": 920012
+        }
+      ]
+    },
+    {
+      "id": "PRO-04",
+      "category": "providers",
+      "title": "Streaming filter exact result",
+      "layer": "mock",
+      "phase": "mock-api",
+      "status": "pending",
+      "inputs": {
+        "providerIds": [
+          1899,
+          940007
+        ],
+        "region": "PL"
+      },
+      "expected": {
+        "rawTvIds": [
+          920004,
+          920012
+        ],
+        "allowSilentFallback": false
+      },
+      "references": [
+        {
+          "media_type": "tv",
+          "id": 920004
+        },
+        {
+          "media_type": "tv",
+          "id": 920012
+        }
+      ]
+    },
+    {
+      "id": "PRO-05",
+      "category": "providers",
+      "title": "Streaming filter exact result",
+      "layer": "mock",
+      "phase": "mock-api",
+      "status": "pending",
+      "inputs": {
+        "providerIds": [
+          283
+        ],
+        "region": "PL"
+      },
+      "expected": {
+        "rawTvIds": [],
+        "allowSilentFallback": false
+      },
+      "references": []
+    },
+    {
+      "id": "PRO-06",
+      "category": "providers",
+      "title": "Streaming filter exact result",
+      "layer": "mock",
+      "phase": "mock-api",
+      "status": "pending",
+      "inputs": {
+        "providerIds": [
+          283
+        ],
+        "region": "US"
+      },
+      "expected": {
+        "rawTvIds": [
+          920009
+        ],
+        "allowSilentFallback": false
+      },
+      "references": [
+        {
+          "media_type": "tv",
+          "id": 920009
+        }
+      ]
+    },
+    {
+      "id": "PRO-07",
+      "category": "providers",
+      "title": "Streaming filter exact result",
+      "layer": "mock",
+      "phase": "mock-api",
+      "status": "pending",
+      "inputs": {
+        "providerIds": [
+          940010
+        ],
+        "region": "PL"
+      },
+      "expected": {
+        "rawTvIds": [
+          920001
+        ],
+        "allowSilentFallback": false
+      },
+      "references": [
+        {
+          "media_type": "tv",
+          "id": 920001
+        }
+      ]
+    },
+    {
+      "id": "PRO-08",
+      "category": "providers",
+      "title": "Streaming filter exact result",
+      "layer": "mock",
+      "phase": "mock-api",
+      "status": "pending",
+      "inputs": {
+        "providerIds": [
+          940011
+        ],
+        "region": "UA"
+      },
+      "expected": {
+        "rawTvIds": [
+          920017
+        ],
+        "allowSilentFallback": false
+      },
+      "references": [
+        {
+          "media_type": "tv",
+          "id": 920017
+        }
+      ]
+    },
+    {
+      "id": "PRO-09",
+      "category": "providers",
+      "title": "Streaming filter exact result",
+      "layer": "mock",
+      "phase": "mock-api",
+      "status": "pending",
+      "inputs": {
+        "providerIds": [
+          999999
+        ],
+        "region": "PL"
+      },
+      "expected": {
+        "rawTvIds": [],
+        "allowSilentFallback": false
+      },
+      "references": []
+    },
+    {
+      "id": "PRO-10",
+      "category": "providers",
+      "title": "Streaming filter exact result",
+      "layer": "mock",
+      "phase": "mock-api",
+      "status": "pending",
+      "inputs": {
+        "providerIds": [
+          8
+        ],
+        "region": "ZZ"
+      },
+      "expected": {
+        "rawTvIds": [],
+        "allowSilentFallback": false
+      },
+      "references": []
+    },
+    {
+      "id": "LIST-01",
+      "category": "lists",
+      "title": "List response and pagination",
+      "layer": "mock",
+      "phase": "mock-api",
+      "status": "pending",
+      "inputs": {
+        "listId": 101353
+      },
+      "expected": {
+        "pageSizes": [
+          20,
+          4
+        ],
+        "totalResults": 24
+      },
+      "references": []
+    },
+    {
+      "id": "LIST-02",
+      "category": "lists",
+      "title": "List response and pagination",
+      "layer": "mock",
+      "phase": "mock-api",
+      "status": "pending",
+      "inputs": {
+        "listId": 950001
+      },
+      "expected": {
+        "pageSizes": [
+          20,
+          12
+        ],
+        "totalResults": 32
+      },
+      "references": []
+    },
+    {
+      "id": "LIST-03",
+      "category": "lists",
+      "title": "List response and pagination",
+      "layer": "mock",
+      "phase": "mock-api",
+      "status": "pending",
+      "inputs": {
+        "listId": 950002
+      },
+      "expected": {
+        "totalResults": 0
+      },
+      "references": []
+    },
+    {
+      "id": "LIST-04",
+      "category": "lists",
+      "title": "List response and pagination",
+      "layer": "mock",
+      "phase": "mock-api",
+      "status": "pending",
+      "inputs": {
+        "listId": 950003
+      },
+      "expected": {
+        "rawCount": 4,
+        "uniqueCount": 3
+      },
+      "references": []
+    },
+    {
+      "id": "LIST-05",
+      "category": "lists",
+      "title": "List response and pagination",
+      "layer": "mock",
+      "phase": "mock-api",
+      "status": "pending",
+      "inputs": {
+        "listId": 950004
+      },
+      "expected": {
+        "movieCount": 3,
+        "tvCount": 3
+      },
+      "references": []
+    },
+    {
+      "id": "LIST-06",
+      "category": "lists",
+      "title": "List response and pagination",
+      "layer": "mock",
+      "phase": "mock-api",
+      "status": "pending",
+      "inputs": {
+        "listId": 959999
+      },
+      "expected": {
+        "httpStatus": 404
+      },
+      "references": []
+    },
+    {
+      "id": "AWARD-01",
+      "category": "awards",
+      "title": "Oscar fallback details",
+      "layer": "mock",
+      "phase": "mock-api",
+      "status": "pending",
+      "inputs": {
+        "requestedIds": [
+          581734,
+          776503,
+          545611,
+          872585,
+          1064213,
+          1054867
+        ]
+      },
+      "expected": {
+        "successfulDetails": 6,
+        "preserveRequestedIdentity": true
+      },
+      "references": []
+    },
+    {
+      "id": "AWARD-02",
+      "category": "awards",
+      "title": "Repeated Emmy awards",
+      "layer": "application",
+      "phase": "regression",
+      "status": "pending",
+      "inputs": {
+        "awardGroup": "emmy"
+      },
+      "expected": {
+        "awardCount": 7,
+        "uniqueSeriesCount": 6
+      },
+      "references": []
+    },
+    {
+      "id": "COL-01",
+      "category": "collections",
+      "title": "Overlapping European palettes",
+      "layer": "application",
+      "phase": "regression",
+      "status": "pending",
+      "inputs": {
+        "groups": [
+          "fixture-palette-a",
+          "fixture-palette-b"
+        ]
+      },
+      "expected": {
+        "rawCount": 12,
+        "uniqueCount": 9,
+        "overlapCount": 3
+      },
+      "references": []
+    },
+    {
+      "id": "COL-02",
+      "category": "collections",
+      "title": "Daily selection must not repeat visible palette",
+      "layer": "application",
+      "phase": "regression",
+      "status": "pending",
+      "inputs": {
+        "pool": "fixture-daily-pool"
+      },
+      "expected": {
+        "excludeAlreadyVisible": true,
+        "stableForSameDay": true,
+        "allowEmptyIfExhausted": true
+      },
+      "references": []
+    },
+    {
+      "id": "COL-03",
+      "category": "collections",
+      "title": "Hall of Fame person catalog",
+      "layer": "application",
+      "phase": "regression",
+      "status": "pending",
+      "inputs": {
+        "group": "fixture-hall-of-fame"
+      },
+      "expected": {
+        "safePersonCount": 12
+      },
+      "references": []
+    },
+    {
+      "id": "COL-04",
+      "category": "collections",
+      "title": "Empty collection",
+      "layer": "application",
+      "phase": "regression",
+      "status": "pending",
+      "inputs": {
+        "group": "fixture-empty"
+      },
+      "expected": {
+        "visibleCount": 0,
+        "noCrash": true
+      },
+      "references": []
+    },
+    {
+      "id": "LOC-MOVIE",
+      "category": "localization",
+      "title": "Russian and English response isolation",
+      "layer": "mock",
+      "phase": "mock-api",
+      "status": "pending",
+      "inputs": {
+        "mediaType": "movie",
+        "id": 910001,
+        "languages": [
+          "ru-RU",
+          "en-US"
+        ]
+      },
+      "expected": {
+        "sameIdentity": true,
+        "useRequestedLocalization": true,
+        "noCrossLanguageMutation": true
+      },
+      "references": [
+        {
+          "media_type": "movie",
+          "id": 910001
+        }
+      ]
+    },
+    {
+      "id": "LOC-TV",
+      "category": "localization",
+      "title": "Russian and English response isolation",
+      "layer": "mock",
+      "phase": "mock-api",
+      "status": "pending",
+      "inputs": {
+        "mediaType": "tv",
+        "id": 920001,
+        "languages": [
+          "ru-RU",
+          "en-US"
+        ]
+      },
+      "expected": {
+        "sameIdentity": true,
+        "useRequestedLocalization": true,
+        "noCrossLanguageMutation": true
+      },
+      "references": [
+        {
+          "media_type": "tv",
+          "id": 920001
+        }
+      ]
+    },
+    {
+      "id": "LOC-PERSON",
+      "category": "localization",
+      "title": "Russian and English response isolation",
+      "layer": "mock",
+      "phase": "mock-api",
+      "status": "pending",
+      "inputs": {
+        "mediaType": "person",
+        "id": 930001,
+        "languages": [
+          "ru-RU",
+          "en-US"
+        ]
+      },
+      "expected": {
+        "sameIdentity": true,
+        "useRequestedLocalization": true,
+        "noCrossLanguageMutation": true
+      },
+      "references": [
+        {
+          "media_type": "person",
+          "id": 930001
+        }
+      ]
+    },
+    {
+      "id": "NET-401",
+      "category": "network-errors",
+      "title": "Injected HTTP 401",
+      "layer": "application",
+      "phase": "error-handling",
+      "status": "pending",
+      "inputs": {
+        "route": "/3/discover/movie",
+        "fault": {
+          "type": "http",
+          "status": 401
+        }
+      },
+      "expected": {
+        "handleError": true,
+        "noUnhandledRejection": true,
+        "noExternalFallback": true
+      },
+      "references": []
+    },
+    {
+      "id": "NET-404",
+      "category": "network-errors",
+      "title": "Injected HTTP 404",
+      "layer": "application",
+      "phase": "error-handling",
+      "status": "pending",
+      "inputs": {
+        "route": "/3/discover/movie",
+        "fault": {
+          "type": "http",
+          "status": 404
+        }
+      },
+      "expected": {
+        "handleError": true,
+        "noUnhandledRejection": true,
+        "noExternalFallback": true
+      },
+      "references": []
+    },
+    {
+      "id": "NET-429",
+      "category": "network-errors",
+      "title": "Injected HTTP 429",
+      "layer": "application",
+      "phase": "error-handling",
+      "status": "pending",
+      "inputs": {
+        "route": "/3/discover/movie",
+        "fault": {
+          "type": "http",
+          "status": 429
+        }
+      },
+      "expected": {
+        "handleError": true,
+        "noUnhandledRejection": true,
+        "noExternalFallback": true
+      },
+      "references": []
+    },
+    {
+      "id": "NET-500",
+      "category": "network-errors",
+      "title": "Injected HTTP 500",
+      "layer": "application",
+      "phase": "error-handling",
+      "status": "pending",
+      "inputs": {
+        "route": "/3/discover/movie",
+        "fault": {
+          "type": "http",
+          "status": 500
+        }
+      },
+      "expected": {
+        "handleError": true,
+        "noUnhandledRejection": true,
+        "noExternalFallback": true
+      },
+      "references": []
+    },
+    {
+      "id": "NET-TIMEOUT",
+      "category": "network-errors",
+      "title": "Injected transport or response failure",
+      "layer": "application",
+      "phase": "error-handling",
+      "status": "pending",
+      "inputs": {
+        "route": "/3/discover/movie",
+        "fault": {
+          "type": "delay",
+          "delayMs": 12000
+        }
+      },
+      "expected": {
+        "handleError": true,
+        "noUnhandledRejection": true,
+        "noExternalFallback": true
+      },
+      "references": []
+    },
+    {
+      "id": "NET-ABORT",
+      "category": "network-errors",
+      "title": "Injected transport or response failure",
+      "layer": "application",
+      "phase": "error-handling",
+      "status": "pending",
+      "inputs": {
+        "route": "/3/discover/movie",
+        "fault": {
+          "type": "abort"
+        }
+      },
+      "expected": {
+        "handleError": true,
+        "noUnhandledRejection": true,
+        "noExternalFallback": true
+      },
+      "references": []
+    },
+    {
+      "id": "NET-JSON",
+      "category": "network-errors",
+      "title": "Injected transport or response failure",
+      "layer": "application",
+      "phase": "error-handling",
+      "status": "pending",
+      "inputs": {
+        "route": "/3/discover/movie",
+        "fault": {
+          "type": "invalid-json"
+        }
+      },
+      "expected": {
+        "handleError": true,
+        "noUnhandledRejection": true,
+        "noExternalFallback": true
+      },
+      "references": []
+    },
+    {
+      "id": "NET-SHAPE",
+      "category": "network-errors",
+      "title": "Injected transport or response failure",
+      "layer": "application",
+      "phase": "error-handling",
+      "status": "pending",
+      "inputs": {
+        "route": "/3/discover/movie",
+        "fault": {
+          "type": "invalid-response-shape"
+        }
+      },
+      "expected": {
+        "handleError": true,
+        "noUnhandledRejection": true,
+        "noExternalFallback": true
+      },
+      "references": []
+    },
+    {
+      "id": "CACHE-01",
+      "category": "cache",
+      "title": "Cache and request lifecycle",
+      "layer": "application",
+      "phase": "regression",
+      "status": "pending",
+      "inputs": {
+        "operation": "repeatMovieDetail",
+        "movieId": 910001
+      },
+      "expected": {
+        "additionalDetailRequests": 0
+      },
+      "references": []
+    },
+    {
+      "id": "CACHE-02",
+      "category": "cache",
+      "title": "Cache and request lifecycle",
+      "layer": "application",
+      "phase": "regression",
+      "status": "pending",
+      "inputs": {
+        "operation": "concurrentMovieDetail",
+        "movieId": 910001,
+        "callers": 5
+      },
+      "expected": {
+        "detailRequests": 1
+      },
+      "references": []
+    },
+    {
+      "id": "CACHE-03",
+      "category": "cache",
+      "title": "Cache and request lifecycle",
+      "layer": "application",
+      "phase": "regression",
+      "status": "pending",
+      "inputs": {
+        "operation": "seriesMetadataExpiry",
+        "advanceClockMs": 1800001
+      },
+      "expected": {
+        "refreshRequired": true
+      },
+      "references": []
+    },
+    {
+      "id": "CACHE-04",
+      "category": "cache",
+      "title": "Cache and request lifecycle",
+      "layer": "application",
+      "phase": "regression",
+      "status": "pending",
+      "inputs": {
+        "operation": "recommendationExpiry",
+        "advanceClockMs": 86400001
+      },
+      "expected": {
+        "refreshRequired": true
+      },
+      "references": []
+    },
+    {
+      "id": "CACHE-05",
+      "category": "cache",
+      "title": "Cache and request lifecycle",
+      "layer": "application",
+      "phase": "regression",
+      "status": "pending",
+      "inputs": {
+        "operation": "changeLocale"
+      },
+      "expected": {
+        "noStaleLocalizedResponse": true
+      },
+      "references": []
+    },
+    {
+      "id": "CACHE-06",
+      "category": "cache",
+      "title": "Cache and request lifecycle",
+      "layer": "application",
+      "phase": "regression",
+      "status": "pending",
+      "inputs": {
+        "operation": "changeApiKey"
+      },
+      "expected": {
+        "noCrossKeyCacheReuse": true
+      },
+      "references": []
+    },
+    {
+      "id": "UI-01",
+      "category": "interface",
+      "title": "Interface state and navigation",
+      "layer": "browser",
+      "phase": "browser-regression",
+      "status": "pending",
+      "inputs": {
+        "operation": "openCloseMovie"
+      },
+      "expected": {
+        "restoreScroll": true,
+        "restoreFocus": true
+      },
+      "references": []
+    },
+    {
+      "id": "UI-02",
+      "category": "interface",
+      "title": "Interface state and navigation",
+      "layer": "browser",
+      "phase": "browser-regression",
+      "status": "pending",
+      "inputs": {
+        "operation": "openCloseSeries"
+      },
+      "expected": {
+        "restoreScroll": true,
+        "restoreFocus": true
+      },
+      "references": []
+    },
+    {
+      "id": "UI-03",
+      "category": "interface",
+      "title": "Interface state and navigation",
+      "layer": "browser",
+      "phase": "browser-regression",
+      "status": "pending",
+      "inputs": {
+        "operation": "switchSeason"
+      },
+      "expected": {
+        "correctEpisodeList": true
+      },
+      "references": []
+    },
+    {
+      "id": "UI-04",
+      "category": "interface",
+      "title": "Interface state and navigation",
+      "layer": "browser",
+      "phase": "browser-regression",
+      "status": "pending",
+      "inputs": {
+        "operation": "openEpisode"
+      },
+      "expected": {
+        "correctEpisodeIdentity": true
+      },
+      "references": []
+    },
+    {
+      "id": "UI-05",
+      "category": "interface",
+      "title": "Interface state and navigation",
+      "layer": "browser",
+      "phase": "browser-regression",
+      "status": "pending",
+      "inputs": {
+        "operation": "switchStreamingProvider"
+      },
+      "expected": {
+        "preserveRailPosition": true
+      },
+      "references": []
+    },
+    {
+      "id": "UI-06",
+      "category": "interface",
+      "title": "Interface state and navigation",
+      "layer": "browser",
+      "phase": "browser-regression",
+      "status": "pending",
+      "inputs": {
+        "operation": "loadMoreCards"
+      },
+      "expected": {
+        "preserveExistingCards": true,
+        "noDuplicateIds": true
+      },
+      "references": []
+    },
+    {
+      "id": "UI-07",
+      "category": "interface",
+      "title": "Interface state and navigation",
+      "layer": "browser",
+      "phase": "browser-regression",
+      "status": "pending",
+      "inputs": {
+        "operation": "backNavigation"
+      },
+      "expected": {
+        "returnToPreviousLogicalScreen": true
+      },
+      "references": []
+    },
+    {
+      "id": "UI-08",
+      "category": "interface",
+      "title": "Interface state and navigation",
+      "layer": "browser",
+      "phase": "browser-regression",
+      "status": "pending",
+      "inputs": {
+        "operation": "switchTheme"
+      },
+      "expected": {
+        "preserveCurrentScreen": true,
+        "preserveUserData": true
+      },
+      "references": []
+    },
+    {
+      "id": "UI-09",
+      "category": "interface",
+      "title": "Interface state and navigation",
+      "layer": "browser",
+      "phase": "browser-regression",
+      "status": "pending",
+      "inputs": {
+        "operation": "mobileLayout"
+      },
+      "expected": {
+        "noHorizontalPageOverflow": true
+      },
+      "references": []
+    },
+    {
+      "id": "UI-10",
+      "category": "interface",
+      "title": "Interface state and navigation",
+      "layer": "android",
+      "phase": "android-regression",
+      "status": "pending",
+      "inputs": {
+        "operation": "physicalAndroidBack"
+      },
+      "expected": {
+        "correctBackBehavior": true
+      },
+      "references": []
+    },
+    {
+      "id": "GLOBE-01",
+      "category": "globe",
+      "title": "Select Italy on globe",
+      "layer": "browser",
+      "phase": "browser-regression",
+      "status": "pending",
+      "inputs": {
+        "country": "IT"
+      },
+      "expected": {
+        "selectedCountry": "IT",
+        "correctCountryFilter": true
+      },
+      "references": []
+    },
+    {
+      "id": "GLOBE-02",
+      "category": "globe",
+      "title": "Globe interaction without external network",
+      "layer": "browser",
+      "phase": "browser-regression",
+      "status": "pending",
+      "inputs": {
+        "offline": true
+      },
+      "expected": {
+        "localAssetsOnly": true,
+        "noUnhandledException": true
+      },
+      "references": []
+    },
+    {
+      "id": "GLOBE-03",
+      "category": "globe",
+      "title": "Country selection followed by back",
+      "layer": "browser",
+      "phase": "browser-regression",
+      "status": "pending",
+      "inputs": {
+        "country": "IT"
+      },
+      "expected": {
+        "restorePreviousView": true
+      },
+      "references": []
+    },
+    {
+      "id": "ISO-01",
+      "category": "isolation",
+      "title": "Deterministic isolated test environment",
+      "layer": "infrastructure",
+      "phase": "network-isolation",
+      "status": "pending",
+      "inputs": {
+        "operation": "requestTmdb"
+      },
+      "expected": {
+        "realTmdbRequests": 0
+      },
+      "references": []
+    },
+    {
+      "id": "ISO-02",
+      "category": "isolation",
+      "title": "Deterministic isolated test environment",
+      "layer": "infrastructure",
+      "phase": "network-isolation",
+      "status": "pending",
+      "inputs": {
+        "operation": "unknownEndpoint"
+      },
+      "expected": {
+        "failExplicitly": true,
+        "externalFallback": false
+      },
+      "references": []
+    },
+    {
+      "id": "ISO-03",
+      "category": "isolation",
+      "title": "Deterministic isolated test environment",
+      "layer": "infrastructure",
+      "phase": "network-isolation",
+      "status": "pending",
+      "inputs": {
+        "operation": "externalImageRequest"
+      },
+      "expected": {
+        "externalRequests": 0
+      },
+      "references": []
+    },
+    {
+      "id": "ISO-04",
+      "category": "isolation",
+      "title": "Deterministic isolated test environment",
+      "layer": "infrastructure",
+      "phase": "network-isolation",
+      "status": "pending",
+      "inputs": {
+        "operation": "mutateMockResponse"
+      },
+      "expected": {
+        "subsequentResponseUnchanged": true
+      },
+      "references": []
+    },
+    {
+      "id": "ISO-05",
+      "category": "isolation",
+      "title": "Deterministic isolated test environment",
+      "layer": "infrastructure",
+      "phase": "network-isolation",
+      "status": "pending",
+      "inputs": {
+        "operation": "resetTestContext"
+      },
+      "expected": {
+        "previousTestStateLeaked": false
+      },
+      "references": []
+    }
+  ]
+}

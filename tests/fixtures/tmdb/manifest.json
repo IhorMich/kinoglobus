@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "fixtureVersion": "1.0.0",
+  "name": "Moven TMDB Test Catalog",
+  "synthetic": true,
+  "referenceDate": "2026-11-26",
+  "defaultLocale": "ru-RU",
+  "fallbackLocale": "en-US",
+  "defaultRegion": "PL",
+  "defaultPageSize": 20,
+  "seriesIdOffset": 1000000000000,
+  "networkPolicy": {
+    "allowRealTMDB": false,
+    "allowExternalNetwork": false,
+    "unknownEndpoint": "fail"
+  },
+  "datasets": {
+    "movies": "movies.json",
+    "series": "series.json",
+    "seasons": "seasons.json",
+    "episodes": "episodes.json",
+    "people": "people.json",
+    "providers": "providers.json",
+    "lists": "lists.json",
+    "scenarios": "scenarios.json"
+  }
+}

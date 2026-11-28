@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "synthetic": true,
+  "referenceDate": "2026-11-26",
+  "fixtureVersion": "1.0.0",
+  "name": "Moven TMDB Localization Fixtures",
+  "locales": [
+    "ru-RU",
+    "en-US"
+  ],
+  "networkPolicy": {
+    "allowRealTMDB": false,
+    "allowExternalNetwork": false,
+    "unknownEndpoint": "fail"
+  },
+  "fallbackPolicy": {
+    "automaticEnglishFallback": false,
+    "automaticRegionalFallback": false,
+    "automaticOriginalLanguageFallback": false,
+    "automaticTranslation": false,
+    "inferFromTranslationAvailability": false
+  },
+  "datasets": {
+    "nested": {
+      "filename": "nested.json",
+      "bytes": 596004,
+      "sha256": "c727137d42bd907ec941374ff2b11d709b93428f0e3c492ae9b4a3b11858dc05",
+      "encoding": "utf8",
+      "format": "compact-json-with-final-newline"
+    },
+    "translations": {
+      "filename": "translations.json",
+      "bytes": 40208,
+      "sha256": "d1725c0e48048322d76a8019f4b821f1e1e89096c315cdb535c638b4df0f66f3",
+      "encoding": "utf8",
+      "format": "compact-json-with-final-newline"
+    },
+    "fallback": {
+      "filename": "fallback-scenarios.json",
+      "bytes": 12691793,
+      "sha256": "2b71fc4c8367e013c9bebf32b92fc2c70b73682252c64e076b4d095b606e8972",
+      "encoding": "utf8",
+      "format": "compact-json-with-final-newline"
+    }
+  },
+  "compatibility": {
+    "baseManifestSHA256": "a3b73a8d40d2dd3fa6a324cc12fd471c9d0c926e4c79fbf0b80703283af43bf7",
+    "baseMockSHA256": "db40570ee5ae507e0ccb1c02ce0ccffd04fee7a8c0da7d91e39f030f67bbcb5c",
+    "historicalBaselineSHA256": "e86c7eb9c6fa2f2569346488b5d4e92b8385e8757d93cbd4c451d185d5742974"
+  }
+}

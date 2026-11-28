@@ -1,0 +1,3568 @@
+{
+  "schemaVersion": 1,
+  "synthetic": true,
+  "referenceDate": "2026-11-26",
+  "mediaType": "tv-season",
+  "episodeDataStatus": "pending",
+  "seasons": [
+    {
+      "id": 92000100,
+      "tvId": 920001,
+      "appTvId": 1000000920001,
+      "seasonNumber": 0,
+      "episodeCount": 2,
+      "episodeRefs": [
+        {
+          "id": 92000100001,
+          "episode_number": 1
+        },
+        {
+          "id": 92000100002,
+          "episode_number": 2
+        }
+      ],
+      "tags": [
+        "special-season",
+        "multi-season-series",
+        "returning-series"
+      ],
+      "summary": {
+        "id": 92000100,
+        "season_number": 0,
+        "name": "Специальные эпизоды",
+        "overview": "",
+        "air_date": "2021-03-10",
+        "episode_count": 2,
+        "poster_path": null,
+        "vote_average": 8.4
+      },
+      "details": {
+        "_id": "fixture-season-92000100",
+        "id": 92000100,
+        "name": "Специальные эпизоды",
+        "overview": "Синтетический сезон для тестирования Moven.",
+        "air_date": "2021-03-10",
+        "season_number": 0,
+        "poster_path": null,
+        "vote_average": 8.4,
+        "episodes": [],
+        "credits": {
+          "cast": [],
+          "crew": []
+        },
+        "videos": {
+          "results": []
+        }
+      },
+      "localized": {
+        "ru-RU": {
+          "name": "Специальные эпизоды",
+          "overview": "Синтетический сезон для тестирования Moven."
+        },
+        "en-US": {
+          "name": "Specials",
+          "overview": "Synthetic season for Moven testing."
+        }
+      }
+    },
+    {
+      "id": 92000101,
+      "tvId": 920001,
+      "appTvId": 1000000920001,
+      "seasonNumber": 1,
+      "episodeCount": 6,
+      "episodeRefs": [
+        {
+          "id": 92000101001,
+          "episode_number": 1
+        },
+        {
+          "id": 92000101002,
+          "episode_number": 2
+        },
+        {
+          "id": 92000101003,
+          "episode_number": 3
+        },
+        {
+          "id": 92000101004,
+          "episode_number": 4
+        },
+        {
+          "id": 92000101005,
+          "episode_number": 5
+        },
+        {
+          "id": 92000101006,
+          "episode_number": 6
+        }
+      ],
+      "tags": [
+        "first-season",
+        "multi-season-series",
+        "returning-series"
+      ],
+      "summary": {
+        "id": 92000101,
+        "season_number": 1,
+        "name": "Сезон 1",
+        "overview": "",
+        "air_date": "2021-03-10",
+        "episode_count": 6,
+        "poster_path": "/fixture-season-920001-1.jpg",
+        "vote_average": 8.4
+      },
+      "details": {
+        "_id": "fixture-season-92000101",
+        "id": 92000101,
+        "name": "Сезон 1",
+        "overview": "Синтетический сезон для тестирования Moven.",
+        "air_date": "2021-03-10",
+        "season_number": 1,
+        "poster_path": "/fixture-season-920001-1.jpg",
+        "vote_average": 8.4,
+        "episodes": [],
+        "credits": {
+          "cast": [],
+          "crew": []
+        },
+        "videos": {
+          "results": []
+        }
+      },
+      "localized": {
+        "ru-RU": {
+          "name": "Сезон 1",
+          "overview": "Синтетический сезон для тестирования Moven."
+        },
+        "en-US": {
+          "name": "Season 1",
+          "overview": "Synthetic season for Moven testing."
+        }
+      }
+    },
+    {
+      "id": 92000102,
+      "tvId": 920001,
+      "appTvId": 1000000920001,
+      "seasonNumber": 2,
+      "episodeCount": 8,
+      "episodeRefs": [
+        {
+          "id": 92000102001,
+          "episode_number": 1
+        },
+        {
+          "id": 92000102002,
+          "episode_number": 2
+        },
+        {
+          "id": 92000102003,
+          "episode_number": 3
+        },
+        {
+          "id": 92000102004,
+          "episode_number": 4
+        },
+        {
+          "id": 92000102005,
+          "episode_number": 5
+        },
+        {
+          "id": 92000102006,
+          "episode_number": 6
+        },
+        {
+          "id": 92000102007,
+          "episode_number": 7
+        },
+        {
+          "id": 92000102008,
+          "episode_number": 8
+        }
+      ],
+      "tags": [
+        "last-season",
+        "multi-season-series",
+        "returning-series"
+      ],
+      "summary": {
+        "id": 92000102,
+        "season_number": 2,
+        "name": "Сезон 2",
+        "overview": "",
+        "air_date": "2021-03-10",
+        "episode_count": 8,
+        "poster_path": "/fixture-season-920001-2.jpg",
+        "vote_average": 8.4
+      },
+      "details": {
+        "_id": "fixture-season-92000102",
+        "id": 92000102,
+        "name": "Сезон 2",
+        "overview": "Синтетический сезон для тестирования Moven.",
+        "air_date": "2021-03-10",
+        "season_number": 2,
+        "poster_path": "/fixture-season-920001-2.jpg",
+        "vote_average": 8.4,
+        "episodes": [],
+        "credits": {
+          "cast": [],
+          "crew": []
+        },
+        "videos": {
+          "results": []
+        }
+      },
+      "localized": {
+        "ru-RU": {
+          "name": "Сезон 2",
+          "overview": "Синтетический сезон для тестирования Moven."
+        },
+        "en-US": {
+          "name": "Season 2",
+          "overview": "Synthetic season for Moven testing."
+        }
+      }
+    },
+    {
+      "id": 92000201,
+      "tvId": 920002,
+      "appTvId": 1000000920002,
+      "seasonNumber": 1,
+      "episodeCount": 6,
+      "episodeRefs": [
+        {
+          "id": 92000201001,
+          "episode_number": 1
+        },
+        {
+          "id": 92000201002,
+          "episode_number": 2
+        },
+        {
+          "id": 92000201003,
+          "episode_number": 3
+        },
+        {
+          "id": 92000201004,
+          "episode_number": 4
+        },
+        {
+          "id": 92000201005,
+          "episode_number": 5
+        },
+        {
+          "id": 92000201006,
+          "episode_number": 6
+        }
+      ],
+      "tags": [
+        "first-season",
+        "last-season",
+        "ended-series"
+      ],
+      "summary": {
+        "id": 92000201,
+        "season_number": 1,
+        "name": "Сезон 1",
+        "overview": "",
+        "air_date": "2019-05-12",
+        "episode_count": 6,
+        "poster_path": "/fixture-season-920002-1.jpg",
+        "vote_average": 7.6
+      },
+      "details": {
+        "_id": "fixture-season-92000201",
+        "id": 92000201,
+        "name": "Сезон 1",
+        "overview": "Синтетический сезон для тестирования Moven.",
+        "air_date": "2019-05-12",
+        "season_number": 1,
+        "poster_path": "/fixture-season-920002-1.jpg",
+        "vote_average": 7.6,
+        "episodes": [],
+        "credits": {
+          "cast": [],
+          "crew": []
+        },
+        "videos": {
+          "results": []
+        }
+      },
+      "localized": {
+        "ru-RU": {
+          "name": "Сезон 1",
+          "overview": "Синтетический сезон для тестирования Moven."
+        },
+        "en-US": {
+          "name": "Season 1",
+          "overview": "Synthetic season for Moven testing."
+        }
+      }
+    },
+    {
+      "id": 92000301,
+      "tvId": 920003,
+      "appTvId": 1000000920003,
+      "seasonNumber": 1,
+      "episodeCount": 8,
+      "episodeRefs": [
+        {
+          "id": 92000301001,
+          "episode_number": 1
+        },
+        {
+          "id": 92000301002,
+          "episode_number": 2
+        },
+        {
+          "id": 92000301003,
+          "episode_number": 3
+        },
+        {
+          "id": 92000301004,
+          "episode_number": 4
+        },
+        {
+          "id": 92000301005,
+          "episode_number": 5
+        },
+        {
+          "id": 92000301006,
+          "episode_number": 6
+        },
+        {
+          "id": 92000301007,
+          "episode_number": 7
+        },
+        {
+          "id": 92000301008,
+          "episode_number": 8
+        }
+      ],
+      "tags": [
+        "first-season",
+        "multi-season-series",
+        "returning-series"
+      ],
+      "summary": {
+        "id": 92000301,
+        "season_number": 1,
+        "name": "Сезон 1",
+        "overview": "",
+        "air_date": "2022-06-15",
+        "episode_count": 8,
+        "poster_path": "/fixture-season-920003-1.jpg",
+        "vote_average": 8
+      },
+      "details": {
+        "_id": "fixture-season-92000301",
+        "id": 92000301,
+        "name": "Сезон 1",
+        "overview": "Синтетический сезон для тестирования Moven.",
+        "air_date": "2022-06-15",
+        "season_number": 1,
+        "poster_path": "/fixture-season-920003-1.jpg",
+        "vote_average": 8,
+        "episodes": [],
+        "credits": {
+          "cast": [],
+          "crew": []
+        },
+        "videos": {
+          "results": []
+        }
+      },
+      "localized": {
+        "ru-RU": {
+          "name": "Сезон 1",
+          "overview": "Синтетический сезон для тестирования Moven."
+        },
+        "en-US": {
+          "name": "Season 1",
+          "overview": "Synthetic season for Moven testing."
+        }
+      }
+    },
+    {
+      "id": 92000302,
+      "tvId": 920003,
+      "appTvId": 1000000920003,
+      "seasonNumber": 2,
+      "episodeCount": 6,
+      "episodeRefs": [
+        {
+          "id": 92000302001,
+          "episode_number": 1
+        },
+        {
+          "id": 92000302002,
+          "episode_number": 2
+        },
+        {
+          "id": 92000302003,
+          "episode_number": 3
+        },
+        {
+          "id": 92000302004,
+          "episode_number": 4
+        },
+        {
+          "id": 92000302005,
+          "episode_number": 5
+        },
+        {
+          "id": 92000302006,
+          "episode_number": 6
+        }
+      ],
+      "tags": [
+        "multi-season-series",
+        "returning-series"
+      ],
+      "summary": {
+        "id": 92000302,
+        "season_number": 2,
+        "name": "Сезон 2",
+        "overview": "",
+        "air_date": "2022-06-15",
+        "episode_count": 6,
+        "poster_path": "/fixture-season-920003-2.jpg",
+        "vote_average": 8
+      },
+      "details": {
+        "_id": "fixture-season-92000302",
+        "id": 92000302,
+        "name": "Сезон 2",
+        "overview": "Синтетический сезон для тестирования Moven.",
+        "air_date": "2022-06-15",
+        "season_number": 2,
+        "poster_path": "/fixture-season-920003-2.jpg",
+        "vote_average": 8,
+        "episodes": [],
+        "credits": {
+          "cast": [],
+          "crew": []
+        },
+        "videos": {
+          "results": []
+        }
+      },
+      "localized": {
+        "ru-RU": {
+          "name": "Сезон 2",
+          "overview": "Синтетический сезон для тестирования Moven."
+        },
+        "en-US": {
+          "name": "Season 2",
+          "overview": "Synthetic season for Moven testing."
+        }
+      }
+    },
+    {
+      "id": 92000303,
+      "tvId": 920003,
+      "appTvId": 1000000920003,
+      "seasonNumber": 3,
+      "episodeCount": 4,
+      "episodeRefs": [
+        {
+          "id": 92000303001,
+          "episode_number": 1
+        },
+        {
+          "id": 92000303002,
+          "episode_number": 2
+        },
+        {
+          "id": 92000303003,
+          "episode_number": 3
+        },
+        {
+          "id": 92000303004,
+          "episode_number": 4
+        }
+      ],
+      "tags": [
+        "last-season",
+        "multi-season-series",
+        "returning-series"
+      ],
+      "summary": {
+        "id": 92000303,
+        "season_number": 3,
+        "name": "Сезон 3",
+        "overview": "",
+        "air_date": "2022-06-15",
+        "episode_count": 4,
+        "poster_path": "/fixture-season-920003-3.jpg",
+        "vote_average": 8
+      },
+      "details": {
+        "_id": "fixture-season-92000303",
+        "id": 92000303,
+        "name": "Сезон 3",
+        "overview": "Синтетический сезон для тестирования Moven.",
+        "air_date": "2022-06-15",
+        "season_number": 3,
+        "poster_path": "/fixture-season-920003-3.jpg",
+        "vote_average": 8,
+        "episodes": [],
+        "credits": {
+          "cast": [],
+          "crew": []
+        },
+        "videos": {
+          "results": []
+        }
+      },
+      "localized": {
+        "ru-RU": {
+          "name": "Сезон 3",
+          "overview": "Синтетический сезон для тестирования Moven."
+        },
+        "en-US": {
+          "name": "Season 3",
+          "overview": "Synthetic season for Moven testing."
+        }
+      }
+    },
+    {
+      "id": 92000401,
+      "tvId": 920004,
+      "appTvId": 1000000920004,
+      "seasonNumber": 1,
+      "episodeCount": 10,
+      "episodeRefs": [
+        {
+          "id": 92000401001,
+          "episode_number": 1
+        },
+        {
+          "id": 92000401002,
+          "episode_number": 2
+        },
+        {
+          "id": 92000401003,
+          "episode_number": 3
+        },
+        {
+          "id": 92000401004,
+          "episode_number": 4
+        },
+        {
+          "id": 92000401005,
+          "episode_number": 5
+        },
+        {
+          "id": 92000401006,
+          "episode_number": 6
+        },
+        {
+          "id": 92000401007,
+          "episode_number": 7
+        },
+        {
+          "id": 92000401008,
+          "episode_number": 8
+        },
+        {
+          "id": 92000401009,
+          "episode_number": 9
+        },
+        {
+          "id": 92000401010,
+          "episode_number": 10
+        }
+      ],
+      "tags": [
+        "first-season",
+        "multi-season-series",
+        "returning-series"
+      ],
+      "summary": {
+        "id": 92000401,
+        "season_number": 1,
+        "name": "Сезон 1",
+        "overview": "",
+        "air_date": "2020-08-20",
+        "episode_count": 10,
+        "poster_path": "/fixture-season-920004-1.jpg",
+        "vote_average": 9.2
+      },
+      "details": {
+        "_id": "fixture-season-92000401",
+        "id": 92000401,
+        "name": "Сезон 1",
+        "overview": "Синтетический сезон для тестирования Moven.",
+        "air_date": "2020-08-20",
+        "season_number": 1,
+        "poster_path": "/fixture-season-920004-1.jpg",
+        "vote_average": 9.2,
+        "episodes": [],
+        "credits": {
+          "cast": [],
+          "crew": []
+        },
+        "videos": {
+          "results": []
+        }
+      },
+      "localized": {
+        "ru-RU": {
+          "name": "Сезон 1",
+          "overview": "Синтетический сезон для тестирования Moven."
+        },
+        "en-US": {
+          "name": "Season 1",
+          "overview": "Synthetic season for Moven testing."
+        }
+      }
+    },
+    {
+      "id": 92000402,
+      "tvId": 920004,
+      "appTvId": 1000000920004,
+      "seasonNumber": 2,
+      "episodeCount": 10,
+      "episodeRefs": [
+        {
+          "id": 92000402001,
+          "episode_number": 1
+        },
+        {
+          "id": 92000402002,
+          "episode_number": 2
+        },
+        {
+          "id": 92000402003,
+          "episode_number": 3
+        },
+        {
+          "id": 92000402004,
+          "episode_number": 4
+        },
+        {
+          "id": 92000402005,
+          "episode_number": 5
+        },
+        {
+          "id": 92000402006,
+          "episode_number": 6
+        },
+        {
+          "id": 92000402007,
+          "episode_number": 7
+        },
+        {
+          "id": 92000402008,
+          "episode_number": 8
+        },
+        {
+          "id": 92000402009,
+          "episode_number": 9
+        },
+        {
+          "id": 92000402010,
+          "episode_number": 10
+        }
+      ],
+      "tags": [
+        "last-season",
+        "multi-season-series",
+        "returning-series"
+      ],
+      "summary": {
+        "id": 92000402,
+        "season_number": 2,
+        "name": "Сезон 2",
+        "overview": "",
+        "air_date": "2020-08-20",
+        "episode_count": 10,
+        "poster_path": "/fixture-season-920004-2.jpg",
+        "vote_average": 9.2
+      },
+      "details": {
+        "_id": "fixture-season-92000402",
+        "id": 92000402,
+        "name": "Сезон 2",
+        "overview": "Синтетический сезон для тестирования Moven.",
+        "air_date": "2020-08-20",
+        "season_number": 2,
+        "poster_path": "/fixture-season-920004-2.jpg",
+        "vote_average": 9.2,
+        "episodes": [],
+        "credits": {
+          "cast": [],
+          "crew": []
+        },
+        "videos": {
+          "results": []
+        }
+      },
+      "localized": {
+        "ru-RU": {
+          "name": "Сезон 2",
+          "overview": "Синтетический сезон для тестирования Moven."
+        },
+        "en-US": {
+          "name": "Season 2",
+          "overview": "Synthetic season for Moven testing."
+        }
+      }
+    },
+    {
+      "id": 92000501,
+      "tvId": 920005,
+      "appTvId": 1000000920005,
+      "seasonNumber": 1,
+      "episodeCount": 8,
+      "episodeRefs": [
+        {
+          "id": 92000501001,
+          "episode_number": 1
+        },
+        {
+          "id": 92000501002,
+          "episode_number": 2
+        },
+        {
+          "id": 92000501003,
+          "episode_number": 3
+        },
+        {
+          "id": 92000501004,
+          "episode_number": 4
+        },
+        {
+          "id": 92000501005,
+          "episode_number": 5
+        },
+        {
+          "id": 92000501006,
+          "episode_number": 6
+        },
+        {
+          "id": 92000501007,
+          "episode_number": 7
+        },
+        {
+          "id": 92000501008,
+          "episode_number": 8
+        }
+      ],
+      "tags": [
+        "first-season",
+        "multi-season-series",
+        "ended-series"
+      ],
+      "summary": {
+        "id": 92000501,
+        "season_number": 1,
+        "name": "Сезон 1",
+        "overview": "",
+        "air_date": "2018-04-05",
+        "episode_count": 8,
+        "poster_path": "/fixture-season-920005-1.jpg",
+        "vote_average": 8.8
+      },
+      "details": {
+        "_id": "fixture-season-92000501",
+        "id": 92000501,
+        "name": "Сезон 1",
+        "overview": "Синтетический сезон для тестирования Moven.",
+        "air_date": "2018-04-05",
+        "season_number": 1,
+        "poster_path": "/fixture-season-920005-1.jpg",
+        "vote_average": 8.8,
+        "episodes": [],
+        "credits": {
+          "cast": [],
+          "crew": []
+        },
+        "videos": {
+          "results": []
+        }
+      },
+      "localized": {
+        "ru-RU": {
+          "name": "Сезон 1",
+          "overview": "Синтетический сезон для тестирования Moven."
+        },
+        "en-US": {
+          "name": "Season 1",
+          "overview": "Synthetic season for Moven testing."
+        }
+      }
+    },
+    {
+      "id": 92000502,
+      "tvId": 920005,
+      "appTvId": 1000000920005,
+      "seasonNumber": 2,
+      "episodeCount": 8,
+      "episodeRefs": [
+        {
+          "id": 92000502001,
+          "episode_number": 1
+        },
+        {
+          "id": 92000502002,
+          "episode_number": 2
+        },
+        {
+          "id": 92000502003,
+          "episode_number": 3
+        },
+        {
+          "id": 92000502004,
+          "episode_number": 4
+        },
+        {
+          "id": 92000502005,
+          "episode_number": 5
+        },
+        {
+          "id": 92000502006,
+          "episode_number": 6
+        },
+        {
+          "id": 92000502007,
+          "episode_number": 7
+        },
+        {
+          "id": 92000502008,
+          "episode_number": 8
+        }
+      ],
+      "tags": [
+        "last-season",
+        "multi-season-series",
+        "ended-series"
+      ],
+      "summary": {
+        "id": 92000502,
+        "season_number": 2,
+        "name": "Сезон 2",
+        "overview": "",
+        "air_date": "2018-04-05",
+        "episode_count": 8,
+        "poster_path": "/fixture-season-920005-2.jpg",
+        "vote_average": 8.8
+      },
+      "details": {
+        "_id": "fixture-season-92000502",
+        "id": 92000502,
+        "name": "Сезон 2",
+        "overview": "Синтетический сезон для тестирования Moven.",
+        "air_date": "2018-04-05",
+        "season_number": 2,
+        "poster_path": "/fixture-season-920005-2.jpg",
+        "vote_average": 8.8,
+        "episodes": [],
+        "credits": {
+          "cast": [],
+          "crew": []
+        },
+        "videos": {
+          "results": []
+        }
+      },
+      "localized": {
+        "ru-RU": {
+          "name": "Сезон 2",
+          "overview": "Синтетический сезон для тестирования Moven."
+        },
+        "en-US": {
+          "name": "Season 2",
+          "overview": "Synthetic season for Moven testing."
+        }
+      }
+    },
+    {
+      "id": 92000601,
+      "tvId": 920006,
+      "appTvId": 1000000920006,
+      "seasonNumber": 1,
+      "episodeCount": 6,
+      "episodeRefs": [
+        {
+          "id": 92000601001,
+          "episode_number": 1
+        },
+        {
+          "id": 92000601002,
+          "episode_number": 2
+        },
+        {
+          "id": 92000601003,
+          "episode_number": 3
+        },
+        {
+          "id": 92000601004,
+          "episode_number": 4
+        },
+        {
+          "id": 92000601005,
+          "episode_number": 5
+        },
+        {
+          "id": 92000601006,
+          "episode_number": 6
+        }
+      ],
+      "tags": [
+        "first-season",
+        "last-season",
+        "ended-series"
+      ],
+      "summary": {
+        "id": 92000601,
+        "season_number": 1,
+        "name": "Сезон 1",
+        "overview": "",
+        "air_date": "2023-11-10",
+        "episode_count": 6,
+        "poster_path": "/fixture-season-920006-1.jpg",
+        "vote_average": 8.5
+      },
+      "details": {
+        "_id": "fixture-season-92000601",
+        "id": 92000601,
+        "name": "Сезон 1",
+        "overview": "Синтетический сезон для тестирования Moven.",
+        "air_date": "2023-11-10",
+        "season_number": 1,
+        "poster_path": "/fixture-season-920006-1.jpg",
+        "vote_average": 8.5,
+        "episodes": [],
+        "credits": {
+          "cast": [],
+          "crew": []
+        },
+        "videos": {
+          "results": []
+        }
+      },
+      "localized": {
+        "ru-RU": {
+          "name": "Сезон 1",
+          "overview": "Синтетический сезон для тестирования Moven."
+        },
+        "en-US": {
+          "name": "Season 1",
+          "overview": "Synthetic season for Moven testing."
+        }
+      }
+    },
+    {
+      "id": 92000701,
+      "tvId": 920007,
+      "appTvId": 1000000920007,
+      "seasonNumber": 1,
+      "episodeCount": 8,
+      "episodeRefs": [
+        {
+          "id": 92000701001,
+          "episode_number": 1
+        },
+        {
+          "id": 92000701002,
+          "episode_number": 2
+        },
+        {
+          "id": 92000701003,
+          "episode_number": 3
+        },
+        {
+          "id": 92000701004,
+          "episode_number": 4
+        },
+        {
+          "id": 92000701005,
+          "episode_number": 5
+        },
+        {
+          "id": 92000701006,
+          "episode_number": 6
+        },
+        {
+          "id": 92000701007,
+          "episode_number": 7
+        },
+        {
+          "id": 92000701008,
+          "episode_number": 8
+        }
+      ],
+      "tags": [
+        "first-season",
+        "multi-season-series",
+        "returning-series"
+      ],
+      "summary": {
+        "id": 92000701,
+        "season_number": 1,
+        "name": "Сезон 1",
+        "overview": "",
+        "air_date": "2024-08-12",
+        "episode_count": 8,
+        "poster_path": "/fixture-season-920007-1.jpg",
+        "vote_average": 9.1
+      },
+      "details": {
+        "_id": "fixture-season-92000701",
+        "id": 92000701,
+        "name": "Сезон 1",
+        "overview": "Синтетический сезон для тестирования Moven.",
+        "air_date": "2024-08-12",
+        "season_number": 1,
+        "poster_path": "/fixture-season-920007-1.jpg",
+        "vote_average": 9.1,
+        "episodes": [],
+        "credits": {
+          "cast": [],
+          "crew": []
+        },
+        "videos": {
+          "results": []
+        }
+      },
+      "localized": {
+        "ru-RU": {
+          "name": "Сезон 1",
+          "overview": "Синтетический сезон для тестирования Moven."
+        },
+        "en-US": {
+          "name": "Season 1",
+          "overview": "Synthetic season for Moven testing."
+        }
+      }
+    },
+    {
+      "id": 92000702,
+      "tvId": 920007,
+      "appTvId": 1000000920007,
+      "seasonNumber": 2,
+      "episodeCount": 8,
+      "episodeRefs": [
+        {
+          "id": 92000702001,
+          "episode_number": 1
+        },
+        {
+          "id": 92000702002,
+          "episode_number": 2
+        },
+        {
+          "id": 92000702003,
+          "episode_number": 3
+        },
+        {
+          "id": 92000702004,
+          "episode_number": 4
+        },
+        {
+          "id": 92000702005,
+          "episode_number": 5
+        },
+        {
+          "id": 92000702006,
+          "episode_number": 6
+        },
+        {
+          "id": 92000702007,
+          "episode_number": 7
+        },
+        {
+          "id": 92000702008,
+          "episode_number": 8
+        }
+      ],
+      "tags": [
+        "last-season",
+        "multi-season-series",
+        "returning-series"
+      ],
+      "summary": {
+        "id": 92000702,
+        "season_number": 2,
+        "name": "Сезон 2",
+        "overview": "",
+        "air_date": "2024-08-12",
+        "episode_count": 8,
+        "poster_path": "/fixture-season-920007-2.jpg",
+        "vote_average": 9.1
+      },
+      "details": {
+        "_id": "fixture-season-92000702",
+        "id": 92000702,
+        "name": "Сезон 2",
+        "overview": "Синтетический сезон для тестирования Moven.",
+        "air_date": "2024-08-12",
+        "season_number": 2,
+        "poster_path": "/fixture-season-920007-2.jpg",
+        "vote_average": 9.1,
+        "episodes": [],
+        "credits": {
+          "cast": [],
+          "crew": []
+        },
+        "videos": {
+          "results": []
+        }
+      },
+      "localized": {
+        "ru-RU": {
+          "name": "Сезон 2",
+          "overview": "Синтетический сезон для тестирования Moven."
+        },
+        "en-US": {
+          "name": "Season 2",
+          "overview": "Synthetic season for Moven testing."
+        }
+      }
+    },
+    {
+      "id": 92000801,
+      "tvId": 920008,
+      "appTvId": 1000000920008,
+      "seasonNumber": 1,
+      "episodeCount": 6,
+      "episodeRefs": [
+        {
+          "id": 92000801001,
+          "episode_number": 1
+        },
+        {
+          "id": 92000801002,
+          "episode_number": 2
+        },
+        {
+          "id": 92000801003,
+          "episode_number": 3
+        },
+        {
+          "id": 92000801004,
+          "episode_number": 4
+        },
+        {
+          "id": 92000801005,
+          "episode_number": 5
+        },
+        {
+          "id": 92000801006,
+          "episode_number": 6
+        }
+      ],
+      "tags": [
+        "first-season",
+        "multi-season-series",
+        "returning-series"
+      ],
+      "summary": {
+        "id": 92000801,
+        "season_number": 1,
+        "name": "Сезон 1",
+        "overview": "",
+        "air_date": "2022-02-16",
+        "episode_count": 6,
+        "poster_path": "/fixture-season-920008-1.jpg",
+        "vote_average": 7.8
+      },
+      "details": {
+        "_id": "fixture-season-92000801",
+        "id": 92000801,
+        "name": "Сезон 1",
+        "overview": "Синтетический сезон для тестирования Moven.",
+        "air_date": "2022-02-16",
+        "season_number": 1,
+        "poster_path": "/fixture-season-920008-1.jpg",
+        "vote_average": 7.8,
+        "episodes": [],
+        "credits": {
+          "cast": [],
+          "crew": []
+        },
+        "videos": {
+          "results": []
+        }
+      },
+      "localized": {
+        "ru-RU": {
+          "name": "Сезон 1",
+          "overview": "Синтетический сезон для тестирования Moven."
+        },
+        "en-US": {
+          "name": "Season 1",
+          "overview": "Synthetic season for Moven testing."
+        }
+      }
+    },
+    {
+      "id": 92000802,
+      "tvId": 920008,
+      "appTvId": 1000000920008,
+      "seasonNumber": 2,
+      "episodeCount": 6,
+      "episodeRefs": [
+        {
+          "id": 92000802001,
+          "episode_number": 1
+        },
+        {
+          "id": 92000802002,
+          "episode_number": 2
+        },
+        {
+          "id": 92000802003,
+          "episode_number": 3
+        },
+        {
+          "id": 92000802004,
+          "episode_number": 4
+        },
+        {
+          "id": 92000802005,
+          "episode_number": 5
+        },
+        {
+          "id": 92000802006,
+          "episode_number": 6
+        }
+      ],
+      "tags": [
+        "last-season",
+        "multi-season-series",
+        "returning-series"
+      ],
+      "summary": {
+        "id": 92000802,
+        "season_number": 2,
+        "name": "Сезон 2",
+        "overview": "",
+        "air_date": "2022-02-16",
+        "episode_count": 6,
+        "poster_path": "/fixture-season-920008-2.jpg",
+        "vote_average": 7.8
+      },
+      "details": {
+        "_id": "fixture-season-92000802",
+        "id": 92000802,
+        "name": "Сезон 2",
+        "overview": "Синтетический сезон для тестирования Moven.",
+        "air_date": "2022-02-16",
+        "season_number": 2,
+        "poster_path": "/fixture-season-920008-2.jpg",
+        "vote_average": 7.8,
+        "episodes": [],
+        "credits": {
+          "cast": [],
+          "crew": []
+        },
+        "videos": {
+          "results": []
+        }
+      },
+      "localized": {
+        "ru-RU": {
+          "name": "Сезон 2",
+          "overview": "Синтетический сезон для тестирования Moven."
+        },
+        "en-US": {
+          "name": "Season 2",
+          "overview": "Synthetic season for Moven testing."
+        }
+      }
+    },
+    {
+      "id": 92000901,
+      "tvId": 920009,
+      "appTvId": 1000000920009,
+      "seasonNumber": 1,
+      "episodeCount": 12,
+      "episodeRefs": [
+        {
+          "id": 92000901001,
+          "episode_number": 1
+        },
+        {
+          "id": 92000901002,
+          "episode_number": 2
+        },
+        {
+          "id": 92000901003,
+          "episode_number": 3
+        },
+        {
+          "id": 92000901004,
+          "episode_number": 4
+        },
+        {
+          "id": 92000901005,
+          "episode_number": 5
+        },
+        {
+          "id": 92000901006,
+          "episode_number": 6
+        },
+        {
+          "id": 92000901007,
+          "episode_number": 7
+        },
+        {
+          "id": 92000901008,
+          "episode_number": 8
+        },
+        {
+          "id": 92000901009,
+          "episode_number": 9
+        },
+        {
+          "id": 92000901010,
+          "episode_number": 10
+        },
+        {
+          "id": 92000901011,
+          "episode_number": 11
+        },
+        {
+          "id": 92000901012,
+          "episode_number": 12
+        }
+      ],
+      "tags": [
+        "first-season",
+        "multi-season-series",
+        "returning-series"
+      ],
+      "summary": {
+        "id": 92000901,
+        "season_number": 1,
+        "name": "Сезон 1",
+        "overview": "",
+        "air_date": "2020-10-09",
+        "episode_count": 12,
+        "poster_path": "/fixture-season-920009-1.jpg",
+        "vote_average": 8
+      },
+      "details": {
+        "_id": "fixture-season-92000901",
+        "id": 92000901,
+        "name": "Сезон 1",
+        "overview": "Синтетический сезон для тестирования Moven.",
+        "air_date": "2020-10-09",
+        "season_number": 1,
+        "poster_path": "/fixture-season-920009-1.jpg",
+        "vote_average": 8,
+        "episodes": [],
+        "credits": {
+          "cast": [],
+          "crew": []
+        },
+        "videos": {
+          "results": []
+        }
+      },
+      "localized": {
+        "ru-RU": {
+          "name": "Сезон 1",
+          "overview": "Синтетический сезон для тестирования Moven."
+        },
+        "en-US": {
+          "name": "Season 1",
+          "overview": "Synthetic season for Moven testing."
+        }
+      }
+    },
+    {
+      "id": 92000902,
+      "tvId": 920009,
+      "appTvId": 1000000920009,
+      "seasonNumber": 2,
+      "episodeCount": 12,
+      "episodeRefs": [
+        {
+          "id": 92000902001,
+          "episode_number": 1
+        },
+        {
+          "id": 92000902002,
+          "episode_number": 2
+        },
+        {
+          "id": 92000902003,
+          "episode_number": 3
+        },
+        {
+          "id": 92000902004,
+          "episode_number": 4
+        },
+        {
+          "id": 92000902005,
+          "episode_number": 5
+        },
+        {
+          "id": 92000902006,
+          "episode_number": 6
+        },
+        {
+          "id": 92000902007,
+          "episode_number": 7
+        },
+        {
+          "id": 92000902008,
+          "episode_number": 8
+        },
+        {
+          "id": 92000902009,
+          "episode_number": 9
+        },
+        {
+          "id": 92000902010,
+          "episode_number": 10
+        },
+        {
+          "id": 92000902011,
+          "episode_number": 11
+        },
+        {
+          "id": 92000902012,
+          "episode_number": 12
+        }
+      ],
+      "tags": [
+        "last-season",
+        "multi-season-series",
+        "returning-series"
+      ],
+      "summary": {
+        "id": 92000902,
+        "season_number": 2,
+        "name": "Сезон 2",
+        "overview": "",
+        "air_date": "2020-10-09",
+        "episode_count": 12,
+        "poster_path": "/fixture-season-920009-2.jpg",
+        "vote_average": 8
+      },
+      "details": {
+        "_id": "fixture-season-92000902",
+        "id": 92000902,
+        "name": "Сезон 2",
+        "overview": "Синтетический сезон для тестирования Moven.",
+        "air_date": "2020-10-09",
+        "season_number": 2,
+        "poster_path": "/fixture-season-920009-2.jpg",
+        "vote_average": 8,
+        "episodes": [],
+        "credits": {
+          "cast": [],
+          "crew": []
+        },
+        "videos": {
+          "results": []
+        }
+      },
+      "localized": {
+        "ru-RU": {
+          "name": "Сезон 2",
+          "overview": "Синтетический сезон для тестирования Moven."
+        },
+        "en-US": {
+          "name": "Season 2",
+          "overview": "Synthetic season for Moven testing."
+        }
+      }
+    },
+    {
+      "id": 92001001,
+      "tvId": 920010,
+      "appTvId": 1000000920010,
+      "seasonNumber": 1,
+      "episodeCount": 16,
+      "episodeRefs": [
+        {
+          "id": 92001001001,
+          "episode_number": 1
+        },
+        {
+          "id": 92001001002,
+          "episode_number": 2
+        },
+        {
+          "id": 92001001003,
+          "episode_number": 3
+        },
+        {
+          "id": 92001001004,
+          "episode_number": 4
+        },
+        {
+          "id": 92001001005,
+          "episode_number": 5
+        },
+        {
+          "id": 92001001006,
+          "episode_number": 6
+        },
+        {
+          "id": 92001001007,
+          "episode_number": 7
+        },
+        {
+          "id": 92001001008,
+          "episode_number": 8
+        },
+        {
+          "id": 92001001009,
+          "episode_number": 9
+        },
+        {
+          "id": 92001001010,
+          "episode_number": 10
+        },
+        {
+          "id": 92001001011,
+          "episode_number": 11
+        },
+        {
+          "id": 92001001012,
+          "episode_number": 12
+        },
+        {
+          "id": 92001001013,
+          "episode_number": 13
+        },
+        {
+          "id": 92001001014,
+          "episode_number": 14
+        },
+        {
+          "id": 92001001015,
+          "episode_number": 15
+        },
+        {
+          "id": 92001001016,
+          "episode_number": 16
+        }
+      ],
+      "tags": [
+        "first-season",
+        "last-season",
+        "ended-series"
+      ],
+      "summary": {
+        "id": 92001001,
+        "season_number": 1,
+        "name": "Сезон 1",
+        "overview": "",
+        "air_date": "2023-04-21",
+        "episode_count": 16,
+        "poster_path": "/fixture-season-920010-1.jpg",
+        "vote_average": 8.3
+      },
+      "details": {
+        "_id": "fixture-season-92001001",
+        "id": 92001001,
+        "name": "Сезон 1",
+        "overview": "Синтетический сезон для тестирования Moven.",
+        "air_date": "2023-04-21",
+        "season_number": 1,
+        "poster_path": "/fixture-season-920010-1.jpg",
+        "vote_average": 8.3,
+        "episodes": [],
+        "credits": {
+          "cast": [],
+          "crew": []
+        },
+        "videos": {
+          "results": []
+        }
+      },
+      "localized": {
+        "ru-RU": {
+          "name": "Сезон 1",
+          "overview": "Синтетический сезон для тестирования Moven."
+        },
+        "en-US": {
+          "name": "Season 1",
+          "overview": "Synthetic season for Moven testing."
+        }
+      }
+    },
+    {
+      "id": 92001101,
+      "tvId": 920011,
+      "appTvId": 1000000920011,
+      "seasonNumber": 1,
+      "episodeCount": 4,
+      "episodeRefs": [
+        {
+          "id": 92001101001,
+          "episode_number": 1
+        },
+        {
+          "id": 92001101002,
+          "episode_number": 2
+        },
+        {
+          "id": 92001101003,
+          "episode_number": 3
+        },
+        {
+          "id": 92001101004,
+          "episode_number": 4
+        }
+      ],
+      "tags": [
+        "first-season",
+        "last-season",
+        "ended-series"
+      ],
+      "summary": {
+        "id": 92001101,
+        "season_number": 1,
+        "name": "Сезон 1",
+        "overview": "",
+        "air_date": "2021-07-17",
+        "episode_count": 4,
+        "poster_path": "/fixture-season-920011-1.jpg",
+        "vote_average": 7.2
+      },
+      "details": {
+        "_id": "fixture-season-92001101",
+        "id": 92001101,
+        "name": "Сезон 1",
+        "overview": "Синтетический сезон для тестирования Moven.",
+        "air_date": "2021-07-17",
+        "season_number": 1,
+        "poster_path": "/fixture-season-920011-1.jpg",
+        "vote_average": 7.2,
+        "episodes": [],
+        "credits": {
+          "cast": [],
+          "crew": []
+        },
+        "videos": {
+          "results": []
+        }
+      },
+      "localized": {
+        "ru-RU": {
+          "name": "Сезон 1",
+          "overview": "Синтетический сезон для тестирования Moven."
+        },
+        "en-US": {
+          "name": "Season 1",
+          "overview": "Synthetic season for Moven testing."
+        }
+      }
+    },
+    {
+      "id": 92001201,
+      "tvId": 920012,
+      "appTvId": 1000000920012,
+      "seasonNumber": 1,
+      "episodeCount": 6,
+      "episodeRefs": [
+        {
+          "id": 92001201001,
+          "episode_number": 1
+        },
+        {
+          "id": 92001201002,
+          "episode_number": 2
+        },
+        {
+          "id": 92001201003,
+          "episode_number": 3
+        },
+        {
+          "id": 92001201004,
+          "episode_number": 4
+        },
+        {
+          "id": 92001201005,
+          "episode_number": 5
+        },
+        {
+          "id": 92001201006,
+          "episode_number": 6
+        }
+      ],
+      "tags": [
+        "first-season",
+        "multi-season-series",
+        "canceled-series"
+      ],
+      "summary": {
+        "id": 92001201,
+        "season_number": 1,
+        "name": "Сезон 1",
+        "overview": "",
+        "air_date": "2015-03-13",
+        "episode_count": 6,
+        "poster_path": "/fixture-season-920012-1.jpg",
+        "vote_average": 7.4
+      },
+      "details": {
+        "_id": "fixture-season-92001201",
+        "id": 92001201,
+        "name": "Сезон 1",
+        "overview": "Синтетический сезон для тестирования Moven.",
+        "air_date": "2015-03-13",
+        "season_number": 1,
+        "poster_path": "/fixture-season-920012-1.jpg",
+        "vote_average": 7.4,
+        "episodes": [],
+        "credits": {
+          "cast": [],
+          "crew": []
+        },
+        "videos": {
+          "results": []
+        }
+      },
+      "localized": {
+        "ru-RU": {
+          "name": "Сезон 1",
+          "overview": "Синтетический сезон для тестирования Moven."
+        },
+        "en-US": {
+          "name": "Season 1",
+          "overview": "Synthetic season for Moven testing."
+        }
+      }
+    },
+    {
+      "id": 92001202,
+      "tvId": 920012,
+      "appTvId": 1000000920012,
+      "seasonNumber": 2,
+      "episodeCount": 6,
+      "episodeRefs": [
+        {
+          "id": 92001202001,
+          "episode_number": 1
+        },
+        {
+          "id": 92001202002,
+          "episode_number": 2
+        },
+        {
+          "id": 92001202003,
+          "episode_number": 3
+        },
+        {
+          "id": 92001202004,
+          "episode_number": 4
+        },
+        {
+          "id": 92001202005,
+          "episode_number": 5
+        },
+        {
+          "id": 92001202006,
+          "episode_number": 6
+        }
+      ],
+      "tags": [
+        "last-season",
+        "multi-season-series",
+        "canceled-series"
+      ],
+      "summary": {
+        "id": 92001202,
+        "season_number": 2,
+        "name": "Сезон 2",
+        "overview": "",
+        "air_date": "2015-03-13",
+        "episode_count": 6,
+        "poster_path": "/fixture-season-920012-2.jpg",
+        "vote_average": 7.4
+      },
+      "details": {
+        "_id": "fixture-season-92001202",
+        "id": 92001202,
+        "name": "Сезон 2",
+        "overview": "Синтетический сезон для тестирования Moven.",
+        "air_date": "2015-03-13",
+        "season_number": 2,
+        "poster_path": "/fixture-season-920012-2.jpg",
+        "vote_average": 7.4,
+        "episodes": [],
+        "credits": {
+          "cast": [],
+          "crew": []
+        },
+        "videos": {
+          "results": []
+        }
+      },
+      "localized": {
+        "ru-RU": {
+          "name": "Сезон 2",
+          "overview": "Синтетический сезон для тестирования Moven."
+        },
+        "en-US": {
+          "name": "Season 2",
+          "overview": "Synthetic season for Moven testing."
+        }
+      }
+    },
+    {
+      "id": 92001301,
+      "tvId": 920013,
+      "appTvId": 1000000920013,
+      "seasonNumber": 1,
+      "episodeCount": 6,
+      "episodeRefs": [
+        {
+          "id": 92001301001,
+          "episode_number": 1
+        },
+        {
+          "id": 92001301002,
+          "episode_number": 2
+        },
+        {
+          "id": 92001301003,
+          "episode_number": 3
+        },
+        {
+          "id": 92001301004,
+          "episode_number": 4
+        },
+        {
+          "id": 92001301005,
+          "episode_number": 5
+        },
+        {
+          "id": 92001301006,
+          "episode_number": 6
+        }
+      ],
+      "tags": [
+        "first-season",
+        "last-season",
+        "ended-series"
+      ],
+      "summary": {
+        "id": 92001301,
+        "season_number": 1,
+        "name": "Сезон 1",
+        "overview": "",
+        "air_date": "2020-01-01",
+        "episode_count": 6,
+        "poster_path": "/fixture-season-920013-1.jpg",
+        "vote_average": 4.2
+      },
+      "details": {
+        "_id": "fixture-season-92001301",
+        "id": 92001301,
+        "name": "Сезон 1",
+        "overview": "Синтетический сезон для тестирования Moven.",
+        "air_date": "2020-01-01",
+        "season_number": 1,
+        "poster_path": "/fixture-season-920013-1.jpg",
+        "vote_average": 4.2,
+        "episodes": [],
+        "credits": {
+          "cast": [],
+          "crew": []
+        },
+        "videos": {
+          "results": []
+        }
+      },
+      "localized": {
+        "ru-RU": {
+          "name": "Сезон 1",
+          "overview": "Синтетический сезон для тестирования Moven."
+        },
+        "en-US": {
+          "name": "Season 1",
+          "overview": "Synthetic season for Moven testing."
+        }
+      }
+    },
+    {
+      "id": 92001401,
+      "tvId": 920014,
+      "appTvId": 1000000920014,
+      "seasonNumber": 1,
+      "episodeCount": 4,
+      "episodeRefs": [
+        {
+          "id": 92001401001,
+          "episode_number": 1
+        },
+        {
+          "id": 92001401002,
+          "episode_number": 2
+        },
+        {
+          "id": 92001401003,
+          "episode_number": 3
+        },
+        {
+          "id": 92001401004,
+          "episode_number": 4
+        }
+      ],
+      "tags": [
+        "first-season",
+        "last-season",
+        "ended-series"
+      ],
+      "summary": {
+        "id": 92001401,
+        "season_number": 1,
+        "name": "Сезон 1",
+        "overview": "",
+        "air_date": "2021-01-01",
+        "episode_count": 4,
+        "poster_path": "/fixture-season-920014-1.jpg",
+        "vote_average": 9.5
+      },
+      "details": {
+        "_id": "fixture-season-92001401",
+        "id": 92001401,
+        "name": "Сезон 1",
+        "overview": "Синтетический сезон для тестирования Moven.",
+        "air_date": "2021-01-01",
+        "season_number": 1,
+        "poster_path": "/fixture-season-920014-1.jpg",
+        "vote_average": 9.5,
+        "episodes": [],
+        "credits": {
+          "cast": [],
+          "crew": []
+        },
+        "videos": {
+          "results": []
+        }
+      },
+      "localized": {
+        "ru-RU": {
+          "name": "Сезон 1",
+          "overview": "Синтетический сезон для тестирования Moven."
+        },
+        "en-US": {
+          "name": "Season 1",
+          "overview": "Synthetic season for Moven testing."
+        }
+      }
+    },
+    {
+      "id": 92001701,
+      "tvId": 920017,
+      "appTvId": 1000000920017,
+      "seasonNumber": 1,
+      "episodeCount": 4,
+      "episodeRefs": [
+        {
+          "id": 92001701001,
+          "episode_number": 1
+        },
+        {
+          "id": 92001701002,
+          "episode_number": 2
+        },
+        {
+          "id": 92001701003,
+          "episode_number": 3
+        },
+        {
+          "id": 92001701004,
+          "episode_number": 4
+        }
+      ],
+      "tags": [
+        "first-season",
+        "last-season",
+        "ended-series"
+      ],
+      "summary": {
+        "id": 92001701,
+        "season_number": 1,
+        "name": "Сезон 1",
+        "overview": "",
+        "air_date": "2010-01-01",
+        "episode_count": 4,
+        "poster_path": "/fixture-season-920017-1.jpg",
+        "vote_average": 7.8
+      },
+      "details": {
+        "_id": "fixture-season-92001701",
+        "id": 92001701,
+        "name": "Сезон 1",
+        "overview": "Синтетический сезон для тестирования Moven.",
+        "air_date": "2010-01-01",
+        "season_number": 1,
+        "poster_path": "/fixture-season-920017-1.jpg",
+        "vote_average": 7.8,
+        "episodes": [],
+        "credits": {
+          "cast": [],
+          "crew": []
+        },
+        "videos": {
+          "results": []
+        }
+      },
+      "localized": {
+        "ru-RU": {
+          "name": "Сезон 1",
+          "overview": "Синтетический сезон для тестирования Moven."
+        },
+        "en-US": {
+          "name": "Season 1",
+          "overview": "Synthetic season for Moven testing."
+        }
+      }
+    },
+    {
+      "id": 92001801,
+      "tvId": 920018,
+      "appTvId": 1000000920018,
+      "seasonNumber": 1,
+      "episodeCount": 6,
+      "episodeRefs": [
+        {
+          "id": 92001801001,
+          "episode_number": 1
+        },
+        {
+          "id": 92001801002,
+          "episode_number": 2
+        },
+        {
+          "id": 92001801003,
+          "episode_number": 3
+        },
+        {
+          "id": 92001801004,
+          "episode_number": 4
+        },
+        {
+          "id": 92001801005,
+          "episode_number": 5
+        },
+        {
+          "id": 92001801006,
+          "episode_number": 6
+        }
+      ],
+      "tags": [
+        "first-season",
+        "last-season",
+        "ended-series"
+      ],
+      "summary": {
+        "id": 92001801,
+        "season_number": 1,
+        "name": "Сезон 1",
+        "overview": "",
+        "air_date": "2022-01-01",
+        "episode_count": 6,
+        "poster_path": "/fixture-season-920018-1.jpg",
+        "vote_average": 9
+      },
+      "details": {
+        "_id": "fixture-season-92001801",
+        "id": 92001801,
+        "name": "Сезон 1",
+        "overview": "Синтетический сезон для тестирования Moven.",
+        "air_date": "2022-01-01",
+        "season_number": 1,
+        "poster_path": "/fixture-season-920018-1.jpg",
+        "vote_average": 9,
+        "episodes": [],
+        "credits": {
+          "cast": [],
+          "crew": []
+        },
+        "videos": {
+          "results": []
+        }
+      },
+      "localized": {
+        "ru-RU": {
+          "name": "Сезон 1",
+          "overview": "Синтетический сезон для тестирования Moven."
+        },
+        "en-US": {
+          "name": "Season 1",
+          "overview": "Synthetic season for Moven testing."
+        }
+      }
+    },
+    {
+      "id": 92001901,
+      "tvId": 920019,
+      "appTvId": 1000000920019,
+      "seasonNumber": 1,
+      "episodeCount": 6,
+      "episodeRefs": [
+        {
+          "id": 92001901001,
+          "episode_number": 1
+        },
+        {
+          "id": 92001901002,
+          "episode_number": 2
+        },
+        {
+          "id": 92001901003,
+          "episode_number": 3
+        },
+        {
+          "id": 92001901004,
+          "episode_number": 4
+        },
+        {
+          "id": 92001901005,
+          "episode_number": 5
+        },
+        {
+          "id": 92001901006,
+          "episode_number": 6
+        }
+      ],
+      "tags": [
+        "first-season",
+        "last-season",
+        "ended-series"
+      ],
+      "summary": {
+        "id": 92001901,
+        "season_number": 1,
+        "name": "Сезон 1",
+        "overview": "",
+        "air_date": "2023-01-01",
+        "episode_count": 6,
+        "poster_path": "/fixture-season-920019-1.jpg",
+        "vote_average": 8.4
+      },
+      "details": {
+        "_id": "fixture-season-92001901",
+        "id": 92001901,
+        "name": "Сезон 1",
+        "overview": "Синтетический сезон для тестирования Moven.",
+        "air_date": "2023-01-01",
+        "season_number": 1,
+        "poster_path": "/fixture-season-920019-1.jpg",
+        "vote_average": 8.4,
+        "episodes": [],
+        "credits": {
+          "cast": [],
+          "crew": []
+        },
+        "videos": {
+          "results": []
+        }
+      },
+      "localized": {
+        "ru-RU": {
+          "name": "Сезон 1",
+          "overview": "Синтетический сезон для тестирования Moven."
+        },
+        "en-US": {
+          "name": "Season 1",
+          "overview": "Synthetic season for Moven testing."
+        }
+      }
+    },
+    {
+      "id": 92002001,
+      "tvId": 920020,
+      "appTvId": 1000000920020,
+      "seasonNumber": 1,
+      "episodeCount": 4,
+      "episodeRefs": [
+        {
+          "id": 92002001001,
+          "episode_number": 1
+        },
+        {
+          "id": 92002001002,
+          "episode_number": 2
+        },
+        {
+          "id": 92002001003,
+          "episode_number": 3
+        },
+        {
+          "id": 92002001004,
+          "episode_number": 4
+        }
+      ],
+      "tags": [
+        "first-season",
+        "last-season",
+        "ended-series"
+      ],
+      "summary": {
+        "id": 92002001,
+        "season_number": 1,
+        "name": "Сезон 1",
+        "overview": "",
+        "air_date": "2024-01-01",
+        "episode_count": 4,
+        "poster_path": "/fixture-season-920020-1.jpg",
+        "vote_average": 8.1
+      },
+      "details": {
+        "_id": "fixture-season-92002001",
+        "id": 92002001,
+        "name": "Сезон 1",
+        "overview": "Синтетический сезон для тестирования Moven.",
+        "air_date": "2024-01-01",
+        "season_number": 1,
+        "poster_path": "/fixture-season-920020-1.jpg",
+        "vote_average": 8.1,
+        "episodes": [],
+        "credits": {
+          "cast": [],
+          "crew": []
+        },
+        "videos": {
+          "results": []
+        }
+      },
+      "localized": {
+        "ru-RU": {
+          "name": "Сезон 1",
+          "overview": "Синтетический сезон для тестирования Moven."
+        },
+        "en-US": {
+          "name": "Season 1",
+          "overview": "Synthetic season for Moven testing."
+        }
+      }
+    },
+    {
+      "id": 92002101,
+      "tvId": 920021,
+      "appTvId": 1000000920021,
+      "seasonNumber": 1,
+      "episodeCount": 6,
+      "episodeRefs": [
+        {
+          "id": 92002101001,
+          "episode_number": 1
+        },
+        {
+          "id": 92002101002,
+          "episode_number": 2
+        },
+        {
+          "id": 92002101003,
+          "episode_number": 3
+        },
+        {
+          "id": 92002101004,
+          "episode_number": 4
+        },
+        {
+          "id": 92002101005,
+          "episode_number": 5
+        },
+        {
+          "id": 92002101006,
+          "episode_number": 6
+        }
+      ],
+      "tags": [
+        "first-season",
+        "last-season",
+        "returning-series"
+      ],
+      "summary": {
+        "id": 92002101,
+        "season_number": 1,
+        "name": "Сезон 1",
+        "overview": "",
+        "air_date": "2010-06-15",
+        "episode_count": 6,
+        "poster_path": "/fixture-season-920021-1.jpg",
+        "vote_average": 7
+      },
+      "details": {
+        "_id": "fixture-season-92002101",
+        "id": 92002101,
+        "name": "Сезон 1",
+        "overview": "Синтетический сезон для тестирования Moven.",
+        "air_date": "2010-06-15",
+        "season_number": 1,
+        "poster_path": "/fixture-season-920021-1.jpg",
+        "vote_average": 7,
+        "episodes": [],
+        "credits": {
+          "cast": [],
+          "crew": []
+        },
+        "videos": {
+          "results": []
+        }
+      },
+      "localized": {
+        "ru-RU": {
+          "name": "Сезон 1",
+          "overview": "Синтетический сезон для тестирования Moven."
+        },
+        "en-US": {
+          "name": "Season 1",
+          "overview": "Synthetic season for Moven testing."
+        }
+      }
+    },
+    {
+      "id": 92002201,
+      "tvId": 920022,
+      "appTvId": 1000000920022,
+      "seasonNumber": 1,
+      "episodeCount": 4,
+      "episodeRefs": [
+        {
+          "id": 92002201001,
+          "episode_number": 1
+        },
+        {
+          "id": 92002201002,
+          "episode_number": 2
+        },
+        {
+          "id": 92002201003,
+          "episode_number": 3
+        },
+        {
+          "id": 92002201004,
+          "episode_number": 4
+        }
+      ],
+      "tags": [
+        "first-season",
+        "multi-season-series",
+        "ended-series"
+      ],
+      "summary": {
+        "id": 92002201,
+        "season_number": 1,
+        "name": "Сезон 1",
+        "overview": "",
+        "air_date": "2011-06-15",
+        "episode_count": 4,
+        "poster_path": "/fixture-season-920022-1.jpg",
+        "vote_average": 7.2
+      },
+      "details": {
+        "_id": "fixture-season-92002201",
+        "id": 92002201,
+        "name": "Сезон 1",
+        "overview": "Синтетический сезон для тестирования Moven.",
+        "air_date": "2011-06-15",
+        "season_number": 1,
+        "poster_path": "/fixture-season-920022-1.jpg",
+        "vote_average": 7.2,
+        "episodes": [],
+        "credits": {
+          "cast": [],
+          "crew": []
+        },
+        "videos": {
+          "results": []
+        }
+      },
+      "localized": {
+        "ru-RU": {
+          "name": "Сезон 1",
+          "overview": "Синтетический сезон для тестирования Moven."
+        },
+        "en-US": {
+          "name": "Season 1",
+          "overview": "Synthetic season for Moven testing."
+        }
+      }
+    },
+    {
+      "id": 92002202,
+      "tvId": 920022,
+      "appTvId": 1000000920022,
+      "seasonNumber": 2,
+      "episodeCount": 6,
+      "episodeRefs": [
+        {
+          "id": 92002202001,
+          "episode_number": 1
+        },
+        {
+          "id": 92002202002,
+          "episode_number": 2
+        },
+        {
+          "id": 92002202003,
+          "episode_number": 3
+        },
+        {
+          "id": 92002202004,
+          "episode_number": 4
+        },
+        {
+          "id": 92002202005,
+          "episode_number": 5
+        },
+        {
+          "id": 92002202006,
+          "episode_number": 6
+        }
+      ],
+      "tags": [
+        "last-season",
+        "multi-season-series",
+        "ended-series"
+      ],
+      "summary": {
+        "id": 92002202,
+        "season_number": 2,
+        "name": "Сезон 2",
+        "overview": "",
+        "air_date": "2011-06-15",
+        "episode_count": 6,
+        "poster_path": "/fixture-season-920022-2.jpg",
+        "vote_average": 7.2
+      },
+      "details": {
+        "_id": "fixture-season-92002202",
+        "id": 92002202,
+        "name": "Сезон 2",
+        "overview": "Синтетический сезон для тестирования Moven.",
+        "air_date": "2011-06-15",
+        "season_number": 2,
+        "poster_path": "/fixture-season-920022-2.jpg",
+        "vote_average": 7.2,
+        "episodes": [],
+        "credits": {
+          "cast": [],
+          "crew": []
+        },
+        "videos": {
+          "results": []
+        }
+      },
+      "localized": {
+        "ru-RU": {
+          "name": "Сезон 2",
+          "overview": "Синтетический сезон для тестирования Moven."
+        },
+        "en-US": {
+          "name": "Season 2",
+          "overview": "Synthetic season for Moven testing."
+        }
+      }
+    },
+    {
+      "id": 92002301,
+      "tvId": 920023,
+      "appTvId": 1000000920023,
+      "seasonNumber": 1,
+      "episodeCount": 6,
+      "episodeRefs": [
+        {
+          "id": 92002301001,
+          "episode_number": 1
+        },
+        {
+          "id": 92002301002,
+          "episode_number": 2
+        },
+        {
+          "id": 92002301003,
+          "episode_number": 3
+        },
+        {
+          "id": 92002301004,
+          "episode_number": 4
+        },
+        {
+          "id": 92002301005,
+          "episode_number": 5
+        },
+        {
+          "id": 92002301006,
+          "episode_number": 6
+        }
+      ],
+      "tags": [
+        "first-season",
+        "last-season",
+        "returning-series"
+      ],
+      "summary": {
+        "id": 92002301,
+        "season_number": 1,
+        "name": "Сезон 1",
+        "overview": "",
+        "air_date": "2012-06-15",
+        "episode_count": 6,
+        "poster_path": "/fixture-season-920023-1.jpg",
+        "vote_average": 7.4
+      },
+      "details": {
+        "_id": "fixture-season-92002301",
+        "id": 92002301,
+        "name": "Сезон 1",
+        "overview": "Синтетический сезон для тестирования Moven.",
+        "air_date": "2012-06-15",
+        "season_number": 1,
+        "poster_path": "/fixture-season-920023-1.jpg",
+        "vote_average": 7.4,
+        "episodes": [],
+        "credits": {
+          "cast": [],
+          "crew": []
+        },
+        "videos": {
+          "results": []
+        }
+      },
+      "localized": {
+        "ru-RU": {
+          "name": "Сезон 1",
+          "overview": "Синтетический сезон для тестирования Moven."
+        },
+        "en-US": {
+          "name": "Season 1",
+          "overview": "Synthetic season for Moven testing."
+        }
+      }
+    },
+    {
+      "id": 92002401,
+      "tvId": 920024,
+      "appTvId": 1000000920024,
+      "seasonNumber": 1,
+      "episodeCount": 4,
+      "episodeRefs": [
+        {
+          "id": 92002401001,
+          "episode_number": 1
+        },
+        {
+          "id": 92002401002,
+          "episode_number": 2
+        },
+        {
+          "id": 92002401003,
+          "episode_number": 3
+        },
+        {
+          "id": 92002401004,
+          "episode_number": 4
+        }
+      ],
+      "tags": [
+        "first-season",
+        "multi-season-series",
+        "ended-series"
+      ],
+      "summary": {
+        "id": 92002401,
+        "season_number": 1,
+        "name": "Сезон 1",
+        "overview": "",
+        "air_date": "2013-06-15",
+        "episode_count": 4,
+        "poster_path": "/fixture-season-920024-1.jpg",
+        "vote_average": 7.6
+      },
+      "details": {
+        "_id": "fixture-season-92002401",
+        "id": 92002401,
+        "name": "Сезон 1",
+        "overview": "Синтетический сезон для тестирования Moven.",
+        "air_date": "2013-06-15",
+        "season_number": 1,
+        "poster_path": "/fixture-season-920024-1.jpg",
+        "vote_average": 7.6,
+        "episodes": [],
+        "credits": {
+          "cast": [],
+          "crew": []
+        },
+        "videos": {
+          "results": []
+        }
+      },
+      "localized": {
+        "ru-RU": {
+          "name": "Сезон 1",
+          "overview": "Синтетический сезон для тестирования Moven."
+        },
+        "en-US": {
+          "name": "Season 1",
+          "overview": "Synthetic season for Moven testing."
+        }
+      }
+    },
+    {
+      "id": 92002402,
+      "tvId": 920024,
+      "appTvId": 1000000920024,
+      "seasonNumber": 2,
+      "episodeCount": 6,
+      "episodeRefs": [
+        {
+          "id": 92002402001,
+          "episode_number": 1
+        },
+        {
+          "id": 92002402002,
+          "episode_number": 2
+        },
+        {
+          "id": 92002402003,
+          "episode_number": 3
+        },
+        {
+          "id": 92002402004,
+          "episode_number": 4
+        },
+        {
+          "id": 92002402005,
+          "episode_number": 5
+        },
+        {
+          "id": 92002402006,
+          "episode_number": 6
+        }
+      ],
+      "tags": [
+        "last-season",
+        "multi-season-series",
+        "ended-series"
+      ],
+      "summary": {
+        "id": 92002402,
+        "season_number": 2,
+        "name": "Сезон 2",
+        "overview": "",
+        "air_date": "2026-10-21",
+        "episode_count": 6,
+        "poster_path": "/fixture-season-920024-2.jpg",
+        "vote_average": 7.6
+      },
+      "details": {
+        "_id": "fixture-season-92002402",
+        "id": 92002402,
+        "name": "Сезон 2",
+        "overview": "Синтетический сезон для тестирования Moven.",
+        "air_date": "2026-10-21",
+        "season_number": 2,
+        "poster_path": "/fixture-season-920024-2.jpg",
+        "vote_average": 7.6,
+        "episodes": [],
+        "credits": {
+          "cast": [],
+          "crew": []
+        },
+        "videos": {
+          "results": []
+        }
+      },
+      "localized": {
+        "ru-RU": {
+          "name": "Сезон 2",
+          "overview": "Синтетический сезон для тестирования Moven."
+        },
+        "en-US": {
+          "name": "Season 2",
+          "overview": "Synthetic season for Moven testing."
+        }
+      }
+    },
+    {
+      "id": 92002501,
+      "tvId": 920025,
+      "appTvId": 1000000920025,
+      "seasonNumber": 1,
+      "episodeCount": 6,
+      "episodeRefs": [
+        {
+          "id": 92002501001,
+          "episode_number": 1
+        },
+        {
+          "id": 92002501002,
+          "episode_number": 2
+        },
+        {
+          "id": 92002501003,
+          "episode_number": 3
+        },
+        {
+          "id": 92002501004,
+          "episode_number": 4
+        },
+        {
+          "id": 92002501005,
+          "episode_number": 5
+        },
+        {
+          "id": 92002501006,
+          "episode_number": 6
+        }
+      ],
+      "tags": [
+        "first-season",
+        "last-season",
+        "returning-series"
+      ],
+      "summary": {
+        "id": 92002501,
+        "season_number": 1,
+        "name": "Сезон 1",
+        "overview": "",
+        "air_date": "2014-06-15",
+        "episode_count": 6,
+        "poster_path": "/fixture-season-920025-1.jpg",
+        "vote_average": 7.8
+      },
+      "details": {
+        "_id": "fixture-season-92002501",
+        "id": 92002501,
+        "name": "Сезон 1",
+        "overview": "Синтетический сезон для тестирования Moven.",
+        "air_date": "2014-06-15",
+        "season_number": 1,
+        "poster_path": "/fixture-season-920025-1.jpg",
+        "vote_average": 7.8,
+        "episodes": [],
+        "credits": {
+          "cast": [],
+          "crew": []
+        },
+        "videos": {
+          "results": []
+        }
+      },
+      "localized": {
+        "ru-RU": {
+          "name": "Сезон 1",
+          "overview": "Синтетический сезон для тестирования Moven."
+        },
+        "en-US": {
+          "name": "Season 1",
+          "overview": "Synthetic season for Moven testing."
+        }
+      }
+    },
+    {
+      "id": 92002601,
+      "tvId": 920026,
+      "appTvId": 1000000920026,
+      "seasonNumber": 1,
+      "episodeCount": 4,
+      "episodeRefs": [
+        {
+          "id": 92002601001,
+          "episode_number": 1
+        },
+        {
+          "id": 92002601002,
+          "episode_number": 2
+        },
+        {
+          "id": 92002601003,
+          "episode_number": 3
+        },
+        {
+          "id": 92002601004,
+          "episode_number": 4
+        }
+      ],
+      "tags": [
+        "first-season",
+        "multi-season-series",
+        "ended-series"
+      ],
+      "summary": {
+        "id": 92002601,
+        "season_number": 1,
+        "name": "Сезон 1",
+        "overview": "",
+        "air_date": "2015-06-15",
+        "episode_count": 4,
+        "poster_path": "/fixture-season-920026-1.jpg",
+        "vote_average": 8
+      },
+      "details": {
+        "_id": "fixture-season-92002601",
+        "id": 92002601,
+        "name": "Сезон 1",
+        "overview": "Синтетический сезон для тестирования Moven.",
+        "air_date": "2015-06-15",
+        "season_number": 1,
+        "poster_path": "/fixture-season-920026-1.jpg",
+        "vote_average": 8,
+        "episodes": [],
+        "credits": {
+          "cast": [],
+          "crew": []
+        },
+        "videos": {
+          "results": []
+        }
+      },
+      "localized": {
+        "ru-RU": {
+          "name": "Сезон 1",
+          "overview": "Синтетический сезон для тестирования Moven."
+        },
+        "en-US": {
+          "name": "Season 1",
+          "overview": "Synthetic season for Moven testing."
+        }
+      }
+    },
+    {
+      "id": 92002602,
+      "tvId": 920026,
+      "appTvId": 1000000920026,
+      "seasonNumber": 2,
+      "episodeCount": 6,
+      "episodeRefs": [
+        {
+          "id": 92002602001,
+          "episode_number": 1
+        },
+        {
+          "id": 92002602002,
+          "episode_number": 2
+        },
+        {
+          "id": 92002602003,
+          "episode_number": 3
+        },
+        {
+          "id": 92002602004,
+          "episode_number": 4
+        },
+        {
+          "id": 92002602005,
+          "episode_number": 5
+        },
+        {
+          "id": 92002602006,
+          "episode_number": 6
+        }
+      ],
+      "tags": [
+        "last-season",
+        "multi-season-series",
+        "ended-series"
+      ],
+      "summary": {
+        "id": 92002602,
+        "season_number": 2,
+        "name": "Сезон 2",
+        "overview": "",
+        "air_date": "2015-06-15",
+        "episode_count": 6,
+        "poster_path": "/fixture-season-920026-2.jpg",
+        "vote_average": 8
+      },
+      "details": {
+        "_id": "fixture-season-92002602",
+        "id": 92002602,
+        "name": "Сезон 2",
+        "overview": "Синтетический сезон для тестирования Moven.",
+        "air_date": "2015-06-15",
+        "season_number": 2,
+        "poster_path": "/fixture-season-920026-2.jpg",
+        "vote_average": 8,
+        "episodes": [],
+        "credits": {
+          "cast": [],
+          "crew": []
+        },
+        "videos": {
+          "results": []
+        }
+      },
+      "localized": {
+        "ru-RU": {
+          "name": "Сезон 2",
+          "overview": "Синтетический сезон для тестирования Moven."
+        },
+        "en-US": {
+          "name": "Season 2",
+          "overview": "Synthetic season for Moven testing."
+        }
+      }
+    },
+    {
+      "id": 92002701,
+      "tvId": 920027,
+      "appTvId": 1000000920027,
+      "seasonNumber": 1,
+      "episodeCount": 6,
+      "episodeRefs": [
+        {
+          "id": 92002701001,
+          "episode_number": 1
+        },
+        {
+          "id": 92002701002,
+          "episode_number": 2
+        },
+        {
+          "id": 92002701003,
+          "episode_number": 3
+        },
+        {
+          "id": 92002701004,
+          "episode_number": 4
+        },
+        {
+          "id": 92002701005,
+          "episode_number": 5
+        },
+        {
+          "id": 92002701006,
+          "episode_number": 6
+        }
+      ],
+      "tags": [
+        "first-season",
+        "last-season",
+        "returning-series"
+      ],
+      "summary": {
+        "id": 92002701,
+        "season_number": 1,
+        "name": "Сезон 1",
+        "overview": "",
+        "air_date": "2016-06-15",
+        "episode_count": 6,
+        "poster_path": "/fixture-season-920027-1.jpg",
+        "vote_average": 8.2
+      },
+      "details": {
+        "_id": "fixture-season-92002701",
+        "id": 92002701,
+        "name": "Сезон 1",
+        "overview": "Синтетический сезон для тестирования Moven.",
+        "air_date": "2016-06-15",
+        "season_number": 1,
+        "poster_path": "/fixture-season-920027-1.jpg",
+        "vote_average": 8.2,
+        "episodes": [],
+        "credits": {
+          "cast": [],
+          "crew": []
+        },
+        "videos": {
+          "results": []
+        }
+      },
+      "localized": {
+        "ru-RU": {
+          "name": "Сезон 1",
+          "overview": "Синтетический сезон для тестирования Moven."
+        },
+        "en-US": {
+          "name": "Season 1",
+          "overview": "Synthetic season for Moven testing."
+        }
+      }
+    },
+    {
+      "id": 92002801,
+      "tvId": 920028,
+      "appTvId": 1000000920028,
+      "seasonNumber": 1,
+      "episodeCount": 4,
+      "episodeRefs": [
+        {
+          "id": 92002801001,
+          "episode_number": 1
+        },
+        {
+          "id": 92002801002,
+          "episode_number": 2
+        },
+        {
+          "id": 92002801003,
+          "episode_number": 3
+        },
+        {
+          "id": 92002801004,
+          "episode_number": 4
+        }
+      ],
+      "tags": [
+        "first-season",
+        "multi-season-series",
+        "ended-series"
+      ],
+      "summary": {
+        "id": 92002801,
+        "season_number": 1,
+        "name": "Сезон 1",
+        "overview": "",
+        "air_date": "2017-06-15",
+        "episode_count": 4,
+        "poster_path": "/fixture-season-920028-1.jpg",
+        "vote_average": 8.4
+      },
+      "details": {
+        "_id": "fixture-season-92002801",
+        "id": 92002801,
+        "name": "Сезон 1",
+        "overview": "Синтетический сезон для тестирования Moven.",
+        "air_date": "2017-06-15",
+        "season_number": 1,
+        "poster_path": "/fixture-season-920028-1.jpg",
+        "vote_average": 8.4,
+        "episodes": [],
+        "credits": {
+          "cast": [],
+          "crew": []
+        },
+        "videos": {
+          "results": []
+        }
+      },
+      "localized": {
+        "ru-RU": {
+          "name": "Сезон 1",
+          "overview": "Синтетический сезон для тестирования Moven."
+        },
+        "en-US": {
+          "name": "Season 1",
+          "overview": "Synthetic season for Moven testing."
+        }
+      }
+    },
+    {
+      "id": 92002802,
+      "tvId": 920028,
+      "appTvId": 1000000920028,
+      "seasonNumber": 2,
+      "episodeCount": 6,
+      "episodeRefs": [
+        {
+          "id": 92002802001,
+          "episode_number": 1
+        },
+        {
+          "id": 92002802002,
+          "episode_number": 2
+        },
+        {
+          "id": 92002802003,
+          "episode_number": 3
+        },
+        {
+          "id": 92002802004,
+          "episode_number": 4
+        },
+        {
+          "id": 92002802005,
+          "episode_number": 5
+        },
+        {
+          "id": 92002802006,
+          "episode_number": 6
+        }
+      ],
+      "tags": [
+        "last-season",
+        "multi-season-series",
+        "ended-series"
+      ],
+      "summary": {
+        "id": 92002802,
+        "season_number": 2,
+        "name": "Сезон 2",
+        "overview": "",
+        "air_date": "2017-06-15",
+        "episode_count": 6,
+        "poster_path": "/fixture-season-920028-2.jpg",
+        "vote_average": 8.4
+      },
+      "details": {
+        "_id": "fixture-season-92002802",
+        "id": 92002802,
+        "name": "Сезон 2",
+        "overview": "Синтетический сезон для тестирования Moven.",
+        "air_date": "2017-06-15",
+        "season_number": 2,
+        "poster_path": "/fixture-season-920028-2.jpg",
+        "vote_average": 8.4,
+        "episodes": [],
+        "credits": {
+          "cast": [],
+          "crew": []
+        },
+        "videos": {
+          "results": []
+        }
+      },
+      "localized": {
+        "ru-RU": {
+          "name": "Сезон 2",
+          "overview": "Синтетический сезон для тестирования Moven."
+        },
+        "en-US": {
+          "name": "Season 2",
+          "overview": "Synthetic season for Moven testing."
+        }
+      }
+    },
+    {
+      "id": 92002901,
+      "tvId": 920029,
+      "appTvId": 1000000920029,
+      "seasonNumber": 1,
+      "episodeCount": 6,
+      "episodeRefs": [
+        {
+          "id": 92002901001,
+          "episode_number": 1
+        },
+        {
+          "id": 92002901002,
+          "episode_number": 2
+        },
+        {
+          "id": 92002901003,
+          "episode_number": 3
+        },
+        {
+          "id": 92002901004,
+          "episode_number": 4
+        },
+        {
+          "id": 92002901005,
+          "episode_number": 5
+        },
+        {
+          "id": 92002901006,
+          "episode_number": 6
+        }
+      ],
+      "tags": [
+        "first-season",
+        "last-season",
+        "returning-series"
+      ],
+      "summary": {
+        "id": 92002901,
+        "season_number": 1,
+        "name": "Сезон 1",
+        "overview": "",
+        "air_date": "2018-06-15",
+        "episode_count": 6,
+        "poster_path": "/fixture-season-920029-1.jpg",
+        "vote_average": 7
+      },
+      "details": {
+        "_id": "fixture-season-92002901",
+        "id": 92002901,
+        "name": "Сезон 1",
+        "overview": "Синтетический сезон для тестирования Moven.",
+        "air_date": "2018-06-15",
+        "season_number": 1,
+        "poster_path": "/fixture-season-920029-1.jpg",
+        "vote_average": 7,
+        "episodes": [],
+        "credits": {
+          "cast": [],
+          "crew": []
+        },
+        "videos": {
+          "results": []
+        }
+      },
+      "localized": {
+        "ru-RU": {
+          "name": "Сезон 1",
+          "overview": "Синтетический сезон для тестирования Moven."
+        },
+        "en-US": {
+          "name": "Season 1",
+          "overview": "Synthetic season for Moven testing."
+        }
+      }
+    },
+    {
+      "id": 92003001,
+      "tvId": 920030,
+      "appTvId": 1000000920030,
+      "seasonNumber": 1,
+      "episodeCount": 4,
+      "episodeRefs": [
+        {
+          "id": 92003001001,
+          "episode_number": 1
+        },
+        {
+          "id": 92003001002,
+          "episode_number": 2
+        },
+        {
+          "id": 92003001003,
+          "episode_number": 3
+        },
+        {
+          "id": 92003001004,
+          "episode_number": 4
+        }
+      ],
+      "tags": [
+        "first-season",
+        "multi-season-series",
+        "ended-series"
+      ],
+      "summary": {
+        "id": 92003001,
+        "season_number": 1,
+        "name": "Сезон 1",
+        "overview": "",
+        "air_date": "2019-06-15",
+        "episode_count": 4,
+        "poster_path": "/fixture-season-920030-1.jpg",
+        "vote_average": 7.2
+      },
+      "details": {
+        "_id": "fixture-season-92003001",
+        "id": 92003001,
+        "name": "Сезон 1",
+        "overview": "Синтетический сезон для тестирования Moven.",
+        "air_date": "2019-06-15",
+        "season_number": 1,
+        "poster_path": "/fixture-season-920030-1.jpg",
+        "vote_average": 7.2,
+        "episodes": [],
+        "credits": {
+          "cast": [],
+          "crew": []
+        },
+        "videos": {
+          "results": []
+        }
+      },
+      "localized": {
+        "ru-RU": {
+          "name": "Сезон 1",
+          "overview": "Синтетический сезон для тестирования Moven."
+        },
+        "en-US": {
+          "name": "Season 1",
+          "overview": "Synthetic season for Moven testing."
+        }
+      }
+    },
+    {
+      "id": 92003002,
+      "tvId": 920030,
+      "appTvId": 1000000920030,
+      "seasonNumber": 2,
+      "episodeCount": 6,
+      "episodeRefs": [
+        {
+          "id": 92003002001,
+          "episode_number": 1
+        },
+        {
+          "id": 92003002002,
+          "episode_number": 2
+        },
+        {
+          "id": 92003002003,
+          "episode_number": 3
+        },
+        {
+          "id": 92003002004,
+          "episode_number": 4
+        },
+        {
+          "id": 92003002005,
+          "episode_number": 5
+        },
+        {
+          "id": 92003002006,
+          "episode_number": 6
+        }
+      ],
+      "tags": [
+        "last-season",
+        "multi-season-series",
+        "ended-series"
+      ],
+      "summary": {
+        "id": 92003002,
+        "season_number": 2,
+        "name": "Сезон 2",
+        "overview": "",
+        "air_date": "2019-06-15",
+        "episode_count": 6,
+        "poster_path": "/fixture-season-920030-2.jpg",
+        "vote_average": 7.2
+      },
+      "details": {
+        "_id": "fixture-season-92003002",
+        "id": 92003002,
+        "name": "Сезон 2",
+        "overview": "Синтетический сезон для тестирования Moven.",
+        "air_date": "2019-06-15",
+        "season_number": 2,
+        "poster_path": "/fixture-season-920030-2.jpg",
+        "vote_average": 7.2,
+        "episodes": [],
+        "credits": {
+          "cast": [],
+          "crew": []
+        },
+        "videos": {
+          "results": []
+        }
+      },
+      "localized": {
+        "ru-RU": {
+          "name": "Сезон 2",
+          "overview": "Синтетический сезон для тестирования Moven."
+        },
+        "en-US": {
+          "name": "Season 2",
+          "overview": "Synthetic season for Moven testing."
+        }
+      }
+    },
+    {
+      "id": 92003101,
+      "tvId": 920031,
+      "appTvId": 1000000920031,
+      "seasonNumber": 1,
+      "episodeCount": 6,
+      "episodeRefs": [
+        {
+          "id": 92003101001,
+          "episode_number": 1
+        },
+        {
+          "id": 92003101002,
+          "episode_number": 2
+        },
+        {
+          "id": 92003101003,
+          "episode_number": 3
+        },
+        {
+          "id": 92003101004,
+          "episode_number": 4
+        },
+        {
+          "id": 92003101005,
+          "episode_number": 5
+        },
+        {
+          "id": 92003101006,
+          "episode_number": 6
+        }
+      ],
+      "tags": [
+        "first-season",
+        "last-season",
+        "returning-series"
+      ],
+      "summary": {
+        "id": 92003101,
+        "season_number": 1,
+        "name": "Сезон 1",
+        "overview": "",
+        "air_date": "2020-06-15",
+        "episode_count": 6,
+        "poster_path": "/fixture-season-920031-1.jpg",
+        "vote_average": 7.4
+      },
+      "details": {
+        "_id": "fixture-season-92003101",
+        "id": 92003101,
+        "name": "Сезон 1",
+        "overview": "Синтетический сезон для тестирования Moven.",
+        "air_date": "2020-06-15",
+        "season_number": 1,
+        "poster_path": "/fixture-season-920031-1.jpg",
+        "vote_average": 7.4,
+        "episodes": [],
+        "credits": {
+          "cast": [],
+          "crew": []
+        },
+        "videos": {
+          "results": []
+        }
+      },
+      "localized": {
+        "ru-RU": {
+          "name": "Сезон 1",
+          "overview": "Синтетический сезон для тестирования Moven."
+        },
+        "en-US": {
+          "name": "Season 1",
+          "overview": "Synthetic season for Moven testing."
+        }
+      }
+    },
+    {
+      "id": 92003201,
+      "tvId": 920032,
+      "appTvId": 1000000920032,
+      "seasonNumber": 1,
+      "episodeCount": 4,
+      "episodeRefs": [
+        {
+          "id": 92003201001,
+          "episode_number": 1
+        },
+        {
+          "id": 92003201002,
+          "episode_number": 2
+        },
+        {
+          "id": 92003201003,
+          "episode_number": 3
+        },
+        {
+          "id": 92003201004,
+          "episode_number": 4
+        }
+      ],
+      "tags": [
+        "first-season",
+        "multi-season-series",
+        "ended-series"
+      ],
+      "summary": {
+        "id": 92003201,
+        "season_number": 1,
+        "name": "Сезон 1",
+        "overview": "",
+        "air_date": "2021-06-15",
+        "episode_count": 4,
+        "poster_path": "/fixture-season-920032-1.jpg",
+        "vote_average": 7.6
+      },
+      "details": {
+        "_id": "fixture-season-92003201",
+        "id": 92003201,
+        "name": "Сезон 1",
+        "overview": "Синтетический сезон для тестирования Moven.",
+        "air_date": "2021-06-15",
+        "season_number": 1,
+        "poster_path": "/fixture-season-920032-1.jpg",
+        "vote_average": 7.6,
+        "episodes": [],
+        "credits": {
+          "cast": [],
+          "crew": []
+        },
+        "videos": {
+          "results": []
+        }
+      },
+      "localized": {
+        "ru-RU": {
+          "name": "Сезон 1",
+          "overview": "Синтетический сезон для тестирования Moven."
+        },
+        "en-US": {
+          "name": "Season 1",
+          "overview": "Synthetic season for Moven testing."
+        }
+      }
+    },
+    {
+      "id": 92003202,
+      "tvId": 920032,
+      "appTvId": 1000000920032,
+      "seasonNumber": 2,
+      "episodeCount": 6,
+      "episodeRefs": [
+        {
+          "id": 92003202001,
+          "episode_number": 1
+        },
+        {
+          "id": 92003202002,
+          "episode_number": 2
+        },
+        {
+          "id": 92003202003,
+          "episode_number": 3
+        },
+        {
+          "id": 92003202004,
+          "episode_number": 4
+        },
+        {
+          "id": 92003202005,
+          "episode_number": 5
+        },
+        {
+          "id": 92003202006,
+          "episode_number": 6
+        }
+      ],
+      "tags": [
+        "last-season",
+        "multi-season-series",
+        "ended-series"
+      ],
+      "summary": {
+        "id": 92003202,
+        "season_number": 2,
+        "name": "Сезон 2",
+        "overview": "",
+        "air_date": "2021-06-15",
+        "episode_count": 6,
+        "poster_path": "/fixture-season-920032-2.jpg",
+        "vote_average": 7.6
+      },
+      "details": {
+        "_id": "fixture-season-92003202",
+        "id": 92003202,
+        "name": "Сезон 2",
+        "overview": "Синтетический сезон для тестирования Moven.",
+        "air_date": "2021-06-15",
+        "season_number": 2,
+        "poster_path": "/fixture-season-920032-2.jpg",
+        "vote_average": 7.6,
+        "episodes": [],
+        "credits": {
+          "cast": [],
+          "crew": []
+        },
+        "videos": {
+          "results": []
+        }
+      },
+      "localized": {
+        "ru-RU": {
+          "name": "Сезон 2",
+          "overview": "Синтетический сезон для тестирования Moven."
+        },
+        "en-US": {
+          "name": "Season 2",
+          "overview": "Synthetic season for Moven testing."
+        }
+      }
+    }
+  ]
+}

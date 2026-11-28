@@ -1,0 +1,987 @@
+{
+  "schemaVersion": 1,
+  "synthetic": true,
+  "referenceDate": "2026-11-26",
+  "listAssembly": {
+    "resolveMediaReferences": true,
+    "preserveOrder": true,
+    "preserveRawDuplicates": true,
+    "preserveUnsafeItems": true,
+    "defaultPageSize": 20,
+    "useRawTvIds": true,
+    "localGroupsAreApiEndpoints": false,
+    "fallbackAliasesAreTestOnly": true
+  },
+  "lists": [
+    {
+      "id": 101353,
+      "name": "Fixture Oscar winners",
+      "description": "Synthetic Moven test list",
+      "pageSize": 20,
+      "items": [
+        {
+          "media_type": "movie",
+          "id": 910001
+        },
+        {
+          "media_type": "movie",
+          "id": 910002
+        },
+        {
+          "media_type": "movie",
+          "id": 910003
+        },
+        {
+          "media_type": "movie",
+          "id": 910004
+        },
+        {
+          "media_type": "movie",
+          "id": 910005
+        },
+        {
+          "media_type": "movie",
+          "id": 910006
+        },
+        {
+          "media_type": "movie",
+          "id": 910007
+        },
+        {
+          "media_type": "movie",
+          "id": 910008
+        },
+        {
+          "media_type": "movie",
+          "id": 910009
+        },
+        {
+          "media_type": "movie",
+          "id": 910010
+        },
+        {
+          "media_type": "movie",
+          "id": 910011
+        },
+        {
+          "media_type": "movie",
+          "id": 910012
+        },
+        {
+          "media_type": "movie",
+          "id": 910013
+        },
+        {
+          "media_type": "movie",
+          "id": 910014
+        },
+        {
+          "media_type": "movie",
+          "id": 910017
+        },
+        {
+          "media_type": "movie",
+          "id": 910020
+        },
+        {
+          "media_type": "movie",
+          "id": 910021
+        },
+        {
+          "media_type": "movie",
+          "id": 910022
+        },
+        {
+          "media_type": "movie",
+          "id": 910023
+        },
+        {
+          "media_type": "movie",
+          "id": 910024
+        },
+        {
+          "media_type": "movie",
+          "id": 910025
+        },
+        {
+          "media_type": "movie",
+          "id": 910026
+        },
+        {
+          "media_type": "movie",
+          "id": 910027
+        },
+        {
+          "media_type": "movie",
+          "id": 910028
+        }
+      ]
+    },
+    {
+      "id": 950001,
+      "name": "Fixture pagination",
+      "description": "Synthetic Moven test list",
+      "pageSize": 20,
+      "items": [
+        {
+          "media_type": "movie",
+          "id": 910001
+        },
+        {
+          "media_type": "movie",
+          "id": 910002
+        },
+        {
+          "media_type": "movie",
+          "id": 910003
+        },
+        {
+          "media_type": "movie",
+          "id": 910004
+        },
+        {
+          "media_type": "movie",
+          "id": 910005
+        },
+        {
+          "media_type": "movie",
+          "id": 910006
+        },
+        {
+          "media_type": "movie",
+          "id": 910007
+        },
+        {
+          "media_type": "movie",
+          "id": 910008
+        },
+        {
+          "media_type": "movie",
+          "id": 910009
+        },
+        {
+          "media_type": "movie",
+          "id": 910010
+        },
+        {
+          "media_type": "movie",
+          "id": 910011
+        },
+        {
+          "media_type": "movie",
+          "id": 910012
+        },
+        {
+          "media_type": "movie",
+          "id": 910013
+        },
+        {
+          "media_type": "movie",
+          "id": 910014
+        },
+        {
+          "media_type": "movie",
+          "id": 910017
+        },
+        {
+          "media_type": "movie",
+          "id": 910020
+        },
+        {
+          "media_type": "movie",
+          "id": 910021
+        },
+        {
+          "media_type": "movie",
+          "id": 910022
+        },
+        {
+          "media_type": "movie",
+          "id": 910023
+        },
+        {
+          "media_type": "movie",
+          "id": 910024
+        },
+        {
+          "media_type": "movie",
+          "id": 910025
+        },
+        {
+          "media_type": "movie",
+          "id": 910026
+        },
+        {
+          "media_type": "movie",
+          "id": 910027
+        },
+        {
+          "media_type": "movie",
+          "id": 910028
+        },
+        {
+          "media_type": "movie",
+          "id": 910029
+        },
+        {
+          "media_type": "movie",
+          "id": 910030
+        },
+        {
+          "media_type": "movie",
+          "id": 910031
+        },
+        {
+          "media_type": "movie",
+          "id": 910032
+        },
+        {
+          "media_type": "movie",
+          "id": 910033
+        },
+        {
+          "media_type": "movie",
+          "id": 910034
+        },
+        {
+          "media_type": "movie",
+          "id": 910035
+        },
+        {
+          "media_type": "movie",
+          "id": 910036
+        }
+      ]
+    },
+    {
+      "id": 950002,
+      "name": "Fixture empty list",
+      "description": "Synthetic Moven test list",
+      "pageSize": 20,
+      "items": []
+    },
+    {
+      "id": 950003,
+      "name": "Fixture duplicate items",
+      "description": "Synthetic Moven test list",
+      "pageSize": 20,
+      "items": [
+        {
+          "media_type": "movie",
+          "id": 910001
+        },
+        {
+          "media_type": "movie",
+          "id": 910002
+        },
+        {
+          "media_type": "movie",
+          "id": 910001
+        },
+        {
+          "media_type": "movie",
+          "id": 910003
+        }
+      ]
+    },
+    {
+      "id": 950004,
+      "name": "Fixture mixed media",
+      "description": "Synthetic Moven test list",
+      "pageSize": 20,
+      "items": [
+        {
+          "media_type": "movie",
+          "id": 910001
+        },
+        {
+          "media_type": "movie",
+          "id": 910002
+        },
+        {
+          "media_type": "movie",
+          "id": 910003
+        },
+        {
+          "media_type": "tv",
+          "id": 920001
+        },
+        {
+          "media_type": "tv",
+          "id": 920002
+        },
+        {
+          "media_type": "tv",
+          "id": 920003
+        }
+      ]
+    },
+    {
+      "id": 950005,
+      "name": "Fixture unsafe items",
+      "description": "Synthetic Moven test list",
+      "pageSize": 20,
+      "items": [
+        {
+          "media_type": "movie",
+          "id": 910001
+        },
+        {
+          "media_type": "movie",
+          "id": 910002
+        },
+        {
+          "media_type": "movie",
+          "id": 910003
+        },
+        {
+          "media_type": "movie",
+          "id": 910018
+        },
+        {
+          "media_type": "movie",
+          "id": 910019
+        }
+      ]
+    }
+  ],
+  "oscarFallbackAliases": [
+    {
+      "requestedId": 581734,
+      "fixtureId": 910031,
+      "media_type": "movie"
+    },
+    {
+      "requestedId": 776503,
+      "fixtureId": 910032,
+      "media_type": "movie"
+    },
+    {
+      "requestedId": 545611,
+      "fixtureId": 910033,
+      "media_type": "movie"
+    },
+    {
+      "requestedId": 872585,
+      "fixtureId": 910034,
+      "media_type": "movie"
+    },
+    {
+      "requestedId": 1064213,
+      "fixtureId": 910035,
+      "media_type": "movie"
+    },
+    {
+      "requestedId": 1054867,
+      "fixtureId": 910036,
+      "media_type": "movie"
+    }
+  ],
+  "awards": {
+    "oscar": [
+      {
+        "awardId": "fixture-oscar-1",
+        "media": {
+          "media_type": "movie",
+          "id": 910001
+        },
+        "awardYear": 2015,
+        "category": "Best Picture",
+        "isWinner": true
+      },
+      {
+        "awardId": "fixture-oscar-2",
+        "media": {
+          "media_type": "movie",
+          "id": 910002
+        },
+        "awardYear": 2016,
+        "category": "Best Picture",
+        "isWinner": true
+      },
+      {
+        "awardId": "fixture-oscar-3",
+        "media": {
+          "media_type": "movie",
+          "id": 910003
+        },
+        "awardYear": 2017,
+        "category": "Best Picture",
+        "isWinner": true
+      },
+      {
+        "awardId": "fixture-oscar-4",
+        "media": {
+          "media_type": "movie",
+          "id": 910004
+        },
+        "awardYear": 2018,
+        "category": "Best Picture",
+        "isWinner": true
+      },
+      {
+        "awardId": "fixture-oscar-5",
+        "media": {
+          "media_type": "movie",
+          "id": 910005
+        },
+        "awardYear": 2019,
+        "category": "Best Picture",
+        "isWinner": true
+      },
+      {
+        "awardId": "fixture-oscar-6",
+        "media": {
+          "media_type": "movie",
+          "id": 910006
+        },
+        "awardYear": 2020,
+        "category": "Best Picture",
+        "isWinner": true
+      },
+      {
+        "awardId": "fixture-oscar-7",
+        "media": {
+          "media_type": "movie",
+          "id": 910007
+        },
+        "awardYear": 2021,
+        "category": "Best Picture",
+        "isWinner": true
+      },
+      {
+        "awardId": "fixture-oscar-8",
+        "media": {
+          "media_type": "movie",
+          "id": 910008
+        },
+        "awardYear": 2022,
+        "category": "Best Picture",
+        "isWinner": true
+      }
+    ],
+    "foreignOscar": [
+      {
+        "awardId": "fixture-foreign-1",
+        "media": {
+          "media_type": "movie",
+          "id": 910001
+        },
+        "awardYear": 2020,
+        "category": "International Feature Film",
+        "isWinner": true
+      },
+      {
+        "awardId": "fixture-foreign-2",
+        "media": {
+          "media_type": "movie",
+          "id": 910002
+        },
+        "awardYear": 2021,
+        "category": "International Feature Film",
+        "isWinner": true
+      },
+      {
+        "awardId": "fixture-foreign-3",
+        "media": {
+          "media_type": "movie",
+          "id": 910003
+        },
+        "awardYear": 2022,
+        "category": "International Feature Film",
+        "isWinner": true
+      },
+      {
+        "awardId": "fixture-foreign-4",
+        "media": {
+          "media_type": "movie",
+          "id": 910005
+        },
+        "awardYear": 2023,
+        "category": "International Feature Film",
+        "isWinner": true
+      }
+    ],
+    "emmy": [
+      {
+        "awardId": "fixture-emmy-1",
+        "media": {
+          "media_type": "tv",
+          "id": 920001
+        },
+        "awardYear": 2020,
+        "category": "Outstanding Drama Series",
+        "isWinner": true
+      },
+      {
+        "awardId": "fixture-emmy-2",
+        "media": {
+          "media_type": "tv",
+          "id": 920002
+        },
+        "awardYear": 2021,
+        "category": "Outstanding Drama Series",
+        "isWinner": true
+      },
+      {
+        "awardId": "fixture-emmy-3",
+        "media": {
+          "media_type": "tv",
+          "id": 920003
+        },
+        "awardYear": 2022,
+        "category": "Outstanding Drama Series",
+        "isWinner": true
+      },
+      {
+        "awardId": "fixture-emmy-4",
+        "media": {
+          "media_type": "tv",
+          "id": 920004
+        },
+        "awardYear": 2023,
+        "category": "Outstanding Drama Series",
+        "isWinner": true
+      },
+      {
+        "awardId": "fixture-emmy-5",
+        "media": {
+          "media_type": "tv",
+          "id": 920005
+        },
+        "awardYear": 2024,
+        "category": "Outstanding Drama Series",
+        "isWinner": true
+      },
+      {
+        "awardId": "fixture-emmy-6",
+        "media": {
+          "media_type": "tv",
+          "id": 920006
+        },
+        "awardYear": 2025,
+        "category": "Outstanding Drama Series",
+        "isWinner": true
+      },
+      {
+        "awardId": "fixture-emmy-repeat",
+        "media": {
+          "media_type": "tv",
+          "id": 920001
+        },
+        "awardYear": 2026,
+        "category": "Outstanding Writing",
+        "isWinner": true
+      }
+    ]
+  },
+  "localGroups": [
+    {
+      "id": "fixture-western",
+      "purpose": "Movie genre collection",
+      "items": [
+        {
+          "media_type": "movie",
+          "id": 910001
+        },
+        {
+          "media_type": "movie",
+          "id": 910002
+        },
+        {
+          "media_type": "movie",
+          "id": 910003
+        },
+        {
+          "media_type": "movie",
+          "id": 910004
+        },
+        {
+          "media_type": "movie",
+          "id": 910006
+        },
+        {
+          "media_type": "movie",
+          "id": 910013
+        },
+        {
+          "media_type": "movie",
+          "id": 910014
+        },
+        {
+          "media_type": "movie",
+          "id": 910020
+        }
+      ]
+    },
+    {
+      "id": "fixture-italian",
+      "purpose": "Movie country collection",
+      "items": [
+        {
+          "media_type": "movie",
+          "id": 910001
+        },
+        {
+          "media_type": "movie",
+          "id": 910002
+        },
+        {
+          "media_type": "movie",
+          "id": 910003
+        },
+        {
+          "media_type": "movie",
+          "id": 910005
+        },
+        {
+          "media_type": "movie",
+          "id": 910013
+        },
+        {
+          "media_type": "movie",
+          "id": 910014
+        }
+      ]
+    },
+    {
+      "id": "fixture-crime-tv",
+      "purpose": "TV genre collection",
+      "items": [
+        {
+          "media_type": "tv",
+          "id": 920001
+        },
+        {
+          "media_type": "tv",
+          "id": 920002
+        },
+        {
+          "media_type": "tv",
+          "id": 920003
+        },
+        {
+          "media_type": "tv",
+          "id": 920004
+        },
+        {
+          "media_type": "tv",
+          "id": 920006
+        },
+        {
+          "media_type": "tv",
+          "id": 920008
+        },
+        {
+          "media_type": "tv",
+          "id": 920013
+        },
+        {
+          "media_type": "tv",
+          "id": 920014
+        },
+        {
+          "media_type": "tv",
+          "id": 920020
+        }
+      ]
+    },
+    {
+      "id": "fixture-italian-tv",
+      "purpose": "TV country collection",
+      "items": [
+        {
+          "media_type": "tv",
+          "id": 920001
+        },
+        {
+          "media_type": "tv",
+          "id": 920002
+        },
+        {
+          "media_type": "tv",
+          "id": 920003
+        },
+        {
+          "media_type": "tv",
+          "id": 920005
+        },
+        {
+          "media_type": "tv",
+          "id": 920013
+        },
+        {
+          "media_type": "tv",
+          "id": 920014
+        }
+      ]
+    },
+    {
+      "id": "fixture-palette-a",
+      "purpose": "First overlapping palette",
+      "items": [
+        {
+          "media_type": "movie",
+          "id": 910001
+        },
+        {
+          "media_type": "movie",
+          "id": 910002
+        },
+        {
+          "media_type": "movie",
+          "id": 910003
+        },
+        {
+          "media_type": "movie",
+          "id": 910004
+        },
+        {
+          "media_type": "movie",
+          "id": 910005
+        },
+        {
+          "media_type": "movie",
+          "id": 910006
+        }
+      ]
+    },
+    {
+      "id": "fixture-palette-b",
+      "purpose": "Second overlapping palette",
+      "items": [
+        {
+          "media_type": "movie",
+          "id": 910004
+        },
+        {
+          "media_type": "movie",
+          "id": 910005
+        },
+        {
+          "media_type": "movie",
+          "id": 910006
+        },
+        {
+          "media_type": "movie",
+          "id": 910007
+        },
+        {
+          "media_type": "movie",
+          "id": 910008
+        },
+        {
+          "media_type": "movie",
+          "id": 910009
+        }
+      ]
+    },
+    {
+      "id": "fixture-daily-pool",
+      "purpose": "Deterministic daily selection pool",
+      "items": [
+        {
+          "media_type": "movie",
+          "id": 910001
+        },
+        {
+          "media_type": "movie",
+          "id": 910002
+        },
+        {
+          "media_type": "movie",
+          "id": 910003
+        },
+        {
+          "media_type": "movie",
+          "id": 910004
+        },
+        {
+          "media_type": "movie",
+          "id": 910005
+        },
+        {
+          "media_type": "movie",
+          "id": 910006
+        },
+        {
+          "media_type": "movie",
+          "id": 910007
+        },
+        {
+          "media_type": "movie",
+          "id": 910008
+        },
+        {
+          "media_type": "movie",
+          "id": 910009
+        }
+      ]
+    },
+    {
+      "id": "fixture-exact-movies",
+      "purpose": "Italian western exact matches",
+      "items": [
+        {
+          "media_type": "movie",
+          "id": 910001
+        },
+        {
+          "media_type": "movie",
+          "id": 910002
+        },
+        {
+          "media_type": "movie",
+          "id": 910003
+        }
+      ]
+    },
+    {
+      "id": "fixture-partial-movies",
+      "purpose": "Separate movie suggestions",
+      "items": [
+        {
+          "media_type": "movie",
+          "id": 910004
+        },
+        {
+          "media_type": "movie",
+          "id": 910005
+        },
+        {
+          "media_type": "movie",
+          "id": 910006
+        },
+        {
+          "media_type": "movie",
+          "id": 910020
+        }
+      ]
+    },
+    {
+      "id": "fixture-exact-tv",
+      "purpose": "Italian crime exact matches",
+      "items": [
+        {
+          "media_type": "tv",
+          "id": 920001
+        },
+        {
+          "media_type": "tv",
+          "id": 920002
+        },
+        {
+          "media_type": "tv",
+          "id": 920003
+        }
+      ]
+    },
+    {
+      "id": "fixture-partial-tv",
+      "purpose": "Separate TV suggestions",
+      "items": [
+        {
+          "media_type": "tv",
+          "id": 920004
+        },
+        {
+          "media_type": "tv",
+          "id": 920005
+        },
+        {
+          "media_type": "tv",
+          "id": 920006
+        },
+        {
+          "media_type": "tv",
+          "id": 920008
+        },
+        {
+          "media_type": "tv",
+          "id": 920020
+        }
+      ]
+    },
+    {
+      "id": "fixture-hall-of-fame",
+      "purpose": "Safe person catalog",
+      "items": [
+        {
+          "media_type": "person",
+          "id": 930001
+        },
+        {
+          "media_type": "person",
+          "id": 930002
+        },
+        {
+          "media_type": "person",
+          "id": 930003
+        },
+        {
+          "media_type": "person",
+          "id": 930004
+        },
+        {
+          "media_type": "person",
+          "id": 930005
+        },
+        {
+          "media_type": "person",
+          "id": 930006
+        },
+        {
+          "media_type": "person",
+          "id": 930007
+        },
+        {
+          "media_type": "person",
+          "id": 930008
+        },
+        {
+          "media_type": "person",
+          "id": 930009
+        },
+        {
+          "media_type": "person",
+          "id": 930010
+        },
+        {
+          "media_type": "person",
+          "id": 930011
+        },
+        {
+          "media_type": "person",
+          "id": 930012
+        }
+      ]
+    },
+    {
+      "id": "fixture-empty",
+      "purpose": "Empty local collection",
+      "items": []
+    }
+  ],
+  "edgeCases": {
+    "emptyListId": 950002,
+    "duplicateListId": 950003,
+    "mixedListId": 950004,
+    "unsafeListId": 950005,
+    "unknownListId": 959999,
+    "expectedExactMovieIds": [
+      910001,
+      910002,
+      910003
+    ],
+    "expectedExactTvIds": [
+      920001,
+      920002,
+      920003
+    ],
+    "expectedPaletteOverlap": [
+      910004,
+      910005,
+      910006
+    ]
+  }
+}
